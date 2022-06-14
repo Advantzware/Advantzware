@@ -43,6 +43,7 @@ DEF INPUT        PARAM ip-tr-dep    LIKE eb.tr-dep NO-UNDO.
 DEF INPUT        PARAM ip-cas-cnt   LIKE eb.cas-cnt NO-UNDO.
 DEF INPUT        PARAM ip-stacks    LIKE eb.stacks NO-UNDO.
 DEF INPUT-OUTPUT PARAM io-layers    LIKE eb.tr-cas NO-UNDO.
+DEF INPUT-OUTPUT PARAM io-count     LIKE eb.tr-cnt NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 DEF TEMP-TABLE tt-layer NO-UNDO
@@ -276,7 +277,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
-  IF AVAIL tt-layer THEN io-layers = tt-layer.layers.
+  IF AVAIL tt-layer THEN 
+  ASSIGN
+      io-layers = tt-layer.layers
+      io-count  = tt-layer.tr-cnt
+      .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -320,6 +325,7 @@ IF AVAIL style OR ll-assem-part THEN DO:
   ELSE
   FOR EACH tt-layer WHERE tt-layer.perfect:
     io-layers = tt-layer.layers.
+    io-count  = tt-layer.tr-cnt.
     LEAVE.
   END.
 END.

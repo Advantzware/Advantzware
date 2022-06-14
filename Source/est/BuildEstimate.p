@@ -71,7 +71,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef),OUTPUT opriEb).
                     
             END.
         END.        
@@ -94,7 +95,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -118,7 +120,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -142,7 +145,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /*                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -421,6 +425,10 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         lCalcLayoutDim /*Recalc dimensions - Refactor - should be no if Style is foam*/).       
     
     RUN pCalcPacking(ROWID(eb)).
+    
+    FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+    FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+      
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
         ASSIGN  
             est.estimateTypeID = "MISC" 
@@ -440,10 +448,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
             eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
             .
-             
-      FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
-      FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
-      
+                  
       IF eb.sourceEstimate NE "" THEN
       DO:
            FIND FIRST xeb EXCLUSIVE-LOCK
@@ -471,6 +476,11 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     IF ttInputEst.cEstType EQ "NewSetEstimate" THEN DO:
       ASSIGN
          est.estimateTypeID = "WOOD" .
+      IF NOT CAN-FIND(FIRST itemfg
+                  WHERE itemfg.company EQ eb.company
+                    AND itemfg.i-no    EQ eb.stock-no) THEN DO:                   
+        RUN fg/ce-addfg.p (eb.stock-no).
+      END.
          
     END.     
     ELSE IF ttInputEst.cEstType EQ "MoldTandem" THEN

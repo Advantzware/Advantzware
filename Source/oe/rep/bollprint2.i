@@ -1,7 +1,7 @@
 /* --------------------------------------------- oe/rep/bollprint2.i 10/09 GDM */
 /* N-K BOLFMT = Loylang - FORM for Loylang                                    */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 assign
  v-tot-wt    = 0
  v-tot-cases = 0
@@ -90,9 +90,8 @@ for each report where report.term-id eq v-term-id,
   END.
 
   v-job-no = "".
-  if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+  IF AVAIL oe-ordl AND oe-ordl.job-no NE "" THEN
+     v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
   ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
          v-weight   = v-weight + oe-boll.weight
@@ -111,14 +110,14 @@ for each report where report.term-id eq v-term-id,
        FOR EACH w2 BREAK BY w2.cases * w2.cas-cnt DESC:
          i = i + 1.
          IF i eq 1 THEN ASSIGN v-job-po    = oe-boll.po-no                                                              
-                               v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
+                               v-job-var   = IF oe-boll.job-no EQ "" THEN "" ELSE
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
                                v-fgitem    = oe-boll.i-no
                                v-part-dscr = oe-ordl.i-name. 
          ELSE
          if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1
-                               v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
+                               v-job-var   = IF oe-boll.job-no EQ "" THEN "" ELSE
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
                                v-job-po    = oe-rel.lot-no
                                v-fgitem    = oe-ordl.part-no.
          ELSE
@@ -139,18 +138,18 @@ for each report where report.term-id eq v-term-id,
          END.
         
          IF FIRST(w2.cases * w2.cas-cnt) THEN 
-           PUT {1} oe-ordl.ord-no FORM ">>>>>9"
-                   v-job-po FORM "x(15)" AT 11
-                   v-fgitem  AT 27 
-                   v-part-dscr FORMAT "x(30)" AT 42
+           PUT {1} STRING(oe-ordl.ord-no)
+                   v-job-po FORM "x(15)" AT 14
+                   v-fgitem  AT 30 
+                   v-part-dscr FORMAT "x(26)" AT 45
                    w2.cases    AT 72 FORMAT "->>>9" " @"
                    w2.cas-cnt    FORM "->>>>9"
                    SKIP.
          ELSE PUT {1} 
-                  v-job-var FORM "x(9)"
-                  v-job-po  FORM "x(15)" AT 11
-                  v-fgitem   AT 27
-                  v-part-dscr FORMAT "x(30)" AT 42
+                  v-job-var FORM "x(13)"
+                  v-job-po  FORM "x(15)" AT 14
+                  v-fgitem   AT 30
+                  v-part-dscr FORMAT "x(26)" AT 45
                   w2.cases  AT 72 FORMAT "->>>9" " @"
                   w2.cas-cnt FORMAT "->>>>9" SKIP.
 
@@ -159,10 +158,10 @@ for each report where report.term-id eq v-term-id,
          IF LAST(w2.cases * w2.cas-cnt) THEN DO:
            IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
              PUT {1} 
-                 v-job-var  FORMAT "x(9)"
-                 oe-rel.lot-no FORMAT "x(15)" AT 11
-                 oe-ordl.part-no AT 27
-                 oe-ordl.part-dscr1 FORMAT "x(30)" AT 42
+                 v-job-var  FORMAT "x(13)"
+                 oe-rel.lot-no FORMAT "x(15)" AT 14
+                 oe-ordl.part-no AT 30
+                 oe-ordl.part-dscr1 FORMAT "x(26)" AT 45
                  SKIP.
              v-printline = v-printline + 1.
            END.
@@ -236,33 +235,32 @@ for each report where report.term-id eq v-term-id,
   ELSE DO:
           
      DISPLAY  {1}
-          oe-ordl.ord-no WHEN AVAIL oe-ordl                                                
-          oe-boll.po-no AT 11
-          oe-boll.i-no                    AT 27
-          oe-ordl.i-name   FORM "x(30)"   AT 42
+          STRING(oe-ordl.ord-no) WHEN AVAIL oe-ordl                                                
+          oe-boll.po-no AT 14
+          oe-boll.i-no                    AT 30
+          oe-ordl.i-name   FORM "x(26)"   AT 45
           oe-boll.cases    FORM "->>>>"   AT 72 "@"
           oe-boll.qty-case FORM "->>>>>Z"
          SKIP          
           if oe-boll.job-no eq "" then "" 
-            ELSE  (trim(oe-boll.job-no) + "-" + 
-                   string(oe-boll.job-no2,"99"))  FORM "x(9)"
-          oe-rel.lot-no FORM "x(15)" AT 11
-          oe-ordl.part-dscr1  FORM "x(30)" AT 42
+          ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))  FORM "x(13)"
+          oe-rel.lot-no FORM "x(15)" AT 14
+          oe-ordl.part-dscr1  FORM "x(26)" AT 45
           v-1    FORM "->>>9"  when oe-boll.partial gt 0 AT 72 "@"
           oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP
-          oe-ordl.part-dscr2  FORM "x(30)" AT 42 SKIP
+          oe-ordl.part-dscr2  FORM "x(26)" AT 45 SKIP
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
      down {1} with frame bol-mid1.
 
      IF oe-ordl.part-dscr3 NE "" THEN DO:
-         PUT oe-ordl.part-dscr3  FORM "x(30)" AT 42  SKIP.          /*Task# 02191403*/
+         PUT oe-ordl.part-dscr3  FORM "x(26)" AT 45  SKIP.          /*Task# 02191403*/
          v-printline = v-printline + 1.
      END.
 
 
      DISPLAY 
-         "================" AT 72 SKIP
-         v-tot-pkgs AT 72 FORM "->>>9"  "="
+         "================" AT 75 SKIP
+         v-tot-pkgs AT 75 FORM "->>>9"  "="
          oe-boll.qty FORM "->>>>9" SPACE(4)
          oe-boll.p-c SPACE(1)
          oe-boll.weight  SKIP

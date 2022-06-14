@@ -144,7 +144,7 @@ PROCEDURE pGetJobNo PRIVATE :
         cBldJob = SUBSTR(cJobCreat,1,1) + TRIM(cBldJob).
 
     ASSIGN
-        cBldJob = FILL(" ",6 - LENGTH(TRIM(cBldJob))) + TRIM(cBldJob).              
+        cBldJob = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cBldJob)).              
                       
     FOR EACH bf-job FIELDS(job-no2) NO-LOCK
         WHERE bf-job.company EQ ipcCompany

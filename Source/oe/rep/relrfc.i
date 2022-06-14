@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relrfc.i  08/08/2018 YSK*/
 /* Print OE Release/Picking tickets    for RFC                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -55,7 +56,7 @@ DEFINE SHARED VARIABLE s-print-bin-from  AS cha       NO-UNDO.
 DEFINE SHARED VARIABLE s-print-bin-to    AS cha       NO-UNDO.
 
 format w-oe-rell.ord-no                 
-    "<c7>" w-par          format "x(20)"
+    "<c8>" w-par          format "x(20)"
     "<c24>" v-bin         format "x(20)"
     "<c49.5>" w-x         format "X/"
     "<c52.7>" w-pal       format "->>>>"
@@ -177,7 +178,7 @@ END.
 
 format
     tt-rell.ord-no
-    tt-rell.po-no at 8
+    tt-rell.po-no AT 9
     tt-rell.loc-bin  AT 23  FORM "x(5)"
     tt-rell.i-no at 29  oe-ordl.i-name at 44
     /*tt-rell.cases format ">>>>>9" to 73                    */
@@ -246,8 +247,8 @@ FOR EACH xoe-rell
     where oe-ord.company eq xoe-rell.company
     and oe-ord.ord-no  eq xoe-rell.ord-no
     no-lock:
-
-    case oe-ord.frt-pay:
+    v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+    case v-frt-terms:
         when "P" THEN 
             v-frt-terms = "Prepaid".
         when "C" THEN 

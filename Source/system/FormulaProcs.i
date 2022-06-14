@@ -22,6 +22,7 @@ DEFINE TEMP-TABLE ttPanel
     FIELD dPanelSize            AS DECIMAL
     FIELD dPanelSizeFromFormula AS DECIMAL
     FIELD lAddAllowanceToSize   AS LOGICAL
+    FIELD dPanelSizeDecimal     AS DECIMAL
     .
     
 DEFINE TEMP-TABLE ttScoreLine NO-UNDO
@@ -29,6 +30,7 @@ DEFINE TEMP-TABLE ttScoreLine NO-UNDO
     FIELD LineNum        AS INTEGER
     FIELD ScoreLine      AS CHARACTER
     FIELD ScoreLineTotal AS CHARACTER
+    FIELD ScoreType      AS CHARACTER
     INDEX idx-Srch PanelType LineNum.
     
 

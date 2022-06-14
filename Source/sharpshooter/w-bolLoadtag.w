@@ -46,6 +46,8 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE gcShowSettings AS CHARACTER NO-UNDO.
 
+RUN spSetSettingContext.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -82,6 +84,7 @@ btnSettingsText btnPrintText
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-loadtags AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_bolfilter AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
@@ -91,6 +94,7 @@ DEFINE VARIABLE h_navigatenext AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_navigateprev AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_printcopies AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_bolHeaderInfo AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btClear 
@@ -115,7 +119,7 @@ DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT"
      SIZE 8 BY 1.43
      BGCOLOR 21  NO-UNDO.
 
-DEFINE VARIABLE btnPrintText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT TAGS" 
+DEFINE VARIABLE btnPrintText AS CHARACTER FORMAT "X(256)":U INITIAL "PRINT BOL" 
       VIEW-AS TEXT 
      SIZE 19 BY 1.43
      BGCOLOR 21  NO-UNDO.
@@ -255,6 +259,8 @@ DO:
     {methods/run_link.i "LOADTAG-SOURCE" "EmptyTTLoadTag"}
     
     {methods/run_link.i "BOL-SOURCE" "EmptyBOL"}
+    
+    {methods/run_link.i "BolHeaderInfo-SOURCE" "EmptyBOL"}
 
     RUN Set-Focus.
 END.
@@ -335,7 +341,7 @@ END.
 {src/adm/template/windowmn.i}
 
 {sharpshooter/pStatusMessage.i}
-
+{sharpshooter/ChangeWindowSize.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -357,6 +363,14 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.00 , 143.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -382,11 +396,19 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.05 , 49.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/bolHeaderInfo.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_bolHeaderInfo ).
+       RUN set-position IN h_bolHeaderInfo ( 4.67 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_bolHeaderInfo ( 10.05 , 182.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'sharpshooter/smartobj/b-loadtags.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-loadtags ).
-       RUN set-position IN h_b-loadtags ( 4.67 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_b-loadtags ( 14.97 , 2.00 ) NO-ERROR.
        RUN set-size IN h_b-loadtags ( 15.05 , 182.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -438,7 +460,10 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartBrowser h_b-loadtags. */
        RUN add-link IN adm-broker-hdl ( h_b-loadtags , 'LOADTAG':U , THIS-PROCEDURE ).
-
+              
+       /* Links to SmartBrowser h_b-loadtags. */
+       RUN add-link IN adm-broker-hdl ( h_bolHeaderInfo , 'BolHeaderInfo':U , THIS-PROCEDURE ).
+       
        /* Links to SmartObject h_navigatefirst. */
        RUN add-link IN adm-broker-hdl ( h_b-loadtags , 'NAV-FIRST':U , h_navigatefirst ).
 
@@ -455,6 +480,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_setting , 'SETTING':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_adjustwindowsize , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_bolfilter ,
              h_exit , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_printcopies ,
@@ -543,21 +570,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetConfig W-Win 
-PROCEDURE GetConfig :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoConfig AS system.Config NO-UNDO.
-
-    opoConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTag").
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetDesignConfig W-Win 
 PROCEDURE GetDesignConfig :
 /*------------------------------------------------------------------------------
@@ -617,6 +629,7 @@ PROCEDURE OpenSetting :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN windows/setting-dialog.w.
+    {sharpshooter/settingChangeDialog.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -635,6 +648,31 @@ PROCEDURE pBolError PRIVATE :
     {methods/run_link.i "BOL-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
     
     RUN pStatusMessage (cStatusMessage, iStatusMessageType).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowBolHeaderInfo W-Win 
+PROCEDURE pShowBolHeaderInfo PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iBOLID   AS INTEGER   NO-UNDO.
+        
+    DEFINE VARIABLE oBOLHeader AS bol.BOLHeader NO-UNDO.
+    
+    {methods/run_link.i "BOL-SOURCE" "GetBOLHeader" "(OUTPUT oBOLHeader)"}    
+    IF VALID-OBJECT(oBOLHeader) THEN
+        ASSIGN
+            cCompany    = oBOLHeader:GetValue("Company")
+            iBOLID      = INTEGER(oBOLHeader:GetValue("BOLID"))
+            .
+    {methods/run_link.i "BolHeaderInfo-SOURCE" "pDisplayBOLInfo" "(INPUT cCompany, INPUT iBOLID )"}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -678,15 +716,14 @@ PROCEDURE pInit :
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    RUN spSetSettingContext.
-
     RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings).        
 
     btnSettingsText:VISIBLE = INDEX(gcShowSettings, "Text") GT 0.
         
     IF INDEX(gcShowSettings, "Icon") EQ 0 THEN
         {methods/run_link.i "Setting-SOURCE" "HideSettings"}    
-
+    
+    {methods/run_link.i "BOL-SOURCE" "DisableErrorAlerts"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -707,16 +744,6 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
             btPrint:ROW                        = {&WINDOW-NAME}:HEIGHT - 1.1
             btPrint:COL                        = {&WINDOW-NAME}:WIDTH  - btPrint:WIDTH - 1
             btnPrintText:ROW                   = {&WINDOW-NAME}:HEIGHT - .86
@@ -749,6 +776,7 @@ PROCEDURE pWinReSize :
             dWidth  = dCol - 2
             .
         RUN set-size IN h_b-loadtags ( dHeight , dWidth ) NO-ERROR.
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 
@@ -821,12 +849,6 @@ PROCEDURE state-changed :
     DEFINE VARIABLE cStatusMessage AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iStatusMessage AS INTEGER   NO-UNDO.
 
-    IF p-state BEGINS "Status-Message" THEN
-    ASSIGN
-        iStatusMessage = INTEGER(ENTRY(3,p-state,"|"))
-        cStatusMessage = ENTRY(2,p-state,"|")
-        p-state        = ENTRY(1,p-state,"|")
-        .
     CASE p-state:
         WHEN "bol-error" THEN
             RUN pBolError.
@@ -835,6 +857,8 @@ PROCEDURE state-changed :
         END.
         WHEN "bol-valid" THEN DO:
             RUN pStatusMessage ("", 0).
+            
+            RUN pShowBolHeaderInfo.
             
             RUN pCreateTTLoadtags (
                 OUTPUT lError,

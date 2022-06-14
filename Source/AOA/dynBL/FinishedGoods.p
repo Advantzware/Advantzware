@@ -13,7 +13,7 @@
 DEFINE TEMP-TABLE ttFinishGoods NO-UNDO
     FIELD i-no            AS CHARACTER FORMAT "x(15)"              LABEL "Item#"
     FIELD i-name          AS CHARACTER FORMAT "x(30)"              LABEL "Item Name"
-    FIELD part-no         AS CHARACTER FORMAT "x(15)"              LABEL "Customer Part #"
+    FIELD part-no         AS CHARACTER FORMAT "x(30)"              LABEL "Customer Part #"
     FIELD cust-no         AS CHARACTER FORMAT "x(8)"               LABEL "Customer"
     FIELD cust-name       AS CHARACTER FORMAT "x(30)"              LABEL "Customer Name #"
     FIELD est-no          AS CHARACTER FORMAT "x(8)"               LABEL "Estimate"
@@ -237,11 +237,9 @@ PROCEDURE pBusinessLogic:
           AND itemfg.style   LE cEndStyleNo
           AND itemfg.procat  GE cStartProCat
           AND itemfg.procat  LE cEndProCat
-          AND (((itemfg.stat EQ "A"
-           OR itemfg.stat    EQ "")
-          AND cFGItemStatus  EQ "All") 
-           OR cFGItemStatus  EQ "Active")
         :
+        IF cFGItemStatus EQ "Active"   AND itemfg.stat EQ "I" THEN NEXT.
+        IF cFGItemStatus EQ "Inactive" AND itemfg.stat NE "I" THEN NEXT.
         CREATE ttFinishGoods.
         BUFFER-COPY itemfg TO ttFinishGoods.
         ASSIGN          

@@ -39,7 +39,7 @@ FIND FIRST oe-ord NO-LOCK
         PUT "<||><R39><C8><#9><FROM><R42><C40><RECT>" SKIP.            
         
         PUT "<FArial><=9><R-1.6><C8><B><p15> JOB # </B>" SKIP.
-        PUT "<FArial><=9><R39.3><C8><B><P20>  " tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99") "</B>" SKIP.
+        PUT "<FArial><=9><R39.3><C8><B><P20>  " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-word-print.job-no, tt-word-print.job-no2))) FORM "x(13)" "</B>" SKIP.
 
         PUT "<||><R39><C43><#10><FROM><R42><C78><RECT>" SKIP.            
        

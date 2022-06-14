@@ -13,6 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{sys/inc/var.i}
 {util\ttImport.i SHARED}
 
 DEFINE TEMP-TABLE ttImportRmRctd
@@ -24,11 +25,11 @@ DEFINE TEMP-TABLE ttImportRmRctd
     FIELD qty       AS DECIMAL   FORMAT "->>>>>>9.9<<" COLUMN-LABEL "Qty   " HELP "Optional - Decimal"
     FIELD cost      AS DECIMAL   FORMAT "->>>,>>9.99<<<<" COLUMN-LABEL "Cost  " HELP "Optional - Decimal"
     FIELD ritaCode  AS CHARACTER FORMAT "x" COLUMN-LABEL "Rita Code" HELP "Required - Size:1"
-    FIELD sNum      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "S-Num" HELP "Optional - Integer"
+    FIELD sNum      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "F-Num" HELP "Optional - Integer"
     FIELD bNum      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "B-Num" HELP "Optional - Integer"
     FIELD pass      AS INTEGER   FORMAT ">9" COLUMN-LABEL "Pass" HELP "Optional - Integer"
-    FIELD jobNo     AS CHARACTER FORMAT "x(6)" COLUMN-LABEL "Job #  " HELP "Optional - Size:6"
-    FIELD jobNo2    AS INTEGER   FORMAT ">9" COLUMN-LABEL "Job2" HELP "Optional - Integer"
+    FIELD jobNo     AS CHARACTER FORMAT "x(9)" COLUMN-LABEL "Job #  " HELP "Optional - SizeUpto:9"
+    FIELD jobNo2    AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Job2" HELP "Optional - Integer"
     FIELD poNo      AS CHARACTER FORMAT "x(9)" COLUMN-LABEL "PO #   " HELP "Optional - Size:9"
     FIELD poLine    AS INTEGER   FORMAT ">9" COLUMN-LABEL "PO Line" HELP "Optional - Integer"
     FIELD RmItem    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Item#       " HELP "Required - Size:10"
@@ -68,6 +69,8 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE VARIABLE riNote AS ROWID   NO-UNDO.
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
     DEFINE BUFFER bf-loadtag FOR loadtag.
+    
+    ASSIGN ipbf-ttImportRmRctd.jobNo = SUBSTRING(ipbf-ttImportRmRctd.jobNo,1,iJobLen) NO-ERROR.
     
     ASSIGN 
         iopiAdded = iopiAdded + 1.

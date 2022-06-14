@@ -1,6 +1,7 @@
 /* ------------------------------------------- cec/quote/quostclair.i 11/00 JLF */
-/* print quote items in xPrint format                                          */
-/* -------------------------------------------------------------------------- */
+/* print quote items in xPrint format                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.                */
+/* ---------------------------------------------------------------------------- */
 
 
 logSetPrinting = FALSE.
@@ -111,11 +112,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       PUT TRIM(lv-est-no) FORM "x(6)" SPACE(1)
           xqitm.part-no space(1) lv-part-dscr1.
       */
-      PUT TRIM(lv-est-no) FORM "x(5)" AT 2
-          xqitm.part-no AT 8 FORMAT "x(15)"
+      PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+          xqitm.part-no AT 10 FORMAT "x(15)"
 
           /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
-           TRIM(lv-part-dscr1) AT 24 FORMAT "x(28)".
+           TRIM(lv-part-dscr1) AT 26 FORMAT "x(28)".
 
     END.
     ELSE
@@ -179,9 +180,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 ELSE xqitm.i-no.
 
       lv-part-dscr2 = IF ll-prt-dscr2 THEN xqitm.part-dscr2 ELSE style-dscr.
-      PUT  xquo.q-no /*trim-size*/ lv-fg# AT 8 FORM "x(15)" /*AT 1 FORM ">>>>9"*/
+      PUT  xquo.q-no /*trim-size*/ lv-fg# AT 10 FORM "x(15)" /*AT 1 FORM ">>>>9"*/
           /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-              /*xqitm.style*/ lv-part-dscr2 /* style-dscr*/ AT 24 FORM "x(28)" .
+              /*xqitm.style*/ lv-part-dscr2 /* style-dscr*/ AT 26 FORM "x(28)" .
     END.
     ELSE
     IF i EQ 3 THEN DO:
@@ -189,7 +190,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       IF lv-i-coldscr NE "" THEN
       PUT     /*"DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"*/
           /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-              lv-i-coldscr  AT 24 FORM "x(28)".
+              lv-i-coldscr  AT 26 FORM "x(28)".
     END.
     ELSE
     IF i EQ 4 THEN DO:
@@ -208,7 +209,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
          chrX = xqitm.i-coldscr.
          /* gdm - 11170804 deducted 2 char from format, used to be 30 */
          IF xqitm.i-coldscr NE "" THEN
-         PUT xqitm.i-coldscr AT 24 FORM "x(28)".
+         PUT xqitm.i-coldscr AT 26 FORM "x(28)".
        END.
        ELSE IF v-boardDescription EQ 'Est' THEN DO:
           chrX = "".
@@ -220,7 +221,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
           END.
           /* gdm - 11170804 deducted 2 char from format, used to be 30 */
           IF chrX NE "" THEN
-          PUT chrX AT 24 FORMAT "x(28)".
+          PUT chrX AT 26 FORMAT "x(28)".
        END.
        ELSE IF v-boardDescription EQ 'Quote' THEN DO:
          chrX = "".
@@ -228,7 +229,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            chrX = xqitm.i-dscr.
          /* gdm - 11170804 deducted 2 char from format, used to be 30 */
          IF chrX NE "" THEN
-         PUT chrX AT 24 FORMAT "x(28)".
+         PUT chrX AT 26 FORMAT "x(28)".
        END.
     END.
     ELSE
@@ -283,7 +284,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
        IF logSetPrinting THEN DO: 
        IF v-board NE "" THEN
-         PUT /*"FG#: " + lv-fg# AT 8 FORM "x(21)"*/ v-board  AT 24 FORM "x(28)".
+         PUT /*"FG#: " + lv-fg# AT 8 FORM "x(21)"*/ v-board  AT 26 FORM "x(28)".
        END.
        ELSE DO:
          /*don't print board description twice*/
@@ -297,21 +298,21 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
          END.
          IF v-board NE ""  THEN
          /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-         PUT /*"FG#: " + lv-fg# AT 8 FORM "x(21)"*/ v-board  AT 24 FORM "x(28)".
+         PUT /*"FG#: " + lv-fg# AT 8 FORM "x(21)"*/ v-board  AT 26 FORM "x(28)".
                                                      
                                                    
        END.
        IF v-item-name NE " " THEN
-           PUT v-item-name AT 24.
+           PUT v-item-name AT 26.
 
        IF v-item-dscr1  NE " " THEN
-           PUT v-item-dscr1 AT 24 .
+           PUT v-item-dscr1 AT 26 .
 
        IF v-fg-dscr2 NE " " THEN
-           PUT v-fg-dscr2 AT 24.
+           PUT v-fg-dscr2 AT 26.
 
        IF v-fg-dscr3 NE " " THEN
-           PUT v-fg-dscr3 AT 24.
+           PUT v-fg-dscr3 AT 26.
        
     END.
     
@@ -443,14 +444,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      put eb.part-no AT 8 FORM "x(21)" temp-trim-size   SKIP.
+      put eb.part-no AT 10 FORM "x(21)" temp-trim-size   SKIP.
     
       FIND FIRST style
           WHERE style.company EQ cocode
             AND style.style   EQ eb.style
           NO-LOCK NO-ERROR.
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.      
-      PUT eb.part-dscr1 AT 8 FORM "x(21)"
+      PUT eb.part-dscr1 AT 10 FORM "x(21)"
           style-dscr SKIP.
     
       v-board = /*IF AVAIL ef THEN*/
@@ -473,7 +474,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                        item.i-dscr.
       END.
       
-      PUT eb.part-dscr2  AT 8  FORM "x(21)"
+      PUT eb.part-dscr2  AT 10  FORM "x(21)"
           v-board  FORM "x(50)"   SKIP .
     
       put eb.i-coldscr   AT 30 SKIP.

@@ -175,7 +175,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
       itemfg.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U WIDTH 10
-      itemfg.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
+      itemfg.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(30)":U
             WIDTH 18
       itemfg.i-no FORMAT "x(15)":U WIDTH 18
       itemfg.i-name FORMAT "x(30)":U

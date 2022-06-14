@@ -1,5 +1,6 @@
 /* -------------------------------------------------- ar/ar-aging.i 01/97 JLF */
 /* A/R Aged Receivables Report Program - A/R Module                           */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
 
 
@@ -88,13 +89,14 @@ DEF VAR v-check-date AS DATE NO-UNDO.
 DEF VAR v-gltrans-desc AS CHAR FORMAT "X(60)" NO-UNDO.
 DEF VAR cPoNo LIKE ar-inv.po-no NO-UNDO.
 DEFINE VARIABLE cBolNo AS CHARACTER NO-UNDO.
-DEF VAR cJobStr AS CHAR FORMAT "x(9)" NO-UNDO.
+DEF VAR cJobStr AS CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cTermsCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dOpeningBalance AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dArClassAmount AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iARClassForReceivablesAccount AS INTEGER NO-UNDO.
+DEFINE VARIABLE cSalesPerson AS CHARACTER NO-UNDO.
 
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
@@ -187,6 +189,10 @@ DEFINE TEMP-TABLE ttArClass NO-UNDO
 FORM HEADER /*SKIP(1)*/
      lv-page-break FORMAT "x(200)"
 WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
+
+FORM HEADER /*SKIP(1)*/
+     cSalesPerson FORMAT "x(200)"
+WITH PAGE-TOP FRAME r-top-sales STREAM-IO WIDTH 200 NO-BOX.
 
 ASSIGN
  str-tit2 = cstrtit
@@ -311,47 +317,51 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                    TRIM(tt-cust.curr-code) + "/" + TRIM(tt-cust.sorter).
     PROCESS EVENTS.
     
-   IF FIRST(tt-cust.curr-code) THEN DO:
-        VIEW FRAME r-top.
-        iLinePerPage = 9 .
-       /* PUT str-tit6 FORMAT "x(400)" SKIP 
-            str-tit7 FORMAT "x(400)" SKIP .*/
-    END.
-    
-    IF FIRST-OF(tt-cust.curr-code) THEN DO:
-      lv-page-break = "Currency: " + TRIM(tt-cust.curr-code).
-
-      IF FIRST(tt-cust.curr-code) THEN DO:
-        IF ll-mult-curr THEN VIEW FRAME r-top-1.
-        /*VIEW FRAME r-top-2.*/
-      END.
-
-      IF ll-mult-curr OR FIRST(tt-cust.curr-code) THEN do:
-           PAGE.
-           PUT str-tit6 FORMAT "x(400)" SKIP 
-            str-tit7 FORMAT "x(400)" SKIP .
-           iLinePerPage = 9 .
-      END.
-    END.
-    
-    
-
-    IF FIRST-OF(tt-cust.sorter)     AND
-       NOT FIRST(tt-cust.curr-code) AND
-       "{&sort-by}" EQ "cust.sman"  THEN do:
-       PAGE.
-        PUT str-tit6 FORMAT "x(400)" SKIP 
-            str-tit7 FORMAT "x(400)" SKIP .
-        iLinePerPage = 9 .
-    END.
-
     FIND FIRST sman NO-LOCK
         WHERE sman.company eq cust.company
           AND sman.sman    eq cust.sman
         NO-ERROR.
     v-sman = cust.sman + "-" + (IF AVAIL sman THEN sman.sname
                                 ELSE "Slsmn not on file").
+    cSalesPerson = "SALESPERSON : " + v-sman + " "  .                             
+    
+    
+   IF FIRST(tt-cust.curr-code) THEN DO:
+        VIEW FRAME r-top.
+        iLinePerPage = 9 .        
+        IF "{&sort-by}" EQ "cust.sman" THEN 
+        DO:              
+            VIEW FRAME r-top-sales.
+        END.      
+    END.
+    
+    IF FIRST-OF(tt-cust.curr-code) THEN DO:
+      lv-page-break = "Currency: " + TRIM(tt-cust.curr-code).
+                 
+      IF FIRST(tt-cust.curr-code) THEN DO:
+        
+        IF ll-mult-curr THEN VIEW FRAME r-top-1.                        
+      END.
 
+      IF ll-mult-curr OR FIRST(tt-cust.curr-code) THEN do:           
+           PAGE.
+           PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .
+            iLinePerPage = 9 .              
+      END.
+    END.
+    
+    
+    IF FIRST-OF(tt-cust.sorter)     AND
+       NOT FIRST(tt-cust.curr-code) AND
+       "{&sort-by}" EQ "cust.sman"  THEN do:
+        PAGE.          
+        PUT str-tit6 FORMAT "x(400)" SKIP 
+            str-tit7 FORMAT "x(400)" SKIP .
+        iLinePerPage = 10 .
+    END.
+
+    
     v-first-cust = yes.
 
     EMPTY TEMP-TABLE tt-inv.
@@ -427,7 +437,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
           IF ar-invl.po-no GT "" THEN
              ASSIGN cPoNo   = ar-invl.po-no.
           IF ar-invl.job-no GT "" THEN
-              cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
+              cJobStr = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2)) .
           IF ar-invl.bol-no NE 0 THEN
               cBolNo = string(ar-invl.bol-no,">>>>>>>>").
 
@@ -605,7 +615,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>,>>>,>>9.99") .
                      WHEN "per-4"     THEN cVarValue = STRING(v-dec[5],"->>>,>>>,>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(9)")  .
+                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  . 
                      WHEN "tot-due"  THEN cVarValue = STRING(dAmountDue,"->,>>>,>>>.99")  .
@@ -772,7 +782,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
@@ -841,7 +851,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "arclass"  THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
@@ -940,7 +950,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-4"     THEN cVarValue = /*STRING(v-dec[5],"->>>>>>>>9.99")*/ "" .
                          WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                         WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                          WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "tot-due"  THEN cVarValue = /*STRING(dAmountDue,"->,>>>,>>>.99")*/ ""  .
@@ -1163,7 +1173,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>,>>>,>>9.99") .
                      WHEN "per-4"     THEN cVarValue = STRING(unapp[5],"->>>,>>>,>>9.99") .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                      WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
@@ -1280,7 +1290,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "per-3"     THEN cVarValue = /*STRING(unapp[4],"->>>>>>>>9.99")*/ "" .
                      WHEN "per-4"     THEN cVarValue = /*STRING(unapp[5],"->>>>>>>>9.99")*/ "" .
                      WHEN "cust-po"   THEN cVarValue = STRING(cPoNo,"x(15)") .
-                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(10)")  .
+                     WHEN "job"       THEN cVarValue = STRING(cJobStr,"x(13)")  .
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                      WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
@@ -1398,8 +1408,8 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
           c1 = sman-t[1] + sman-t[2] + sman-t[3] + sman-t[4].
               
           if "{&sort-by}" eq "cust.sman" THEN DO:
-            IF det-rpt <> 3 THEN
-                RUN total-head("****** SALESREP TOTALS","",c1,sman-t[1],sman-t[2],
+            IF det-rpt <> 3 AND c1 NE 0 THEN
+                RUN total-head("****** SALESREP TOTALS" + " SalesPerson - " + string(v-sman,"x(25)"),"",c1,sman-t[1],sman-t[2],
                                sman-t[3],sman-t[4],0,sman-t[6]).         
           END.
 
@@ -2006,7 +2016,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "current"   THEN cVarValue = STRING(vCURRENT,"->>>,>>>,>>9.99").
                      WHEN "adtp"      THEN cVarValue = "".
                      WHEN "td"        THEN cVarValue = "".
-                     WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>,>>>,>>>9.99") .
+                     WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>>,>>>,>>9.99") .
                      WHEN "per-2"     THEN cVarValue = STRING(per-day2,"->>>,>>>,>>9.99") .
                      WHEN "per-3"     THEN cVarValue = STRING(per-day3,"->>>,>>>,>>9.99")  .
                      WHEN "per-4"     THEN cVarValue = STRING(per-day4,"->>>,>>>,>>9.99")  .
@@ -2034,6 +2044,16 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
             IF v-export THEN DO: 
                 PUT STREAM s-temp UNFORMATTED   
                    cust.cust-no FORMAT "x(8)" ','  REPLACE(cust.NAME, ',', ' ')  FORMAT "x(25)" ','  substring(cExcelDisplay,7,400) SKIP(1).
+            END.
+        END.
+        ELSE IF vname BEGINS "****** SALESREP TOTALS" THEN
+        DO:
+            PUT SKIP(1) str-line SKIP . 
+            PUT UNFORMATTED  "          " vname  substring(cDisplay,73,400) SKIP.
+            iLinePerPage = iLinePerPage + 4 .
+            IF v-export THEN DO:
+                PUT STREAM s-temp UNFORMATTED  
+                 '                       ' vname  ','  substring(cExcelDisplay,4,400) SKIP(1).
             END.
         END.
         ELSE DO: 

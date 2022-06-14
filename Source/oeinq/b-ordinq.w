@@ -17,6 +17,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
          There seems to be a limitation on number of browser columns and
          if this file is opened in appbuilder, it will delete the PO column.
          Edit with procedure editor only.
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No). 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -136,7 +137,7 @@ ASSIGN
           AND {system/brMatches.i oe-ordl.part-no fi_part-no} ~
           AND {system/brMatches.i oe-ordl.po-no fi_po-no-2} ~
           AND oe-ordl.est-no    BEGINS fi_est-no    ~
-          AND oe-ordl.job-no    BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no)    BEGINS fi_job-no    ~
           AND (oe-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                              ~
@@ -167,7 +168,7 @@ ASSIGN
     IF lv-sort-by EQ "price"     THEN STRING(get-price-disc(),'-9999999999.9999999999')                                                                ELSE ~
     IF lv-sort-by EQ "pr-uom"    THEN get-pr-uom()                                                                                                     ELSE ~
     IF lv-sort-by EQ "t-price"   THEN string(get-extended-price(),'-9999999999.9999999999')                                                            ELSE ~
-    IF lv-sort-by EQ "job-no"    THEN STRING(oe-ordl.job-no,"x(6)") + STRING(oe-ordl.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"    THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', oe-ordl.job-no, oe-ordl.job-no2))                                  ELSE ~
     IF lv-sort-by EQ "e-num"     THEN string(oe-ordl.e-num)                                                                                            ELSE ~
     IF lv-sort-by EQ "v-last-shipto" THEN  get-last-shipto()                                                                                          ELSE ~
     IF lv-sort-by EQ "cost" THEN  STRING(oe-ordl.cost,"-9999999999.99")                                                                               ELSE ~
@@ -488,14 +489,14 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 6 BY 1
      BGCOLOR 15  NO-UNDO.
 
 /*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
@@ -508,7 +509,7 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -586,7 +587,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      oe-ordl.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      oe-ordl.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       oe-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       oe-ord.cust-name FORMAT "x(30)":U LABEL-BGCOLOR 14
@@ -603,15 +604,15 @@ DEFINE BROWSE Browser-Table
       get-extended-price() @ ld-t-price COLUMN-LABEL "Extended!Price" FORMAT "->>,>>>,>>9.99":U
             WIDTH 20
       oe-ordl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.part-no FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       get-ord-po-no() @ lc-ord-po COLUMN-LABEL "Order PO#" FORMAT "X(15)":U
                  WIDTH 21 LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est #" FORMAT "x(8)":U WIDTH 13.8
             LABEL-BGCOLOR 14
-      oe-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U WIDTH 12
+      oe-ordl.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 15
             LABEL-BGCOLOR 14
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U LABEL-BGCOLOR 14
       oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
       oe-ord.stat COLUMN-LABEL "Status" FORMAT "x":U LABEL-BGCOLOR 14
@@ -680,7 +681,7 @@ DEFINE FRAME F-Main
      fi_po-no1 AT ROW 2.19 COL 72 COLON-ALIGNED NO-LABEL
      fi_est-no AT ROW 2.19 COL 93 COLON-ALIGNED NO-LABEL
      fi_job-no AT ROW 2.19 COL 110 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COL 127 COLON-ALIGNED NO-LABEL
+     fi_job-no2 AT ROW 2.19 COL 126 COLON-ALIGNED NO-LABEL
      tb_open AT ROW 1.24 COL 135
      tb_closed AT ROW 2.43 COL 135
      btn_go AT ROW 4.57 COL 2
@@ -849,7 +850,7 @@ oe-ordl.ord-no eq 999999999"
      _FldNameList[14]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" "Est #" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "13.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.oe-ordl.job-no
-"oe-ordl.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.oe-ordl.job-no2
 "oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-ord.ord-date
@@ -1093,7 +1094,7 @@ DO:
                  AND (bf-oe-ordl.i-no BEGINS fi_i-no OR fi_i-no = "")
                  AND (bf-oe-ordl.ord-no = fi_ord-no OR fi_ord-no = 0)
                  AND (bf-oe-ordl.est-no BEGINS fi_est-no OR fi_est-no = "")
-                 AND (bf-oe-ordl.job-no BEGINS fi_job-no OR fi_job-no = "") NO-LOCK NO-ERROR.
+                 AND (TRIM(bf-oe-ordl.job-no) BEGINS TRIM(fi_job-no) OR fi_job-no = "") NO-LOCK NO-ERROR.
 
              IF AVAIL bf-oe-ordl THEN
                  v-cust-no = bf-oe-ordl.cust-no .
@@ -2250,7 +2251,7 @@ PROCEDURE query-go :
   END.
 
   IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
-  IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+  IF fi_job-no NE "" THEN fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', TRIM(fi_job-no))).
 
   IF fi_ord-no NE 0 THEN DO:
 
@@ -2728,7 +2729,7 @@ PROCEDURE show-prev-next :
   DEF VAR lv-ord-no AS INT NO-UNDO.
 
   IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
-  IF fi_job-no NE "" THEN fi_job-no = FILL(" ",6 - LENGTH(TRIM(fi_job-no))) + TRIM(fi_job-no).
+  IF fi_job-no NE "" THEN fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', TRIM(fi_job-no))).
 
   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "OEBROWSE"
@@ -3700,6 +3701,8 @@ FUNCTION get-pct RETURNS INTEGER
     rtnValue = ((ipBal / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
   END.
 
   RETURN rtnValue.

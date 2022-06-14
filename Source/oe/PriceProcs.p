@@ -42,7 +42,7 @@ DEFINE TEMP-TABLE ttItemLines
     FIELD lMatrixExists   AS LOGICAL
     FIELD dDiscount       AS DECIMAL 
     FIELD iCaseCount      AS INTEGER
-    FIELD cTableType      AS CHARACTER 
+    FIELD cTableType      AS CHARACTER
     .
 DEFINE TEMP-TABLE ttOePrmtx
     FIELD company       AS CHARACTER LABEL "Company"
@@ -118,7 +118,10 @@ FUNCTION fUseLastPrice RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER) FORWARD.
 
 FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
-    (ipcCompany AS CHARACTER) FORWARD.    
+    (ipcCompany AS CHARACTER) FORWARD.  
+
+FUNCTION fGetNk1OEUseMatrixForNonstock RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER) FORWARD. 
 
 /* ***************************  Main Block  *************************** */
 
@@ -608,7 +611,7 @@ PROCEDURE Price_CheckPriceMatrix:
     DEFINE VARIABLE lBlockEntry    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dPriceMtx      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE cPriceUOM      AS CHARACTER NO-UNDO.
-    
+            
     RUN pGetOEPriceMatrixCheckSettings(ipcCompany, OUTPUT oplPrompt, OUTPUT lAllowMax, OUTPUT oplBlockEntry).
     IF oplPrompt THEN 
     DO:
@@ -617,9 +620,12 @@ PROCEDURE Price_CheckPriceMatrix:
         IF lMatrixFound THEN 
         DO:
             RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT iLevel, OUTPUT lQtyMatch).
-            RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).
+            iLevel = IF AVAIL bf-cust AND iLevel LT MAXIMUM(1, bf-cust.cust-level) THEN MAXIMUM(1, bf-cust.cust-level) ELSE iLevel . /* force price level*/
+            RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).             
             IF dPriceMtx NE ipdPrice THEN 
-                opcMessage = cMessage + " but price should be " + STRING(dPriceMtx) + " not " + STRING(ipdPrice).
+            DO:                 
+                opcMessage = cMessage + " but price should be " + STRING(bf-oe-prmtx.price[iLevel]) + " at level " + STRING(iLevel,"99") + " not " + STRING(ipdPrice).                 
+            END.    
             ELSE 
             DO:                
                 IF NOT lQtyMatch THEN 
@@ -670,6 +676,7 @@ PROCEDURE Price_CalculateLinePrice:
      
     DEFINE VARIABLE cType    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lReprice AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lMatrixFound AS LOGICAL NO-UNDO. 
 
     /*Build the ttItemLines table - will only be one record if not auto-reprice - only FG Items of "Stock"*/
     RUN pBuildLineTable(ipriLine, ipcFGITemID, ipcCustID, ipcShipID, ipdQuantity, OUTPUT cType, OUTPUT lReprice).
@@ -707,7 +714,7 @@ PROCEDURE Price_CalculateLinePrice:
             ttItemLines.cCustID, 
             ttItemLines.cShipID,
             ttItemLines.dQuantityLookup,  
-            OUTPUT ttItemLines.lMatrixExists, 
+            OUTPUT ttItemLines.lMatrixExists,
             INPUT-OUTPUT ttItemLines.dPrice, 
             INPUT-OUTPUT ttItemLines.cPriceUOM ).    
                 
@@ -993,7 +1000,7 @@ PROCEDURE Price_GetPriceMatrixPrice:
     /*for calculation of discount method*/
     DEFINE VARIABLE dItemSellPrice    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cItemSellPriceUOM AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE lPriceForceLevel  AS LOGICAL   NO-UNDO.
     
     RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
         
@@ -1013,10 +1020,15 @@ PROCEDURE Price_GetPriceMatrixPrice:
             dItemSellPrice    = bf-itemfg.sell-price
             cItemSellPriceUOM = bf-itemfg.sell-uom
             .       
-             
+       
     RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, iLevelStart, OUTPUT iLevel, OUTPUT oplQtyDistinctMatch).
     IF iLevel GT 0 THEN 
         oplQtyWithinRange = YES.
+        
+    IF NOT oplQtyDistinctMatch AND iLevel EQ 0 AND iLevelStart GT 0 THEN   /* force price level*/
+        assign
+        lPriceForceLevel = YES
+        iLevel           = iLevelStart.
     
     IF ipiLevelOverride NE 0 THEN 
     DO:
@@ -1024,8 +1036,8 @@ PROCEDURE Price_GetPriceMatrixPrice:
             iLevel = ipiLevelOverride.
         ELSE 
             iLevel = iLevelStart.
-    END.
-    IF oplQtyWithinRange THEN
+    END.               
+    IF oplQtyWithinRange OR lPriceForceLevel THEN
         RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
     ELSE 
         ASSIGN 
@@ -1556,7 +1568,8 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     DEFINE VARIABLE iIndex         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cMsgBlankInd   AS CHARACTER NO-UNDO INIT "[blank]".
     DEFINE VARIABLE lMatrixFound   AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE lMtxForNonstock AS LOGICAL  NO-UNDO.
+             
     IF NOT AVAILABLE ipbf-itemfg THEN 
     DO:
         ASSIGN 
@@ -1573,6 +1586,9 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             .
         RETURN.
     END.
+    
+    lMtxForNonstock = fGetNk1OEUseMatrixForNonstock(ipbf-cust.company).
+    
     IF ipcShipID NE "" THEN 
     DO:
         FIND FIRST bf-shipto NO-LOCK 
@@ -1592,12 +1608,8 @@ PROCEDURE pGetPriceMatrix PRIVATE:
     IF ipbf-itemfg.i-code NE "S" THEN 
     DO:
         /* Use matrix for non-stock items ONLY if NK1 "OEUseMatrixForNonstock" logical eq true 
-        Also referenced in oe/PriceProcsLineBuilder.i   */
-        DEF VAR cUseMatrix AS CHAR NO-UNDO.
-        DEF VAR lFound AS LOG NO-UNDO.
-        RUN sys/ref/nk1look.p (ipbf-itemfg.company, "OEUseMatrixForNonstock", "L", NO, NO, "", "", OUTPUT cUseMatrix, OUTPUT lFound).
-        IF lFound 
-        AND cUseMatrix EQ "YES" THEN.
+        Also referenced in oe/PriceProcsLineBuilder.i   */         
+        IF lMtxForNonstock THEN.
         ELSE DO:
             ASSIGN 
                 opcMatchDetail = "This FG item is configured as a non-inventoried (Not stocked) item"
@@ -1629,7 +1641,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
         /*Must be effecitve*/
         AND (opbf-oe-prmtx.eff-date LE TODAY)
         /*must not be expired*/
-        AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+        AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ?)
         /* Can't be all blank */
         AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
         AND opbf-oe-prmtx.custShipID EQ "")
@@ -1665,7 +1677,7 @@ PROCEDURE pGetPriceMatrix PRIVATE:
             /*Must be effecitve*/
             AND (opbf-oe-prmtx.eff-date LE TODAY)
             /*must not be expired*/
-            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ? OR opbf-oe-prmtx.exp-date EQ 01/01/0001)
+            AND (opbf-oe-prmtx.exp-date GE TODAY OR opbf-oe-prmtx.exp-date EQ ?)
             /* Can't be all blank */
             AND NOT (opbf-oe-prmtx.cust-no EQ "" AND opbf-oe-prmtx.i-no EQ "" AND opbf-oe-prmtx.procat EQ "" AND opbf-oe-prmtx.custype EQ "" 
             AND opbf-oe-prmtx.custShipID EQ "")
@@ -1757,7 +1769,6 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
 
     DEFINE VARIABLE iLevel AS INTEGER NO-UNDO.
     DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iLevelQty AS INTEGER NO-UNDO.
     
     ASSIGN 
         opiQtyLevel         = 0
@@ -1772,24 +1783,16 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
       
     /*process matrix array completely, one time*/
     DO iLevel = ipiLevelStart TO EXTENT(ipbf-oe-prmtx.qty): /* IF customer has higher starting level set otherwise start with 1st level*/
+        IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
+            oplQtyDistinctMatch = YES.
         IF cPriceMatrixPricingMethod EQ "From" THEN 
         DO:
-            IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
-                oplQtyDistinctMatch = YES. 
+            IF ipdQuantityTarget GE ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
+                opiQtyLevel = iLevel.
             
-            IF ipdQuantityTarget GE ipbf-oe-prmtx.qty[iLevel] THEN
-            iLevelQty = ipbf-oe-prmtx.qty[iLevel] .
-            
-            IF ipdQuantityTarget LE (ipbf-oe-prmtx.qty[iLevel] - 1) AND ipdQuantityTarget GE iLevelQty AND iLevelQty GT 0 THEN
-            DO:                          
-                IF opiQtyLevel = 0 THEN 
-                    opiQtyLevel = (iLevel - 1).
-            END.        
         END. /* cPriceMatrixPricingMethod EQ "From" */
         ELSE IF cPriceMatrixPricingMethod EQ "Up To" AND ipdQuantityTarget LE ipbf-oe-prmtx.qty[iLevel] THEN /*As soon as a qty level is found, greater than qty, all set*/
         DO:
-            IF ipdQuantityTarget EQ ipbf-oe-prmtx.qty[iLevel] AND ipbf-oe-prmtx.qty[iLevel] NE 0 THEN 
-                oplQtyDistinctMatch = YES.
             IF opiQtyLevel = 0 THEN 
                 opiQtyLevel = iLevel.
         END. /*Qty LE oe-prmtx qty*/
@@ -1843,6 +1846,36 @@ PROCEDURE Price_ExpireQuotesByItem:
                 bf-quotehd.expiredate = TODAY.
         END.                         
      END.        
+END PROCEDURE.
+
+PROCEDURE Price_GetPriceMatrixTaxBasis:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns a Rowid of a valid price matrix, given 3 key inputs
+     Notes: Returns the tax basis of the available oe-prmtx record
+     Syntax Example:
+    RUN Price_GetPriceMatrixTaxBasis (cocode, oe-ordl.i-no, oe-ord.cust-no, oe-ord.ship-id,
+                                        OUTPUT opiTaxBasis, OUTPUT lFound, OUTPUT cMessage).
+        
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.  /*Company*/
+    DEFINE INPUT  PARAMETER ipcFGItemID    AS CHARACTER NO-UNDO.  /*FG Item ID*/
+    DEFINE INPUT  PARAMETER ipcCustID      AS CHARACTER NO-UNDO.  /*Customer Scope of FG Item*/
+    DEFINE INPUT  PARAMETER ipcShipID      AS CHARACTER NO-UNDO.  /*Ship to Scope of Customer  - optional*/
+    DEFINE OUTPUT PARAMETER oplMatchFound  AS LOGICAL   NO-UNDO.  /*Logical that can determine if find on rowid should be done*/
+    DEFINE OUTPUT PARAMETER opcMatchDetail AS CHARACTER NO-UNDO.  /*Clarifies the match criteria or failure to match*/
+    DEFINE OUTPUT PARAMETER opiTaxBasis    AS INTEGER   NO-UNDO.  /* Return oe-prmtx.taxBasis */
+
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    DEFINE BUFFER bf-cust     FOR cust.
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+
+    RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
+
+    /*Find match given buffers */  
+    RUN pGetPriceMatrix(BUFFER bf-itemfg, BUFFER bf-cust, BUFFER bf-oe-prmtx, ipcShipID, OUTPUT oplMatchFound, OUTPUT opcMatchDetail).
+    
+    IF AVAILABLE bf-oe-prmtx THEN
+        opiTaxBasis = bf-oe-prmtx.taxBasis.
 END PROCEDURE.
 
 PROCEDURE pSetBuffers PRIVATE:
@@ -1964,5 +1997,31 @@ FUNCTION fGetNk1PriceMatrixPricingMethod RETURNS CHARACTER PRIVATE
 
     cPriceMatrixPricingMethod = cReturn.
     RETURN cPriceMatrixPricingMethod.
+	
+END FUNCTION.
+
+FUNCTION fGetNk1OEUseMatrixForNonstock RETURNS LOGICAL PRIVATE
+    ( ipcCompany AS CHARACTER ):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns whether LastPrice is option set for NK1 SELLPRIC 
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE lOEUseMatrixForNonstock   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFound                    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn                   AS CHARACTER NO-UNDO. 
+    
+    
+    RUN sys/ref/nk1look.p (ipcCompany, 
+        "OEUseMatrixForNonstock",
+        "L",
+        NO,
+        NO,
+        "",
+        "",
+        OUTPUT cReturn,
+        OUTPUT lFound).    
+
+    lOEUseMatrixForNonstock = logical(cReturn) NO-ERROR.
+    RETURN lOEUseMatrixForNonstock.
 	
 END FUNCTION.

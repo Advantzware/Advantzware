@@ -177,7 +177,10 @@ DEFINE TEMP-TABLE ttInvoiceLineToPost NO-UNDO
     FIELD isFreightBillable       AS LOGICAL   LABEL "Bill Freight"
     FIELD orderLine               AS Integer   LABEL "Order Line"
     FIELD iEnum                   AS Integer   LABEL "Ln#" 
-    FIELD bNo                     AS INTEGER   LABEL "B-NO"   
+    FIELD bNo                     AS INTEGER   LABEL "B-NO"     
+    FIELD isOrderEdi              AS LOGICAL   lABEL "EDI"  
+    FIELD ediPrice                AS DECIMAL   lABEL "EDI Price"
+    FIELD ediPriceUom             AS CHARACTER lABEL "EDI Price Uom"
     .    
     
 DEFINE TEMP-TABLE ttInvoiceMiscToPost NO-UNDO 

@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/invcolnx.p */
 /* PRINT INVOICE   Xprint form for Colonial Carton           */
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 
 {sys/inc/var.i shared}
@@ -74,7 +75,7 @@ def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like inv-line.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
 def var v-ord-no like oe-ord.ord-no no-undo.
-def var v-job-no AS CHAR FORMAT "x(13)" no-undo.
+def var v-job-no AS CHAR FORMAT "x(15)" no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
@@ -530,22 +531,21 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
                 AND job-hdr.job-no2 EQ inv-line.job-no2
                 AND job-hdr.i-no EQ inv-line.i-no NO-LOCK NO-ERROR.
             
-            v-job-no = fill(" ",6 - length(trim(inv-line.job-no))) +
-               trim(inv-line.job-no) .
+            v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', inv-line.job-no))).
 
             IF AVAIL job-hdr THEN
                 v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
 
             PUT 
                 v-po-no space(1)
-                inv-line.part-no  SPACE(1)
+                inv-line.part-no FORMAT "x(15)" SPACE(1)
                 v-i-dscr FORM "x(30)" 
                 v-ship-qty  format "->>>>>>9" SPACE(2)
                 v-price  format ">>>,>>9.9999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-job-no SPACE(3)
-                inv-line.i-no SPACE(1)
+                v-job-no
+                inv-line.i-no AT 17 SPACE(1)
                 inv-line.part-dscr1  SPACE(11)
                 v-pc  FORM "x" SPACE(7)
                 v-price-head SKIP.

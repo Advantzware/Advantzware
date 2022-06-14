@@ -55,12 +55,15 @@ DEFINE VARIABLE lAPIOutboundTestMode AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cRequestFile         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseFile        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAPIRequestMethod    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFTPRequestMethod    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound               AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cHeadersData         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cUrlEncodedData      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cResponseCode        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilePath            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRequestDateTime     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
@@ -76,9 +79,13 @@ RUN spGetSessionParam(
     
 ASSIGN 
     scInstance           = SharedConfig:instance
-    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode")) NO-ERROR
-    .
-    
+    lAPIOutboundTestMode = LOGICAL(scInstance:GetValue("APIOutboundTestMode"))
+    cRequestDateTime     = scInstance:GetValue("APIVariable_RequestDateTime")
+    NO-ERROR.
+
+IF cRequestDateTime = "" THEN
+    cRequestDateTime = STRING(NOW).
+        
 ASSIGN
     gcParentProgram = ipcParentProgram
     glcRequestData  = iplcRequestData
@@ -108,6 +115,11 @@ FOR FIRST APIOutbound NO-LOCK
         glAPIConfigFound   = YES
         .
 END.
+
+/* EndPoint Variable replacement using SharedConfig values */
+gcEndPoint = scInstance:ReplaceEndPointVariables(gcEndPoint, gcAPIID).
+
+RUN pReplaceUserContentVariables(INPUT-OUTPUT gcEndPoint, INPUT ipiAPIOutboundID).
 
 IF NOT glAPIConfigFound THEN DO:
     ASSIGN 
@@ -166,7 +178,13 @@ IF glSaveFile THEN DO:
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDate", TODAY, "").
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentTime", TIME, "").
         RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "CurrentDateTime", NOW, "").
+        RUN Format_UpdateRequestData (INPUT-OUTPUT gcSaveFileFolder, "RequestDateTime", cRequestDateTime, "").
+
+        RUN pReplaceUserContentVariables(INPUT-OUTPUT gcSaveFileFolder, INPUT ipiAPIOutboundID).
         
+        /* API Variable replacement using SharedConfig values */
+        gcSaveFileFolder = scInstance:ReplaceAPIVariables(gcSaveFileFolder, gcAPIID).
+
         ASSIGN 
             cFileName = ENTRY(NUM-ENTRIES(gcSaveFileFolder, "\"), gcSaveFileFolder, "\") 
             cFilePath = SUBSTRING(gcSaveFileFolder, 1, R-INDEX(gcSaveFileFolder, "\") - 1)
@@ -236,27 +254,59 @@ IF gcRequestType EQ "SAVE" THEN DO:
     RETURN.
 END.
 
+RUN spGetSettingByName ("FTPRequestMethod", OUTPUT cFTPRequestMethod).
+IF cFTPRequestMethod EQ ? OR cFTPRequestMethod EQ "" THEN
+    cFTPRequestMethod = "cURL".
+    
 /* Request for FTP transfer of the request data */
 IF gcRequestType EQ "FTP" OR gcRequestType EQ "SFTP" THEN DO:
     RUN system/ftpProcs.p PERSISTENT SET hdFTPProcs.
     
-    RUN FTP_SendFileWithCurl IN hdFTPProcs (
-        INPUT  gcEndPoint,
-        INPUT  gcRequestType,
-        INPUT  gcUserName,
-        INPUT  gcPassword,
-        INPUT  gcRequestFile,
-        INPUT  gcResponseFile,
-        INPUT  glIsSSLEnabled,
-        INPUT  gcHostSSHKey,
-        OUTPUT oplSuccess,
-        OUTPUT opcMessage
-        ).
+    IF cFTPRequestMethod EQ "Internal" THEN DO:
+        IF gcRequestType EQ "FTP" THEN
+            RUN FTP_UploadFileUsingFTP in hdFTPProcs (
+                INPUT  gcEndPoint, 
+                INPUT  gcRequestFile, 
+                INPUT  gcUserName, 
+                INPUT  gcPassword, 
+                OUTPUT lError, 
+                OUTPUT opcMessage
+                ).  
+        ELSE IF gcRequestType EQ "SFTP" THEN
+            RUN FTP_UploadFileUsingSFTP in hdFTPProcs (
+                INPUT  gcEndPoint, 
+                INPUT  gcRequestFile, 
+                INPUT  gcUserName, 
+                INPUT  gcPassword,
+                INPUT  glIsSSLEnabled,
+                INPUT  gcHostSSHKey, 
+                OUTPUT lError, 
+                OUTPUT opcMessage
+                ).  
 
+        oplSuccess = NOT lError.
+        
+        oplcResponseData = opcMessage.
+    END.
+    ELSE DO:
+        RUN FTP_SendFileWithCurl IN hdFTPProcs (
+            INPUT  gcEndPoint,
+            INPUT  gcRequestType,
+            INPUT  gcUserName,
+            INPUT  gcPassword,
+            INPUT  gcRequestFile,
+            INPUT  gcResponseFile,
+            INPUT  glIsSSLEnabled,
+            INPUT  gcHostSSHKey,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ).
+        
+        oplcResponseData = "FTP transfer status is saved to file " + gcResponseFile.
+    END.
+    
     DELETE PROCEDURE hdFTPProcs.
     
-    oplcResponseData = "FTP transfer status is saved to file " + gcResponseFile.
-     
     RETURN.
 END.
 
@@ -319,7 +369,7 @@ IF cAPIRequestMethod EQ "cURL" THEN DO:
               + cUrlEncodedData
               + (IF gcRequestVerb NE 'get' THEN ' -d "@' + gcRequestFile + '" ' ELSE '')
               + (IF gcRequestVerb NE 'get' THEN ' -X ' + gcRequestVerb ELSE '')  + ' '
-              + gcEndPoint.
+              + '"' + gcEndPoint + '"'.
     
     /* Put Request Data from a variable into a Temporary file */
     COPY-LOB glcRequestData TO FILE gcRequestFile.
@@ -404,6 +454,11 @@ FINALLY:
         OS-DELETE VALUE(gcResponseFile).
 END FINALLY.
 
+
+
+/* **********************  Internal Procedures  *********************** */
+
+
 PROCEDURE pReadResponse PRIVATE:
     /*------------------------------------------------------------------------------
     Purpose: Reads outbound response data based on data type
@@ -457,4 +512,21 @@ PROCEDURE pReadResponse PRIVATE:
         OUTPUT oplSuccess,
         OUTPUT opcMessage
         ).
+END PROCEDURE.
+
+PROCEDURE pReplaceUserContentVariables:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER iopcRequestData  AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
+    
+    DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
+    
+    FOR EACH bf-APIOutboundContent NO-LOCK
+        WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID
+          AND bf-APIOutboundContent.contentType   EQ "User":
+        RUN Format_UpdateRequestData (INPUT-OUTPUT iopcRequestData, bf-APIOutboundContent.contentKey, bf-APIOutboundContent.contentValue, "").        
+    END.    
 END PROCEDURE.

@@ -97,22 +97,6 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 DEF VAR lv-sort-by AS CHAR INIT "start-date"  NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Start Date"  NO-UNDO.
 DEF VAR ll-sort-asc AS LOG NO-UNDO.
-/*
-&SCOPED-DEFINE sortby-log                                          ~
-    IF lv-sort-by EQ "due-date" THEN STRing(year(tt-sch.due-date)) + STRING(MONTH(tt-sch.due-date),"99") + STRING(DAY(tt-sch.due-date),"99")   ELSE ~
-    IF lv-sort-by EQ "board"    THEN tt-sch.board           ELSE ~
-    IF lv-sort-by EQ "Die"     THEN tt-sch.die                 ELSE ~
-    IF lv-sort-by EQ "seq-no"   THEN tt-sch.seq-no              ELSE ~
-    IF lv-sort-by EQ "Cust-no"  THEN tt-sch.cust-no            ELSE ~
-    IF lv-sort-by EQ "Plate"   THEN tt-sch.plate               ELSE ~
-                 STRING(YEAR(tt-sch.start-date),"9999") + STRING(MONTH(tt-sch.start-date),"99") + STRING(DAY(tt-sch.start-date),"99")
-
-     /*
-    IF lv-sort-by EQ "job-no"    THEN STRING(oe-ordl.job-no,"x(6)") + STRING(oe-ordl.job-no2,"99")                                                     ELSE ~
-                                      STRING(YEAR(oe-ordl.req-date),"9999") + STRING(MONTH(oe-ordl.req-date),"99") + STRING(DAY(oe-ordl.req-date),"99")
-    */
-
-*/                           /*     string(tt-sch.len,">>>>9.99<<<")*/
 
 &SCOPED-DEFINE sortby-log                                          ~
     IF lv-sort-by EQ "due-date" THEN STRing(year(tt-sch.due-date)) + STRING(MONTH(tt-sch.due-date),"99") + STRING(DAY(tt-sch.due-date),"99")   ELSE ~
@@ -444,7 +428,7 @@ DEFINE BROWSE Browser-Table
       tt-sch.seq-no COLUMN-LABEL "Seq#" FORMAT ">>9":U LABEL-BGCOLOR 14       
       job-mch.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U  LABEL-BGCOLOR 14
       job-mch.job-no2 COLUMN-LABEL "" FORMAT ">9":U        LABEL-BGCOLOR 14
-      job-mch.frm COLUMN-LABEL "S" FORM ">9" LABEL-BGCOLOR 14
+      job-mch.frm COLUMN-LABEL "F" FORM ">9" LABEL-BGCOLOR 14
       job-mch.blank-no COLUMN-LABEL "B" FORM ">9" LABEL-BGCOLOR 14
       job-mch.pass COLUMN-LABEL "P" FORM ">9" LABEL-BGCOLOR 14
       tt-sch.cust-no LABEL "Customer" LABEL-BGCOLOR 14

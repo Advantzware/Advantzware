@@ -1,7 +1,7 @@
 /* ----------------------------------------------- ce/rep/jobtick.p 03/99 JLF */
 /*  factory ticket                                                            */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {jcrep/r-ticket.i "shared"}
 
 {ce/rep/jobtick.i "new shared"}
@@ -45,16 +45,14 @@ view frame head.
         where job-hdr.company               eq cocode
           and job-hdr.ftick-prnt            eq reprint
 
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no,
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) +
+              STRING(job-hdr.job-no2,"999")  GE fjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) +
+              STRING(job-hdr.job-no2,"999")  LE tjob-no
+          AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2,
 
         first cust
         where cust.company                  eq cocode
@@ -679,7 +677,7 @@ view frame head.
           DISPLAY "Leaf & Window Material"  AT 182
                   "RM Item#"                AT 166
                   "Description"             AT 177
-                  "Sht"                     AT 198
+                  "Frm"                     AT 198
                   "Blk"                     AT 202
                   " Length"                 AT 206
                   "  Width"                 AT 214

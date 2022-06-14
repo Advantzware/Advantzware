@@ -93,7 +93,10 @@ DEFINE TEMP-TABLE ttProgramHandle NO-UNDO
     FIELD childProgramName   AS CHARACTER
     INDEX programHandle IS PRIMARY programHandle childProgramHandle 
     .
-                
+
+DEFINE TEMP-TABLE ttAuditFld NO-UNDO 
+    LIKE AuditFld.
+                     
 {system/ttSessionParam.i}
 {system/ttPermissions.i}
 {system/ttSetting.i}
@@ -175,6 +178,19 @@ FUNCTION fMessageTitle RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pReplaceContext Procedure
 FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
   (ipcMessage AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-sfAuditField) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfAuditField Procedure
+FUNCTION sfAuditField RETURNS LOGICAL 
+  ( ipcTable AS CHARACTER, ipcField AS CHARACTER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -487,6 +503,12 @@ REPEAT:
     END.
 END. /* repeat */
 
+/* Creating ttAuditFld from AuditFld for improving performance in Auditing record updates */
+FOR EACH Audit.AuditFld NO-LOCK
+    WHERE Audit.AuditFld.Audit EQ YES:
+    CREATE ttAuditFld.
+    BUFFER-COPY Audit.AuditFld TO ttAuditFld.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -893,6 +915,58 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-pGetScreenSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetScreenSize Procedure
+PROCEDURE pGetScreenSize PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcScreenSizeType AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdWidth          AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight         AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE oScreen    AS System.Windows.Forms.Screen NO-UNDO.
+    DEFINE VARIABLE oAblParent AS System.IntPtr               NO-UNDO.
+    
+    oAblParent = NEW System.IntPtr(ACTIVE-WINDOW:HWND) NO-ERROR.
+
+    oScreen = System.Windows.Forms.Screen:FromHandle(oAblParent) NO-ERROR.
+    
+    IF VALID-OBJECT (oScreen) THEN DO:
+        IF ipcScreenSizeType EQ "FullScreen" THEN
+            ASSIGN
+                opdWidth  = oScreen:Bounds:WIDTH
+                opdHeight = oScreen:Bounds:HEIGHT
+                .
+        ELSE IF ipcScreenSizeType EQ "WorkingArea" THEN
+            ASSIGN
+                opdWidth  = oScreen:WorkingArea:WIDTH
+                opdHeight = oScreen:WorkingArea:HEIGHT
+                .
+        ELSE IF ipcScreenSizeType EQ "TopLeftPosition" THEN
+            ASSIGN
+                opdWidth  = oScreen:WorkingArea:LEFT
+                opdHeight = oScreen:WorkingArea:TOP
+                .
+        
+    END.
+
+    IF VALID-OBJECT(oScreen) THEN
+        DELETE OBJECT oScreen.
+
+    IF VALID-OBJECT(oAblParent) THEN
+        DELETE OBJECT oAblParent.  
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-pSetCompanyContexts) = 0 &THEN
 
@@ -1860,6 +1934,83 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetScreenSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenSize Procedure
+PROCEDURE spGetScreenSize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdWidth  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "FullScreen",
+        OUTPUT opdWidth,
+        OUTPUT opdHeight
+        ).
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetScreenTopLeftPosition) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenTopLeftPosition Procedure
+PROCEDURE spGetScreenStartPosition:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdTop  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdLeft AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "TopLeftPosition",
+        OUTPUT opdLeft,
+        OUTPUT opdTop
+        ).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-spGetScreenWorkingAreaSize) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetScreenWorkingAreaSize Procedure
+PROCEDURE spGetScreenWorkingAreaSize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opdWidth  AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdHeight AS INTEGER NO-UNDO.
+    
+    RUN pGetScreenSize (
+        INPUT  "WorkingArea",
+        OUTPUT opdWidth,
+        OUTPUT opdHeight
+        ).
+ 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-spGetSession) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSession Procedure
@@ -2064,10 +2215,12 @@ PROCEDURE spGetSettingObject:
     IF NOT VALID-HANDLE (hdBrokerHandle) THEN DO:
         ASSIGN hdObject = SESSION:FIRST-PROCEDURE.
         DO WHILE hdObject <> ?:
-            ASSIGN hdBrokerHandle   = hdObject
-                   hdObject = hdObject:NEXT-SIBLING.
-            IF hdBrokerHandle:NAME EQ "adm/objects/broker.p" THEN
+            IF hdObject:NAME EQ "adm/objects/broker.p" THEN DO:
+                hdBrokerHandle = hdObject.
                 LEAVE.
+            END.
+            
+            hdObject = hdObject:NEXT-SIBLING.
         END.
     END.
 
@@ -3398,6 +3551,28 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfAuditField) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfAuditField Procedure
+FUNCTION sfAuditField RETURNS LOGICAL 
+  ( ipcTable AS CHARACTER, ipcField AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN CAN-FIND(FIRST ttAuditFld 
+	            WHERE ttAuditFld.AuditTable EQ ipcTable
+                     AND ttAuditFld.AuditField EQ ipcField).
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
 

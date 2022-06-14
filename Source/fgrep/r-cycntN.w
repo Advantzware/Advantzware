@@ -50,7 +50,7 @@ DEFINE VARIABLE lv-fax-image    AS CHARACTER NO-UNDO.  /* fax imge file */
 DEFINE VARIABLE lv-prt-bypass   AS LOG       NO-UNDO.  /* bypass window's printer driver */
 
 DEFINE VARIABLE lv-date         AS DATE      NO-UNDO.
-DEFINE VARIABLE lv-job-no       AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE lv-job-no       AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE li-palls        AS DECIMAL   FORMAT "->>,>>9" NO-UNDO.
 DEFINE VARIABLE v-cnt           AS INTEGER   NO-UNDO.
 DEFINE VARIABLE v-item-no       LIKE fg-bin.i-no NO-UNDO.
@@ -126,7 +126,7 @@ ASSIGN
                             "lv-job-no,fg-bin.loc,fg-bin.loc-bin,v-tag," +
                             "lv-date,fg-bin.qty,li-palls,v-writein,v-counted-date,v-costM,v-sellValue,itemfg.part-no," +
                             "v-sellUom,cFirstTrxDt,cFirstTrxTyp,po-no,sales-code,sales-name,count" 
-    cFieldLength       = "15,25,8," + "9,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,9,16,30,10"
+    cFieldLength       = "15,25,8," + "13,5,8,20," + "10,11,7,21,12,10,10,15," + "8,14,14,9,16,30,10"
     cFieldType         = "c,c,c," + "c,c,c,c," + "c,i,i,i,c,i,i,c," + "c,c,c,c,c,c,i" 
     .
 ASSIGN 
@@ -280,21 +280,21 @@ DEFINE VARIABLE lbl_sort       AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?"
     VIEW-AS FILL-IN 
     SIZE 10 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>>":U INITIAL 99 
+DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>>":U INITIAL 55 
     LABEL "Lines Per Page" 
     VIEW-AS FILL-IN 
     SIZE 6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=6 (20 cpi for 150 column Report)" 
+DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=9 (13CPI)" 
     VIEW-AS FILL-IN 
     SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "10" 
+DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "12" 
     LABEL "Font" 
     VIEW-AS FILL-IN 
     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
+DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "L" 
     VIEW-AS RADIO-SET HORIZONTAL
     RADIO-BUTTONS 
     "Portrait", "P",
@@ -1965,7 +1965,7 @@ PROCEDURE run-report :
             lv-job-no = TRIM(fg-bin.job-no).
 
             IF lv-job-no NE "" THEN 
-                lv-job-no = lv-job-no + "-" + STRING(fg-bin.job-no2,"99").
+                lv-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', lv-job-no, fg-bin.job-no2))).
 
             ASSIGN
                 li-palls = (IF fg-bin.case-count   EQ 0 THEN 1 ELSE fg-bin.case-count)   *
@@ -2084,10 +2084,6 @@ PROCEDURE run-report :
                     IF hField <> ? THEN 
                     DO:                 
                         cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(iEntryNumber, cFieldLength))).
-                        /*IF ENTRY(i,cSelectedList) = "Job#" THEN
-                           cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-bin.job-no2,"99") ELSE "".                  
-                         */
-                        /*IF ENTRY(i,cSelectedList) = "Tag" THEN cTmpField = SUBSTRING(cTmpField,16,8).*/
 
                         cDisplay = cDisplay + 
                             IF ENTRY(iEntryNumber, cFieldType) = "C" THEN
@@ -2307,7 +2303,7 @@ PROCEDURE run-reportCust :
             lv-job-no = TRIM(fg-bin.job-no).
 
         IF lv-job-no NE "" THEN
-            ASSIGN lv-job-no = lv-job-no + "-" + STRING(fg-bin.job-no2,"99").
+            ASSIGN lv-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', lv-job-no, fg-bin.job-no2))).
 
         ASSIGN 
             li-palls = (IF fg-bin.case-count   EQ 0 THEN 1 ELSE fg-bin.case-count) 
@@ -2416,10 +2412,6 @@ PROCEDURE run-reportCust :
                 IF hField <> ? THEN 
                 DO:                 
                     cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(iEntryNumber, cFieldLength))).
-                    /*IF ENTRY(i,cSelectedList) = "Job#" THEN
-                       cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-bin.job-no2,"99") ELSE "".                  
-                     */
-                    /*IF ENTRY(i,cSelectedList) = "Tag" THEN cTmpField = SUBSTRING(cTmpField,16,8).*/
 
                     cDisplay = cDisplay + 
                         IF ENTRY(iEntryNumber, cFieldType) = "C" THEN

@@ -64,6 +64,7 @@ def var v as int.
 def var v-bo-qty as int format "99999" no-undo.
 def var v-inv-qty as int format "99999" no-undo.
 def var v-ship-qty as int format "99999" no-undo.
+def var v-ord-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
 def var v-price as dec format ">>>>9.9999" no-undo.
@@ -511,7 +512,8 @@ assign
                   LEAVE.
                 END.
              END. 
-            assign v-inv-qty = ar-invl.qty
+            assign v-inv-qty = ar-invl.inv-qty
+                   v-ord-qty = ar-invl.qty
                    v-ship-qty = ar-invl.ship-qty
                    v-i-no = ar-invl.i-no
                    v-i-dscr = ar-invl.i-name
@@ -565,13 +567,13 @@ assign
           
             IF v-ship-qty = 0 THEN v-ship-qty = v-inv-qty.
 
-            PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
-                v-ship-qty  format "->>>>>9" SPACE(1)
+            PUT space(1) v-ord-qty format "->>>>>9" SPACE(1)
+                v-inv-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORMAT ">>>>>>9" SPACE(1)
+                ar-invl.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
-                ar-invl.unit-pr format ">>,>>9.99" SPACE(2)
+                ar-invl.unit-pr format ">>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)
                 /*v-price FORMAT "->>>,>>9.99"                     */
                 ar-invl.amt FORM "->>>,>>9.99"
@@ -594,8 +596,8 @@ assign
 
               if v-part-info ne "" OR (ar-invl.part-no <> "" AND v EQ 1) then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(25) ar-invl.part-no SPACE v-part-info SKIP.
-                 ELSE   PUT SPACE(41) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(26) ar-invl.part-no SPACE v-part-info SKIP.
+                 ELSE   PUT SPACE(42) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

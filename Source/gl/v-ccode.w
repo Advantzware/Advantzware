@@ -539,6 +539,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UpdateExchangeRates V-table-Win 
+PROCEDURE UpdateExchangeRates :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAILABLE currency THEN
+        RUN gl/d-UpdateExchangeRate.w (currency.c-code).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-account V-table-Win 
 PROCEDURE valid-account :
 /*------------------------------------------------------------------------------

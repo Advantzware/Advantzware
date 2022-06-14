@@ -70,22 +70,24 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR loc, location.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS location.defaultBin loc.dscr ~
-location.streetAddr[1] location.streetAddr[2] location.streetAddr[3] ~
-location.subCode3 location.subCode1 loc.owner location.subCode4 ~
-location.countryCode loc.locationSquareFeet loc.palletCapacity ~
-location.subCode2 location.geoLat location.geoLong location.phone ~
-location.externalID[1] location.fax loc.division location.email loc.glCode ~
-location.notes loc.active loc.isAPIEnabled location.lActive 
+loc.floorPositions location.streetAddr[1] loc.rackPositions ~
+location.streetAddr[2] location.streetAddr[3] location.subCode3 ~
+location.subCode1 loc.owner location.subCode4 location.countryCode ~
+loc.locationSquareFeet loc.palletCapacity location.subCode2 location.geoLat ~
+location.geoLong location.phone location.externalID[1] location.fax ~
+loc.division location.email loc.glCode location.notes loc.active ~
+loc.isAPIEnabled location.lActive 
 &Scoped-define ENABLED-TABLES location loc
 &Scoped-define FIRST-ENABLED-TABLE location
 &Scoped-define SECOND-ENABLED-TABLE loc
 &Scoped-Define ENABLED-OBJECTS rsBinType 
 &Scoped-Define DISPLAYED-FIELDS loc.loc location.defaultBin loc.company ~
-location.streetAddr[4] loc.dscr loc.handlingCost location.streetAddr[5] ~
-location.streetAddr[1] loc.storageCost[1] location.streetAddr[6] ~
-location.streetAddr[2] loc.storageCost[2] location.streetAddr[3] ~
-loc.storageCost[3] location.subCode3 loc.storageCost[4] location.subCode1 ~
-loc.owner location.subCode4 location.countryCode loc.locationSquareFeet ~
+location.streetAddr[4] loc.dscr loc.handlingCost loc.floorPositions ~
+location.streetAddr[5] location.streetAddr[1] loc.storageCost[1] ~
+loc.rackPositions location.streetAddr[6] location.streetAddr[2] ~
+loc.storageCost[2] location.streetAddr[3] loc.storageCost[3] ~
+location.subCode3 loc.storageCost[4] location.subCode1 loc.owner ~
+location.subCode4 location.countryCode loc.locationSquareFeet ~
 loc.palletCapacity location.subCode2 location.geoLat location.geoLong ~
 location.phone location.externalID[1] location.fax loc.division ~
 location.email loc.glCode location.notes loc.active loc.isAPIEnabled ~
@@ -165,6 +167,9 @@ DEFINE FRAME F-Main
           LABEL "Handling" FORMAT "->,>>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
+     loc.floorPositions AT ROW 2.43 COL 84.8 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 11.4 BY 1
      location.streetAddr[5] AT ROW 3.14 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
@@ -175,6 +180,9 @@ DEFINE FRAME F-Main
           LABEL "Storage 1" FORMAT "->>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
+     loc.rackPositions AT ROW 3.52 COL 84.8 COLON-ALIGNED WIDGET-ID 8
+          VIEW-AS FILL-IN 
+          SIZE 11.4 BY 1
      location.streetAddr[6] AT ROW 4.1 COL 97 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 2 BY 1
@@ -222,14 +230,6 @@ DEFINE FRAME F-Main
           LABEL "Pallets"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     location.subCode2 AT ROW 9.57 COL 12 COLON-ALIGNED
-          LABEL "County"
-          VIEW-AS FILL-IN 
-          SIZE 20 BY 1
-     location.geoLat AT ROW 9.57 COL 39 COLON-ALIGNED
-          LABEL "Lat"
-          VIEW-AS FILL-IN 
-          SIZE 15 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -238,6 +238,14 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     location.subCode2 AT ROW 9.57 COL 12 COLON-ALIGNED
+          LABEL "County"
+          VIEW-AS FILL-IN 
+          SIZE 20 BY 1
+     location.geoLat AT ROW 9.57 COL 39 COLON-ALIGNED
+          LABEL "Lat"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
      location.geoLong AT ROW 9.57 COL 70 COLON-ALIGNED
           LABEL "Long"
           VIEW-AS FILL-IN 
@@ -281,10 +289,10 @@ DEFINE FRAME F-Main
           SIZE 18.4 BY .81
      "Capacity:" VIEW-AS TEXT
           SIZE 11.4 BY .62 AT ROW 8.62 COL 2.8
-     "Address:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 3.86 COL 3
      "Notes:" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 14.1 COL 5
+     "Address:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 3.86 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -644,19 +652,12 @@ PROCEDURE local-create-record :
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
-
     /* Code placed here will execute PRIOR to standard behavior. */
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/loc.i}
-    ASSIGN 
-        location.locationCode = loc.loc:SCREEN-VALUE IN FRAME {&frame-name}
-        loc.rec_key           = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-        location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
-        loc.addrRecKey        = location.rec_key.
-
         
 END PROCEDURE.
 
@@ -668,7 +669,10 @@ PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
          Purpose:
          Notes:
-        ------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bloc FOR loc.
+    DEFINE BUFFER blocation FOR location.
+    
     DEF VAR cBinType AS CHAR NO-UNDO.
 
   /* Dispatch standard ADM method.                             */
@@ -676,7 +680,18 @@ PROCEDURE local-display-fields :
 
     
     IF LASTKEY = -1 THEN  RETURN.
-
+    
+    FOR EACH bloc WHERE 
+        bloc.company EQ "" OR 
+        bloc.loc EQ "":
+        DELETE bloc.
+    END.
+    FOR EACH blocation WHERE 
+        blocation.company EQ "" OR 
+        blocation.locationCode EQ "":
+        DELETE blocation.
+    END.
+    
     FIND FIRST fg-bin NO-LOCK WHERE 
         fg-bin.company EQ g_company AND 
         fg-bin.loc EQ loc.loc:SCREEN-VALUE IN FRAME {&frame-name} AND 
@@ -737,6 +752,39 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+    FIND loc WHERE 
+        loc.company EQ cocode AND 
+        loc.loc EQ loc.loc:SCREEN-VALUE  
+        EXCLUSIVE NO-ERROR.
+    IF AVAIL loc THEN FIND FIRST location EXCLUSIVE WHERE 
+        location.company EQ loc.company AND 
+        location.locationCode EQ loc.loc 
+        NO-ERROR.
+    IF NOT AVAIL location THEN DO:
+        CREATE location.
+        ASSIGN 
+            location.company      = loc.company
+            location.locationCode = loc.loc
+            location.countryCode
+            location.subCode1
+            location.subCode2
+            location.subCode3
+            location.subCode4
+            location.streetAddr
+            location.defaultBin
+            location.geoLat
+            location.geoLong
+            location.lActive
+            location.notes
+            location.phone
+            location.fax
+            location.email
+            .
+        IF adm-new-record THEN ASSIGN 
+            location.rec_key      = DYNAMIC-FUNCTION("sfGetNextRecKey") 
+            loc.addrRecKey        = location.rec_key.
+    END.
+
     /* Code placed here will execute AFTER standard behavior.    */
     IF lCheckBinMessage THEN DO:
         IF rsBinType:SCREEN-VALUE EQ "FG" THEN DO:
@@ -783,8 +831,30 @@ PROCEDURE local-update-record :
         END. /* rsBinType:SCREEN-VALUE EQ "wp"*/
     END.
     
+    IF adm-new-record THEN 
+        RUN repo-query IN THIS-PROCEDURE (INPUT ROWID(loc)).
+    
     lCheckBinMessage = NO .     
     adm-new-record = NO .    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query V-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"Record-Source", OUTPUT char-hdl).
+  RUN repo-query IN WIDGET-HANDLE(char-hdl) (INPUT ip-rowid).
 
 END PROCEDURE.
 

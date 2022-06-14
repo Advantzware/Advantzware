@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/invaxis.p */
 /* PRINT INVOICE   Xprint form for Premier Pkg  (PremierX and PremierS)       */
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 DEF INPUT PARAM ip-print-s AS LOG NO-UNDO. /* for PremierS */
 {sys/inc/var.i shared}
@@ -675,7 +676,7 @@ RUN XMLOutput (lXMLOutput,'','','Header').
                 v-price-head 
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                space(1) v-ord-no SPACE(9)
+                space(1) STRING(v-ord-no) FORM "x(8)" SPACE(7)
                 inv-line.i-no SPACE(1)
                 inv-line.part-dscr1 SKIP
                 inv-line.part-dscr2 AT 33 SKIP.

@@ -33,10 +33,10 @@ DEFINE VARIABLE cOrderImportType AS CHARACTER NO-UNDO.
 {sys/inc/var.i "NEW SHARED"}
 {sys/inc/varasgn.i}
 
-IF ipcRequestDataType EQ "XML" THEN
-    cOrderImportType = cOrderImportTypeCXMLMonitor.
-ELSE IF ipcRequestDataType EQ "EDI" THEN
+IF ipcRequestDataType EQ "EDI" OR INDEX(iplcRequestData, "http://www.rssbus.com") GT 0 THEN
     cOrderImportType = cOrderImportTypeEDI.
+ELSE IF ipcRequestDataType EQ "XML" THEN
+    cOrderImportType = cOrderImportTypeCXMLMonitor.
 ELSE IF ipcRequestDataType EQ "CSV" THEN
     cOrderImportType = cOrderImportTypeImporter.
 
@@ -81,6 +81,14 @@ PROCEDURE pPrepareInputs PRIVATE:
         IF NOT oplSuccess THEN
             RETURN. 
     END.
+    ELSE IF ipcOrderImportType EQ cOrderImportTypeEDI THEN DO:
+        RUN pPrepareInputsEDI (
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage
+            ) NO-ERROR.       
+        IF NOT oplSuccess THEN
+            RETURN. 
+    END.    
 END PROCEDURE.
 
 PROCEDURE pPrepareInputsCXMLMonitor PRIVATE:
@@ -762,6 +770,7 @@ PROCEDURE pPrepareInputsCXMLMonitor PRIVATE:
         ttOrder.action          = cOrderActionCreate
         ttOrder.importType      = cOrderImportType
         ttOrder.stat            = "W"
+        ttOrder.ediSubmitted    = 1
         NO-ERROR. 
     IF ERROR-STATUS:ERROR THEN DO:
         ASSIGN
@@ -922,6 +931,616 @@ PROCEDURE pPrepareInputsCXMLMonitor PRIVATE:
             ttOrder.promiseDate = ttOrderLine.promiseDate.                        
     END.
     
+    ASSIGN
+        oplSuccess = TRUE
+        opcMessage = "Success"
+        .
+END PROCEDURE.
+
+PROCEDURE pPrepareInputsEDI PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: Reads the input EDI request data and save into temp-tables
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplSuccess AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturnValue AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iIndex       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOrderSeqID  AS INTEGER   NO-UNDO.
+    
+    DEFINE VARIABLE iOrderIDMeta           AS INTEGER   NO-UNDO. /* ISA */ 
+    DEFINE VARIABLE iFunctionalGroupOrder  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cTransactionOrderList  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iTransactionCount      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cFromIdentity          AS CHARACTER NO-UNDO. /* ISA06 */
+    DEFINE VARIABLE cToIdentity            AS CHARACTER NO-UNDO. /* ISA08 */    
+    DEFINE VARIABLE cInterControlNumber    AS CHARACTER NO-UNDO. /* ISA12 */
+    DEFINE VARIABLE iOrderID850            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iOrderIDBEG            AS INTEGER   NO-UNDO. /* BEG Order ID */
+    DEFINE VARIABLE cPurposeCode           AS CHARACTER NO-UNDO. /* BEG01 */
+    DEFINE VARIABLE cPOTypeCode            AS CHARACTER NO-UNDO. /* BEG02 */
+    DEFINE VARIABLE cPONo                  AS CHARACTER NO-UNDO. /* BEG03 */
+    DEFINE VARIABLE dtPODate               AS DATE      NO-UNDO. /* BEG05 */
+    DEFINE VARIABLE cN1Loop1OrderList      AS CHARACTER NO-UNDO. /* N1Loop1 Order List */
+    DEFINE VARIABLE iN1Loop1Count          AS INTEGER   NO-UNDO. /* N1Loop1 count */
+    DEFINE VARIABLE iOrderIDN1             AS INTEGER   NO-UNDO. /* N1 Order ID */        
+    DEFINE VARIABLE cEntityIdentityCode    AS CHARACTER NO-UNDO. /* N101 */
+    DEFINE VARIABLE cShipToName            AS CHARACTER NO-UNDO. /* N102 */
+    DEFINE VARIABLE cShipToID              AS CHARACTER NO-UNDO. /* N104 */
+    DEFINE VARIABLE iOrderIDN3             AS INTEGER   NO-UNDO. /* N3 Order ID */
+    DEFINE VARIABLE cShipToAddress         AS CHARACTER NO-UNDO. /* N301 */
+    DEFINE VARIABLE iOrderIDN4             AS INTEGER   NO-UNDO. /* N4 Order ID */
+    DEFINE VARIABLE cShipToCity            AS CHARACTER NO-UNDO. /* N401 */
+    DEFINE VARIABLE cShipToState           AS CHARACTER NO-UNDO. /* N402 */
+    DEFINE VARIABLE cShipToPostalCode      AS CHARACTER NO-UNDO. /* N403 */
+    DEFINE VARIABLE iOrderIDDTM            AS INTEGER   NO-UNDO. /* DTM Order ID */
+    DEFINE VARIABLE cDateTimeQualifier     AS CHARACTER NO-UNDO. /* DTM01 */
+    DEFINE VARIABLE dtQualifierDate        AS DATE      NO-UNDO. /* DTM02 */
+    DEFINE VARIABLE iOrderIDITD            AS INTEGER   NO-UNDO. /* ITD Order ID */
+    DEFINE VARIABLE cTermsTypeCode         AS CHARACTER NO-UNDO. /* ITD01 */
+    DEFINE VARIABLE cTermsBasisDateCode    AS CHARACTER NO-UNDO. /* ITD02 */
+    DEFINE VARIABLE dTermsDiscountPercent  AS DECIMAL   NO-UNDO. /* ITD03 */
+    DEFINE VARIABLE dtTermsDiscountDueDate AS DATE      NO-UNDO. /* ITD04 */
+    DEFINE VARIABLE dtTermsNetDueDate      AS DATE      NO-UNDO. /* ITD06 */
+    DEFINE VARIABLE iTermsNetDays          AS INTEGER   NO-UNDO. /* ITD07 */    
+    DEFINE VARIABLE cTermsDescription      AS CHARACTER NO-UNDO. /* ITD12 */        
+    DEFINE VARIABLE cPIDLoop1OrderList     AS CHARACTER NO-UNDO. /* PIDLoop1 Order List */
+    DEFINE VARIABLE iPIDLoop1Count         AS INTEGER   NO-UNDO. /* PIDLoop1 count */
+    DEFINE VARIABLE cPO1Loop1OrderList     AS CHARACTER NO-UNDO. /* PO1 Loop1 order list */
+    DEFINE VARIABLE iPO1Loop1Count         AS INTEGER   NO-UNDO. /* PO1 loop1 count */
+    DEFINE VARIABLE iOrderIDPO1            AS INTEGER   NO-UNDO. /* PO1 Order ID */
+    DEFINE VARIABLE iOrderLine             AS INTEGER   NO-UNDO. /* PO101 */  
+    DEFINE VARIABLE dOrderQuantity         AS DECIMAL   NO-UNDO. /* PO102 */
+    DEFINE VARIABLE cOrderLineUOM          AS CHARACTER NO-UNDO. /* PO103 */
+    DEFINE VARIABLE dOrderLineUnitPrice    AS DECIMAL   NO-UNDO. /* PO104 */
+    DEFINE VARIABLE cBuyerPart             AS CHARACTER NO-UNDO. /* PO107 */
+    DEFINE VARIABLE iOrderIDSACLoop2       AS INTEGER   NO-UNDO. /* SACLoop2 Order ID */
+    DEFINE VARIABLE iOrderIDSAC            AS INTEGER   NO-UNDO. /* SAC Order ID */
+    DEFINE VARIABLE cChargeCode            AS CHARACTER NO-UNDO. /* SAC02 */
+    DEFINE VARIABLE iOrderIDCTT            AS INTEGER   NO-UNDO. /* CTT Order ID */
+    DEFINE VARIABLE iTotalLineItems        AS INTEGER   NO-UNDO. /* CTT01 */
+    
+    /* Read XML from long char and store in temp-table */
+    RUN XML_ReadToTT (
+        INPUT iplcRequestData
+        ) NO-ERROR.
+
+    IF ERROR-STATUS:ERROR OR NOT TEMP-TABLE ttNodes:HAS-RECORDS THEN DO:
+        ASSIGN
+            oplSuccess     = NO
+            opcMessage = "Requested XML is not in valid format"
+            .            
+        RETURN.  
+    END.
+
+    RUN XML_GetFieldOrderByName (
+        INPUT  "Meta",
+        OUTPUT lRecFound,
+        OUTPUT iOrderIDMeta
+        ).
+    IF NOT lRecFound THEN DO:
+        ASSIGN 
+            oplSuccess = FALSE
+            opcMessage = "Missing 'Meta' information "
+            .
+        RETURN.    
+    END.
+
+    RUN XML_GetFieldValueByNameAndParent (
+        INPUT  "ISA06",
+        INPUT  iOrderIDMeta,
+        OUTPUT lRecFound,
+        OUTPUT cFromIdentity
+        ).
+            
+    RUN XML_GetFieldValueByNameAndParent (
+        INPUT  "ISA06",
+        INPUT  iOrderIDMeta,
+        OUTPUT lRecFound,
+        OUTPUT cToIdentity
+        ).
+
+    RUN XML_GetFieldValueByNameAndParent (
+        INPUT  "ISA13",
+        INPUT  iOrderIDMeta,
+        OUTPUT lRecFound,
+        OUTPUT cInterControlNumber
+        ).
+                                  
+    RUN XML_GetFieldOrderByName (
+        INPUT  "FunctionalGroup",
+        OUTPUT lRecFound,
+        OUTPUT iFunctionalGroupOrder
+        ).
+    IF NOT lRecFound THEN DO:
+        ASSIGN 
+            oplSuccess = FALSE
+            opcMessage = "Missing xml element 'FunctionalGroup'"
+            .
+        RETURN.    
+    END.
+    
+    RUN XML_GetFieldOrderListByNameAndParent (
+        INPUT  "TransactionSet",
+        INPUT  iFunctionalGroupOrder,
+        OUTPUT cTransactionOrderList
+        ).   
+    IF cTransactionOrderList EQ "" THEN DO:
+        ASSIGN 
+            oplSuccess = FALSE
+            opcMessage = "No Transactions are available to process"
+            .
+        RETURN.
+    END.
+    
+    DO iTransactionCount = 1 TO NUM-ENTRIES(cTransactionOrderList):
+        ASSIGN  
+            iOrderID850            = 0   
+            iOrderIDBEG            = 0   
+            cPurposeCode           = ""      
+            cPOTypeCode            = "" 
+            cPONo                  = ""
+            dtPODate               = ?      
+            cN1Loop1OrderList      = "" 
+            iN1Loop1Count          = 0   
+            iOrderIDN1             = 0   
+            cEntityIdentityCode    = "" 
+            cShipToName            = ""
+            cShipToID              = "" 
+            iOrderIDN3             = 0   
+            cShipToAddress         = ""
+            iOrderIDN4             = 0
+            cShipToCity            = ""
+            cShipToState           = ""
+            cShipToPostalCode      = "" 
+            iOrderIDDTM            = 0
+            cDateTimeQualifier     = ""
+            dtQualifierDate        = ?
+            iOrderIDITD            = 0   
+            cTermsTypeCode         = "" 
+            cTermsBasisDateCode    = "" 
+            dTermsDiscountPercent  = 0   
+            dtTermsDiscountDueDate = ?      
+            dtTermsNetDueDate      = ?      
+            cTermsDescription      = ""   
+            cPIDLoop1OrderList     = "" 
+            iPIDLoop1Count         = 0   
+            iOrderIDCTT            = 0   
+            iTotalLineItems        = 0
+            cPO1Loop1OrderList     = ""
+            .
+    
+        RUN XML_GetFieldOrderByNameAndParent (
+            INPUT  "TX-00401-850",
+            INPUT  INTEGER(ENTRY(iTransactionCount, cTransactionOrderList)),
+            OUTPUT lRecFound,
+            OUTPUT iOrderID850
+            ).
+        IF NOT lRecFound THEN
+            NEXT.
+
+        /* Beginning Segment for Invoice */
+        RUN XML_GetFieldOrderByNameAndParent (
+            INPUT  "BEG",
+            INPUT  iOrderID850,
+            OUTPUT lRecFound,
+            OUTPUT iOrderIDBEG
+            ).
+        IF NOT lRecFound THEN
+            NEXT.
+        
+        /* Invoice Date */
+        RUN XML_GetFieldValueByNameAndParent (
+            INPUT  "BEG01",
+            INPUT  iOrderIDBEG,
+            OUTPUT lRecFound,
+            OUTPUT cPurposeCode
+            ).
+        
+        /* Invoice # */
+        RUN XML_GetFieldValueByNameAndParent (
+            INPUT  "BEG02",
+            INPUT  iOrderIDBEG,
+            OUTPUT lRecFound,
+            OUTPUT cPOTypeCode
+            ).
+        
+        /* Purchase Order Number */
+        RUN XML_GetFieldValueByNameAndParent (
+            INPUT  "BEG03",
+            INPUT  iOrderIDBEG,
+            OUTPUT lRecFound,
+            OUTPUT cPONo
+            ).
+
+        /* Purchase Order Date */
+        RUN XML_GetFieldValueByNameAndParent (
+            INPUT  "BEG05",
+            INPUT  iOrderIDBEG,
+            OUTPUT lRecFound,
+            OUTPUT cReturnValue
+            ).
+        IF lRecFound AND LENGTH(cReturnValue) GE 8 THEN
+            dtPODate = DATE(INTEGER(SUBSTRING(cReturnValue,5,2)), 
+                            INTEGER(SUBSTRING(cReturnValue,7,2)), 
+                            INTEGER(SUBSTRING(cReturnValue,1,4))) NO-ERROR.
+
+        /* Entity identification information */
+        RUN XML_GetFieldOrderListByNameAndParent (
+            INPUT  "N1Loop1",
+            INPUT  iOrderID850,
+            OUTPUT cN1Loop1OrderList
+            ).   
+        IF cN1Loop1OrderList NE "" THEN DO:
+            DO iN1Loop1Count = 1 TO NUM-ENTRIES(cN1Loop1OrderList):
+                RUN XML_GetFieldOrderByNameAndParent (
+                    INPUT  "N1",
+                    INPUT  INTEGER(ENTRY(iN1Loop1Count, cN1Loop1OrderList)),
+                    OUTPUT lRecFound,
+                    OUTPUT iOrderIDN1
+                    ).
+                IF NOT lRecFound THEN
+                    NEXT.
+                    
+                /* Entity Identifier Code. RE - Remit Address, BT - Bill-to-Party, ST - Ship To, VN - Vendor Number */
+                RUN XML_GetFieldValueByNameAndParent (
+                    INPUT  "N101",
+                    INPUT  iOrderIDN1,
+                    OUTPUT lRecFound,
+                    OUTPUT cEntityIdentityCode
+                    ).
+
+                /* ShipTo Name */
+                RUN XML_GetFieldValueByNameAndParent (
+                    INPUT  "N102",
+                    INPUT  iOrderIDN1,
+                    OUTPUT lRecFound,
+                    OUTPUT cShipToName
+                    ).
+                    
+                RUN XML_GetFieldValueByNameAndParent (
+                    INPUT  "N104",
+                    INPUT  iOrderIDN1,
+                    OUTPUT lRecFound,
+                    OUTPUT cShipToID
+                    ).
+
+                RUN XML_GetFieldOrderByNameAndParent (
+                    INPUT  "N3",
+                    INPUT  INTEGER(ENTRY(iN1Loop1Count, cN1Loop1OrderList)),
+                    OUTPUT lRecFound,
+                    OUTPUT iOrderIDN3
+                    ).
+                IF lRecFound AND cEntityIdentityCode EQ "ST" THEN DO:
+                    RUN XML_GetFieldValueByNameAndParent (
+                        INPUT  "N301",
+                        INPUT  iOrderIDN3,
+                        OUTPUT lRecFound,
+                        OUTPUT cShipToAddress
+                        ).                                    
+                END.
+
+                RUN XML_GetFieldOrderByNameAndParent (
+                    INPUT  "N4",
+                    INPUT  INTEGER(ENTRY(iN1Loop1Count, cN1Loop1OrderList)),
+                    OUTPUT lRecFound,
+                    OUTPUT iOrderIDN4
+                    ).
+                IF lRecFound AND cEntityIdentityCode EQ "ST" THEN DO:
+                    RUN XML_GetFieldValueByNameAndParent (
+                        INPUT  "N401",
+                        INPUT  iOrderIDN3,
+                        OUTPUT lRecFound,
+                        OUTPUT cShipToCity
+                        ).                                    
+
+                    RUN XML_GetFieldValueByNameAndParent (
+                        INPUT  "N402",
+                        INPUT  iOrderIDN3,
+                        OUTPUT lRecFound,
+                        OUTPUT cShipToState
+                        ).                                    
+
+                    RUN XML_GetFieldValueByNameAndParent (
+                        INPUT  "N403",
+                        INPUT  iOrderIDN3,
+                        OUTPUT lRecFound,
+                        OUTPUT cShipToPostalCode
+                        ).                                    
+                END.                
+            END.            
+        END.
+        
+        /* Terms of Sale/Deferred Terms of Sale */
+        RUN XML_GetFieldOrderByNameAndParent (
+            INPUT  "ITD",
+            INPUT  iOrderID850,
+            OUTPUT lRecFound,
+            OUTPUT iOrderIDITD
+            ).
+        IF lRecFound THEN DO:
+            /* Terms Type Code */
+            RUN XML_GetFieldValueByNameAndParent (
+                INPUT  "ITD01",
+                INPUT  iOrderIDITD,
+                OUTPUT lRecFound,
+                OUTPUT cTermsTypeCode
+                ).
+
+            /* Terms Basis Date Code */
+            RUN XML_GetFieldValueByNameAndParent (
+                INPUT  "ITD02",
+                INPUT  iOrderIDITD,
+                OUTPUT lRecFound,
+                OUTPUT cTermsBasisDateCode
+                ).
+            
+            /* Terms Discount Percent */
+            RUN XML_GetFieldValueByNameAndParent (
+                INPUT  "ITD03",
+                INPUT  iOrderIDITD,
+                OUTPUT lRecFound,
+                OUTPUT cReturnValue
+                ).
+            IF lRecFound THEN
+                dTermsDiscountPercent = DECIMAL(cReturnValue) NO-ERROR.
+
+            /* Terms Discount Due Date */
+            RUN XML_GetFieldValueByNameAndParent (
+                INPUT  "ITD04",
+                INPUT  iOrderIDITD,
+                OUTPUT lRecFound,
+                OUTPUT cReturnValue
+                ).
+            IF lRecFound AND LENGTH(cReturnValue) GE 8 THEN
+                dtTermsDiscountDueDate = DATE(INTEGER(SUBSTRING(cReturnValue,5,2)), 
+                                              INTEGER(SUBSTRING(cReturnValue,7,2)), 
+                                              INTEGER(SUBSTRING(cReturnValue,1,4))) NO-ERROR.
+            
+            /* Terms Net Due Date */
+            RUN XML_GetFieldValueByNameAndParent (
+                INPUT  "ITD06",
+                INPUT  iOrderIDITD,
+                OUTPUT lRecFound,
+                OUTPUT cReturnValue
+                ).
+            IF lRecFound AND LENGTH(cReturnValue) GE 8 THEN
+                dtTermsNetDueDate = DATE(INTEGER(SUBSTRING(cReturnValue,5,2)), 
+                                         INTEGER(SUBSTRING(cReturnValue,7,2)), 
+                                         INTEGER(SUBSTRING(cReturnValue,1,4))) NO-ERROR.
+
+            /* Terms Discount Days Due */
+            RUN XML_GetFieldValueByNameAndParent (
+                INPUT  "ITD07",
+                INPUT  iOrderIDITD,
+                OUTPUT lRecFound,
+                OUTPUT cReturnValue
+                ).
+            IF lRecFound THEN
+                iTermsNetDays = INTEGER(cReturnValue) NO-ERROR.
+
+            /* Description */
+            RUN XML_GetFieldValueByNameAndParent (
+                INPUT  "ITD12",
+                INPUT  iOrderIDITD,
+                OUTPUT lRecFound,
+                OUTPUT cTermsDescription
+                ).
+        END.
+
+        /* Transaction Totals */
+        RUN XML_GetFieldOrderByNameAndParent (
+            INPUT  "CTT",
+            INPUT  iOrderID850,
+            OUTPUT lRecFound,
+            OUTPUT iOrderIDCTT
+            ).
+        IF lRecFound THEN DO:
+            /* Total number of line items in the transaction set */
+            RUN XML_GetFieldValueByNameAndParent (
+                INPUT  "CTT01",
+                INPUT  iOrderIDCTT,
+                OUTPUT lRecFound,
+                OUTPUT cReturnValue
+                ).
+            IF lRecFound AND cReturnValue NE "" THEN
+                iTotalLineItems = INTEGER(cReturnValue).
+        END.   
+        
+        iOrderSeqID = iOrderSeqID + 1.
+        
+        CREATE ttOrder.
+        ASSIGN    
+            ttOrder.fromIdentity    = cFromIdentity
+            ttOrder.toIdentity      = cToIdentity
+            ttOrder.orderSeqID      = iOrderSeqID
+            ttOrder.company         = cocode
+            ttOrder.warehouseID     = locode
+            ttOrder.poID            = TRIM(cPONo)
+            ttOrder.payLoadID       = TRIM(cInterControlNumber)
+            ttOrder.orderDate       = dtPODate
+            ttOrder.shipToID        = TRIM(cShipToID)
+            ttOrder.shipToName      = TRIM(cShipToName)
+/*            ttOrder.shipToDeliverTo = cShipToDeliverTo*/
+            ttOrder.shipToAddress1  = TRIM(cShipToAddress)
+            ttOrder.shipToCity      = TRIM(cShipToCity)
+            ttOrder.shipToState     = TRIM(cShipToState)
+            ttOrder.shipToZip       = TRIM(cShipToPostalCode)
+/*            ttOrder.shipToCountry   = cShipToCountryCode*/
+/*            ttOrder.shipToEmail     = cShipToEmail                                       */
+            ttOrder.billToID        = TRIM(cShipToID)
+            ttOrder.billToName      = TRIM(cShipToName)
+/*            ttOrder.billToDeliverTo = cBillToDeliverTo*/
+            ttOrder.billToAddress1  = TRIM(cShipToAddress)
+            ttOrder.billToCity      = TRIM(cShipToCity)
+            ttOrder.billToState     = TRIM(cShipToState)
+            ttOrder.billToZip       = TRIM(cShipToPostalCode)
+/*            ttOrder.billToCountry   = cBillToCountryCode*/
+/*            ttOrder.billToEmail     = cBillToEmail*/
+/*            ttOrder.freightCost     = DECIMAL(cShippingCost)*/
+/*            ttOrder.cardNo          = cCardNo                                            */
+/*            ttOrder.cardExpiryDate  = IF cCardExpiryDate NE "" THEN                      */
+/*                                          DATE(INTEGER(SUBSTRING(cCardExpiryDate, 6, 2)),*/
+/*                                               INTEGER(SUBSTRING(cCardExpiryDate, 9, 2)),*/
+/*                                               INTEGER(SUBSTRING(cCardExpiryDate, 1, 4)))*/
+/*                                      ELSE                                               */
+/*                                          ?                                              */
+/*            ttOrder.cardType        = IF cCardNo BEGINS '3' THEN                         */
+/*                                          'AMEX'                                         */
+/*                                      ELSE IF cCardNo BEGINS '4' THEN                    */
+/*                                          'VISA'                                         */
+/*                                      ELSE IF cCardNo BEGINS '5' THEN                    */
+/*                                          'MC'                                           */
+/*                                      ELSE IF cCardNo BEGINS '6' THEN                    */
+/*                                          'DISCOVER'                                     */
+/*                                      ELSE ''                                            */
+/*            ttOrder.contactName     = cContactName                                       */
+/*            ttOrder.contactEmail    = cContactEmail                                      */
+/*            ttOrder.comments        = cOrderComments                                     */
+            ttOrder.action          = cOrderActionCreate
+            ttOrder.importType      = cOrderImportType
+            ttOrder.stat            = "W"
+            NO-ERROR. 
+
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = ERROR-STATUS:GET-MESSAGE(1)
+                .
+            RETURN.    
+        END.
+
+        system.SharedConfig:Instance:SetValue("APIInboundEvent_UserField1", ttOrder.poID).
+        system.SharedConfig:Instance:SetValue("APIInboundEvent_UserField2", ttOrder.shipToID).
+                
+        /* Entity identification information */
+        RUN XML_GetFieldOrderListByNameAndParent (
+            INPUT  "PO1Loop1",
+            INPUT  iOrderID850,
+            OUTPUT cPO1Loop1OrderList
+            ).   
+        IF cPO1Loop1OrderList NE "" THEN DO:
+            ASSIGN
+                iPO1Loop1Count      = 0
+                iOrderIDPO1         = 0
+                iOrderLine          = 0
+                dOrderQuantity      = 0
+                cOrderLineUOM       = ""
+                dOrderLineUnitPrice = 0
+                cBuyerPart          = ""
+                .
+                            
+            DO iPO1Loop1Count = 1 TO NUM-ENTRIES(cPO1Loop1OrderList):
+                RUN XML_GetFieldOrderByNameAndParent (
+                    INPUT  "PO1",
+                    INPUT  INTEGER(ENTRY(iPO1Loop1Count, cPO1Loop1OrderList)),
+                    OUTPUT lRecFound,
+                    OUTPUT iOrderIDPO1
+                    ).
+                IF NOT lRecFound THEN
+                    NEXT.
+                
+                /* Order Line */
+                RUN XML_GetFieldValueByNameAndParent (
+                    INPUT  "PO101",
+                    INPUT  iOrderIDPO1,
+                    OUTPUT lRecFound,
+                    OUTPUT cReturnValue
+                    ).
+                IF lRecFound THEN
+                    iOrderLine = INTEGER(cReturnValue) NO-ERROR.
+                    
+                /* Order Line quantity */
+                RUN XML_GetFieldValueByNameAndParent (
+                    INPUT  "PO102",
+                    INPUT  iOrderIDPO1,
+                    OUTPUT lRecFound,
+                    OUTPUT cReturnValue
+                    ).
+                IF lRecFound THEN
+                    dOrderQuantity = DECIMAL (cReturnValue) NO-ERROR.
+                                    
+                /* Order Line quantity UOM */
+                RUN XML_GetFieldValueByNameAndParent (
+                    INPUT  "PO103",
+                    INPUT  iOrderIDPO1,
+                    OUTPUT lRecFound,
+                    OUTPUT cOrderLineUOM
+                    ).
+    
+                /* Order Line Unit Price */
+                RUN XML_GetFieldValueByNameAndParent (
+                    INPUT  "PO104",
+                    INPUT  iOrderIDPO1,
+                    OUTPUT lRecFound,
+                    OUTPUT cReturnValue
+                    ).
+                IF lRecFound THEN
+                    dOrderLineUnitPrice = DECIMAL (cReturnValue) NO-ERROR.
+
+                /* Buyer Part */
+                RUN XML_GetFieldValueByNameAndParent (
+                    INPUT  "PO107",
+                    INPUT  iOrderIDPO1,
+                    OUTPUT lRecFound,
+                    OUTPUT cBuyerPart
+                    ).                    
+                
+                /* Charge segment */
+                RUN XML_GetFieldOrderByNameAndParent (
+                    INPUT  "SACLoop2",
+                    INPUT  INTEGER(ENTRY(iPO1Loop1Count, cPO1Loop1OrderList)),
+                    OUTPUT lRecFound,
+                    OUTPUT iOrderIDSACLoop2
+                    ).
+
+                IF lRecFound THEN DO:
+                    RUN XML_GetFieldOrderByNameAndParent (
+                        INPUT  "SAC",
+                        INPUT  iOrderIDSACLoop2,
+                        OUTPUT lRecFound,
+                        OUTPUT iOrderIDSAC
+                        ).
+                    IF lRecFound THEN DO:
+                        /* Charge code */
+                        RUN XML_GetFieldValueByNameAndParent (
+                            INPUT  "SAC02",
+                            INPUT  iOrderIDSAC,
+                            OUTPUT lRecFound,
+                            OUTPUT cChargeCode
+                            ).
+                    END.       
+                END.
+
+                CREATE ttOrderLine.
+                ASSIGN
+                    ttOrderLine.orderSeqID              = ttOrder.orderSeqID
+                    ttOrderLine.company                 = cocode
+                    ttOrderLine.payLoadID               = ""
+                    ttOrderLine.poID                    = ttOrder.poID
+                    ttOrderLine.lineNo                  = iOrderLine
+                    ttOrderLine.quantity                = dOrderQuantity
+                    ttOrderLine.supplierPartID          = TRIM(cBuyerPart)
+                    ttOrderLine.manufacturerPartID      = TRIM(cBuyerPart)
+                    ttOrderLine.supplierPartAuxiliaryID = TRIM(cBuyerPart)
+                    ttOrderLine.unitPrice               = dOrderLineUnitPrice 
+                    ttOrderLine.itemName                = ""
+                    ttOrderLine.uom                     = TRIM(cOrderLineUOM)
+                    ttOrderLine.dueDate                 = ?
+                    ttOrderLine.promiseDate             = ?
+                    ttOrderLine.lineCost                = ttOrderLine.quantity * dOrderLineUnitPrice
+                    ttOrderLine.prepCode                = TRIM(cChargeCode)
+                    ttOrder.totalCost                   = ttOrder.totalCost + ttOrderLine.lineCost 
+                    ttOrderLine.action                  = cOrderActionCreate
+                    NO-ERROR.
+                    
+                system.SharedConfig:Instance:SetValue("APIInboundEvent_UserField3", ttOrderLine.supplierPartID).
+            END.
+        END.
+    END.
+
     ASSIGN
         oplSuccess = TRUE
         opcMessage = "Success"

@@ -620,7 +620,7 @@ FOR EACH job-hdr NO-LOCK
       dueDate   = IF job.due-date NE ? THEN job.due-date ELSE {{&includes}/lastDate.i}
       prodDate  = ?
       jobSort   = job-mch.job-no + '-'
-                + STRING(job-mch.job-no2,'99')
+                + STRING(job-mch.job-no2,'999')
                 + '.' + STRING(job-mch.frm,'99')
       jobNumber = LEFT-TRIM(job-mch.job-no + '-'
                 + STRING(job-mch.job-no2)
@@ -1067,7 +1067,7 @@ FOR EACH job-hdr NO-LOCK
       userField[6]   = setUserField(6,IF AVAILABLE eb THEN eb.plate-no ELSE '')
       userField[7]   = setUserField(7,IF AVAILABLE po-ordl AND (lUseForm EQ NO OR
                        po-ordl.s-num EQ job-mch.frm) THEN STRING(po-ordl.po-no,'>>>>>>>9') ELSE '')
-      userField[8]   = setUserField(8,IF AVAIL eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
+      userField[8]   = setUserField(8,IF AVAILABLE eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
                                  ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
                                  ELSE IF AVAILABLE itemfg AND itemfg.i-no EQ '' THEN itemfg.i-no
                                  ELSE itemDescription)
@@ -1124,7 +1124,7 @@ FOR EACH job-hdr NO-LOCK
       userField[101] = setUserField(101,STRING(iRunWaste,'>>>,>>9'))
       userField[102] = setUserField(102,specialTime(INTEGER(TRUNCATE(job-mch.mr-hr,0) * 3600 + (job-mch.mr-hr - TRUNCATE(job-mch.mr-hr,0)) * 3600)))
       userField[103] = setUserField(103,specialTime(INTEGER(TRUNCATE(job-mch.run-hr,0) * 3600 + (job-mch.run-hr - TRUNCATE(job-mch.run-hr,0)) * 3600)))
-      userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'99'))
+      userField[104] = setUserField(104,job-mch.job-no + '-' + STRING(job-mch.job-no2,'999'))
       userField[105] = setUserField(105,STRING(timeSpan / 3600,">>,>>9.99"))
       userField[107] = setUserField(107,STRING(job-hdr.qty,'>>,>>>,>>9'))
       userField[110] = setUserField(110,STRING(job.promiseDate,'99/99/9999'))

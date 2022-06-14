@@ -1,1 +1,0 @@
-         <Link Action="Create" FromOrder="$JobNumber1$-$JobNumber2|>>9|INT|$" FromPart="$FromPart$" FromTask="$FromTask$" FromLocationCode="$FromLocation$" ToOrder="$JobNumber1$-$JobNumber2|>>9|INT|$" ToPart="$ToPart$" ToTask="$ToTask$" ToLocationCode="$ToLocation$" LagMinutes="0" DelayMinutes="0"/>

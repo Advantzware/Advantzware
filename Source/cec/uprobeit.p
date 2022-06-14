@@ -326,7 +326,7 @@ FOR EACH probeit
         /*Pull the Total Board Cost from the probe.board (Reftable)*/
     FIND CURRENT probe EXCLUSIVE-LOCK NO-ERROR.
          ASSIGN
-            probe.manHoursTotal = op-tot[8] + op-tot[9]
+            probe.manHoursTotal = op-tot[1] + op-tot[2] //Changed from Total Man Hours to just Total Hours per ticket 105169
             dBoardCst = probe.boardCostTotal.
     FIND CURRENT probe NO-LOCK NO-ERROR.     
          

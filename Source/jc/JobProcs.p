@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : JobProcs.p
     Purpose     : 
@@ -11,6 +10,7 @@
     Created     : Tue Apr 09 18:31:30 EST 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */       
 
 /* ***************************  Definitions  ************************** */
 
@@ -110,6 +110,57 @@ PROCEDURE GetFormAndBlankFromJobAndFGItem:
     RELEASE bf-job.
     RELEASE bf-job-hdr.
 
+END PROCEDURE.
+
+
+PROCEDURE Job_GetMatActQuantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcJobNo       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJobNo2      AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQuantityUOM AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job FOR job.
+    
+    FIND FIRST bf-job NO-LOCK
+         WHERE bf-job.company EQ ipcCompany
+           AND bf-job.job-no  EQ ipcJobNo
+           AND bf-job.job-no2 EQ ipiJobNo2
+         NO-ERROR.
+    IF AVAILABLE bf-job THEN
+        RUN pGetMatActQuantity (bf-job.company, bf-job.job, ipcItemID, ipcTag, OUTPUT opdQuantity, OUTPUT opcQuantityUOM).
+END PROCEDURE.
+
+PROCEDURE pGetMatActQuantity PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiJob         AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcTag         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcQuantityUOM AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-mat-act FOR mat-act.
+    
+    FOR EACH bf-mat-act NO-LOCK
+        WHERE bf-mat-act.company EQ ipcCompany
+          AND bf-mat-act.job     EQ ipiJob
+          AND bf-mat-act.i-no    EQ ipcItemID
+          AND bf-mat-act.tag     EQ ipcTag:
+        ASSIGN
+            opdQuantity    = opdQuantity + bf-mat-act.qty
+            opcQuantityUOM = bf-mat-act.qty-uom
+            .
+    END.
 END PROCEDURE.
 
 PROCEDURE Job_GetNextOperation:
@@ -224,6 +275,7 @@ PROCEDURE pAllocationJobMaterial PRIVATE:
                bf-job-mat.job-no   = bf-job.job-no
                bf-job-mat.job-no2  = bf-job.job-no2
                bf-job-mat.rm-i-no  = ipcRmItem
+               bf-job-mat.i-no     = ipcRmItem
                bf-job-mat.frm      = ipiFormNo
                bf-job-mat.blank-no = ipiBlankNo
                bf-job-mat.qty-all  = ipdAllocation
@@ -253,10 +305,12 @@ PROCEDURE pAllocationJobMaterial PRIVATE:
          FIND FIRST bf-job-mat EXCLUSIVE-LOCK
               WHERE ROWID(bf-job-mat) EQ ioprwRowId NO-ERROR.
               
-         IF avail bf-job-mat THEN     
+         IF AVAILABLE bf-job-mat THEN     
          ASSIGN            
-              bf-job-mat.rm-i-no  = ipcRmItem        
-              bf-job-mat.qty-all  = ipdAllocation   .
+              bf-job-mat.rm-i-no = ipcRmItem
+              bf-job-mat.i-no    = ipcRmItem
+              bf-job-mat.qty-all = ipdAllocation
+              .
     END.
     RELEASE bf-job-mat.  
     
@@ -281,11 +335,11 @@ PROCEDURE pGetSecondaryJobForJob PRIVATE:
            BY bf-job-hdr.opened DESCENDING
            BY bf-job-hdr.job-no2:
         opcJobno2List = IF opcJobno2List EQ "" THEN 
-                            STRING(bf-job-hdr.job-no2,"99")
-                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"99")) GT 0 THEN 
+                            STRING(bf-job-hdr.job-no2,"999")
+                        ELSE IF INDEX(opcJobno2List,STRING(bf-job-hdr.job-no2,"999")) GT 0 THEN 
                             opcJobno2List
                         ELSE 
-                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"99").        
+                            opcJobno2List + "," + STRING(bf-job-hdr.job-no2,"999").        
     END.
 
     RELEASE bf-job-hdr.
@@ -525,6 +579,17 @@ PROCEDURE job_CloseJob_DCPost:
     
 END PROCEDURE.
 
+PROCEDURE job_Delete_JobMaterial:
+    /*------------------------------------------------------------------------------
+     Purpose: Returns blank no list for a given jobID
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprwRowid      AS ROWID NO-UNDO.
+          
+    RUN pDelete_JobMaterial(INPUT iprwRowid).      
+    
+END PROCEDURE.
+
 
 PROCEDURE CloseJob_DCPost PRIVATE:
     /*------------------------------------------------------------------------------
@@ -584,6 +649,34 @@ PROCEDURE CloseJob_DCPost PRIVATE:
     
 END PROCEDURE.  
 
+
+PROCEDURE pDelete_JobMaterial PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprwRowid   AS ROWID NO-UNDO.
+    DEFINE BUFFER bf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-job FOR job.
+    
+    FIND FIRST bf-job-mat EXCLUSIVE-LOCK 
+         WHERE rowid(bf-job-mat) EQ iprwRowid NO-ERROR.
+    
+    IF AVAIL bf-job-mat THEN
+    DO:
+        FIND FIRST bf-job EXCLUSIVE-LOCK
+             WHERE bf-job.company EQ bf-job-mat.company
+               AND bf-job.job-no  EQ bf-job-mat.job-no
+               AND bf-job.job-no2 EQ bf-job-mat.job-no2
+               AND bf-job.job     EQ bf-job-mat.job NO-ERROR.
+               
+        RUN jc/jc-all.p (ROWID(bf-job-mat), -1, INPUT-OUTPUT bf-job.stat). 
+        FIND CURRENT bf-job NO-LOCK.
+        DELETE bf-job-mat.
+    END.
+    
+END PROCEDURE.  
+
 PROCEDURE pCopyMaterialPreviousJob PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Returns blank no list for a given jobID
@@ -628,7 +721,7 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
      
     FOR EACH bf-job-mat NO-LOCK
         WHERE bf-job-mat.company EQ ipcCompany
-        and bf-job-mat.job-no  EQ ipcJobNo 
+        and bf-job-mat.job-no    EQ ipcJobNo 
         AND bf-job-mat.job-no ne ""   
         AND bf-job-mat.job-no2 EQ ipiJobNo2 
         AND (bf-job-mat.frm      EQ ipiFormNo OR ipiFormNo EQ ?)         
@@ -645,13 +738,13 @@ PROCEDURE pCopyMaterialPreviousJob PRIVATE:
          CREATE bff-job-mat.
          BUFFER-COPY bf-job-mat EXCEPT rec_key job job-no job-no2 TO bff-job-mat.
          ASSIGN
-              bff-job-mat.job     = bff-job.job
-              bff-job-mat.job-no  = bff-job.job-no
-              bff-job-mat.job-no2 = bff-job.job-no2.
-         oplComplete = YES. 
-         
-         bff-job-mat.all-flg = YES.  
-         RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).           
+             bff-job-mat.job     = bff-job.job
+             bff-job-mat.job-no  = bff-job.job-no
+             bff-job-mat.job-no2 = bff-job.job-no2
+             oplComplete         = YES
+             .         
+         IF bff-job-mat.all-flg EQ YES THEN
+         RUN jc/jc-all2.p (ROWID(bff-job-mat), 1).
     END.   
     RUN spProgressBar (?, ?, 100).
     

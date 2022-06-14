@@ -41,27 +41,37 @@ PROCEDURE epCanAccessUser:
             /* new entries should be added alphabetically */
             IF users.securityLevel LT 1000 AND (                
                 (ipProgName EQ "AOA/dynSubjct.w" AND ipFunction EQ "SuperAdmin") OR /* Check security for Admin */
+                (ipProgName EQ "ap/r-apve&pN.w" AND ipFunction EQ "") OR /*VU3 Vendor invoice post*/
+                (ipProgName EQ "ap/r-prnchk.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "arrep/r-stmt.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "browsers/APIOutbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "browsers/fgijob.w" AND ipFunction EQ "Access1") OR /*IF1 Bon/Job tab  allow edit only super  admin */
                 (ipProgName EQ "est/r-quoprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "jcrep/r-ticket.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "methods/template/viewer4.i" AND ipFunction EQ "") OR  /*NK2 Help Editor - No Password*/
                 (ipProgName EQ "oerep/r-bolprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "oerep/r-invprtoe.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "oerep/r-relprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "porep/r-poprt.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "methods/template/viewer4.i" AND ipFunction EQ "") OR  /*NK2 Help Editor - No Password*/
                 (ipProgName EQ "sys/ref/hlp-ctrl.w" AND ipFunction EQ "EnableHelpUpdate") OR  /*Update Help Button*/
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "Access2") OR /*Update Help Button*/
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "UpdateHelp") OR /*Update Help Button*/
                 (ipProgName EQ "system/mainmenu.w" AND ipFunction EQ "") OR /*Main menu load NZ1 System Reference Files Access*/
                 (ipProgName EQ "system/sys-ctrl.w" AND ipFunction EQ "SuperAdmin") OR /*system controls, sys-ctrl*/
+                (ipProgName EQ "util/b-utilsN.w" AND ipFunction EQ "") OR /* Check security for Admin */                
                 (ipProgName EQ "util/CheckModule.p" AND ipFunction EQ "SuperAdmin") OR /*run util module*/
                 (ipProgName EQ "util/module.w" AND ipFunction EQ "") OR /*Ability to run util module*/
                 (ipProgName EQ "util/utilsN.w" AND ipFunction EQ "") OR /*Utils Button*/
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "DataDigger") OR /*DataDigger Button*/
-                (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "RunEditor") OR /*DataDigger Button*/
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "ProTools") OR /*ProTools Button*/                
+                (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "RunEditor") OR /*DataDigger Button*/
+                (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "SettingTypes") OR /*DataDigger Button*/
                 (ipProgName EQ "util/wPgmrToolbox.w" AND ipFunction EQ "SwitchMode") OR /*SwitchMode Button*/                
+                (ipProgName EQ "viewers/APIInbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "viewers/APIInboundDetail.w" AND ipFunction EQ "") OR /* Check security for Admin */                
+                (ipProgName EQ "viewers/APIOutbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "viewers/APIOutboundDetail.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "viewers/APIOutboundTrigger.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "viewers/company.w" AND ipFunction EQ "") OR /*GF1 Add/Copy Company*/
                 (ipProgName EQ "viewers/file-seq.w" AND ipFunction EQ "") OR /*NZ1 System ref Files */
                 (ipProgName EQ "viewers/prgrms.w" AND ipFunction EQ "SuperAdmin") OR /*program master viewer*/
@@ -78,16 +88,7 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "windows/matprep.w" AND ipFunction EQ "") OR /*NZ5 (NZ4) Preparation Material Types*/
                 (ipProgName EQ "windows/message.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "windows/std-code.w" AND ipFunction EQ "") OR /*NZ7 (NZ6) Standards Matrix*/
-                (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/
-                (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
-                (ipProgName EQ "ap/r-prnchk.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "viewers/APIOutbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "viewers/APIOutboundDetail.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "viewers/APIOutboundTrigger.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "browsers/APIOutbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "viewers/APIInbound.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "viewers/APIInboundDetail.w" AND ipFunction EQ "") OR /* Check security for Admin */                
-                (ipProgName EQ "util/b-utilsN.w" AND ipFunction EQ "") OR /* Check security for Admin */                
+                (ipProgName EQ "windows/uom.w" AND ipFunction EQ "") OR /*NZ8 (NZ7) Units of Measure*/                   
                 (ipProgName EQ "" AND ipFunction EQ "")
                 ) THEN ASSIGN opCanAccess = FALSE.
             /* Second group - programs/functions ONLY available to Administrators */
@@ -100,9 +101,14 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "cec/v-item2.w" AND ipFunction EQ "") OR /*MF2 inventory tab overright button */
                 (ipProgName EQ "jcinq/b-updmac.w" AND ipFunction EQ "") OR /* JQ1 Mach hrs Tab  */
                 (ipProgName EQ "jcinq/b-updmat.w" AND ipFunction EQ "") OR /*IF1 History Tab - Enable Edit Buttons*/
+                (ipProgName EQ "jcrep/r-ticket.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "oe/d-ordrel.w" AND ipFunction EQ "") OR /*OU1 Order release tab Program Master*/
                 (ipProgName EQ "oeinq/b-ordfgi.w" AND ipFunction EQ "") OR /*JQ1 Materials Tab - Edit Issues*/
                 (ipProgName EQ "rminq/b-rmiinq.w" AND ipFunction EQ "") OR /*MF1 or MF2 Hostory tab   */
+                (ipProgName EQ "sharpshooter/b-fgInqBins.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "sharpshooter/b-fgInqLoc.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "sharpshooter/b-rmInqBins.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "sharpshooter/b-rmInqSumm.w" AND ipFunction EQ "") OR /* Check security for Admin */
                 (ipProgName EQ "sys/help/w-head.w" AND ipFunction EQ "") OR /*NK2 Help Editor - Password*/
                 (ipProgName EQ "sys/ref/hlp-ctrl.w" AND ipFunction EQ "EnableUpdateButton") OR  /*Update Help Button - redundant with above?*/
                 (ipProgName EQ "sys/ref/hlp.w" AND ipFunction EQ "Access1") OR  /*Update Help Button - redundant with above?*/
@@ -117,13 +123,9 @@ PROCEDURE epCanAccessUser:
                 (ipProgName EQ "viewers/usercontrol.w" AND ipFunction EQ "Access2") OR /*NK5 User Control - Max Sessions Per User*/
                 (ipProgName EQ "viewers/users.w" AND ipFunction EQ "Admin") OR /*users admin*/
                 (ipProgName EQ "windows/dept.w" AND ipFunction EQ "") OR /*NZ4 (NZ3) Departments - Edits*/
-                (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
                 (ipProgName EQ "windows/message.w" AND ipFunction EQ "Admin") OR /* Check security for Admin */
-                (ipProgName EQ "jcrep/r-ticket.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "sharpshooter/b-rmInqSumm.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "sharpshooter/b-rmInqBins.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "sharpshooter/b-fgInqLoc.w" AND ipFunction EQ "") OR /* Check security for Admin */
-                (ipProgName EQ "sharpshooter/b-fgInqBins.w" AND ipFunction EQ "") OR /* Check security for Admin */
+                (ipProgName EQ "windows/prgrms.w" AND ipFunction EQ "") OR /*NS8 Program Master*/
+                (ipProgName EQ "windows/xref.w" AND ipFunction EQ "") OR /*NZ11 (NZ10) Cross References*/
                 (ipProgName EQ "" AND ipFunction = "")
                 ) THEN ASSIGN opCanAccess = FALSE.
         END. /* list-based exclusions */       

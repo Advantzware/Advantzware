@@ -136,7 +136,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      settingType.settingName FORMAT "x(30)":U WIDTH 50 LABEL-BGCOLOR 14
+      settingType.settingName FORMAT "x(50)":U WIDTH 50 LABEL-BGCOLOR 14
       settingType.description FORMAT "x(50)":U WIDTH 50.4 LABEL-BGCOLOR 14
       settingType.dataType FORMAT "x(15)":U LABEL-BGCOLOR 14
       settingType.validValues COLUMN-LABEL "Valid Value" FORMAT "x(40)":U
@@ -221,7 +221,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -250,15 +250,15 @@ ASSIGN
      _TblList          = "ASI.settingType"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   > ASI.settingType.settingName
-"settingType.settingName" ? ? "character" ? ? ? 14 ? ? no ? no no "50" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"settingName" ? "x(50)" "character" ? ? ? 14 ? ? no ? no no "50" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.settingType.description
-"settingType.description" ? "x(50)" "character" ? ? ? 14 ? ? no ? no no "50.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"description" ? "x(50)" "character" ? ? ? 14 ? ? no ? no no "50.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.settingType.dataType
-"settingType.dataType" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"dataType" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.settingType.validValues
-"settingType.validValues" "Valid Value" "x(40)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"validValues" "Valid Value" "x(40)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.settingType.defaultValue
-"settingType.defaultValue" ? "x(20)" "Character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"defaultValue" ? "x(20)" "Character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

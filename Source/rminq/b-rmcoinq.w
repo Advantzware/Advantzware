@@ -86,7 +86,7 @@ DEF VAR ld-bal-qty AS INT NO-UNDO.
     IF lv-sort-by EQ "wid"        THEN STRING(tt-job-mat.wid,"-9999999999.99999")              ELSE ~
     IF lv-sort-by EQ "len"        THEN STRING(tt-job-mat.len,"-9999999999.99999")              ELSE ~
     IF lv-sort-by EQ "job-due-date"   THEN STRING((YEAR(tt-job-mat.job-due-date) * 10000) + (MONTH(tt-job-mat.job-due-date) * 100) + DAY(tt-job-mat.job-due-date))   ELSE ~
-                                       STRING(tt-job-mat.job-no,"x(6)") + STRING(tt-job-mat.job-no2,"99")
+                                       STRING(tt-job-mat.job-no,"x(9)") + STRING(tt-job-mat.job-no2,"999")
 
 &SCOPED-DEFINE sortby BY tt-job-mat.job-due-date BY tt-job-mat.rm-i-no  BY tt-job-mat.job-no BY tt-job-mat.job-no2
 
@@ -213,13 +213,13 @@ DEFINE BUTTON btn_show
      LABEL "&Show All" 
      SIZE 12 BY 1.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1
@@ -283,10 +283,10 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       tt-job-mat.rm-i-no COLUMN-LABEL "RM Item#" FORMAT "x(10)":U
             WIDTH 15 LABEL-BGCOLOR 14
-      tt-job-mat.job-no COLUMN-LABEL "  Job#" FORMAT "x(6)":U WIDTH 9
+      tt-job-mat.job-no COLUMN-LABEL "  Job#" FORMAT "x(9)":U WIDTH 15
             LABEL-BGCOLOR 14
-      tt-job-mat.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 4 LABEL-BGCOLOR 14
-      tt-job-mat.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 5 LABEL-BGCOLOR 14
+      tt-job-mat.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 5.4 LABEL-BGCOLOR 14
+      tt-job-mat.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 5 LABEL-BGCOLOR 14
       tt-job-mat.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 5
             LABEL-BGCOLOR 14 
       tt-job-mat.po-no-po COLUMN-LABEL "PO#" FORMAT ">>>>>>>>>>":U WIDTH 10
@@ -438,11 +438,11 @@ ASSIGN
      _FldNameList[1]   > ASI.tt-job-mat.rm-i-no
 "tt-job-mat.rm-i-no" "RM Item#" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.tt-job-mat.job-no
-"tt-job-mat.job-no" "  Job#" ? "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-job-mat.job-no" "  Job#" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.tt-job-mat.job-no2
-"tt-job-mat.job-no2" "" "99" "integer" ? ? ? 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-job-mat.job-no2" "" "999" "integer" ? ? ? 14 ? ? yes ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.tt-job-mat.frm
-"tt-job-mat.frm" "S" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"tt-job-mat.frm" "F" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.tt-job-mat.blank-no
 "tt-job-mat.blank-no" "B" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.tt-job-mat.qty

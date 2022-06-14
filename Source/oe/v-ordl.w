@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -761,13 +762,12 @@ DO:
    def var i as int no-undo.
 
    assign v-bld-job = "".
-   do i = 1 to 6:
+   do i = 1 TO 9:
       if substring(input oe-ordl.job-no,i,1) ne " " then
              assign v-bld-job  = v-bld-job +     substring(input oe-ordl.job-no,i,1).
-   end. /* 1 - 6 */
-   assign oe-ordl.job-no:screen-value =
-                   string(fill(" ",6 - length(v-bld-job))) +
-                   (trim(v-bld-job)).
+   end. /* 1 - 9 */
+   assign oe-ordl.job-no:screen-value = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-bld-job))
+                   .
 
 END.
 
@@ -780,7 +780,7 @@ END.
 ON LEAVE OF oe-ordl.job-no2 IN FRAME F-Main /* Run # */
 DO:
     {&methods/lValidateError.i YES}
-    run util/rjust.p (input-output v-bld-job, input 6).
+    run util/rjust.p (input-output v-bld-job, INPUT 9).
     find first job-hdr where job-hdr.company = cocode and
                              job-hdr.job-no = v-bld-job and
                              job-hdr.job-no2 = input oe-ordl.job-no2
@@ -1127,7 +1127,7 @@ DO:
     if not avail oe-ord then find oe-ord where oe-ord.company = gcompany and
                                   oe-ord.ord-no = oe-ordl.ord-no no-lock no-error. 
     if self:screen-value = "yes" and oe-ord.tax-gr = "" then do:
-       message "Invalid tax code on order header. " view-as alert-box error.
+       message "Invalid tax Group on order header. " view-as alert-box error.
        return no-apply.
     end.
     {&methods/lValidateError.i NO}
@@ -1383,7 +1383,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
-             RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+             RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
              /* if add mode then use default carrier */
           /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
             find first sys-ctrl where sys-ctrl.company eq cocode
@@ -1431,7 +1431,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                if adm-new-record /* and NOT oe-rel.carrier ENTERED */ then do:
                   find first sys-ctrl where sys-ctrl.company eq cocode
@@ -1473,7 +1473,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
-               RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+               RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            if adm-new-record then do:                
                  find first sys-ctrl where sys-ctrl.company eq cocode
@@ -2481,8 +2481,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -2490,12 +2490,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-DELETE OBJECT hNotesProcs.   
+RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
     

@@ -11,6 +11,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */  
 
 CREATE WIDGET-POOL.
 
@@ -76,7 +77,7 @@ ASSIGN
                                         "due-dt,strt-dt,job,qty-rmn,st-run,st-mr," +
                                         "acl-run,acl-mr,rmn-run,rmn-mr,ttl-hrs," +
                                         "wk-hrs,ac-hrs"
-    cFieldLength       = "5,30,30,15," + "10,10,10,9,7,7," + "7,7,7,7,7," + "7,7" 
+    cFieldLength       = "5,30,30,15," + "10,10,13,9,7,7," + "7,7,7,7,7," + "7,7" 
     cFieldType         = "c,c,c,c," + "c,c,c,i,i,i," + "i,i,i,i,i," + "i,i"
     .
 
@@ -1751,62 +1752,6 @@ PROCEDURE run-report :
 
         tot-hrs = job-mr-hrs + job-run-hrs.
 
-        /*  display work-rep.m-code
-                     when first-of(work-rep.m-code)
-                  mach.m-dscr
-                     when first-of(work-rep.m-code) and avail mach
-                  cust.name
-                     when v-name and avail cust @ mach.m-dscr
-                  work-rep.i-no
-                  work-rep.start-date
-                     when first-of(work-rep.start-date)
-                  trim(work-rep.job-no) + "-" + string(work-rep.job-no2,"99")
-                  work-rep.qty-rem
-                  work-rep.r-std-hrs     when not v-left
-                  tot-hrs                when v-left
-                                         @ work-rep.r-std-hrs
-                  work-rep.m-std-hrs     when not v-left
-                  work-rep.r-act-hrs     when not v-left
-                  work-rep.m-act-hrs     when not v-left
-                  job-run-hrs            when not v-left
-                  job-mr-hrs             when not v-left
-                  tot-hrs                when not v-left
-                  with frame det STREAM-IO width 132 no-box no-attr-space no-labels down.
- 
-          down with frame det.
- 
-          IF tb_excel THEN
-             PUT STREAM excel UNFORMATTED
-                '"' (IF FIRST-OF(work-rep.m-code) THEN
-                        work-rep.m-code ELSE "")                '",'
-                '"' (IF v-name and avail cust THEN
-                        cust.name
-                     ELSE IF FIRST-OF(work-rep.m-code) AND
-                          avail mach THEN mach.m-dscr ELSE "")  '",'
-                '"' work-rep.i-no                               '",'
-                '"' (IF FIRST-OF(work-rep.start-date)
-                        THEN STRING(work-rep.start-date)
-                        ELSE "")                                '",'
-                '"' trim(work-rep.job-no) + "-" +
-                    string(work-rep.job-no2,"99")               '",'
-                '"' work-rep.qty-rem                            '",'
-                '"' (IF not v-left THEN
-                        STRING(work-rep.r-std-hrs)
-                        ELSE STRING(tot-hrs))                   '",'
-                '"' (IF not v-left THEN
-                        STRING(work-rep.m-std-hrs) ELSE "")     '",'
-                '"' (IF not v-left THEN
-                        STRING(work-rep.r-act-hrs) ELSE "")     '",'
-                '"' (IF not v-left THEN
-                        STRING(work-rep.m-act-hrs) ELSE "")     '",'
-                '"' (IF not v-left THEN STRING(job-run-hrs)
-                     ELSE "")                                   '",'
-                '"' (IF not v-left THEN STRING(job-mr-hrs)
-                     ELSE "")                                   '",'
-                '"' (IF not v-left THEN STRING(tot-hrs)
-                     ELSE "")                                   '",'
-                SKIP. */
-
         ASSIGN 
             cDisplay       = ""
             cTmpField      = ""
@@ -1830,7 +1775,7 @@ PROCEDURE run-report :
                 WHEN "due-dt"   THEN 
                     cVarValue = (IF FIRST-OF(work-rep.both-date) AND work-rep.due-date NE ? THEN STRING(work-rep.due-date) ELSE "")  .    
                 WHEN "job"        THEN 
-                    cVarValue = STRING(TRIM(work-rep.job-no) + "-" + string(work-rep.job-no2,"99"))  .
+                    cVarValue = STRING(TRIM(work-rep.job-no) + "-" + string(work-rep.job-no2,"999"))  .
                 WHEN "qty-rmn"       THEN 
                     cVarValue = STRING(work-rep.qty-rem,">>>>>>>>9") .
                 WHEN "st-run"       THEN 

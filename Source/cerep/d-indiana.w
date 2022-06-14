@@ -138,7 +138,7 @@ DEFINE VARIABLE fi_Form AS CHARACTER FORMAT "x(9)"
      VIEW-AS FILL-IN 
      SIZE 5 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(9)" 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "x(13)" 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
@@ -310,83 +310,15 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-/*   FIND job WHERE ROWID(job) EQ ip-rowid NO-LOCK NO-ERROR. */
-
-/* /*   IF AVAIL job-hdr THEN DO: */                                              */
-/*   for first job-hdr of job:                                                    */
-/*                                                                                */
-/*     FOR EACH job-mch                                                           */
-/*         WHERE job-mch.company EQ job-hdr.company                               */
-/*           AND job-mch.job     EQ job-hdr.job                                   */
-/*           AND job-mch.job-no  EQ job-hdr.job-no                                */
-/*           AND job-mch.job-no2 EQ job-hdr.job-no2                               */
-/*         USE-INDEX line-idx:                                                    */
-/*                                                                                */
-/*       FIND FIRST mach                                                          */
-/*           {sys/look/machW.i}                                                    */
-/*             AND mach.m-code EQ job-mch.m-code                                  */
-/*           NO-LOCK NO-ERROR.                                                    */
-/*       CREATE w-jm.                                                             */
-/*       ASSIGN                                                                   */
-/*        w-jm.d-seq  = IF AVAIL mach THEN mach.d-seq ELSE 0                      */
-/*        w-jm.rec-id = RECID(job-mch).                                           */
-/*     END.                                                                       */
-/*                                                                                */
-/*     i = 0.                                                                     */
-/*     FOR EACH w-jm,                                                             */
-/*         FIRST job-mch WHERE RECID(job-mch) EQ w-jm.rec-id                      */
-/*                                                                                */
-/*         BY job-mch.frm                                                         */
-/*         BY w-jm.d-seq                                                          */
-/*         BY job-mch.blank-no                                                    */
-/*         BY job-mch.pass:                                                       */
-/*                                                                                */
-/*       i = i + 1.                                                               */
-/*       job-mch.line = i.                                                        */
-/*     END.                                                                       */
-/*                                                                                */
-/*     FOR EACH job-mch                                                           */
-/*         WHERE job-mch.company EQ job-hdr.company                               */
-/*           AND job-mch.job     EQ job-hdr.job                                   */
-/*           AND job-mch.job-no  EQ job-hdr.job-no                                */
-/*           AND job-mch.job-no2 EQ job-hdr.job-no2                               */
-/*           AND (job-mch.frm    EQ job-hdr.frm OR                                */
-/*                CAN-FIND(FIRST est                                              */
-/*                         WHERE est.company   EQ job-hdr.company                 */
-/*                           AND est.est-no    EQ job-hdr.est-no                  */
-/*                           AND (est.est-type EQ 2 OR est.est-type EQ 6)))       */
-/*         NO-LOCK,                                                               */
-/*         EACH job-mat                                                           */
-/*         WHERE job-mat.company EQ job-mch.company                               */
-/*           AND job-mat.job     EQ job-mch.job                                   */
-/*           AND job-mat.job-no  EQ job-mch.job-no                                */
-/*           AND job-mat.job-no2 EQ job-mch.job-no2                               */
-/*           AND job-mat.frm     EQ job-mch.frm                                   */
-/*         NO-LOCK,                                                               */
-/*         FIRST item                                                             */
-/*         WHERE item.company EQ job-mat.company                                  */
-/*           AND item.i-no    EQ job-mat.rm-i-no                                  */
-/*           AND INDEX("1234BPR",item.mat-type) GT 0                              */
-/*         NO-LOCK                                                                */
-/*         BREAK BY job-mch.frm                                                   */
-/*               BY job-mch.line                                                  */
-/*               BY job-mat.j-no:                                                 */
-/*                                                                                */
-/*       IF FIRST-OF(job-mch.frm) THEN DO:                                        */
-/*         fi_job-no = TRIM(job-mch.job-no) + "-" + STRING(job-mch.job-no2,"99"). */
-
         RUN enable_UI.
 
         assign
-          fi_job-no:screen-value  = icJobNo + '-' + string (iiJobNo2, '99')
+          fi_job-no:screen-value  = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', icJobNo, iiJobNo2)))
             fi_Form:screen-value  = string (iiForm).
  
         apply 'entry':u to fi_bmill_no1.
 
         WAIT-FOR GO OF FRAME {&FRAME-NAME}.
-/*       END. */
-/*     END.   */
-/*   END.     */
 END.
 
 RUN disable_UI.

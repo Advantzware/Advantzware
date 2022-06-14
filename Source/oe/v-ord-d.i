@@ -1,4 +1,4 @@
-
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 def buffer xfg-set for fg-set.
 def buffer xitemfg for itemfg.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -75,16 +75,14 @@ DEF VAR loop-limit AS INT NO-UNDO.
     find first fg-rcpts use-index cust-no
         where fg-rcpts.company eq oe-ord.company
           and fg-rcpts.cust-no eq oe-ord.cust-no
-          and fg-rcpts.job-no  EQ fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                                  trim(oe-ordl.job-no)
+          and fg-rcpts.job-no  EQ oe-ordl.job-no
           and fg-rcpts.job-no2 eq oe-ordl.job-no2
           and fg-rcpts.i-no    eq oe-ordl.i-no
         no-lock no-error.
     if not avail fg-rcpts then
     find first fg-rcpth use-index job
         where fg-rcpth.company eq oe-ord.company
-          and fg-rcpth.job-no  EQ fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                                  trim(oe-ordl.job-no)
+          and fg-rcpth.job-no  EQ oe-ordl.job-no
           and fg-rcpth.job-no2 eq oe-ordl.job-no2
           and fg-rcpth.i-no    eq oe-ordl.i-no
         no-lock no-error.

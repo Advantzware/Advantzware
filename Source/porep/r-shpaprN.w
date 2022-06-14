@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -69,7 +70,7 @@ ASSIGN
 
     cFieldListToSelect = "job,po,qty-ord,rec,cust,due,unit,sht-w," +
                             "sht-l,mach,fgitem,rmitem,msf,ship,vend"
-    cFieldLength       = "10,8,9,9,22,10,6,8," + "8,10,15,10,10,5,15"
+    cFieldLength       = "13,8,9,9,22,10,6,8," + "8,10,15,10,10,5,15"
     cFieldType         = "c,i,c,c,c,c,c,i," + "i,c,c,c,i,c,c" 
     .
 
@@ -1339,7 +1340,7 @@ PROCEDURE run-report :
 
     DEFINE VARIABLE v-cust-vend     AS CHARACTER FORMAT "x(26)" INIT "--------- VENDOR ---------".
 
-    DEFINE VARIABLE v-job-no        AS CHARACTER FORMAT "x(9)".
+    DEFINE VARIABLE v-job-no        AS CHARACTER FORMAT "x(13)".
 
     DEFINE VARIABLE tot-cons-qty    LIKE po-ordl.cons-qty NO-UNDO.
     DEFINE VARIABLE tot-rec-qty     AS DECIMAL   NO-UNDO.
@@ -1499,12 +1500,12 @@ PROCEDURE run-report :
             RELEASE oe-ordl.
 
             ASSIGN
-                v-job-no    = TRIM(po-ordl.job-no) + "-" + string(po-ordl.job-no2,"99")
+                v-job-no    = TRIM(po-ordl.job-no) + "-" + string(po-ordl.job-no2,"999")
                 v-raw       = ""
                 v-fg        = ""
                 v-cust-name = "".
 
-            IF TRIM(v-job-no) EQ "-00" THEN v-job-no = "".
+            IF TRIM(v-job-no) EQ "-000" THEN v-job-no = "".
 
             IF po-ordl.item-type THEN 
             DO:
@@ -1785,7 +1786,7 @@ PROCEDURE run-report :
                 cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
                     WHEN "job"    THEN 
-                        cVarValue = STRING(v-job-no,"x(10)") .
+                        cVarValue = STRING(v-job-no,"x(13)") .
                     WHEN "po"   THEN 
                         cVarValue = STRING(po-ordl.po-no,">>>>>>>>").
                     WHEN "qty-ord"   THEN 

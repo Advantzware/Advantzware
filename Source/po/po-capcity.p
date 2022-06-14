@@ -373,9 +373,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     v-num-add = 0.
 
                 FIND FIRST job WHERE job.company EQ cocode 
-                    AND job.job-no EQ string(FILL(" ",6 - length(
-                    TRIM(po-ordl.job-no)))) +
-                    trim(po-ordl.job-no) 
+                    AND job.job-no EQ po-ordl.job-no 
                     AND job.job-no2 EQ po-ordl.job-no2
                     NO-LOCK NO-ERROR.
                 IF AVAILABLE job THEN
@@ -438,7 +436,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           
         END. /* avail item and item.mat-type eq "B" */
        
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) +
             (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
             ELSE "").
 
@@ -463,7 +461,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             "<C16>" po-ordl.pr-qty-uom 
             "<C21>" po-ordl.i-no FORM "x(20)"
             v-adder[1] 
-            "<C52>" v-job-no FORM "x(12)" SPACE(1).
+            "<C52>" v-job-no FORM "x(16)" SPACE(1).
 
         IF lPrintPrice THEN
             PUT
@@ -637,8 +635,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         IF po-ordl.ord-no NE 0 THEN 
         DO:
-            PUT "<C21>Order#:" STRING(po-ordl.ord-no,">>>>>9").
-            PUT "<C33>Cust PO#:" cCustPo           /*Task# 10041302*/
+            PUT "<C21>Order#:" STRING(po-ordl.ord-no,">>>>>>>9").
+            PUT "<C35>Cust PO#:" cCustPo           /*Task# 10041302*/
                 SKIP.
             lv-add-line = NO.
             v-line-number = v-line-number + 1.

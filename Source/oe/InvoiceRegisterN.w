@@ -110,8 +110,8 @@ DEFINE            VARIABLE v-line-tot-w      AS DECIMAL   NO-UNDO.
 DEFINE            VARIABLE v-post-zero-cgs   AS LOG       NO-UNDO.
 
 
-DEFINE            VARIABLE v-s-inv-no        LIKE inv-head.inv-no INIT 0 NO-UNDO FORMAT ">>>>>>9".
-DEFINE            VARIABLE v-e-inv-no        LIKE v-s-inv-no INIT 9999999.
+DEFINE            VARIABLE v-s-inv-no        LIKE inv-head.inv-no INIT 0 NO-UNDO FORMAT ">>>>>>>9".
+DEFINE            VARIABLE v-e-inv-no        LIKE v-s-inv-no INIT 99999999.
 DEFINE            VARIABLE v-s-date          LIKE inv-head.inv-date FORMAT "99/99/9999"
     INIT 01/01/0001 NO-UNDO.
 DEFINE            VARIABLE v-e-date          LIKE v-s-date INIT TODAY.
@@ -730,8 +730,15 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         END.
 
         ELSE MESSAGE "No Invoices available for posting..." VIEW-AS ALERT-BOX ERROR.  
-        IF tbAutoClose:CHECKED THEN 
-            APPLY 'CLOSE' TO THIS-PROCEDURE.
+        IF tbAutoClose:CHECKED THEN DO:
+            RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+                INPUT "postStartDtTm", INPUT cocode, INPUT STRING("OB4-" + STRING(cocode)), INPUT YES, 
+                OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime). 
+                                            
+            IF VALID-HANDLE(hdOutboundProcs) THEN
+                DELETE PROCEDURE hdOutboundProcs.
+            APPLY "close" TO THIS-PROCEDURE.
+        END. /* IF tbAutoClose:CHECKED THEN DO */
         SESSION:SET-WAIT-STATE("").
     END.
 
@@ -1129,7 +1136,7 @@ PROCEDURE calc-tax-gr :
                     tt-report.term-id = ""
                     tt-report.key-01  = "work-tax"
                     tt-report.key-02  = account.actnum
-                    tt-report.key-03  = STRING(ipi-inv-no,"9999999")
+                    tt-report.key-03  = STRING(ipi-inv-no,"99999999")
                     tt-report.key-04  = bf-inv-head.tax-gr
                     tt-report.key-05  = STRING(v-tax-rate[i] *
                                       (IF AVAILABLE bf-currency  THEN
@@ -1415,7 +1422,7 @@ PROCEDURE list-gl :
                          
                 DISPLAY ttGLTransaction.account @ account.actnum
                     v-dscr
-                    ttGLTransaction.invoiceID @ inv-head.inv-no FORMAT ">>>>>>9"
+                    ttGLTransaction.invoiceID @ inv-head.inv-no FORMAT ">>>>>>>9"
                     ttGLTransaction.itemID   @ inv-line.i-no
                     v-tmp-amt
                     ld-pton FORMAT "->>>>>>9.999" 
@@ -1521,7 +1528,7 @@ PROCEDURE list-gl :
 
                     DISPLAY ttGLTransaction.account  @ account.actnum
                         v-dscr
-                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>9"
+                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>>9"
                         "FREIGHT"             @ inv-line.i-no
                         dec(ttGLTransaction.amount) @ v-tmp-amt
                         ld-pton FORMAT "->>>>>>9.999" 
@@ -1598,7 +1605,7 @@ PROCEDURE list-gl :
 
                     DISPLAY ttGLTransaction.account             @ account.actnum
                         v-dscr
-                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>9"
+                        int(ttGLTransaction.invoiceID) @ inv-head.inv-no FORMAT ">>>>>>>9"
                         "DISCOUNT"            @ inv-line.i-no
                         dec(ttGLTransaction.amount) @ v-tmp-amt
                         ld-pton FORMAT "->>>>>>9.999" 
@@ -1682,7 +1689,7 @@ PROCEDURE list-gl :
 
                         DISPLAY ttGLTransaction.account    @ account.actnum
                             v-dscr
-                            int(ttGLTransaction.invoiceID)  @ inv-head.inv-no FORMAT ">>>>>>9"
+                            int(ttGLTransaction.invoiceID)  @ inv-head.inv-no FORMAT ">>>>>>>9"
                             "CASH INVOICE"      @ inv-line.i-no
                             dec(ttGLTransaction.amount)  @ v-tmp-amt
                             ld-pton FORMAT "->>>>>>9.999" 
@@ -1868,16 +1875,17 @@ PROCEDURE list-post-inv :
   
     DEFINE VARIABLE dWeight         AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalFreight   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cInvoiceNumber  AS CHARACTER NO-UNDO.
   
     DEFINE BUFFER bf-inv-line FOR inv-line .
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
   
     FORMAT
-        inv-head.inv-no FORMAT ">>>>>>9" AT 1
-        inv-head.inv-date AT 9 FORMAT "99/99/99"
-        inv-head.cust-no AT 18
-        inv-head.cust-name FORMAT "x(25)" AT 27
-        iOrdNo TO 60
+        cInvoiceNumber FORMAT "x(8)" AT 1
+        inv-head.inv-date AT 10 FORMAT "99/99/99"
+        inv-head.cust-no AT 19
+        inv-head.cust-name FORMAT "x(25)" AT 28
+        iOrdNo TO 61
         dInvQty
         dTotalFreight FORMAT "->,>>9.99"
         inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
@@ -2000,7 +2008,8 @@ PROCEDURE list-post-inv :
                 v-post-total-w = v-post-total-w - v-line-tot-w.           
         END.
         dTotalFreight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
-        DISPLAY inv-head.inv-no inv-head.inv-date
+        DISPLAY STRING(inv-head.inv-no) @ cInvoiceNumber
+            inv-head.inv-date
             inv-head.cust-no inv-head.cust-name iOrdNo
             dInvQty dTotalFreight
             inv-head.t-inv-tax
@@ -2362,9 +2371,9 @@ PROCEDURE run-report :
         str-tit4 AT 58
         SKIP(1)
         "  - Invoice - " SKIP
-        "Number"  "Date" AT 11  "Cust#" AT 18 "Customer Name" AT 27 "Order#" TO 60
-        "Quantity" TO 75 "Frt" TO 85 "Tax" TO 99
-        "Misc" TO 109 "Items" TO 121
+        "Number"  "Date" AT 12  "Cust#" AT 19 "Customer Name" AT 28 "Order#" TO 61
+        "Quantity" TO 76 "Frt" TO 86 "Tax" TO 100
+        "Misc" TO 110 "Items" TO 122
         "Total" TO 139 
         lv-label-ton[1] TO 163
         FILL("=",142) FORMAT "x(142)"
@@ -2400,7 +2409,7 @@ PROCEDURE run-report :
         v-e-date,
         begin_cust,
         end_cust,
-        TODAY,
+        DATE(tran-date),
         "",
         OUTPUT iProcessed,
         OUTPUT iValid,

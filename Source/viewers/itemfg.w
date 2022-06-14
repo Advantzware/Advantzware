@@ -110,11 +110,11 @@ itemfg.procat-desc itemfg.type-code itemfg.def-loc itemfg.def-loc-bin ~
 itemfg.case-count itemfg.case-pall itemfg.weight-100 itemfg.frt-class ~
 itemfg.frt-class-dscr itemfg.class itemfg.cc-code itemfg.quantityPartial ~
 itemfg.prod-notes itemfg.trNo itemfg.spare-char-4 itemfg.subZone ~
-itemfg.stackHeight itemfg.std-mat-cost itemfg.std-lab-cost ~
-itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
-itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom ~
-itemfg.palletVolume itemfg.prod-code itemfg.weightPerEA itemfg.unitLength ~
-itemfg.unitWidth itemfg.unitHeight
+itemfg.stackHeight itemfg.unitLength itemfg.unitWidth itemfg.unitHeight ~
+itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
+itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.palletVolume ~
+itemfg.prod-code itemfg.weightPerEA 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight btn_misc-est RECT-10 RECT-8 ~
@@ -250,9 +250,9 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 19 BY 1.19
      itemfg.part-no AT ROW 2.43 COL 15.4 COLON-ALIGNED
-          LABEL "Cust Part #" FORMAT "x(15)"
+          LABEL "Cust Part #" FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 26 BY 1
+          SIZE 50 BY 1
      itemfg.i-name AT ROW 3.38 COL 15.4 COLON-ALIGNED
           LABEL " Name"
           VIEW-AS FILL-IN 
@@ -1720,7 +1720,7 @@ PROCEDURE enable-itemfg-field :
             itemfg.style-desc itemfg.setupDate iCount cSourceEstimate
             fi_type-dscr itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate .
 
-        IF itemfg.trNo NE "" THEN
+        IF AVAIL itemfg AND itemfg.trNo NE "" THEN
             DISABLE itemfg.trNo .
 
         IF NOT adm-new-record THEN 

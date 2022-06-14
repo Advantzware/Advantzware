@@ -143,8 +143,7 @@ PROCEDURE pSetDynParamValue:
         WHERE dynParamSetDtl.paramSetID EQ {1}SubjectParamSet.paramSetID,
         FIRST dynParam NO-LOCK
         WHERE dynParam.paramID EQ dynParamSetDtl.paramID
-           BY {1}SubjectParamSet.setRow
-           BY {1}SubjectParamSet.setCol
+           BY {1}SubjectParamSet.sortOrder
            BY dynParamSetDtl.paramRow
            BY dynParamSetDtl.paramCol
         :
@@ -180,4 +179,5 @@ PROCEDURE pSetDynParamValue:
                 .
         END. /* if datepicklist */
     END. /* each dynsubjectparamset */
+
 END PROCEDURE.

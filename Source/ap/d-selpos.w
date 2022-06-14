@@ -175,7 +175,7 @@ DEFINE BROWSE BROWSE-2
      po-ordl.line
      po-ordl.job-no
      po-ordl.job-no2
-     po-ordl.s-num
+     po-ordl.s-num      LABEL "Form #" 
      po-ordl.i-no WIDTH 19
      tt-rec.s-len FORMAT ">>>>>.99<<<<"
      po-ordl.s-wid FORMAT ">>>>>.99<<<<"
@@ -538,14 +538,14 @@ FOR EACH tt-pol,
               tt-rec.po-date     = po-ord.po-date
               tt-rec.r-no        = 0
               tt-rec.qty-rec     = po-ordl.t-rec-qty
-              tt-rec.qty-pur     = v-qty
+              tt-rec.qty-pur     = po-ordl.cons-qty
               tt-rec.qty-pur-uom = po-ordl.pr-qty-uom
               tt-rec.qty-rec-uom = item.cons-uom
               tt-rec.qty-inv     = v-qty
               tt-rec.qty-inv-uom = po-ordl.pr-qty-uom
               tt-rec.row-id      = ROWID(tt-pol)
               .
-
+                
           FIND FIRST rm-rcpth WHERE
               rm-rcpth.company   EQ cocode AND
               rm-rcpth.i-no      EQ po-ordl.i-no AND
@@ -564,6 +564,7 @@ FOR EACH tt-pol,
         WHERE rm-rcpth.company   EQ cocode
           AND rm-rcpth.i-no      EQ po-ordl.i-no
           AND rm-rcpth.po-no     EQ TRIM(STRING(po-ordl.po-no,">>>>>>>>>>"))
+          AND rm-rcpth.po-line   EQ po-ordl.LINE
           AND rm-rcpth.job-no    EQ po-ordl.job-no
           AND rm-rcpth.job-no2   EQ po-ordl.job-no2
           AND rm-rcpth.rita-code EQ "R"

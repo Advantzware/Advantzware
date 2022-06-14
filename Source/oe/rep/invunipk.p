@@ -1,4 +1,5 @@
 /* oe/rep/invunipk.p Xprint Invoice form for Unipak 06/05 YSK */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -63,6 +64,7 @@ def var v as int.
 def var v-bo-qty as int format "99999" no-undo.
 def var v-inv-qty as int format "99999" no-undo.
 def var v-ship-qty as int format "99999" no-undo.
+def var v-ord-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
 def var v-price as dec format ">>>>9.9999" no-undo.
@@ -498,7 +500,8 @@ assign
                 END.
              END.
 
-            assign v-inv-qty = inv-line.qty
+            assign v-inv-qty = inv-line.inv-qty
+                   v-ord-qty = inv-line.qty
                    v-ship-qty = inv-line.ship-qty
                    v-i-no = inv-line.i-no
                    v-i-dscr = inv-line.i-name
@@ -550,13 +553,13 @@ assign
                            inv-line.price.
             END.
 
-            PUT space(1) v-inv-qty format "->>>>>9" SPACE(1)
-                v-ship-qty  format "->>>>>9" SPACE(1)
+            PUT space(1) v-ord-qty format "->>>>>9" SPACE(1)
+                v-inv-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(1)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(1)
-                inv-line.price format ">>,>>9.99" SPACE(2)
+                inv-line.price format ">>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)
                 v-price FORMAT "->>>,>>9.99"                     
                 SKIP.
@@ -576,8 +579,8 @@ assign
 
               if v-part-info ne "" OR (inv-line.part-no <> "" AND v EQ 1) then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(25) inv-line.part-no SPACE v-part-info SKIP.
-                 ELSE   PUT SPACE(41) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(26) inv-line.part-no SPACE v-part-info SKIP.
+                 ELSE   PUT SPACE(42) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

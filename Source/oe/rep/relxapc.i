@@ -1,5 +1,6 @@
 /* ----------------------------------------------- oe/rep/relxapc.i  */
 /* Print OE Release/Picking tickets    Advanced Packaging Company             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i} 
@@ -91,16 +92,16 @@ IF ll-display-comp THEN DO:
 
 format
   tt-rell.ord-no
-  tt-rell.po-no at 8
-  locbin[1]  AT 23
-  tt-rell.i-no at 29  oe-ordl.i-name at 44
+  tt-rell.po-no at 10
+  locbin[1]  AT 25
+  tt-rell.i-no at 31  oe-ordl.i-name at 44
   /*tt-rell.cases format ">>>>>9" to 73                    */
   oe-ordl.qty format "->>>>>>>9" to 83
   tt-rell.qty format "->>>>>>>9" SKIP
-  locbin[2] at 23     oe-ordl.part-no
-  locbin[3] at 23
+  locbin[2] at 25     oe-ordl.part-no
+  locbin[3] at 25
   oe-ordl.part-dscr1 at 44 format "x(30)" skip
-  locbin[4] at 23
+  locbin[4] at 25
   oe-ordl.part-dscr2 at 44 format "x(30)"
   with down frame relprint no-box no-label STREAM-IO width 110.
 
@@ -150,8 +151,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -335,8 +336,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           else do:
             display
               tt-rell.ord-no
-              tt-rell.po-no  AT 8
-              tt-rell.i-no   AT 29
+              tt-rell.po-no  AT 10
+              tt-rell.i-no   AT 31
               /*tt-rell.cases    when v-units-hdr[1] ne "" */
               oe-ordl.qty    TO 83  when avail oe-ordl
               tt-rell.qty
@@ -351,7 +352,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                             else
                             if i eq 2 then oe-ordl.part-dscr1
                             else           oe-ordl.part-dscr2.
-              IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 29.
+              IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 31.
               if v-part-dscr ne "" then do:
                   put v-part-dscr at 44 skip.
                   v-printline = v-printline + 1.
@@ -363,9 +364,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
         else do:
           display
             tt-rell.ord-no
-            tt-rell.po-no       AT 8
-            tt-rell.loc-bin     AT 23   FORMAT "x(5)"   WHEN v-p-bin
-            tt-rell.i-no        AT 29
+            tt-rell.po-no       AT 10
+            tt-rell.loc-bin     AT 25   FORMAT "x(5)"   WHEN v-p-bin
+            tt-rell.i-no        AT 31
             oe-ordl.qty      TO 83 when avail oe-ordl
             tt-rell.qty
             with frame ln-s.
@@ -380,7 +381,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                           else           oe-ordl.part-dscr2.
             IF i = 1 AND s-print-part-no THEN PUT oe-ordl.part-no AT 13.
             if v-part-dscr ne "" then do:
-               put v-part-dscr at 28 skip.
+               put v-part-dscr at 31 skip.
                v-printline = v-printline + 1.
             END.
             ELSE IF s-print-part-no THEN PUT SKIP.

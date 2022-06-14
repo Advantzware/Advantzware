@@ -259,19 +259,9 @@ PROCEDURE JSON_UpdateFieldValue:
 END PROCEDURE. 
 
 PROCEDURE JSON_EscapeExceptionalCharacters:
-    DEFINE INPUT-OUTPUT PARAMETER ipcFieldValue AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcFieldValue AS CHARACTER NO-UNDO.
     
-    IF ipcFieldValue EQ ? THEN
-        ipcFieldValue = "".
-    
-    /* This will add an escape character (\) before any JSON exceptional 
-       characters (double quote and backward slash) so JSON parsing won't 
-       throw error */
-    ASSIGN
-        ipcFieldValue = REPLACE(ipcFieldValue, '\','\\')
-        ipcFieldValue = REPLACE(ipcFieldValue, '/','\/')
-        ipcFieldValue = REPLACE(ipcFieldValue, '"','\"')
-        .
+    iopcFieldValue = DYNAMIC-FUNCTION("fEscapeExceptionCharactersJSON", INPUT iopcFieldValue).
 END PROCEDURE. 
 
 PROCEDURE JSON_GetResponseData:

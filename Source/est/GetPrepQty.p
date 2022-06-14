@@ -148,17 +148,20 @@ DEFINE OUTPUT PARAMETER opiQtyP LIKE est-prep.qty NO-UNDO.
 
 DEFINE BUFFER bf-eb FOR eb.
 DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
+
 DEFINE VARIABLE iInkPerForm      AS INTEGER NO-UNDO.
 DEFINE VARIABLE iInkPassPerForm  AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCoatPerForm     AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCoatPassPerForm AS INTEGER NO-UNDO.
+DEFINE VARIABLE inkCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEstimateType AS CHARACTER NO-UNDO.
 
 IF AVAIL ipbf-est AND AVAIL ipbf-ef THEN DO:
     
     RUN Estimate_CalcFormInksAndCoats (ipbf-ef.company, ipbf-ef.est-no, ipbf-ef.form-no, OUTPUT iInkPerForm, OUTPUT iInkPassPerForm, OUTPUT iCoatPerForm, OUTPUT iCoatPassPerForm).
         
     opiQtyP = iInkPerForm.
-    
+        
 END. /*avail ipbf-est and ipbf-ef*/
 
 END PROCEDURE.

@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -254,11 +255,11 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>":U
+      ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>>":U
       
       ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
       ar-inv.cust-no COLUMN-LABEL "Customer" FORMAT "x(8)":U
-      ar-invl.ord-no FORMAT ">>>>>>>":U WIDTH 12
+      ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 13
       ar-invl.amt COLUMN-LABEL "Ext Price" FORMAT "->>>,>>>,>>9.99":U
             WIDTH 20
       ar-invl.sman[1] COLUMN-LABEL "Slsmn" FORMAT "x(3)":U
@@ -394,7 +395,7 @@ ASSIGN
          (ar-inv.cust-no LE end_cust-no OR end_cust-no EQ "")  "
      _JoinCode[2]      = "ar-invl.x-no eq ar-inv.x-no AND (ar-invl.sman[1] GE begin_sman) AND (ar-invl.sman[1] LE end_sman OR end_sman EQ "")"
      _FldNameList[1]   > asi.ar-inv.inv-no
-"ar-inv.inv-no" "Invoice#" ">>>>>>>" "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-inv.inv-no" "Invoice#" ">>>>>>>>" "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.ar-inv.inv-date
 "ar-inv.inv-date" "Inv Date" "99/99/9999" ? ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
     _FldNameList[3]   > asi.ar-inv.cust-no
@@ -1475,7 +1476,7 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute PRIOR to standard behavior. */
     IF lCheckFirst THEN DO:
-     fi_inv-no = 9999999 .
+     fi_inv-no = 99999999 .
      /* Delay opening of query until the user makes a selection */
      lCheckFirst = FALSE .
      RETURN.

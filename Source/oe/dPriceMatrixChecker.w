@@ -371,7 +371,6 @@ IF AVAILABLE oe-ord THEN DO:
                 .
         RUN Price_CalculateLinePrice(ttPriceResults.riLine, ttPriceResults.cFGItemID, ttPriceResults.cCustID, ttPriceResults.cShipID, ttPriceResults.dQuantity, NO,
                             OUTPUT ttPriceResults.lMatrixMatch, INPUT-OUTPUT ttPriceResults.dPrice, INPUT-OUTPUT ttPriceResults.cPriceUOM).
-        
     END.
 END. 
 ELSE 

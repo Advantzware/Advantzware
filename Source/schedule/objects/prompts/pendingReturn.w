@@ -5,13 +5,13 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: jobConflict.w
+  File: pendingReturn.w
 
-  Description: conflict with existing job resolution
+  Description: List of Resources to Return to Pending
 
-  Input Parameters: <none>
+  Input Parameters: Job ID
 
-  Output Parameters: resolution selected
+  Output Parameters: Continue Logical
 
   Author: Ron Stark
 

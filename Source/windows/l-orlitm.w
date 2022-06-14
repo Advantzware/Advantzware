@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -35,6 +37,8 @@ def input param ip-ord-no like oe-ord.ord-no no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
+
 &scoped-define SORTBY-1 BY oe-rell.i-no
 &scoped-define fld-name-1 oe-rell.i-no
 /*&scoped-define datatype-1  */
@@ -142,11 +146,11 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
       oe-rell.i-no COLUMN-LABEL "Item#" FORMAT "x(15)":U
-      oe-rell.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U
-      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U
+      oe-rell.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U
+      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "999":U
       oe-rell.loc FORMAT "x(5)":U
       oe-rell.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      oe-rell.ord-no FORMAT ">>>>>9":U
+      oe-rell.ord-no FORMAT ">>>>>>>9":U
       oe-rell.qty COLUMN-LABEL "Quantity! Released" FORMAT "->>,>>>,>>9":U
       oe-rell.tag COLUMN-LABEL "Tag#" FORMAT "x(15)":U
 /* _UIB-CODE-BLOCK-END */

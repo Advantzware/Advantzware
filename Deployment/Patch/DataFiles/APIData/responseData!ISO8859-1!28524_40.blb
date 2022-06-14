@@ -1,7 +1,0 @@
-{
-    "Company": "$company$",
-    "InventoryStockID":"$InventoryStockID$",    
-     "WarehouseID": "$warehouseID$",
-    "LocationID": "$locationID$",
-    "Status": "$status$"
-}

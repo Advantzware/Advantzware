@@ -1443,11 +1443,11 @@ FOR EACH itemfg NO-LOCK WHERE itemfg.company = cocode
   FOR EACH fg-bin NO-LOCK
     WHERE fg-bin.company   EQ itemfg.company
       AND fg-bin.i-no      EQ itemfg.i-no
-      AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-bin.job-no))) +
-                 TRIM(fg-bin.job-no) + STRING(fg-bin.job-no2,"99"))
+      AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-bin.job-no))) +
+                 TRIM(fg-bin.job-no) + STRING(fg-bin.job-no2,"999"))
                            GE ip-fjob
-      AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-bin.job-no))) +
-                 TRIM(fg-bin.job-no) + STRING(fg-bin.job-no2,"99"))
+      AND STRING(FILL(" ", iJobLen - LENGTH(TRIM(fg-bin.job-no))) +
+                 TRIM(fg-bin.job-no) + STRING(fg-bin.job-no2,"999"))
                            LE ip-tjob
       AND fg-bin.loc       GE ip-floc
       AND fg-bin.loc       LE ip-tloc

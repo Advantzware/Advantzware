@@ -42,6 +42,7 @@ DEF STREAM out2.
 DEF STREAM out3.
 DEF STREAM out4.
 DEF STREAM out5.
+DEF STREAM out6.
 
 DEF VAR cDestroy AS CHAR NO-UNDO.
 DEF VAR iPurgeCount AS INT NO-UNDO.
@@ -49,11 +50,26 @@ DEF VAR iPurgeCount2 AS INT NO-UNDO.
 DEF VAR iPurgeCount3 AS INT NO-UNDO.
 DEF VAR iPurgeCount4 AS INT NO-UNDO.
 DEF VAR iPurgeCount5 AS INT NO-UNDO.
+DEF VAR iPurgeCount6 AS INT NO-UNDO.
 DEF VAR invBalAmt AS DEC NO-UNDO.
 DEF VAR totWriteOff AS DEC NO-UNDO.
+DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs AS HANDLE    NO-UNDO.
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN
     totWriteOff = 0.
+    
+DEFINE TEMP-TABLE ttPurgeInvCsv
+    FIELD company       AS CHARACTER LABEL "Company"
+    FIELD iInvNo        AS INTEGER   LABEL "Invoice#"
+    FIELD cCustNo       AS CHARACTER LABEL "Customer"
+    FIELD dtInvDate     AS DATE LABEL "Inv Date"
+    FIELD dInvAmount    AS DECIMAL LABEL "Amount" 
+    FIELD dBalDue       AS DECIMAL LABEL "Balance Due"
+    FIELD cNote         AS CHARACTER LABEL "Notes"
+    .      
     
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -84,10 +100,11 @@ assign
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS EDITOR-1 tbNonZero end_date begin_cust-no ~
-end_cust-no begin_inv end_inv btn-process btn-cancel 
+&Scoped-Define ENABLED-OBJECTS btSimulatePurge btStartProcess tbNonZero ~
+end_date begin_cust-no end_cust-no begin_inv end_inv tbInactive fiDirectory ~
+tbOpenFile 
 &Scoped-Define DISPLAYED-OBJECTS EDITOR-1 tbNonZero end_date begin_cust-no ~
-end_cust-no begin_inv end_inv 
+end_cust-no begin_inv end_inv tbInactive fiDirectory tbOpenFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -103,13 +120,16 @@ end_cust-no begin_inv end_inv
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel 
-     LABEL "Ca&ncel" 
-     SIZE 18 BY 1.14.
+DEFINE BUTTON btSimulatePurge 
+     IMAGE-UP FILE "Graphics/32x32/simulate.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Simulate" 
+     SIZE 19 BY 1.14
+     BGCOLOR 14 .
 
-DEFINE BUTTON btn-process 
-     LABEL "&Purge" 
-     SIZE 18 BY 1.14.
+DEFINE BUTTON btStartProcess 
+     IMAGE-UP FILE "Graphics/32x32/execute.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Start Process" 
+     SIZE 16 BY 1.14.
 
 DEFINE VARIABLE EDITOR-1 AS CHARACTER 
      VIEW-AS EDITOR
@@ -140,15 +160,33 @@ DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE fiDirectory AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 64.8 BY 1
+     FONT 22 NO-UNDO.
+
+DEFINE VARIABLE tbInactive AS LOGICAL INITIAL no 
+     LABEL "Inactivate Customers with no activity since purge date" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 66 BY .95 NO-UNDO.
+
 DEFINE VARIABLE tbNonZero AS LOGICAL INITIAL no 
      LABEL "Purge Invoices with non-zero balance?" 
      VIEW-AS TOGGLE-BOX
      SIZE 42 BY .95 NO-UNDO.
 
+DEFINE VARIABLE tbOpenFile AS LOGICAL INITIAL no 
+     LABEL "Open File" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 14.4 BY .81
+     FONT 22 NO-UNDO.
+
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
+     btSimulatePurge AT ROW 20.52 COL 20 WIDGET-ID 28
+     btStartProcess AT ROW 20.52 COL 47.2 WIDGET-ID 12
      EDITOR-1 AT ROW 5.29 COL 15 NO-LABEL WIDGET-ID 10 NO-TAB-STOP 
      tbNonZero AT ROW 9.81 COL 21
      end_date AT ROW 11 COL 49 COLON-ALIGNED HELP
@@ -161,15 +199,19 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Invoice Number"
      end_inv AT ROW 14.1 COL 54 COLON-ALIGNED HELP
           "Enter Ending Invoice Number"
-     btn-process AT ROW 15.76 COL 21 WIDGET-ID 2
-     btn-cancel AT ROW 15.76 COL 56
+     tbInactive AT ROW 15.76 COL 21 WIDGET-ID 36
+     fiDirectory AT ROW 18.57 COL 3 COLON-ALIGNED NO-LABEL WIDGET-ID 18
+     tbOpenFile AT ROW 18.67 COL 70.4 WIDGET-ID 26
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
+     "Records to view  will be stored in directory:" VIEW-AS TEXT
+          SIZE 50.6 BY .62 AT ROW 17.67 COL 11.4 WIDGET-ID 16
+          FONT 22
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 17.91.
+         SIZE 89.6 BY 21.33.
 
 DEFINE FRAME FRAME-B
      "and may take hours to complete!" VIEW-AS TEXT
@@ -204,11 +246,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Purge AR Invoices"
-         HEIGHT             = 17.91
+         HEIGHT             = 21.33
          WIDTH              = 89.6
-         MAX-HEIGHT         = 19.76
+         MAX-HEIGHT         = 22.52
          MAX-WIDTH          = 98.2
-         VIRTUAL-HEIGHT     = 19.76
+         VIRTUAL-HEIGHT     = 22.52
          VIRTUAL-WIDTH      = 98.2
          RESIZE             = yes
          SCROLL-BARS        = no
@@ -249,14 +291,8 @@ ASSIGN
        begin_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-ASSIGN 
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
+/* SETTINGS FOR EDITOR EDITOR-1 IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -296,6 +332,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Purge AR Invoices */
 DO:
+   IF VALID-HANDLE(hdOutputProcs) THEN 
+      DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -305,45 +343,50 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
-ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
+&Scoped-define SELF-NAME btSimulatePurge
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSimulatePurge C-Win
+ON CHOOSE OF btSimulatePurge IN FRAME FRAME-A /* Simulate */
 DO:
-    apply "close" to this-procedure.
-END.
+        RUN pRunProcess(
+            INPUT NO
+            ).
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn-process
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
-ON CHOOSE OF btn-process IN FRAME FRAME-A /* Purge */
+&Scoped-define SELF-NAME btStartProcess
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btStartProcess C-Win
+ON CHOOSE OF btStartProcess IN FRAME FRAME-A /* Start Process */
 DO:
-    MESSAGE 
+         MESSAGE 
         "Are you sure you want to permanently delete the selected records?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lProcess AS LOG.
 
-    IF lProcess 
-    AND tbNonZero:checked in frame {&frame-name} THEN DO:
-        UPDATE 
-            cDestroy LABEL "Enter 'DESTROY' to confirm purge"
-            WITH FRAME b VIEW-AS DIALOG-BOX THREE-D.
-        IF cDestroy NE "DESTROY" THEN DO:
+        IF lProcess 
+        AND tbNonZero:checked in frame {&frame-name} THEN DO:
+            UPDATE 
+                cDestroy LABEL "Enter 'DESTROY' to confirm purge"
+                WITH FRAME b VIEW-AS DIALOG-BOX THREE-D.
+            IF cDestroy NE "DESTROY" THEN DO:
+                MESSAGE
+                    "Purge Cancelled."
+                    VIEW-AS ALERT-BOX.
+                RETURN NO-APPLY.
+            END.
+        END.
+        ELSE IF NOT lProcess THEN DO:
             MESSAGE
                 "Purge Cancelled."
                 VIEW-AS ALERT-BOX.
             RETURN NO-APPLY.
         END.
+    
+        RUN pRunProcess(
+            INPUT YES
+            ).
     END.
-    ELSE IF NOT lProcess THEN DO:
-        MESSAGE
-            "Purge Cancelled."
-            VIEW-AS ALERT-BOX.
-        RETURN NO-APPLY.
-    END.
-    RUN ipRunPurge.
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -420,6 +463,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         end_date:SCREEN-VALUE = STRING(MONTH(TODAY),"99") + "/" +
                                 STRING(DAY(TODAY),"99") + "/" +
                                 STRING(YEAR(TODAY) - 7,"9999").
+    fiDirectory:SCREEN-VALUE = ".\custfiles\dump\AR\PurgeArInvoice".                            
+    
+    RUN FileSys_CreateDirectory(
+            INPUT  fiDirectory,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).   
+                                
     APPLY 'entry' to tbNonZero.                            
     {methods/nowait.i}
   
@@ -464,10 +515,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY EDITOR-1 tbNonZero end_date begin_cust-no end_cust-no begin_inv 
-          end_inv 
+          end_inv tbInactive fiDirectory tbOpenFile 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE EDITOR-1 tbNonZero end_date begin_cust-no end_cust-no begin_inv 
-         end_inv btn-process btn-cancel 
+  ENABLE btSimulatePurge btStartProcess tbNonZero end_date begin_cust-no 
+         end_cust-no begin_inv end_inv tbInactive fiDirectory tbOpenFile 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -478,25 +529,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgeOrphanRecords C-Win 
-PROCEDURE pPurgeOrphanRecords PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCustomerInActive C-Win 
+PROCEDURE pCustomerInActive PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:Private procedure to delete orphan records 
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-                  
-    /* Delete ar-ledger records with no customer ,*/
-    FOR EACH ar-ledger EXCLUSIVE-LOCK 
-        WHERE ar-ledger.company EQ ipcCompany
-          AND ar-ledger.cust-no  EQ ""         
-          :                              
-           EXPORT STREAM out5 ar-ledger.
-                DELETE ar-ledger.
-                ASSIGN
-                    iPurgeCount5 = iPurgeCount5 + 1. 
-                                   
-    END. 
+    DEFINE INPUT PARAMETER ipcCustomer     AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-cust FOR cust.
+    
+    FOR EACH bf-cust EXCLUSIVE-LOCK 
+        WHERE bf-cust.company EQ ipcCompany
+          AND bf-cust.ACTIVE  NE "I"
+          AND bf-cust.ACTIVE  NE "X"
+          AND NOT bf-cust.internal
+          AND bf-cust.cust-no EQ ipcCustomer
+          AND bf-cust.balanceCurrent EQ 0
+          AND NOT CAN-FIND(FIRST ar-inv NO-LOCK
+              WHERE ar-inv.company EQ bf-cust.company
+                AND ar-inv.cust-no EQ bf-cust.cust-no) 
+          AND NOT CAN-FIND(FIRST oe-ord NO-LOCK
+              WHERE oe-ord.company EQ bf-cust.company
+                AND oe-ord.cust-no EQ bf-cust.cust-no
+                AND oe-ord.opened EQ YES)      
+                USE-INDEX ACTIVE:
+                          
+              bf-cust.ACTIVE = "I".                  
+    END.      
+        
+    RELEASE bf-cust.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -509,61 +572,134 @@ PROCEDURE pPurgeArLedger PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcRefNum       AS CHARACTER NO-UNDO.
-                  
+    DEFINE INPUT PARAMETER ipdtDate        AS DATE NO-UNDO.
+                      
     FOR EACH ar-ledger EXCLUSIVE WHERE
                 ar-ledger.company EQ ipcCompany AND
-                ar-ledger.ref-num EQ ipcRefNum:
-                EXPORT STREAM out5 ar-ledger.
+                ar-ledger.tr-date LE ipdtDate:                        
+                       
+                {custom/statusMsg.i " 'Customer:'  + ar-ledger.cust-no "}       
+                EXPORT STREAM out5 ar-ledger.                                  
                 DELETE ar-ledger.
+               
                 ASSIGN
                     iPurgeCount5 = iPurgeCount5 + 1.
+    END. 
+    FOR EACH ar-mcash EXCLUSIVE-LOCK
+        WHERE ar-mcash.company   EQ ipcCompany
+          AND check-date LE ipdtDate
+          USE-INDEX m-cash:                  
+      
+         EXPORT STREAM out6 ar-mcash.                          
+         DELETE ar-mcash.
+         iPurgeCount6 = iPurgeCount6 + 1.
+                              
+    END.  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPurgeOrphanRecords C-Win 
+PROCEDURE pPurgeOrphanRecords PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:Private procedure to delete orphan records 
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+            
+    /* Delete ar-ledger records with no customer ,*/
+    FOR EACH ar-ledger EXCLUSIVE-LOCK 
+        WHERE ar-ledger.company EQ ipcCompany
+          AND ar-ledger.cust-no  EQ ""           
+          : 
+           FOR EACH ar-mcash EXCLUSIVE-LOCK
+                WHERE ar-mcash.company   EQ ipcCompany
+                  AND STRING(ar-mcash.m-no) + " " + ar-mcash.payer EQ ar-ledger.ref-num
+                  :
+                                   
+                 EXPORT STREAM out6 ar-mcash.                                   
+                 DELETE ar-mcash.
+                 iPurgeCount6 = iPurgeCount6 + 1.                                        
+            END.   
+                         
+            EXPORT STREAM out5 ar-ledger.                              
+            DELETE ar-ledger.
+
+            ASSIGN
+                iPurgeCount5 = iPurgeCount5 + 1.                                     
     END. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRunPurge C-Win 
-PROCEDURE ipRunPurge :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunProcess C-Win 
+PROCEDURE pRunProcess :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcExecute AS LOGICAL NO-UNDO. 
     DEFINE VARIABLE cOutputArInv AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOutputArInvl AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOutputArCash AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOutputArCashl AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOutputArLedger AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOutputArMcash  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFileName       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCustNo         AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-ar-inv FOR ar-inv.
+    DEFINE BUFFER bf-ar-invl FOR ar-invl.
     
-    cOutputArInv =  "c:\tmp\ar-inv" + 
+    DO WITH FRAME {&FRAME-NAME}:
+            ASSIGN {&displayed-objects}.
+    END.
+    EMPTY TEMP-TABLE ttPurgeInvCsv.
+    ASSIGN    
+        iPurgeCount  = 0
+        iPurgeCount2 = 0
+        iPurgeCount3 = 0
+        iPurgeCount4 = 0
+        iPurgeCount5 = 0
+        iPurgeCount6 = 0
+        totWriteOff  = 0
+        .
+    
+    cFileName = "\PurageArInvoice" + STRING(year(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99") + STRING(TIME) + ".csv".
+    
+    cOutputArInv = fiDirectory + "\ar-inv" + 
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d"  .
                                 
-     cOutputArInvl =  "c:\tmp\ar-invl" +
+     cOutputArInvl = fiDirectory +  "\ar-invl" +
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d"  .
                                 
-     cOutputArCash =   "c:\tmp\ar-cash" + 
+     cOutputArCash = fiDirectory +  "\ar-cash" + 
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d"  .
                                 
-      cOutputArCashl =  "c:\tmp\ar-cashl" +
+      cOutputArCashl = fiDirectory + "\ar-cashl" +
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d" .
                                 
-      cOutputArLedger =  "c:\tmp\ar-ledger" +
+      cOutputArLedger = fiDirectory + "\ar-ledger" +
                                 STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
-                                STRING(DAY(TODAY),"99") + ".d" .          
+                                STRING(DAY(TODAY),"99") + ".d" . 
+                                
+      cOutputArMcash = fiDirectory + "\ar-mcash" +
+                                STRING(YEAR(TODAY),"9999") +
+                                STRING(MONTH(TODAY),"99") +
+                                STRING(DAY(TODAY),"99") + ".d" .                            
+                              
       
     RUN FileSys_GetUniqueFileName (
         INPUT  cOutputArInv,
@@ -604,13 +740,29 @@ PROCEDURE ipRunPurge :
         OUTPUT lSuccess, 
         OUTPUT cMessage  
         ).
+   
+   RUN FileSys_GetUniqueFileName (
+        INPUT  cOutputArMcash,
+        INPUT  YES,    
+        OUTPUT cOutputArMcash, 
+        OUTPUT lSuccess, 
+        OUTPUT cMessage  
+        ).         
         
-    OUTPUT STREAM out1 TO VALUE(cOutputArInv).
-    OUTPUT STREAM out2 TO VALUE(cOutputArInvl).
-    OUTPUT STREAM out3 TO VALUE(cOutputArCash).
-    OUTPUT STREAM out4 TO VALUE(cOutputArCashl).
-    OUTPUT STREAM out5 TO VALUE(cOutputArLedger).
-
+    RUN FileSys_CreateDirectory(
+            INPUT  fiDirectory,
+            OUTPUT lSuccess,
+            OUTPUT cMessage
+            ).      
+    IF ipcExecute THEN 
+    DO:   
+        OUTPUT STREAM out1 TO VALUE(cOutputArInv).
+        OUTPUT STREAM out2 TO VALUE(cOutputArInvl).
+        OUTPUT STREAM out3 TO VALUE(cOutputArCash).
+        OUTPUT STREAM out4 TO VALUE(cOutputArCashl).
+        OUTPUT STREAM out5 TO VALUE(cOutputArLedger).
+        OUTPUT STREAM out6 TO VALUE(cOutputArMcash).
+    END.
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN {&displayed-objects}.
     END.
@@ -622,29 +774,36 @@ PROCEDURE ipRunPurge :
     DISABLE TRIGGERS FOR LOAD OF ar-cash.
     DISABLE TRIGGERS FOR LOAD OF ar-cashl.
     DISABLE TRIGGERS FOR LOAD OF ar-ledger.
+    DISABLE TRIGGERS FOR LOAD OF ar-mcash.
 
     MAIN-LOOP:
-    FOR EACH ar-inv WHERE 
-        ar-inv.company  EQ cocode AND 
-        ar-inv.inv-date LE end_date AND 
-        ar-inv.inv-no   GE begin_inv AND
-        ar-inv.inv-no   LE end_inv AND
-        ar-inv.cust-no  GE begin_cust-no AND
-        ar-inv.cust-no  LE end_cust-no AND
-        ar-inv.posted   EQ yes
-        USE-INDEX inv-date:
+    FOR EACH bf-ar-inv WHERE 
+        bf-ar-inv.company  EQ cocode AND 
+        bf-ar-inv.inv-date LE end_date AND 
+        bf-ar-inv.inv-no   GE begin_inv AND
+        bf-ar-inv.inv-no   LE end_inv AND
+        bf-ar-inv.cust-no  GE begin_cust-no AND
+        bf-ar-inv.cust-no  LE end_cust-no AND
+        bf-ar-inv.posted   EQ yes
+        NO-LOCK USE-INDEX posted 
+        BREAK BY bf-ar-inv.cust-no:
+        
+        {custom/statusMsg.i " 'Customer:'  + bf-ar-inv.cust-no + '  Invoice:'  + string(bf-ar-inv.inv-no) "}
+        
+        IF LAST-OF(bf-ar-inv.cust-no) THEN
+        cCustNo = bf-ar-inv.cust-no.
 
         ASSIGN
-            invBalAmt = IF ar-inv.net = ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN
-                    ar-inv.net 
+            invBalAmt = IF bf-ar-inv.net = bf-ar-inv.gross + bf-ar-inv.freight + bf-ar-inv.tax-amt THEN
+                    bf-ar-inv.net 
                   ELSE 
-                    ar-inv.gross.
-
+                    bf-ar-inv.gross.        
+          
         FOR EACH ar-cashl NO-LOCK WHERE
-            ar-cashl.company  EQ ar-inv.company AND
+            ar-cashl.company  EQ bf-ar-inv.company AND
             ar-cashl.posted   EQ yes AND
-            ar-cashl.cust-no  EQ ar-inv.cust-no AND
-            ar-cashl.inv-no   EQ ar-inv.inv-no
+            ar-cashl.cust-no  EQ bf-ar-inv.cust-no AND
+            ar-cashl.inv-no   EQ bf-ar-inv.inv-no
             USE-INDEX inv-no:
 
             
@@ -664,22 +823,33 @@ PROCEDURE ipRunPurge :
             END.
             ELSE ASSIGN
                 invBalAmt = invBalAmt + ((ar-cashl.amt-paid * -1) + (ar-cashl.amt-disc * -1)).
-        END.
-
+        END. 
+         
         IF invBalAmt = 0 
         OR tbNonZero THEN DO:
         
+            CREATE ttPurgeInvCsv.
+            ASSIGN
+                ttPurgeInvCsv.company = bf-ar-inv.company
+                ttPurgeInvCsv.iInvNo  = bf-ar-inv.inv-no
+                ttPurgeInvCsv.cCustNo = bf-ar-inv.cust-no
+                ttPurgeInvCsv.dtInvDate = bf-ar-inv.inv-date
+                ttPurgeInvCsv.dInvAmount = invBalAmt 
+                ttPurgeInvCsv.dBalDue    = bf-ar-inv.due
+                ttPurgeInvCsv.cNote      = "".
+        
             ASSIGN
                 totWriteOff = totWriteOff + invBalAmt.
-                
-            FOR EACH ar-cashl EXCLUSIVE WHERE
-                ar-cashl.company  EQ ar-inv.company AND
+            
+            IF ipcExecute THEN    
+            FOR EACH ar-cashl NO-LOCK WHERE
+                ar-cashl.company  EQ bf-ar-inv.company AND
                 ar-cashl.posted   EQ yes AND
-                ar-cashl.cust-no  EQ ar-inv.cust-no AND
-                ar-cashl.inv-no   EQ ar-inv.inv-no
+                ar-cashl.cust-no  EQ bf-ar-inv.cust-no AND
+                ar-cashl.inv-no   EQ bf-ar-inv.inv-no
                 USE-INDEX inv-no:
 
-                FIND ar-cash EXCLUSIVE WHERE
+                FIND ar-cash NO-LOCK WHERE
                     ar-cash.c-no EQ ar-cashl.c-no
                     USE-INDEX c-no NO-ERROR.
                 
@@ -688,49 +858,95 @@ PROCEDURE ipRunPurge :
                         b-ar-cashl.c-no EQ ar-cashl.c-no AND 
                         ROWID(b-ar-cashl) NE ROWID(ar-cashl)
                         NO-ERROR.
-                    IF NOT AVAIL b-ar-cashl THEN DO:
-                        RUN pPurgeArLedger(cocode, "Memo#" + STRING(ar-cash.check-no,">>>>99999999") + "A/R").
+                    IF NOT AVAIL b-ar-cashl THEN DO:                                                  
                         EXPORT STREAM out3 ar-cash.
+                        FIND CURRENT ar-cash EXCLUSIVE-LOCK NO-ERROR.
                         DELETE ar-cash.
+                        
                         ASSIGN
                             iPurgeCount = iPurgeCount + 1.
                     END.
-                END.
-
+                END. 
+                                   
                 EXPORT STREAM out4 ar-cashl.
+                FIND CURRENT ar-cashl EXCLUSIVE-LOCK NO-ERROR.
                 DELETE ar-cashl.
+                
                 ASSIGN
                     iPurgeCount2 = iPurgeCount2 + 1.
             END.
 
-            FOR EACH ar-invl EXCLUSIVE WHERE
-                ar-invl.company EQ cocode AND
-                ar-invl.x-no EQ ar-inv.x-no:
-                EXPORT STREAM out2 ar-invl.
+            IF ipcExecute THEN
+            FOR EACH bf-ar-invl NO-LOCK WHERE
+                bf-ar-invl.company EQ cocode AND
+                bf-ar-invl.x-no EQ bf-ar-inv.x-no USE-INDEX x-no:
+                               
+                EXPORT STREAM out2 bf-ar-invl.
+                FIND FIRST ar-invl WHERE ROWID(ar-invl) EQ ROWID(bf-ar-invl) EXCLUSIVE-LOCK NO-ERROR.
                 DELETE ar-invl.
+                ttPurgeInvCsv.cNote      = "Invoice Deleted".
+                
                 ASSIGN
                     iPurgeCount3 = iPurgeCount3 + 1.
             END.
-                                    
-            RUN pPurgeArLedger(cocode, "INV# " + STRING(ar-inv.inv-no)). 
-
-            EXPORT STREAM out1 ar-inv.
-            DELETE ar-inv.
+                                                
+            IF ipcExecute THEN 
+            DO:
+                EXPORT STREAM out1 bf-ar-inv.
+                FIND FIRST ar-inv WHERE ROWID(ar-inv) EQ ROWID(bf-ar-inv) EXCLUSIVE-LOCK NO-ERROR.
+                DELETE ar-inv.
+                IF cCustNo NE "" AND tbInactive THEN do:
+                   RUN pCustomerInActive(cocode, cCustNo).
+                   cCustNo = "".
+                END.
+            END.
             ASSIGN
                 iPurgeCount4 = iPurgeCount4 + 1.
-        END.
+        END.  
     END.
     
-    RUN pPurgeOrphanRecords(cocode).
-
+    IF ipcExecute THEN 
+    do:                         
+        RUN pPurgeArLedger(cocode, end_date).     
+        RUN pPurgeOrphanRecords(cocode).
+    END.    
+        
     SESSION:SET-WAIT-STATE("").
     
-    OUTPUT STREAM out1 CLOSE.
-    OUTPUT STREAM out2 CLOSE.
-    OUTPUT STREAM out3 CLOSE.
-    OUTPUT STREAM out4 CLOSE.
-    OUTPUT STREAM out5 CLOSE.
+    IF ipcExecute THEN 
+    DO: 
+        OUTPUT STREAM out1 CLOSE.
+        OUTPUT STREAM out2 CLOSE.
+        OUTPUT STREAM out3 CLOSE.
+        OUTPUT STREAM out4 CLOSE.
+        OUTPUT STREAM out5 CLOSE.
+        OUTPUT STREAM out6 CLOSE.
+    END.
     
+    STATUS DEFAULT "Processing Complete".
+           
+    RUN Output_TempTableToCSV IN hdOutputProcs (
+        INPUT TEMP-TABLE ttPurgeInvCsv:HANDLE,
+        INPUT fiDirectory + cFileName,
+        INPUT TRUE,  /* Export Header */
+        INPUT FALSE, /* Auto increment File name */
+        OUTPUT lSuccess,
+        OUTPUT cMessage
+        ).
+    
+    IF NOT ipcExecute THEN     
+    MESSAGE "Simulation Completed." SKIP
+        "Check " + TRIM(fiDirectory) + " directory for the CSV file."
+        VIEW-AS ALERT-BOX INFORMATION.  
+        
+   IF tbOpenFile:CHECKED THEN 
+        RUN OS_RunFile(
+            INPUT fiDirectory + cFileName,
+            OUTPUT lSuccess,
+            OUTPUT cMessage).  
+   
+   
+    IF ipcExecute THEN
     MESSAGE  
         "Purge process completed." SKIP
         STRING(iPurgeCount4) + " invoices records were deleted." SKIP
@@ -738,12 +954,11 @@ PROCEDURE ipRunPurge :
         STRING(iPurgeCount) + " ar-cash records were deleted." SKIP
         STRING(iPurgeCount2) + " ar-cashl records were deleted." SKIP
          STRING(iPurgeCount5) + " ar-ledger records were deleted." SKIP
+         STRING(iPurgeCount6) + " ar-mcash records were deleted." SKIP
         STRING(totWriteOff,"->>>,>>>,>>9.99") + " dollars were written off." SKIP
         "Backup files were placed in then C:\tmp directory" SKIP
         "for retrieval if necessary."
-        VIEW-AS ALERT-BOX.
-        
-    APPLY "close" TO THIS-PROCEDURE.
+        VIEW-AS ALERT-BOX.      
 
 END PROCEDURE.
 

@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relacpi.i  03/05 YSK*/
 /* Print OE Release/Picking tickets    for HOP Xprint                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -55,15 +56,15 @@ DEF SHARED VAR s-print-loc-to AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(20)"
-       v-bin                            at 29   format "x(20)"
-       w-x                              at 60   format "X/"
-       w-pal                            to 65   format "->>>>"
-       w-cas                            to 70   format "->>>>"
-       w-c-c                            to 78   format "->>>>>>>"
-       w-partial                        TO 85   FORMAT "->>>>>>"
-       w-qty[1]                         to 94   format "->>>>>>>>"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 11    format "x(20)"
+       v-bin                            at 38   format "x(20)"
+       w-x                              at 61   format "X/"
+       w-pal                            to 66   format "->>>>"
+       w-cas                            to 71   format "->>>>"
+       w-c-c                            TO 79   format "->>>>>>>"
+       w-partial                        TO 86   FORMAT "->>>>>>"
+       w-qty[1]                         to 95   format "->>>>>>>>"
     
     with down frame rel-mid no-box no-label STREAM-IO width 96.
 
@@ -243,8 +244,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".

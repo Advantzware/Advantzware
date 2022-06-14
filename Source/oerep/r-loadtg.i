@@ -93,4 +93,9 @@ DEF {1} SHARED TEMP-TABLE w-ord
   FIELD broker AS LOGICAL
   FIELD ipReturn AS LOGICAL 
   FIELD customField AS CHARACTER 
+  FIELD ordHeaderPo  AS CHARACTER 
+  FIELD ordLinePo    AS CHARACTER
+  FIELD releasePo    AS CHARACTER 
+  FIELD miscItemPo   AS CHARACTER
+  FIELD relCustLot   AS CHARACTER
   .

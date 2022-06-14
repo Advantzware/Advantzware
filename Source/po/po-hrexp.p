@@ -210,7 +210,7 @@ FOR EACH report NO-LOCK WHERE
 
         FIND FIRST job NO-LOCK WHERE 
             job.company EQ cocode AND 
-            job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) + TRIM(po-ordl.job-no) AND 
+            job.job-no  EQ po-ordl.job-no AND 
             job.job-no2 EQ po-ordl.job-no2
             NO-ERROR.
         
@@ -505,10 +505,10 @@ FOR EACH report NO-LOCK WHERE
         PUT 
             cAssignedCustId     FORMAT "x(5)"       /* CUSTOMER # */
             "01"                FORMAT "x(2)"       /* 01 */
-            po-ord.po-no        FORMAT "99999999"     /* PURCHASE ORDER # */
+            po-ord.po-no        FORMAT "999999"     /* PURCHASE ORDER # */
             "A"                 FORMAT "x(1)"       /* A */
             po-ordl.line        FORMAT "99"         /* PURCHASE ORDER # */
-            po-ord.po-no        FORMAT "99999999"     /* PURCHASE ORDER # */
+            po-ord.po-no        FORMAT "999999"     /* PURCHASE ORDER # */
             "A"                 FORMAT "x(1)"       /* A */
             po-ordl.line        FORMAT "99"         /* PURCHASE ORDER # */
             FILL(" ",2)         FORMAT "xx"         /* MESSAGE CODE #1 */

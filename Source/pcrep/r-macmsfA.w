@@ -122,15 +122,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
@@ -142,15 +142,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
@@ -248,11 +248,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Machine"
      begin_job-no AT ROW 4.57 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 2
-     begin_job-no2 AT ROW 4.57 COL 38 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.57 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 4
      end_job-no AT ROW 4.57 COL 64 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 6
-     end_job-no2 AT ROW 4.57 COL 77 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.57 COL 79 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 8
      begin_date AT ROW 6.24 COL 26 COLON-ALIGNED
      end_date AT ROW 6.24 COL 64 COLON-ALIGNED HELP
@@ -1177,7 +1177,7 @@ IF rsQty = "A" THEN DO:
 
       lv-out =
           TRIM(STRING(mch-act.op-date,"99/99/99"))                      + "," +
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
+          TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")             + "," +
           TRIM(mch-act.m-code)                                          + "," +
           TRIM(string(eb.form-no))                                      + "," +
           TRIM(ef.board)                                               + "," +
@@ -1315,7 +1315,7 @@ ELSE DO:   /* rsQty = "E" */
      IF tb_excel THEN DO:
       lv-out =
           TRIM(STRING(job.close-date,"99/99/99"))                      + "," +
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
+          TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")             + "," +
           TRIM(job-mch.m-code)                                          + "," +
           TRIM(string(eb.form-no))                                     + "," +
           TRIM(ef.board)                                               + "," +

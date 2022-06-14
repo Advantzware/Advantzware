@@ -343,9 +343,7 @@ v-printline = 0.
             assign v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -406,7 +404,7 @@ v-printline = 0.
           
         end. /* avail item and item.mat-type eq "B" */
        
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
                     ELSE "").
 
@@ -594,8 +592,8 @@ v-printline = 0.
                 ASSIGN v-cut-po = oe-ord.po-no .
 
         IF po-ordl.ord-no NE 0 THEN DO:
-            put "<C21>Order#:" string(po-ordl.ord-no,">>>>>9").
-            PUT "<C33>Cust PO#:" v-cut-po           /*Task# 10041302*/
+            put "<C21>Order#:" string(po-ordl.ord-no,">>>>>>>9").
+            PUT "<C35>Cust PO#:" v-cut-po           /*Task# 10041302*/
                 skip.
             lv-add-line = NO.
             v-line-number = v-line-number + 1.
@@ -885,11 +883,17 @@ FOR EACH notes WHERE notes.rec_key = po-ord.rec_key NO-LOCK:
 
   FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR. 
     FIND FIRST loc NO-LOCK WHERE loc.company EQ cocode AND loc.loc EQ po-ord.ship-id NO-ERROR.
+    
+    IF NOT AVAIL loc THEN
+    FIND FIRST loc NO-LOCK 
+         WHERE loc.company EQ cocode 
+         AND loc.loc EQ locode NO-ERROR.
+           
     IF AVAIL loc THEN FIND FIRST location NO-LOCK 
     WHERE location.locationCode EQ loc.loc
       AND location.rec_key EQ loc.addrRecKey NO-ERROR.
     
-    IF AVAIL location OR company.company EQ po-ord.ship-id THEN DO:
+    IF AVAIL location THEN DO:
         ASSIGN cShiptoNotes = location.notes .
         PUT cShiptoNotes FORMAT "X(60)" SKIP .
         v-printline = v-printline + 1.

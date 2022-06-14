@@ -47,33 +47,59 @@ CREATE WIDGET-POOL.
 {fg/fg-post3.i NEW}
 {methods/template/brwcustomdef.i}
 
+{methods/defines/globdefs.i}
+{sys/inc/var.i "new shared"}
+{sys/inc/varasgn.i}
+
+/* Required for LoadtagProcs.p */
+{oerep/r-loadtg.i NEW}
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
+       FIELD tag-no AS CHARACTER.
+       
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
 DEFINE VARIABLE oLoadTag         AS Inventory.Loadtag NO-UNDO.
 DEFINE VARIABLE oFGBin           AS fg.FGBin          NO-UNDO.
+DEFINE VARIABLE oRMBin           AS rm.RMBin          NO-UNDO.
 DEFINE VARIABLE oItemFG          AS fg.ItemFG         NO-UNDO.
 DEFINE VARIABLE oKeyboard        AS system.Keyboard   NO-UNDO.
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdLoadtagProcs   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lIsMoveReceipt   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE riFGRctdMove     AS ROWID     NO-UNDO.
+DEFINE VARIABLE riRMRctdMove     AS ROWID     NO-UNDO.
+DEFINE VARIABLE cUserID          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lItemType        AS LOGICAL   NO-UNDO. /* TRUE - RM Item, FALSE - FG Item */
 
-DEFINE VARIABLE gcLocationSource      AS CHARACTER NO-UNDO INITIAL "LoadTag".
-DEFINE VARIABLE glCloseJob            AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE glAutoPost            AS LOGICAL   NO-UNDO INITIAL TRUE.
+/* This will an incremented sequence value to be assigned into ttBrowseInventory.inventoryStockID (unique index column)
+   once the transaction is posted */
+DEFINE VARIABLE iPostedSeq       AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE gcSSLocationSource    AS CHARACTER NO-UNDO INITIAL "LoadTag".
+DEFINE VARIABLE glSSCloseJob          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE glSSFGPost            AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE gcShowVirtualKeyboard AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcSSVendorTags        AS CHARACTER NO-UNDO INITIAL "No Vendor Tags".
+
+DEFINE VARIABLE gcCreateFGCompReceiptForSetHeader AS CHARACTER NO-UNDO.
 
 ASSIGN
     oLoadTag  = NEW Inventory.LoadTag()
     oKeyboard = NEW system.Keyboard()
-    oFGBin   = NEW fg.FGBin()
-    oItemFG  = NEW fg.ItemFG()
+    oFGBin    = NEW fg.FGBin()
+    oRMBin    = NEW rm.RMBin()
+    oItemFG   = NEW fg.ItemFG()
     .
+
+RUN spSetSettingContext.
+RUN spGetSessionParam ("UserID", OUTPUT cUserID).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -96,11 +122,11 @@ ASSIGN
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttBrowseInventory.fgItemID fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag ttBrowseInventory.quantity fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus ttBrowseInventory.emptyColumn   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttBrowseInventory.primaryID ttBrowseInventory.itemType fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag ttBrowseInventory.quantity fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus ttBrowseInventory.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttBrowseInventory
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory.
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING.
 &Scoped-define TABLES-IN-QUERY-BROWSE-1 ttBrowseInventory
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ttBrowseInventory
 
@@ -110,9 +136,9 @@ ASSIGN
     ~{&OPEN-QUERY-BROWSE-1}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btClear fiTag fiLocation BROWSE-1 btReset ~
-btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast btnNext ~
-btnPrevious btExit btnExitText btnClearText btnSettingsText 
+&Scoped-Define ENABLED-OBJECTS btClear fiTag fiLocation btPost BROWSE-1 ~
+btReset btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast ~
+btnNext btnPrevious btExit btnExitText btnClearText btnSettingsText 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation btnExitText btnClearText ~
 statusMessage btnSettingsText 
 
@@ -146,6 +172,7 @@ FUNCTION fGetInventoryStatus RETURNS CHARACTER
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_adjustwindowsize AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
@@ -237,7 +264,7 @@ DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE statusMessage AS CHARACTER FORMAT "X(256)":U INITIAL "STATUS MESSAGE" 
       VIEW-AS TEXT 
-     SIZE 116 BY 1.43 NO-UNDO.
+     SIZE 149 BY 1.43 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
@@ -254,10 +281,12 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 W-Win _FREEFORM
   QUERY BROWSE-1 DISPLAY
-      ttBrowseInventory.fgItemID WIDTH 40 COLUMN-LABEL "Item #" FORMAT "X(30)"
-      fGetConcatLocationID() @ ttBrowseInventory.warehouseID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(12)"
+      ttBrowseInventory.primaryID WIDTH 40 COLUMN-LABEL "Item #" FORMAT "X(30)"
+      ttBrowseInventory.itemType WIDTH 16 COLUMN-LABEL "Item Type" FORMAT "X(2)"
+      fGetConcatLocationID() @ ttBrowseInventory.warehouseID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(20)"
       ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Quantity" FORMAT "->,>>>,>>9.99<<<<"
+      ttBrowseInventory.quantityUOM WIDTH 10 COLUMN-LABEL "UOM" FORMAT "X(4)"
       fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(30)"
       ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
@@ -286,7 +315,7 @@ DEFINE FRAME F-Main
      btExit AT ROW 1 COL 182 WIDGET-ID 26 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 174 NO-LABEL WIDGET-ID 36
      btnClearText AT ROW 3.38 COL 169 NO-LABEL WIDGET-ID 188
-     statusMessage AT ROW 28.86 COL 16.6 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     statusMessage AT ROW 28.86 COL 3 NO-LABEL WIDGET-ID 34
      btnSettingsText AT ROW 29.05 COL 163 NO-LABEL WIDGET-ID 146
      RECT-2 AT ROW 2.67 COL 147 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -311,7 +340,7 @@ DEFINE FRAME F-Main
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Finished Goods Receive/Transfer"
+         TITLE              = "Receive/Transfer"
          HEIGHT             = 29.62
          WIDTH              = 189.2
          MAX-HEIGHT         = 29.62
@@ -325,7 +354,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
          THREE-D            = yes
@@ -366,8 +395,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN btnSettingsText IN FRAME F-Main
    ALIGN-L                                                              */
-/* SETTINGS FOR BUTTON btPost IN FRAME F-Main
-   NO-ENABLE                                                            */
 ASSIGN 
        btPost:HIDDEN IN FRAME F-Main           = TRUE.
 
@@ -379,7 +406,7 @@ ASSIGN
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
-   NO-ENABLE                                                            */
+   NO-ENABLE ALIGN-L                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -392,7 +419,7 @@ THEN W-Win:HIDDEN = yes.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory.
+OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -406,7 +433,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttBrowseInventory.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Finished Goods Receive/Transfer */
+ON END-ERROR OF W-Win /* Receive/Transfer */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -419,7 +446,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Finished Goods Receive/Transfer */
+ON WINDOW-CLOSE OF W-Win /* Receive/Transfer */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -606,6 +633,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btPost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btPost W-Win
+ON CHOOSE OF btPost IN FRAME F-Main /* POST */
+DO:
+    RUN pPost.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btReset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReset W-Win
 ON CHOOSE OF btReset IN FRAME F-Main /* RESET */
@@ -623,6 +661,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocation W-Win
 ON ENTRY OF fiLocation IN FRAME F-Main /* LOCATION */
 DO:
+    SELF:BGCOLOR = 30.
+    fiTag:BGCOLOR = 15.
+    
     oKeyboard:OpenKeyboard (SELF, "Qwerty").
 END.
 
@@ -657,16 +698,27 @@ DO:
         RUN pStatusMessage ("LOCATION CANNOT BE EMPTY", 3).
         RETURN. 
     END.
+    
+    IF lIsMoveReceipt THEN DO:
+        IF lItemType THEN
+            RUN pMoveReceiptRM (riRMRctdMove, cWarehouse, cLocation, OUTPUT lError, OUTPUT cMessage).
+        ELSE IF NOT lItemType THEN
+            RUN pMoveReceiptFG (riFGRctdMove, cWarehouse, cLocation, OUTPUT lError, OUTPUT cMessage).
+    END.
+    ELSE            
+        RUN pLocationScan (
+            INPUT  fiTag:SCREEN-VALUE,
+            INPUT  cWarehouse,
+            INPUT  cLocation,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ). 
+
+    IF lError THEN DO:
+        SELF:SCREEN-VALUE = "".
         
-    RUN pLocationScan (
-        INPUT  fiTag:SCREEN-VALUE,
-        INPUT  cWarehouse,
-        INPUT  cLocation,
-        OUTPUT lError,
-        OUTPUT cMessage
-        ). 
-    IF lError THEN
         RUN pStatusMessage (CAPS(cMessage), 3).
+    END.
     ELSE
         ASSIGN
             SELF:SCREEN-VALUE  = ""
@@ -683,6 +735,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag W-Win
 ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
 DO:
+    SELF:BGCOLOR = 30.
+    fiLocation:BGCOLOR = 15.
+    
     btTransfer:VISIBLE = FALSE.
 
     oKeyboard:OpenKeyboard (SELF, "Qwerty").
@@ -710,16 +765,16 @@ DO:
         OUTPUT lError,
         OUTPUT cMessage
         ).
-
-    {&OPEN-QUERY-{&BROWSE-NAME}}
       
     IF lError THEN DO:
         RUN pStatusMessage (CAPS(cMessage), 3).
         
+        SELF:SCREEN-VALUE = "".
+        
         RETURN NO-APPLY.
     END.
     
-    IF NOT lIsTransfer THEN DO:
+    IF NOT lIsTransfer AND NOT lIsMoveReceipt THEN DO:
         SELF:SCREEN-VALUE = "".
         
         RETURN NO-APPLY.
@@ -741,6 +796,7 @@ END.
 {src/adm/template/windowmn.i}
 
 {sharpshooter/pStatusMessage.i}
+{sharpshooter/ChangeWindowSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -763,6 +819,14 @@ PROCEDURE adm-create-objects :
   CASE adm-current-page: 
 
     WHEN 0 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'sharpshooter/smartobj/adjustwindowsize.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_adjustwindowsize ).
+       RUN set-position IN h_adjustwindowsize ( 1.48 , 155.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 32.00 ) */
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/setting.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -839,7 +903,7 @@ PROCEDURE enable_UI :
   DISPLAY fiTag fiLocation btnExitText btnClearText statusMessage 
           btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
-  ENABLE btClear fiTag fiLocation BROWSE-1 btReset btnKeyboardlOCATION 
+  ENABLE btClear fiTag fiLocation btPost BROWSE-1 btReset btnKeyboardlOCATION 
          btnKeyboardTAG btnNumPad btnFirst btnLast btnNext btnPrevious btExit 
          btnExitText btnClearText btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
@@ -900,7 +964,13 @@ PROCEDURE local-destroy :
 
   IF VALID-OBJECT(oItemFG) THEN
       DELETE OBJECT oItemFG.
-                  
+    
+  IF VALID-HANDLE(hdInventoryProcs) THEN
+      DELETE PROCEDURE hdInventoryProcs.
+  
+  IF VALID-HANDLE(hdLoadtagProcs) THEN
+      DELETE PROCEDURE hdLoadtagProcs.
+                        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -955,6 +1025,7 @@ PROCEDURE OpenSetting :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN windows/setting-dialog.w.
+    {sharpshooter/settingChangeDialog.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -966,15 +1037,30 @@ PROCEDURE pInit PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    RUN spSetSettingContext.
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT cSettingValue).
+    glShowVirtualKeyboard = LOGICAL(cSettingValue) NO-ERROR.
+
+    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT cSettingValue).
+    glShowVirtualKeyboard = LOGICAL(cSettingValue) NO-ERROR.
     
-    RUN spGetSettingByName ("ShowVirtualKeyboard", OUTPUT gcShowVirtualKeyboard).
     RUN spGetSettingByName ("ShowSettings", OUTPUT gcShowSettings). 
+
+    RUN spGetSettingByName("CreateFGCompReceiptForSetHeader", OUTPUT gcCreateFGCompReceiptForSetHeader).
     
-    glShowVirtualKeyboard = LOGICAL(gcShowVirtualKeyboard) NO-ERROR.
+    RUN spGetSettingByName ("SSCloseJob", OUTPUT cSettingValue).
+    glSSCloseJob = LOGICAL(cSettingValue) NO-ERROR.
+    
+    RUN spGetSettingByName ("SSFGPost", OUTPUT cSettingValue).            
+    glSSFGPost = LOGICAL(cSettingValue) NO-ERROR.
+    
+    RUN spGetSettingByName ("SSVendorTags", OUTPUT gcSSVendorTags).
+    
+    btPost:HIDDEN = glSSFGPost.
     
     oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
     oKeyboard:SetProcedure(THIS-PROCEDURE).
@@ -1009,15 +1095,38 @@ PROCEDURE pInit PRIVATE :
     END. /* do while */
     cColHandList = TRIM(cColHandList, ",").
     
-    RUN pWinReSize.
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.    
+    RUN oerep/LoadtagProcs.p PERSISTENT SET hdLoadtagProcs.
+    
     RUN spGetSessionParam ("Company", OUTPUT cCompany).    
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
         INPUT  cCompany,
         OUTPUT iWarehouseLength
         ).
+    
+    SESSION:SET-WAIT-STATE("GENERAL").
+
+    RUN pStatusMessage ("Loading existing transactions", 1).
+    
+    RUN Inventory_GetFGTransactions IN hdInventoryProcs (
+        INPUT  cCompany,
+        INPUT  cUserID,
+        INPUT  "R,T",
+        INPUT-OUTPUT TABLE ttBrowseInventory
+        ).
+    
+    RUN Inventory_GetRMTransactions IN hdInventoryProcs (
+        INPUT  cCompany,
+        INPUT  cUserID,
+        INPUT  "R,T",
+        INPUT-OUTPUT TABLE ttBrowseInventory
+        ).
+        
     RUN pStatusMessage ("", 0).
 
+    SESSION:SET-WAIT-STATE("").
+
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1035,11 +1144,11 @@ PROCEDURE pLocationScan PRIVATE :
     DEFINE OUTPUT PARAMETER oplError     AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage   AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE riFGRctd AS ROWID     NO-UNDO.
+    DEFINE VARIABLE riRctd   AS ROWID     NO-UNDO.
     DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cItemID  AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE iQuantity         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantity         AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE iSubUnits         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iSubUnitsPerUnit  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iPartial          AS INTEGER   NO-UNDO.
@@ -1058,11 +1167,11 @@ PROCEDURE pLocationScan PRIVATE :
         RETURN.
     END.
     
-    oLoadTag:SetContext (cCompany, FALSE /* ItemType */, ipcTag).
+    oLoadTag:SetContext (cCompany, lItemType /* ItemType */, ipcTag).
 
     IF NOT oLoadTag:IsAvailable() THEN DO:
         ASSIGN
-            oplError = TRUE
+            oplError   = TRUE
             opcMessage = "Invalid tag '" + ipcTag + "'"
             .
         RETURN.
@@ -1070,33 +1179,51 @@ PROCEDURE pLocationScan PRIVATE :
 
     cItemID = oLoadTag:GetValue("ItemID").
     
-    oItemFG:SetContext(cCompany, cItemID).
-    IF NOT oItemFG:IsAvailable() THEN DO:
-        ASSIGN
-            oplError = TRUE
-            opcMessage = "Invalid item # '" + cItemID + "'"
-            .
-        RETURN.        
-    END.
- 
-    oFGBin:SetContext (cCompany, cItemID, ipcTag).
-    IF NOT oFGBin:IsAvailable() THEN DO:
-        ASSIGN
-            oplError = TRUE
-            opcMessage = "FG Bin not available for tag '" + ipcTag + "'"
-            .
-        RETURN.
-    END.
-        
-    ASSIGN
-        iSubUnits         = INTEGER(oFGBin:GetValue("QuantityInSubUnit"))
-        iSubUnitsPerUnit  = INTEGER(oFGBin:GetValue("SubUnitsPerUnit"))
-        iPartial          = INTEGER(oFGBin:GetValue("Partial"))
-        iQuantity         = iSubUnits * iSubUnitsPerUnit + iPartial
-        cCurrentWarehouse = oFGBin:GetValue("Warehouse")
-        cCurrentLocation  = oFGBin:GetValue("Location")
-        .
+    IF lItemType THEN DO:
+        oRMBin:SetContext (cCompany, cItemID, ipcTag).
+        IF NOT oRMBin:IsAvailable() THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "FG Bin not available for tag '" + ipcTag + "'"
+                .
+            RETURN.
+        END.
 
+        ASSIGN
+            dQuantity         = DECIMAL(oRMBin:GetValue("Quantity"))
+            cCurrentWarehouse = oRMBin:GetValue("Warehouse")
+            cCurrentLocation  = oRMBin:GetValue("Location")
+            .    
+    END.
+    ELSE IF NOT lItemType THEN DO:
+        oItemFG:SetContext(cCompany, cItemID).
+        IF NOT oItemFG:IsAvailable() THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid item # '" + cItemID + "'"
+                .
+            RETURN.        
+        END.
+     
+        oFGBin:SetContext (cCompany, cItemID, ipcTag).
+        IF NOT oFGBin:IsAvailable() THEN DO:
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "FG Bin not available for tag '" + ipcTag + "'"
+                .
+            RETURN.
+        END.
+            
+        ASSIGN
+            iSubUnits         = INTEGER(oFGBin:GetValue("QuantityInSubUnit"))
+            iSubUnitsPerUnit  = INTEGER(oFGBin:GetValue("SubUnitsPerUnit"))
+            iPartial          = INTEGER(oFGBin:GetValue("Partial"))
+            dQuantity         = iSubUnits * iSubUnitsPerUnit + iPartial
+            cCurrentWarehouse = oFGBin:GetValue("Warehouse")
+            cCurrentLocation  = oFGBin:GetValue("Location")
+            .
+    END.
+    
     EMPTY TEMP-TABLE work-gl.
     EMPTY TEMP-TABLE work-gl-c.
     EMPTY TEMP-TABLE w-work-gl.
@@ -1121,10 +1248,10 @@ PROCEDURE pLocationScan PRIVATE :
             INPUT  ipcLocation, 
             INPUT  ipcTag,
             INPUT  cItemID,
-            INPUT  "FG",  /* Item Type */
-            INPUT  USERID("ASI"), 
+            INPUT  STRING(lItemType, "RM/FG"),
+            INPUT  cUserID, 
             INPUT  FALSE, /* Post */
-            OUTPUT riFGRctd,
+            OUTPUT riRctd,
             OUTPUT lSuccess,
             OUTPUT opcMessage
             ) NO-ERROR.
@@ -1133,30 +1260,160 @@ PROCEDURE pLocationScan PRIVATE :
         CREATE ttBrowseInventory.
         ASSIGN
             ttBrowseInventory.company          = cCompany
-            ttBrowseInventory.fgItemID         = cItemID
+            ttBrowseInventory.primaryID        = cItemID
+            ttBrowseInventory.itemType         = STRING(lItemType, "RM/FG")
             ttBrowseInventory.tag              = ipcTag
             ttBrowseInventory.warehouse        = ipcWarehouse
             ttBrowseInventory.location         = ipcLocation
-            ttBrowseInventory.quantity         = iQuantity
-            ttBrowseInventory.inventoryStockID = STRING(riFGRctd)
+            ttBrowseInventory.quantity         = dQuantity
+            ttBrowseInventory.quantityUOM      = "EA"
+            ttBrowseInventory.inventoryStockID = STRING(riRctd)
             ttBrowseInventory.transactionType  = "Transfer"
             ttBrowseInventory.inventoryStatus  = "Created"
             .
         
         IF lLocationConfirm THEN
             ttBrowseInventory.inventoryStatus = "Confirmed".
+        
+        ttBrowseInventory.lastTransTime = NOW.
     END.
     ELSE DO:
         oplError = TRUE.
         RETURN.
     END.
         
-    IF glAutoPost AND NOT lLocationConfirm THEN
+    IF glSSFGPost AND NOT lLocationConfirm THEN
         RUN pPost.
+    ELSE IF lLocationConfirm THEN
+        RUN pStatusMessage ("Transfer transaction confirmed", 1).
     ELSE
         RUN pStatusMessage ("Receipt Transaction created", 1).
         
     {&OPEN-QUERY-{&BROWSE-NAME}}    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveReceiptFG W-Win 
+PROCEDURE pMoveReceiptFG :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriFGRctd  AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
+            
+    RUN Inventory_MoveFGTransaction IN hdInventoryProcs (
+        ipriFGRctd,
+        ipcLocation,
+        ipcBin,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+
+    IF NOT oplError THEN DO:
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE ROWID(bf-fg-rctd) EQ ipriFGRctd
+             NO-ERROR.
+        IF AVAILABLE bf-fg-rctd THEN DO:
+            FIND FIRST ttBrowseInventory
+                 WHERE ttBrowseInventory.inventoryStockID EQ STRING(ROWID(bf-fg-rctd))
+                 NO-ERROR.
+            IF NOT AVAILABLE ttBrowseInventory THEN
+                CREATE ttBrowseInventory.
+            
+            ASSIGN
+                ttBrowseInventory.company          = bf-fg-rctd.company
+                ttBrowseInventory.primaryID        = bf-fg-rctd.i-no
+                ttBrowseInventory.itemType         = STRING(lItemType, "RM/FG")
+                ttBrowseInventory.tag              = bf-fg-rctd.tag
+                ttBrowseInventory.warehouse        = bf-fg-rctd.loc
+                ttBrowseInventory.location         = bf-fg-rctd.loc-bin
+                ttBrowseInventory.quantity         = bf-fg-rctd.qty
+                ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-fg-rctd))
+                ttBrowseInventory.transactionType  = "Receipt"
+                ttBrowseInventory.inventoryStatus  = "Moved"
+                ttBrowseInventory.lastTransTime    = NOW
+                .
+                
+            RUN pStatusMessage (CAPS("Tag # '" + bf-fg-rctd.tag + "' moved successfull"), 1).
+        END.
+    END.
+    
+    IF glSSFGPost THEN
+        RUN pPost.
+        
+    lIsMoveReceipt = FALSE.
+    
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMoveReceiptRM W-Win 
+PROCEDURE pMoveReceiptRM PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRMRctd  AS ROWID     NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+            
+    RUN Inventory_MoveRMTransaction IN hdInventoryProcs (
+        ipriRMRctd,
+        ipcLocation,
+        ipcBin,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+
+    IF NOT oplError THEN DO:
+        FIND FIRST bf-rm-rctd NO-LOCK
+             WHERE ROWID(bf-rm-rctd) EQ ipriRMRctd
+             NO-ERROR.
+        IF AVAILABLE bf-rm-rctd THEN DO:
+            FIND FIRST ttBrowseInventory
+                 WHERE ttBrowseInventory.inventoryStockID EQ STRING(ROWID(bf-rm-rctd))
+                 NO-ERROR.
+            IF NOT AVAILABLE ttBrowseInventory THEN
+                CREATE ttBrowseInventory.
+            
+            ASSIGN
+                ttBrowseInventory.company          = bf-rm-rctd.company
+                ttBrowseInventory.primaryID        = bf-rm-rctd.i-no
+                ttBrowseInventory.itemType         = STRING(lItemType, "RM/FG")
+                ttBrowseInventory.tag              = bf-rm-rctd.tag
+                ttBrowseInventory.warehouse        = bf-rm-rctd.loc
+                ttBrowseInventory.location         = bf-rm-rctd.loc-bin
+                ttBrowseInventory.quantity         = bf-rm-rctd.qty
+                ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-rm-rctd))
+                ttBrowseInventory.transactionType  = "Receipt"
+                ttBrowseInventory.inventoryStatus  = "Moved"
+                ttBrowseInventory.lastTransTime    = NOW
+                .
+                
+            RUN pStatusMessage (CAPS("Tag # '" + bf-rm-rctd.tag + "' moved successfull"), 1).
+        END.
+    END.
+    
+    IF glSSFGPost THEN
+        RUN pPost.
+        
+    lIsMoveReceipt = FALSE.
+    
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1193,17 +1450,22 @@ PROCEDURE pPost PRIVATE :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSuccess    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cPrevStatus AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
     FOR EACH ttBrowseInventory NO-LOCK
-        WHERE ttBrowseInventory.inventoryStatus = "Created":
+        WHERE ttBrowseInventory.itemType         EQ "FG" 
+          AND (ttBrowseInventory.inventoryStatus EQ "Created"
+           OR  ttBrowseInventory.inventoryStatus EQ "Moved"
+           OR  ttBrowseInventory.inventoryStatus EQ "Unposted"):
         RUN PostFinishedGoodsForFGRctd IN hdInventoryProcs (
             INPUT  TO-ROWID(ttBrowseInventory.inventoryStockID),
-            INPUT  glCloseJob,
+            INPUT  glSSCloseJob,
             OUTPUT lError,
             OUTPUT cMessage
             ).
@@ -1211,11 +1473,64 @@ PROCEDURE pPost PRIVATE :
             RUN pStatusMessage (CAPS(cMessage), 3).
             
         IF NOT lError AND AVAILABLE ttBrowseInventory THEN DO:
-            ttBrowseInventory.inventoryStatus = "Posted".
+            ASSIGN
+                iPostedSeq                         = iPostedSeq + 1
+                ttBrowseInventory.inventoryStockID = STRING(iPostedSeq)
+                ttBrowseInventory.inventoryStatus  = "Posted"
+                .
             
             RUN pStatusMessage ("Transaction posted successfully", 1).
         END.
     END.
+
+    IF CAN-FIND(FIRST ttBrowseInventory NO-LOCK
+                WHERE ttBrowseInventory.itemType         EQ "RM" 
+                  AND (ttBrowseInventory.inventoryStatus EQ "Created"
+                   OR  ttBrowseInventory.inventoryStatus EQ "Moved"
+                   OR  ttBrowseInventory.inventoryStatus EQ "Unposted")) THEN DO:
+        FOR EACH ttBrowseInventory NO-LOCK
+            WHERE ttBrowseInventory.itemType         EQ "RM" 
+              AND (ttBrowseInventory.inventoryStatus EQ "Created"
+               OR  ttBrowseInventory.inventoryStatus EQ "Moved"
+               OR  ttBrowseInventory.inventoryStatus EQ "Unposted"):
+            ttBrowseInventory.inventoryStatus = "Scanned".
+        END.
+
+        RUN Inventory_PostRawMaterials IN hdInventoryProcs (    
+            INPUT  cCompany,
+            INPUT  TODAY,
+            OUTPUT lSuccess,
+            OUTPUT cMessage,
+            INPUT-OUTPUT TABLE ttBrowseInventory
+            ).
+        IF NOT lSuccess THEN
+            RUN pStatusMessage (cMessage, 3).
+        
+        IF lSuccess THEN DO:
+            FOR EACH ttBrowseInventory NO-LOCK
+                WHERE ttBrowseInventory.itemType EQ "RM":
+                    
+                IF ttBrowseInventory.inventoryStatus EQ "Consumed" THEN
+                    ASSIGN
+                        iPostedSeq                         = iPostedSeq + 1
+                        ttBrowseInventory.inventoryStockID = STRING(iPostedSeq)
+                        ttBrowseInventory.inventoryStatus  = "Posted"
+                        .
+                ELSE
+                    ttBrowseInventory.inventoryStatus EQ "Unposted".
+            END.
+            
+            RUN pStatusMessage ("Transaction posted successfully", 1).
+        END.
+    END.
+    ASSIGN
+        fiTag:SCREEN-VALUE      = ""
+        fiLocation:SCREEN-VALUE = ""
+        .
+    
+    APPLY "ENTRY" TO fiTag.
+        
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1228,10 +1543,151 @@ PROCEDURE pTagScan PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplIsTransfer AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsTransfer AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE iPOID        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPOLine      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAddInfo     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
+                            
+    ASSIGN
+        lIsMoveReceipt = FALSE
+        riFGRctdMove   = ?
+        lItemType      = ?
+        .
+    
+    IF TRIM(ipcTag) EQ "" THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Scanned tag is empty"
+            .
+        RETURN.
+    END.
+    
+    oLoadTag:SetContext (cCompany, FALSE /* ItemType */, ipcTag).
+
+    IF NOT oLoadTag:IsAvailable() THEN
+        oLoadTag:SetContext (cCompany, TRUE /* ItemType */, ipcTag).
+    
+    IF NOT oLoadTag:IsAvailable() THEN DO:
+        IF gcSSVendorTags EQ "Parse Vendor Tags" THEN DO:
+            RUN Loadtag_CreateLoadTagFromVendorTag IN hdLoadtagProcs (
+                INPUT  cCompany,
+                INPUT  ipcTag,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+            IF oplError THEN
+                RETURN.
+        END.
+        ELSE IF gcSSVendorTags EQ "Enter Vendor Tag Information" THEN DO:
+            RUN addon/rm/vendorTagParse.p(
+                INPUT  ipcTag,
+                OUTPUT iPOID,
+                OUTPUT iPOLine,
+                OUTPUT dQuantity,
+                OUTPUT cAddInfo,
+                OUTPUT opcMessage,
+                OUTPUT oplError
+                ).
+            
+            RUN sharpshooter/d-poInfo.w (
+                INPUT-OUTPUT iPOID,
+                INPUT-OUTPUT iPOLine,
+                INPUT-OUTPUT dQuantity,
+                INPUT-OUTPUT cQuantityUOM,
+                OUTPUT lValid
+                ).    
+            IF NOT lValid THEN
+                RETURN.
+            
+            RUN Loadtag_BuildAndCreateLoadTagsFromPO IN hdLoadtagProcs (
+                INPUT  cCompany,
+                INPUT  iPOID,
+                INPUT  iPOLine,
+                INPUT  dQuantity,
+                INPUT  dQuantity,
+                INPUT  1,
+                INPUT  cQuantityUOM,
+                INPUT  ipcTag,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+            IF oplError THEN
+                RETURN.             
+        END.
+    END.
+    
+    /* Re-read the loadtag table, as previous procedure would create a loadtag */    
+    oLoadTag:SetContext (cCompany, FALSE /* ItemType */, ipcTag).
+
+    IF NOT oLoadTag:IsAvailable() THEN
+        oLoadTag:SetContext (cCompany, TRUE /* ItemType */, ipcTag).
+        
+    IF NOT oLoadTag:IsAvailable() THEN DO:
+        ASSIGN
+            oplError = TRUE
+            opcMessage = "Invalid tag '" + ipcTag + "'"
+            .
+        
+        RETURN.
+    END.
+
+    lItemType = LOGICAL(oLoadtag:GetValue("ItemType")).
+    
+    IF lItemType THEN DO:
+        RUN pTagScanRM (ipcTag, OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
+        
+        IF oplError THEN DO:
+            RUN pStatusMessage(opcMessage, 3).
+            
+            RETURN.
+        END.
+    END.
+    ELSE IF NOT lItemType THEN DO:
+        RUN pTagScanFG (ipcTag, OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
+
+        IF oplError THEN DO:
+            RUN pStatusMessage(opcMessage, 3).
+            
+            RETURN.
+        END.
+    END.
+    ELSE DO:
+        RUN pStatusMessage("Invalid loadtag item type", 3).
+            
+        RETURN.
+    END.
+
+    IF oplIsTransfer OR lIsMoveReceipt THEN
+        RETURN.
+                    
+    IF glSSFGPost THEN
+        RUN pPost.
+    ELSE
+        RUN pStatusMessage("Receipt Transaction created", 1).
+        
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTagScanFG W-Win 
+PROCEDURE pTagScanFG PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsTransfer AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+
     DEFINE VARIABLE cItemID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLocation        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWarehouse       AS CHARACTER NO-UNDO.
@@ -1248,29 +1704,14 @@ PROCEDURE pTagScan PRIVATE :
     DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iPartial         AS INTEGER   NO-UNDO.
     
-    DO WITH FRAME {&FRAME-NAME}:    
-    END.
-    
-    IF TRIM(ipcTag) EQ "" THEN DO:
-        ASSIGN
-            oplError   = TRUE
-            opcMessage = "Scanned tag is empty"
-            .
-        RETURN.
-    END.
-    
-    oLoadTag:SetContext (cCompany, FALSE /* ItemType */, ipcTag).
+    DEFINE BUFFER bf-fg-rctd       FOR fg-rctd.
+    DEFINE BUFFER bf-comp-fg-rctd  FOR fg-rctd.
 
-    IF NOT oLoadTag:IsAvailable() THEN DO:
-        ASSIGN
-            oplError = TRUE
-            opcMessage = "Invalid tag '" + ipcTag + "'"
-            .
-        RETURN.
+    DO WITH FRAME {&FRAME-NAME}:    
     END.
 
     cItemID = oLoadTag:GetValue("ItemID").
-    
+
     oItemFG:SetContext(cCompany, cItemID).
     IF NOT oItemFG:IsAvailable() THEN DO:
         ASSIGN
@@ -1282,33 +1723,51 @@ PROCEDURE pTagScan PRIVATE :
     
     oplIsTransfer = oFGBin:SetContext (cCompany, cItemID, ipcTag).
 
-    ASSIGN
-        cWarehouse = oLoadTag:GetValue("Warehouse")
-        cLocation  = oLoadTag:GetValue("Location")
-        .
-
-    IF gcLocationSource EQ "FGItem" THEN
+    RUN Inventory_GetFGReceiptTransaction IN hdInventoryProcs (cCompany, ipcTag, OUTPUT riFGRctdMove).
+        
+    IF riFGRctdMove NE ? THEN DO:
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE ROWID(bf-fg-rctd) EQ riFGRctdMove
+             NO-ERROR.
+        IF AVAILABLE bf-fg-rctd THEN DO:
+            ASSIGN
+                lIsMoveReceipt = TRUE
+                cWarehouse     = bf-fg-rctd.loc
+                cLocation      = bf-fg-rctd.loc-bin
+                .    
+            
+            RUN pStatusMessage (CAPS("Tag# '" + bf-fg-rctd.tag + "' is received, scan new location"), 2).
+        END.
+    END.
+    ELSE DO:    
         ASSIGN
-            cWarehouse = oItemFG:GetValue("Warehouse")
-            cLocation  = oItemFG:GetValue("Location")
+            cWarehouse = oLoadTag:GetValue("Warehouse")
+            cLocation  = oLoadTag:GetValue("Location")
             .
-    ELSE IF gcLocationSource EQ "UserDefault" THEN DO:
-        RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
-            INPUT  cCompany,
-            OUTPUT cWarehouse
-            ).
-
-        RUN Inventory_GetDefaultBin IN hdInventoryProcs (
-            INPUT  cCompany,
-            OUTPUT cLocation
-            ).
+    
+        IF gcSSLocationSource EQ "FGItem" THEN
+            ASSIGN
+                cWarehouse = oItemFG:GetValue("Warehouse")
+                cLocation  = oItemFG:GetValue("Location")
+                .
+        ELSE IF gcSSLocationSource EQ "UserDefault" THEN DO:
+            RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
+                INPUT  cCompany,
+                OUTPUT cWarehouse
+                ).
+    
+            RUN Inventory_GetDefaultBin IN hdInventoryProcs (
+                INPUT  cCompany,
+                OUTPUT cLocation
+                ).
+        END.
     END.
     
     fiLocation:SCREEN-VALUE = cWarehouse 
                             + FILL(" ", iWarehouseLength - LENGTH(cWarehouse)) 
                             + cLocation.      
 
-    IF oplIsTransfer THEN DO:
+    IF oplIsTransfer OR lIsMoveReceipt THEN DO:
         fiLocation:SENSITIVE = TRUE.
         
         APPLY "ENTRY" TO fiLocation.
@@ -1353,9 +1812,10 @@ PROCEDURE pTagScan PRIVATE :
             INPUT        iSubUnits,  /* Sub Units */     
             INPUT        iSubUnitsPerUnit,  /* Sub Units per Unit */
             INPUT        cWarehouse,            
-            INPUT        cLocation, 
+            INPUT        cLocation,
+            INPUT        gcCreateFGCompReceiptForSetHeader EQ "YES", 
             INPUT        "no", /* Post */            
-            INPUT        USERID("ASI"),
+            INPUT        cUserID,
             OUTPUT       riFGRctd,
             OUTPUT       dNewQuantity,
             OUTPUT       lSuccess,
@@ -1370,23 +1830,227 @@ PROCEDURE pTagScan PRIVATE :
         CREATE ttBrowseInventory.
         ASSIGN
             ttBrowseInventory.company          = cCompany
-            ttBrowseInventory.fgItemID         = cItemID
+            ttBrowseInventory.primaryID        = cItemID
+            ttBrowseInventory.itemType         = STRING(lItemType, "RM/FG")
             ttBrowseInventory.tag              = ipcTag
             ttBrowseInventory.warehouse        = cWarehouse
             ttBrowseInventory.location         = cLocation
             ttBrowseInventory.quantity         = iQuantity
+            ttBrowseInventory.quantityUOM      = cQuantityUOM
             ttBrowseInventory.inventoryStockID = STRING(riFGRctd)
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
+            ttBrowseInventory.lastTransTime    = NOW
             .
+        
+        FIND FIRST bf-fg-rctd NO-LOCK
+             WHERE ROWID(bf-fg-rctd) EQ riFGRctd
+             NO-ERROR.
+        IF AVAILABLE bf-fg-rctd THEN DO:
+            FOR EACH bf-comp-fg-rctd NO-LOCK 
+                WHERE bf-comp-fg-rctd.SetHeaderRno EQ bf-fg-rctd.r-no:
+                CREATE ttBrowseInventory.
+                ASSIGN
+                    ttBrowseInventory.company          = bf-comp-fg-rctd.company
+                    ttBrowseInventory.primaryID        = bf-comp-fg-rctd.i-no
+                    ttBrowseInventory.itemType         = STRING(lItemType, "RM/FG")
+                    ttBrowseInventory.tag              = bf-comp-fg-rctd.tag
+                    ttBrowseInventory.warehouse        = bf-comp-fg-rctd.loc
+                    ttBrowseInventory.location         = bf-comp-fg-rctd.loc-bin
+                    ttBrowseInventory.quantity         = bf-comp-fg-rctd.qty
+                    ttBrowseInventory.quantityUOM      = bf-comp-fg-rctd.pur-uom
+                    ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-comp-fg-rctd))
+                    ttBrowseInventory.transactionType  = "Receipt"
+                    ttBrowseInventory.inventoryStatus  = "Created"
+                    ttBrowseInventory.lastTransTime    = NOW
+                    .            
+            END.            
+        END.
+    
+        {&OPEN-QUERY-{&BROWSE-NAME}}
+    END.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pTagScanRM W-Win 
+PROCEDURE pTagScanRM PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcTag        AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplIsTransfer AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cItemID          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLocation        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cWarehouse       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iPOID            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPOLineID        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE riRMRctd         AS ROWID     NO-UNDO.
+    DEFINE VARIABLE cJobID           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobID2          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dNewQuantity     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE dQuantity        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnits        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitsPerUnit AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPartial         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-rm-rctd       FOR rm-rctd.
+    DEFINE BUFFER bf-item          FOR item.
+    
+    DO WITH FRAME {&FRAME-NAME}:    
+    END.
+
+    cItemID = oLoadTag:GetValue("ItemID").
+
+    FIND FIRST bf-item NO-LOCK
+         WHERE bf-item.company EQ cCompany
+           AND bf-item.i-no    EQ cItemID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-item THEN DO:
+        ASSIGN
+            oplError = TRUE
+            opcMessage = "Invalid item # '" + cItemID + "'"
+            .
+        RETURN.        
     END.
     
-    IF glAutoPost THEN
-        RUN pPost.
-    ELSE
-        RUN pStatusMessage("Receipt Transaction created", 1).
+    oplIsTransfer = CAN-FIND(FIRST rm-bin NO-LOCK
+                             WHERE rm-bin.company EQ cCompany
+                               AND rm-bin.i-no    EQ cItemID
+                               AND rm-bin.tag     EQ ipcTag
+                               AND rm-bin.qty     GT 0).
+
+    RUN Inventory_GetRMReceiptTransaction IN hdInventoryProcs (cCompany, ipcTag, OUTPUT riRMRctdMove).
         
-    {&OPEN-QUERY-{&BROWSE-NAME}}
+    IF riRMRctdMove NE ? THEN DO:
+        FIND FIRST bf-rm-rctd NO-LOCK
+             WHERE ROWID(bf-rm-rctd) EQ riRMRctdMove
+             NO-ERROR.
+        IF AVAILABLE bf-rm-rctd THEN DO:
+            ASSIGN
+                lIsMoveReceipt = TRUE
+                cWarehouse     = bf-rm-rctd.loc
+                cLocation      = bf-rm-rctd.loc-bin
+                .    
+            
+            RUN pStatusMessage (CAPS("Tag# '" + bf-rm-rctd.tag + "' is received, scan new location"), 2).
+        END.
+    END.
+    ELSE DO:    
+        ASSIGN
+            cWarehouse = oLoadTag:GetValue("Warehouse")
+            cLocation  = oLoadTag:GetValue("Location")
+            .
+    
+        IF gcSSLocationSource EQ "FGItem" THEN
+            ASSIGN
+                cWarehouse = bf-item.loc
+                cLocation  = bf-item.loc-bin
+                .
+        ELSE IF gcSSLocationSource EQ "UserDefault" THEN DO:
+            RUN Inventory_GetDefaultWhse IN hdInventoryProcs (
+                INPUT  cCompany,
+                OUTPUT cWarehouse
+                ).
+    
+            RUN Inventory_GetDefaultBin IN hdInventoryProcs (
+                INPUT  cCompany,
+                OUTPUT cLocation
+                ).
+        END.
+    END.
+    
+    fiLocation:SCREEN-VALUE = cWarehouse 
+                            + FILL(" ", iWarehouseLength - LENGTH(cWarehouse)) 
+                            + cLocation.      
+
+    IF oplIsTransfer OR lIsMoveReceipt THEN DO:
+        fiLocation:SENSITIVE = TRUE.
+        
+        APPLY "ENTRY" TO fiLocation.
+        
+        RETURN.
+    END.
+    /* Is Receipt */ 
+    ELSE DO:
+        ASSIGN
+            cQuantityUOM     = bf-item.cons-uom
+            cTag             = oLoadTag:GetValue("Tag")        
+            iPOID            = INTEGER(oLoadTag:GetValue("PO"))
+            iPOLineID        = INTEGER(oLoadTag:GetValue("PoLine"))
+            cJobID           = oLoadTag:GetValue("JobID")
+            iJobID2          = INTEGER(oLoadTag:GetValue("JobID2"))
+            dSubUnits        = INTEGER(oLoadTag:GetValue("QuantityInSubUnit"))
+            dSubUnitsPerUnit = INTEGER(oLoadTag:GetValue("SubUnitsPerUnit"))
+            dPartial         = INTEGER(oLoadTag:GetValue("Partial"))
+            dQuantity        = DECIMAL(oLoadTag:GetValue("Quantity"))
+            .
+
+        EMPTY TEMP-TABLE work-gl.
+        EMPTY TEMP-TABLE work-gl-c.
+        EMPTY TEMP-TABLE w-work-gl.
+        EMPTY TEMP-TABLE work-job.
+        EMPTY TEMP-TABLE tmp-work-job.
+        EMPTY TEMP-TABLE w-inv-line.
+        EMPTY TEMP-TABLE w-ord-misc.
+        
+        FOR EACH w-job:
+            DELETE w-job.    
+        END.
+                
+        RUN api\inbound\CreateInventoryReceipt.p (
+            INPUT        cCompany, 
+            INPUT        cTag,
+            INPUT        dQuantity,  /* Quantity */
+            INPUT        cQuantityUOM,
+            INPUT-OUTPUT iPOID,
+            INPUT        iPOLineID,
+            INPUT-OUTPUT cJobID,                  
+            INPUT        STRING(iJobID2),                 
+            INPUT        dSubUnits,  /* Sub Units */     
+            INPUT        dSubUnitsPerUnit,  /* Sub Units per Unit */
+            INPUT        cWarehouse,            
+            INPUT        cLocation,
+            INPUT        FALSE, 
+            INPUT        "no", /* Post */            
+            INPUT        cUserID,
+            OUTPUT       riRMRctd,
+            OUTPUT       dNewQuantity,
+            OUTPUT       lSuccess,
+            OUTPUT       opcMessage
+            )NO-ERROR.
+        
+        IF NOT lSuccess THEN DO:
+            oplError = TRUE.
+            RETURN.
+        END.
+        
+        CREATE ttBrowseInventory.
+        ASSIGN
+            ttBrowseInventory.company          = cCompany
+            ttBrowseInventory.primaryID        = cItemID
+            ttBrowseInventory.itemType         = STRING(lItemType, "RM/FG")
+            ttBrowseInventory.tag              = cTag
+            ttBrowseInventory.warehouse        = cWarehouse
+            ttBrowseInventory.location         = cLocation
+            ttBrowseInventory.quantity         = dNewQuantity
+            ttBrowseInventory.quantityUOM      = cQuantityUOM
+            ttBrowseInventory.inventoryStockID = STRING(riRMRctd)
+            ttBrowseInventory.transactionType  = "Receipt"
+            ttBrowseInventory.inventoryStatus  = "Created"
+            ttBrowseInventory.lastTransTime    = NOW
+            .        
+        
+        {&OPEN-QUERY-{&BROWSE-NAME}}
+    END.    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1406,35 +2070,25 @@ PROCEDURE pWinReSize :
     SESSION:SET-WAIT-STATE("General").
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            {&WINDOW-NAME}:ROW                 = 1
-            {&WINDOW-NAME}:COL                 = 1
-            {&WINDOW-NAME}:VIRTUAL-HEIGHT      = SESSION:HEIGHT - 1
-            {&WINDOW-NAME}:VIRTUAL-WIDTH       = SESSION:WIDTH  - 1
-            {&WINDOW-NAME}:HEIGHT              = {&WINDOW-NAME}:VIRTUAL-HEIGHT
-            {&WINDOW-NAME}:WIDTH               = {&WINDOW-NAME}:VIRTUAL-WIDTH
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = {&WINDOW-NAME}:WIDTH
-            FRAME {&FRAME-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT
-            FRAME {&FRAME-NAME}:WIDTH          = {&WINDOW-NAME}:WIDTH
-            statusMessage:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
-            dCol                               = {&WINDOW-NAME}:WIDTH  - 8
-            btnExitText:COL                    = dCol - 9
-            btExit:COL                         = dCol
-            btnFirst:COL                       = dCol
-            btnPrevious:COL                    = dCol
-            btnNext:COL                        = dCol
-            btnLast:COL                        = dCol
-            btnClearText:COL                   = dCol - 12
-            btClear:COL                        = dCol            
-            BROWSE {&BROWSE-NAME}:HEIGHT       = {&WINDOW-NAME}:HEIGHT - BROWSE {&BROWSE-NAME}:ROW - 1.62
-            BROWSE {&BROWSE-NAME}:WIDTH        = dCol - 2
-            btnSettingsText:VISIBLE             = INDEX(gcShowSettings, "Text") GT 0
-            btnSettingsText:ROW                = {&WINDOW-NAME}:HEIGHT - .86
-            btnSettingsText:COL                = dCol - 20
+            statusMessage:ROW                    = {&WINDOW-NAME}:HEIGHT - .86
+            dCol                                 = {&WINDOW-NAME}:WIDTH  - 8
+            btnExitText:COL                      = dCol - 9
+            btExit:COL                           = dCol
+            btnFirst:COL                         = dCol
+            btnPrevious:COL                      = dCol
+            btnNext:COL                          = dCol
+            btnLast:COL                          = dCol
+            btnClearText:COL                     = dCol - 12
+            btClear:COL                          = dCol            
+            BROWSE {&BROWSE-NAME}:HEIGHT         = {&WINDOW-NAME}:HEIGHT - BROWSE {&BROWSE-NAME}:ROW - 1.62
+            BROWSE {&BROWSE-NAME}:WIDTH          = dCol - 2
+            btnSettingsText:VISIBLE               = INDEX(gcShowSettings, "Text") GT 0
+            btnSettingsText:ROW                  = {&WINDOW-NAME}:HEIGHT - .86
+            btnSettingsText:COL                  = dCol - 20
             .
                 
         RUN set-position IN h_setting ( {&WINDOW-NAME}:HEIGHT - 1.1 , btnSettingsText:COL + 18 ) NO-ERROR.
-                    
+        RUN set-position IN h_adjustwindowsize ( 1.00 , dCol - 45 ) NO-ERROR.            
     END. /* do with */
     SESSION:SET-WAIT-STATE("").
 

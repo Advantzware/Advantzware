@@ -28,6 +28,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -300,11 +301,11 @@ DEFINE FRAME F-Main
     BGCOLOR 15 FONT 1
     rm-rctd.job-no AT ROW 3.62 COL 29.8 COLON-ALIGNED HELP
     ""
-    LABEL "Job" FORMAT "x(6)"
+    LABEL "Job" FORMAT "x(9)"
     VIEW-AS FILL-IN 
     SIZE 23.2 BY 1
     BGCOLOR 15 FONT 1
-    rm-rctd.job-no2 AT ROW 3.62 COL 53.4 COLON-ALIGNED NO-LABELS FORMAT "99"
+    rm-rctd.job-no2 AT ROW 3.62 COL 53.4 COLON-ALIGNED NO-LABELS FORMAT "999"
     VIEW-AS FILL-IN 
     SIZE 5.8 BY 1
     BGCOLOR 15 FONT 1
@@ -318,7 +319,7 @@ DEFINE FRAME F-Main
     SIZE 43 BY 1
     BGCOLOR 15 FONT 1
     rm-rctd.s-num AT ROW 4.81 COL 85.8 COLON-ALIGNED
-    LABEL "S" FORMAT ">9"
+    LABEL "F" FORMAT ">9"
     VIEW-AS FILL-IN 
     SIZE 6.6 BY 1
     BGCOLOR 15 FONT 1
@@ -515,8 +516,7 @@ ON HELP OF FRAME F-Main
         /* gdm - 08070907 */
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN 
-                lv-job-no              = FILL(" ", 6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE ))) +
-               TRIM(rm-rctd.job-no:SCREEN-VALUE)
+                lv-job-no              = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE)) 
                 char-val               = ""
                 v-number-rows-selected = 0
                 look-recid             = 0.
@@ -2141,7 +2141,7 @@ PROCEDURE lookup-job-mat :
             FOR EACH job-mat
                 WHERE job-mat.company    EQ cocode
                 AND job-mat.job        EQ job.job 
-                AND job-mat.job-no     EQ INPUT rm-rctd.job-no
+                AND job-mat.job-no     EQ rm-rctd.job-no:SCREEN-VALUE
                 AND job-mat.job-no2    EQ INPUT rm-rctd.job-no2 
                 AND (ip-for-item-only OR
                 (job-mat.frm      EQ INT(rm-rctd.s-num:SCREEN-VALUE) AND
@@ -2518,7 +2518,7 @@ PROCEDURE new-job-no :
         DO:
             ASSIGN
                 lv-job-no = rm-rctd.job-no:SCREEN-VALUE 
-                lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no).
+                lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) .
 
             RELEASE job-hdr.
 
@@ -2931,7 +2931,7 @@ PROCEDURE valid-job-no :
         DO:
             ASSIGN
                 lv-job-no                   = rm-rctd.job-no:SCREEN-VALUE 
-                rm-rctd.job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+                rm-rctd.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) 
                 lv-po-no                    = INT(rm-rctd.po-no:SCREEN-VALUE ).
 
             IF NOT CAN-FIND(FIRST job
@@ -3252,7 +3252,7 @@ PROCEDURE valid-qty2 :
             AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE 
             AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE 
             NO-ERROR.
-        IF NOT AVAILABLE rm-bin AND integer(rm-rctd.tag:SCREEN-VALUE ) GE 0  THEN 
+        IF NOT AVAILABLE rm-bin AND rm-rctd.tag:SCREEN-VALUE NE ""  THEN 
         DO:
             /* ticket 22650 - Tag does not have to exist for a negative issue */
             MESSAGE "Tag # does not exist in the Bin File..."
@@ -3265,10 +3265,10 @@ PROCEDURE valid-qty2 :
             FOR EACH bf-rm-rctd 
                 WHERE bf-rm-rctd.company EQ cocode
                 AND bf-rm-rctd.rita-code EQ "I"                    
-                AND bf-rm-rctd.i-no      EQ rm-bin.i-no
-                AND bf-rm-rctd.loc       EQ rm-bin.loc
-                AND bf-rm-rctd.loc-bin   EQ rm-bin.loc-bin     
-                AND bf-rm-rctd.tag       EQ rm-bin.tag  
+                AND bf-rm-rctd.i-no      EQ rm-rctd.i-no:SCREEN-VALUE
+                AND bf-rm-rctd.loc       EQ rm-rctd.loc:SCREEN-VALUE
+                AND bf-rm-rctd.loc-bin   EQ rm-rctd.loc-bin:SCREEN-VALUE     
+                AND bf-rm-rctd.tag       EQ rm-rctd.tag:SCREEN-VALUE  
                 AND NOT (AVAIL(rm-rctd) AND ROWID(rm-rctd) EQ ROWID(bf-rm-rctd))
                 NO-LOCK USE-INDEX rita-code:
                 dTotalI = dTotalI + bf-rm-rctd.qty.    
@@ -3278,10 +3278,10 @@ PROCEDURE valid-qty2 :
             FOR EACH bf-rm-rctd 
                 WHERE bf-rm-rctd.company EQ cocode
                 AND bf-rm-rctd.rita-code EQ "I"                    
-                AND bf-rm-rctd.i-no      EQ rm-bin.i-no
-                AND bf-rm-rctd.loc       EQ rm-bin.loc
-                AND bf-rm-rctd.loc-bin   EQ rm-bin.loc-bin     
-                AND bf-rm-rctd.tag       EQ rm-bin.tag  
+                AND bf-rm-rctd.i-no      EQ rm-rctd.i-no:SCREEN-VALUE
+                AND bf-rm-rctd.loc       EQ rm-rctd.loc:SCREEN-VALUE
+                AND bf-rm-rctd.loc-bin   EQ rm-rctd.loc-bin:SCREEN-VALUE     
+                AND bf-rm-rctd.tag       EQ rm-rctd.tag:SCREEN-VALUE  
                 NO-LOCK USE-INDEX rita-code:
                 dTotalI = dTotalI + bf-rm-rctd.qty.    
             END.
@@ -3290,7 +3290,7 @@ PROCEDURE valid-qty2 :
 
     
     
-        IF DEC(rm-rctd.qty:SCREEN-VALUE ) > 0 AND
+        IF AVAILABLE rm-bin AND DEC(rm-rctd.qty:SCREEN-VALUE ) > 0 AND
             rm-bin.qty LT DEC(rm-rctd.qty:SCREEN-VALUE ) THEN 
         DO:
             MESSAGE "Issue Quantity exceeds Quantity on Hand for this Warehouse/Bin/Tag Location..."
@@ -3300,11 +3300,11 @@ PROCEDURE valid-qty2 :
         END.
         ELSE 
         DO:
-            FIND ITEM WHERE ITEM.company EQ rm-bin.company
-                AND ITEM.i-no EQ rm-bin.i-no
+            FIND ITEM WHERE ITEM.company EQ cocode
+                AND ITEM.i-no EQ rm-rctd.i-no:SCREEN-VALUE
                 NO-LOCK NO-ERROR.
 
-            IF DEC(rm-rctd.qty:SCREEN-VALUE ) > 0 AND
+            IF AVAILABLE rm-bin AND DEC(rm-rctd.qty:SCREEN-VALUE ) > 0 AND
                 rm-bin.qty LT (DEC(rm-rctd.qty:SCREEN-VALUE ) + dTotalI) 
                 AND AVAIL(item) AND item.stocked THEN 
             DO:
@@ -3449,8 +3449,7 @@ PROCEDURE validate-jobmat :
         
             /* gdm - */
             ASSIGN 
-                lv-job-no              = FILL(" ", 6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE ))) +
-                  TRIM(rm-rctd.job-no:SCREEN-VALUE)
+                lv-job-no              = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE)) 
                 char-val               = ""
                 v-number-rows-selected = 0
                 look-recid             = 0.
@@ -3586,7 +3585,7 @@ PROCEDURE validate-jobmat :
                     IF AVAILABLE job-mat THEN 
                     DO:
                         CREATE xjob-mat.
-                        BUFFER-COPY job-mat TO xjob-mat.
+                        BUFFER-COPY job-mat EXCEPT rec_key TO xjob-mat.
                 
                         FIND job-mat WHERE RECID(job-mat) EQ recid(xjob-mat).
           
@@ -3619,7 +3618,9 @@ PROCEDURE validate-jobmat :
                             job-mat.basis-w            = item.basis-w
                             job-mat.qty                = job-mat.qty * IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
                             job-mat.n-up               = v-job-up * v-out                 
-                            job-mat.qty                = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up.
+                            job-mat.qty                = job-mat.qty / IF job-mat.n-up EQ 0 THEN 1 ELSE job-mat.n-up
+                            job-mat.all-flg            = NO
+                            .
                      
                         {sys/inc/roundup.i job-mat.qty}
                 

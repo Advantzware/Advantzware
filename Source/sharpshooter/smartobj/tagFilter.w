@@ -34,11 +34,18 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lAutoScanNextTag AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cTagTypeScan     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE oLoadtag AS inventory.Loadtag NO-UNDO.
+DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAutoScanNextTag   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cTagTypeScan       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lShowErrorAsAlert  AS LOGICAL   NO-UNDO INITIAL TRUE.
+
+DEFINE VARIABLE oKeyboard AS system.Keyboard   NO-UNDO.
+DEFINE VARIABLE oLoadtag  AS inventory.Loadtag NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -51,11 +58,11 @@ DEFINE VARIABLE oLoadtag AS inventory.Loadtag NO-UNDO.
 &Scoped-define PROCEDURE-TYPE SmartObject
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-35 fiTag 
+&Scoped-Define ENABLED-OBJECTS btnKeyboardTag fiTag 
 &Scoped-Define DISPLAYED-OBJECTS fiTag 
 
 /* Custom List Definitions                                              */
@@ -70,23 +77,23 @@ DEFINE VARIABLE oLoadtag AS inventory.Loadtag NO-UNDO.
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnKeyboardTag 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "TAG" 
      VIEW-AS FILL-IN 
      SIZE 67 BY 1.38 TOOLTIP "Enter Tag"
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE RECTANGLE RECT-35
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 79 BY 2.38
-     BGCOLOR 26 .
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     btnKeyboardTag AT ROW 1.43 COL 80 WIDGET-ID 136 NO-TAB-STOP 
      fiTag AT ROW 1.48 COL 10 COLON-ALIGNED WIDGET-ID 2
-     RECT-35 AT ROW 1 COL 1 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -142,10 +149,13 @@ END.
 /* SETTINGS FOR WINDOW s-object
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       btnKeyboardTag:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -166,25 +176,74 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME btnKeyboardTag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardTag s-object
+ON CHOOSE OF btnKeyboardTag IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiTag.    
+    
+    oKeyboard:OpenKeyboardOverride (fiTag:HANDLE, "Qwerty"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiTag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
+ON ENTRY OF fiTag IN FRAME F-Main /* TAG */
+DO:
+    SELF:BGCOLOR = 30.  
+
+    IF VALID-OBJECT (oKeyboard) THEN DO:
+        oKeyboard:FocusField = SELF.    
+        
+        oKeyboard:OpenKeyboard (SELF, "Qwerty").
+    END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
+ON ENTER OF fiTag IN FRAME F-Main /* TAG */
+DO:
+    RUN pScanTag (SELF:SCREEN-VALUE) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.  
+
+    IF lAutoScanNextTag THEN DO:
+        lAutoScanNextTag = FALSE.
+        RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
 ON LEAVE OF fiTag IN FRAME F-Main /* TAG */
 DO:
-    IF SELF:SCREEN-VALUE EQ "" OR LASTKEY EQ -1 THEN DO:
-        IF lAutoScanNextTag AND LASTKEY NE -1 THEN
-            RETURN NO-APPLY.
-        ELSE
-            RETURN. 
-    END.
-    
-    RUN pScanTag (
-        INPUT SELF:SCREEN-VALUE
-        ) NO-ERROR.
-            
-    IF lAutoScanNextTag OR ERROR-STATUS:ERROR THEN DO:
-        SELF:SCREEN-VALUE = "".
+    fiTag:BGCOLOR = 15.
+END.
 
-        RETURN NO-APPLY.   
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag s-object
+ON TAB OF fiTag IN FRAME F-Main /* TAG */
+DO:
+    RUN pScanTag (SELF:SCREEN-VALUE) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN
+        RETURN NO-APPLY.
+
+    IF lAutoScanNextTag THEN DO:
+        lAutoScanNextTag = FALSE.
+        RETURN NO-APPLY.
     END.
 END.
 
@@ -209,6 +268,33 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableAll s-object 
+PROCEDURE DisableAll :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE fiTag btnKeyboardTag.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableErrorAlerts s-object 
+PROCEDURE DisableErrorAlerts :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    lShowErrorAsAlert = FALSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
@@ -244,13 +330,48 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAutoScanNextTag s-object 
-PROCEDURE EnableAutoScanNextTag :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAll s-object 
+PROCEDURE EnableAll :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    lAutoScanNextTag = TRUE.
+    DO WITH FRAME {&FRAME-NAME}:
+        ENABLE fiTag btnKeyboardTag.
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType s-object 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetScannedTag s-object 
+PROCEDURE GetScannedTag :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcTag AS CHARACTER NO-UNDO.
+    
+    IF VALID-OBJECT(oLoadTag) THEN
+        opcTag = oLoadtag:GetValue("Tag").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -338,28 +459,39 @@ PROCEDURE pScanTag :
     
     DEFINE VARIABLE lValidTag AS LOGICAL   NO-UNDO.
     
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    lAutoScanNextTag = FALSE.
+    
     RUN new-state (
         INPUT "tag-invalid"
         ).
+
+    IF fiTag:SCREEN-VALUE EQ "" THEN
+        RETURN.
         
     lValidTag = oLoadTag:SetContext(INPUT cCompany, INPUT ipcTag).
 
     IF NOT lValidTag THEN DO:
-        MESSAGE "Invalid Tag '" + ipcTag + "'"
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError ("Invalid Tag '" + ipcTag + "'").
+        
+        fiTag:SCREEN-VALUE = "".
         
         RETURN ERROR.    
     END.
             
     IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ TRUE AND cTagTypeScan EQ "FG" THEN DO:
-        MESSAGE "Only finished good item tags are allowed" 
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError ("Only finished good item tags are allowed").
+        
+        fiTag:SCREEN-VALUE = "".
         
         RETURN ERROR.
     END.
     ELSE IF LOGICAL(oLoadtag:GetValue("ItemType")) EQ FALSE AND cTagTypeScan EQ "RM" THEN DO:
-        MESSAGE "Only raw material item tags are allowed" 
-            VIEW-AS ALERT-BOX ERROR.
+        RUN pSendError ("Only raw material item tags are allowed").
+        
+        fiTag:SCREEN-VALUE = "".
         
         RETURN ERROR.
     END.
@@ -367,6 +499,40 @@ PROCEDURE pScanTag :
     RUN new-state (
         INPUT "tag-valid"
         ).        
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError s-object 
+PROCEDURE pSendError :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcStatusMessage AS CHARACTER NO-UNDO.
+    
+    IF lShowErrorAsAlert THEN DO:
+        MESSAGE ipcStatusMessage
+            VIEW-AS ALERT-BOX ERROR.
+        
+        RETURN.
+    END.
+    
+    ASSIGN
+        cStatusMessage     = ipcStatusMessage
+        iStatusMessageType = 3
+        .
+        
+    RUN new-state (
+        "tag-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -381,7 +547,36 @@ PROCEDURE ScanNextTag :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    lAutoScanNextTag = TRUE.
+    
     APPLY "ENTRY" TO fiTag.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus s-object 
+PROCEDURE Set-Focus :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    APPLY "ENTRY" TO fiTag IN FRAME {&FRAME-NAME}. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetKeyboard s-object 
+PROCEDURE SetKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipoKeyboard AS system.Keyboard NO-UNDO.
+    
+    oKeyboard = ipoKeyboard.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -398,6 +593,25 @@ PROCEDURE SetTagType :
     IF ipcTagType EQ "FG" OR ipcTagType EQ "RM" OR ipcTagType EQ "" THEN
         cTagTypeScan = ipcTagType.
         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard s-object 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardTag:VISIBLE   = TRUE
+        btnKeyboardTag:SENSITIVE = TRUE
+        .
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

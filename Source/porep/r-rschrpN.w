@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -125,7 +126,7 @@ ASSIGN
     cFieldListToSelect = "vend,vend-name,i-no,fg-itm,bin,i-name,cust-nam,po,ord," +
                             "po-dt,qty-ord,qty-rcv,rfq-dt,carr," +
                             "job-no,size,uom,cust"
-    cFieldLength       = "8,30,15,15,8,30,30,8,8," + "8,15,15,8,7," + "10,20,3,8"
+    cFieldLength       = "8,30,15,15,8,30,30,8,8," + "8,15,15,8,7," + "13,20,3,8"
     cFieldType         = "c,c,c,c,c,c,c,c,c," + "c,i,i,c,c," + "c,c,c,c"  
     .
 
@@ -1837,7 +1838,7 @@ PROCEDURE run-report :
         WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP
         FRAME sch-head-vend.
 
-    FORM lv-job-no FORMAT "x(11)"
+    FORM lv-job-no FORMAT "x(13)"
         tt-sched.i-no 
         tt-sched.loc-bin
         tt-sched.i-name FORMAT "x(22)"
@@ -2010,7 +2011,7 @@ PROCEDURE run-report :
             {custom/statusMsg.i " 'Processing PO#  '  + string(tt-sched.po-no) "}
 
             lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-            ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+            ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
             /* DISPLAY lv-job-no
                      tt-sched.i-no
@@ -2191,7 +2192,7 @@ PROCEDURE run-report :
                 AND tt-sched.rct-date LE v-end-rcv-date))
                 USE-INDEX i-no BREAK BY tt-sched.i-no:
                 lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-                ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+                ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
                 /*  DISPLAY lv-job-no
                           tt-sched.i-no
@@ -2370,7 +2371,7 @@ PROCEDURE run-report :
                 AND tt-sched.rct-date LE v-end-rcv-date))
                 USE-INDEX vend BREAK BY tt-sched.vend-no:
                 lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-                ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+                ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
                 IF FIRST-OF(tt-sched.vend-no) THEN 
                 DO:

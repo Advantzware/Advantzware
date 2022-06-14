@@ -52,6 +52,7 @@ DEFINE VARIABLE lHideSettingFilter  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lHideScopeFilter    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFilterType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lShowAdvancedFilter AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lCOLUMN-NAME        AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE cGlobalSearch  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iSettingTypeID AS INTEGER   NO-UNDO.
@@ -75,9 +76,10 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &SCOP adm-attribute-dlg browsers\setting-support.w
 
 &IF DEFINED(adm-attribute-list) = 0 &THEN
-&SCOP adm-attribute-list SAVE-TYPE,BROWSE-COLUMNS,BROWSE-COLUMNS-DISPLAY,HIDE-SEARCH,HIDE-SETTING-FILTER,HIDE-SCOPE-FILTER,SETTING-FILTER-TYPE,LOAD-DATA-FROM-TT
+&SCOP adm-attribute-list SAVE-TYPE,BROWSE-COLUMNS,BROWSE-COLUMNS-DISPLAY,HIDE-SEARCH,HIDE-SETTING-FILTER,HIDE-SCOPE-FILTER,SETTING-FILTER-TYPE,LOAD-DATA-FROM-TT,COLUMN-NAME
 &ENDIF
 
+&scoped-define SettingHelp
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 
@@ -185,14 +187,14 @@ DEFINE BROWSE br_table
   QUERY br_table NO-LOCK DISPLAY
       ttSetting.settingName  FORMAT "X(100)" WIDTH 60
 ttSetting.description  FORMAT "X(100)" WIDTH 80
-ttSetting.settingValue FORMAT "X(30)" WIDTH 25
 ttSetting.scopeTable   FORMAT "X(15)" WIDTH 12
 ttSetting.scopeField1  FORMAT "X(15)" WIDTH 15
 ttSetting.scopeField2  FORMAT "X(15)" WIDTH 15
 ttSetting.scopeField3  FORMAT "X(15)" WIDTH 15
 ttSetting.inactive     FORMAT "Inactive/Active" WIDTH 10 
 ttSetting.settingUser  FORMAT "X(15)" WIDTH 12
-ttSetting.programID    FORMAT "X(10)" WIDTH 8
+ttSetting.programID    FORMAT "X(10)" WIDTH 25
+ttSetting.settingValue FORMAT "X(30)" WIDTH 25
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 138 BY 27.38
@@ -350,8 +352,9 @@ END.
                            HIDE-SEARCH=FALSE,
                            HIDE-SETTING-FILTER=FALSE,
                            HIDE-SCOPE-FILTER=FALSE,
-                           SETTING-FILTER-TYPE=SettingType
-                           LOAD-DATA-FROM-TT=FALSE"). 
+                           SETTING-FILTER-TYPE=SettingType,
+                           LOAD-DATA-FROM-TT=FALSE, 
+                           COLUMN-NAME = FALSE"). 
                      
 {methods/ctrl-a_browser.i}
 {sys/inc/f3help.i}
@@ -607,6 +610,12 @@ PROCEDURE DisplayColumns :
     IF lLoadDataFromTT EQ ? THEN
         lLoadDataFromTT = FALSE.
 
+    RUN get-attribute IN THIS-PROCEDURE ('COLUMN-NAME':U).
+
+    lCOLUMN-NAME = LOGICAL(RETURN-VALUE).
+    IF lCOLUMN-NAME EQ ? THEN
+        lCOLUMN-NAME = FALSE.
+    
     RUN get-attribute IN THIS-PROCEDURE ('SETTING-FILTER-TYPE':U).
 
     cFilterType = RETURN-VALUE.
@@ -765,6 +774,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
     /* Code placed here will execute PRIOR to standard behavior. */
     RUN DisplayColumns.
+    RUN pUpdateColumnName.
     
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1144,3 +1154,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateColumnName B-table-Win 
+PROCEDURE pUpdateColumnName :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lCOLUMN-NAME THEN
+        ASSIGN ttSetting.settingValue:LABEL IN BROWSE {&browse-name} = "Default Value".
+    ELSE
+        ASSIGN ttSetting.settingValue:LABEL IN BROWSE {&browse-name} = "Value".
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

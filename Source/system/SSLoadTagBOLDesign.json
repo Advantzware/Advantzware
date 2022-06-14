@@ -56,7 +56,7 @@
             "visible" : false
         },
         "SubUnitsPerUnit" : {
-            "label" : "Cases Per!Pallet",
+            "label" : "Cases/!Pallet",
             "visible" : true
         },
         "Partial" : {
@@ -68,7 +68,7 @@
             "visible" : true
         },
         "TotalTags" : {
-            "label" : "Total Tags",
+            "label" : "Total!Tags",
             "visible" : false
         },
         "UnitWeight" : {

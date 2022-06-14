@@ -254,6 +254,7 @@ PROCEDURE pProcessInputs:
                 INPUT        iQuantitySubUnitsPerUnit,
                 INPUT        cWarehouseID,            
                 INPUT        cLocationID, 
+                INPUT        FALSE, /* Create FG Set Components receipt */
                 INPUT        cSSPostFG,            
                 INPUT        ipcUsername,
                 OUTPUT       riRctd,

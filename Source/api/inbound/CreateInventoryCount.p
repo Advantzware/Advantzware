@@ -24,6 +24,7 @@
     DEFINE INPUT        PARAMETER ipiQuantity           AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit AS INTEGER   NO-UNDO.
     DEFINE INPUT        PARAMETER ipiQuantityPartial    AS INTEGER   NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcQuantityUOM        AS CHARACTER NO-UNDO.
     DEFINE INPUT        PARAMETER iplPost               AS LOGICAL   NO-UNDO.
     DEFINE INPUT        PARAMETER iplZeroOutCount       AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT       PARAMETER opisequenceID         AS INT64     NO-UNDO.
@@ -45,7 +46,8 @@
     {sys/inc/VAR.i NEW SHARED}
     {oe/invwork.i NEW}
     {fg/fullset.i NEW}
-
+    {inventory/ttBrowseInventory.i}
+    
     ASSIGN
         cocode = ipcCompany
         locode = ipcWarehouseID
@@ -61,9 +63,12 @@
 
     /* Formats Job number */
     iopcJobID = DYNAMIC-FUNCTION (
-               "fAddSpacesToString" IN hdJobProcs , iopcJobID , 6 , TRUE
+               "fAddSpacesToString" IN hdJobProcs , iopcJobID , iJobLen , TRUE
                ). 
     
+    IF ipiQuantityPerSubUnit EQ 0 THEN
+        ipiQuantityPerSubUnit = 1.
+        
     /* Input validation */
     RUN pValidateInputs (
         INPUT        ipcCompany,
@@ -87,27 +92,48 @@
 
     /* Creates fg-rctd of rita-code "C" and posts */
     IF oplSuccess AND NOT ERROR-STATUS:ERROR THEN
-        RUN pCreateAndPostInventoryCount (
-            INPUT  ipcCompany,
-            INPUT  ipcWarehouseID,
-            INPUT  ipcLocationID,
-            INPUT  ipcCustID,
-            INPUT  ipiPoID,
-            INPUT  ipiPoLine,
-            INPUT  iopcJobID,
-            INPUT  iopiJobID2,
-            INPUT  ipcItemID,
-            INPUT  ipcItemType,
-            INPUT  ipcInventoryStockID,
-            INPUT  ipiQuantity,
-            INPUT  ipiQuantityPerSubUnit,
-            INPUT  ipiQuantityPartial,
-            INPUT  iplPost,
-            OUTPUT opiSequenceID,
-            OUTPUT oplSuccess,
-            OUTPUT opcMessage
-            ) NO-ERROR.
-  
+        IF ipcItemType EQ "FG" THEN
+            RUN pCreateAndPostInventoryCountFG (
+                INPUT  ipcCompany,
+                INPUT  ipcWarehouseID,
+                INPUT  ipcLocationID,
+                INPUT  ipcCustID,
+                INPUT  ipiPoID,
+                INPUT  ipiPoLine,
+                INPUT  iopcJobID,
+                INPUT  iopiJobID2,
+                INPUT  ipcItemID,
+                INPUT  ipcItemType,
+                INPUT  ipcInventoryStockID,
+                INPUT  ipiQuantity,
+                INPUT  ipiQuantityPerSubUnit,
+                INPUT  ipiQuantityPartial,
+                INPUT  iplPost,
+                OUTPUT opiSequenceID,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ) NO-ERROR.
+        ELSE IF ipcItemType EQ "RM" THEN
+            RUN pCreateAndPostInventoryCountRM (
+                INPUT  ipcCompany,
+                INPUT  ipcWarehouseID,
+                INPUT  ipcLocationID,
+                INPUT  ipcCustID,
+                INPUT  ipiPoID,
+                INPUT  ipiPoLine,
+                INPUT  iopcJobID,
+                INPUT  iopiJobID2,
+                INPUT  ipcItemID,
+                INPUT  ipcItemType,
+                INPUT  ipcInventoryStockID,
+                INPUT  ipiQuantity,
+                INPUT  ipcQuantityUOM,
+                INPUT  iplPost,
+                OUTPUT opiSequenceID,
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ) NO-ERROR.
+          
     IF ERROR-STATUS:ERROR THEN
         opcMessage = ERROR-STATUS:GET-MESSAGE(1).
         
@@ -133,7 +159,7 @@
         DEFINE INPUT        PARAMETER ipcItemID             AS CHARACTER NO-UNDO.
         DEFINE INPUT        PARAMETER ipcItemType           AS CHARACTER NO-UNDO.
         DEFINE INPUT        PARAMETER ipcInventoryStockID   AS CHARACTER NO-UNDO.
-        DEFINE INPUT        PARAMETER ipiQuantity           AS INTEGER   NO-UNDO.
+        DEFINE INPUT        PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
         DEFINE INPUT        PARAMETER ipiQuantityPerSubUnit AS INTEGER   NO-UNDO.
         DEFINE INPUT        PARAMETER ipiQuantityPartial    AS INTEGER   NO-UNDO.
         DEFINE INPUT        PARAMETER iplpost               AS LOGICAL   NO-UNDO.
@@ -144,6 +170,7 @@
         DEFINE VARIABLE cItemTypeList AS CHARACTER NO-UNDO INITIAL "FG,RM".
         DEFINE VARIABLE lItemType     AS LOGICAL   NO-UNDO.
         DEFINE VARIABLE cItemTypeFG   AS CHARACTER NO-UNDO INITIAL "FG".
+        DEFINE VARIABLE cItemTypeRM   AS CHARACTER NO-UNDO INITIAL "RM".
 
         /* Company validation */
         IF ipcCompany EQ "" THEN DO:
@@ -195,21 +222,6 @@
             RETURN.
         END.
 
-        RUN ValidateBin IN hdInventoryProcs (
-            INPUT  ipcCompany,
-            INPUT  ipcWarehouseID,
-            INPUT  ipcLocationID,
-            OUTPUT lActive
-            ) NO-ERROR.
-
-        IF NOT lActive THEN DO:
-            ASSIGN
-                opcMessage = "Invalid LocationID"
-                oplSuccess = NO
-                .
-            RETURN.
-        END.
-
         IF ipcItemType EQ "" THEN
             ipcItemType = gcItemTypeFG.
 
@@ -220,10 +232,34 @@
                 .
             RETURN.
         END.
-
+        
+        IF ipcItemType EQ "FG" THEN
+            RUN ValidateBin IN hdInventoryProcs (
+                INPUT  ipcCompany,
+                INPUT  ipcWarehouseID,
+                INPUT  ipcLocationID,
+                OUTPUT lActive
+                ) NO-ERROR.
+        ELSE IF ipcItemType EQ "RM" THEN
+            RUN ValidateBinRM IN hdInventoryProcs (
+                INPUT  ipcCompany,
+                INPUT  ipcWarehouseID,
+                INPUT  ipcLocationID,
+                OUTPUT lActive
+                ) NO-ERROR.        
+        
+        IF NOT lActive THEN DO:
+            ASSIGN
+                opcMessage = "Invalid LocationID"
+                oplSuccess = NO
+                .
+            RETURN.
+        END.
+        
         RUN pValidateItemAndTag (
             INPUT  ipcCompany,
             INPUT  ipcItemID,
+            INPUT  ipcItemType,
             INPUT  ipcInventoryStockID,
             OUTPUT oplSuccess,
             OUTPUT opcMessage
@@ -234,8 +270,33 @@
 
         IF ERROR-STATUS:ERROR OR NOT oplSuccess THEN
             RETURN.
+
+        IF ipcItemType EQ "FG" THEN DO:
+            FIND FIRST fg-rctd NO-LOCK
+                 WHERE fg-rctd.company   EQ ipcCompany
+                   AND fg-rctd.i-no      EQ ipcItemID
+                   AND fg-rctd.rita-code EQ "C"
+                   AND fg-rctd.tag       EQ ipcInventoryStockID
+                 NO-ERROR. 
+        END.
+        ELSE IF ipcItemType EQ "RM" THEN DO:
+            FIND FIRST rm-rctd NO-LOCK
+                 WHERE rm-rctd.company   EQ ipcCompany
+                   AND rm-rctd.i-no      EQ ipcItemID
+                   AND rm-rctd.rita-code EQ "C"
+                   AND rm-rctd.tag       EQ ipcInventoryStockID
+                 NO-ERROR.   
+        END.
         
-        IF iopcJobID NE "" THEN DO:
+        IF AVAILABLE fg-rctd OR AVAILABLE rm-rctd THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Count already exists for tag '" + ipcInventoryStockID + "'"
+                .
+            RETURN.             
+        END.
+                        
+        IF iopcJobID NE "" AND ipcItemType EQ "FG" THEN DO:
             RUN pValidateJob (
                 INPUT  ipcCompany,
                 INPUT  iopcJobID,
@@ -352,6 +413,7 @@
     ------------------------------------------------------------------------------*/     
         DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
         DEFINE INPUT  PARAMETER ipcItemID           AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcItemType         AS CHARACTER NO-UNDO.
         DEFINE INPUT  PARAMETER ipcInventoryStockID AS CHARACTER NO-UNDO.
         DEFINE OUTPUT PARAMETER oplSuccess          AS LOGICAL   NO-UNDO.
         DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
@@ -359,6 +421,8 @@
         DEFINE VARIABLE lValidTag AS LOGICAL NO-UNDO.
 
         DEFINE BUFFER bf-itemfg  FOR itemfg.
+        DEFINE BUFFER bf-item    FOR item.
+        
         DEFINE BUFFER bf-fg-rctd FOR fg-rctd.
 
         IF ipcItemID EQ "" THEN DO:
@@ -377,9 +441,19 @@
             RETURN.
         END.
 
-        IF NOT CAN-FIND(FIRST bf-itemfg
+        IF ipcItemType EQ "FG" AND NOT CAN-FIND(FIRST bf-itemfg
                         WHERE bf-itemfg.company EQ ipcCompany
                           AND bf-itemfg.i-no    EQ ipcItemID) THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Invalid ItemID"
+                .
+            RETURN.
+        END.
+
+        IF ipcItemType EQ "RM" AND NOT CAN-FIND(FIRST bf-item
+                        WHERE bf-item.company EQ ipcCompany
+                          AND bf-item.i-no    EQ ipcItemID) THEN DO:
             ASSIGN
                 oplSuccess = FALSE
                 opcMessage = "Invalid ItemID"
@@ -500,7 +574,88 @@
             .
     END PROCEDURE.
 
-    PROCEDURE pCreateAndPostInventoryCount PRIVATE:
+    PROCEDURE pCreateAndPostInventoryCountRM PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Creates new rm-rctd record of rita-code "C"
+     Notes:
+    ------------------------------------------------------------------------------*/
+        DEFINE INPUT  PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcWarehouseID        AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcLocationID         AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcCustID             AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipiPOID               AS INTEGER   NO-UNDO.
+        DEFINE INPUT  PARAMETER ipiPOLine             AS INTEGER   NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcJobID              AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipiJobID2             AS INTEGER   NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcItemID             AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcItemType           AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcInventoryStockID   AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER ipdQuantity           AS DECIMAL   NO-UNDO.
+        DEFINE INPUT  PARAMETER ipcQuantityUOM        AS CHARACTER NO-UNDO.
+        DEFINE INPUT  PARAMETER iplpost               AS LOGICAL   NO-UNDO.
+        DEFINE OUTPUT PARAMETER opisequenceID         AS INT64     NO-UNDO.
+        DEFINE OUTPUT PARAMETER oplSuccess            AS LOGICAL   NO-UNDO.
+        DEFINE OUTPUT PARAMETER opcMessage            AS CHARACTER NO-UNDO.
+
+        DEFINE VARIABLE iRNo AS INT64 NO-UNDO.
+        
+        DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
+        DEFINE BUFFER bf-item    FOR item.
+                
+        RUN sys/ref/asiseq.p (INPUT ipcCompany, INPUT "rm_rcpt_seq", OUTPUT iRNo) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN DO:
+            ASSIGN
+                oplSuccess = FALSE
+                opcMessage = "Could not obtain next sequence #, please contact ASI: " + RETURN-VALUE
+                .
+            
+            RETURN.
+        END.
+        
+        FIND FIRST bf-item NO-LOCK
+             WHERE bf-item.company EQ ipcCompany
+               AND bf-item.i-no    EQ ipcItemID
+             NO-ERROR.
+             
+        CREATE bf-rm-rctd.
+        ASSIGN
+            bf-rm-rctd.r-no       = iRNo
+            bf-rm-rctd.company    = ipcCompany
+            bf-rm-rctd.rct-date   = TODAY
+            bf-rm-rctd.loc        = ipcWarehouseID
+            bf-rm-rctd.loc-bin    = ipcLocationID
+            bf-rm-rctd.tag        = ipcInventoryStockID
+            bf-rm-rctd.i-no       = ipcItemID
+            bf-rm-rctd.rita-code  = "C"
+            bf-rm-rctd.qty        = ipdQuantity
+            bf-rm-rctd.pur-uom    = ipcQuantityUOM
+            bf-rm-rctd.enteredBy  = USERID("ASI")
+            bf-rm-rctd.enteredDT  = NOW            
+            opiSequenceID         = bf-rm-rctd.r-no 
+            .
+
+        IF AVAILABLE bf-item THEN DO:
+            bf-rm-rctd.i-name = bf-item.i-name.
+            
+            IF bf-rm-rctd.pur-uom EQ "" THEN
+                bf-rm-rctd.pur-uom = bf-item.pur-uom.
+        END.
+        
+        ASSIGN
+            oplSuccess = TRUE
+            opcMessage = "Success"
+            .
+            
+        IF iplPost THEN
+            RUN pPostCountRM (
+                INPUT  ROWID(bf-rm-rctd),
+                OUTPUT oplSuccess,
+                OUTPUT opcMessage
+                ) NO-ERROR.
+
+    END PROCEDURE.
+
+    PROCEDURE pCreateAndPostInventoryCountFG PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Creates new fg-rctd record of rita-code "C"
      Notes:
@@ -600,9 +755,11 @@
              NO-LOCK NO-ERROR.
         IF AVAILABLE bf-fg-bin THEN
             ASSIGN
-               bf-fg-rctd.ext-cost = bf-fg-rctd.t-qty / (IF bf-fg-bin.pur-uom EQ "M" THEN 1000 ELSE 1) * bf-fg-bin.std-tot-cost
-               bf-fg-rctd.cost     = bf-fg-rctd.ext-cost / bf-fg-rctd.t-qty
-               bf-fg-rctd.cost-uom = bf-fg-bin.pur-uom.
+               bf-fg-rctd.ext-cost   = bf-fg-rctd.t-qty / (IF bf-fg-bin.pur-uom EQ "M" THEN 1000 ELSE 1) * bf-fg-bin.std-tot-cost
+               bf-fg-rctd.cost       = bf-fg-rctd.ext-cost / bf-fg-rctd.t-qty
+               bf-fg-rctd.cost-uom   = bf-fg-bin.pur-uom
+               bf-fg-rctd.cases-unit = bf-fg-bin.cases-unit
+               .
         ELSE
             RUN fg/fgrctdcst.p (
                 INPUT  ROWID(bf-fg-rctd),
@@ -626,9 +783,14 @@
         RELEASE bf-fg-rcpth.
         RELEASE bf-itemfg.
         RELEASE bf-fg-bin.
+
+        ASSIGN
+            oplSuccess = TRUE
+            opcMessage = "Success"
+            .
         
         IF iplZeroOutCount THEN
-            RUN pZeroOutCount (
+            RUN pZeroOutCountFG (
                 INPUT  rifgrctd,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
@@ -638,7 +800,7 @@
             RETURN.
                             
         IF iplPost THEN
-            RUN pPostCount (
+            RUN pPostCountFG (
                 INPUT  opiSequenceID,
                 OUTPUT oplSuccess,
                 OUTPUT opcMessage
@@ -646,7 +808,36 @@
 
     END PROCEDURE.
 
-    PROCEDURE pPostCount PRIVATE:
+    PROCEDURE pPostCountRM PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to Post Count transaction
+     Notes:
+    ------------------------------------------------------------------------------*/        
+        DEFINE INPUT  PARAMETER ipriRMRctd    AS ROWID     NO-UNDO.
+        DEFINE OUTPUT PARAMETER oplSuccess    AS LOGICAL   NO-UNDO.
+        DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
+        
+        DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
+        
+        RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
+        
+        RUN Inventory_BuildRawMaterialToPost IN hdInventoryProcs (
+            INPUT  ipriRMRctd,
+            INPUT-OUTPUT TABLE ttBrowseInventory
+            ). 
+            
+        RUN Inventory_PostRawMaterials IN hdInventoryProcs (
+            INPUT  ipcCompany,
+            INPUT  TODAY,
+            OUTPUT oplSuccess,
+            OUTPUT opcMessage,
+            INPUT-OUTPUT TABLE ttBrowseInventory
+            ).        
+        
+        DELETE PROCEDURE hdInventoryProcs.
+    END.
+    
+    PROCEDURE pPostCountFG PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Procedure to Post Count transaction
      Notes:
@@ -881,7 +1072,7 @@
             .
     END PROCEDURE.
     
-PROCEDURE pZeroOutCount PRIVATE :
+PROCEDURE pZeroOutCountFG PRIVATE :
     /*------------------------------------------------------------------------------
       Purpose:   Count becomes zero if current loc/bin/custno is different 
       Parameters:  <none>

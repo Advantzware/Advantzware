@@ -22,6 +22,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -93,7 +94,7 @@ ASSIGN
                             "ship-qty,inv-qty,wip-qty,ou-pct,sales-rep,job-hold," +
                             "create-date,due-date,job.user-id,job.orderType"
                             
-    cFieldLength       = "10,15,9,6,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15," + "12,10,10,1"
+    cFieldLength       = "13,15,9,8,9,10,10," + "6,15,10,9,9,11," + "11,11,9,7,14,15," + "12,10,10,1"
     cFieldType         = "c,c,c,i,c,c,c," + "c,c,i,i,i,i," + "i,i,i,i,c,c," + "c,c,c,c"
     .
 
@@ -183,14 +184,14 @@ DEFINE VARIABLE begin_item     AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_job      AS CHARACTER FORMAT "X(8)" 
+DEFINE VARIABLE begin_job      AS CHARACTER FORMAT "X(9)" 
     LABEL "From Job#" 
     VIEW-AS FILL-IN 
     SIZE 12.6 BY 1.
 
 DEFINE VARIABLE begin_job-2    AS INTEGER   FORMAT ">>9" INITIAL 0 
     VIEW-AS FILL-IN 
-    SIZE 4.2 BY 1.
+    SIZE 5.2 BY 1.
 
 DEFINE VARIABLE end_cust-no    AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
     LABEL "To Customer#" 
@@ -207,14 +208,14 @@ DEFINE VARIABLE end_item       AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_job        AS CHARACTER FORMAT "X(8)" 
+DEFINE VARIABLE end_job        AS CHARACTER FORMAT "X(9)" 
     LABEL "To Job#" 
     VIEW-AS FILL-IN 
     SIZE 12.6 BY 1.
 
-DEFINE VARIABLE end_job-2      AS INTEGER   FORMAT ">>9" INITIAL 99 
+DEFINE VARIABLE end_job-2      AS INTEGER   FORMAT ">>9" INITIAL 999 
     VIEW-AS FILL-IN 
-    SIZE 4.2 BY 1.
+    SIZE 5.2 BY 1.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\JobCosting.csv" 
     LABEL "Name" 
@@ -533,10 +534,8 @@ ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
     DO:
  
         ASSIGN 
-            begin_job:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE))) +
-                 TRIM(begin_job:SCREEN-VALUE) 
-            end_job:SCREEN-VALUE   = FILL(" ",6 - LENGTH(TRIM(end_job:SCREEN-VALUE))) +
-                 TRIM(end_job:SCREEN-VALUE) .
+            begin_job:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job:SCREEN-VALUE)) 
+            end_job:SCREEN-VALUE   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job:SCREEN-VALUE))  .
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -1124,7 +1123,8 @@ PROCEDURE run-report :
         AND (job-hdr.cust-no GE begin_cust-no AND job-hdr.cust-no LE end_cust-no) 
         AND (job-hdr.i-no GE begin_item AND job-hdr.i-no LE END_item) 
         AND (TRIM(job-hdr.est-no) GE trim(begin_est) AND TRIM(job-hdr.est-no) LE trim(end_est))
-        AND (job-hdr.job-no GE begin_job AND job-hdr.job-no LE END_job) 
+        AND (FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) GE begin_job 
+        AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) LE END_job) 
         AND job-hdr.job-no2 GE begin_job-2 AND job-hdr.job-no2 LE end_job-2 NO-LOCK, 
         EACH job OF job-hdr NO-LOCK BY job-hdr.job-no DESCENDING
         BY job-hdr.job-no2 DESCENDING:
@@ -1253,7 +1253,7 @@ PROCEDURE run-report :
                     WHEN "inv-qty" THEN 
                         cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.inv-qty,"->>,>>>,>>>") ELSE "".
                     WHEN "job" THEN 
-                        cVarValue = STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")).
+                        cVarValue = STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"999")).
                     WHEN "wip-qty" THEN 
                         cVarValue = STRING(v-wip-qty,"->>,>>>,>>>").
                     WHEN "ou-pct" THEN 

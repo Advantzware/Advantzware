@@ -175,7 +175,7 @@ DEFINE FRAME F-Main
           SIZE 14 BY 1
      settingType.dataType AT ROW 6.62 COL 26 COLON-ALIGNED WIDGET-ID 14
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "Character","Integer","Decimal","Logical","Date" 
+          LIST-ITEMS "Character","Integer","Decimal","Logical","Date","DateTime","DateTime-TZ" 
           DROP-DOWN-LIST
           SIZE 23.6 BY 1
      btCategoryTagsInsert AT ROW 7.67 COL 154.8 WIDGET-ID 36

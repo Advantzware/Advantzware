@@ -66,7 +66,7 @@ def var v-inv-qty as dec no-undo.
 def var v-ship-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
-def var v-price as dec format ">>>>9.9999" no-undo.
+def var v-price as dec format "->>>>>9.9999" no-undo.
 def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like ar-invl.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
@@ -462,10 +462,10 @@ ELSE lv-comp-color = "BLACK".
                 v-inv-qty format  "->>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(25)" SPACE(1)
-                v-price  format "->,>>9.99<<" SPACE(2)
+                v-i-dscr  format "x(24)" SPACE(0)
+                v-price  format "->>>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP.
@@ -478,10 +478,10 @@ ELSE lv-comp-color = "BLACK".
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(25) ar-invl.part-no SPACE v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(26) ar-invl.part-no SPACE v-part-info SKIP.
                  ELSE
-                 IF v = 2 THEN PUT SPACE(41) v-part-info SKIP.
-                 ELSE          PUT SPACE(20) "Previous Invoice(s): " v-part-info SKIP.
+                 IF v = 2 THEN PUT SPACE(42) v-part-info SKIP.
+                 ELSE          PUT SPACE(21) "Previous Invoice(s): " v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

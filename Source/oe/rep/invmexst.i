@@ -27,7 +27,7 @@ ELSE IF company.company = '005' THEN
             "<P10><=2><R+5>"
             "<FCourier New>"
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
-            SPACE(12) "Contacto: MCI PACKAGING" SKIP
+            SPACE(12) "Contacto: MCI PACKAGING LLC" SKIP
             SPACE(12) "          PO BOX 39505" SKIP
             SPACE(12) "          Louisville, KY 40233" SKIP (1)
             space(12) "Cobrar a:" SPACE(42) "Envie a:" SKIP
@@ -58,7 +58,7 @@ ELSE
             /*"<R8><C65><FROM><R10><C65><LINE>" SKIP.*/
         
 PUT "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
-    "<=#3>          Citar#                    " inv-head.inv-no FORMAT ">>>>>>9"
+    "<=#3>          Citar#                    " inv-head.inv-no FORMAT ">>>>>>>9"
     "<=#3><R+1>          Fecha               " v-inv-date "<FCourier New>"    
     SKIP(1)
     .

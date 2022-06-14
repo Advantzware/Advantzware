@@ -259,9 +259,7 @@ assign
                v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -328,15 +326,15 @@ assign
            {po/po-ccc.i}
         END.
        
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99").
-        IF v-job-no = "-00" THEN v-job-no = "".
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
+        IF v-job-no BEGINS "-" THEN v-job-no = "".
         PUT po-ordl.LINE FORM ">>9"
             po-ordl.ord-qty SPACE(2)
             po-ordl.pr-qty-uom SPACE(1)
-            po-ordl.i-no FORM "x(23)" SPACE(5)
+            po-ordl.i-no FORM "x(23)" SPACE(2)
             po-ordl.due-date  FORM "99/99/9999" SPACE(1)
             /*v-adder[1] */
-            v-job-no FORM "x(9)" SPACE(1) .
+            v-job-no FORM "x(13)" SPACE(1) .
 
         IF po-ordl.cost > 99999 THEN
             PUT

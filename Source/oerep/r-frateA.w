@@ -140,15 +140,15 @@ DEFINE VARIABLE begin_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
@@ -160,15 +160,15 @@ DEFINE VARIABLE end_inv-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -245,11 +245,11 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Customer Number"
      begin_job-no AT ROW 5.29 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 5.29 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 5.29 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 5.29 COL 70 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 5.29 COL 82 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 5.29 COL 84 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd-dest AT ROW 9.81 COL 6 NO-LABEL
      lv-ornt AT ROW 10.05 COL 30 NO-LABEL
@@ -948,10 +948,10 @@ assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
- v-job[1] = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-            TRIM(begin_job-no) + STRING(begin_job-no2,"99")    
- v-job[2] = FILL(" ",6 - LENGTH(TRIM(end_job-no))) +
-            TRIM(end_job-no) + STRING(end_job-no2,"99").
+ v-job[1] = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
+            TRIM(begin_job-no) + STRING(begin_job-no2,"999")    
+ v-job[2] = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no))) +
+            TRIM(end_job-no) + STRING(end_job-no2,"999").
 
 {sys/inc/print1.i}
 
@@ -1002,12 +1002,12 @@ for each ar-inv
 
     each ar-invl
     where ar-invl.x-no eq ar-inv.x-no
-      and FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
+      and FILL(" ", iJobLen - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
-          STRING(ar-invl.job-no2,"99") GE v-job[1]
-      and FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
+          STRING(ar-invl.job-no2,"999") GE v-job[1]
+      and FILL(" ", iJobLen - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
-          STRING(ar-invl.job-no2,"99") LE v-job[2]
+          STRING(ar-invl.job-no2,"999") LE v-job[2]
       and not ar-invl.misc
     no-lock,
 
@@ -1100,12 +1100,12 @@ for each ar-inv
     v-frate[1] = v-frate[1] + v-frt-chg.
   END.
 
-  v-job-no = TRIM(ar-invl.job-no) + "-" + STRING(ar-invl.job-no2,"99").
-  IF v-job-no EQ "-00" THEN v-job-no = "".
+  v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2))).
+  IF v-job-no EQ "-000" THEN v-job-no = "".
 
   DISPLAY ar-inv.inv-no                             COLUMN-LABEL "Invoice#"
           ar-inv.inv-date   FORMAT "99/99/9999"     COLUMN-LABEL "Inv Date"
-          v-job-no          FORMAT "x(9)"           COLUMN-LABEL "Job#"
+          v-job-no          FORMAT "x(13)"           COLUMN-LABEL "Job#"
           ar-invl.i-no                              COLUMN-LABEL "FG Item#"
           ar-invl.ship-qty  FORMAT "->,>>>,>>>,>>>" COLUMN-LABEL "Qty Shipped"
           v-pallets                                 COLUMN-LABEL "# of Skids"
@@ -1120,7 +1120,7 @@ for each ar-inv
          v-comma
          ar-inv.inv-date   FORMAT "99/99/9999"     
          v-comma
-         v-job-no          FORMAT "x(9)"          
+         v-job-no          FORMAT "x(13)"          
          v-comma
          ar-invl.i-no                             
          v-comma

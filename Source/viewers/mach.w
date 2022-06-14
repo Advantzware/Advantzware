@@ -230,9 +230,9 @@ DEFINE FRAME F-Main
           SIZE 11 BY 1
      mach.spare-int-2 AT ROW 1.24 COL 138 COLON-ALIGNED HELP
           "Enter Machine DMI ID" WIDGET-ID 16
-          LABEL "DMI ID" FORMAT "999"
+          LABEL "DMI ID" FORMAT "9999"
           VIEW-AS FILL-IN 
-          SIZE 7 BY 1 TOOLTIP "Machine DMI ID"
+          SIZE 8 BY 1 TOOLTIP "Machine DMI ID"
      mach.loc AT ROW 2.19 COL 17 COLON-ALIGNED
           LABEL "Est/Sch Locn"
           VIEW-AS FILL-IN 
@@ -1129,7 +1129,8 @@ END.
 ON ENTRY OF mach.max-wid IN FRAME F-Main /* Max Width */
 DO:
   {&methods/lValidateError.i YES}
-  IF mach.min-wid:LABEL EQ lv-label[1] THEN DO:
+  IF mach.p-type:SCREEN-VALUE EQ "R"                OR
+       (mach.p-type:SCREEN-VALUE EQ "B" AND ll-label) THEN DO:
     RUN est/d-sidsid.w (mach.m-code:SCREEN-VALUE, "Cylinder Diameters",
                         INPUT-OUTPUT TABLE tt-ss).
 
@@ -2042,16 +2043,25 @@ PROCEDURE p-type-display :
        lv-label[1] = mach.min-len:LABEL
        lv-label[2] = mach.min-wid:LABEL.
 
-    IF mach.p-type:SCREEN-VALUE EQ "R"                OR
-       (mach.p-type:SCREEN-VALUE EQ "B" AND ll-label) THEN
+    IF mach.p-type:SCREEN-VALUE EQ "R" THEN
       ASSIGN
-       mach.min-len:LABEL = lv-label[2]
-       mach.min-wid:LABEL = lv-label[1].
+       mach.min-len:LABEL = "Roll Length"
+       mach.min-wid:LABEL = "Roll Width".
     ELSE
     IF CAN-DO("A,P",mach.p-type:SCREEN-VALUE) THEN
       ASSIGN
        mach.min-len:LABEL = "Set Length"
        mach.min-wid:LABEL = "Set Width".
+    ELSE
+    IF CAN-DO("S",mach.p-type:SCREEN-VALUE) THEN
+      ASSIGN
+       mach.min-len:LABEL = "Sheet Width"
+       mach.min-wid:LABEL = "Sheet Length".
+    ELSE
+    IF (mach.p-type:SCREEN-VALUE EQ "B" AND ll-label) THEN
+      ASSIGN
+       mach.min-len:LABEL = lv-label[2]
+       mach.min-wid:LABEL = lv-label[1].
     ELSE
       ASSIGN
        mach.min-len:LABEL = lv-label[1]

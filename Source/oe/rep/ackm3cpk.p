@@ -66,7 +66,7 @@ DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR lv-line-print AS INT INIT 44 NO-UNDO.
 DEF VAR lv-due-date AS DATE NO-UNDO.
-DEF VAR v-prev-order AS CHAR FORMAT "x(6)" NO-UNDO.
+DEF VAR v-prev-order AS CHAR FORMAT "x(8)" NO-UNDO.
 
 DEF VAR v-count AS INT FORMAT ">>" INIT 0 NO-UNDO.
 DEF VAR v-note-lin AS CHAR FORMAT "x(50)" NO-UNDO .
@@ -276,9 +276,9 @@ v-upc-no = "" .
 
         PUT SKIP(2)
             "<FCalibri><P20><R3><C34><U><B>Order Master<P28></B></U>" SKIP(2)
-            "<P14><B><C4>Sales Order: " oe-ordl.ord-no 
-            "<C32>Customer Code: " oe-ord.sold-id
-            "<C56>Customer: " oe-ord.sold-name "</B>" SKIP(1)
+            "<P13><B><C3>Sales Order: " oe-ordl.ord-no 
+            "<C23>Customer Code: " oe-ord.sold-id
+            "<C46>Customer: " oe-ord.sold-name "</B>" SKIP(1)
 
             "<||3><C2><FROM><C80><LINE><||3>" SKIP(1)
 

@@ -27,6 +27,37 @@ FUNCTION fFormatFilePath RETURNS CHARACTER
 FUNCTION get64BitValue RETURNS DECIMAL
     ( INPUT m64 AS MEMPTR ) FORWARD.
 
+PROCEDURE FileSys_CreateNewFileInTempFolder:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcShortFileName AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER ipcFileExtension AS CHAR NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcLongFileName AS CHAR NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid AS LOG NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHAR NO-UNDO.
+    
+    DEFINE VARIABLE cTempDirectoryName AS CHAR NO-UNDO.
+    
+    RUN FileSys_GetTempDirectory (OUTPUT cTempDirectoryName).
+    
+    RUN pGetUniqueFileName (
+            INPUT  cTempDirectoryName,
+            INPUT  ipcShortFileName + "." + ipcFileExtension,
+            INPUT  TRUE,    /* Create directory */
+            INPUT  TRUE,   /* Create file */  
+            INPUT  " (",    /* File count prefix */
+            INPUT  ")",     /* File count suffix */
+            OUTPUT opcLongFileName,
+            OUTPUT oplValid,
+            OUTPUT opcMessage 
+            ).    
+
+    RUN FileSys_CreateFile(opcLongFileName, OUTPUT oplValid, OUTPUT opcMessage).
+            
+END PROCEDURE.
+
 PROCEDURE FileSys_FileNameCleanup:
 /*------------------------------------------------------------------------------
  Purpose: Replaces forbidden characters in file name with underscore
@@ -37,6 +68,204 @@ PROCEDURE FileSys_FileNameCleanup:
     RUN pFileNameCleanup (
         INPUT-OUTPUT iopcFileName
         ).
+END PROCEDURE.
+
+PROCEDURE FileSys_GetFullFilePath:
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the fully qualified path name of any file located
+                        somewhere in the propath, or -if provided with a fully
+                        qualified OPSYS filename - returns that filename (if found)
+        Syntax      :   RUN getFileFullPathName (INPUT file-to-locate, OUTPUT fully-qualified-name)
+     Notes:  From getFileFullPathName.p by MYT
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcFileShortName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcFileFullPathName AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.   
+
+    DEFINE VARIABLE cTestFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTestLongName AS CHARACTER NO-UNDO.
+    
+    ASSIGN 
+        cTestFileName       = SEARCH(ipcFileShortName)
+        FILE-INFO:FILE-NAME = cTestFileName
+        cTestLongName       = FILE-INFO:FULL-PATHNAME
+        opcFileFullPathName = cTestLongName.    
+
+    IF cTestLongName EQ ? THEN 
+        ASSIGN 
+            oplError = YES
+            opcMessage = "The file " + cTestFileName + " cannot be found."
+            .
+                
+
+END PROCEDURE.
+
+PROCEDURE FileSys_NewFile:
+/*------------------------------------------------------------------------------
+ Purpose:   Create a new file in user's (or system) temp folder
+ Notes:     Parameters:
+                INPUT ipcShortFileName (CHAR)
+                INPUT ipcFileExtension (CHAR)
+                INPUT ipcDirType (CHAR) - one of "TMP", "DOC", "RPT"
+                INPUT ipcSequenceType (CHAR) - one of "Date", "DateTime", "DateTimeM", "Counter", or "None"
+                OUTPUT opcLongFileName (CHAR)
+                OUTPUT oplSuccess (LOG)
+                OUTPUT opcErrorMessage (CHAR)
+                
+                "DateTime" returns a sequence in the format YYMMDD-HHMMSS
+                "DateTimeM" returns a sequence in the format YYMMDD-HHMMSSMMM (milliseconds since midnight)
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcShortFileName AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcExtension AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcDirType AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipcSequenceType AS CHAR NO-UNDO.
+    
+    DEF OUTPUT PARAMETER opcLongFileName AS CHAR NO-UNDO.
+    DEF OUTPUT PARAMETER oplSuccess AS LOG NO-UNDO.
+    DEF OUTPUT PARAMETER opcErrorMessage AS CHAR NO-UNDO.
+    
+    DEF VAR cOutputDirectory AS CHAR NO-UNDO.
+    DEF VAR cSequenceString AS CHAR NO-UNDO.
+    DEF VAR dtTime AS DATETIME NO-UNDO.
+    DEF VAR cTime AS CHAR NO-UNDO.
+    DEF VAR iFileCount AS INT NO-UNDO.
+    DEF VAR cFullFilePath AS CHAR NO-UNDO.
+    
+    ASSIGN 
+        cTime = STRING(time,"HH:MM:SS")
+        dtTime = NOW.
+        
+    IF NOT CAN-DO("TMP,DOC,RPT",ipcDirType) THEN DO:
+        ASSIGN 
+            opcLongFileName = ""
+            oplSuccess = FALSE 
+            opcErrorMessage = "Invalid Directory Type (must be one of 'TMP', 'DOC', 'RPT')."
+            .
+        RETURN.
+    END.
+    
+    IF NOT CAN-DO("Date,DateTime,DateTimeM,Counter,None,Time,TimeM",ipcSequenceType) THEN DO:
+        ASSIGN 
+            opcLongFileName = ""
+            oplSuccess = FALSE 
+            opcErrorMessage = "Invalid Sequence Type (must be one of 'Date', 'DateTime', 'DateTimeM', 'Time', 'TimeM', 'Counter', or 'None')."
+            .
+        RETURN.
+    END.
+    
+    /* Locate the target directory for this file */
+    CASE ipcDirType:
+        WHEN "TMP" THEN RUN pGetUserReportDirectory (OUTPUT cOutputDirectory).
+        WHEN "DOC" THEN RUN pGetUserDocumentDirectory (OUTPUT cOutputDirectory).
+        WHEN "RPT" THEN RUN pGetUserReportDirectory (OUTPUT cOutputDirectory).
+    END CASE.        
+    IF cOutputDirectory EQ "" THEN 
+        RUN pGetSessionTempDirectory (OUTPUT cOutputDirectory).
+    
+    IF cOutputDirectory EQ "" THEN DO:
+        ASSIGN 
+            opcLongFileName = ""
+            oplSuccess = FALSE 
+            opcErrorMessage = "Unable to locate required directory for file creation."
+            .
+        RETURN.
+    END.
+    
+    RUN pValidateDirectory (
+        INPUT  cOutputDirectory,
+        OUTPUT oplSuccess,
+        OUTPUT opcErrorMessage
+        ) NO-ERROR.
+    IF NOT oplSuccess THEN RETURN.
+    
+    CASE ipcSequenceType:
+        WHEN "Counter" THEN DO:
+            ASSIGN 
+                cFullFilePath = cOutputDirectory + "\" + ipcShortFileName + "." + ipcExtension.
+        
+            /* Search if the given file exists, if already available increment the file count */
+            DO WHILE SEARCH(cFullFilePath) NE ?:
+                ASSIGN
+                    iFileCount    = iFileCount + 1
+                    cFullFilePath = cOutputDirectory + "\" + ipcShortFileName +  
+                                  "(" + STRING(iFileCount) + ")" +
+                                  "." + ipcExtension.            
+            END.
+            ASSIGN 
+                cSequenceString = "(" + STRING(iFileCount) + ")".
+        END.
+        WHEN "Date" THEN DO:
+            ASSIGN 
+                cSequenceString = SUBSTRING(STRING(YEAR(dtTime),"9999"),3,2) +
+                                  STRING(MONTH(dtTime),"99") + 
+                                  STRING(DAY(dtTime),"99").
+        END.
+        WHEN "DateTime" THEN DO:
+            ASSIGN 
+                dtTime = NOW 
+                cSequenceString = SUBSTRING(STRING(YEAR(dtTime),"9999"),3,2) +
+                                  STRING(MONTH(dtTime),"99") + 
+                                  STRING(DAY(dtTime),"99") + 
+                                  "-" +
+                                  SUBSTRING(cTime,1,2) +
+                                  SUBSTRING(cTime,4,2) +
+                                  SUBSTRING(cTime,7,2)
+                cSequenceString = "-" + cSequenceString.
+        END.
+        WHEN "DateTimeM" THEN DO:
+            ASSIGN 
+                dtTime = NOW 
+                cSequenceString = SUBSTRING(STRING(YEAR(dtTime),"9999"),3,2) +
+                                  STRING(MONTH(dtTime),"99") + 
+                                  STRING(DAY(dtTime),"99") + 
+                                  "-" +
+                                  SUBSTRING(cTime,1,2) +
+                                  SUBSTRING(cTime,4,2) +
+                                  SUBSTRING(cTime,7,2) + 
+                                  STRING(MTIME(dtTime) MODULO 1000,"999") 
+                cSequenceString = "-" + cSequenceString.
+        END.
+        WHEN "Time" THEN DO:
+            ASSIGN 
+                dtTime = NOW 
+                cSequenceString = SUBSTRING(cTime,1,2) +
+                                  SUBSTRING(cTime,4,2) +
+                                  SUBSTRING(cTime,7,2)  
+                cSequenceString = "-" + cSequenceString.
+        END.
+        WHEN "TimeM" THEN DO:
+            ASSIGN 
+                dtTime = NOW 
+                cSequenceString = SUBSTRING(cTime,1,2) +
+                                  SUBSTRING(cTime,4,2) +
+                                  SUBSTRING(cTime,7,2) + 
+                                  STRING(MTIME(dtTime) MODULO 1000,"999") 
+                cSequenceString = "-" + cSequenceString.
+        END.
+        WHEN "None" THEN DO:
+            ASSIGN 
+                cSequenceString = "".
+        END.
+    END CASE.    
+    
+    ASSIGN 
+        opcLongFileName = cOutputDirectory + "\" + ipcShortFileName + cSequenceString + "." + ipcExtension.
+    
+    IF SEARCH(opcLongFileName) EQ ? THEN RUN pCreateFile (
+        INPUT  opcLongFileName,
+        INPUT  TRUE,    /* Create directory if not available */
+        OUTPUT oplSuccess,
+        OUTPUT opcErrorMessage
+        ) NO-ERROR.
+    ELSE DO:
+        ASSIGN 
+            oplSuccess = FALSE 
+            opcErrorMessage = "The requested file already exists in the filesystem.".
+        RETURN.
+    END.
+    
+
 END PROCEDURE.
 
 PROCEDURE pFileNameCleanup PRIVATE:
@@ -123,13 +352,13 @@ PROCEDURE FileSys_GetDiskSpace :
     DEFINE OUTPUT PARAMETER opdDiskFreeSpace    AS DECIMAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opdDiskTotalSpace   AS DECIMAL   NO-UNDO.
     
-    DEF VAR cDivisor AS INT NO-UNDO.
-    DEF VAR iMem1 AS MEMPTR NO-UNDO.
-    DEF VAR iMem2 AS MEMPTR NO-UNDO.
-    DEF VAR iMem3 AS MEMPTR NO-UNDO.
-    DEF VAR iReturnVal AS INT NO-UNDO.
-    DEF VAR iDiskFreeSpace AS DECIMAL NO-UNDO.
-    DEF VAR iDiskTotalSpace AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cDivisor AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMem1 AS MEMPTR NO-UNDO.
+    DEFINE VARIABLE iMem2 AS MEMPTR NO-UNDO.
+    DEFINE VARIABLE iMem3 AS MEMPTR NO-UNDO.
+    DEFINE VARIABLE iReturnVal AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iDiskFreeSpace AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iDiskTotalSpace AS DECIMAL NO-UNDO.
 
     IF CAN-DO("KB,Kilo,Kilobyte,Kilobytes", ipcUnit)
         THEN cDivisor = 1024.

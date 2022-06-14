@@ -28,7 +28,7 @@
             "sensitive" : false
 		},
 		"SubUnitsPerUnit" : {
-			"label" : "Cases Per Pallet",
+			"label" : "Cases/!Pallet",
             "visible" : true,
             "sensitive" : true
 		},

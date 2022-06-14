@@ -59,7 +59,9 @@ DEFINE TEMP-TABLE ttWIPStandards NO-UNDO
     FIELD uom         AS CHARACTER FORMAT "x(3)"                 LABEL "UOM"
     FIELD sale-value  AS DECIMAL   FORMAT ">,>>>,>>>,>>9.99<<<<" LABEL "Sales Value"
     FIELD user-id     AS CHARACTER FORMAT "x(10)"                LABEL "User ID"
+    FIELD cuts        AS INTEGER   FORMAT ">>>,>>9"              LABEL "Cuts"
     .
+{sys/inc/var.i NEW SHARED}
 {ce/mach-ink.i NEW}
 
 DEFINE NEW SHARED BUFFER xest FOR est.
@@ -247,7 +249,7 @@ PROCEDURE pBusinessLogic:
             ttWIPStandards.code        = mch-act.code
             ttWIPStandards.job-code    = IF AVAILABLE job-code THEN job-code.cat ELSE ""
             ttWIPStandards.op-date     = mch-act.op-date
-            ttWIPStandards.job-no      = job.job-no + "-" + STRING(job.job-no2,"99")
+            ttWIPStandards.job-no      = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
             ttWIPStandards.shift       = mch-act.shift
             ttWIPStandards.hours       = mch-act.hours
             ttWIPStandards.start       = IF AVAILABLE mch-act THEN cvt-time-to-string('',mch-act.start,0.00) ELSE ""
@@ -290,6 +292,7 @@ PROCEDURE pBusinessLogic:
                                     ELSE IF AVAILABLE itemfg  THEN itemfg.pur-uom
                                     ELSE ""
             ttWIPStandards.user-id     = mch-act.user-id
+            ttWIPStandards.cuts        = IF AVAILABLE ef THEN ef.n-cuts ELSE 0
             dSaleValue                 = ttWIPStandards.price * (mch-act.qty / IF ttWIPStandards.uom EQ "M" THEN 1000 ELSE 1)
             .
         IF CAN-DO("A,R,S",mach.p-type) THEN

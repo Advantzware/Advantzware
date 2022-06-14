@@ -1,5 +1,0 @@
-<scores>
-   <scorecode>$scoreType$</scorecode>
-   <scoresequence>$ScoreSequence$</scoresequence>
-   <score>$scoreSize16thsWithoutConcat$</score>
-</scores>

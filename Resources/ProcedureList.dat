@@ -1,5 +1,6 @@
 // format: procedureName.p yes/no ((to indicate if session.p instantiates the procedure as a SUPER-PROCEDURE)
 // name new procedures alphabetically
+system/CommonProcs.p yes
 AOA/appServer/aoaBin.p no
 AOA/spDynCalcField.p no
 AOA/spDynDescriptionProc.p no
@@ -41,8 +42,8 @@ oe/PostInvoices.p no
 oerep/LoadtagProcs.p no
 oerep/r-invprtARSuper.p no
 oerep/r-invprtOESuper.p no
-sys/NotesProcs.p no
-system/CommonProcs.p yes
+rm/materialProcs.p yes
+sys/NotesProcs.p yes
 system/ConversionProcs.p yes
 system/CostProcs.p no
 system/CreditProcs.p yes
@@ -57,7 +58,6 @@ system/OSProcs.p yes
 system/OutputProcs.p no
 system/PgmMstrSecur.p no
 system/ProgramMasterSecurity.p no
-system/PurgeProcs.p yes
 system/Session.p no
 system/TagProcs.p yes
 system/TaxProcs.p yes

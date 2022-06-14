@@ -143,7 +143,7 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 ar-invl.cust-no ar-inv.inv-date ar-inv.net ar-inv.paid ar-inv.due ~
 ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.ord-no ar-invl.po-no ~
 ar-invl.est-no ar-invl.i-name ar-inv.runNumber ar-inv.postedDate ~
-ar-inv.glYear getPeriod() @ iPeriod
+ar-inv.glYear getPeriod() @ iPeriod 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-3 ar-invl.inv-no ~
 ar-invl.bol-no ar-invl.cust-no ar-inv.inv-date ar-inv.net ar-inv.paid ~
 ar-inv.due ar-invl.actnum ar-invl.i-no ar-invl.part-no ar-invl.ord-no ~
@@ -185,13 +185,16 @@ FI_moveCol
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
 /* ************************  Function Prototypes ********************** */
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getPeriod B-table-Win 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getPeriod Dialog-Frame 
 FUNCTION getPeriod RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -273,10 +276,10 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 20 BY 1
+     SIZE 36 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_po-no AS CHARACTER FORMAT "X(15)":U 
@@ -303,7 +306,7 @@ DEFINE QUERY BROWSE-3 FOR
 DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 Dialog-Frame _STRUCTURED
   QUERY BROWSE-3 NO-LOCK DISPLAY
-      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>9":U
+      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>9":U
       ar-invl.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U
       ar-invl.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U
       ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
@@ -312,13 +315,13 @@ DEFINE BROWSE BROWSE-3
       ar-inv.due FORMAT "->>,>>>,>>9.99":U
       ar-invl.actnum COLUMN-LABEL "GL Acct#" FORMAT "x(25)":U
       ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
-      ar-invl.part-no FORMAT "x(15)":U
-      ar-invl.ord-no FORMAT ">>>>>9":U
+      ar-invl.part-no FORMAT "x(30)":U
+      ar-invl.ord-no FORMAT ">>>>>>>9":U
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U
       ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U
       ar-invl.i-name FORMAT "x(30)":U
-      ar-inv.runNumber FORMAT ">>>>>>>>":U
-      ar-inv.postedDate FORMAT "99/99/9999":U
+      ar-inv.runNumber FORMAT ">>>>>>>>9":U
+      ar-inv.postedDate FORMAT "99/99/99":U
       ar-inv.glYear FORMAT "9999":U
       getPeriod() @ iPeriod COLUMN-LABEL "Period" FORMAT ">>>":U
   ENABLE
@@ -350,11 +353,11 @@ DEFINE FRAME Dialog-Frame
      fi_actnum AT ROW 1.24 COL 94 COLON-ALIGNED WIDGET-ID 6
      fi_due AT ROW 1.24 COL 147 COLON-ALIGNED WIDGET-ID 36
      fi_i-no AT ROW 2.43 COL 39 COLON-ALIGNED WIDGET-ID 16
-     fi_part-no AT ROW 2.43 COL 71 COLON-ALIGNED WIDGET-ID 22
-     fi_ord-no AT ROW 2.43 COL 112 COLON-ALIGNED WIDGET-ID 20
+     fi_part-no AT ROW 2.43 COL 72 COLON-ALIGNED WIDGET-ID 22
+     fi_ord-no AT ROW 2.43 COL 118 COLON-ALIGNED WIDGET-ID 20
      fi_po-no AT ROW 3.62 COL 39 COLON-ALIGNED WIDGET-ID 24
-     fi_bol-no AT ROW 3.62 COL 71 COLON-ALIGNED WIDGET-ID 8
-     fi_est-no AT ROW 3.62 COL 112 COLON-ALIGNED WIDGET-ID 14
+     fi_bol-no AT ROW 3.62 COL 72 COLON-ALIGNED WIDGET-ID 8
+     fi_est-no AT ROW 3.62 COL 118 COLON-ALIGNED WIDGET-ID 14
      btn_go AT ROW 5.29 COL 5 WIDGET-ID 28
      btn_show AT ROW 5.29 COL 20 WIDGET-ID 30
      fi_sortBy AT ROW 5.29 COL 55.2 COLON-ALIGNED WIDGET-ID 26
@@ -418,7 +421,7 @@ ASSIGN
      _JoinCode[2]      = "asi.ar-inv.x-no = asi.ar-invl.x-no"
      _Where[2]         = "asi.ar-inv.posted"
      _FldNameList[1]   > asi.ar-invl.inv-no
-"ar-invl.inv-no" "Inv#" ">>>>>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.inv-no" "Inv#" ">>>>>>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.ar-invl.bol-no
 "ar-invl.bol-no" "BOL#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.ar-invl.cust-no
@@ -436,7 +439,7 @@ ASSIGN
      _FldNameList[9]   > asi.ar-invl.i-no
 "ar-invl.i-no" "FG Item#" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.ar-invl.part-no
-"ar-invl.part-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.part-no" ? "x(30)" "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.ar-invl.ord-no
 "ar-invl.ord-no" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.ar-invl.po-no
@@ -448,8 +451,7 @@ ASSIGN
      _FldNameList[16]   = asi.ar-inv.postedDate
      _FldNameList[17]   = asi.ar-inv.glYear
      _FldNameList[18]   > "_<CALC>"
-"getPeriod() @ iPeriod" "Period" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
-    
+"getPeriod() @ iPeriod" "Period" ">>>" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
@@ -462,18 +464,8 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Invoice Information detail */
+ON HELP OF FRAME Dialog-Frame /* Invoice Information detail */
 DO:
-  APPLY "END-ERROR":U TO SELF.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME Dialog-Frame
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON HELP OF FRAME Dialog-Frame
-    DO:
         DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
         DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
         DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
@@ -588,6 +580,16 @@ ON HELP OF FRAME Dialog-Frame
                  
         END.
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Invoice Information detail */
+DO:
+  APPLY "END-ERROR":U TO SELF.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1144,8 +1146,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getPeriod B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getPeriod Dialog-Frame 
 FUNCTION getPeriod RETURNS INTEGER
   ( /* parameter-definitions */ ) :
 /*------------------------------------------------------------------------------
@@ -1161,3 +1164,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

@@ -130,7 +130,7 @@ DEFINE VARIABLE lv-disc            LIKE cust.disc        NO-UNDO.
 DEFINE VARIABLE lQuotePriceMatrix  AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lRecFound          AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cRtnChar           AS CHARACTER        NO-UNDO.
-DEFINE VARIABLE lMatrixExists       AS LOGICAL          NO-UNDO.
+DEFINE VARIABLE lMatrixExists AS LOGICAL NO-UNDO.
 
 DEF BUFFER b-oe-ord FOR oe-ord.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
@@ -548,7 +548,8 @@ PROCEDURE create-order-lines.
                                OUTPUT oe-ordl.over-pct ,
                                OUTPUT oe-ordl.Under-pct,
                                OUTPUT cTagDesc ) .   
-            
+        RUN pAddTagInfoForGroup (ROWID(oe-ordl), "Over Percentage", cTagDesc).
+        RUN pAddTagInfoForGroup (ROWID(oe-ordl), "Under Percentage", cTagDesc).   
        END.  /* not avail oe-ordl */
 
        ELSE
@@ -594,6 +595,13 @@ PROCEDURE create-order-lines.
         oe-ordl.cust-no    = xoe-ord.cust-no
         oe-ordl.disc       = lv-disc
         oe-ordl.tax        = fGetTaxable(xoe-ord.company, xoe-ord.cust-no, xoe-ord.ship-id, oe-ordl.i-no).
+        
+        IF system.SharedConfig:Instance:GetValue("Tax-Source") NE "" THEN   
+        RUN pAddTagInfoForGroup(
+            INPUT ROWID(oe-ordl),
+            INPUT "Tax-Source",
+            INPUT system.SharedConfig:Instance:ConsumeValue("Tax-Source")
+            ).
       
        FIND FIRST tt-item-qty-price WHERE
             tt-item-qty-price.tt-selected = YES AND
@@ -628,8 +636,14 @@ PROCEDURE create-order-lines.
       
        IF v-d-ordqty-price NE -1 THEN
        DO:
-          IF AVAIL tt-item-qty-price THEN
+          IF AVAIL tt-item-qty-price THEN do:
              oe-ordl.price = tt-item-qty-price.price.
+              RUN pAddTagInfoForGroup(
+                  INPUT ROWID(oe-ordl),
+                  INPUT "Price-Source",
+                  INPUT "Item Qty Price Quote No:" + STRING(tt-item-qty-price.q-no)  + " Quantity:" + string(oe-ordl.qty)
+                  ).
+          END.   
           ELSE
              oe-ordl.price = v-d-ordqty-price.
        END.
@@ -662,11 +676,18 @@ PROCEDURE create-order-lines.
            ASSIGN
                oe-ordl.part-dscr2 = itemfg.part-dscr2
                oe-ordl.part-dscr3 = itemfg.part-dscr3 .   /* task 08041404 */
-      
-         IF v-d-ordqty-price EQ -1 THEN
+           
+         IF v-d-ordqty-price EQ -1 THEN 
+         DO:
             ASSIGN
                oe-ordl.price      = itemfg.sell-price
                oe-ordl.pr-uom     = itemfg.sell-uom.
+               RUN pAddTagInfoForGroup(
+                    INPUT ROWID(oe-ordl),
+                    INPUT "Price-Source",
+                    INPUT "Item Sell Price"
+                    ).                
+         END.      
        END. /* if avail itemfg */
       
        oe-ordl.type-code = 
@@ -922,7 +943,12 @@ PROCEDURE create-order-lines.
 
        IF lv-q-no NE 0 THEN DO:
         FIND CURRENT oe-ordl.
-        ASSIGN oe-ordl.q-no = lv-q-no.
+        ASSIGN oe-ordl.q-no = lv-q-no.  
+        RUN pAddTagInfoForGroup(
+            INPUT ROWID(oe-ordl),
+            INPUT "Price-Source",
+            INPUT "Quoted Price - Quote Number:" + string(lv-q-no) + " Quantity:" + string(oe-ordl.qty)
+            ).
        END. /* lv-q-no ne 0 */
     END. /* avail xest and quo price log ... */
     ELSE IF lQuotePriceMatrix THEN
@@ -932,6 +958,12 @@ PROCEDURE create-order-lines.
         
         RUN Price_CalculateLinePrice (ROWID(oe-ordl), oe-ordl.i-no, xoe-ord.cust-no ,  xoe-ord.ship-id , oe-ordl.qty, YES,
                                       OUTPUT lMatrixExists, INPUT-OUTPUT oe-ordl.price, INPUT-OUTPUT oe-ordl.pr-uom).
+       IF lMatrixExists THEN
+       RUN pAddTagInfoForGroup(
+                        INPUT ROWID(oe-ordl),
+                        INPUT "Price-Source",
+                        INPUT "Price Matrix " + "Item No:" + string(oe-ordl.i-no) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(oe-ordl.qty)
+                        ).    
     END. /* lQuotePriceMatrix*/
    
     RUN Conv_CalcTotalPrice(cocode, 
@@ -1442,6 +1474,30 @@ PROCEDURE recalc-estimate:
     END.
 END PROCEDURE. /* recalc estimate */
 
+
+PROCEDURE pAddTagInfoForGroup PRIVATE:
+    DEFINE INPUT PARAMETER iprwRowid  AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-oe-ordl FOR oe-ordl.             
+             
+    FIND FIRST bf-oe-ordl NO-LOCK 
+         WHERE ROWID(bf-oe-ordl) EQ iprwRowid NO-ERROR.
+                  
+    IF AVAIL bf-oe-ordl THEN do:              
+        RUN ClearTagsForGroup(
+            INPUT cocode + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
+            INPUT ipcGroup
+            ).
+        RUN AddTagInfoForGroup(
+            INPUT cocode + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
+            INPUT "oe-ordl",
+            INPUT ipcMessage,
+            INPUT "",
+            INPUT ipcGroup
+            ). /*From TagProcs Super Proc*/             
+    END.
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

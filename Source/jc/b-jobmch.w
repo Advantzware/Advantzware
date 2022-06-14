@@ -60,6 +60,8 @@ DEF VAR lv-end-time-su AS cha COLUMN-LABEL "Setup!End" NO-UNDO FORMAT 'X(5)'.
 DEF VAR char-hdl AS CHAR NO-UNDO.
 DEFINE VARIABLE cEstMachine AS CHARACTER LABEL "Est Mach" NO-UNDO.
 
+DEFINE VARIABLE hdOutboundProcs AS HANDLE NO-UNDO.
+
 {jc/ttJobItem.i NEW SHARED}
 
 /* _UIB-CODE-BLOCK-END */
@@ -233,7 +235,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job-mch.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
+      job-mch.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 4 COLUMN-FONT 0
             LABEL-BGCOLOR 14
       job-mch.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 4
             COLUMN-FONT 0
@@ -387,7 +389,7 @@ ASSIGN
   AND ASI.job-mch.job-no2 = ASI.job.job-no2
 use-index line-idx"
      _FldNameList[1]   > ASI.job-mch.frm
-"job-mch.frm" "S" ">>>" "integer" ? ? 0 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mch.frm" "F" ">>>" "integer" ? ? 0 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-mch.blank-no
 "job-mch.blank-no" "B" ">>>" "integer" ? ? 0 ? ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-mch.pass
@@ -541,7 +543,7 @@ END.
 
 &Scoped-define SELF-NAME job-mch.frm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL job-mch.frm br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF job-mch.frm IN BROWSE br_table /* S */
+ON LEAVE OF job-mch.frm IN BROWSE br_table /* F */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-frm NO-ERROR.
@@ -1095,7 +1097,10 @@ PROCEDURE local-delete-record :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEFINE BUFFER bf-job-mch FOR job-mch .
- DEFINE VARIABLE lMultiRecord AS LOGICAL NO-UNDO .
+ DEFINE VARIABLE lMultiRecord AS LOGICAL   NO-UNDO.
+ DEFINE VARIABLE lSuccess     AS LOGICAL   NO-UNDO.
+ DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
+ 
   /* Code placed here will execute PRIOR to standard behavior. */
  i = 0 .
  MAIN-JOB-MCH:
@@ -1115,14 +1120,27 @@ PROCEDURE local-delete-record :
  IF lMultiRecord THEN do:
      IF AVAIL job-mch THEN
          RUN jc/JobItemPop.w(job.job-no,job.job-no2,ROWID(job-mch),"job-mch" ) .
+     
+     /* Create a shared variable with job-mch update status */
+     FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
+         system.SharedConfig:Instance:SetValue(STRING(tt-job-item.tt-rowid), "Delete").
+     END.
 
+     IF CAN-FIND(FIRST tt-job-item WHERE tt-job-item.IS-SELECTED) THEN
+        RUN pCallAPIOutboundTrigger (BUFFER job, BUFFER job-mch, "DeleteJobMachine").
+     
+     /* Delete all the shared variable, so there won't be any record leaks */
+     FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
+         system.SharedConfig:Instance:DeleteValue(STRING(tt-job-item.tt-rowid)).
+     END.
+                        
      FOR EACH tt-job-item WHERE tt-job-item.IS-SELECTED:
         FOR EACH bf-job-mch EXCLUSIVE-LOCK 
             WHERE bf-job-mch.company EQ cocode AND 
             ROWID(bf-job-mch) EQ tt-job-item.tt-rowid :
             DELETE bf-job-mch .
         END.
-    END.
+     END.
 
      RUN dispatch ("open-query").
      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
@@ -1131,17 +1149,70 @@ PROCEDURE local-delete-record :
      IF NOT adm-new-record THEN DO:
       {custom/askdel.i}
      END.
-
-      /* Dispatch standard ADM method.                             */
-      RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+     
+     /* Create a shared variable with job-mch update status */
+     system.SharedConfig:Instance:SetValue(STRING(ROWID(job-mch)), "Delete").
+     
+     RUN pCallAPIOutboundTrigger (BUFFER job, BUFFER job-mch, "DeleteJobMachine").
+     
+     /* Delete the shared variable, so there won't be any record leaks */
+     system.SharedConfig:Instance:DeleteValue(STRING(ROWID(job-mch))).
+     
+     /* Dispatch standard ADM method.                             */
+     RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
  END.
 
-  /* Code placed here will execute AFTER standard behavior.    */
-
+ /* Code placed here will execute AFTER standard behavior.    */
+ RUN Outbound_Execute IN hdOutboundProcs (OUTPUT lSuccess, OUTPUT cMessage).
+ RUN Outbound_ResetContext IN hdOutboundProcs.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE(hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields B-table-Win 
 PROCEDURE local-enable-fields :
@@ -1238,7 +1309,9 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-frm NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1257,9 +1330,20 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+  IF AVAILABLE job AND AVAILABLE job-mch THEN DO:
+      system.SharedConfig:Instance:SetValue(STRING(ROWID(job-mch)), "Update").
+      
+      RUN pCallAPIOutboundTrigger(BUFFER job, BUFFER job-mch, "UpdateJobMachine").
+      
+      RUN Outbound_Execute IN hdOutboundProcs (OUTPUT lSuccess, OUTPUT cMessage).
+      RUN Outbound_ResetContext IN hdOutboundProcs.
+       
+      system.SharedConfig:Instance:DeleteValue(STRING(ROWID(job-mch))).
+  END.
+  
   /* Code placed here will execute AFTER standard behavior.    */
   RUN repo-query (ROWID(job-mch)).
-
+  
   RUN move-cursor-left.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -1292,6 +1376,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutboundTrigger B-table-Win
+PROCEDURE pCallAPIOutboundTrigger:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job FOR job.
+    DEFINE PARAMETER BUFFER ipbf-job-mch FOR job-mch.
+    DEFINE INPUT  PARAMETER ipcTriggerID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+
+    RUN Outbound_PrepareRequestForScope IN hdOutboundProcs (
+        INPUT  ipbf-job-mch.company,                                                     /* Company Code (Mandatory) */
+        INPUT  ipbf-job.loc,                                                             /* Location Code (Mandatory) */
+        INPUT  "SendJobAMS",                                                             /* API ID (Mandatory) */
+        INPUT  "",                                                                       /* Scope ID */
+        INPUT  "",                                                                       /* Scope Type */
+        INPUT  ipcTriggerID,                                                             /* Trigger ID (Mandatory) */
+        INPUT  "job",                                                                    /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(ROWID(ipbf-job)),                                                  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",ipbf-job.job-no,ipbf-job.job-no2),   /* Primary ID for which API is called for (Mandatory) */
+        INPUT  "Job Machine update/delete from JU1",                                     /* Event's description (Optional) */
+        OUTPUT lSuccess,                                                                 /* Success/Failure flag */
+        OUTPUT cMessage                                                                  /* Status message */
+        ).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win
+PROCEDURE pInit:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :

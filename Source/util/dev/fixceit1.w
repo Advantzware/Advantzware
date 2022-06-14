@@ -206,10 +206,10 @@ DEFINE VARIABLE ls-i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE ls-part-no AS CHARACTER FORMAT "X(30)":U 
      LABEL "Cust Part" 
      VIEW-AS FILL-IN 
-     SIZE 39 BY 1 NO-UNDO.
+     SIZE 50 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -221,7 +221,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      eb.form-no COLUMN-LABEL "S#" FORMAT ">9":U WIDTH 4
+      eb.form-no COLUMN-LABEL "F#" FORMAT ">9":U WIDTH 4
       eb.blank-no COLUMN-LABEL "B#" FORMAT ">9":U WIDTH 4
       eb.part-no FORMAT "x(15)":U WIDTH 23.2
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 22
@@ -337,7 +337,7 @@ ASSIGN
      _Where[1]         = "eb.company eq cocode and
 eb.est-no  eq ls-est-no"
      _FldNameList[1]   > asi.eb.form-no
-"eb.form-no" "S#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.form-no" "F#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.eb.blank-no
 "eb.blank-no" "B#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.eb.part-no

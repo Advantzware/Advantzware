@@ -11,6 +11,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -21,6 +22,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{sys/inc/var.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -83,9 +85,9 @@ DEFINE VARIABLE fiBeginJob AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiBeginJob-2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fiBeginJob-2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiEndItem AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Item" 
@@ -97,9 +99,9 @@ DEFINE VARIABLE fiEndJob AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzz"
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiEndJob-2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fiEndJob-2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -454,9 +456,9 @@ PROCEDURE pProcess PRIVATE :
             fiEndJob-2
             fiBeginItem
             fiEndItem
-            cJobStart = TRIM(fiBeginJob)
-            cJobEnd = TRIM(fiEndJob) 
-            .
+            cJobStart = fiBeginJob
+            cJobEnd = fiEndJob 
+            .              
     END.
     IF cJobStart NE "" THEN DO:
         cJobStart = fFormatJob(cJobStart).
@@ -488,8 +490,8 @@ FUNCTION fFormatJob RETURNS CHARACTER PRIVATE
                 DEFINE VARIABLE iLen AS INTEGER NO-UNDO.
                 
                 iLen = LENGTH(TRIM(ipcJob)).
-                IF iLen LT 6 THEN DO:
-                  cJob = FILL(" ", 6 - iLen) + TRIM(ipcJob).
+                IF iLen LT iJobLen THEN DO:
+                  cJob = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipcJob)).
                   IF NOT CAN-FIND(FIRST job NO-LOCK WHERE job.company EQ g_company AND job.job-no EQ cJob) THEN 
                       cJob = ipcJob.
         END.

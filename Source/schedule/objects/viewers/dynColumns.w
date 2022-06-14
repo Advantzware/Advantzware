@@ -1620,13 +1620,15 @@ PROCEDURE testPrint :
     runPrint = findProgram('{&print}/',ID,'/' + reportName + '.r')
     linesPerPageValue = 66
     .
+  IF runPrint EQ ? THEN
+  runPrint = findProgram('{&print}/',ID,'/' + reportName + '.p').
   IF runPrint EQ ? THEN DO:
     MESSAGE 'Report:' reportName 'does not exist!' VIEW-AS ALERT-BOX.
     RETURN.
   END. /* if runprint */
   RUN VALUE(runPrint) ('{&Board}',reportFormat,rptTitle,ipExcel,NO /*showParametersPage*/).
   IF ipExcel THEN
-  OS-COMMAND NO-WAIT start nVALUE(SEARCH(printFile)).
+  OS-COMMAND NO-WAIT start VALUE(SEARCH(printFile)).
   ELSE
 &IF DEFINED(FWD-VERSION) > 0 &THEN
   open-mime-resource "text/plain" string("file:///" + printFile) false.

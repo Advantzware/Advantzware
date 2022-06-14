@@ -172,7 +172,7 @@ DEFINE QUERY external_tables FOR oe-ord.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table oe-ordl.line oe-ordl.est-no ~
-oe-ordl.i-no oe-ordl.qty oe-ordl.i-name oe-ordl.part-no ~
+oe-ordl.i-no oe-ordl.qty oe-ordl.i-name oe-ordl.part-no oe-ordl.price ~
 get-price-disc () @ ld-price get-pr-uom() @ ld-pr-uom oe-ordl.tax ~
 oe-ordl.po-no oe-ordl.req-date oe-ordl.job-no oe-ordl.job-no2 ~
 oe-ordl.vend-no oe-ordl.disc get-extended-price() @ ld-ext-price ~
@@ -195,8 +195,8 @@ ASI.oe-ordl.line LT 99999999 NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 auto_find ~
-Btn_Clear_Find browse-order 
+&Scoped-Define ENABLED-OBJECTS Browser-Table auto_find Btn_Clear_Find ~
+browse-order 
 &Scoped-Define DISPLAYED-OBJECTS auto_find browse-order 
 
 /* Custom List Definitions                                              */
@@ -267,11 +267,11 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 52 BY 1 NO-UNDO.
+     SIZE 75 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 179 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -283,6 +283,7 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.qty
       oe-ordl.i-name
       oe-ordl.part-no
+      oe-ordl.price
       oe-ordl.tax
       oe-ordl.po-no
       oe-ordl.req-date
@@ -304,7 +305,8 @@ DEFINE BROWSE Browser-Table
       oe-ordl.i-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.qty FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
       oe-ordl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(30)":U LABEL-BGCOLOR 14
+      oe-ordl.price COLUMN-LABEL "Order Price" FORMAT ">>,>>>,>>9.99<<<<":U
       get-price-disc () @ ld-price COLUMN-LABEL "Sell Price" FORMAT "->>,>>>,>>9.99<<<<":U
             WIDTH 14.4
       get-pr-uom() @ ld-pr-uom COLUMN-LABEL "UOM" FORMAT "X(4)":U
@@ -312,8 +314,8 @@ DEFINE BROWSE Browser-Table
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
-      oe-ordl.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      oe-ordl.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14 WIDTH 15
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U  WIDTH 6
       oe-ordl.vend-no FORMAT "x(8)":U LABEL-BGCOLOR 14
       oe-ordl.disc FORMAT "(>>>,>>9.99)":U LABEL-BGCOLOR 14
       get-extended-price() @ ld-ext-price COLUMN-LABEL "Total Price" FORMAT "->>,>>>,>>9.99":U
@@ -323,7 +325,7 @@ DEFINE BROWSE Browser-Table
       dueDateChangeUser() @ oe-ordl.spare-char-5 COLUMN-LABEL "Due Dt Usr" FORMAT "x(12)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 11.19
+    WITH NO-ASSIGN SEPARATORS SIZE 179 BY 11.19
          FONT 2.
 
 
@@ -332,9 +334,9 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     auto_find AT ROW 12.43 COL 69 COLON-ALIGNED HELP
+     auto_find AT ROW 12.43 COL 103 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 12.43 COL 132 HELP
+     Btn_Clear_Find AT ROW 12.43 COL 166 HELP
           "CLEAR AUTO FIND Value"
      browse-order AT ROW 12.48 COL 7 HELP
           "Select Browser Sort Order" NO-LABEL
@@ -376,7 +378,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 13.86
-         WIDTH              = 145.
+         WIDTH              = 179.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -415,6 +417,8 @@ ASSIGN
        fi_sortby:HIDDEN IN FRAME F-Main           = TRUE
        fi_sortby:READ-ONLY IN FRAME F-Main        = TRUE.
 
+/* SETTINGS FOR RECTANGLE RECT-4 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -440,33 +444,35 @@ ASI.oe-ordl.line LT 99999999"
 "oe-ordl.i-name" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-ordl.part-no
 "oe-ordl.part-no" "Part #" ? "character" ? ? ? 14 ? ? no "" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > "_<CALC>"
-"get-price-disc () @ ld-price" "Sell Price" "->>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > ASI.oe-ordl.price
+"oe-ordl.price" "Order Price" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
+"get-price-disc () @ ld-price" "Sell Price" "->>,>>>,>>9.99<<<<" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > "_<CALC>"
 "get-pr-uom() @ ld-pr-uom" "UOM" "X(4)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > ASI.oe-ordl.tax
+     _FldNameList[10]   > ASI.oe-ordl.tax
 "oe-ordl.tax" "Tax" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > ASI.oe-ordl.po-no
+     _FldNameList[11]   > ASI.oe-ordl.po-no
 "oe-ordl.po-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > ASI.oe-ordl.req-date
+     _FldNameList[12]   > ASI.oe-ordl.req-date
 "oe-ordl.req-date" "Due Date" ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.oe-ordl.job-no
-"oe-ordl.job-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > ASI.oe-ordl.job-no2
-"oe-ordl.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > ASI.oe-ordl.vend-no
+     _FldNameList[13]   > ASI.oe-ordl.job-no
+"oe-ordl.job-no" ? ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > ASI.oe-ordl.job-no2
+"oe-ordl.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.oe-ordl.vend-no
 "oe-ordl.vend-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > ASI.oe-ordl.disc
+     _FldNameList[16]   > ASI.oe-ordl.disc
 "oe-ordl.disc" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > "_<CALC>"
+     _FldNameList[17]   > "_<CALC>"
 "get-extended-price() @ ld-ext-price" "Total Price" "->>,>>>,>>9.99" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[17]   > ASI.oe-ordl.spare-char-3
+     _FldNameList[18]   > ASI.oe-ordl.spare-char-3
 "oe-ordl.spare-char-3" "Dt Change Reason" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.oe-ordl.spare-char-4
+     _FldNameList[19]   > ASI.oe-ordl.spare-char-4
 "oe-ordl.spare-char-4" "Prom Dt User" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[19]   > "_<CALC>"
-"dueDateChangeRsn() @ cDueDateChangeRsn" "Due Dt Chg Rsn" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
+"dueDateChangeRsn() @ cDueDateChangeRsn" "Due Dt Chg Rsn" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[21]   > "_<CALC>"
 "dueDateChangeUser() @ oe-ordl.spare-char-5" "Due Dt Usr" "x(12)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

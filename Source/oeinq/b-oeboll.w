@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -186,8 +187,8 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-boll.bol-no COLUMN-LABEL "Bol#" FORMAT ">>>>>>>9":U
       oe-boll.i-no COLUMN-LABEL "Item#" FORMAT "x(15)":U
-      oe-boll.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 11
-      oe-boll.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 4
+      oe-boll.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 13
+      oe-boll.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 5.4
       oe-boll.loc FORMAT "x(5)":U
       oe-boll.loc-bin COLUMN-LABEL "Bin Loc" FORMAT "x(8)":U
       oe-boll.tag COLUMN-LABEL "Tag" FORMAT "x(23)":U
@@ -310,9 +311,9 @@ ASSIGN
      _FldNameList[2]   > asi.oe-boll.i-no
 "oe-boll.i-no" "Item#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.oe-boll.job-no
-"oe-boll.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.job-no" "Job#" ? "character" ? ? ? ? ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.oe-boll.job-no2
-"oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = asi.oe-boll.loc
      _FldNameList[6]   > asi.oe-boll.loc-bin
 "oe-boll.loc-bin" "Bin Loc" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -629,6 +630,10 @@ FUNCTION get-cost RETURNS DECIMAL
   def var v-cost-m AS DEC DECIMALS 4 extent 4 NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
 
+  FIND CURRENT oe-boll NO-LOCK.
+  
+  IF NOT avail oe-boll THEN RETURN NO-APPLY.
+  
   find first job-hdr WHERE
        job-hdr.company eq oe-boll.company AND
        job-hdr.job-no  eq oe-boll.job-no AND
@@ -668,7 +673,8 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[4] = job-hdr.std-mat-cost
        v-uom       = "M".
        
-    else   
+    else
+    if avail itemfg THEN
       assign
        v-cost-m[1] = itemfg.std-lab-cost
        v-cost-m[2] = itemfg.std-fix-cost
@@ -676,7 +682,7 @@ FUNCTION get-cost RETURNS DECIMAL
        v-cost-m[4] = itemfg.std-mat-cost.
 
     if v-uom eq "" then
-       v-uom = itemfg.prod-uom.
+       v-uom = if avail itemfg THEN itemfg.prod-uom ELSE "".
 
     do i = 1 to 4:
 

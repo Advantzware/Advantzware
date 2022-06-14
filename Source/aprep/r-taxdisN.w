@@ -81,7 +81,7 @@ DEFINE VARIABLE cFileName2         AS CHARACTER NO-UNDO.
 
 
 ASSIGN 
-    cTextListToSelect  = "Tax Code,Tax Name,Tax Rate,Gross Sales$,Sales Taxable$,"
+    cTextListToSelect  = "Tax Group,Tax Name,Tax Rate,Gross Sales$,Sales Taxable$,"
                            + "Sales Exempt $,Freight $,Freight Taxable$,Freight Exempt $,Tax $,"
                            + "Gross + Freight,Taxable Revenue"
     cFieldListToSelect = "tax-code,tax-name,tax-rat,gro-sal,sal-tax," +
@@ -93,7 +93,7 @@ ASSIGN
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "Tax Code,Tax Name,Tax Rate,Gross Sales$,Sales Taxable$,"
+    cTextListToDefault = "Tax Group,Tax Name,Tax Rate,Gross Sales$,Sales Taxable$,"
                            + "Sales Exempt $,Freight $,Freight Taxable$,Freight Exempt $,Tax $" .
 
 /* _UIB-CODE-BLOCK-END */
@@ -1438,7 +1438,7 @@ PROCEDURE run-report-summary :
             AND ar-invl.company EQ ar-inv.company 
             AND ar-invl.inv-no EQ ar-inv.inv-no:
 
-            {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
+            {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ar-inv.tax-code) "}
 
             CREATE ttRawData.
             ASSIGN
@@ -1471,7 +1471,7 @@ PROCEDURE run-report-summary :
                 AND stax.tax-group  EQ ar-inv.tax-code
                 NO-LOCK:
 
-                {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
+                {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ar-inv.tax-code) "}
 
                 CREATE ttRawData.
                 ASSIGN
@@ -1507,7 +1507,7 @@ PROCEDURE run-report-summary :
             BY ttRawData.invNumber
             BY ttRawData.invLine:
 
-            {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ttRawData.cTaxGroup) "}
+            {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ttRawData.cTaxGroup) "}
 
             IF FIRST-OF(ttRawData.cTaxGroup) THEN 
             DO:
@@ -1515,7 +1515,7 @@ PROCEDURE run-report-summary :
                     IF stax.tax-code1[iLevel] EQ stax.tax-group THEN 
                     DO:
                         cTaxDescription = stax.tax-dscr1[iLevel].
-                    END. /* primary tax code line */       
+                    END. /* primary tax group line */       
                     dRateTotal = dRateTotal + stax.tax-rate1[iLevel].
                     IF stax.tax-frt1[1] THEN 
                         dRateFreightTotal = dRateFreightTotal + stax.tax-rate1[iLevel].
@@ -1797,7 +1797,7 @@ PROCEDURE RunReport :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel TO VALUE(cFileName2).
-        /*excelheader = "Tax Code,Tax Name,Tax Rate,Gross Sales $,"
+        /*excelheader = "Tax Group,Tax Name,Tax Rate,Gross Sales $,"
                     + "Sales Taxable $,Sales Exempt $,Freight $,Freight Taxable $,Freight Exempt $,Tax $".*/
         PUT STREAM excel UNFORMATTED 
             '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1822,7 +1822,7 @@ PROCEDURE RunReport :
             AND ar-invl.company EQ ar-inv.company 
             AND ar-invl.inv-no EQ ar-inv.inv-no:
 
-            {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
+            {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ar-inv.tax-code) "}
 
             CREATE ttRawData.
             ASSIGN
@@ -1855,7 +1855,7 @@ PROCEDURE RunReport :
                 AND stax.tax-group  EQ ar-inv.tax-code
                 NO-LOCK:
 
-                {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ar-inv.tax-code) "}
+                {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ar-inv.tax-code) "}
            
                 CREATE ttRawData.
                 ASSIGN
@@ -1891,7 +1891,7 @@ PROCEDURE RunReport :
             BY ttRawData.invNumber
             BY ttRawData.invLine:
 
-            {custom/statusMsg.i " 'Processing Tax Code:  '  + string(ttRawData.cTaxGroup) "}
+            {custom/statusMsg.i " 'Processing Tax Group:  '  + string(ttRawData.cTaxGroup) "}
         
             FIND FIRST ar-invl 
                 WHERE ROWID(ar-invl) EQ ttRawData.riInvoice

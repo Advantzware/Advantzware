@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -35,6 +37,8 @@ def input parameter ip-cur-val as cha no-undo.
 def output PARAMETER op-char-val as CHAR no-undo.
 def output PARAMETER op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
+
+{sys/inc/var.i new shared}
 
 &scoped-define SORTBY-1 BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC
 &scoped-define SORTBY-2 BY job-hdr.i-no {&SORTBY-1}
@@ -166,11 +170,11 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-hdr.job-no FORMAT "x(6)":U
-      job-hdr.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      job-hdr.job-no FORMAT "x(9)":U
+      job-hdr.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       job-hdr.i-no FORMAT "x(15)":U WIDTH 21
       job-hdr.est-no FORMAT "x(8)":U WIDTH 12
-      job-hdr.ord-no FORMAT ">>>>>9":U
+      job-hdr.ord-no FORMAT ">>>>>>>9":U
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 12
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -306,7 +310,7 @@ DO:
         IF rd-sort EQ 1 THEN DO:
       OPEN QUERY {&browse-name} FOR EACH ASI.job-hdr WHERE {&KEY-PHRASE}
                            AND ASI.job-hdr.company = ip-company 
-                           AND TRIM(job-hdr.job-no) BEGINS lv-search
+                           AND job-hdr.job-no BEGINS lv-search
                            AND job-hdr.opened
                            NO-LOCK,
           EACH ASI.job OF ASI.job-hdr NO-LOCK,
@@ -381,7 +385,7 @@ DO:
     IF rd-sort EQ 1 THEN DO:
       OPEN QUERY {&browse-name} FOR EACH ASI.job-hdr WHERE {&KEY-PHRASE}
                            AND ASI.job-hdr.company = ip-company 
-                           AND TRIM(job-hdr.job-no) BEGINS lv-search
+                           AND job-hdr.job-no BEGINS lv-search
                            AND job-hdr.opened
                            NO-LOCK,
           EACH ASI.job OF ASI.job-hdr NO-LOCK,
@@ -438,7 +442,7 @@ DO:
     IF rd-sort EQ 1 THEN DO:
       OPEN QUERY {&browse-name} FOR EACH ASI.job-hdr WHERE {&KEY-PHRASE}
                            AND ASI.job-hdr.company = ip-company 
-                           AND TRIM(job-hdr.job-no) BEGINS lv-search
+                           AND job-hdr.job-no BEGINS lv-search
                            AND job-hdr.opened
                            NO-LOCK,
           EACH ASI.job OF ASI.job-hdr NO-LOCK,
@@ -451,7 +455,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
                  */

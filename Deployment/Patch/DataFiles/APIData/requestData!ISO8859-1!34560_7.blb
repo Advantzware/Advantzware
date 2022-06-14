@@ -1,3 +1,0 @@
-{"Company":"[STRING-REQ]",
-"BOLID":[INT-REQ],
-"RequesterNotes":"[STRING-OPT]"}

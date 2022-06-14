@@ -9,6 +9,10 @@ find first shipto
       and shipto.ship-id eq eb.ship-id
     no-lock no-error.
 
+FIND FIRST ce-ctrl NO-LOCK
+     WHERE ce-ctrl.company EQ cocode 
+     AND ce-ctrl.loc EQ locode NO-ERROR.
+
 if AVAIL cust AND
    AVAIL shipto AND
    ({1} or
@@ -33,8 +37,9 @@ FOR EACH xeb
    xeb.ship-addr[2] = shipto.ship-addr[2]
    xeb.ship-city    = shipto.ship-city
    xeb.ship-state   = shipto.ship-state
-   xeb.ship-zip     = shipto.ship-zip.
-         
+   xeb.ship-zip     = shipto.ship-zip
+   xeb.tr-no        = IF shipto.pallet <> "" THEN shipto.pallet ELSE IF cust.pallet <> "" THEN cust.pallet ELSE IF {1} AND AVAIL ce-ctrl THEN ce-ctrl.def-pal ELSE eb.tr-no.
+      
   release carrier.
          
   if shipto.carrier ne "" then

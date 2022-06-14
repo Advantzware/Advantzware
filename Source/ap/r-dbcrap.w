@@ -965,7 +965,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "Vendor:" + string(ap-payl.vend-no,"x(8)") + " Inv:" + STRING(ap-payl.inv-no,"9999999") + " Check:" + STRING(ap-pay.check-no,"999999999999"),
+                "Vendor:" + string(ap-payl.vend-no,"x(8)") + " Inv:" + STRING(ap-payl.inv-no,"99999999") + " Check:" + STRING(ap-pay.check-no,"999999999999"),
                 "AP").
         
             ASSIGN
@@ -1002,7 +1002,9 @@ PROCEDURE post-gl :
                 RELEASE ap-ledger.
             END.
             ASSIGN 
-                ap-pay.posted = TRUE.
+                ap-pay.transactionDate  = tran-date
+                ap-pay.posted           = TRUE
+                .
         END.
         RUN GL_SpCreateGLHist(cocode,
             xap-acct,
@@ -1183,7 +1185,10 @@ PROCEDURE run-report PRIVATE :
 
         IF FIRST-OF(ap-pay.vend-no) THEN 
         DO:
-            ap-pay.period = tran-period.
+            ASSIGN
+                ap-pay.transactionDate  = tran-date
+                ap-pay.period           = tran-period
+                .
             PUT vend.vend-no SPACE(1) vend.name. 
         END.
         ELSE 

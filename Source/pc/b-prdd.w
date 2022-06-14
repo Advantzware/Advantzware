@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -208,10 +209,10 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      pc-prdd.job-no COLUMN-LABEL "  Job#" FORMAT "x(6)":U WIDTH 12
+      pc-prdd.job-no COLUMN-LABEL "  Job#" FORMAT "x(9)":U WIDTH 14
             LABEL-BGCOLOR 14
-      pc-prdd.job-no2 COLUMN-LABEL "" FORMAT "99":U
-      pc-prdd.frm COLUMN-LABEL "Sheet" FORMAT ">>>":U LABEL-BGCOLOR 14
+      pc-prdd.job-no2 COLUMN-LABEL "" FORMAT "999":U
+      pc-prdd.frm COLUMN-LABEL "Form" FORMAT ">>>":U LABEL-BGCOLOR 14
       pc-prdd.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U LABEL-BGCOLOR 14
       pc-prdd.pass FORMAT ">>>":U LABEL-BGCOLOR 14
       pc-prdd.i-no COLUMN-LABEL "Item#" FORMAT "x(20)":U LABEL-BGCOLOR 14
@@ -351,11 +352,11 @@ ASSIGN
   AND ASI.pc-prdd.op-date = ASI.pc-prdh.trans-date
   AND ASI.pc-prdd.shift = ASI.pc-prdh.shift"
      _FldNameList[1]   > ASI.pc-prdd.job-no
-"pc-prdd.job-no" "  Job#" ? "character" ? ? ? 14 ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-prdd.job-no" "  Job#" ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.pc-prdd.job-no2
-"pc-prdd.job-no2" "" "99" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-prdd.job-no2" "" "999" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.pc-prdd.frm
-"pc-prdd.frm" "Sheet" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-prdd.frm" "Form" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.pc-prdd.blank-no
 "pc-prdd.blank-no" "Blank" ">>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.pc-prdd.pass
@@ -576,7 +577,7 @@ END.
 
 &Scoped-define SELF-NAME pc-prdd.frm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pc-prdd.frm Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF pc-prdd.frm IN BROWSE Browser-Table /* Sheet */
+ON ENTRY OF pc-prdd.frm IN BROWSE Browser-Table /* Form */
 DO:
   IF ll-no-frm THEN DO:
     IF KEYLABEL(LASTKEY) EQ "shift-tab" THEN
@@ -592,7 +593,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL pc-prdd.frm Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF pc-prdd.frm IN BROWSE Browser-Table /* Sheet */
+ON LEAVE OF pc-prdd.frm IN BROWSE Browser-Table /* Form */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-frm (SELF:MODIFIED) NO-ERROR.
@@ -1250,7 +1251,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   FIND FIRST job WHERE job.company = pc-prdd.company
-                       AND job.job-no = pc-prdd.job-no
+                       AND job.job-no  = pc-prdd.job-no
                        AND job.job-no2 = pc-prdd.job-no2
                        NO-LOCK NO-ERROR.
   IF pc-prdd.job EQ 0 AND AVAIL job THEN 
@@ -1751,12 +1752,12 @@ PROCEDURE new-job-no :
 
   DO WITH FRAME {&FRAME-NAME}:
     pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + 
-        TRIM(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     FIND FIRST job
         WHERE job.company   EQ pc-prdd.company
-          AND job.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND job.job-no    EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND (job.job-no2  EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR ip-log)
         NO-LOCK NO-ERROR.
 
@@ -3013,8 +3014,8 @@ PROCEDURE valid-job-no :
     ll-skip = NO.
 
     pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + 
-        TRIM(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
      FIND FIRST job NO-LOCK 
           WHERE job.company  EQ g_company

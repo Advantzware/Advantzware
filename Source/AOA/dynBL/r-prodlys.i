@@ -1,45 +1,73 @@
-/* r-prodlys.i - used by AOA/dynBL/r-prodlys.p & AOA/dynBL/machprod.p */
+/* r-prodlys.i - used by AOA/dynBL/r-prodlys.p & AOA/dynBL/machprod.p (not yet converted from DataPA AOA) */
+{sys/inc/var.i}
+PROCEDURE pBusinessLogic:
+    DEFINE VARIABLE hDynCalcField   AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iStartShift     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iEndShift       AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iShiftStartTime AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iShiftEndTime   AS INTEGER NO-UNDO INITIAL 86400.
 
-{aoa/includes/shiftStartEndTime.i}
-
-RUN pProductionAnalysis1 (
-    ipcCompany,
-    cLocation,
-    cStartDept,
-    cEndDept,
-    cStartMachine,
-    cEndMachine,
-    dtStartOpDate,
-    cStartOpDateOption,
-    dtEndOpDate,
-    cEndOpDateOption,
-    iStartShift,
-    iEndShift,
-    iShiftStartTime,
-    iShiftEndTime,
-    lPrintByScheduledMachine,
-    lRoundDecimals,
-    cSort
-    ).
+    RUN AOA/spDynCalcField.p PERSISTENT SET hDynCalcField.
+    SESSION:ADD-SUPER-PROCEDURE (hDynCalcField).
+    
+    RUN calcShiftStartTime (
+        cCompany,
+        lUseTimes,
+        cStartShift,
+        cStartTime,
+        OUTPUT iShiftStartTime
+        ).
+    RUN calcShiftEndTime (
+        cCompany,
+        lUseTimes,
+        cStartShift,
+        cEndShift,
+        cEndTime,
+        OUTPUT iShiftEndTime
+        ).
+    IF dtStartDate   EQ dtEndDate AND
+       iShiftEndTime LT iShiftStartTime THEN
+    iShiftEndTime = 86400000.
+    IF cEndShift EQ CHR(254) THEN
+    cEndShift = "99".
+    RUN pProductionAnalysis1 (
+        cCompany,
+        cLocation,
+        cStartDeptNo,
+        cEndDeptNo,
+        cStartMachine,
+        cEndMachine,
+        dtStartDate,
+        dtEndDate,
+        INTEGER(cStartShift),
+        INTEGER(cEndShift),
+        iShiftStartTime,
+        iShiftEndTime,
+        cStartCustNo,
+        cEndCustNo,
+        lPrintByScheduledMachine,
+        lRoundDecimals
+        ).
+    DELETE PROCEDURE hDynCalcField.
+END PROCEDURE.
 
 PROCEDURE pProductionAnalysis1:
-    DEFINE INPUT PARAMETER ipcCompany                 AS CHARACTER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany                 AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLocation                AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcStartDept               AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEndDept                 AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcStartMachine            AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcEndMachine              AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtStartOpDate            AS DATE NO-UNDO.
-    DEFINE INPUT PARAMETER ipcStartOpDateOption       AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdtEndOpDate              AS DATE NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEndOpDateOption         AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiStartShift              AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiEndShift                AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiShiftStartTime          AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiShiftEndTime            AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER iplPrintByScheduledMachine AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER iplRoundDecimals           AS LOGICAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipcSort                    AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtStartOpDate            AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtEndOpDate              AS DATE      NO-UNDO.
+    DEFINE INPUT PARAMETER ipiStartShift              AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiEndShift                AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiShiftStartTime          AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipiShiftEndTime            AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipcStartCustNo             AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEndCustNo               AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPrintByScheduledMachine AS LOGICAL   NO-UNDO.
+    DEFINE INPUT PARAMETER iplRoundDecimals           AS LOGICAL   NO-UNDO.
     
     /* local variables */
     DEFINE VARIABLE iTotalUp   AS INTEGER   NO-UNDO.
@@ -69,16 +97,16 @@ PROCEDURE pProductionAnalysis1:
                AND job-hdr.job-no  EQ mch-act.job-no
                AND job-hdr.job-no2 EQ mch-act.job-no2
                AND job-hdr.frm     EQ mch-act.frm
-               AND job-hdr.cust-no GE cStartCustNo
-               AND job-hdr.cust-no LE cEndCustNo
+               AND job-hdr.cust-no GE ipcStartCustNo
+               AND job-hdr.cust-no LE ipcEndCustNo
              NO-ERROR.
         IF NOT AVAILABLE job-hdr THEN
         FIND FIRST job-hdr NO-LOCK
              WHERE job-hdr.company EQ mch-act.company
                AND job-hdr.job-no  EQ mch-act.job-no
                AND job-hdr.job-no2 EQ mch-act.job-no2
-               AND job-hdr.cust-no GE cStartCustNo
-               AND job-hdr.cust-no LE cEndCustNo
+               AND job-hdr.cust-no GE ipcStartCustNo
+               AND job-hdr.cust-no LE ipcEndCustNo
              NO-ERROR.
         IF NOT AVAILABLE job-hdr THEN NEXT.
         IF lCustList AND
@@ -258,8 +286,8 @@ PROCEDURE pProductionAnalysis1:
                         END. /* each job-mat */
                     END. /* if p-type */
                     ASSIGN
-                        ttProductionAnalysis.sqFtPiece    = ttProductionAnalysis.totalMSF * 1000 / ttProductionAnalysis.pieces
-                        ttProductionAnalysis.piecesRunHr  = ttProductionAnalysis.pieces / ttProductionAnalysis.runActHr
+                        ttProductionAnalysis.sqFtPiece   = ttProductionAnalysis.totalMSF * 1000 / ttProductionAnalysis.pieces
+                        ttProductionAnalysis.piecesRunHr = ttProductionAnalysis.pieces / ttProductionAnalysis.runActHr
                         .
                 END. /* if qty */
             END. /* if cat run */
@@ -374,13 +402,6 @@ PROCEDURE pProductionAnalysis1:
                 .
             
         END. /* if avail job-mch */
-        ttProductionAnalysis.xxSort = IF ipcSort EQ "Alphabetically" THEN
-                                      (STRING(ttProductionAnalysis.machine,"x(6)")
-                                    +  ttProductionAnalysis.jobNo + STRING(ttProductionAnalysis.jobNo2))
-                                 ELSE (STRING(YEAR(ttProductionAnalysis.startDate),"9999")
-                                    +  STRING(MONTH(ttProductionAnalysis.startDate),"99")
-                                    +  STRING(DAY(ttProductionAnalysis.startDate),"99")
-                                    +  STRING(ttProductionAnalysis.startTime,"99999")).
         IF ttProductionAnalysis.runStdHr EQ ? THEN ttProductionAnalysis.runStdHr = 0.
         IF ttProductionAnalysis.mrStdHr  EQ ? THEN ttProductionAnalysis.mrStdHr  = 0.
         IF iplRoundDecimals THEN DO:
@@ -388,7 +409,15 @@ PROCEDURE pProductionAnalysis1:
         END. /* round decimals */
     END. /* each ttProductionAnalysis */
 
-    RUN pProductionAnalysis2 (ipcCompany, ipdtStartOpDate, ipdtEndOpDate, ipiStartShift, ipiEndShift, ipiShiftStartTime, ipiShiftEndTime).
+    RUN pProductionAnalysis2 (
+        ipcCompany,
+        ipdtStartOpDate,
+        ipdtEndOpDate,
+        ipiStartShift,
+        ipiEndShift,
+        ipiShiftStartTime,
+        ipiShiftEndTime
+        ).
 END PROCEDURE.
 
 PROCEDURE pProductionAnalysis2:
@@ -398,8 +427,7 @@ PROCEDURE pProductionAnalysis2:
     DEFINE INPUT PARAMETER ipiStartShift     AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiEndShift       AS INTEGER   NO-UNDO.
     DEFINE INPUT PARAMETER ipiShiftStartTime AS INTEGER   NO-UNDO.
-    DEFINE INPUT PARAMETER ipiShiftEndTime   AS INTEGER   NO-UNDO.
-    
+    DEFINE INPUT PARAMETER ipiShiftEndTime   AS INTEGER   NO-UNDO.    
 
     DEFINE VARIABLE dCalcMSF AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
@@ -419,7 +447,7 @@ PROCEDURE pProductionAnalysis2:
             .
         FIND FIRST job NO-LOCK
              WHERE job.company EQ ipcCompany
-               AND job.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,6)
+               AND job.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job.job-no2 EQ ttProductionAnalysis.jobNo2
              NO-ERROR.
         ttProductionAnalysis.custNo = "" .
@@ -467,7 +495,7 @@ PROCEDURE pProductionAnalysis2:
         FIND FIRST job-mch NO-LOCK
              WHERE job-mch.company   EQ ipcCompany
                AND job-mch.job       EQ ttProductionAnalysis.xxJob
-               AND job-mch.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,6)
+               AND job-mch.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job-mch.job-no2   EQ ttProductionAnalysis.jobNo2
                AND job-mch.frm       EQ ttProductionAnalysis.frm
                AND (job-mch.blank-no EQ ttProductionAnalysis.blankNo
@@ -479,7 +507,7 @@ PROCEDURE pProductionAnalysis2:
         FIND FIRST job-mch NO-LOCK
              WHERE job-mch.company   EQ ipcCompany
                AND job-mch.job       EQ ttProductionAnalysis.xxJob
-               AND job-mch.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,6)
+               AND job-mch.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job-mch.job-no2   EQ ttProductionAnalysis.jobNo2
                AND job-mch.frm       EQ ttProductionAnalysis.frm
                AND (job-mch.blank-no EQ ttProductionAnalysis.blankNo
@@ -490,7 +518,7 @@ PROCEDURE pProductionAnalysis2:
         FIND FIRST job-mch NO-LOCK
              WHERE job-mch.company EQ ipcCompany
                AND job-mch.job     EQ ttProductionAnalysis.xxJob
-               AND job-mch.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,6)
+               AND job-mch.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job-mch.job-no2 EQ ttProductionAnalysis.jobNo2
                AND job-mch.frm     EQ ttProductionAnalysis.frm
                AND job-mch.m-code  EQ ttProductionAnalysis.machine
@@ -500,7 +528,7 @@ PROCEDURE pProductionAnalysis2:
         FIND FIRST job-mch NO-LOCK
              WHERE job-mch.company EQ ipcCompany
                AND job-mch.job     EQ ttProductionAnalysis.xxJob
-               AND job-mch.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,6)
+               AND job-mch.job-no  EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
                AND job-mch.job-no2 EQ ttProductionAnalysis.jobNo2
                AND job-mch.frm     EQ ttProductionAnalysis.frm
                AND job-mch.m-code  EQ ttProductionAnalysis.machine
@@ -521,7 +549,7 @@ PROCEDURE pProductionAnalysis2:
               AND bMchAct.dept      EQ ttProductionAnalysis.dept
               AND bMchAct.m-code    EQ ttProductionAnalysis.machine
               AND bMchAct.job       EQ ttProductionAnalysis.xxJob
-              AND bMchAct.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,6)
+              AND bMchAct.job-no    EQ SUBSTRING(ttProductionAnalysis.jobNo,1,iJobLen)
               AND bMchAct.job-no2   EQ ttProductionAnalysis.jobNo2
               AND bMchAct.frm       EQ ttProductionAnalysis.frm
               AND (bMchAct.blank-no EQ ttProductionAnalysis.blankNo
@@ -621,5 +649,3 @@ PROCEDURE pProRateMR:
              ttProductionAnalysis.zzTotMRHrs = ttProductionAnalysis.zzTotMRHrs + bMchAct.hours.
     END. /* each bmchact */
 END PROCEDURE.
-
-{AOA/dynBL/pBuildCustList.i}

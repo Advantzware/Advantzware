@@ -18,6 +18,8 @@ DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE glShowAllQuantities AS LOGICAL NO-UNDO.
 
+{est/ttEstSysConfig.i}
+
 DEFINE TEMP-TABLE ttSection
     FIELD rec_keyParent AS CHARACTER 
     FIELD iSequence     AS INTEGER
@@ -87,9 +89,7 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
 
 DEFINE STREAM sEstOutput.
 DEFINE VARIABLE hdOutputProcs       AS HANDLE.
-DEFINE VARIABLE hdNotesProcs        AS HANDLE.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
-RUN sys/NotesProcs.p PERSISTENT SET hdNotesProcs.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN est/EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
 /* ********************  Preprocessor Definitions  ******************** */
@@ -137,8 +137,11 @@ FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
     
 /* ***************************  Main Block  *************************** */
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdOutputProcs).
-THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdNotesProcs).
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hdEstimateCalcProcs).
+
+
+RUN pBuildSystemData(ipiEstCostHeaderID). 
+
 RUN pBuildSections(ipiEstCostHeaderID, ipcOutputFile, BUFFER ttCeFormatConfig).
 IF CAN-FIND(FIRST ttSection) THEN 
 DO: 
@@ -153,7 +156,7 @@ DO:
     RUN Output_PrintXprintFile(ttCEFormatConfig.outputFile).
 END.
 THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdOutputProcs).
-THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hdNotesProcs).
+
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -415,6 +418,45 @@ PROCEDURE pBuildConfig PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pBuildSystemData PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Populates the system data in Temp-tables
+     Notes: If No data is setup in user specific tables then use system tables 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiEstCostHeaderID AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    
+    FIND FIRST bf-estCostHeader NO-LOCK 
+        WHERE bf-estCostHeader.estCostHeaderID EQ ipiEstCostHeaderID NO-ERROR.
+    
+    IF AVAILABLE bf-estCostHeader THEN
+        RUN Estimate_GetSystemDataForEstimate(INPUT bf-estCostHeader.company,
+            OUTPUT TABLE ttEstCostCategory,
+            OUTPUT TABLE ttEstCostGroup,
+            OUTPUT TABLE ttEstCostGroupLevel). 
+       
+END PROCEDURE.
+
+PROCEDURE pGetEstCostGroupTT PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Return the temp-table for EstCostGroup
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostGroup. 
+
+END PROCEDURE.
+
+PROCEDURE pGetEstCostGroupLevelTT PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Return the temp-table for EstCostGroupLevel
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR ttEstCostGroupLevel. 
+
+END PROCEDURE.
+
+
 PROCEDURE pGetSummaryCosts PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Returns the first 5 group level costs for a given scope (rec_key)
@@ -426,13 +468,16 @@ PROCEDURE pGetSummaryCosts PRIVATE:
     DEFINE OUTPUT PARAMETER opdGroupLevelCostPerM AS DECIMAL EXTENT 5 NO-UNDO.
 
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    
+    RUN pGetEstCostGroupTT(OUTPUT TABLE ttEstCostGroup).
+    
     FOR EACH estCostSummary NO-LOCK 
         WHERE estCostSummary.estCostHeaderID EQ ipiEstCostHeaderID
         AND estCostSummary.scopeRecKey EQ ipcSummaryRecKey,
-        FIRST estCostGroup NO-LOCK 
-        WHERE estCostGroup.estCostGroupID EQ estCostSummary.estCostGroupID:
+        FIRST ttEstCostGroup NO-LOCK 
+        WHERE ttEstCostGroup.estCostGroupID EQ estCostSummary.estCostGroupID:
 
-        DO iIndex = estCostGroup.estCostGroupLevelID TO 5:
+        DO iIndex = ttEstCostGroup.estCostGroupLevelID TO 5:
             ASSIGN 
                 opdGroupLevelCostTotal[iIndex] = opdGroupLevelCostTotal[iIndex] +  estCostSummary.costTotal
                 opdGroupLevelCostPerM[iIndex]  = opdGroupLevelCostPerM[iIndex] + estCostSummary.costTotalPerMFinished
@@ -813,7 +858,7 @@ PROCEDURE pPrintNotesForRecKey PRIVATE:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], ipcHeader, YES, YES, NO).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN GetNotesTempTableForObject(ipcRecKey, "", "", iTextWidth, OUTPUT TABLE ttNotesFormatted).
+        RUN Notes_GetNotesTempTableForObject(ipcRecKey, "", "", iTextWidth, OUTPUT TABLE ttNotesFormatted).
         FOR EACH ttNotesFormatted:
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1], "Dept:" + ttNotesFormatted.noteCode + " - " + ttNotesFormatted.noteTitle, 40, YES, NO, NO).
@@ -892,6 +937,9 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
     DEFINE VARIABLE iCountCostSmy        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iMaxQtyColPerSummary AS INTEGER   INITIAL 6 NO-UNDO.
 
+    RUN pGetEstCostGroupTT(OUTPUT TABLE ttEstCostGroup).
+    RUN pGetEstCostGroupLevelTT(OUTPUT TABLE ttEstCostGroupLevel).
+    
     FIND FIRST bf-PrimaryestCostHeader NO-LOCK 
         WHERE bf-PrimaryestCostHeader.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
         NO-ERROR.
@@ -963,11 +1011,11 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                     RUN pWriteToCoordinates(iopiRowCount, iColumn[2], ipbf-ttCEFormatConfig.characterMasterQuantity, YES, NO, NO).
             END.  
         END.
-        FOR EACH estCostGroupLevel NO-LOCK
-            BY estCostGroupLevel.estCostGroupLevelID:
-            FOR EACH estCostGroup NO-LOCK 
-                WHERE estCostGroup.estCostGroupLevelID EQ estCostGroupLevel.estCostGroupLevelID
-                BY estCostGroup.costGroupSequence:
+        FOR EACH ttEstCostGroupLevel NO-LOCK
+            BY ttEstCostGroupLevel.estCostGroupLevelID:
+            FOR EACH ttEstCostGroup NO-LOCK 
+                WHERE ttEstCostGroup.estCostGroupLevelID EQ ttEstCostGroupLevel.estCostGroupLevelID
+                BY ttEstCostGroup.costGroupSequence:
             
                 IF ipbf-ttCEFormatConfig.showAllQuantities THEN 
                 DO: /*Print values for each quantity (per M)*/                   
@@ -977,7 +1025,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                     DO iQtyCount = iLineStart TO iLineEnd:                    
                         iCountCostSmy = iCountCostSmy + 1 .
                         FIND FIRST estCostSummary NO-LOCK 
-                            WHERE estCostSummary.estCostGroupID EQ estCostGroup.estCostGroupID  
+                            WHERE estCostSummary.estCostGroupID EQ ttEstCostGroup.estCostGroupID  
                             AND estCostSummary.scopeRecKey EQ cScopeRecKey[iQtyCount]
                             NO-ERROR.
                         IF AVAILABLE estCostSummary THEN 
@@ -988,7 +1036,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                                 DO: 
                                     lLineStarted = YES.
                                     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                                    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroup.costGroupLabel, NO, NO, NO).
+                                    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], ttEstCostGroup.costGroupLabel, NO, NO, NO).
                                 END.                        
                                 RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + (iCountCostSmy - 1) * iColumnWidth ,estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).                               
                                 dCostPerM[iQtyCount] = dCostPerM[iQtyCount] + estCostSummary.costTotalPerMFinished.
@@ -999,7 +1047,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                 ELSE 
                 DO:  /*Print only the values for the subject quantity (per M and Totals)*/ 
                     FIND FIRST estCostSummary NO-LOCK 
-                        WHERE estCostSummary.estCostGroupID EQ estCostGroup.estCostGroupID
+                        WHERE estCostSummary.estCostGroupID EQ ttEstCostGroup.estCostGroupID
                         AND estCostSummary.scopeRecKey EQ ipbf-estCostForm.rec_key
                         NO-ERROR.
                     IF AVAILABLE estCostSummary THEN 
@@ -1007,7 +1055,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
                         IF estCostSummary.costTotal NE 0 THEN 
                         DO:            
                             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-                            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fGetCostGroupLabel(ipbf-estCostHeader.company, ipbf-estCostHeader.warehouseID, estCostGroup.estCostGroupID, estCostGroup.costGroupLabel), NO, NO, NO).
+                            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], fGetCostGroupLabel(ipbf-estCostHeader.company, ipbf-estCostHeader.warehouseID, ttEstCostGroup.estCostGroupID, ttEstCostGroup.costGroupLabel), NO, NO, NO).
                             RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] , estCostSummary.costTotalPerMFinished , 6, 2, NO, YES, NO, NO, YES).
                             RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[2] + iColumnWidth, estCostSummary.costTotal , 6, 2, NO, YES, NO, NO, YES).
                             IF ipbf-estCostHeader.quantityReference NE 0 THEN 
@@ -1025,7 +1073,7 @@ PROCEDURE pPrintCostSummaryInfoForForm PRIVATE:
             END.
         
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostGroupLevel.estCostGroupLevelDesc, YES, NO, NO).    
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[1], ttEstCostGroupLevel.estCostGroupLevelDesc, YES, NO, NO).    
             IF ipbf-ttCEFormatConfig.showAllQuantities THEN
             DO: /*Print values for each quantity (per M)*/
                 DO iQtyCount = 1 TO iMaxQtyColPerSummary:   
@@ -1786,6 +1834,8 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     DEFINE VARIABLE iStartLevelsAfter AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cHeaderItemSumm   AS CHARACTER NO-UNDO.
 
+    RUN pGetEstCostGroupLevelTT(OUTPUT TABLE ttEstCostGroupLevel).
+    
     iIndex = 0.
     IF ipbf-ttCEFormatConfig.summColItemNameShow THEN 
         ASSIGN 
@@ -1866,12 +1916,12 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
             .
         
     
-    FOR EACH estCostGroupLevel NO-LOCK
-        BY estCostGroupLevel.estCostGroupLevelID:
-        IF LOOKUP(STRING(estCostGroupLevel.estCostGroupLevelID), cLevelsToPrint) GT 0 THEN
+    FOR EACH ttEstCostGroupLevel NO-LOCK
+        BY ttEstCostGroupLevel.estCostGroupLevelID:
+        IF LOOKUP(STRING(ttEstCostGroupLevel.estCostGroupLevelID), cLevelsToPrint) GT 0 THEN
             ASSIGN 
-                cHeaders = cHeaders + estCostGroupLevel.estCostGroupLevelDesc + ","  
-                cLevels  = cLevels + estCostGroupLevel.estCostGroupLevelDesc + "," 
+                cHeaders = cHeaders + ttEstCostGroupLevel.estCostGroupLevelDesc + ","  
+                cLevels  = cLevels + ttEstCostGroupLevel.estCostGroupLevelDesc + "," 
                 .
     END.
     

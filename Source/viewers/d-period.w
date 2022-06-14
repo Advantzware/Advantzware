@@ -46,8 +46,6 @@ DEFINE VARIABLE lv-fgrecpt-val           AS INTEGER       NO-UNDO.
 DEFINE VARIABLE trans-time               AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE lv-new-tag-number-chosen AS LOG           NO-UNDO.
 
-
-DEFINE VARIABLE lv-item-recid            AS RECID         NO-UNDO.
 DEFINE VARIABLE ll-order-warned          AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE ll-new-record            AS LOGICAL       NO-UNDO.
 DEFINE BUFFER bf-rell FOR oe-rell.
@@ -540,14 +538,7 @@ DO:
     
         IF AVAILABLE period THEN
             op-rowid = ROWID(period) .
-
-        IF lv-item-recid NE ? THEN 
-        DO:
-            FIND FIRST period EXCLUSIVE-LOCK
-                WHERE RECID(period) EQ lv-item-recid  NO-ERROR.
-            IF AVAILABLE period THEN DELETE period .
-            op-rowid = ? .
-        END.
+        
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 
     /*APPLY "END-ERROR":U TO SELF.*/
@@ -607,14 +598,7 @@ DO:
     
         IF AVAILABLE period THEN
             op-rowid = ROWID(period) .
-
-        IF lv-item-recid NE ? THEN 
-        DO:
-            FIND FIRST period EXCLUSIVE-LOCK
-                WHERE RECID(period) EQ lv-item-recid  NO-ERROR.
-            IF AVAILABLE period THEN DELETE period .
-            op-rowid = ? .
-        END.
+                
         APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
@@ -917,9 +901,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      FIND FIRST company NO-LOCK
           WHERE RECID(company) EQ ip-recid2 NO-ERROR.
       op-company = IF AVAIL company THEN company.company ELSE "". 
-    
-    IF ip-type EQ "copy" THEN lv-item-recid = ip-recid.
-
+   
     IF ip-recid EQ ? THEN 
     DO:
         RUN create-item.

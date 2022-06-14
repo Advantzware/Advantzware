@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -150,9 +151,8 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       pc-misc.ml FORMAT "M/L":U
       pc-misc.misc-date COLUMN-LABEL "Date" FORMAT "99/99/9999":U
-            WIDTH 14
-      pc-misc.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U
-      pc-misc.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      pc-misc.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 15
+      pc-misc.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 6
       pc-misc.frm FORMAT ">>9":U WIDTH 6.2
       pc-misc.blank-no FORMAT ">9":U WIDTH 7.2
       pc-misc.i-no COLUMN-LABEL "Item #" FORMAT "x(10)":U
@@ -272,9 +272,9 @@ ASSIGN
      _FldNameList[2]   > ASI.pc-misc.misc-date
 "pc-misc.misc-date" "Date" ? "date" ? ? ? ? ? ? yes "Enter Date" no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.pc-misc.job-no
-"pc-misc.job-no" "Job #" ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-misc.job-no" "Job #" ? "character" ? ? ? ? ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.pc-misc.job-no2
-"pc-misc.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"pc-misc.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.pc-misc.frm
 "pc-misc.frm" ? ? "integer" ? ? ? ? ? ? yes ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.pc-misc.blank-no
@@ -341,7 +341,7 @@ DO:
             END.
             ASSIGN li-frm = int(pc-misc.frm:SCREEN-VALUE) 
                    ll-ml = IF pc-misc.ml:SCREEN-VALUE = "M" THEN YES ELSE NO.
-
+                    
             RUN windows/l-jobprp.w (g_company,li-help-job,li-frm,ll-ml,FOCUS:SCREEN-VALUE IN BROWSE {&browse-name},OUTPUT char-val).
             IF char-val <> "" THEN DO:
                ASSIGN FOCUS:SCREEN-VALUE = entry(1,char-val)
@@ -761,8 +761,7 @@ PROCEDURE validate-blank :
    DEF VAR v-tmp-job AS cha NO-UNDO.
    DEF VAR v-ml AS LOG NO-UNDO.
 
-   v-tmp-job = FILL(" ",6 - LENGTH(TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-               TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+   v-tmp-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
 
    v-ml = IF pc-misc.ml:SCREEN-VALUE = "M" THEN YES ELSE NO.
 
@@ -799,13 +798,12 @@ PROCEDURE validate-frm :
    DEF VAR v-tmp-job AS cha NO-UNDO.
    DEF VAR v-ml AS LOG NO-UNDO.
 
-   v-tmp-job = FILL(" ",6 - LENGTH(TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-               TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+   v-tmp-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
 
    v-ml = IF pc-misc.ml:SCREEN-VALUE = "M" THEN YES ELSE NO.
 
    FIND FIRST job WHERE job.company = g_company AND
-                        job.job-no = v-tmp-job AND
+                        job.job-no  = v-tmp-job AND
                         job.job-no2 = int(pc-misc.job-no2:SCREEN-VALUE )
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF AVAIL job THEN DO:
@@ -836,12 +834,11 @@ PROCEDURE validate-job :
    DEF VAR v-tmp-job AS cha NO-UNDO.
 
    ASSIGN
-    v-tmp-job = FILL(" ",6 - LENGTH(TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-                TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+    v-tmp-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) 
     pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = v-tmp-job.
 
    FIND FIRST job WHERE job.company = g_company AND
-                        job.job-no = v-tmp-job
+                        job.job-no  = v-tmp-job
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF NOT AVAIL job THEN DO:
       MESSAGE "Invalid Job. Try help. " VIEW-AS ALERT-BOX ERROR.
@@ -865,11 +862,10 @@ PROCEDURE validate-job2 :
    DEF VAR v-tmp-job AS cha NO-UNDO.
    DEF VAR v-good AS LOG NO-UNDO.
 
-   v-tmp-job = FILL(" ",6 - LENGTH(TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-               TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+   v-tmp-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
 
    FIND FIRST job WHERE job.company = g_company AND
-                        job.job-no = v-tmp-job AND
+                        job.job-no  = v-tmp-job AND
                         job.job-no2 = int(pc-misc.job-no2:SCREEN-VALUE )
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF NOT AVAIL job THEN DO:
@@ -903,23 +899,22 @@ PROCEDURE validate-prep :
    DEF VAR v-tmp-job AS cha NO-UNDO.
    DEF VAR v-ml AS LOG NO-UNDO.
 
-   v-tmp-job = FILL(" ",6 - LENGTH(TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-               TRIM(pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+   v-tmp-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
 
    v-ml = IF pc-misc.ml:SCREEN-VALUE = "M" THEN YES ELSE NO.
 
    FIND FIRST job WHERE job.company = g_company AND
-                        job.job-no = v-tmp-job AND
-                        job.job-no2 = int(pc-misc.job-no2:SCREEN-VALUE )
+                        job.job-no  = v-tmp-job AND
+                        job.job-no2 = int(pc-misc.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} )
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF AVAIL job THEN DO:
       FIND FIRST job-prep WHERE job-prep.company = g_company
                             AND job-prep.job = job.job                          
-                            AND job-prep.frm = INT(pc-misc.frm:SCREEN-VALUE )
-                            AND job-prep.blank-no = INT(pc-misc.blank-no:SCREEN-VALUE)
-                            AND job-prep.CODE = pc-misc.m-code:SCREEN-VALUE
+                            AND job-prep.frm = INT(pc-misc.frm:SCREEN-VALUE IN BROWSE {&browse-name})
+                            AND job-prep.blank-no = INT(pc-misc.blank-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                            AND job-prep.CODE = pc-misc.m-code:SCREEN-VALUE  IN BROWSE {&browse-name}
                             AND job-prep.ml =  v-ml
-                            NO-LOCK NO-ERROR.
+                            NO-LOCK NO-ERROR.      
       IF NOT AVAIL job-prep OR pc-misc.m-code:SCREEN-VALUE = "" THEN DO:
          MESSAGE "Invalid Prep Code." VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO pc-misc.m-code.
@@ -934,7 +929,7 @@ PROCEDURE validate-prep :
        ELSE DO:
            IF li-help-job = 0 THEN DO:
                FIND FIRST job WHERE job.company = g_company
-                                AND job.job-no = pc-misc.job-no:SCREEN-VALUE
+                                AND job.job-no  = pc-misc.job-no:SCREEN-VALUE
                                 AND job.job-no2 = INT(pc-misc.job-no2:SCREEN-VALUE)
                                 NO-LOCK NO-ERROR.
                IF AVAIL job THEN li-help-job = job.job.

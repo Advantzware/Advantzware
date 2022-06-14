@@ -73,9 +73,9 @@ tg_mach-calendar tg_mat-act tg_matprep tg_mmtx tg_mmty tg_mstd tg_oe-ctrl ~
 tg_oe-prmtx tg_period tg_po-ctrl tg_prep tg_procat tg_prod tg_prodl ~
 tg_rm-bin tg_rm-ctrl tg_routing tg_routing-mtx tg_shift tg_shipto tg_sman ~
 tg_sman-mtx tg_soldto tg_stack-flute tg_stack-size tg_stax tg_stax-group ~
-tg_std-code tg_style tg_sys-ctrl tg_terms tg_terr tg_test-red tg_usercomp ~
-tg_vend tg_ventype tg_mach-part tg_reftable tg_box-design ~
-tg_copy-transaction btnOK btnCancel 
+tg_std-code tg_style tg_sys-ctrl tg_terms tg_terr tg_usercomp tg_vend ~
+tg_ventype tg_mach-part tg_reftable tg_box-design tg_copy-transaction btnOK ~
+btnCancel tg_venditemcost
 &Scoped-Define DISPLAYED-OBJECTS companyFrom copyTable companyTo ~
 tg_copy-master tg_account tg_ap-buy tg_ap-ctrl tg_ap-ledger tg_ar-ctrl ~
 tg_bank tg_buyer tg_carr-mtx tg_carrier tg_ce-ctrl tg_costtype tg_crew ~
@@ -89,8 +89,8 @@ tg_mat-act tg_matprep tg_mmtx tg_mmty tg_mstd tg_oe-ctrl tg_oe-prmtx ~
 tg_period tg_po-ctrl tg_prep tg_procat tg_prod tg_prodl tg_rm-bin ~
 tg_rm-ctrl tg_routing tg_routing-mtx tg_shift tg_shipto tg_sman tg_sman-mtx ~
 tg_soldto tg_stack-flute tg_stack-size tg_stax tg_stax-group tg_std-code ~
-tg_style tg_sys-ctrl tg_terms tg_terr tg_test-red tg_usercomp tg_vend ~
-tg_ventype tg_mach-part tg_reftable tg_box-design tg_copy-transaction 
+tg_style tg_sys-ctrl tg_terms tg_terr tg_usercomp tg_vend tg_ventype ~
+tg_mach-part tg_reftable tg_box-design tg_copy-transaction tg_venditemcost
 
 /* Custom List Definitions                                              */
 /* buttons,List-2,List-3,List-4,List-5,List-6                           */
@@ -149,439 +149,439 @@ DEFINE VARIABLE companyTo AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE tg_account AS LOGICAL INITIAL yes 
-     LABEL "Account?" 
+     LABEL "Account" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "G/L Accounts" NO-UNDO.
 
 DEFINE VARIABLE tg_ap-buy AS LOGICAL INITIAL yes 
-     LABEL "AP Buyer?" 
+     LABEL "AP Buyer" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "AP Buyer" NO-UNDO.
 
 DEFINE VARIABLE tg_ap-ctrl AS LOGICAL INITIAL yes 
-     LABEL "AP Control?" 
+     LABEL "AP Control" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Accounts Payable Control File" NO-UNDO.
 
 DEFINE VARIABLE tg_ap-ledger AS LOGICAL INITIAL yes 
-     LABEL "AP Ledger?" 
+     LABEL "AP Ledger" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "AP Ledger" NO-UNDO.
 
 DEFINE VARIABLE tg_ar-ctrl AS LOGICAL INITIAL yes 
-     LABEL "AR Control?" 
+     LABEL "AR Control" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "A/R Control File" NO-UNDO.
 
 DEFINE VARIABLE tg_bank AS LOGICAL INITIAL yes 
-     LABEL "Bank?" 
+     LABEL "Bank" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Bank" NO-UNDO.
 
 DEFINE VARIABLE tg_box-design AS LOGICAL INITIAL no 
-     LABEL "Box Design?" 
+     LABEL "Box Design" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Box Design" NO-UNDO.
 
 DEFINE VARIABLE tg_buyer AS LOGICAL INITIAL yes 
-     LABEL "Buyer?" 
+     LABEL "Buyer" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "AP - Buyers File" NO-UNDO.
 
 DEFINE VARIABLE tg_carr-mtx AS LOGICAL INITIAL yes 
-     LABEL "Carr Pr matrix?" 
+     LABEL "Carr Pr matrix" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Carr Pr matrix" NO-UNDO.
 
 DEFINE VARIABLE tg_carrier AS LOGICAL INITIAL yes 
-     LABEL "Carrier?" 
+     LABEL "Carrier" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Carriers Pricing Matrix" NO-UNDO.
 
 DEFINE VARIABLE tg_ce-ctrl AS LOGICAL INITIAL yes 
-     LABEL "Cost est Control?" 
+     LABEL "Cost est Control" 
      VIEW-AS TOGGLE-BOX
-     SIZE 19.8 BY .81 NO-UNDO.
+     SIZE 19.8 BY .81 TOOLTIP "Cost estimating control file" NO-UNDO.
 
 DEFINE VARIABLE tg_copy-master AS LOGICAL INITIAL yes 
-     LABEL "Copy Company Master Files?" 
+     LABEL "Copy Company Master Files" 
      VIEW-AS TOGGLE-BOX
-     SIZE 46 BY .81 NO-UNDO.
+     SIZE 46 BY .81 TOOLTIP "" NO-UNDO.
 
 DEFINE VARIABLE tg_copy-transaction AS LOGICAL INITIAL no 
-     LABEL "Copy History Files and All Transaction Files?" 
+     LABEL "Copy History Files and All Transaction Files" 
      VIEW-AS TOGGLE-BOX
-     SIZE 46 BY .81 NO-UNDO.
+     SIZE 46 BY .81 TOOLTIP "" NO-UNDO.
 
 DEFINE VARIABLE tg_costtype AS LOGICAL INITIAL yes 
-     LABEL "Mat Cost Type?" 
+     LABEL "Mat Cost Type" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Material Cost Type File Used For Raw Materials." NO-UNDO.
 
 DEFINE VARIABLE tg_crew AS LOGICAL INITIAL yes 
-     LABEL "Crew?" 
+     LABEL "Crew" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Crew" NO-UNDO.
 
 DEFINE VARIABLE tg_currency AS LOGICAL INITIAL yes 
-     LABEL "Currency?" 
+     LABEL "Currency" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Currency File" NO-UNDO.
 
 DEFINE VARIABLE tg_cust AS LOGICAL INITIAL yes 
-     LABEL "Customer?" 
+     LABEL "Customer" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Customer Master File" NO-UNDO.
 
 DEFINE VARIABLE tg_cust-markup AS LOGICAL INITIAL yes 
-     LABEL "Cust Markup?" 
+     LABEL "Cust Markup" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Customer Markup" NO-UNDO.
 
 DEFINE VARIABLE tg_cust-part AS LOGICAL INITIAL yes 
-     LABEL "Cust Part?" 
+     LABEL "Cust Part" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Customer Part Number" NO-UNDO.
 
 DEFINE VARIABLE tg_cust-prod-sales AS LOGICAL INITIAL yes 
-     LABEL "Cust Product?" 
+     LABEL "Cust Product" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Cust Product" NO-UNDO.
 
 DEFINE VARIABLE tg_custype AS LOGICAL INITIAL yes 
-     LABEL "Cust Type?" 
+     LABEL "Cust Type" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Customer Types" NO-UNDO.
 
 DEFINE VARIABLE tg_db-ctrl AS LOGICAL INITIAL yes 
      LABEL "DB Control" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "DB Control" NO-UNDO.
 
 DEFINE VARIABLE tg_e-item AS LOGICAL INITIAL yes 
-     LABEL "Est Item File?" 
+     LABEL "Est Item File" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Est Item File" NO-UNDO.
 
 DEFINE VARIABLE tg_e-item-cust AS LOGICAL INITIAL yes 
-     LABEL "Est Item Cust?" 
+     LABEL "Est Item Cust" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "e-item-cust ,Estimating info for item file" NO-UNDO.
 
 DEFINE VARIABLE tg_e-item-vend AS LOGICAL INITIAL yes 
-     LABEL "e-item-vend ?" 
+     LABEL "e-item-vend " 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Estimated item cost by qty level matrix by vendor" NO-UNDO.
 
 DEFINE VARIABLE tg_e-itemfg AS LOGICAL INITIAL yes 
-     LABEL "e-itemfg ?" 
+     LABEL "e-itemfg " 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Estimating Finished Good items" NO-UNDO.
 
 DEFINE VARIABLE tg_e-itemfg-vend AS LOGICAL INITIAL yes 
-     LABEL "e-itemfg-vend?" 
+     LABEL "e-itemfg-vend" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Estimated itemfg cost by qty level matrix by vendor" NO-UNDO.
 
 DEFINE VARIABLE tg_emp AS LOGICAL INITIAL yes 
-     LABEL "Emp?" 
+     LABEL "Emp" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Emp" NO-UNDO.
 
 DEFINE VARIABLE tg_fg-act AS LOGICAL INITIAL yes 
-     LABEL "fg-act?" 
+     LABEL "fg-act" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "This is the Job Costing Finished Goods WIP File" NO-UNDO.
 
 DEFINE VARIABLE tg_fg-bin AS LOGICAL INITIAL yes 
-     LABEL "FG Bin File?" 
+     LABEL "FG Bin File" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Finished Goods - Bin File" NO-UNDO.
 
 DEFINE VARIABLE tg_fg-ctrl AS LOGICAL INITIAL yes 
-     LABEL "FG Control?" 
+     LABEL "FG Control" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Finished Goods - Control File" NO-UNDO.
 
 DEFINE VARIABLE tg_fg-set AS LOGICAL INITIAL yes 
-     LABEL "fg-set?" 
+     LABEL "fg-set" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Bill of materials file for sets" NO-UNDO.
 
 DEFINE VARIABLE tg_fgcat AS LOGICAL INITIAL yes 
-     LABEL "fgcat?" 
+     LABEL "fgcat" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Bill of materials file for sets" NO-UNDO.
 
 DEFINE VARIABLE tg_flute AS LOGICAL INITIAL yes 
-     LABEL "Flute?" 
+     LABEL "Flute" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Flute Master" NO-UNDO.
 
 DEFINE VARIABLE tg_gl-ctrl AS LOGICAL INITIAL yes 
-     LABEL "G/L Control?" 
+     LABEL "G/L Control" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "G/L Control File" NO-UNDO.
 
 DEFINE VARIABLE tg_gl-rpt AS LOGICAL INITIAL yes 
-     LABEL "gl-rpt?" 
+     LABEL "gl-rpt" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "General Ledger Report Writer File" NO-UNDO.
 
 DEFINE VARIABLE tg_item AS LOGICAL INITIAL yes 
-     LABEL "Raw Materials?" 
+     LABEL "Raw Materials" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Raw Materials Inventory File" NO-UNDO.
 
 DEFINE VARIABLE tg_item-bom AS LOGICAL INITIAL yes 
-     LABEL "item-bom?" 
+     LABEL "item-bom" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Item Bill Of Material File" NO-UNDO.
 
 DEFINE VARIABLE tg_item-spec AS LOGICAL INITIAL yes 
-     LABEL "item-spec?" 
+     LABEL "item-spec" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "RM/FG Item Special Properties Master File" NO-UNDO.
 
 DEFINE VARIABLE tg_itemfg AS LOGICAL INITIAL yes 
-     LABEL "Finished Goods?" 
+     LABEL "Finished Goods" 
      VIEW-AS TOGGLE-BOX
      SIZE 19 BY .81 TOOLTIP "Finished Goods item file" NO-UNDO.
 
 DEFINE VARIABLE tg_itemfg-bom AS LOGICAL INITIAL yes 
-     LABEL "itemfg-bom?" 
+     LABEL "itemfg-bom" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Finished Goods item file" NO-UNDO.
 
 DEFINE VARIABLE tg_itemfg-ink AS LOGICAL INITIAL yes 
-     LABEL "itemfg-ink?" 
+     LABEL "itemfg-ink" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "FG Item Ink" NO-UNDO.
 
 DEFINE VARIABLE tg_itemfg-loc AS LOGICAL INITIAL yes 
-     LABEL "itemfg-loc?" 
+     LABEL "itemfg-loc" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "FG Item Ink" NO-UNDO.
 
 DEFINE VARIABLE tg_itemfgdtl AS LOGICAL INITIAL yes 
-     LABEL "itemfgdtl?" 
+     LABEL "itemfgdtl" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Finished Goods Item Job File" NO-UNDO.
 
 DEFINE VARIABLE tg_loadtag AS LOGICAL INITIAL yes 
-     LABEL "Loadtag?" 
+     LABEL "Loadtag" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Loadtag" NO-UNDO.
 
 DEFINE VARIABLE tg_loc AS LOGICAL INITIAL yes 
-     LABEL "Plants/Warehouses?" 
+     LABEL "Plants/Warehouses" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24.6 BY .81 NO-UNDO.
+     SIZE 24.6 BY .81 TOOLTIP "Warehouses" NO-UNDO.
 
 DEFINE VARIABLE tg_mach AS LOGICAL INITIAL yes 
-     LABEL "Machine?" 
+     LABEL "Machine" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Machine" NO-UNDO.
 
 DEFINE VARIABLE tg_mach-adder AS LOGICAL INITIAL yes 
-     LABEL "mach-adder?" 
+     LABEL "mach-adder" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Machine Adder MR Hours/Run Speed" NO-UNDO.
 
 DEFINE VARIABLE tg_mach-calendar AS LOGICAL INITIAL yes 
-     LABEL "Mach Calendar?" 
+     LABEL "Mach Calendar" 
      VIEW-AS TOGGLE-BOX
-     SIZE 20 BY .81 NO-UNDO.
+     SIZE 20 BY .81 TOOLTIP "Machine Calendar File" NO-UNDO.
 
 DEFINE VARIABLE tg_mach-part AS LOGICAL INITIAL no 
-     LABEL "mach-part?" 
+     LABEL "mach-part" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Machine" NO-UNDO.
 
 DEFINE VARIABLE tg_mat-act AS LOGICAL INITIAL yes 
-     LABEL "mat-act?" 
+     LABEL "mat-act" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Materials actually used in Jobs)" NO-UNDO.
 
 DEFINE VARIABLE tg_MaterialTypes AS LOGICAL INITIAL yes 
-     LABEL "Material Types?" 
+     LABEL "Material Types" 
      VIEW-AS TOGGLE-BOX
-     SIZE 20 BY .81 NO-UNDO.
+     SIZE 20 BY .81 TOOLTIP "Stores the material types" NO-UNDO.
 
 DEFINE VARIABLE tg_matprep AS LOGICAL INITIAL yes 
-     LABEL "Mat Prep Type?" 
+     LABEL "Mat Prep Type" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Preperation Material Types" NO-UNDO.
 
 DEFINE VARIABLE tg_mmtx AS LOGICAL INITIAL yes 
-     LABEL "Mach St Matrix?" 
+     LABEL "Mach St Matrix" 
      VIEW-AS TOGGLE-BOX
      SIZE 19 BY .81 TOOLTIP "Machine Standards Matrix" NO-UNDO.
 
 DEFINE VARIABLE tg_mmty AS LOGICAL INITIAL yes 
-     LABEL "MMTY?" 
+     LABEL "MMTY" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "MMTX matrix for Make Ready, with decimals" NO-UNDO.
 
 DEFINE VARIABLE tg_mstd AS LOGICAL INITIAL yes 
-     LABEL "MSTD?" 
+     LABEL "MSTD" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Machine Standards File" NO-UNDO.
 
 DEFINE VARIABLE tg_oe-ctrl AS LOGICAL INITIAL yes 
-     LABEL "oe-ctrl?" 
+     LABEL "oe-ctrl" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Order entry control file" NO-UNDO.
 
 DEFINE VARIABLE tg_oe-prmtx AS LOGICAL INITIAL yes 
-     LABEL "oe-prmtx?" 
+     LABEL "oe-prmtx" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Order Entry Pricing Matrix" NO-UNDO.
 
 DEFINE VARIABLE tg_period AS LOGICAL INITIAL yes 
-     LABEL "period?" 
+     LABEL "period" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Company Accounting Periods" NO-UNDO.
 
 DEFINE VARIABLE tg_po-ctrl AS LOGICAL INITIAL yes 
-     LABEL "po-ctrl?" 
+     LABEL "po-ctrl" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Purchase Order control file" NO-UNDO.
 
 DEFINE VARIABLE tg_prep AS LOGICAL INITIAL yes 
-     LABEL "prep?" 
+     LABEL "prep" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Preperation Codes" NO-UNDO.
 
 DEFINE VARIABLE tg_procat AS LOGICAL INITIAL yes 
-     LABEL "procat?" 
+     LABEL "procat" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Product category reference file" NO-UNDO.
 
 DEFINE VARIABLE tg_prod AS LOGICAL INITIAL yes 
-     LABEL "prod?" 
+     LABEL "prod" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "finished goods Product line" NO-UNDO.
 
 DEFINE VARIABLE tg_prodl AS LOGICAL INITIAL yes 
-     LABEL "prodl?" 
+     LABEL "prodl" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Product Line detail" NO-UNDO.
 
 DEFINE VARIABLE tg_reftable AS LOGICAL INITIAL no 
-     LABEL "Reftable?" 
+     LABEL "Reftable" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Reference tables" NO-UNDO.
 
 DEFINE VARIABLE tg_rm-bin AS LOGICAL INITIAL yes 
-     LABEL "rm-bin?" 
+     LABEL "rm-bin" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Raw Material Inventory Bin File" NO-UNDO.
 
 DEFINE VARIABLE tg_rm-ctrl AS LOGICAL INITIAL yes 
-     LABEL "RM ctrl?" 
+     LABEL "RM ctrl" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Raw Material Inventory Control File" NO-UNDO.
 
 DEFINE VARIABLE tg_routing AS LOGICAL INITIAL yes 
-     LABEL "Routing?" 
+     LABEL "Routing" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Default Machine Routings" NO-UNDO.
 
 DEFINE VARIABLE tg_routing-mtx AS LOGICAL INITIAL yes 
-     LABEL "routing-mtx?" 
+     LABEL "routing-mtx" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Default Routing Matrix - By Style, MSF, Blank L & W" NO-UNDO.
 
 DEFINE VARIABLE tg_shift AS LOGICAL INITIAL yes 
-     LABEL "Shift?" 
+     LABEL "Shift" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Work Shift Master File" NO-UNDO.
 
 DEFINE VARIABLE tg_shipto AS LOGICAL INITIAL yes 
-     LABEL "Ship To?" 
+     LABEL "Ship To" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Shipto" NO-UNDO.
 
 DEFINE VARIABLE tg_sman AS LOGICAL INITIAL yes 
-     LABEL "Sales Rep?" 
+     LABEL "Sales Rep" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Sales Rep" NO-UNDO.
 
 DEFINE VARIABLE tg_sman-mtx AS LOGICAL INITIAL yes 
-     LABEL "sman-mtx?" 
+     LABEL "sman-mtx" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Salesman Product Matrix" NO-UNDO.
 
 DEFINE VARIABLE tg_soldto AS LOGICAL INITIAL yes 
-     LABEL "Sold To?" 
+     LABEL "Sold To" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Sold to" NO-UNDO.
 
 DEFINE VARIABLE tg_stack-flute AS LOGICAL INITIAL yes 
-     LABEL "stack-flute?" 
+     LABEL "stack-flute" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Stacking Matrix by Flute type" NO-UNDO.
 
 DEFINE VARIABLE tg_stack-size AS LOGICAL INITIAL yes 
-     LABEL "stack-size?" 
+     LABEL "stack-size" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Stacking Matrix by Box Size" NO-UNDO.
 
 DEFINE VARIABLE tg_stax AS LOGICAL INITIAL yes 
-     LABEL "Tax Codes?" 
+     LABEL "Tax Group" 
      VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 TOOLTIP "Tax Codes" NO-UNDO.
+     SIZE 18 BY .81 TOOLTIP "Tax Group" NO-UNDO.
 
 DEFINE VARIABLE tg_stax-group AS LOGICAL INITIAL yes 
-     LABEL "stax-group?" 
+     LABEL "stax-group" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Tax Authority Master" NO-UNDO.
 
 DEFINE VARIABLE tg_std-code AS LOGICAL INITIAL yes 
-     LABEL "std-code?" 
+     LABEL "std-code" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Codes for Machine Standard file matrix" NO-UNDO.
 
 DEFINE VARIABLE tg_style AS LOGICAL INITIAL yes 
-     LABEL "Style?" 
+     LABEL "Style" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Style" NO-UNDO.
 
 DEFINE VARIABLE tg_sys-ctrl AS LOGICAL INITIAL yes 
-     LABEL "sys-ctrl?" 
+     LABEL "sys-ctrl" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "System Control Flag File" NO-UNDO.
 
 DEFINE VARIABLE tg_terms AS LOGICAL INITIAL yes 
-     LABEL "Terms?" 
+     LABEL "Terms" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Terms" NO-UNDO.
 
 DEFINE VARIABLE tg_terr AS LOGICAL INITIAL yes 
-     LABEL "Territory?" 
+     LABEL "Territory" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Territory" NO-UNDO.
 
-DEFINE VARIABLE tg_test-red AS LOGICAL INITIAL yes 
-     LABEL "test-red?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 18 BY .81 TOOLTIP "Test Run Speed Reduction" NO-UNDO.
-
 DEFINE VARIABLE tg_usercomp AS LOGICAL INITIAL yes 
-     LABEL "User Comp/Loc?" 
+     LABEL "User Comp/Loc" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "User Company/Location" NO-UNDO.
 
 DEFINE VARIABLE tg_vend AS LOGICAL INITIAL yes 
-     LABEL "Vendor file?" 
+     LABEL "Vendor file" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Vendor file" NO-UNDO.
 
 DEFINE VARIABLE tg_ventype AS LOGICAL INITIAL yes 
-     LABEL "Vendor Type?" 
+     LABEL "Vendor Type" 
      VIEW-AS TOGGLE-BOX
      SIZE 18 BY .81 TOOLTIP "Vendor Type File" NO-UNDO.
+     
+DEFINE VARIABLE tg_venditemcost AS LOGICAL INITIAL NO 
+     LABEL "Vendor Item Cost" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 22 BY .81 TOOLTIP "Vendor Item Cost Master" NO-UNDO.     
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -676,13 +676,13 @@ DEFINE FRAME DEFAULT-FRAME
      tg_sys-ctrl AT ROW 17.81 COL 24.8 WIDGET-ID 44
      tg_terms AT ROW 17.81 COL 45 WIDGET-ID 24
      tg_terr AT ROW 17.81 COL 65.8 WIDGET-ID 44
-     tg_test-red AT ROW 17.81 COL 88.4 WIDGET-ID 24
      tg_usercomp AT ROW 18.71 COL 4.8 WIDGET-ID 24
      tg_vend AT ROW 18.71 COL 24.8 WIDGET-ID 44
      tg_ventype AT ROW 18.71 COL 45 WIDGET-ID 24
      tg_mach-part AT ROW 18.71 COL 65.8 WIDGET-ID 44
      tg_reftable AT ROW 18.71 COL 88.4 WIDGET-ID 24
      tg_box-design AT ROW 19.62 COL 4.8 WIDGET-ID 24
+     tg_venditemcost AT ROW 19.62 COL 24.8 WIDGET-ID 24
      tg_copy-transaction AT ROW 21.57 COL 49.4
      btnOK AT ROW 22.81 COL 51.4
      btnCancel AT ROW 22.81 COL 76.8
@@ -717,12 +717,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          VIRTUAL-WIDTH      = 176.2
          RESIZE             = yes
          SCROLL-BARS        = no
-         STATUS-AREA        = no
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
          KEEP-FRAME-Z-ORDER = yes
          THREE-D            = yes
-         MESSAGE-AREA       = no
+         MESSAGE-AREA       = NO
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
@@ -854,6 +854,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ASSIGN
     companyFrom:SCREEN-VALUE = ipCompanyFrom
     companyTo:SCREEN-VALUE = ipCompanyTo.
+    
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -910,8 +911,8 @@ PROCEDURE enable_UI :
           tg_rm-ctrl tg_routing tg_routing-mtx tg_shift tg_shipto tg_sman 
           tg_sman-mtx tg_soldto tg_stack-flute tg_stack-size tg_stax 
           tg_stax-group tg_std-code tg_style tg_sys-ctrl tg_terms tg_terr 
-          tg_test-red tg_usercomp tg_vend tg_ventype tg_mach-part tg_reftable 
-          tg_box-design tg_copy-transaction 
+          tg_usercomp tg_vend tg_ventype tg_mach-part tg_reftable tg_box-design 
+          tg_copy-transaction tg_venditemcost
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE tg_account tg_ap-buy tg_ap-ctrl tg_ap-ledger tg_ar-ctrl tg_bank 
          tg_buyer tg_carr-mtx tg_carrier tg_ce-ctrl tg_costtype tg_crew 
@@ -926,8 +927,8 @@ PROCEDURE enable_UI :
          tg_prodl tg_rm-bin tg_rm-ctrl tg_routing tg_routing-mtx tg_shift 
          tg_shipto tg_sman tg_sman-mtx tg_soldto tg_stack-flute tg_stack-size 
          tg_stax tg_stax-group tg_std-code tg_style tg_sys-ctrl tg_terms 
-         tg_terr tg_test-red tg_usercomp tg_vend tg_ventype tg_mach-part 
-         tg_reftable tg_box-design tg_copy-transaction btnOK btnCancel 
+         tg_terr tg_usercomp tg_vend tg_ventype tg_mach-part tg_reftable 
+         tg_box-design tg_copy-transaction tg_venditemcost btnOK btnCancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

@@ -15,12 +15,12 @@ PUT "<FTimes New Roman>".
          PUT SPACE(12) "REMIT TO: Premier Packaging Canada, LLC" SKIP
             SPACE(12) "          Dept 400175" SKIP
             SPACE(12) "          PO Box 4375 STN A" SKIP 
-            SPACE(12) "          Tronto ON M5W OJ3" SKIP .
+            SPACE(12) "          Toronto ON M5W OJ3" SKIP .
          ELSE PUT             
             SKIP(3) .
          PUT 
-            space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
-            SPACE(12) inv-head.cust-name v-shipto-name AT 64 skip
+            SPACE(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
+            SPACE(12) inv-head.cust-name v-shipto-name AT 64 SKIP
             SPACE(12) inv-head.addr[1]   v-shipto-addr[1] AT 64 SKIP
             SPACE(12) inv-head.addr[2]  v-shipto-addr[2] AT 64 SKIP
             SPACE(12) v-addr3   v-sold-addr3 AT 64  SKIP
@@ -32,7 +32,7 @@ PUT "<FTimes New Roman>".
             /*"<R8><C65><FROM><R10><C65><LINE>" SKIP.*/
         
 PUT "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
-    "<=#3>          INVOICE#                    " inv-head.inv-no FORMAT ">>>>>>9"
+    "<=#3>          INVOICE#                    " inv-head.inv-no FORMAT ">>>>>>>9"
     "<=#3><R+1>              DATE               " v-inv-date "<FCourier New>"    
     SKIP(1)
     .
@@ -54,10 +54,10 @@ FIND FIRST sman WHERE sman.company = inv-head.company
 v-salesname = IF AVAIL sman THEN sman.sname ELSE "".
 
 PUT "<FArial><=4>  SHIP DATE             FOB                      SHIP VIA                            TERMS                      SALESMAN NAME                   BOL#" SKIP
-     "<FCourier New><=4><R+2><B> " v-date-ship FORM "99/99/9999" space(2)
+     "<FCourier New><=4><R+2><B> " v-date-ship FORM "99/99/9999" SPACE(2)
      v-fob FORM "x(12)" SPACE(1)
      v-shipvia FORM "x(20)" SPACE(1)
-     xinv-head.terms-d FORM "x(15)" space(1) 
+     xinv-head.terms-d FORM "x(15)" SPACE(1) 
     /*v-salesman FORM "x(8)"*/ 
      v-salesname FORM "x(23)"
      xinv-head.bol-no "</B>"

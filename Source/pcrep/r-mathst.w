@@ -879,7 +879,7 @@ def var v-floc  like rm-rcpth.loc.
 def var v-tloc  like v-floc                   initial "zzzzz".
 def var v-type  as   char format "x(5)"       init "RITAC".
 def var v-code  like rm-rcpth.rita-code.
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 def var v-fvend like item.vend-no.
 def var v-tvend like item.vend-no init "zzzzzzzzzz".
 def var v-msf as dec format  "->,>>>,>>9.9999".
@@ -897,11 +897,11 @@ form rm-rcpth.trans-date                            label "Date"                
      rm-rcpth.i-no                                      label "RM Item#"            /*10*/
      rm-rcpth.po-no                                    label "PO#"                  /*9*/
      po-ord.vend-no                                   label "Vendor"                /*8*/
-     v-job-no                                               label "Job#"                /*9*/
+     v-job-no                                               label "Job#"                /*13*/
      rm-rdtlh.qty format "->>>,>>>,>>9.99"  label "Quantity"            /*15*/
      v-msf                                    label "Total MSF"         /*15*/
 
-    with frame itemx down no-box stream-io width 132.
+    with frame itemx down no-box stream-io width 136.
 
 
 {sa/sa-sls01.i}
@@ -989,7 +989,7 @@ if td-show-parm then run show-param.
        v-wid    = if item.r-wid gt 0 then item.r-wid else item.s-wid.
 
       if trim(rm-rdtlh.job-no) ne "" then 
-        v-job-no = trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99").
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2))).
 
       /* run do-items. */
 

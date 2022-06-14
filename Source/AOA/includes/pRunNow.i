@@ -22,7 +22,7 @@ PROCEDURE pRunNow:
         &IF DEFINED(silentSubmitted) EQ 0 &THEN
         RUN spGetSessionParam ("Company", OUTPUT cCompany).
         
-        RUN spGetSettingByName ("TaskerNotRunningEmailID", gcConfigID).
+        RUN spGetSettingByName ("TaskerNotRunningEmailID", OUTPUT gcConfigID).
         giConfigID = INTEGER(gcConfigID).
         
         IF CAN-FIND(FIRST emailConfig

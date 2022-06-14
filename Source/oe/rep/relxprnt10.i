@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relxprnt2.i */
 /* Print OE Release/Picking tickets    for PremierX Xprint          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* -----------------------------------------------------------------*/
 
 {oe/rep/oe-pick1.i}
@@ -9,7 +10,7 @@
 DEF BUFFER ref-lot-no FOR reftable.
 
 def TEMP-TABLE w-oe-rell NO-UNDO
-   FIELD ord-no AS INT FORMAT ">>>>>9"
+   FIELD ord-no AS INT FORMAT ">>>>>>>9"
    FIELD i-no AS CHAR
    FIELD qty AS INT
    FIELD LINE AS INT
@@ -101,9 +102,9 @@ DEFINE SHARED VARIABLE lSortRelSeq AS LOGICAL NO-UNDO .
 DEFINE SHARED VARIABLE lPrintQtyUom AS LOGICAL NO-UNDO .
 
 format w-oe-rell.ord-no /*w-bin.w-ord-col                  */
-       w-bin.w-par                      at 8    format "x(25)"
-       v-bin                            at 34   format "x(35)"
-       w-bin.w-units                    TO 76   format "->>>>>"
+       w-bin.w-par                      AT 10    format "x(25)"
+       v-bin                            at 36   format "x(35)"
+       w-bin.w-units                    TO 77   format "->>>>>"
        w-bin.w-unit-count               TO 83   format "->>>>>"
        v-cust-value                     TO 95   FORMAT "x(11)" /* format "->>>>>>>>>>" */
 /*        v-rs                             AT 97   FORM "x(2)" */
@@ -132,7 +133,7 @@ DEF VAR lv-save-cust-uom AS CHAR NO-UNDO.
 DEF BUFFER xitemfg FOR itemfg.
 DEF SHARED VAR v-print-components AS LOG NO-UNDO.
 DEF SHARED VAR s-print-part-no AS LOG NO-UNDO.
-DEF VAR v-reljob AS CHAR FORMAT "x(10)" NO-UNDO.
+DEF VAR v-reljob AS CHAR FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
 
@@ -242,8 +243,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -338,8 +339,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            EMPTY TEMP-TABLE w-bin.
           
            i = 0.
-
-           /*v-reljob = (w-oe-rell.job-no + "-" + string(w-oe-rell.job-no2,"99"))   .*/
 
            for each fg-bin
                where fg-bin.company  eq cocode
@@ -680,9 +679,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                         trim(w-bin.w-loc) + "/" +
                         trim(w-bin.w-bin)  .
            
-             v-reljob = (w-bin.job + "-" + string(w-bin.job2,"99"))   .
+             v-reljob = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-bin.job, w-bin.job2))).
 
-             IF v-reljob EQ "-00" THEN v-reljob = "" .
+             IF v-reljob EQ "-000" THEN v-reljob = "" .
              if trim(v-bin) eq "//" then
                   ASSIGN 
                  v-bin = ""
@@ -724,7 +723,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               display {2}
                     /* w-bin.w-ord-col*/
                      w-oe-rell.ord-no when FIRST(w-bin.w-date-time) @ w-oe-rell.ord-no
-                     w-bin.w-par AT 8
+                     w-bin.w-par AT 10
                      v-bin
                      w-bin.w-units
                      w-bin.w-unit-count

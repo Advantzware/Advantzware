@@ -29,6 +29,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -37,8 +38,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF VAR fjob-no AS CHAR FORMAT "x(8)" NO-UNDO.
-DEF VAR tjob-no AS CHAR FORMAT "x(8)" NO-UNDO.
+DEF VAR fjob-no AS CHAR FORMAT "x(12)" NO-UNDO.
+DEF VAR tjob-no AS CHAR FORMAT "x(12)" NO-UNDO.
 
 DEF VAR fjob-no2 AS INT NO-UNDO.
 DEF VAR tjob-no2 AS INT NO-UNDO.
@@ -141,23 +142,23 @@ DEFINE BUTTON Btn_Select
      LABEL "Select All" 
      SIZE 20 BY 1.14.
 
-DEFINE VARIABLE begin_job1 AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job1 AS CHARACTER FORMAT "X(9)":U 
      LABEL "From Job #" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE end_job1 AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE end_job1 AS CHARACTER FORMAT "X(9)":U 
      LABEL "     To Job #" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE end_job2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
@@ -320,16 +321,12 @@ DO:
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            fjob-no   = FILL(" ",6 - LENGTH(TRIM(begin_job1:SCREEN-VALUE))) +
-                             TRIM(begin_job1:SCREEN-VALUE)
-            tjob-no   = FILL(" ",6 - LENGTH(TRIM(end_job1:SCREEN-VALUE))) +
-                             trim(end_job1:SCREEN-VALUE)
+            fjob-no   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job1)) 
+            tjob-no   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job1)) 
             fjob-no2  = INT(begin_job2:SCREEN-VALUE)
             tjob-no2  = INT(end_job2:SCREEN-VALUE)
-            fjob-no   = FILL(" ",6 - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) +
-                             STRING(fjob-no2,"99")
-            tjob-no   = FILL(" ",6 - LENGTH(TRIM(tjob-no))) + TRIM(tjob-no) +
-                             STRING(tjob-no2,"99").
+            fjob-no   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', fjob-no, fjob-no2)) 
+            tjob-no   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', tjob-no, tjob-no2)) .
     END.
 
     RUN check-job.
@@ -507,7 +504,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 FOR EACH job NO-LOCK
    WHERE job.company  EQ cocode
-      AND job.job-no  EQ ip-job-no 
+      AND job.job-no  EQ ip-job-no
       AND job.job-no2 EQ ip-job-no2,
  EACH job-mat NO-LOCK
    WHERE job-mat.company EQ job.company
@@ -542,15 +539,15 @@ END PROCEDURE.
 PROCEDURE check-job :
 EMPTY TEMP-TABLE tt-job-mat.
 FOR EACH job NO-LOCK
-  WHERE job.company                    EQ cocode 
-    AND job.job-no                     GE SUBSTR(fjob-no,1,6)
-    AND job.job-no                     LE SUBSTR(tjob-no,1,6)
-    AND FILL(" ",6 - length(trim(job.job-no))) +
+  WHERE job.company                    EQ cocode    
+    AND FILL(" ", iJobLen - length(trim(job.job-no))) +
                TRIM(job.job-no) +
-               STRING(job.job-no2,"99")  GE fjob-no
-   AND FILL(" ",6 - length(trim(job.job-no))) +
+               STRING(job.job-no2,"999")  GE fjob-no
+   AND FILL(" ", iJobLen - length(trim(job.job-no))) +
                TRIM(job.job-no) +
-               STRING(job.job-no2,"99")  LE tjob-no
+               STRING(job.job-no2,"999")  LE tjob-no
+   AND job.job-no2 GE int(fjob-no2)
+   AND job.job-no2 LE int(tjob-no2)            
    AND job.opened
    AND INDEX("LRAW",job.stat) > 0 ,
   FIRST job-mat NO-LOCK

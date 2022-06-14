@@ -1007,7 +1007,7 @@ DEFINE VARIABLE v-qoh       AS   DECIMAL EXTENT 4.
 DEFINE VARIABLE v-ext       AS   DECIMAL EXTENT 4.
 DEFINE VARIABLE v-date      AS   DATE NO-UNDO.
 DEFINE VARIABLE v-ord-qty   LIKE oe-ordl.qty.
-DEFINE VARIABLE v-job       AS   CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job       AS   CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE li-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
 DEFINE VARIABLE li-ship-qty LIKE oe-ordl.ship-qty NO-UNDO.
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.   
@@ -1344,10 +1344,10 @@ END.
          v-price   = itemfg.sell-price
          v-uom     = itemfg.sell-uom
          v-cas-cnt = itemfg.case-count
-         v-job     = FILL(" ",6 - LENGTH(TRIM(fg-bin.job-no))) +
-                     TRIM(fg-bin.job-no) + "-" + STRING(fg-bin.job-no2,"99").
+         v-job     = FILL(" ", iJobLen - LENGTH(TRIM(fg-bin.job-no))) +
+                     TRIM(fg-bin.job-no) + "-" + STRING(fg-bin.job-no2,"999").
 
-        IF TRIM(v-job) EQ "-00" THEN v-job = "".
+        IF TRIM(v-job) EQ "-000" THEN v-job = "".
 
         FOR EACH oe-ordl
             WHERE oe-ordl.company EQ cocode

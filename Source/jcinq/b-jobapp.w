@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -86,7 +87,7 @@ DEF VAR lv-last-show-job-no AS cha NO-UNDO.
           AND job-hdr.cust-no   BEGINS fi_cust-no   ~
           AND job-hdr.i-no      BEGINS fi_i-no      ~
           AND job-hdr.est-no    BEGINS fi_est-no    ~
-          AND job-hdr.job-no    BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) BEGINS fi_job-no    ~
           AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each11                           ~
@@ -114,7 +115,7 @@ DEF VAR lv-last-show-job-no AS cha NO-UNDO.
     IF lv-sort-by EQ "cust-no"    THEN job-hdr.cust-no                                                                                                  ELSE ~
     IF lv-sort-by EQ "i-no"       THEN job-hdr.i-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "est-no"     THEN job-hdr.est-no                                                                                                   ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(job-hdr.job-no,"x(6)") + STRING(job-hdr.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job-hdr.job-no, job-hdr.job-no2))                                  ELSE ~
     IF lv-sort-by EQ "pr-printed" THEN STRING(job.pr-printed,"Y/N")                                                                                     ELSE ~
     IF lv-sort-by EQ "close-date" THEN STRING(YEAR(job.close-date),"9999") + STRING(MONTH(job.close-date),"99") + STRING(DAY(job.close-date),"99")      ELSE ~
     IF lv-sort-by EQ "pr-print-date" THEN STRING(YEAR(job.pr-print-date),"9999") + STRING(MONTH(job.pr-print-date),"99") + STRING(DAY(job.pr-print-date),"99") + STRING(job.pr-print-time,"999999") ~
@@ -333,12 +334,12 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 25 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
@@ -381,9 +382,10 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U COLUMN-BGCOLOR 8
+      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
+            COLUMN-BGCOLOR 8 LABEL-BGCOLOR 14
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 5.6
             LABEL-BGCOLOR 14
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
       job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       poNum() @ v-po-no COLUMN-LABEL "Board P.O. #" FORMAT "ZZZZZ9":U
@@ -405,7 +407,7 @@ DEFINE BROWSE Browser-Table
       time-to-string('',job.pr-print-time,0.00) @ lv-print-time COLUMN-LABEL "PJT Print Time" FORMAT "x(8)":U
       job-hdr.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
             LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       job.start-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       job.close-date COLUMN-LABEL "Close Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
@@ -440,7 +442,7 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_job-no AT ROW 2.19 COL 6 COLON-ALIGNED NO-LABEL
+     fi_job-no AT ROW 2.19 COL 2.6 COLON-ALIGNED NO-LABEL
      fi_job-no2 AT ROW 2.19 COL 21 COLON-ALIGNED
      fi_i-no AT ROW 2.19 COL 30 COLON-ALIGNED NO-LABEL
      fi_cust-no AT ROW 2.19 COL 59 COLON-ALIGNED NO-LABEL
@@ -455,7 +457,7 @@ DEFINE FRAME F-Main
      tb_fold AT ROW 1.48 COL 125
      tb_corr AT ROW 2.43 COL 125
      "Job#" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.24 COL 12
+          SIZE 8 BY .71 AT ROW 1.24 COL 9
           FGCOLOR 9 FONT 6
      "FG Item#" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 1.48 COL 39
@@ -556,9 +558,9 @@ ASSIGN
      _JoinCode[3]      = "ASI.est.company = ASI.job.company
   AND ASI.est.est-no = ASI.job.est-no"
      _FldNameList[1]   > ASI.job-hdr.job-no
-"job-hdr.job-no" "Job#" ? "character" 8 ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no" "Job#" ? "character" 8 ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.job-no2
-"job-hdr.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.cust-no
 "job-hdr.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"

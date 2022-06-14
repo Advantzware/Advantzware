@@ -85,30 +85,30 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 ASSIGN 
     cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Account#,Acc Desc,FG Item#,Item Name," +
-                            "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Code,Term Code,Term Desc," +
+                            "Item Desccription,Cust Part#,Order#,Cust Po#,Est#,Shipto,Tax Group,Term Code,Term Desc," +
                             "Due Date,Discount%,Discount,Disc Days,Carrier,Invoice Amt,Freight Cost,Freight Billable,Tax,Amount Paid," +
                             "Balance Due,Line,Customer Lot#,Invoice Qty,Ship Qty,Cons Uom,Sqft,Price,Uom," +
                             "Dsct%,Amount,Amount MSF,Cost,Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2,Comm2,Sls Rep3,% of Sales3,Comm3," + 
-                            "Line Amount,Line Cost,Total Amount,Total Cost,Line Discount,Total Discount,Sold To Id,Sold To Name"
+                            "Line Amount,Line Cost,Total Amount,Total Cost,Line Discount,Total Discount,Sold To Id,Sold To Name,Edi Price,Edi Price UOM"
 
     cFieldListToSelect = "ar-invl.inv-no,ar-invl.bol-no,ar-invl.cust-no,ar-inv.cust-name,ar-inv.inv-date,ar-invl.actnum,actdscr,ar-invl.i-no,ar-invl.i-name," +
                             "ar-invl.i-dscr,ar-invl.part-no,ar-invl.ord-no,ar-invl.po-no,ar-invl.est-no,ar-inv.ship-id,ar-inv.tax-code,ar-inv.terms,ar-inv.terms-d," +
                             "ar-inv.due-date,ar-inv.disc-%,ar-inv.disc-taken,ar-inv.disc-days,ar-inv.carrier,ar-inv.gross,ar-inv.freight,ar-inv.f-bill,ar-inv.tax-amt,ar-inv.paid," +
                             "ar-inv.due,ar-invl.LINE,ar-invl.lot-no,ar-invl.inv-qty,ar-invl.ship-qty,ar-invl.cons-uom,ar-invl.sf-sht,ar-invl.unit-pr,ar-invl.pr-qty-uom," +
                             "ar-invl.disc,amount,ar-invl.amt-msf,ar-invl.cost,dscr[1],sman[1],s-pct[1],s-comm[1],sman[2],s-pct[2],s-comm[2],sman[3],s-pct[3],s-comm[3]," + 
-                            "line-amt,line-cst,total-amt,total-cst,line-dis,total-dis,cSoldToId,cSoldToName"
+                            "line-amt,line-cst,total-amt,total-cst,line-dis,total-dis,cSoldToId,cSoldToName,ediPrice,ediPriceUom"
                             
     cFieldLength       = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,15,20," + "15,15,15,20,15,30,15,15,20," + 
-                        "15,15,15,20,15,15,15,20,15,30,15,15,15,15," + "15,15,15,15,15,15,10,12"
+                        "15,15,15,20,15,15,15,20,15,30,15,15,15,15," + "15,15,15,15,15,15,10,12,11,13"
     cFieldType         = "i,i,c,c,c,i,c,c,c," + "c,i,c,c,c,c,c,c,c," + "c,i,i,i,c,i,i,i,i,i," + "c,i,c,c,c,c,c,c,c," +
-                         "i,i,i,c,c,i,i,c,i,i,c,i,i,i," + "i,i,i,i,i,i,c,c"
+                         "i,i,i,c,c,i,i,c,i,i,c,i,i,i," + "i,i,i,i,i,i,c,c,i,c"
     .
 
 
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Customer,Shipto,Invoice#,Cust Po#,Inv Date,Due Date,Tax Code,Term Code,Discount,Disc Days," +
+    cTextListToDefault = "Customer,Shipto,Invoice#,Cust Po#,Inv Date,Due Date,Tax Group,Term Code,Discount,Disc Days," +
                                  "Carrier,Freight Cost, Freight Billable,Line,GL Account#,FG Item#,Item Name,Item Desccription,Customer Lot#,Invoice Qty," +
                                  "Cons Uom,Price,Uom,Amount,Line Discount,Cost,Cost UOM,Sls Rep,% of Sales,Comm,Sls Rep2,% of Sales2," + 
                                  "Comm2,Sls Rep3,% of Sales3,Comm3,Tax" .
@@ -222,7 +222,7 @@ DEFINE VARIABLE begin_i-no    AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_inv-no  AS INTEGER   FORMAT "->>>>>>9":U INITIAL 0 
+DEFINE VARIABLE begin_inv-no  AS INTEGER   FORMAT "->>>>>>>9":U INITIAL 0 
     LABEL "From Invoice" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -252,7 +252,7 @@ DEFINE VARIABLE end_i-no      AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_inv-no    AS INTEGER   FORMAT "->>>>>>9":U INITIAL 9999999 
+DEFINE VARIABLE end_inv-no    AS INTEGER   FORMAT "->>>>>>>9":U INITIAL 99999999 
     LABEL "To Invoice" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -1318,7 +1318,7 @@ PROCEDURE run-report :
         
                 CASE cTmpField:
                     WHEN "ar-invl.inv-no"  THEN 
-                        cVarValue   = STRING(ar-invl.inv-no,">>>>>>9" ).
+                        cVarValue   = STRING(ar-invl.inv-no,">>>>>>>9" ).
                     WHEN "ar-invl.bol-no"  THEN 
                         cVarValue   = STRING(ar-invl.bol-no,">>>>>>9").
                     WHEN "ar-invl.cust-no" THEN 
@@ -1435,7 +1435,10 @@ PROCEDURE run-report :
                         cVarValue         = STRING(cSoldToId,"x(8)").
                     WHEN "cSoldToName" THEN 
                         cVarValue         = STRING(cSoldToName,"x(30)").
-
+                    WHEN "ediPrice" THEN 
+                        cVarValue         = STRING(ar-invl.ediPrice).
+                    WHEN "ediPriceUom" THEN 
+                        cVarValue         = STRING(ar-invl.ediPriceUOM).  
                 END CASE.
 
                 cExcelVarValue = cVarValue.

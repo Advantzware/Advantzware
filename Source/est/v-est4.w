@@ -474,7 +474,7 @@ DEFINE FRAME F-Main
           SIZE 6 BY .62 AT ROW 9.33 COL 92
      "Misc. Cost" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 1.71 COL 17
-     "S/B" VIEW-AS TEXT
+     "F/B" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.71 COL 5
      "Mat's/M" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 1.71 COL 64

@@ -75,7 +75,7 @@ IF "{1}" EQ "FGItem" THEN DO:
     fg-rctd.loc-bin:SCREEN-VALUE    = lv-loc-bin
     fg-rctd.qty-case:SCREEN-VALUE   = STRING(lv-qty-case)
     fg-rctd.cases:SCREEN-VALUE      = STRING(lv-cases)
-    fg-rctd.cases-unit:SCREEN-VALUE = STRING(lv-cases-unit)
+    fg-rctd.cases-unit:SCREEN-VALUE = STRING(lv-cases-unit + INTEGER(DYNAMIC-FUNCTION("fGetOverageQuantitySubUnitsPerUnit" IN hInventoryProcs,INTEGER(lv-partial)))) 
     fg-rctd.partial:SCREEN-VALUE    = STRING(lv-partial)
     fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
                              STRING((INT(fg-rctd.cases:SCREEN-VALUE) *

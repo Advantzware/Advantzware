@@ -1,3 +1,4 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
     DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
     
     FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode.
@@ -174,7 +175,7 @@
             ASSIGN
              tt-report.key-01    = v-slsm[1]
              tt-report.key-02    = ar-inv.cust-no
-             tt-report.key-03    = STRING(ar-inv.inv-no,"9999999")
+             tt-report.key-03    = STRING(ar-inv.inv-no,"99999999")
              tt-report.key-10    = "ar-invl"
              tt-report.rec-id    = RECID(ar-invl)
              tt-report.row-id    = ROWID(ar-invl)
@@ -393,7 +394,7 @@ v-comm = 0.
                  IF hField <> ? THEN DO:                 
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".                  
+                        cTmpField = IF cTmpField <> "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rcpth.job-no2))) ELSE "".                  
 
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
@@ -411,9 +412,9 @@ v-comm = 0.
             CASE cTmpField: 
                  WHEN "sman" THEN cVarValue = IF AVAIL tt-report AND FIRST-OF(tt-report.key-01) THEN string(tt-report.key-01,"x(3)") ELSE "". 
                  WHEN "cust-no" THEN cVarValue = IF FIRST-OF(tt-report.key-02) THEN string(ar-inv.cust-no) ELSE "".
-                 WHEN "inv-no" THEN cVarValue = IF AVAIL ar-inv THEN string(ar-inv.inv-no,">>>>>>9") ELSE "".
+                 WHEN "inv-no" THEN cVarValue = IF AVAIL ar-inv THEN string(ar-inv.inv-no,">>>>>>>9") ELSE "".
                  WHEN "i-no" THEN cVarValue = IF AVAIL itemfg THEN string(itemfg.i-no) ELSE "".
-                 WHEN "ord-no" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.ord-no) ELSE "".          
+                 WHEN "ord-no" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.ord-no,">>>>>>>9") ELSE "".          
                  WHEN "qty" THEN cVarValue = IF AVAIL tt-report THEN string(tt-report.qty,"->>>>>>>9") ELSE "".            
                  WHEN "amt" THEN cVarValue = IF AVAIL tt-report THEN string(tt-report.amt,"->>>>>>>9.99") ELSE "".            
                  WHEN "cash-date" THEN cVarValue = IF AVAIL tt-report AND tt-report.cash-date NE ? THEN STRING(tt-report.cash-date) ELSE "".

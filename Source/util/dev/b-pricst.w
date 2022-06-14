@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -173,7 +174,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      comb-job-no()  @ v-job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      comb-job-no()  @ v-job-no COLUMN-LABEL "Job" FORMAT "x(13)":U
       fg-bin.loc FORMAT "x(5)":U
       fg-bin.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-bin.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 27
@@ -268,7 +269,7 @@ ASSIGN
      _TblList          = "ASI.fg-bin OF ASI.itemfg"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   > "_<CALC>"
-"comb-job-no()  @ v-job-no" "Job" "x(9)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"comb-job-no()  @ v-job-no" "Job" "x(13)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[2]   = ASI.fg-bin.loc
      _FldNameList[3]   > ASI.fg-bin.loc-bin
 "fg-bin.loc-bin" "Bin" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
@@ -558,7 +559,10 @@ FUNCTION comb-job-no RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  return trim(fg-bin.job-no) + string(fg-bin.job-no2,"99").
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+  cReturn = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-bin.job-no, fg-bin.job-no2)).
+  IF TRIM(cReturn) BEGINS "-" THEN cReturn = "".
+  RETURN cReturn  .
 
 END FUNCTION.
 

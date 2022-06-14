@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -44,6 +45,9 @@ CREATE WIDGET-POOL.
 
 {sys/inc/VAR.i NEW SHARED}
 
+{jc/jcgl-sh.i  NEW}
+{fg/fg-post3.i NEW}
+
 def var char-val as cha no-undo.
 def var ext-cost as decimal no-undo.
 def var lv-recid as recid no-undo.
@@ -55,6 +59,13 @@ DEF VAR lv-fgrecpt-val AS INT NO-UNDO.
 DEF VAR trans-time AS CHAR NO-UNDO.
 DEF VAR lv-new-tag-number-chosen AS LOG NO-UNDO.
 &SCOPED-DEFINE item-key-phrase TRUE
+
+DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE oSetting  AS system.Setting        NO-UNDO.
+oSetting  = NEW system.Setting().
+
+oSetting:LoadByCategoryAndProgram("CreateTransfer").
+RUN Inventory\InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -180,8 +191,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14 WIDTH 10
-      fg-rctd.job-no2 FORMAT "99":U
+      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U LABEL-BGCOLOR 14 WIDTH 15
+      fg-rctd.job-no2 FORMAT "999":U
       fg-rctd.loc COLUMN-LABEL "From!Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14 WIDTH 8
       fg-rctd.loc-bin COLUMN-LABEL "From!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       fg-rctd.tag COLUMN-LABEL "From!Tag" FORMAT "x(20)":U LABEL-BGCOLOR 14 WIDTH 29
@@ -332,7 +343,7 @@ fg-rctd.rita-code = ""T"""
      _FldNameList[5]   > asi.fg-rctd.i-name
 "i-name" "Name/Desc" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.fg-rctd.job-no
-"job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.fg-rctd.job-no2
 "job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.fg-rctd.loc
@@ -473,6 +484,9 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sortby:HIDDEN  = TRUE.
 fi_sortby:VISIBLE = FALSE.
+
+RUN pPostTransaction.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -680,6 +694,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+ 
+    IF VALID-OBJECT (oSetting) THEN
+        DELETE OBJECT oSetting.
+        
+    IF VALID-HANDLE (hdInventoryProcs) THEN
+        DELETE OBJECT hdInventoryProcs.    
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
 PROCEDURE repo-query :
@@ -692,6 +731,7 @@ PROCEDURE repo-query :
   DEF VAR hButtonPanel AS HANDLE NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
+    RUN pPostTransaction.  
     RUN clear_auto_find.
     RUN change-order (browse-order:SCREEN-VALUE).
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
@@ -757,7 +797,7 @@ PROCEDURE pAddRecord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+  DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
   DEFINE BUFFER bff-fg-rctd FOR fg-rctd .
     
    RUN fg/d-trans.w (?,"Add", OUTPUT lv-rowid) . 
@@ -851,6 +891,36 @@ PROCEDURE pCopyRecord :
        RUN fg/d-trans.w (RECID(bff-fg-rctd),"copy", OUTPUT lv-rowid) . 
        IF lv-rowid NE ? THEN
            RUN repo-query (lv-rowid).
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPostTransaction B-table-Win 
+PROCEDURE pPostTransaction :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lBOLTransferAutoPost AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO. 
+                 
+    lBOLTransferAutoPost = LOGICAL(oSetting:GetByName("BOLTransferAutoPost")).  
+          
+    IF lBOLTransferAutoPost THEN
+    DO:        
+        RUN PostFinishedGoodsForUser IN hdInventoryProcs(
+             INPUT        cocode,
+             INPUT        "T",       /* Transfer */
+             INPUT        USERID(LDBNAME(1)),
+             INPUT        NO, /* Executes API closing orders logic */
+             INPUT-OUTPUT lSuccess,
+             INPUT-OUTPUT cMessage
+             ) NO-ERROR.       
     END.
 
 END PROCEDURE.

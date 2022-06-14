@@ -35,11 +35,12 @@ CREATE WIDGET-POOL.
 {custom/emprate.i}
 
 {custom/globdefs.i}
+{sys/inc/var.i NEW SHARED}
 
 DEF BUFFER b-emplogin FOR emplogin.
 DEF BUFFER bf-machemp FOR machemp.
 
-DEF VAR cocode AS CHAR NO-UNDO.
+/*DEF VAR cocode AS CHAR NO-UNDO.*/
 
 cocode = g_company.
 
@@ -220,7 +221,7 @@ PROCEDURE adm-create-objects :
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'touch/employee.w':U ,
-             INPUT  {&WINDOW-NAME} ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_employee ).
        RUN set-position IN h_employee ( 1.00 , 1.00 ) NO-ERROR.
@@ -303,7 +304,7 @@ PROCEDURE adm-create-objects :
     WHEN 12 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'touch/pass.w':U ,
-             INPUT  {&WINDOW-NAME} ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_pass ).
        RUN set-position IN h_pass ( 1.00 , 1.00 ) NO-ERROR.
@@ -313,7 +314,7 @@ PROCEDURE adm-create-objects :
     WHEN 13 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'touch/jobseq.w':U ,
-             INPUT  {&WINDOW-NAME} ,
+             INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_jobseq ).
        RUN set-position IN h_jobseq ( 1.00 , 1.00 ) NO-ERROR.
@@ -581,7 +582,7 @@ PROCEDURE Change_Page :
       RUN Set_Title(translate('Job',NO) + ' - ' +
                     translate('Machine',NO) + ': ' + machine_code + ', ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
-      RUN Get_Jobs IN h_jobs ("Job").
+      RUN Get_Jobs IN h_jobs ("Start").
     END.
     WHEN 10 THEN /* forms */
     DO:
@@ -705,6 +706,20 @@ PROCEDURE Delete_Keyboard :
   IF VALID-HANDLE(h_keyboard) THEN
   DELETE PROCEDURE h_keyboard.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE open_sharp-shooter F-Frame-Win 
+PROCEDURE open_sharp-shooter :
+/*------------------------------------------------------------------------------
+  Purpose:     apply close window to container window
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  RUN sharpshooter/ssmenu.w .
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1486,7 +1501,7 @@ PROCEDURE Set_Value :
     ASSIGN
       job# = field_value
       job_number = SUBSTR(job#,1,INDEX(job#,'-') - 1)
-      job_number = FILL(' ',6 - LENGTH(job_number)) + job_number
+      job_number = FILL(' ',iJobLen - LENGTH(job_number)) + job_number
       job_sub = SUBSTR(job#,INDEX(job#,'-') + 1).
     WHEN 'job_number' THEN
     job_number = field_value.

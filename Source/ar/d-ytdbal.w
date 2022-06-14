@@ -492,7 +492,7 @@ for each cust
       end.
   end. /* for each ar-ledger MEMO */
 
-  RUN ar/ptdsales (ROWID(cust)).
+  RUN ar/ptdsales.p (ROWID(cust)).
 end. /* for each cust */
 
 session:set-wait-state("").  

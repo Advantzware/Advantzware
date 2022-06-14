@@ -206,7 +206,7 @@ PROCEDURE pValidate PRIVATE:
     
     /* Formats Job number */
     ipbf-ttImportFGCount.cJobID = DYNAMIC-FUNCTION (
-               "fAddSpacesToString" IN hdJobProcs , ipbf-ttImportFGCount.cJobID , 6 , TRUE
+               "fAddSpacesToString" IN hdJobProcs , ipbf-ttImportFGCount.cJobID , iJobLen , TRUE
                ).
     
     oplValid = YES.

@@ -39,13 +39,13 @@ PUT "<|10><R19><C1><#4><FROM><R23><C81><RECT>" SKIP
 "<R19><C40><FROM><R23><C40><LINE>" SKIP
 "<R19><C52><FROM><R23><C52><LINE>" SKIP
 "<R19><C65><FROM><R23><C65><LINE>" SKIP
-"<R19><C72><FROM><R23><C72><LINE>" SKIP
+"<R19><C73><FROM><R23><C73><LINE>" SKIP
 .
-PUT "<FArial><=4><R+1> Date Req.             FOB                          Ship Via                            Over/Under %s       Sales Person            Order#       Quote#" SKIP
+PUT "<FArial><=4><R+1> Date Req.             FOB                          Ship Via                            Over/Under %s       Sales Person             Order#         Quote#" SKIP
 "<FCourier New><=4><R+3> " oe-ord.ord-date FORM "99/99/9999" space(2)
 cust.fob-code FORM "x(11)" SPACE(2)
 v-shipvia FORM "x(20)" 
-/*oe-ord.terms-d*/ oe-ord.over-pct "/" oe-ord.under-pct FORM ">>9.99%" SPACE(1) v-salesman space(1) oe-ord.ord-no space(2) v-q-no SKIP.
+/*oe-ord.terms-d*/ oe-ord.over-pct "/" oe-ord.under-pct FORM ">>9.99%" SPACE(1) v-salesman "<C65.5>" oe-ord.ord-no space(3) v-q-no SKIP.
 
 
 PUT "<|10><R24><C1><#5><FROM><R26><C81><RECT>" SKIP    

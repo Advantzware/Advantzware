@@ -48,6 +48,22 @@ CLASS fg.FGBin:
                 RETURN STRING(TRUNC((bf-fg-bin.qty - bf-fg-bin.partial-count) / bf-fg-bin.case-count,0)).
             WHEN "Partial" THEN
                 RETURN STRING(bf-fg-bin.partial-count).                           
+            WHEN "Status" THEN
+                RETURN bf-fg-bin.statusID.
+            WHEN "OnHold" THEN
+                RETURN STRING(bf-fg-bin.onHold).
+            WHEN "Tag" THEN
+                RETURN bf-fg-bin.tag.    
+            WHEN "POID" THEN
+                RETURN STRING(bf-fg-bin.po-no).    
+            WHEN "JobID" THEN
+                RETURN bf-fg-bin.job-no.
+            WHEN "JobID2" THEN
+                RETURN STRING(bf-fg-bin.job-no2).    
+            WHEN "BOLID" THEN
+                RETURN STRING(bf-fg-bin.bol-no).
+            WHEN "ROWID" THEN
+                RETURN STRING(ROWID(bf-fg-bin)).
             OTHERWISE
                 RETURN "".
         END.

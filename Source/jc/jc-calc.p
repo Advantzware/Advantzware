@@ -341,9 +341,9 @@ DO:
                 DO TRANSACTION:
                     ASSIGN
                         job.est-no  = xest.est-no
-                        job.rec_key = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.  /* for notes */
+                        .                        
                 END.
-
+                IF nufile THEN RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "","").  /*Copy all notes from Estimate to Job*/
                 FOR EACH job-hdr WHERE job-hdr.company EQ cocode
                     AND job-hdr.job     EQ job.job
                     AND job-hdr.job-no  EQ job.job-no
@@ -422,18 +422,18 @@ DO:
         ASSIGN
             job.est-no      = xest.est-no
             job.create-date = IF job.create-date EQ ? THEN TODAY ELSE job.create-date
-            job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key
             job.stat        = "R"
             job.create-time = IF job.create-time EQ 0 THEN TIME ELSE job.create-time
             . 
     END.  
-  
+    IF nufile THEN RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "", "").
   
     FIND CURRENT job NO-LOCK.
 
     RUN pGetJobBuildVersionSettings (BUFFER job, OUTPUT lUseNewCalc, OUTPUT lPromptForNewCalc).
     IF lUseNewCalc AND lPromptForNewCalc THEN 
-        MESSAGE "Build Job With New Calculation?.  Job:" + STRING(job.job-no) + "-" + STRING(job.job-no2,"99") VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
+        MESSAGE "Build Job With New Calculation?.  Job: " + 
+        TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
 
     IF lUseNewCalc THEN 
         RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
@@ -1108,47 +1108,15 @@ DO:
                             ll-all-warn = YES.
                         END.
         
-                    job-mat.post = CAN-DO("J",type-mat) OR 
-                                   CAN-FIND(FIRST materialType 
+                    job-mat.post = CAN-FIND(FIRST materialType 
                                             WHERE materialType.company      EQ job-mat.company 
                                               AND materialType.materialType EQ type-mat
                                               AND materialType.autoIssue    EQ TRUE).
 
                     IF ll-use-netsht AND CAN-DO("1,2,3,4,B,P,R",item.mat-type) THEN 
                     DO:
-                        v-blk-qty = 0.
-                        FOR EACH job-hdr
-                            WHERE job-hdr.company  EQ job-mat.company
-                            AND job-hdr.job      EQ job-mat.job
-                            AND job-hdr.job-no   EQ job-mat.job-no
-                            AND job-hdr.job-no2  EQ job-mat.job-no2
-                            AND (job-hdr.frm     EQ job-mat.frm OR
-                            xest.est-type   EQ 2           OR
-                            xest.est-type   EQ 6)
-                            USE-INDEX job NO-LOCK:
-        
-                            IF xest.est-type EQ 2 OR xest.est-type EQ 6 THEN
-                                FOR EACH eb
-                                    WHERE eb.company EQ job.company
-                                    AND eb.est-no  EQ job.est-no
-                                    AND eb.form-no EQ job-mat.frm
-                                    USE-INDEX est-no NO-LOCK
-                                    BY job-hdr.qty *
-                                    (IF eb.est-type EQ 2 THEN
-                                    IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
-                                    ELSE
-                                    IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
-                                    eb.num-up DESCENDING:
-                                    v-blk-qty = (job-hdr.qty *
-                                        (IF eb.est-type EQ 2 THEN
-                                        IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
-                                        ELSE
-                                        IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
-                                        (eb.num-up * v-out)).
-                                    LEAVE.
-                                END.
-                            ELSE v-blk-qty = v-blk-qty + (job-hdr.qty / job-mat.n-up).
-                        END.
+                        RUN pCalcNetSheets (BUFFER job-mat, xest.est-type, v-out, OUTPUT v-blk-qty).
+                        
                         IF v-blk-qty NE 0 THEN job-mat.qty = v-blk-qty.
                     END.
         
@@ -1262,37 +1230,37 @@ DO:
                 ASSIGN
                     job-mch.company  = cocode
                     job-mch.blank-no = IF (mach.p-type EQ "B" OR
-                                      (xest.est-type EQ 3 AND op.dept EQ "PR"))
-                                   THEN op.blank-no ELSE 0
-                job-mch.job      = job.job
-                job-mch.job-no   = job.job-no
-                job-mch.job-no2  = job.job-no2
-                job-mch.dept     = op.dept
-                job-mch.frm      = op.form-no
-                job-mch.i-no     = /*IF AVAIL itemfg THEN itemfg.i-no ELSE - bpv TASK 12181205*/ op.i-no
-                job-mch.i-name   = /*IF AVAIL itemfg THEN itemfg.i-name ELSE */ op.i-name
-                job-mch.line     = op.line
-                job-mch.m-code   = op.m-code
-                job-mch.mr-fixoh = op.mr-fixoh
-                job-mch.mr-hr    = op.mr-hr
-                job-mch.mr-rate  = op.mr-rate
-                job-mch.mr-varoh = op.mr-varoh
-                job-mch.mr-waste = op.mr-waste
-                job-mch.pass     = op.pass
-                job-mch.run-hr   = op.run-hr
-                job-mch.run-fixoh = op.run-fixoh
-                job-mch.run-rate  = op.run-rate
-                job-mch.run-varoh = op.run-varoh
-                job-mch.speed    = op.speed
-                job-mch.wst-prct = op.wst-prct
-                job-mch.lag-time = mach.daily-prod-hours
-             /* job-mch.start-date = job.start-date */
-                job-mch.run-qty  = op.run-qty
-                job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
-                job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
-                                     (v-up * v-out / v-on-f)
-                job-mch.est-op_rec_key = op.rec_key
-                lOverwriteJobPlan-Log  = cOverwriteJobPlan-Char NE "Yes"
+                                          (xest.est-type EQ 3 AND op.dept EQ "PR"))
+                                       THEN op.blank-no ELSE 0
+                    job-mch.job      = job.job
+                    job-mch.job-no   = job.job-no
+                    job-mch.job-no2  = job.job-no2
+                    job-mch.dept     = op.dept
+                    job-mch.frm      = op.form-no
+                    job-mch.i-no     = /*IF AVAIL itemfg THEN itemfg.i-no ELSE - bpv TASK 12181205*/ op.i-no
+                    job-mch.i-name   = /*IF AVAIL itemfg THEN itemfg.i-name ELSE */ op.i-name
+                    job-mch.line     = op.line
+                    job-mch.m-code   = op.m-code
+                    job-mch.mr-fixoh = op.mr-fixoh
+                    job-mch.mr-hr    = op.mr-hr
+                    job-mch.mr-rate  = op.mr-rate
+                    job-mch.mr-varoh = op.mr-varoh
+                    job-mch.mr-waste = op.mr-waste
+                    job-mch.pass     = op.pass
+                    job-mch.run-hr   = op.run-hr
+                    job-mch.run-fixoh = op.run-fixoh
+                    job-mch.run-rate  = op.run-rate
+                    job-mch.run-varoh = op.run-varoh
+                    job-mch.speed    = op.speed
+                    job-mch.wst-prct = op.wst-prct
+                    job-mch.lag-time = mach.daily-prod-hours
+                 /* job-mch.start-date = job.start-date */
+                    job-mch.run-qty  = op.run-qty
+                    job-mch.n-out    = IF AVAIL est-op AND est-op.n-out NE 0 THEN est-op.n-out ELSE 1
+                    job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
+                                         (v-up * v-out / v-on-f)
+                    job-mch.est-op_rec_key = op.rec_key
+                    lOverwriteJobPlan-Log  = cOverwriteJobPlan-Char NE "Yes"
                     .
       
                 FIND FIRST tt-job-mch
@@ -1341,6 +1309,7 @@ DO:
                             job-mch.run-complete  = tt-job-mch.run-complete
                             job-mch.sbLiveUpdate  = tt-job-mch.sbLiveUpdate
                             job-mch.anchored      = tt-job-mch.anchored
+                            job-mch.job-mchID     = tt-job-mch.job-mchID
                             .
                     DELETE tt-job-mch.
                 END. /* avail tt-job-mch */
@@ -1634,6 +1603,63 @@ PROCEDURE pAddSet PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCalcNetSheets PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mat FOR job-mat. 
+    DEFINE INPUT PARAMETER ipiEstType AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiOut AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdNetSheets AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dNetSheetsMax AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dNetSheets AS DECIMAL NO-UNDO.
+    
+    FOR EACH job-hdr NO-LOCK 
+        WHERE job-hdr.company  EQ ipbf-job-mat.company
+        AND job-hdr.job      EQ ipbf-job-mat.job
+        AND job-hdr.job-no   EQ ipbf-job-mat.job-no
+        AND job-hdr.job-no2  EQ ipbf-job-mat.job-no2
+        AND (job-hdr.frm     EQ ipbf-job-mat.frm OR
+        ipiEstType   EQ 2           OR
+        ipiEstType   EQ 6)
+        USE-INDEX job:
+        
+        IF ipiEstType EQ 2 OR ipiEstType EQ 6 THEN
+            FOR EACH eb NO-LOCK 
+                WHERE eb.company EQ job-hdr.company
+                AND eb.est-no  EQ job-hdr.est-no
+                AND eb.form-no EQ ipbf-job-mat.frm
+                USE-INDEX est-no
+                BY job-hdr.qty *
+                (IF eb.est-type EQ 2 THEN
+                IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
+                ELSE
+                IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
+                eb.num-up DESCENDING:
+                dNetSheetsMax = (job-hdr.qty *
+                    (IF eb.est-type EQ 2 THEN
+                    IF eb.cust-% LT 0 THEN (-1 / eb.cust-%) ELSE eb.cust-%
+                    ELSE
+                    IF eb.quantityPerSet LT 0 THEN (-1 / eb.quantityPerSet) ELSE eb.quantityPerSet) /
+                    (eb.num-up * ipiOut)).
+                LEAVE.
+            END.
+        ELSE DO: 
+            IF job-hdr.n-on NE 0 THEN         
+                dNetSheets = (job-hdr.qty / job-hdr.n-on).
+            ELSE 
+                dNetSheets = job-hdr.qty.
+                
+            IF dNetSheets GT dNetSheetsMax THEN 
+                dNetSheetsMax = dNetSheets.
+        END.
+    END.
+    opdNetSheets = dNetSheetsMax.
+
+END PROCEDURE.
+
 PROCEDURE pGetJobBuildVersionSettings PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Gets settings to use the new estimate calc and prompt, given est buffer
@@ -1781,7 +1807,7 @@ PROCEDURE pUpdateJobQty PRIVATE:
         ASSIGN
             li         = li + 1
             xeb.spc-no = TRIM(job.job-no) + "-" 
-                       + STRING(job.job-no2,"99") + "-"
+                       + STRING(job.job-no2,"999") + "-"
                        + STRING(xeb.form-no,"99") + "-" 
                        + STRING(li,"99").
   
@@ -1943,6 +1969,8 @@ PROCEDURE pUpdateJobQty PRIVATE:
     END.
     
     opriJobHdr = ROWID(job-hdr).
+    
+    RUN fg/chkfgloc.p (INPUT job-hdr.i-no, INPUT job-hdr.loc).
     
     IF job-hdr.frm EQ 0 THEN 
         job-hdr.frm = 1.

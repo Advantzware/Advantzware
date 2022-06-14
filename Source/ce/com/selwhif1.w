@@ -165,7 +165,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      eb.form-no COLUMN-LABEL "S#" FORMAT ">9":U WIDTH 4
+      eb.form-no COLUMN-LABEL "F#" FORMAT ">9":U WIDTH 4
       eb.blank-no COLUMN-LABEL "B#" FORMAT ">9":U WIDTH 4
       eb.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U WIDTH 12
       eb.part-no FORMAT "x(15)":U WIDTH 22.2
@@ -262,7 +262,7 @@ ASSIGN
 asi.eb.est-no  EQ asi.est.est-no  AND
 asi.eb.form-no NE 0"
      _FldNameList[1]   > asi.eb.form-no
-"eb.form-no" "S#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.form-no" "F#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.eb.blank-no
 "eb.blank-no" "B#" ? "integer" ? ? ? ? ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.eb.cust-no

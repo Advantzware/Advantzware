@@ -9,6 +9,8 @@
 "" 0 16 31 "postOutOfPeriod" "addrPhone" "linkTable" "" "202104194384607172241"
 "" 0 171 11 "custNo" "cust" "cust-no" "" "202104214567207179040"
 "" 0 171 1 "company" "cust" "company" "" "202104214568407179042"
+"" 0 155 1 "company" "style" "company" "" "202202230163608587823"
+"" 0 155 71 "IndustryType" "style" "industry" "" "202202230166608587824"
 "vendcostmtx." 1 49 64 "allItemID" "" "" "yes" "201911117061504358790"
 "vendcostmtx." 2 49 64 "endItemID" "vendItemCost" "itemID" "" "201911117047904358789"
 "vendcostmtx." 2 49 64 "allItemID" "" "" "no" "201911117043104358787"

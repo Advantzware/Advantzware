@@ -35,6 +35,7 @@ DEF INPUT PARAMETER ip-i-no LIKE job-hdr.i-no NO-UNDO.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def var lv-type-dscr as cha no-undo.
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY job-hdr.job-no DESCENDING
 &scoped-define SORTBY-2 BY job-hdr.est-no
@@ -147,10 +148,10 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-hdr.job-no FORMAT "x(6)":U
-      job-hdr.job-no2 COLUMN-LABEL "#" FORMAT ">9":U
+      job-hdr.job-no FORMAT "x(9)":U
+      job-hdr.job-no2 COLUMN-LABEL "#" FORMAT ">>9":U
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14
-      job-hdr.ord-no FORMAT ">>>>>9":U
+      job-hdr.ord-no FORMAT ">>>>>>>9":U
       job-hdr.cust-no FORMAT "x(8)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -1,4 +1,4 @@
-
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 DEF INPUT        PARAM ip-job-no LIKE job-mat.job-no NO-UNDO.
 DEF INPUT        PARAM ip-job-no2 LIKE job-mat.job-no2 NO-UNDO.
 DEF INPUT        PARAM ip-i-no LIKE job-mat.rm-i-no NO-UNDO.

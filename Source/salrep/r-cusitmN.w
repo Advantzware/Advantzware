@@ -2070,7 +2070,7 @@ PROCEDURE run-report :
                         IF ar-invl.misc THEN ar-invl.i-name ELSE
                         IF ar-invl.i-no NE "" THEN ar-invl.i-no ELSE
                         "AR SALE",
-                        STRING(ar-inv.inv-no,"9999999"), "").
+                        STRING(ar-inv.inv-no,"99999999"), "").
                 END.
 
                 IF v-freight AND ar-inv.f-bill THEN 
@@ -2099,7 +2099,7 @@ PROCEDURE run-report :
                         DO:
 
                             RUN create-report (RECID(ar-invl), "FREIGHT",
-                                STRING(ar-inv.inv-no,"9999999"), "FREIGHT").
+                                STRING(ar-inv.inv-no,"99999999"), "FREIGHT").
                         END.
                     END.
                 END.

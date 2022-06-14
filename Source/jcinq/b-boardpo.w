@@ -134,7 +134,7 @@ DEFINE QUERY BROWSE-5 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      tt-set-component.form-no COLUMN-LABEL "S" FORMAT "ZZ9" WIDTH 7
+      tt-set-component.form-no COLUMN-LABEL "F" FORMAT "ZZ9" WIDTH 7
    tt-set-component.blank-no COLUMN-LABEL "B" FORMAT "ZZ9" WIDTH 7
    tt-set-component.i-no COLUMN-LABEL "RM Item #" FORMAT "X(15)" WIDTH 15
    tt-set-component.first-po-no COLUMN-LABEL "First Board P.O. #" FORMAT "ZZZZZ9" WIDTH 25
@@ -147,7 +147,7 @@ DEFINE BROWSE BROWSE-2
 DEFINE BROWSE BROWSE-5
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-5 D-Dialog _FREEFORM
   QUERY BROWSE-5 DISPLAY
-      tt-po.s-num COLUMN-LABEL "S" FORMAT "ZZ9" WIDTH 7
+      tt-po.s-num COLUMN-LABEL "F" FORMAT "ZZ9" WIDTH 7
    tt-po.b-num COLUMN-LABEL "B" FORMAT "ZZ9" WIDTH 7
    tt-po.i-no COLUMN-LABEL "RM Item #" FORMAT "X(15)" WIDTH 15
    tt-po.po-no COLUMN-LABEL "P.O. #" FORMAT "ZZZZZ9" WIDTH 17
@@ -325,7 +325,7 @@ PROCEDURE build-po-table :
 
    FOR EACH po-ordl FIELDS(po-no i-no s-num b-num ord-qty pr-qty-uom) WHERE
        po-ordl.company EQ cocode AND
-       po-ordl.job-no EQ ip-job-no AND
+       po-ordl.job-no  EQ ip-job-no AND
        po-ordl.job-no2 EQ ip-job-no2
        NO-LOCK:
 
@@ -362,7 +362,7 @@ PROCEDURE build-set-table :
 
   FIND FIRST job WHERE
        job.company EQ cocode AND
-       job.job-no EQ ip-job-no AND
+       job.job-no  EQ ip-job-no AND
        job.job-no2 EQ ip-job-no2
        NO-LOCK NO-ERROR.
 
@@ -396,7 +396,7 @@ PROCEDURE build-set-table :
       job-mat-loop:
       FOR EACH job-mat FIELDS(i-no job-no job-no2 frm blank-no) WHERE
           job-mat.company EQ cocode AND
-          job-mat.job-no EQ ip-job-no AND
+          job-mat.job-no  EQ ip-job-no AND
           job-mat.job-no2 EQ ip-job-no2 AND
           job-mat.frm EQ eb.form-no
           NO-LOCK,
@@ -526,7 +526,7 @@ FUNCTION poNum RETURNS INTEGER
    main-loop:
    FOR EACH job-mat FIELDS(i-no job-no job-no2 frm blank-no) WHERE
        job-mat.company EQ cocode AND
-       job-mat.job-no EQ ip-job-no AND
+       job-mat.job-no  EQ ip-job-no AND
        job-mat.job-no2 EQ ip-job-no2 AND
        job-mat.frm EQ eb.form-no AND
        (job-mat.blank-no EQ eb.blank-no OR

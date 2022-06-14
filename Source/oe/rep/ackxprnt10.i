@@ -71,26 +71,45 @@ PUT "<|10><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 "<R19><C22><FROM><R23><C22><LINE>" SKIP
 "<R19><C38><FROM><R23><C38><LINE>" SKIP
 "<R19><C52><FROM><R23><C52><LINE>" SKIP
-"<R19><C65><FROM><R23><C65><LINE>" SKIP
-"<R19><C72><FROM><R23><C72><LINE>" SKIP
+"<R19><C64><FROM><R23><C64><LINE>" SKIP
+"<R19><C73><FROM><R23><C73><LINE>" SKIP
 .
-PUT "<FArial><=4><R+1> Date Req.             FOB                     Ship Via                              Terms                        Sales Person              Order#     Quote#" SKIP
+PUT "<FArial><=4><R+1> Date Req.             FOB                     Ship Via                              Terms                        Sales Person             Order#        Quote#" SKIP
 "<FCourier New><=4><R+3> " lv-due-date FORM "99/99/9999" space(2)
 oe-ord.fob-code FORM "x(11)" SPACE(2) /* gdm 01060906 */
 v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(1)
-oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(5) v-salesman space(8) oe-ord.ord-no space(2) v-q-no FORMAT ">>>>>9" SKIP.
+oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(5) v-salesman "<C65>" oe-ord.ord-no space(3) v-q-no FORMAT ">>>>>9" SKIP.
 
+IF v-print-fmt eq "ackhead 10" THEN
+DO:
 
-PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
-       "<R24><C6><FROM><R26><C6><LINE>" SKIP
-       "<R24><C20><FROM><R26><C20><LINE>" SKIP
-     /*"<R26><C30><FROM><R28><C30><LINE>" SKIP */
-       "<R24><C49><FROM><R26><C49><LINE>" SKIP
-       "<R24><C61><FROM><R26><C61><LINE>" SKIP
-       "<R24><C72><FROM><R26><C72><LINE>" SKIP
-       .
+        PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
+               "<R24><C6><FROM><R26><C6><LINE>" SKIP
+               "<R24><C20><FROM><R26><C20><LINE>" SKIP
+             /*"<R26><C30><FROM><R28><C30><LINE>" SKIP */
+               "<R24><C48><FROM><R26><C48><LINE>" SKIP
+               "<R24><C57><FROM><R26><C57><LINE>" SKIP
+               "<R24><C65><FROM><R26><C65><LINE>" SKIP
+               "<R24><C70><FROM><R26><C70><LINE>" SKIP
+               .
 
-PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                             Ordered                             Price          UOM" SKIP(1).
+        PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                         Ordered            Price         UOM   Extended Total" SKIP(1).
+
+END.
+ELSE DO:
+
+        PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
+               "<R24><C6><FROM><R26><C6><LINE>" SKIP
+               "<R24><C20><FROM><R26><C20><LINE>" SKIP
+             /*"<R26><C30><FROM><R28><C30><LINE>" SKIP */
+               "<R24><C49><FROM><R26><C49><LINE>" SKIP
+               "<R24><C61><FROM><R26><C61><LINE>" SKIP
+               "<R24><C72><FROM><R26><C72><LINE>" SKIP
+               .
+
+        PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                             Ordered                             Price          UOM" SKIP(1).
+
+END.
 PUT "<FCourier New>"          .
 v-printline = v-printline + 6.
 

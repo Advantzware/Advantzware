@@ -28,6 +28,8 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object01 h_p-updsav
 &SCOPED-DEFINE h_Object02 h_pv-trans
 
+&SCOPED-DEFINE winViewPrgmName fg-phys
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

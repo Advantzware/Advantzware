@@ -102,12 +102,12 @@ FOR EACH tt-report NO-LOCK,
        app-foh = ROUND(ld * mach.run-fixoh,2)
        app-voh = ROUND(ld * mach.run-varoh,2).
 
-    {jc/jcglcrt.i prod.wip-lab 0 app-lab}
-    {jc/jcglcrt.i prod.wip-fo  0 app-foh}
-    {jc/jcglcrt.i prod.wip-vo  0 app-voh}
-    {jc/jcglcrt.i prod.aa-lab app-lab 0}
-    {jc/jcglcrt.i prod.aa-fo  app-foh 0}
-    {jc/jcglcrt.i prod.aa-vo  app-voh 0}
+    {jc/jcglcrt.i prod.wip-lab 0 app-lab 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.wip-fo  0 app-foh 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.wip-vo  0 app-voh 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.aa-lab app-lab 0 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.aa-fo  app-foh 0 0 "prod.wip-mat"}
+    {jc/jcglcrt.i prod.aa-vo  app-voh 0 0 "prod.wip-mat"}
   END.
 
   v-recid = ?.
@@ -138,8 +138,8 @@ FOR EACH tt-report NO-LOCK,
           mach.dept[1]       when first-of({1})
           pc-prdd.op-date when first-of(pc-prdd.op-date)
           pc-prdd.shift
-          pc-prdd.job-no
-          pc-prdd.job-no2
+          pc-prdd.job-no  FORMAT "x(9)"
+          pc-prdd.job-no2 FORMAT "999"
           pc-prdd.frm
           pc-prdd.blank-no
           pc-prdd.pass
@@ -188,10 +188,10 @@ FOR EACH tt-report NO-LOCK,
   if last-of({1}) then do:
     if v-toth then do:
       put uline at 89 skip
-          totchar at 72
-          tothour at 94
-          totqty  to 126
-          totwst  to 133 skip(1).
+          totchar at 76
+          tothour at 98
+          totqty  to 130
+          totwst  to 137 skip(1).
       down.
     end.
     

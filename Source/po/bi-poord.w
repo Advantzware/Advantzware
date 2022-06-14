@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -190,8 +191,8 @@ DEFINE BROWSE Browser-Table
       po-ordl.i-no COLUMN-LABEL "RM/FG Item#" FORMAT "x(15)":U
             WIDTH 25
       po-ordl.i-name COLUMN-LABEL "RM/FG Item Name" FORMAT "x(30)":U
-      po-ordl.job-no FORMAT "x(6)":U
-      po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      po-ordl.job-no FORMAT "x(9)":U WIDTH 16
+      po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 5.6
       po-ordl.s-num COLUMN-LABEL "Form#" FORMAT ">9":U
       po-ordl.ord-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U
@@ -313,9 +314,10 @@ ASI.po-ordl.line LT 99999999"
 "po-ordl.i-no" "RM/FG Item#" ? "character" ? ? ? ? ? ? no ? no no "25" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.po-ordl.i-name
 "po-ordl.i-name" "RM/FG Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = ASI.po-ordl.job-no
+     _FldNameList[3]   > ASI.po-ordl.job-no
+"po-ordl.job-no" ? ? "character" ? ? ? ? ? ? yes ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.po-ordl.job-no2
-"po-ordl.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-ordl.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.po-ordl.s-num
 "po-ordl.s-num" "Form#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   = ASI.po-ordl.ord-qty
@@ -506,6 +508,7 @@ PROCEDURE delete_item :
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-loc LIKE rm-rctd.loc NO-UNDO.
   DEF VAR ll-renumber AS LOG NO-UNDO.
+  DEF VAR lRecQty AS LOG NO-UNDO.
   DEF BUFFER b-po-ordl FOR po-ordl.
   DEFINE BUFFER bf-itemfg FOR itemfg .
 
@@ -559,12 +562,22 @@ PROCEDURE delete_item :
         VIEW-AS ALERT-BOX ERROR.
     RETURN.
   END.*/
-
+  lRecQty = NO.
+  FOR EACH b-po-ordl NO-LOCK
+    WHERE b-po-ordl.company EQ po-ord.company
+      AND b-po-ordl.po-no   EQ po-ord.po-no
+      :           
+      IF b-po-ordl.t-rec-qty NE 0 OR b-po-ordl.t-inv-qty NE 0 THEN 
+      do: 
+         lRecQty = YES.
+         LEAVE.
+      END.   
+  END.
   {custom/askdel.i}
-  IF po-ord.printed = NO THEN DO:
+  IF po-ord.printed = NO AND NOT lRecQty THEN DO:
        MESSAGE "Renumber lines after delete?" VIEW-AS ALERT-BOX QUESTION
           BUTTON YES-NO UPDATE ll-renumber.
-  END.
+  END.    
   SESSION:SET-WAIT-STATE("general").
 
   FIND CURRENT po-ordl EXCLUSIVE-LOCK NO-ERROR.

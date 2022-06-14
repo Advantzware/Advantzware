@@ -68,6 +68,7 @@ DEFINE TEMP-TABLE ttMenuTree NO-UNDO
     FIELD hToggle       AS HANDLE
     FIELD hRectangle    AS HANDLE
     FIELD lWidgetExist  AS LOGICAL 
+    FIELD dirGroup      AS CHARACTER
         INDEX ttMenuTree IS PRIMARY
             treeOrder
         INDEX ttMnemonic

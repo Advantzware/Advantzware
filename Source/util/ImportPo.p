@@ -13,6 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{sys/inc/var.i}
 {util\ttImport.i SHARED}
 
 DEFINE TEMP-TABLE ttImportPo
@@ -34,18 +35,18 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD t-freight               AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Total Freight" HELP "Optional - Decimal"
     FIELD frt-pay                 AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Freight Payment" HELP "Required - P C or B"
     FIELD fob-code                AS CHARACTER   FORMAT "X(10)" COLUMN-LABEL "FOB" HELP "Required - Dest or ORIG"  
-    FIELD tax-gr                  AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Tax Code" HELP "Optional - Size:3"
+    FIELD tax-gr                  AS CHARACTER   FORMAT "x(3)" COLUMN-LABEL "Tax Group" HELP "Optional - Size:3"
     FIELD tax                     AS DECIMAL FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Tax" HELP "Optional - decimal"
     FIELD line-tax                AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Optional - Yes or No(Blank No)"
     FIELD terms                   AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Payment Terms" HELP "Required - Size:5"
     FIELD t-cost                  AS DECIMAL FORMAT "->,>>>,>>9.99<<" COLUMN-LABEL "Total Cost" HELP "Optional - Decimal" 
-    FIELD job-no                  AS CHARACTER FORMAT "X(6)" COLUMN-LABEL "Job #" HELP "Optional - Size:6"
+    FIELD job-no                  AS CHARACTER FORMAT "X(9)" COLUMN-LABEL "Job #" HELP "Optional - SizeUpto:9"
     FIELD item-type               AS CHARACTER FORMAT "x(2)" COLUMN-LABEL "Item Type" HELP "Required - RM or FG"
     FIELD i-no                    AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Item #" HELP "Optional - Size:15"
     FIELD i-name                  AS CHARACTER   FORMAT "x(30)" COLUMN-LABEL "Item Name" HELP "Optional - Size:30"
     FIELD s-wid                   AS DECIMAL FORMAT ">>9.9999" COLUMN-LABEL "Width" HELP "Optional - Decimal"  
     FIELD s-len                   AS DECIMAL FORMAT ">>9.9999" COLUMN-LABEL "Length" HELP "Optional - Decimal"
-    FIELD s-num                   AS INTEGER FORMAT ">9" COLUMN-LABEL "Sheet #" HELP "Optional - Integer"
+    FIELD s-num                   AS INTEGER FORMAT ">9" COLUMN-LABEL "Form #" HELP "Optional - Integer"
     FIELD b-num                   AS INTEGER FORMAT ">9" COLUMN-LABEL "Blank #" HELP "Optional - Integer"
     FIELD dscr                    AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Description 1" HELP "Optional - Size:30"
     FIELD dscr2                   AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Description 2" HELP "Optional - Size:30"
@@ -117,6 +118,8 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE BUFFER bf-po-ord FOR po-ord.
     DEFINE BUFFER bf-po-ordl FOR po-ordl.       
     DEFINE BUFFER bf-ttImportPo FOR ttImportPo.
+    
+    ASSIGN ipbf-ttImportPo.job-no = SUBSTRING(ipbf-ttImportPo.job-no,1,iJobLen) NO-ERROR.
     
     RUN po\POProcs.p PERSISTENT SET ghPOProcs.
     

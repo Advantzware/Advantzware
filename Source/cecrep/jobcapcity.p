@@ -1,7 +1,7 @@
 /* ---------------------------------------------- */
 /*  cecrep/jobcapcity.p  factory ticket  for Capital City landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -141,6 +141,7 @@ DEF SHARED VAR s-prt-set-header AS LOG NO-UNDO.
 DEF VAR v-managed-order AS cha FORM "x(30)" NO-UNDO.
 DEF VAR ll-tandem AS LOG NO-UNDO.
 DEF VAR lv-note-text-2 AS CHAR NO-UNDO.
+DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 
 assign
  v-line[1] = chr(95) + fill(chr(95),40) + chr(95) + "  " +
@@ -168,16 +169,14 @@ do v-local-loop = 1 to v-local-copies:
           and (production OR
                job-hdr.ftick-prnt           eq reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	  	TRIM(job-hdr.job-no) +
+	  	STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	  	TRIM(job-hdr.job-no) +
+	  	STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
         USE-INDEX job-no,
 
         first job
@@ -375,6 +374,8 @@ do v-local-loop = 1 to v-local-copies:
          lv-cust-set = lv-part-no
          lv-au = IF itemfg.alloc THEN "U" ELSE "A".
 
+       ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .  
+         
        IF est.est-type = 6 THEN lv-au = lv-au + "    " + job-hdr.i-no.
        ELSE
        DO:
@@ -397,6 +398,7 @@ do v-local-loop = 1 to v-local-copies:
            "<P12><B><C90>JOB TICKET"       
        SKIP
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10></B>" v-qa-text "<B>"
+       "<=1><R+45.5><C3><#BarCodeStart><FROM><C50><R+3><#BarCodeEnd><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
        "<=1><R-2><C33><B><P12>" v-managed-order "</B>"
        "<=1><C32><FROM><R+45><C32><LINE><||3>"
        "<=1><C55><FROM><R+8><C55><LINE><||3>"
@@ -427,7 +429,7 @@ do v-local-loop = 1 to v-local-copies:
                                                               FILL(" ",22 - LENGTH(v-due-date))) 
                    + "Bin: "
                    + STRING(v-loc-bin,"X(14)") + "<P12><B>"
-                   + FILL(" ",4) + "Job#:" + STRING(v-job-prt,"X(9)") + "</B><P10>" + FILL(" ",3)
+                   + FILL(" ",3) + "Job#:" + STRING(v-job-prt,"X(13)") + "</B><P10>" + FILL(" ",2)
                    + "Overrun:" + " " + STRING(lv-over-run,"x(7)").
        
        view frame head.  /* factory header display  */  
@@ -979,6 +981,7 @@ do v-local-loop = 1 to v-local-copies:
 
     PAGE.
     PUT "<#11><C1><FROM><C106><R+47><RECT><||3><C80><P10>" v-qa-text  
+        "<=BarCodeStart><FROM><=BarCodeEnd><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
         "<=11><C30><FROM><R+3><C30><LINE><||3>"
         "<=11><C40><FROM><R+3><C40><LINE><||3>"
         "<=11><C72><FROM><R+3><C72><LINE><||3>"
@@ -1013,6 +1016,7 @@ do v-local-loop = 1 to v-local-copies:
       ls-fgitem-img = itemfg.box-image.
     
       PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" v-qa-text SKIP
+           "<=BarCodeStart><FROM><=BarCodeEnd><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">"
            "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
           "<=12><R+3><C1><FROM><C106><LINE><||3>"
           "<=12><R+5><C5><#21><R+45><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 
@@ -1124,7 +1128,7 @@ do v-local-loop = 1 to v-local-copies:
                    ELSE IF avail xeb THEN xeb.ship-id
                    ELSE IF avail xoe-ord THEN xoe-ord.sold-id 
                    ELSE "".
-        FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
+        FIND FIRST tt-prem WHERE tt-prem.tt-job-no    EQ job-hdr.job-no
                               AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
         IF NOT AVAIL tt-prem THEN do:
            FIND FIRST bf-eb WHERE bf-eb.company = est.company

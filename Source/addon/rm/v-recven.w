@@ -139,8 +139,8 @@ RUN jc/JobProcs.p   PERSISTENT SET hdJobProcs.
                           
 DEFINE VARIABLE cReturnValue         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound            AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cSSVendTagRtnValue   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCheckClosedStatus  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSSVendTagRtnValue   AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
@@ -153,9 +153,7 @@ RUN sys/ref/nk1look.p (
     OUTPUT cReturnValue, 
     OUTPUT lRecFound
     ). 
-
-glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.    
-
+    
 RUN sys/ref/nk1look.p (
     INPUT cocode,           /* Company Code */ 
     INPUT "SSVendTagOnly", /* sys-ctrl name */
@@ -166,8 +164,10 @@ RUN sys/ref/nk1look.p (
     INPUT "",               /* shi-id value */
     OUTPUT cSSVendTagRtnValue, 
     OUTPUT lRecFound
-    ).    
-DEFINE VARIABLE lSSScanVendorLength AS LOGICAL NO-UNDO .
+    ).        
+
+glCheckClosedStatus = IF (lRecFound AND INTEGER(cReturnValue) EQ 1) THEN YES ELSE NO.    
+
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER NO-UNDO.
 
@@ -506,6 +506,7 @@ DO:
    DEF VAR op-qty AS INT NO-UNDO.
    DEF VAR lv-uom-list AS cha INIT ["EA,TON,MSF,MSH,LB,LF"] NO-UNDO.
    DEF VAR lv-uom-help AS CHAR NO-UNDO.
+   DEF VAR char-hdl AS cha NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
       
@@ -565,7 +566,7 @@ DO:
               RETURN NO-APPLY. 
           END.       
       END.    
-      ELSE IF po-ordl.item-type EQ NO THEN
+      IF po-ordl.item-type EQ NO THEN
       DO:
          op-error = YES.
          MESSAGE "Only Raw Materials can be Received."
@@ -611,7 +612,7 @@ DO:
              scr-item-no:SCREEN-VALUE = ""
              scr-item-name:SCREEN-VALUE = ""
              scr-uom:SCREEN-VALUE = ""
-             LSSScanVendorLength = NO  .
+             .           
        END.
    END.
 END.
@@ -765,14 +766,18 @@ END.
 ON LEAVE OF scr-vend-tag IN FRAME F-Main /* Vendor Tag# */
 DO:
    DEFINE VARIABLE lEdDocFound AS LOGICAL NO-UNDO.
-   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lContinue AS LOGICAL INITIAL YES NO-UNDO.
+   DEFINE VARIABLE t-scr-uom AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lError    AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE cAddInfo  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cCheckField AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE lTagHasAlphas AS LOG NO-UNDO.
    
    DO WITH FRAME {&FRAME-NAME}:
 
       IF LASTKEY NE -1 THEN
-      DO:                             
-          IF scr-vend-tag NE scr-vend-tag:SCREEN-VALUE THEN
-            LSSScanVendorLength = NO .
+      DO:           
          ASSIGN
             scr-vend-tag
             ERROR-STATUS:ERROR = NO
@@ -796,64 +801,64 @@ DO:
                RETURN NO-APPLY.
             END.
             
-         IF LOGICAL(cSSVendTagRtnValue) THEN DO:
-             RUN pCheckTagLength(
-                 INPUT cocode, 
-                 INPUT "",
-                 INPUT scr-vend-tag,
-                 OUTPUT lContinue
-                 ).
-             IF NOT lContinue THEN
-                RETURN NO-APPLY.
-         END. 
-         ELSE DO:           
-             RUN edDocSearch (OUTPUT lEdDocFound).
-             IF lEdDocFound THEN DO:
-                 RUN poSearch(NO, OUTPUT lContinue).
-             END. 
-             ELSE DO:              
-                 v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.
-                 
-                 IF NOT ERROR-STATUS:ERROR THEN
-                 DO:
-                    IF NOT CAN-FIND(FIRST po-ord WHERE
-                       po-ord.company EQ cocode AND
-                       po-ord.po-no EQ v-po-no) THEN DO:
-                       RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
-                       IF NOT lContinue THEN DO:
-                          APPLY "entry" TO SELF.
-                          RETURN NO-APPLY.
-                       END.
-                       LEAVE.
-                    END.
-                    begin_po-no:SCREEN-VALUE = STRING(v-po-no).
-                 END.
-                 ELSE DO:
-                     RUN pCheckTagLength(cocode, "", scr-vend-tag, OUTPUT lContinue).
-                       IF NOT lContinue THEN DO:
-                          APPLY "entry" TO SELF.
-                          RETURN NO-APPLY.
-                       END.
-                    LEAVE.
-                 END.
-                  
-                 v-po-line = INT(SUBSTR(scr-vend-tag,7,3)) NO-ERROR.
-                 
-                 IF NOT ERROR-STATUS:ERROR THEN
-                    scr-po-line:SCREEN-VALUE = STRING(v-po-line).
-                 
-                 v-qty = INT(SUBSTR(scr-vend-tag,10,5)) NO-ERROR.
-                 
-                 IF NOT ERROR-STATUS:ERROR THEN
-                    scr-qty:SCREEN-VALUE = STRING(v-qty).
-                
-                 RUN poSearch(YES, OUTPUT lContinue).
-                 IF NOT lContinue THEN DO:
-                     APPLY "entry" TO SELF.
-                     RETURN NO-APPLY.
-                 END.               
-             END.
+         DO i = 1 TO LENGTH(scr-vend-tag:SCREEN-VALUE):
+             cCheckField =  DYNAMIC-FUNCTION('sfCommon_CheckIntDecValue', substring(scr-vend-tag:SCREEN-VALUE,i,1)) .
+             IF cCheckField EQ ?  THEN ASSIGN 
+                lTagHasAlphas = TRUE.
          END.
+
+         RUN edDocSearch (OUTPUT lEdDocFound).
+         IF lEdDocFound THEN DO:
+             RUN poSearch(OUTPUT lContinue, lError).
+         END. 
+         ELSE DO: 
+             
+             IF NOT lTagHasAlphas THEN
+                RUN addon/rm/vendorTagParse.p(INPUT scr-vend-tag,
+                                          OUTPUT v-po-no,
+                                          OUTPUT v-po-line,
+                                          OUTPUT v-qty,
+                                          OUTPUT cAddInfo,
+                                          OUTPUT cMessage,
+                                          OUTPUT lError). 
+         
+/*                 v-po-no = INT(SUBSTR(scr-vend-tag,1,6)) NO-ERROR.*/
+             IF lError AND scr-vend-tag NE "" THEN
+             DO:
+                MESSAGE 
+                    cMessage
+                    VIEW-AS ALERT-BOX ERROR.
+                 APPLY "entry" TO SELF.
+                 RETURN NO-APPLY.
+             END.
+             ELSE IF cMessage NE "" AND scr-vend-tag NE "" THEN 
+                MESSAGE 
+                    cMessage
+                    VIEW-AS ALERT-BOX WARNING.
+             ELSE IF scr-vend-tag EQ "" THEN
+             DO:
+               APPLY "entry" TO begin_po-no.
+               RETURN.
+             END.
+             
+             IF cSSVendTagRtnValue EQ "No" THEN
+             DO:
+               /*Assign in case of both warning and non-prompt*/
+               ASSIGN             
+                 scr-qty:SCREEN-VALUE     = STRING(v-qty)
+                 begin_po-no:SCREEN-VALUE = STRING(v-po-no) 
+                 scr-po-line:SCREEN-VALUE = STRING(v-po-line)
+                 .                              
+                 RUN poSearch(OUTPUT lContinue, OUTPUT lError).       
+                 IF NOT lError AND (SSPostFGVT-log OR SSPostFGVT-log EQ ?) THEN 
+                 lContinue = NO.
+             END.    
+             IF lTagHasAlphas THEN RETURN.
+             IF NOT lContinue THEN DO:
+                 APPLY "entry" TO SELF.
+                 RETURN NO-APPLY.
+             END.               
+         END.         
       END.
    END.
 END.
@@ -1165,69 +1170,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckTagLength V-table-Win 
-PROCEDURE pCheckTagLength PRIVATE :
-/*------------------------------------------------------------------------------
-     Purpose: given a company, vendor and tag, determine if it meets tag length
-     requirements
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcVendorID AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcScan AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplOK AS LOGICAL NO-UNDO.
-
-    DEFINE VARIABLE iSSScanVendorLength         AS INTEGER   NO-UNDO .
-    DEFINE VARIABLE lSSScanVendorLengthRequired AS LOGICAL   NO-UNDO .
-    DEFINE VARIABLE lRecFound                   AS LOG       NO-UNDO.
-    DEFINE VARIABLE cRtnChar                    AS CHARACTER NO-UNDO.
-    
-    oplOK = YES.
-    RUN sys/ref/nk1look.p (ipcCompany, "SSScanVendor", "I", YES, NO, ipcVendorID, "", 
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-    IF lRecFound THEN
-        iSSScanVendorLength = INT(cRtnChar) NO-ERROR.
-    RUN sys/ref/nk1look.p (ipcCompany, "SSScanVendor", "D", YES, NO, ipcVendorID, "", 
-        OUTPUT cRtnChar, OUTPUT lRecFound).  
-    IF lRecFound THEN
-        lSSScanVendorLengthRequired = DEC(cRtnChar) EQ 1 NO-ERROR.
-    IF iSSScanVendorLength NE 0 AND ipcScan NE "" THEN 
-    DO:
-        IF LENGTH(ipcScan) NE iSSScanVendorLength AND NOT lSSScanVendorLengthRequired THEN 
-            MESSAGE "Vendor tag is not equal to the target of " + STRING(iSSScanVendorLength) 
-                + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX WARNING.  
-        ELSE IF LENGTH(ipcScan) NE iSSScanVendorLength AND lSSScanVendorLengthRequired THEN DO:
-            MESSAGE "Vendor tag length must be " + STRING(iSSScanVendorLength) 
-                + ", as defined by the integer value of SSScanVendor" VIEW-AS ALERT-BOX ERROR.
-            oplOK = NO.
-            IF lSSScanVendorLengthRequired THEN
-            DO WITH FRAME {&FRAME-NAME}:
-                ASSIGN
-                    scr-vend-tag:SCREEN-VALUE  = ""
-                    begin_po-no:SCREEN-VALUE   = "0"
-                    scr-po-line:SCREEN-VALUE   = "0"
-                    scr-qty:SCREEN-VALUE       = "0"
-                    scr-uom:SCREEN-VALUE       = ""
-                    scr-item-no:SCREEN-VALUE   = ""
-                    scr-item-name:SCREEN-VALUE = ""
-                    .
-            END. /* with frame */
-        END.
-    END.
-        
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE poSearch V-table-Win 
 PROCEDURE poSearch :
 /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER iplCheckLength AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplContinue AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cVendorID AS CHARACTER NO-UNDO.
     
@@ -1252,6 +1202,7 @@ PROCEDURE poSearch :
                 NO-LOCK NO-ERROR.
             IF AVAIL ITEM THEN
                 scr-uom:SCREEN-VALUE = ITEM.cons-uom.
+            ELSE scr-uom:SCREEN-VALUE = po-ordl.pr-uom.    
             ASSIGN
                 scr-item-no:SCREEN-VALUE   = po-ordl.i-no
                 scr-item-name:SCREEN-VALUE = po-ordl.i-name
@@ -1260,13 +1211,7 @@ PROCEDURE poSearch :
             RELEASE po-ordl.
             oplContinue = YES.
         END.
-        IF iplCheckLength THEN DO:
-            RUN pCheckTagLength(cocode, cVendorID, scr-vend-tag, OUTPUT LSSScanVendorLength).
-                IF NOT LSSScanVendorLength THEN DO:
-                    oplContinue = NO.
-                    
-                END.
-        END.        
+        oplError =  LOGICAL(ERROR-STATUS:ERROR).          
         IF oplContinue AND  NOT ERROR-STATUS:ERROR THEN
             DO:
                 IF SSPostFGVT-log OR SSPostFGVT-log EQ ? THEN 

@@ -56,7 +56,7 @@ DEF VAR ll-num-lw-changed AS LOG NO-UNDO.  /* if num-len, eb.num-wid changed */
 DEF VAR ll-num-out-changed AS LOG NO-UNDO.  /* if n-out, eb.n-out-l changed */
 DEF VAR ll-one-eb-on-ef AS LOG NO-UNDO.  
 DEF VAR ll-one-ef-on-est AS LOG NO-UNDO.  
-
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
 DEF BUFFER bf-est FOR est.
 /* leaf/film browser */
 DEF QUERY q-flm FOR est-flm SCROLLING. 
@@ -253,7 +253,7 @@ DEFINE FRAME fold
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Normal","N",
                      "Blank","B",
-                     "Sheet","S"
+                     "Form","S"
           DROP-DOWN-LIST
           SIZE 13 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
@@ -469,7 +469,7 @@ DEFINE FRAME fold
      "Description" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 11 COL 24
           FGCOLOR 9 
-     "S  /  B" VIEW-AS TEXT
+     "F  /  B" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 11 COL 50
           FGCOLOR 9 
      RECT-20 AT ROW 1 COL 1
@@ -884,7 +884,11 @@ DO:
               xef.roll   = ef.roll:screen-value IN FRAME {&frame-name} EQ "Y".
               .
 
-           RUN ce/calc-dim.p.
+           IF lCEUseNewLayoutCalc THEN
+               RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+           ELSE
+               RUN ce/calc-dim.p.
+               
            FIND xef WHERE RECID(xef) = recid(ef).
            FIND xeb WHERE RECID(xeb) = recid(eb).
            ASSIGN ef.lsh-len:screen-value = STRING( xef.lsh-len )
@@ -1671,7 +1675,12 @@ DO:
      ASSIGN
       xef.xgrain = ef.xgrain:screen-value IN FRAME {&frame-name}.
       xef.roll   = ef.roll:screen-value IN FRAME {&frame-name} EQ "Y".
-     RUN ce/calc-dim.p.
+     
+      IF lCEUseNewLayoutCalc THEN
+          RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+      ELSE
+          RUN ce/calc-dim.p.
+     
      FIND xef WHERE RECID(xef) = recid(ef).
      FIND xeb WHERE RECID(xeb) = recid(eb).
      ASSIGN ef.lsh-len:screen-value = STRING(xef.lsh-len )
@@ -1728,6 +1737,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CEVersion", "I" /* Logical */, NO /* check
                        OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     iCEVersion = INTEGER(cRtnChar) NO-ERROR.    
+  
+RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cRtnChar) NO-ERROR. 
+  
   
 {sys/inc/vendItemCost.i}
 SESSION:DATA-ENTRY-RETURN = YES.
@@ -1855,7 +1869,12 @@ PROCEDURE auto-calc2 :
               xef.n-out-l = 0
               .
 
-       RUN ce/calc-dim.p.
+       
+        IF lCEUseNewLayoutCalc THEN
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        ELSE
+            RUN ce/calc-dim.p.
+       
        FIND xef WHERE RECID(xef) = recid(ef).
        FIND xeb WHERE RECID(xeb) = recid(eb).
        ASSIGN ef.lsh-len:screen-value = STRING( xef.lsh-len )
@@ -3171,7 +3190,11 @@ PROCEDURE num-wid-len-changed :
        xeb.num-len = INT(eb.num-len:SCREEN-VALUE)
        xef.roll    = STRING(ef.roll:SCREEN-VALUE) EQ "Y".
 
-      RUN ce/calc-dim1.p NO-ERROR.
+      
+        IF lCEUseNewLayoutCalc THEN
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        ELSE
+            RUN ce/calc-dim1.p NO-ERROR.
 
       IF ERROR-STATUS:ERROR EQ NO THEN DO:
         FIND xef WHERE ROWID(xef) EQ ROWID(ef).

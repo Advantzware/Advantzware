@@ -95,7 +95,7 @@ PROCEDURE GetCostForFGItemHist:
     DO:
         RUN GetCostForJob(ipcCompany, ipcFGItemID, ipcJobNo, ipiJobNo2, 
             OUTPUT opdCostPerUOMTotal, OUTPUT opdCostPerUOMDL, OUTPUT opdCostPerUOMFO, OUTPUT opdCostPerUOMVO, OUTPUT opdCostPerUOMDM, OUTPUT opcCostUOM, OUTPUT oplSourceFound).
-        opcCostSource = "Job: " + ipcJobNo + "-" + STRING(ipiJobNo2,"99").
+        opcCostSource = "Job: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ipcJobNo, ipiJobNo2))).
         
         IF NOT oplSourceFound  THEN
             ASSIGN 

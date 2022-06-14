@@ -903,6 +903,7 @@ PROCEDURE pCRUD :
             WHEN "Save" THEN DO:
                 IF iphMode:LABEL EQ "Save" THEN DO:
                     IF cMode EQ "Add" OR cMode EQ "Copy" OR cMode EQ  "Update" THEN DO:
+                        system.SharedConfig:Instance:SetValue("IsSettingUpdated", "YES").
                         {methods/run_link.i "RECORD-SOURCE" "UpdateSetting" 
                             "(INPUT  edSettingDesc:SCREEN-VALUE,
                               INPUT  IF cValidValues EQ '' THEN fiSettingValue:SCREEN-VALUE ELSE cbSettingValue:SCREEN-VALUE,

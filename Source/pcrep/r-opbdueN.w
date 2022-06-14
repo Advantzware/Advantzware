@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -81,7 +82,7 @@ ASSIGN
     cFieldListToSelect = "due-date,ord-date,job,ord,cust-name,fgitem," +
                             "item-name,job-qty,msf,rm-item-name,job-board," + 
                             "cust-part,has-foam"
-    cFieldLength       = "8,8,9,6,30,15," + "30,10,8,30,13," + "15,12"
+    cFieldLength       = "8,8,13,6,30,15," + "30,10,8,30,13," + "15,12"
     cFieldType         = "c,c,c,i,c,c," + "c,i,i,c,c," + "c,c" 
     .
 
@@ -1355,25 +1356,6 @@ PROCEDURE run-report :
                      int(substr(tt-report.key-01,7,2)),
                      int(substr(tt-report.key-01,1,4))).
 
-        /* display v-date            column-label "!Due Date"
-                 oe-ord.ord-date FORMAT "99/99/99"  column-label "!Ord Date"
-                                   when avail oe-ord
-                 trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")
-                                   column-label "!Job #"
-                                   format "x(9)"
-                 oe-ord.ord-no     column-label "Our   ! Ord #"
-                                   when avail oe-ord
-                 tt-report.key-02     column-label "!Customer Name"
-                                   format "x(30)"
-                 job-hdr.i-no      column-label "!FG Item #"
-                 itemfg.i-name     column-label "!FG Item Name"
-                                   when avail itemfg
-                 job-hdr.qty       column-label "!   Job Qty"
-                                   format ">>,>>>,>>9"
-                 v-msf             column-label "!    MSF"
-                                   format ">>>9.9"
-   
-             with no-box STREAM-IO width 132 no-attr-space.*/
         i = 0.
         lBoard = NO.
         cRmItemName = "".
@@ -1414,7 +1396,7 @@ PROCEDURE run-report :
                 WHEN "ord-date"   THEN 
                     cVarValue = IF AVAILABLE oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date,"99/99/99") ELSE "".
                 WHEN "job"   THEN 
-                    cVarValue = TRIM(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99") .
+                    cVarValue = TRIM(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"999") .
                 WHEN "ord"  THEN 
                     cVarValue = IF AVAILABLE oe-ord THEN STRING(oe-ord.ord-no,">>>>>>")  ELSE "".
                 WHEN "cust-name"   THEN 

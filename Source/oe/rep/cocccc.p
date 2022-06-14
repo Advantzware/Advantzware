@@ -15,7 +15,7 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* ***************************  Definitions  ************************** */
 
 {sys/inc/var.i shared}
@@ -170,7 +170,7 @@ DEFINE VARIABLE xQtyPerCasePartial LIKE oe-boll.qty-case NO-UNDO.
 DEFINE VARIABLE xQtyPerCaseTail LIKE oe-boll.qty-case NO-UNDO.
 DEFINE VARIABLE iNoteLine AS INTEGER     NO-UNDO.
 DEFINE VARIABLE iInkCount AS INTEGER     NO-UNDO.
-DEFINE VARIABLE v-ord-fb  AS CHAR FORMAT "x(13)" NO-UNDO.
+DEFINE VARIABLE v-ord-fb  AS CHAR FORMAT "x(15)" NO-UNDO.
 
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE BUFFER bf-job-mat FOR job-mat.
@@ -385,7 +385,7 @@ FOR EACH report
            END.
            ELSE DO:
                IF eb.i-col > 0 OR eb.i-coat > 0 THEN 
-                DO iInkCount = 1 TO EXTENT(eb.i-code2):
+                DO iInkCount = 1 TO EXTENT(eb.i-code):
                     IF eb.i-code[iInkCount] NE "" THEN DO:
                         FIND FIRST ITEM 
                             WHERE ITEM.company EQ cocode
@@ -506,6 +506,11 @@ FOR EACH report
            IF cCertFormat EQ "CCCRev" THEN DO: 
                gchWorkSheet:Range("A37"):VALUE = "Customer Drawing Rev" .
                gchWorkSheet:Range("B37"):VALUE = STRING(oe-ordl.customField) .
+           END.
+           
+           IF cCertFormat EQ "CCC2" THEN DO: 
+               gchWorkSheet:Range("A38"):VALUE = "Spec#:" .
+               gchWorkSheet:Range("B38"):VALUE = STRING(oe-ordl.part-dscr2) .
            END.
 
         /*Get Notes*/

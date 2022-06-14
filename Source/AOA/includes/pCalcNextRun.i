@@ -65,8 +65,8 @@ PROCEDURE pCalcNextRun:
                 IF dtDate NE ? THEN
                 dtNextDate = 12/31/2049.
                 /* check if last day of month checked */
-                IF Task.lastOfMonth AND fLastOfMonth(TODAY) LT dtNextDate THEN
-                dtNextDate = fLastOfMonth(TODAY).
+                IF Task.lastOfMonth AND fLastOfMonth(TODAY + 1) LT dtNextDate THEN
+                dtNextDate = fLastOfMonth(TODAY + 1).
             END.
         END CASE.
     END. /* if scheduled */

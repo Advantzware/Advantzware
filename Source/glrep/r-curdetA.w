@@ -855,6 +855,7 @@ def var str-tit4 as   char no-undo.
 def var str-tit5 as   char no-undo.
 def var vyear like period.yr no-undo.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE dtPerStartDate   AS DATE      NO-UNDO.
 
 /* gdm - 10010905 */
 DEF VAR v-excel-hdr  AS CHAR.
@@ -870,6 +871,10 @@ find first period
       and period.pst     le tran-date
       and period.pend    ge tran-date
     no-lock no-error.
+IF AVAILABLE period THEN
+     dtPerStartDate = period.pst.
+ELSE ASSIGN
+     dtPerStartDate = tran-date.       
 
 assign
  str-tit2 = "Current Month General Ledger" + IF tb_detailed THEN " Detail " ELSE " Summary"
@@ -927,10 +932,9 @@ END.
       break by account.actnum:
 
       {custom/statusMsg.i " 'Processing Account#  '  + account.actnum "}
-
-    run gl/gl-open1.p (recid(account), vyear, tran-date, tran-period,
-                       output open-amt).
-
+        
+    RUN GL_GetAccountOpenBal(ROWID(account),dtPerStartDate, OUTPUT open-amt). 
+    
     find first glhist no-lock
         where glhist.company eq cocode
           and glhist.actnum  eq account.actnum

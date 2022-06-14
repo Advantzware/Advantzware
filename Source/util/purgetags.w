@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -92,15 +93,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_tag AS CHARACTER FORMAT "X(20)":U 
      LABEL "Beginning Tag" 
@@ -112,15 +113,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_tag AS CHARACTER FORMAT "X(20)":U INITIAL "zzzzzzzzzzzzzzzzzzzz" 
      LABEL "Ending Tag" 
@@ -166,11 +167,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Tag Number"
      begin_job-no AT ROW 8.38 COL 17 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 8.38 COL 29 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 8.38 COL 30 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 8.38 COL 61 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 8.38 COL 73 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 8.38 COL 74 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 9.81 COL 17 COLON-ALIGNED HELP
           "Enter Beginning Purchase Order Number"
@@ -490,7 +491,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
+DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzzzzz"] NO-UNDO.
 
 DEF BUFFER b-loadtag FOR loadtag.
 
@@ -500,23 +501,21 @@ DISABLE TRIGGERS FOR LOAD OF loadtag.
 SESSION:SET-WAIT-STATE("general").
 
 ASSIGN
- v-job-no[1]   = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                 TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
- v-job-no[2]   = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                 TRIM(end_job-no)   + STRING(INT(end_job-no2),"99").
+ v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+ v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) .
 
 FOR EACH loadtag
     WHERE loadtag.company  EQ cocode
       AND loadtag.tag-no   GE begin_tag
       AND loadtag.tag-no   LE end_tag
       AND loadtag.tag-date GE begin_date
-      AND loadtag.tag-date LE end_date
-      and loadtag.job-no   GE SUBSTR(v-job-no[1],1,6)
-      and loadtag.job-no   LE SUBSTR(v-job-no[2],1,6)
-      AND FILL(" ",6 - LENGTH(TRIM(loadtag.job-no))) +
-          TRIM(begin_job-no) + STRING(INT(loadtag.job-no2),"99") GE v-job-no[1]
-      AND FILL(" ",6 - LENGTH(TRIM(loadtag.job-no))) +
-          TRIM(begin_job-no) + STRING(INT(loadtag.job-no2),"99") LE v-job-no[2]:
+      AND loadtag.tag-date LE end_date      
+      AND FILL(" ", iJobLen - LENGTH(TRIM(loadtag.job-no))) +
+          TRIM(loadtag.job-no) + STRING(INT(loadtag.job-no2),"999") GE v-job-no[1]
+      AND FILL(" ", iJobLen - LENGTH(TRIM(loadtag.job-no))) +
+          TRIM(loadtag.job-no) + STRING(INT(loadtag.job-no2),"999") LE v-job-no[2]
+      AND loadtag.job-no2 GE int(begin_job-no2)
+      AND loadtag.job-no2 LE int(end_job-no2)    :
 
   IF (tb_cl AND loadtag.is-case-tag EQ YES AND loadtag.item-type EQ NO)    OR
      (tb_fg AND loadtag.is-case-tag EQ NO  AND loadtag.item-type EQ NO)    OR

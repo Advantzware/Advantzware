@@ -161,7 +161,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(0.79) SKIP(3.13)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Check Invoice Register" WIDGET-ID 100.
+         TITLE "Invoice Auto Approval Check" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -222,7 +222,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON HELP OF FRAME Dialog-Frame /* Check Invoice Register */
+ON HELP OF FRAME Dialog-Frame /* Invoice Auto Approval Check */
 DO:
 DEF VAR lw-focus AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ls-cur-val AS CHAR NO-UNDO.
@@ -256,7 +256,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Check Invoice Register */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Invoice Auto Approval Check */
 DO:
   APPLY "END-ERROR":U TO SELF.
 END.

@@ -20,6 +20,22 @@ DEFINE VARIABLE cPassword      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lSuccess       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
+DEFINE TEMP-TABLE ttAPIInbound NO-UNDO
+    FIELD apiRoute   AS CHARACTER
+    FIELD importPath AS CHARACTER
+    .
+
+FOR EACH APIInbound NO-LOCK
+    WHERE APIInbound.canBeQueued EQ TRUE
+      AND APIInbound.importPath  NE ""
+      AND APIInbound.Inactive    EQ FALSE:
+    CREATE ttAPIInbound.
+    ASSIGN
+        ttAPIInbound.apiRoute   = APIInbound.apiRoute
+        ttAPIInbound.importPath = APIInbound.importPath
+        .
+END.
+    
 RUN api/InboundProcs.p PERSISTENT SET hdInboundProcs.
 
 RUN pGetUserDetails (

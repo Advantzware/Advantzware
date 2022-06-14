@@ -59,6 +59,8 @@ DEFINE VARIABLE dOversPct AS DECIMAL NO-UNDO.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE oKeyboard  AS system.Keyboard  NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -334,7 +336,92 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME fiFullTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFullTags s-object
+ON ENTRY OF fiFullTags IN FRAME F-Main /* Full Tags */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").           
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiFullTags s-object
+ON LEAVE OF fiFullTags IN FRAME F-Main /* Full Tags */
+DO:
+    SELF:BGCOLOR = 15.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiPartial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartial s-object
+ON ENTRY OF fiPartial IN FRAME F-Main /* Partail Quantity */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").           
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartial s-object
+ON LEAVE OF fiPartial IN FRAME F-Main /* Partail Quantity */
+DO:
+    SELF:BGCOLOR = 15.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiPartialTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartialTags s-object
+ON ENTRY OF fiPartialTags IN FRAME F-Main /* Partial Tags */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").           
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPartialTags s-object
+ON LEAVE OF fiPartialTags IN FRAME F-Main /* Partial Tags */
+DO:
+    SELF:BGCOLOR = 15.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiQuantity
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity s-object
+ON ENTRY OF fiQuantity IN FRAME F-Main /* Total Quantity */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").         
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantity s-object
 ON LEAVE OF fiQuantity IN FRAME F-Main /* Total Quantity */
 DO:  
@@ -349,7 +436,9 @@ DO:
         INPUT INTEGER(fiQuantityInSubUnit:SCREEN-VALUE),
         INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
         INPUT dOversPct
-        ).   
+        ).
+    
+    SELF:BGCOLOR = 15.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -357,6 +446,19 @@ END.
 
 
 &Scoped-define SELF-NAME fiQuantityInSubUnit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityInSubUnit s-object
+ON ENTRY OF fiQuantityInSubUnit IN FRAME F-Main /* Per Case */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").           
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityInSubUnit s-object
 ON LEAVE OF fiQuantityInSubUnit IN FRAME F-Main /* Per Case */
 DO:  
@@ -372,6 +474,56 @@ DO:
         INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
         INPUT dOversPct
         ).  
+
+    SELF:BGCOLOR = 15.        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiQuantityOfSubUnits
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityOfSubUnits s-object
+ON ENTRY OF fiQuantityOfSubUnits IN FRAME F-Main /* Cases */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").           
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityOfSubUnits s-object
+ON LEAVE OF fiQuantityOfSubUnits IN FRAME F-Main /* Cases */
+DO:
+    SELF:BGCOLOR = 15.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiQuantityOfUnits
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityOfUnits s-object
+ON ENTRY OF fiQuantityOfUnits IN FRAME F-Main /* Per Pallet */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").           
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityOfUnits s-object
+ON LEAVE OF fiQuantityOfUnits IN FRAME F-Main /* Per Pallet */
+DO:
+    SELF:BGCOLOR = 15.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -379,6 +531,19 @@ END.
 
 
 &Scoped-define SELF-NAME fiSubUnitsPerUnit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnitsPerUnit s-object
+ON ENTRY OF fiSubUnitsPerUnit IN FRAME F-Main /* Cases Per Pallet */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").           
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSubUnitsPerUnit s-object
 ON LEAVE OF fiSubUnitsPerUnit IN FRAME F-Main /* Cases Per Pallet */
 DO:
@@ -393,7 +558,33 @@ DO:
         INPUT INTEGER(fiQuantityInSubUnit:SCREEN-VALUE),
         INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
         INPUT dOversPct
-        ).    
+        ).  
+
+    SELF:BGCOLOR = 15.          
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiTotalTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTotalTags s-object
+ON ENTRY OF fiTotalTags IN FRAME F-Main /* Tags */
+DO:
+    SELF:BGCOLOR = 30.
+
+    IF VALID-OBJECT (oKeyboard) THEN
+        oKeyboard:OpenKeyboard (SELF, "Numeric").           
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTotalTags s-object
+ON LEAVE OF fiTotalTags IN FRAME F-Main /* Tags */
+DO:
+    SELF:BGCOLOR = 15.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -710,6 +901,21 @@ PROCEDURE pUpdateQuantities :
         fiFullTags:SCREEN-VALUE           = STRING(iFullTags)
         fiPartialTags:SCREEN-VALUE        = STRING(iPartialTags)       
         .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetKeyboard s-object 
+PROCEDURE SetKeyboard :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipoKeyboard AS system.Keyboard NO-UNDO.
+    
+    oKeyboard = ipoKeyboard.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

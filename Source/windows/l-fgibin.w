@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -37,6 +39,8 @@ def input parameter ip-job-no like fg-bin.job-no no-undo.
 def input parameter ip-job-no2 like fg-bin.job-no2 no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-rowid-val AS ROWID no-undo.
+
+{sys/inc/var.i new shared}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -359,7 +363,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                              " for Whs/FGItem/Job: " +
                              TRIM(ip-loc) + "/" +
                              TRIM(ip-i-no) + "/" +
-                             TRIM(ip-job-no) + "-" + STRING(ip-job-no2,"99").
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2))).
 
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.

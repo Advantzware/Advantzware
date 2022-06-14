@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/invabcx.p */
 /* PRINT INVOICE   Xprint form for Action                          */
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 
 {sys/inc/var.i shared}
@@ -427,15 +428,16 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-price  format ">>>,>>9.9999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
-                inv-line.i-no SPACE(1)
+                SPACE(1)
+                STRING(v-ord-no)
+                inv-line.i-no AT 17 SPACE(1)
                 inv-line.part-dscr1  SPACE(11)
                 v-pc  FORM "x" SPACE(7)
                 v-price-head SKIP.
             v-printline = v-printline + 2.
             do i = 1 to 5:
                 if v-case-cnt[i] ne "" THEN DO:
-                   PUT v-case-cnt[i] SKIP.
+                   PUT SPACE(1) v-case-cnt[i] SKIP.
                    v-printline = v-printline + 1.
                 END.
             end.

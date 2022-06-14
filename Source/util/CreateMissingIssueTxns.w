@@ -264,8 +264,7 @@ DO:
                     BUFFER-COPY rm-rdtlh TO ttRm-rdtlh.
                     slReceiptList:ADD-LAST(
                         STRING(rm-rdtlh.company,"x(4)") + "   " +
-                        STRING(rm-rdtlh.job-no,"x(7)") + "-" +
-                        STRING(rm-rdtlh.job-no2,"99") + "   " +
+                        STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2)) + "   " +
                         STRING(rm-rdtlh.tag,"x(16)") + "   " +
                         STRING(rm-rdtlh.trans-date,"99/99/99")
                         ).

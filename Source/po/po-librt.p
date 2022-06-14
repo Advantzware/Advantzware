@@ -249,7 +249,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
         fInsText("L",   357,   25, "NW"            ). /* po status */
         fInsText("L",   383,   25, "N"             ). /* po type */
         fInsText("L",   409,    6, "AMC"           ). /* sheet plant abbreviation */
-        fInsText("L",   416,   22, STRING(po-ord.po-no, "99999999")).
+        fInsText("L",   416,   22, STRING(po-ord.po-no, "999999")).
         fInsText("L",   439,   10, STRING(po-ord.po-date, "99/99/9999")).
         fInsText("L",   450,    1, "T"             ). /* process stat */
         fInsText("L",   452,   10, STRING(po-ord.due-date, "99/99/9999")).
@@ -306,8 +306,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
     
             FIND FIRST job
                 WHERE job.company EQ cocode
-                  AND job.job-no  EQ fill(" ",6 - length(TRIM(po-ordl.job-no))) +
-                      trim(po-ordl.job-no)
+                  AND job.job-no  EQ po-ordl.job-no
                   AND job.job-no2 EQ po-ordl.job-no2
                 NO-LOCK NO-ERROR.
         
@@ -716,7 +715,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText("R",   525,   11, STRING(v-ord-qty[1]) ).
             fInsText("L",   537,    9, STRING(po-ordl.ord-no) ). /* Order # for associated sales ord */
             fInsText("L",   547,    6, "AMC"         ). /* sheet plant abbreviation */
-            fInsText("L",   554,   22,  STRING(po-ordl.po-no, "99999999")).
+            fInsText("L",   554,   22,  STRING(po-ordl.po-no, "999999")).
             fInsText("L",   577,   30, ""         ). /* not used */
             fInsText("L",   608,    2, SUBSTRING(po-ordl.pr-uom, 1, 2)       ). /* Price UOM, Take the MS from MSF  */
             fInsText("L",   611,   30, ""         ). /* not used */
@@ -755,7 +754,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             fInsText("L",  360, 10, v-adder[6]    ). /* 6th board adder */
             fInsText("L",  371, 10, v-adder[7]    ). /* 7th board adder */
             fInsText("L",  382, 10, ""            ). /* 8th board adder */    
-            fInsText("L",  393, 22, STRING(po-ord.po-no, "99999999") ). /* po # */
+            fInsText("L",  393, 22, STRING(po-ord.po-no, "999999") ). /* po # */
             fInsText("L",  416, 11, STRING(po-ordl.line) ). /* po line # */
             fInsText("L",  428, 10, "0"        ). /* combo msf 3 decimals */
             fInsText("L",  439, 11, STRING(po-ordl.ord-qty - (po-ord.under-pct * po-ordl.ord-qty / 100)    )). /* PO min qty */

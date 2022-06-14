@@ -241,8 +241,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
     find first job
         where job.company eq cocode
-          and job.job-no  eq fill(" ",6 - length(trim(po-ordl.job-no))) +
-                                  trim(po-ordl.job-no)
+          and job.job-no  eq po-ordl.job-no
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
         
@@ -317,7 +316,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     put "01"                                        format "x(2)".
     
     /* PURCHASE ORDER # */
-    put po-ord.po-no                                format "99999999".
+    put po-ord.po-no                                format "999999".
 
     /* A */
     put "A"                                         format "x(1)".
@@ -326,7 +325,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     put po-ordl.line                                format "99".
     
     /* PURCHASE ORDER # */
-    put po-ord.po-no                                format "99999999".
+    put po-ord.po-no                                format "999999".
 
     /* A */
     put "A"                                         format "x(1)".

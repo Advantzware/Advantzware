@@ -34,6 +34,8 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/VAR.i}
+
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
@@ -154,12 +156,12 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
+      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
             LABEL-BGCOLOR 14
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       job-hdr.i-no FORMAT "x(15)":U WIDTH 19 LABEL-BGCOLOR 14
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14 LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -231,7 +233,7 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.job-hdr.company = ip-company"
      _FldNameList[1]   > ASI.job-hdr.job-no
-"job-hdr.job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" ""
+"job-hdr.job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "14" yes no no "U" "" ""
      _FldNameList[2]   > ASI.job-hdr.job-no2
 "job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[3]   > ASI.job-hdr.i-no
@@ -318,7 +320,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -381,7 +383,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 
@@ -436,7 +438,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK
               {&sortby-1}.
 

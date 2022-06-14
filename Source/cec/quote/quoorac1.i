@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /*cec/quote/quoorac1.i */
         PUT "<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 SKIP /* pacific package */ 
    /*  PUT "<C+25><#1>".
@@ -46,14 +47,14 @@
    terms.dscr FORM "x(15)" space(2) sman.sname space(1) v-over-under SKIP.
 
 PUT "<||3><R23><C1><#5><FROM><R25><C81><RECT>" SKIP    
-             "<R23><C6><FROM><R25><C6><LINE>" SKIP
-             "<R23><C33><FROM><R25><C33><LINE>" SKIP
+             "<R23><C8><FROM><R25><C8><LINE>" SKIP
+             "<R23><C34><FROM><R25><C34><LINE>" SKIP
              "<R23><C50><FROM><R25><C50><LINE>" SKIP
              "<R23><C57><FROM><R25><C57><LINE>" SKIP
              "<R23><C64><FROM><R25><C64><LINE>" SKIP
              "<R23><C74><FROM><R25><C74><LINE>" SKIP
              .
-  PUT "<=5><R+1> Est#   Description/Style/Color/Board      Item            Quantity Release     Price     UOM "
+  PUT "<=5><R+1> Est#     Description/Style/Color/Board      Item          Quantity Release     Price     UOM "
        /*"<FCourier New>"*/
        SKIP(1).
   

@@ -706,7 +706,7 @@ DEFINE FRAME fold
      fi_pr-type AT ROW 2.14 COL 1.4 NO-LABEL
      "Unit#" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.38 COL 62
-     "S" VIEW-AS TEXT
+     "F" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 3.38 COL 70.4 WIDGET-ID 2
      "PS" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 3.38 COL 2

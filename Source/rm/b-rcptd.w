@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -317,9 +318,9 @@ DEFINE BROWSE Browser-Table
       rm-rctd.rct-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       rm-rctd.po-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
       rm-rctd.po-line COLUMN-LABEL "PO Ln#" FORMAT ">>9":U
-      rm-rctd.job-no FORMAT "x(6)":U LABEL-BGCOLOR 14
-      rm-rctd.job-no2 FORMAT "99":U
-      rm-rctd.s-num COLUMN-LABEL "S" FORMAT ">9":U
+      rm-rctd.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14 WIDTH 15
+      rm-rctd.job-no2 FORMAT "999":U WIDTH 5.5
+      rm-rctd.s-num COLUMN-LABEL "F" FORMAT ">9":U
       rm-rctd.b-num COLUMN-LABEL "B" FORMAT ">9":U
       rm-rctd.i-no COLUMN-LABEL "Item" FORMAT "x(10)":U LABEL-BGCOLOR 14
       rm-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
@@ -335,7 +336,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       rm-rctd.cost-uom COLUMN-LABEL "CUOM" FORMAT "x(4)":U WIDTH 7
             LABEL-BGCOLOR 14
-      calc-ext-cost() @ ext-cost COLUMN-LABEL "Ext.Amount" FORMAT "->,>>>,>>9.99<<":U
+      calc-ext-cost() @ ext-cost COLUMN-LABEL "Ext.Amount" FORMAT "->,>>>,>>9.99<<<<":U
             WIDTH 20.2 COLUMN-BGCOLOR 14
       display-dimension('W') @ lv-po-wid COLUMN-LABEL "Width"
       display-dimension('L') @ lv-po-len COLUMN-LABEL "Length"
@@ -480,11 +481,11 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[4]   > ASI.rm-rctd.po-line
 "po-line" "PO Ln#" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.job-no
-"job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.rm-rctd.job-no2
-"job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no "5.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.rm-rctd.s-num
-"s-num" "S" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"s-num" "F" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.rm-rctd.b-num
 "b-num" "B" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.rm-rctd.i-no
@@ -506,7 +507,7 @@ rm-rctd.rita-code = ""R"""
      _FldNameList[17]   > asi.rm-rctd.cost-uom
 "cost-uom" "CUOM" "x(4)" "character" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
-"calc-ext-cost() @ ext-cost" "Ext.Amount" "->,>>>,>>9.99<<" ? 14 ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"calc-ext-cost() @ ext-cost" "Ext.Amount" "->,>>>,>>9.99<<<<" ? 14 ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
 "display-dimension('W') @ lv-po-wid" "Width" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
@@ -1144,7 +1145,7 @@ DO:
 
 &Scoped-define SELF-NAME rm-rctd.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON ENTRY OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
         /*IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
           APPLY "leave" TO {&self-name}.
@@ -1163,7 +1164,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON LEAVE OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
@@ -1204,7 +1205,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.s-num Browser-Table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* S */
+ON VALUE-CHANGED OF rm-rctd.s-num IN BROWSE Browser-Table /* F */
 DO:
         ll-warned = NO.
     END.
@@ -2381,7 +2382,7 @@ PROCEDURE display-po-job :
             WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
             AND po-ordl.item-type EQ YES
-            AND ((po-ordl.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) AND
+            AND ((po-ordl.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
             po-ordl.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})                                                                                    AND
             po-ordl.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}) OR
             adm-adding-record)
@@ -2422,7 +2423,7 @@ PROCEDURE display-po-job :
         
        IF li-po-cnt >= 2 THEN RUN rm/d-selpo.w (rm-rctd.company,
                                              INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),
-                                             FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}),
+                                             FILL(" ", iJobLen - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}),
                                              INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
                                              rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name},
                                              OUTPUT lv-rowid
@@ -2449,7 +2450,7 @@ PROCEDURE find-exact-po :
         FIND FIRST po-ordl NO-LOCK
             WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -2462,7 +2463,7 @@ PROCEDURE find-exact-po :
         FIND FIRST po-ordl NO-LOCK
             WHERE po-ordl.company   EQ rm-rctd.company
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -2625,8 +2626,8 @@ PROCEDURE get-matrix :
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
                            lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
                  
-                 IF v-po-cuom EQ "L" THEN
-                    ext-cost = ABSOLUTE(v-po-cost) .
+                IF v-po-cuom EQ "L" THEN
+                    ext-cost =  ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
                        ext-cost = ABSOLUTE(ROUND(dConsumQty * lv-out-cost,2)).
@@ -2661,7 +2662,7 @@ PROCEDURE get-matrix :
                 FIND FIRST po-ordl WHERE po-ordl.company = rm-rctd.company
                     AND po-ordl.po-no = integer(rm-rctd.po-no:screen-value IN BROWSE {&browse-name})
                     AND po-ordl.i-no  = rm-rctd.i-no:screen-value
-                    AND po-ordl.job-no = (rm-rctd.job-no:screen-value)
+                    AND po-ordl.job-no = rm-rctd.job-no:screen-value
                     AND po-ordl.job-no2 = integer(rm-rctd.job-no2:screen-value)
                     AND po-ordl.item-type = YES
                     AND po-ordl.s-num = integer(rm-rctd.s-num:screen-value)
@@ -2745,11 +2746,11 @@ PROCEDURE get-matrix :
               
                 /* convert cost */
                 IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
-                    lv-out-cost = DEC(rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty .
+                    lv-out-cost = po-ordl.cons-cost.
                 ELSE
                     /* gdm - 07210901 */
                     IF v-po-cuom EQ "L" THEN do:
-                        lv-out-cost = DEC(v-po-cost) / lv-out-qty .
+                        lv-out-cost = po-ordl.cons-cost.
                     END.
                     ELSE
                         IF rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-cost-uom THEN
@@ -2779,10 +2780,10 @@ PROCEDURE get-matrix :
                     dConsumQty = lv-out-qty .
         
                  IF ll-add-setup AND lv-out-qty NE 0 THEN
-                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).
+                           lv-out-cost = lv-out-cost + (lv-setup / lv-out-qty).              
                
                 IF v-po-cuom EQ "L" THEN
-                    ext-cost = ABSOLUTE(v-po-cost) .
+                    ext-cost = ABSOLUTE(ROUND(lv-out-qty * lv-out-cost,2)).
                 ELSE IF lRMOverrunCost THEN do:
                    IF lv-out-qty GT dConsumQty   THEN DO:
                       
@@ -2947,7 +2948,7 @@ PROCEDURE local-create-record :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-rno LIKE fg-rctd.r-no NO-UNDO.
     DEFINE BUFFER b-rm-rctd FOR rm-rctd.
- 
+    DEFINE BUFFER bff-item FOR ITEM .
     /* Code placed here will execute PRIOR to standard behavior. */
   
     FIND LAST b-rm-rctd USE-INDEX rm-rctd NO-LOCK NO-ERROR.
@@ -2967,13 +2968,21 @@ PROCEDURE local-create-record :
     IF ERROR-STATUS:ERROR THEN
         MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-
+       
     FIND FIRST tt-rm-rctd NO-ERROR.
 
     IF AVAILABLE tt-rm-rctd THEN 
     DO:
         BUFFER-COPY tt-rm-rctd EXCEPT rec_key TO rm-rctd.
         tt-rm-rctd.tt-rowid = ROWID(rm-rctd).
+        FIND FIRST bff-item NO-LOCK
+             WHERE bff-item.company EQ cocode 
+               AND bff-item.i-no EQ tt-rm-rctd.i-no 
+             NO-ERROR.
+        IF v-bin NE "user entered" AND v-bin EQ "RMITEM" AND AVAIL bff-item THEN
+        ASSIGN 
+             rm-rctd.loc     = bff-item.loc
+             rm-rctd.loc-bin = bff-item.loc-bin.
         IF rm-rctd.loc EQ "" THEN 
            rm-rctd.loc = locode .
     END.
@@ -3290,10 +3299,9 @@ PROCEDURE local-update-record :
                 END.
         END CASE.
     END.
-
-    RUN auto-add-tt.
     ASSIGN adm-adding-record = NO
            adm-new-record = NO.
+    RUN auto-add-tt.              
     
 END PROCEDURE.
 
@@ -3445,7 +3453,7 @@ PROCEDURE po-cost :
 
         RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
         ASSIGN lv-cost = ABSOLUTE(lv-cost) .
-        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
+        rm-rctd.cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost,">,>>>,>>9.999").
     END.
 
 END PROCEDURE.
@@ -3820,7 +3828,7 @@ PROCEDURE valid-b-num :
     ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
 
         IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
         DO:
@@ -3856,7 +3864,7 @@ PROCEDURE valid-b-num :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Blank #, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.b-num IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -3879,7 +3887,7 @@ PROCEDURE valid-i-no :
 
         
     DO WITH FRAME {&FRAME-NAME}:
-        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
 
         IF v-msg EQ "" THEN DO:
             IF NOT CAN-FIND(FIRST item 
@@ -3893,10 +3901,10 @@ PROCEDURE valid-i-no :
                        NEXT.
                    END.
                    ELSE 
-                       v-msg = "Invalid entry, try help".
+                       v-msg = "Invalid Item No, try help".
                END.
              ELSE DO:
-                  v-msg = "Invalid entry, try help".
+                  v-msg = "Invalid Item No, try help".
              END.
            END.
         END.
@@ -4046,7 +4054,7 @@ PROCEDURE valid-job-no :
  
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) 
             ERROR-STATUS:ERROR                                   = NO.
 
         IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
@@ -4077,7 +4085,7 @@ PROCEDURE valid-job-no :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Job No, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.job-no IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -4098,7 +4106,7 @@ PROCEDURE valid-job-no2 :
   
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
-            rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) 
             ERROR-STATUS:ERROR                                   = NO.
 
         IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
@@ -4126,7 +4134,7 @@ PROCEDURE valid-job-no2 :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Job No2, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.job-no2 IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -4222,7 +4230,7 @@ PROCEDURE valid-po-no :
                 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE po-ordl THEN 
             DO:
-                MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+                MESSAGE "Invalid PO No, try help..." VIEW-AS ALERT-BOX ERROR.
                 APPLY "entry" TO rm-rctd.po-no IN BROWSE {&browse-name}.
                 RETURN ERROR.
             END.
@@ -4292,7 +4300,7 @@ PROCEDURE valid-s-num :
     ------------------------------------------------------------------------------*/
   
     DO WITH FRAME {&FRAME-NAME}:
-        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+        rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
 
         IF INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN 
         DO:
@@ -4326,7 +4334,7 @@ PROCEDURE valid-s-num :
 
         IF ERROR-STATUS:ERROR THEN 
         DO:
-            MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
+            MESSAGE "Invalid Sheet #, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO rm-rctd.s-num IN BROWSE {&browse-name}.
             RETURN ERROR.
         END.
@@ -4558,7 +4566,7 @@ FUNCTION display-adder RETURNS DECIMAL
         FIND FIRST po-ordl
             WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no)
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) + TRIM(rm-rctd.job-no)
+            AND po-ordl.job-no    EQ rm-rctd.job-no
             AND po-ordl.job-no2   EQ rm-rctd.job-no2
             AND po-ordl.s-num     EQ rm-rctd.s-num
             AND po-ordl.b-num     EQ rm-rctd.b-num
@@ -4667,7 +4675,7 @@ FUNCTION display-adder-screen RETURNS DECIMAL
         FIND FIRST po-ordl
             WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -4924,7 +4932,7 @@ FUNCTION display-msf RETURNS DECIMAL
         FIND FIRST po-ordl
             WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no)
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) + TRIM(rm-rctd.job-no)
+            AND po-ordl.job-no    EQ rm-rctd.job-no
             AND po-ordl.job-no2   EQ rm-rctd.job-no2
             AND po-ordl.s-num     EQ rm-rctd.s-num
             AND po-ordl.b-num     EQ rm-rctd.b-num
@@ -5006,7 +5014,7 @@ FUNCTION display-msf-screen RETURNS DECIMAL
         FIND FIRST po-ordl
             WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -5080,7 +5088,7 @@ FUNCTION display-setup RETURNS DECIMAL
         FIND FIRST po-ordl
             WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no)
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) + TRIM(rm-rctd.job-no)
+            AND po-ordl.job-no    EQ rm-rctd.job-no
             AND po-ordl.job-no2   EQ rm-rctd.job-no2
             AND po-ordl.s-num     EQ rm-rctd.s-num
             AND po-ordl.b-num     EQ rm-rctd.b-num
@@ -5119,7 +5127,7 @@ FUNCTION display-setup-screen RETURNS DECIMAL
         FIND FIRST po-ordl
             WHERE po-ordl.company   EQ cocode
             AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            AND po-ordl.job-no    EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + TRIM(rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&browse-name})
             AND po-ordl.b-num     EQ INT(rm-rctd.b-num:SCREEN-VALUE IN BROWSE {&browse-name})

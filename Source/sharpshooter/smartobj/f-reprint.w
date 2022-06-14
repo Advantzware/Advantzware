@@ -44,6 +44,11 @@ DEFINE VARIABLE oLoadtag AS Inventory.Loadtag NO-UNDO.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
+
+DEFINE VARIABLE oKeyboard AS system.Keyboard NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -80,7 +85,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 81.6 BY 6.48
+         SIZE 88.4 BY 2.91
          BGCOLOR 21 FGCOLOR 15 FONT 38 WIDGET-ID 100.
 
 
@@ -108,8 +113,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 6.48
-         WIDTH              = 81.6.
+         HEIGHT             = 2.91
+         WIDTH              = 88.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -185,8 +190,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_tagfilter ).
-       RUN set-position IN h_tagfilter ( 1.05 , 2.60 ) NO-ERROR.
-       /* Size in UIB:  ( 2.38 , 79.00 ) */
+       RUN set-position IN h_tagfilter ( 1.05 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.29 , 81.60 ) */
 
        /* Links to SmartObject h_tagfilter. */
        RUN add-link IN adm-broker-hdl ( h_tagfilter , 'State':U , THIS-PROCEDURE ).
@@ -259,6 +264,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetMessageAndType F-Frame-Win 
+PROCEDURE GetMessageAndType :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcStatusMessage     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiStatusMessageType AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        opcStatusMessage     = cStatusMessage
+        opiStatusMessageType = iStatusMessageType
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetTag F-Frame-Win 
 PROCEDURE GetTag :
 /*------------------------------------------------------------------------------
@@ -286,9 +309,65 @@ PROCEDURE local-enable :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
      /* Code placed here will execute AFTER standard behavior.    */
-    {methods/run_link.i "TAG-SOURCE" "EnableAutoScanNextTag"}
+    RUN pInit.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit F-Frame-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lShowKeyboard AS LOGICAL NO-UNDO.
+    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetKeyboard" "(OUTPUT oKeyboard)"}
     {methods/run_link.i "TAG-SOURCE" "SetTagType" "(INPUT 'FG')"}
+    {methods/run_link.i "TAG-SOURCE" "DisableErrorAlerts"}
+    {methods/run_link.i "CONTAINER-SOURCE" "ShowKeyboard" "(OUTPUT lShowKeyboard)"}
+    {methods/run_link.i "TAG-SOURCE" "SetKeyboard" "(INPUT oKeyboard)"}
+    
+    IF lShowKeyboard THEN
+        RUN ShowKeyboard.
+        
+    RUN Set-Focus.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSendError F-Frame-Win 
+PROCEDURE pSendError PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN new-state (
+        "reprint-error"
+        ).
+
+    ASSIGN
+        cStatusMessage     = ""
+        iStatusMessageType = 0
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Reset F-Frame-Win 
+PROCEDURE Reset :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
+    {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -311,6 +390,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus F-Frame-Win 
+PROCEDURE Set-Focus :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "TAG-SOURCE" "Set-Focus"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard F-Frame-Win 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "TAG-SOURCE" "ShowKeyboard"}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed F-Frame-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -321,11 +426,19 @@ PROCEDURE state-changed :
     DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE    NO-UNDO.
     DEFINE INPUT PARAMETER p-state      AS CHARACTER NO-UNDO.
 
+    RUN new-state ("empty-message").
+    
     CASE p-state:
         WHEN "tag-valid" THEN DO:
             RUN new-state ("create-tag-reprint").    
 
-            {methods/run_link.i "TAG-SOURCE" "GetTag" "(OUTPUT oLoadtag)"}
+            {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
+            {methods/run_link.i "TAG-SOURCE" "ScanNextTag"}
+        END.
+        WHEN "tag-error" THEN DO:
+            {methods/run_link.i "TAG-SOURCE" "GetMessageAndType" "(OUTPUT cStatusMessage, OUTPUT iStatusMessageType)"}
+            
+            RUN pSendError.
         END.
     END CASE.
 END PROCEDURE.

@@ -35,6 +35,9 @@
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-id as recid no-undo.     /* recid output */
+
+{sys/inc/var.i}
+
 &scoped-define SORTBY-1 BY zipcode.city 
 &scoped-define SORTBY-2 BY zipcode.zipcode
 &scoped-define fld-name-1 zipcode.city

@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -128,7 +129,7 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_order AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
+DEFINE VARIABLE begin_order AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Beginning Order#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -138,7 +139,7 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_order AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
+DEFINE VARIABLE end_order AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Ending Order#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.

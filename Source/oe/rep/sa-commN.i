@@ -25,10 +25,16 @@
           where ar-invl.x-no eq ar-inv.x-no
             and ((tb_prep AND ar-invl.billable) or not ar-invl.misc)
           no-lock:
-        
-        RUN oe/invlcomp.p (ROWID(ar-invl), OUTPUT ll-comp).
-        
-        IF ll-comp THEN NEXT.
+          
+        FIND FIRST oe-ord NO-LOCK
+             WHERE oe-ord.company EQ ar-invl.company
+               AND oe-ord.ord-no  EQ ar-invl.ord-no  
+             NO-ERROR.
+        IF AVAILABLE oe-ord THEN
+        DO:          
+            RUN oe/invlcomp.p (ROWID(ar-invl), OUTPUT ll-comp).         
+            IF ll-comp THEN NEXT.
+        END.
         v-calc-cat = "".
         IF ar-invl.misc THEN DO:
             FIND FIRST prep NO-LOCK
@@ -76,7 +82,7 @@
           assign
            tt-report.key-01  = v-slsm[1]
            tt-report.key-02  = cust.cust-no
-           tt-report.key-03  = string(ar-inv.inv-no,"9999999")
+           tt-report.key-03  = string(ar-inv.inv-no,"99999999")
            tt-report.key-10  = "ar-invl"
            tt-report.rec-id  = recid(ar-invl)
            tt-report.row-id  = ROWID(ar-invl).
@@ -129,10 +135,16 @@
             NO-LOCK:
 
           IF AVAIL ar-invl THEN DO:
-            RUN oe/invlcomp.p (ROWID(b-ar-invl), OUTPUT ll-comp).
-            IF ll-comp THEN NEXT.
+            FIND FIRST oe-ord NO-LOCK
+                 WHERE oe-ord.company EQ ar-invl.company
+                   AND oe-ord.ord-no  EQ ar-invl.ord-no  
+                 NO-ERROR.
+            IF AVAILABLE oe-ord THEN
+            DO:
+                RUN oe/invlcomp.p (ROWID(b-ar-invl), OUTPUT ll-comp).
+                IF ll-comp THEN NEXT.
+            END.
           END.
-
           IF v-cat NE "" THEN DO:
             RELEASE itemfg.
             IF NOT b-ar-invl.misc THEN
@@ -159,7 +171,7 @@
             CREATE tt-report.
             ASSIGN
              tt-report.key-01 = v-slsm[1]
-             tt-report.key-03 = STRING(b-ar-invl.inv-no,"9999999")
+             tt-report.key-03 = STRING(b-ar-invl.inv-no,"99999999")
              tt-report.row-id = ROWID(b-ar-invl)
              tt-report.key-02 = cust.cust-no
              tt-report.key-10 = "ar-cashl"
@@ -178,7 +190,7 @@
             create tt-report.
             assign
              tt-report.key-01 = cust.sman
-             tt-report.key-03 = string(ar-cashl.inv-no,"9999999").
+             tt-report.key-03 = string(ar-cashl.inv-no,"99999999").
           end.
 
           if avail tt-report then
@@ -679,9 +691,6 @@
                  
                  IF hField <> ? THEN DO:                 
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
-                     /*/IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".                  */
-
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .

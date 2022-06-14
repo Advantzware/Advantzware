@@ -31,7 +31,7 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE v-autopo-sec AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-access-close AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-access-list AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSort AS CHARACTER NO-UNDO INITIAL "Job".
+DEFINE VARIABLE cSort AS CHARACTER NO-UNDO INITIAL "Start".
 
 /* Check if authorized enter job */
 RUN methods/prgsecur.p
@@ -219,7 +219,7 @@ DEFINE BUTTON Btn_Button-9
      LABEL "BUTTON9" 
      SIZE 14 BY 2.38.
 
-DEFINE VARIABLE sortBy AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted by Jobs" 
+DEFINE VARIABLE sortBy AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted by Start" 
       VIEW-AS TEXT 
      SIZE 18.4 BY .52
      BGCOLOR 14  NO-UNDO.
@@ -818,7 +818,7 @@ PROCEDURE check-job-status :
                        NO-ERROR.
 
   IF AVAIL bf-machtran AND NOT v-gang-jobs THEN do:
-     MESSAGE "Job " + trim(bf-machtran.job_number) + "-" + TRIM(string(bf-machtran.job_sub,"99")) +
+     MESSAGE "Job " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-machtran.job_number, bf-machtran.job_sub))) +
              " has data collection transaction started. You must end that job's operation before selecting a new job."
              VIEW-AS ALERT-BOX ERROR.
      RETURN error.
@@ -890,7 +890,7 @@ PROCEDURE Get_Jobs :
 
     IF ip-sort-by EQ "JOB" THEN
     &Scoped-define sortBy
-    &Scoped-define sortKey job.job-no + STRING(job.job-no2,"99")
+    &Scoped-define sortKey job.job-no + STRING(job.job-no2,"999")
     {addon/touch/Get_Jobs.i}
     ELSE
     &Scoped-define sortBy BY job.start-date
@@ -901,7 +901,7 @@ IF job-mch.start-date NE ? AND ~
   + STRING(MONTH(job-mch.start-date),"99") ~
   + STRING(DAY(job-mch.start-date),"99") ~
   + STRING(job-mch.start-time,"99999") ~
-    ELSE "9999999999999" + job.job-no + STRING(job.job-no2,"99")
+    ELSE "9999999999999" + job.job-no + STRING(job.job-no2,"999")
     {addon/touch/Get_Jobs.i}
 
     FOR EACH tt-job BY tt-job.sortKey:
@@ -1020,7 +1020,7 @@ PROCEDURE pClick :
         WHEN "Sort" THEN DO WITH FRAME {&FRAME-NAME}:
             cSort = IF cSort EQ "Job" THEN "Start" ELSE "Job".
             sortBy:SCREEN-VALUE = "Sorted by " + cSort.
-            RUN Get_jobs (cSort).
+            RUN Get_Jobs (cSort).
             {touch/localview.i}
         END.
     END CASE.

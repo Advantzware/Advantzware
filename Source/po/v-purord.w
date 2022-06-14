@@ -74,6 +74,7 @@ DEF SHARED VAR lNewOrd AS LOG NO-UNDO.
 DEFINE VARIABLE lUpdateMode AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdPOProcs   AS HANDLE  NO-UNDO.
 DEFINE VARIABLE scInstance  AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE cPODateChangeRequiresReason AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE tt-ei NO-UNDO
 FIELD std-uom AS CHARACTER.
@@ -140,6 +141,8 @@ RUN methods/prgsecur.p
      OUTPUT llUpdatePrcHld, /* Allowed? Yes/NO */
      OUTPUT lAccessClose, /* used in template/windows.i  */
      OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+     
+RUN spGetSettingByName ("PODateChangeRequiresReason", OUTPUT cPODateChangeRequiresReason).     
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -454,7 +457,7 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 24 BY 1
      po-ord.tax-gr AT ROW 11.14 COL 81.8 COLON-ALIGNED
-          LABEL "Tax Code"
+          LABEL "Tax Group"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 
@@ -1199,7 +1202,7 @@ END.
 
 &Scoped-define SELF-NAME po-ord.tax-gr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.tax-gr V-table-Win
-ON LEAVE OF po-ord.tax-gr IN FRAME F-Main /* Tax Code */
+ON LEAVE OF po-ord.tax-gr IN FRAME F-Main /* Tax Group */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tax-gr (FOCUS) NO-ERROR.
@@ -1712,6 +1715,10 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE cOldLoc      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cPoStatus    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lPriceHold   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE dtOldShipDate AS DATE     NO-UNDO.
+  DEFINE VARIABLE dtOldPoDate   AS DATE     NO-UNDO.
+  DEFINE VARIABLE rwRowid       AS ROWID    NO-UNDO.
+  DEFINE VARIABLE cDateChangeReason AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   EMPTY TEMP-TABLE tt-ord-no.
@@ -1719,9 +1726,12 @@ PROCEDURE local-assign-record :
   iv-copy-from-rec = IF AVAILABLE po-ord THEN RECID(po-ord) ELSE ?
   lv-prev-vend-no  = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
   lv-due-date      = po-ord.due-date
+  dtOldShipDate    = po-ord.last-ship-date
+  dtOldPoDate      = po-ord.po-date
   cOldLoc          = po-ord.loc 
   cPoStatus        = po-ord.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
   lPriceHold       = po-ord.PriceHold.
+  
      FIND bx-poord WHERE RECID(bx-poord) = iv-copy-from-rec NO-LOCK NO-ERROR.
      IF AVAILABLE bx-poord THEN DO:
          ASSIGN ip-company    = bx-poord.company
@@ -1891,6 +1901,28 @@ PROCEDURE local-assign-record :
          po-ordl.po-no = po-ord.po-no:
          po-ordl.vend-no = po-ord.vend-no.
      END.
+     
+  IF NOT adm-new-record AND cPODateChangeRequiresReason EQ "Yes" THEN
+  DO:
+      IF lv-due-date NE po-ord.due-date THEN
+      DO:         
+        RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+        (INPUT po-ord.rec_key, INPUT "R", INPUT "", INPUT "", INPUT 0, INPUT "RDC", INPUT "",
+        OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+      END. 
+      IF dtOldPoDate NE po-ord.po-date  THEN
+      DO:         
+        RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+        (INPUT po-ord.rec_key, INPUT "P", INPUT "", INPUT "", INPUT 0, INPUT "PDC", INPUT "",
+        OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+      END.
+      IF dtOldShipDate NE po-ord.last-ship-date  THEN
+      DO:         
+        RUN po/d-pdcnot.w /* PERSISTENT SET h_reasonWin */
+        (INPUT po-ord.rec_key, INPUT "L", INPUT "", INPUT "", INPUT 0, INPUT "LDC", INPUT "",
+        OUTPUT cDateChangeReason, OUTPUT rwRowid)  .
+      END.
+  END.
 
   IF lPOChangeDueDate AND NOT adm-new-record AND lv-due-date <> po-ord.due-date THEN DO:
      MESSAGE "Do you want to update the due date for all line items?"
@@ -2154,6 +2186,9 @@ PROCEDURE local-update-record :
   DO WITH FRAME {&FRAME-NAME} :
   
     RUN valid-po-date(OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+    
+    RUN valid-due-date(OUTPUT lReturnError) NO-ERROR.
     IF lReturnError THEN RETURN NO-APPLY.
     
     IF po-ord.stat:MODIFIED THEN DO:
@@ -2685,7 +2720,7 @@ PROCEDURE post-enable :
         po-ord.cust-no:HIDDEN = NO.
     END.
      
-    IF NOT lAllowedEditStatus OR po-ord.stat EQ "H" THEN 
+    IF NOT lAllowedEditStatus OR ( AVAIL po-ord AND po-ord.stat EQ "H") THEN 
     po-ord.stat:SENSITIVE = NO.
     ELSE po-ord.stat:SENSITIVE = YES.
     
@@ -3021,6 +3056,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
+PROCEDURE valid-due-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+ 
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        IF DATE(po-ord.due-date:SCREEN-VALUE) EQ ? THEN DO:        
+               MESSAGE "A due date is required for Purchase Orders." SKIP
+               "Please enter Required Date." VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ord.due-date.
+               oplReturnError = YES.                               
+        END.            
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-is-dropship V-table-Win 
 PROCEDURE valid-is-dropship :
 /*------------------------------------------------------------------------------
@@ -3063,8 +3123,9 @@ PROCEDURE valid-po-date :
                oplReturnError = YES.
                lCheckError = YES .               
         END.
-        IF DATE(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:        
-            MESSAGE "PO Date is more than 90 days earlier than today" VIEW-AS ALERT-BOX INFO.
+        
+        IF DATE(po-ord.po-date:SCREEN-VALUE) LT (TODAY - 90) AND NOT lCheckError THEN DO:
+            RUN displayMessage ( INPUT "74").           
         END.  
   END.
   {methods/lValidateError.i NO}

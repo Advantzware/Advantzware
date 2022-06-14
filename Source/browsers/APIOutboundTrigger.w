@@ -75,8 +75,8 @@ DEFINE QUERY external_tables FOR APIOutbound.
 &Scoped-define FIELDS-IN-QUERY-br_table APIOutboundTrigger.triggerID APIOutboundTrigger.description APIOutboundTrigger.Inactive   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
-&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundTrigger NO-LOCK     WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundTrigger NO-LOCK     WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID.
+&Scoped-define QUERY-STRING-br_table FOR EACH APIOutboundTrigger NO-LOCK     WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID       AND APIOutboundTrigger.triggerID MATCHES "*" + fiTriggerID + "*"
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundTrigger NO-LOCK     WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID       AND APIOutboundTrigger.triggerID MATCHES "*" + fiTriggerID + "*".
 &Scoped-define TABLES-IN-QUERY-br_table APIOutboundTrigger
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table APIOutboundTrigger
 
@@ -84,7 +84,8 @@ DEFINE QUERY external_tables FOR APIOutbound.
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS RECT-8 btSearch fiTriggerID br_table 
+&Scoped-Define DISPLAYED-OBJECTS fiTriggerID 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -140,6 +141,21 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btSearch 
+     IMAGE-UP FILE "Graphics/32x32/search_new.png":U
+     LABEL "Search" 
+     SIZE 8 BY 1.9.
+
+DEFINE VARIABLE fiTriggerID AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Trigger ID" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1
+     FONT 6 NO-UNDO.
+
+DEFINE RECTANGLE RECT-8
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
+     SIZE 134 BY 15.48.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
@@ -155,16 +171,21 @@ DEFINE BROWSE br_table
       APIOutboundTrigger.Inactive COLUMN-LABEL "Status" FORMAT "Inactive/Active":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 129 BY 6.71 FIT-LAST-COLUMN.
+    WITH NO-ASSIGN SEPARATORS SIZE 131.6 BY 13.1
+         FONT 6 ROW-HEIGHT-CHARS .86 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     btSearch AT ROW 1.1 COL 63.2 WIDGET-ID 4
+     fiTriggerID AT ROW 1.62 COL 16 COLON-ALIGNED WIDGET-ID 2
+     br_table AT ROW 2.91 COL 2.4
+     RECT-8 AT ROW 1 COL 1 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 15 FGCOLOR 9 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -194,8 +215,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 6.86
-         WIDTH              = 129.2.
+         HEIGHT             = 15.48
+         WIDTH              = 134.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -219,7 +240,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB br_table 1 F-Main */
+/* BROWSE-TAB br_table fiTriggerID F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -234,7 +255,8 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH APIOutboundTrigger NO-LOCK
-    WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID.
+    WHERE APIOutboundTrigger.apiOutboundID EQ APIOutbound.apiOutboundID
+      AND APIOutboundTrigger.triggerID MATCHES "*" + fiTriggerID + "*".
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Query            is NOT OPENED
@@ -291,6 +313,29 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btSearch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
+ON CHOOSE OF btSearch IN FRAME F-Main /* Search */
+DO:
+    ASSIGN fiTriggerID.
+    RUN dispatch ("open-query").  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiTriggerID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTriggerID B-table-Win
+ON ENTER OF fiTriggerID IN FRAME F-Main /* Trigger ID */
+DO:
+    APPLY "CHOOSE" TO btSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -305,6 +350,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+{methods/browsers/setCellColumns.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -360,6 +406,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win
+PROCEDURE local-initialize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN setCellColumns.
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

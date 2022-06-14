@@ -384,9 +384,7 @@ v-printline = 0.
         end. /* avail item and item.mat-type eq "B" */
 
         find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -426,8 +424,8 @@ v-printline = 0.
 
 
        /* v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,">>").*/
-        v-job-no = trim(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99") +
-                   "-" + string(po-ordl.s-num,"99").
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2) +
+                   "-" + string(po-ordl.s-num,"99"))).
 
         IF po-ordl.job-no = "" THEN v-job-no = "".
 
@@ -522,8 +520,8 @@ v-printline = 0.
                STRING(lv-ord-qty, lv-format) FORMAT "x(14)" SPACE(1)
                po-ordl.pr-qty-uom SPACE(1)
                po-ordl.i-no FORM "x(20)" SPACE(1)
-               v-disp-adder FORM "x(18)" 
-               v-job-no FORM "x(12)" 
+               v-disp-adder FORM "x(14)" 
+               v-job-no FORM "x(16)" 
                po-ordl.cost FORM "->>>9.99<<" SPACE(1)
                po-ordl.pr-uom 
                po-ordl.t-cost FORM "->>>>9.99"          
@@ -534,8 +532,8 @@ v-printline = 0.
                STRING(lv-ord-qty, lv-format) FORMAT "x(14)" SPACE(1)
                po-ordl.pr-qty-uom SPACE(1)
                po-ordl.i-no FORM "x(20)" SPACE(1)
-               v-disp-adder FORM "x(18)" 
-               v-job-no FORM "x(12)" SPACE(1)
+               v-disp-adder FORM "x(14)" 
+               v-job-no FORM "x(16)" SPACE(1)
                SKIP
                SPACE(68)
                po-ordl.cost FORM "->>>,>>9.99<<" SPACE(1)

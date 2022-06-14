@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolxapc.i 12/05 YSK */
 /* PRINT APC  BOL                                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.           */
 /* -------------------------------------------------------------------------- */
 
 DEF VAR v-tot-cnt AS INT.
@@ -122,9 +123,8 @@ for each report where report.term-id eq v-term-id,
 
     v-job-no = "".
     if avail oe-ordl and oe-ordl.job-no ne "" then
-       v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
-
+       v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+       
     ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
            v-weight   = v-weight + oe-boll.weight.
 
@@ -139,8 +139,9 @@ for each report where report.term-id eq v-term-id,
                             v-job-po    = oe-boll.po-no.
              ELSE if i eq 2 THEN 
                   ASSIGN v-part-dscr = oe-ordl.part-dscr1 /*i-name*/
-                         v-job-po    = if oe-ordl.job-no eq "" then "" else
-                                (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).
+                         v-job-po    = if oe-ordl.job-no eq "" then "" ELSE
+                                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+                                
              else if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
              ELSE if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
              
@@ -163,8 +164,8 @@ for each report where report.term-id eq v-term-id,
                     SKIP.
               ELSE PUT {1} 
                        /*v-job-po FORM "x(15)" AT 17*/
-                       oe-ordl.ord-no SPACE(33)
-                       oe-ordl.part-dscr1 /*v-part-dscr*/ FORM "x(30)" 
+                       oe-ordl.ord-no 
+                       "<C27>"oe-ordl.part-dscr1 /*v-part-dscr*/ FORM "x(30)" 
                        w2.cases   FORM "->>>>9" " @" SPACE(0)
                        w2.cas-cnt FORM "->>>>>9" SKIP.
               v-printline = v-printline + 1.
@@ -176,8 +177,8 @@ for each report where report.term-id eq v-term-id,
                  IF FIRST(w2.cases * w2.cas-cnt) THEN do:
                     PUT {1} 
                        /*v-job-po FORM "x(15)" AT 17*/
-                       oe-ordl.ord-no
-                       oe-ordl.part-dscr1 /*v-part-dscr*/ FORM "x(30)" 
+                       oe-ordl.ord-no  
+                       "<C27>"oe-ordl.part-dscr1 /*v-part-dscr*/ FORM "x(30)" 
                        /*w2.cases  AT 71 FORM "->>>9" " @ "
                        w2.cas-cnt FORM "->>>>>9"*/ SKIP.
                     v-printline = v-printline + 1.

@@ -52,7 +52,7 @@ DEFINE VARIABLE lShowAdvancedFilter AS LOGICAL NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btSearch RECT-1 RECT-7 fisearch ~
-fiSettingName cbCategory btAdvancedFilter cbSettingType 
+fiSettingName btAdvancedFilter cbCategory cbSettingType 
 &Scoped-Define DISPLAYED-OBJECTS fisearch fiSettingName cbCategory 
 
 /* Custom List Definitions                                              */
@@ -121,8 +121,8 @@ DEFINE FRAME F-Main
      btSearch AT ROW 1 COL 114.4 WIDGET-ID 20
      fisearch AT ROW 1.33 COL 16 COLON-ALIGNED WIDGET-ID 46
      fiSettingName AT ROW 3.33 COL 10.4 WIDGET-ID 2
-     cbCategory AT ROW 3.38 COL 94 COLON-ALIGNED WIDGET-ID 14
      btAdvancedFilter AT ROW 1 COL 122.8 WIDGET-ID 48
+     cbCategory AT ROW 3.38 COL 94 COLON-ALIGNED WIDGET-ID 14
      cbSettingType AT ROW 3.38 COL 154 COLON-ALIGNED WIDGET-ID 42
      RECT-1 AT ROW 2.86 COL 9.4 WIDGET-ID 18
      RECT-7 AT ROW 1 COL 1 WIDGET-ID 50
@@ -254,13 +254,25 @@ END.
 
 &Scoped-define SELF-NAME fisearch
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fisearch s-object
-ON ENTER OF fisearch IN FRAME F-Main /* Search */
+ON RETURN OF fisearch IN FRAME F-Main /* Search */
 DO:
-    APPLY "CHOOSE":U TO btSearch.
+    APPLY "CHOOSE" TO btSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiSettingName
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSettingName s-object
+ON RETURN OF fiSettingName IN FRAME F-Main /* Name */
+DO:
+    APPLY "CHOOSE" TO btSearch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -403,6 +415,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view s-object
+PROCEDURE local-view:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  APPLY "ENTRY":U TO fisearch IN FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit s-object 
 PROCEDURE pInit :

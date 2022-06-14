@@ -65,3 +65,4 @@ bank ~
 vendItemCost ~
 oe-relh ~
 currency ~
+materialType ~

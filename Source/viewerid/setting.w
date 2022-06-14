@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&scoped-define SettingViewersHelp
 
 DEFINE VARIABLE cSettingName     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSettingTypeDesc AS CHARACTER NO-UNDO.
@@ -233,10 +234,12 @@ ASSIGN
 
 
 /* ***************************  Main Block  *************************** */
-
+ {sys/inc/f3help.i}
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
+  &ENDIF  
+  
+
   
   /************************ INTERNAL PROCEDURES ********************/
 

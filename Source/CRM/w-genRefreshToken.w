@@ -388,15 +388,9 @@ PROCEDURE pInit PRIVATE :
 ------------------------------------------------------------------------------*/
     cCompany = g_company.
 
-    RUN Zoho_GetClientID IN hdZohoProcs (
-        INPUT  cCompany,
-        OUTPUT cClientID
-        ).
+    RUN Zoho_GetClientID IN hdZohoProcs (OUTPUT cClientID).
         
-    RUN Zoho_GetClientSecret IN hdZohoProcs (
-        INPUT  cCompany,
-        OUTPUT cClientSecret
-        ).
+    RUN Zoho_GetClientSecret IN hdZohoProcs (OUTPUT cClientSecret).
     
     RUN pValidateKeys (
         OUTPUT cMessage
@@ -420,24 +414,15 @@ PROCEDURE pValidateKeys PRIVATE :
     DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
     
     IF cClientID EQ "" THEN
-        opcMessage = "ClientID value is blank. Please update the client id in NK1 configuration 'ZohoClientID'".
+        opcMessage = "ClientID value is blank. Please update the client id in NK6 configuration 'ZohoClientID'".
         
     IF cClientSecret EQ "" THEN
-        opcMessage = "ClientSecret value is blank. Please update the client secret in NK1 configuration 'ZohoClientSecret'".
+        opcMessage = "ClientSecret value is blank. Please update the client secret in NK6 configuration 'ZohoClientSecret'".
 
-    RUN sys/ref/nk1look.p (
-        INPUT cCompany, 
-        INPUT "ZohoRefreshToken", 
-        INPUT "C", 
-        INPUT NO, 
-        INPUT NO, 
-        INPUT "", 
-        INPUT "",
-        OUTPUT cRefreshToken, 
-        OUTPUT lFound
-        ).
-    IF NOT lFound THEN
-        opcMessage = "NK1 configuration 'ZohoRefreshToken' is missing".
+    RUN spGetSettingByName ("ZohoRefreshToken", OUTPUT cRefreshToken).
+    
+    IF cRefreshToken EQ "" THEN
+        opcMessage = "RefreshToken value is blank. Please update the refresh token in NK6 configuration 'ZohoRefreshToken'".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

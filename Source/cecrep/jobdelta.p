@@ -1,7 +1,7 @@
 /* ---------------------------------------------- */
 /*  cecrep/jobDelta.p  factory ticket  for Delta */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -131,16 +131,14 @@ do v-local-loop = 1 to v-local-copies:
         where job-hdr.company               eq cocode
           and job-hdr.ftick-prnt            eq reprint
 
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no,
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2,
 
         first job
         where job.company                   eq cocode
@@ -688,8 +686,9 @@ do v-local-loop = 1 to v-local-copies:
            END.
            PUT UNFORMATTED 
                "<UNITS=INCHES><AT=7.5,.54><FROM><AT=+.4,+1.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
-               (job.job-no) + STRING(job.job-no2,"99") + ">" "<AT=,.6>" 
-                   (job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") 
+               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
+               + ">" "<AT=,.6>" 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
                "<R44><C1><FROM><C105><LINE><|3>" skip
                "<R44><C19><FROM><R48><C19><LINE><|3>"
                "<R44><C20><B>BN Notes:</B><C30>" v-dept-note[1] SKIP
@@ -891,7 +890,7 @@ do v-local-loop = 1 to v-local-copies:
                         ELSE "".
 
              FIND FIRST tt-prem WHERE
-                  tt-prem.tt-job-no  EQ job-hdr.job-no AND
+                  tt-prem.tt-job-no   EQ job-hdr.job-no AND
                   tt-prem.tt-job-no2  EQ job-hdr.job-no2
                   NO-LOCK NO-ERROR.
 

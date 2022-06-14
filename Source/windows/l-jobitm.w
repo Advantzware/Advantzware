@@ -21,6 +21,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No. 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -37,6 +39,8 @@ def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
+
+{sys/inc/var.i new shared}
 
 &scoped-define SORTBY-1 BY job-hdr.frm BY job-hdr.blank-no
 &scoped-define SORTBY-2 BY job-hdr.blank-no BY job-hdr.frm
@@ -163,7 +167,7 @@ DEFINE BROWSE BROWSE-1
       job-hdr.blank-no COLUMN-LABEL "Blank#" FORMAT ">>9":U
       job-hdr.i-no FORMAT "x(15)":U COLUMN-FONT 0
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14 COLUMN-FONT 0
-      job-hdr.ord-no FORMAT ">>>>>9":U COLUMN-FONT 0
+      job-hdr.ord-no FORMAT ">>>>>>>9":U COLUMN-FONT 0
       job-hdr.cust-no FORMAT "x(8)":U COLUMN-FONT 0
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -380,7 +384,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
   FRAME dialog-frame:TITLE = TRIM(FRAME dialog-frame:TITLE) + " Job: " +
-                             TRIM(ip-job-no) + STRING(INT(ip-job-no2),"99").
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2))).
 
   RUN enable_UI.
 

@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -57,18 +58,18 @@ DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
   
-ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,S,B,Item Number,"
+ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C"
        cFieldListToSelect = "trns-typ,trns-dt,job-no,frm,blnk,i-no," +
                                         "dscr,qty-pstd,wst-qty,mch-hrs," +
                                         "mch-cd,job-cd,vc"
-       cFieldLength = "10,10,10,1,1,15," + "30,11,7,7," + "11,11,1" 
+       cFieldLength = "10,10,13,1,1,15," + "30,11,7,7," + "11,11,1" 
        cFieldType = "c,c,c,c,c,c," + "c,i,i,i," + "c,c,c"
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  =  "Trans Type,Trans Date,Job No.,S,B,Item Number,"
+ASSIGN cTextListToDefault  =  "Trans Type,Trans Date,Job No.,F,B,Item Number,"
                                             + "Description,Qty Posted,Wst Qty,Mch Hrs,"
                                             + "Mach Code,Job Code,C"  .
 
@@ -149,25 +150,25 @@ DEFINE VARIABLE as-of-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/01
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-wipsum.csv" 
      LABEL "Name" 
@@ -242,11 +243,11 @@ DEFINE FRAME FRAME-A
      as-of-date AT ROW 2.71 COL 42 COLON-ALIGNED
      begin_job-no AT ROW 4.43 COL 23 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.43 COL 36 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.43 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.43 COL 66 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.43 COL 78 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.43 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      sl_avail AT ROW 6.91 COL 4.4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 6.91 COL 40.8 HELP
@@ -397,9 +398,6 @@ THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
-
- 
-
 
 
 /* ************************  Control Triggers  ************************ */
@@ -720,28 +718,6 @@ DO:
                ldummy = {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE)
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
-
-  
-/* for pairs
-    DEF VAR cSelectedList AS cha NO-UNDO.
-    cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
-    DO i = 1 TO sl_avail:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
-    IF sl_avail:IS-SELECTED(i) AND
-      (NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i)) OR
-         sl_selected:NUM-ITEMS = 0) THEN
-    /*ldummy = sl_selected:ADD-LAST(sl_avail:ENTRY(i)).*/
-        cSelectedList = cSelectedList +
-                        entry(i,cTextListToSelect) + "," + entry(i,cFieldListToSelect) + ",".
-    MESSAGE i sl_avail:IS-SELECTED(i) NOT CAN-DO(sl_selected:LIST-ITEM-PAIRS,sl_avail:ENTRY(i))
-        sl_selected:NUM-ITEMS
-        SKIP cSelectedList
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-  END.
-  cSelectedList = SUBSTRING(cSelectedList,1,LENGTH(cSelectedList) - 1).
-  sl_selected:LIST-ITEM-PAIRS = cSelectedList.
-  sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-  */
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -764,8 +740,6 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
-
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1116,9 +1090,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
  END.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1180,20 +1152,6 @@ PROCEDURE output-to-printer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-/*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
-     DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-     DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
-/*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
-     IF NOT printok THEN
-     RETURN NO-APPLY.
-*/
-
-  /* Use Progress Print. Always use Font#9 in Registry (set above) */
-     RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,
-                            INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
-                                    /* use-dialog(1) and landscape(2) */
-  */
   RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 END PROCEDURE.
 
@@ -1219,10 +1177,8 @@ PROCEDURE run-report :
 /* WIP Daily Listing Report                                                   */
 /* ---------------------------------------------------------------------------*/
 
-/*{sys/form/r-topw.f}*/
-
-def var v-job-no like job.job-no extent 2 initial [" ", "ZZZZZZ"] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
+def var v-job-no like job.job-no extent 2 initial [" ", "ZZZZZZZZZ"] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 initial [000, 999] no-undo.
 def var v-date as date format "99/99/9999" no-undo.
 def var v-brd-job as int format ">>>>>>>>>9" no-undo.
 def var v-brd-tot as int format ">>>>>>>>>9" no-undo.
@@ -1259,68 +1215,6 @@ DEF VAR cPrepDscr AS cha FORM "x(25)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 
-/*FORM HEADER
-     hdr-tit format "x(132)" skip
-     hdr-tit2 format "x(132)" skip
-     hdr-tit3 format "x(132)"
-
-    WITH FRAME r-top.
-
-form item.procat
-     mat-act.mat-date
-     work-dly.job-no space(0) "-" space(0)
-     work-dly.job-no2 format "99"
-     mat-act.s-num space(0) "/" space(0)
-     mat-act.b-num
-     mat-act.i-no
-     item.i-dscr
-     mat-act.qty format ">>>>>>>9.99"
-     with frame edit-mat down no-attr-space no-box no-labels STREAM-IO width 132.
-
-form item.procat
-     mch-act.op-date
-     work-dly.job-no space(0) "-" space(0)
-     work-dly.job-no2 format "99"
-     mch-act.frm format ">9" space(0) "/" space(0)
-     mch-act.blank-no
-     "               "
-     mach.m-dscr "         "
-     mch-act.qty format ">>>>>>>9.99"
-     mch-act.waste format ">>>>>>>9"
-     mch-act.hours format ">>>>>9.99"
-     mch-act.m-code
-     mch-act.code
-     mch-act.complete
-     with frame edit-mch down no-attr-space no-box no-labels STREAM-IO width 132.
-
-form item.procat
-     fg-act.fg-date
-     work-dly.job-no space(0) "-" space(0)
-     work-dly.job-no2 format "99"
-     fg-act.s-num space(0) "/" space(0)
-     fg-act.b-num
-     fg-act.i-no
-     fg-act.i-name
-     fg-act.qty format ">>>>>>>>>9"
-     with frame edit-fg down no-attr-space no-box no-labels STREAM-IO width 132. */
-
-
-assign
- str-tit2 = c-win:title
- {sys/inc/ctrtext.i str-tit2 112}
-
-  v-date        = as-of-date
-  v-job-no[1]   = fill(" ",6 - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99")
- 
-  /*    hdr-tit = "TRANS  TRANS      JOB                                      " +
-             "                     QUANTITY     WASTE      MACH MACH   JOB     "
-      hdr-tit2 = "TYPE    DATE      NUMBER  S/ B ITEM NUMBER     DESCRIPTION " +
-             "                       POSTED       QTY     HOURS CODE   CODE  C "
-      hdr-tit3 = fill("-", 131)*/ .
-                                                                  
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1368,15 +1262,18 @@ display "" with frame r-top.
     DELETE work-dly.
   END.
 
-  for each mch-act where mch-act.company = cocode and
-                          mch-act.op-date = v-date
-                          use-index dte-idx
-                          no-lock:
-      if fill(" ",6 - length(trim(mch-act.job-no))) +
-         trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") < v-job-no[1] or 
-         fill(" ",6 - length(trim(mch-act.job-no))) +
-         trim(mch-act.job-no) + string(int(mch-act.job-no2),"99") > v-job-no[2] THEN next.
-        
+  for each mch-act 
+  where mch-act.company = cocode 
+    AND mch-act.op-date = v-date
+    AND FILL(" ", iJobLen - length(TRIM(mch-act.job-no))) +
+    trim(mch-act.job-no) + string(int(mch-act.job-no2),"999") GE v-job-no[1] 
+    AND FILL(" ", iJobLen - length(TRIM(mch-act.job-no))) +
+    trim(mch-act.job-no) + string(int(mch-act.job-no2),"999") LE v-job-no[2]
+    AND mch-act.job-no2 GE int(begin_job-no2)
+    AND mch-act.job-no2 LE int(end_job-no2)             
+   use-index dte-idx
+      no-lock:
+              
       find first work-dly where work-dly.job = mch-act.job no-error.
 
       if not available work-dly then
@@ -1390,13 +1287,15 @@ display "" with frame r-top.
    
   for each mat-act where mat-act.company = cocode and
                           mat-act.mat-date = v-date
+                          AND FILL(" ", iJobLen - length(TRIM(mat-act.job-no))) +
+                          trim(mat-act.job-no) + string(int(mat-act.job-no2),"999") GE v-job-no[1] 
+                          AND FILL(" ", iJobLen - length(TRIM(mat-act.job-no))) +
+                          trim(mat-act.job-no) + string(int(mat-act.job-no2),"999") LE v-job-no[2]
+                          AND mat-act.job-no2 GE int(begin_job-no2)
+                          AND mat-act.job-no2 LE int(end_job-no2) 
                           use-index dte-idx
-                          no-lock:
-      if fill(" ",6 - length(trim(mat-act.job-no))) +
-         trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") < v-job-no[1] or 
-         fill(" ",6 - length(trim(mat-act.job-no))) +
-         trim(mat-act.job-no) + string(int(mat-act.job-no2),"99") > v-job-no[2] THEN next.
-
+                          no-lock:   
+                          
       find first work-dly where work-dly.job = mat-act.job no-error.
 
       if not available work-dly then
@@ -1409,14 +1308,15 @@ display "" with frame r-top.
    end.
    for each fg-act where fg-act.company = cocode and
                          fg-act.fg-date = v-date
+                         AND FILL(" ", iJobLen - length(TRIM(fg-act.job-no))) +
+                         trim(fg-act.job-no) + string(int(fg-act.job-no2),"999") GE v-job-no[1] 
+                         AND FILL(" ", iJobLen - length(TRIM(fg-act.job-no))) +
+                         trim(fg-act.job-no) + string(int(fg-act.job-no2),"999") LE v-job-no[2]
+                         AND fg-act.job-no2 GE int(begin_job-no2)
+                         AND fg-act.job-no2 LE int(end_job-no2)
                          use-index dte-idx
-                         no-lock:
-
-       if fill(" ",6 - length(trim(fg-act.job-no))) +
-          trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") < v-job-no[1] or 
-          fill(" ",6 - length(trim(fg-act.job-no))) +
-          trim(fg-act.job-no) + string(int(fg-act.job-no2),"99") > v-job-no[2] THEN next.
-
+                         no-lock:  
+       
       find first work-dly where work-dly.job = fg-act.job no-error.
 
       if not available work-dly then
@@ -1430,13 +1330,15 @@ display "" with frame r-top.
 
    for each misc-act where misc-act.company = cocode and
                            misc-act.misc-date = v-date
+                           AND FILL(" ", iJobLen - length(TRIM(misc-act.job-no))) +
+                           trim(misc-act.job-no) + string(int(misc-act.job-no2),"999") GE v-job-no[1] 
+                           AND FILL(" ", iJobLen - length(TRIM(misc-act.job-no))) +
+                           trim(misc-act.job-no) + string(int(misc-act.job-no2),"999") LE v-job-no[2]
+                           AND misc-act.job-no2 GE int(begin_job-no2)
+                           AND misc-act.job-no2 LE int(end_job-no2)
                            use-index date-idx
                            no-lock:
-       if fill(" ",6 - length(trim(misc-act.job-no))) +
-          trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") < v-job-no[1] or 
-          fill(" ",6 - length(trim(misc-act.job-no))) +
-          trim(misc-act.job-no) + string(int(misc-act.job-no2),"99") > v-job-no[2] THEN next.
-
+       
       find first work-dly where work-dly.job = misc-act.job no-error.
 
       if not available work-dly then
@@ -1468,31 +1370,6 @@ display "" with frame r-top.
                             no-lock no-error.
             if not available item then next.
 
-           /* display item.procat
-                    mat-act.mat-date
-                    work-dly.job-no
-                    work-dly.job-no2
-                    mat-act.s-num
-                    mat-act.b-num
-                    mat-act.i-no
-                    item.i-dscr
-                    mat-act.qty
-                    with frame edit-mat.
-            down with frame edit-mat.
-
-            IF rd-dest EQ 3 THEN
-               PUT STREAM excel UNFORMATTED
-                   '"' item.procat                             '",'
-                   '"' mat-act.mat-date                        '",'
-                   '"' work-dly.job-no + "-" +
-                       STRING(work-dly.job-no2,"99")           '",'
-                   '"' mat-act.s-num                           '",'
-                   '"' mat-act.b-num                           '",'
-                   '"' mat-act.i-no                            '",'
-                   '"' item.i-dscr                             '",'
-                   '"' STRING(mat-act.qty,">>>>>>>9.99")       '",'
-                   SKIP. */
-
              ASSIGN cDisplay = ""
                               cTmpField = ""
                               cVarValue = ""
@@ -1504,7 +1381,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(item.procat) .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(mat-act.mat-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(mat-act.s-num) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(mat-act.b-num) .
                                     WHEN "i-no"             THEN cVarValue =  mat-act.i-no .
@@ -1550,40 +1427,6 @@ display "" with frame r-top.
                             no-lock no-error.
             if not available mach then next.
 
-          /*  display "HRS" @ item.procat
-                    mch-act.op-date
-                    work-dly.job-no
-                    work-dly.job-no2
-                    mch-act.frm
-                    mch-act.blank-no
-                    mach.m-dscr
-                    mch-act.qty
-                    mch-act.waste
-                    mch-act.hours
-                    mch-act.m-code
-                    mch-act.code
-                    mch-act.complete
-                    with frame edit-mch.
-            down with frame edit-mch.
-
-            IF rd-dest EQ 3 THEN
-               PUT STREAM excel UNFORMATTED
-                   '"' "HRS"                             '",'
-                   '"' mch-act.op-date                   '",'
-                   '"' work-dly.job-no + "-" +
-                       STRING(work-dly.job-no2,"99")     '",'
-                   '"' mch-act.frm                       '",'
-                   '"' mch-act.blank-no                  '",'
-                   '"' ""                                '",'
-                   '"' ""                                '",'
-                   '"' STRING(mch-act.qty,">>>>>>>9.99") '",'
-                   '"' STRING(mch-act.waste,">>>>>>>9")  '",'
-                   '"' STRING(mch-act.hours,">>>>>9.99") '",'
-                   '"' mch-act.m-code                    '",'
-                   '"' mch-act.code                      '",'
-                   '"' mch-act.COMPLETE                  '",'
-                   SKIP. */
-
             ASSIGN cDisplay = ""
                               cTmpField = ""
                               cVarValue = ""
@@ -1595,7 +1438,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("HRS") .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(mch-act.op-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(mch-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(mch-act.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  "" .
@@ -1634,30 +1477,6 @@ display "" with frame r-top.
                                no-lock:
             if fg-act.fg-date <> v-date then next.
 
-          /*  display "F.G." @ item.procat
-                    fg-act.fg-date
-                    work-dly.job-no
-                    work-dly.job-no2
-                    fg-act.s-num
-                    fg-act.b-num
-                    fg-act.i-no
-                    fg-act.i-name
-                    fg-act.qty
-                    with frame edit-fg.
-            down with frame edit-fg.
-
-            IF rd-dest EQ 3 THEN
-               PUT STREAM excel UNFORMATTED
-                   '"' "F.G."                            '",'                                      '"' fg-act.fg-date                    '",'
-                   '"' work-dly.job-no + "-" +
-                       STRING(work-dly.job-no2,"99")     '",'
-                   '"' fg-act.s-num                      '",'
-                   '"' fg-act.b-num                      '",'
-                   '"' fg-act.i-no                       '",'
-                   '"' fg-act.i-name                     '",'
-                   '"' STRING(fg-act.qty,">>>>>>>>>9")   '",'
-                   SKIP. */
-
             ASSIGN cDisplay = ""
                               cTmpField = ""
                               cVarValue = ""
@@ -1669,7 +1488,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("F.G.") .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(fg-act.fg-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(fg-act.s-num) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(fg-act.b-num) .
                                     WHEN "i-no"             THEN cVarValue =  fg-act.i-no .
@@ -1707,31 +1526,6 @@ display "" with frame r-top.
 
             if misc-act.ml then
             do:
-               /*display "MSC-M" @ item.procat
-                       misc-act.misc-date @ mat-act.mat-date
-                       work-dly.job-no @ mat-act.job-no
-                       work-dly.job-no2 @ mat-act.job-no2
-                       misc-act.frm @ mat-act.s-num
-                       misc-act.blank-no @ mat-act.b-num
-                       misc-act.i-no @ mat-act.i-no
-                       misc-act.dscr @ item.i-dscr
-                       misc-act.cost @ mat-act.qty
-                       with frame edit-mat.
-               down with frame edit-mat.
-
-               IF rd-dest EQ 3 THEN
-                  PUT STREAM excel UNFORMATTED
-                      '"' "MSC-M"                             '",'
-                      '"' misc-act.misc-date                  '",'
-                      '"' work-dly.job-no + "-" +
-                          STRING(work-dly.job-no2,"99")       '",'
-                      '"' misc-act.frm                        '",'
-                      '"' misc-act.blank-no                   '",'
-                      '"' misc-act.i-no                       '",'
-                      '"' misc-act.dscr                       '",'
-                      '"' STRING(misc-act.cost,">>>>>>>9.99") '",'
-                      SKIP.*/
-
                 ASSIGN cDisplay = ""
                               cTmpField = ""
                               cVarValue = ""
@@ -1743,7 +1537,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("MSC-M") .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(misc-act.misc-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(misc-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(misc-act.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  misc-act.i-no .
@@ -1771,47 +1565,6 @@ display "" with frame r-top.
             end.
             else
             do:
-               /*display "MSC-H" @ item.procat
-                       misc-act.misc-date @ mch-act.op-date
-                       misc-act.job-no @ work-dly.job-no
-                       misc-act.job-no2 @ work-dly.job-no2
-                       misc-act.frm @ mch-act.frm
-                       misc-act.blank-no @ mch-act.blank-no
-                       misc-act.dscr @ mach.m-dscr
-                       misc-act.cost @ mch-act.qty
-                       mch-act.waste when available mch-act
-                       mch-act.hours when available mch-act
-                       misc-act.m-code @ mch-act.m-code
-                       mch-act.code when available mch-act
-                       mch-act.complete when available mch-act
-                       with frame edit-mch.
-               down with frame edit-mch.
-
-               IF rd-dest EQ 3 THEN
-                  PUT STREAM excel UNFORMATTED
-                      '"' "MSC-H"                             '",'
-                      '"' misc-act.misc-date                  '",'
-                      '"' misc-act.job-no + "-" +
-                          STRING(misc-act.job-no2,"99")       '",'
-                      '"' misc-act.frm                        '",'
-                      '"' misc-act.blank-no                   '",'
-                      '"' ""                                  '",'
-                      '"' misc-act.dscr                       '",'
-                      '"' STRING(misc-act.cost,">>>>>>>9.99") '",'
-                      '"' IF AVAIL mch-act THEN
-                             STRING(mch-act.waste,">>>>>>>9")
-                          ELSE ""                             '",'
-                      '"' IF AVAIL mch-act THEN
-                             STRING(mch-act.hours,">>>>>9.99")
-                          ELSE ""                             '",'
-                      '"' mch-act.m-code                      '",'
-                      '"' IF AVAIL mch-act THEN
-                             mch-act.CODE ELSE ""             '",'
-                      '"' IF AVAIL mch-act THEN
-                             STRING(mch-act.COMPLETE)
-                          ELSE ""                             '",'
-                      SKIP.*/
-
                 ASSIGN cDisplay = ""
                               cTmpField = ""
                               cVarValue = ""
@@ -1823,7 +1576,7 @@ display "" with frame r-top.
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("MSC-H") .
                                     WHEN "trns-dt"      THEN cVarValue =  STRING(misc-act.misc-date) .
-                                    WHEN "job-no"           THEN cVarValue =  STRING(misc-act.job-no + "-" + STRING(misc-act.job-no2,"99")) .
+                                    WHEN "job-no"           THEN cVarValue =  STRING(misc-act.job-no + "-" + STRING(misc-act.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(misc-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(misc-act.blank-no) .
                                     WHEN "i-no"             THEN cVarValue =  "" .
@@ -1850,21 +1603,6 @@ display "" with frame r-top.
                         END.
             end.
          end.
-
-      /*   put skip(1) "JOB TOTALS - " at 20 work-dly.job-no
-             space(0) "-" space(0) work-dly.job-no2 format "99"
-             "         BOARD TOTALS: " at 56 v-brd-job skip
-             "       MACHINE TOTALS: " at 56 v-mch-job " " v-wst-job " "
-                                             v-hrs-job skip
-             "FINISHED GOODS TOTALS: " at 56 v-fg-job skip
-             "OTHER MATERIAL TOTALS: " at 56 v-oth-job skip(2).
-
-          IF rd-dest EQ 3 THEN
-             RUN excel-job-totals-proc(INPUT "JOB TOTALS - " + work-dly.job-no +
-                                       "-" + STRING(work-dly.job-no2,"99"),
-                                       INPUT v-brd-job, INPUT v-mch-job,
-                                       INPUT v-wst-job, INPUT v-hrs-job,
-                                       INPUT v-fg-job, INPUT v-oth-job). */
 
           PUT SKIP str-line SKIP .
                ASSIGN cDisplay = ""
@@ -1898,11 +1636,11 @@ display "" with frame r-top.
                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                        END.
 
-                       PUT UNFORMATTED "JOB TOTALS - " + work-dly.job-no + "-" + string(work-dly.job-no2,"99") + "         BOARD TOTALS: "
-                           substring(cDisplay,45,300) SKIP.
+                       PUT UNFORMATTED "JOB TOTALS - " + work-dly.job-no + "-" + string(work-dly.job-no2,"999") + "         BOARD TOTALS: "
+                           substring(cDisplay,44,300) SKIP.
                        IF rd-dest EQ 3 THEN DO:
                             PUT STREAM excel UNFORMATTED  
-                                  " JOB TOTALS    " work-dly.job-no + "-" + string(work-dly.job-no2,"99") + "         BOARD TOTALS: " substring(cExcelDisplay,3,300) SKIP.
+                                  " JOB TOTALS    " work-dly.job-no + "-" + string(work-dly.job-no2,"999") + "         BOARD TOTALS: " substring(cExcelDisplay,3,300) SKIP.
                        END. 
 
                        PUT SKIP str-line SKIP .
@@ -2020,19 +1758,6 @@ display "" with frame r-top.
                        END.
 
       end.
-     /* put skip(1) "REPORT TOTALS" at 20
-             "         BOARD TOTALS: " at 56 v-brd-tot skip
-             "       MACHINE TOTALS: " at 56 v-mch-tot " " v-wst-tot " "
-                                             v-hrs-tot skip
-             "FINISHED GOODS TOTALS: " at 56 v-fg-tot skip
-             "OTHER MATERIAL TOTALS: " at 56 v-oth-tot skip.
-
-      IF rd-dest EQ 3 THEN
-         RUN excel-job-totals-proc(INPUT "REPORT TOTALS",
-                                   INPUT v-brd-tot, INPUT v-mch-tot,
-                                   INPUT v-wst-tot, INPUT v-hrs-tot,
-                                   INPUT v-fg-tot, INPUT v-oth-tot). */
-
       PUT SKIP str-line SKIP .
                ASSIGN cDisplay = ""
                               cTmpField = ""

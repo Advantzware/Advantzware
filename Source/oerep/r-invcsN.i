@@ -1,4 +1,4 @@
-    
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */    
     for each cust
         where cust.company eq cocode
           and cust.cust-no ge fcust
@@ -91,7 +91,7 @@
                                   string(day(ar-inv.inv-date),"99")
              tt-report2.key-03  = string(ar-inv.inv-no,"9999999999")
              tt-report2.key-04  = ar-invl.i-no
-             tt-report2.key-05  = ar-invl.job-no + STRING(ar-invl.job-no2,"99")
+             tt-report2.key-05  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', ar-invl.job-no, ar-invl.job-no2))
              tt-report2.key-09  = tt-report.key-09
              tt-report2.key-10  = "ar-invl".
           end.
@@ -251,7 +251,7 @@
             BREAK by tt-report2.key-05 :
 
         IF FIRST-OF(tt-report2.key-05) THEN
-            RUN pGetActMatCost(SUBSTRING(tt-report2.key-05,1,6), INTEGER(SUBSTRING(tt-report2.key-05,7,2)) , OUTPUT dActMatCost) .
+            RUN pGetActMatCost(SUBSTRING(tt-report2.key-05,1,iJobLen), INTEGER(SUBSTRING(tt-report2.key-05,(iJobLen + 1),3)) , OUTPUT dActMatCost) .
         ELSE dActMatCost = 0 .
              
       tt-report2.key-06 = STRING(dActMatCost) .
@@ -341,24 +341,41 @@
          v-cst[1]   = v-qty[1] / 1000 * ar-invl.std-mat-cost
          v-cst[6]   = v-qty[1] / 1000 * ar-invl.std-lab-cost
          v-cst[11]  = v-qty[1] / 1000 * ar-invl.std-fix-cost
-         v-cst[16]  = v-qty[1] / 1000 * ar-invl.std-var-cost
-         dEstRevenue         = ar-invl.ship-qty * ar-invl.unit-pr
-         dEstCost            = ar-invl.ship-qty * ar-invl.cost
+         v-cst[16]  = v-qty[1] / 1000 * ar-invl.std-var-cost  .
+         
+         IF ar-invl.dscr[1] EQ "EA" THEN
+         dCostPerEA = ar-invl.cost.
+         ELSE DO:           
+             RUN Conv_ValueFromUOMtoUOMWithLot(ar-invl.company, ar-invl.i-no, "FG", 
+                                              ar-invl.cost, ar-invl.dscr[1], "EA", 
+                                              0, 0, 0, 0, 0, 0, "",         
+                                              OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cErrorMessage).            
+         END.
+         
+         IF ar-invl.pr-qty-uom EQ "EA" THEN
+         dUnitPricePerEA = ar-invl.unit-pr.
+         ELSE DO:    
+            RUN Conv_ValueToEA(ar-invl.company, ar-invl.i-no, ar-invl.unit-pr, ar-invl.pr-qty-uom, 0, OUTPUT dUnitPricePerEA).
+         END.
+         
+       ASSIGN
+         dEstRevenue         = ar-invl.ship-qty * dUnitPricePerEA
+         dEstCost            = ar-invl.ship-qty * dCostPerEA
          dEstMargin          = dEstRevenue - dEstCost
          dEstGM              = (dEstMargin * 100) / dEstRevenue
-         dActRevenue         = dProductionQty * ar-invl.unit-pr
-         dActCost            = dProductionQty * ar-invl.cost
+         dActRevenue         = dProductionQty * dUnitPricePerEA
+         dActCost            = dProductionQty * dCostPerEA
          dActMargin          = dActRevenue - dActCost
          dActGM              = (dActMargin * 100) / dActRevenue
          dMFGTotalVariance   = dActMargin - dEstMargin
          .
         
-         
-        
-        IF ar-invl.dscr[1] = "M" OR ar-invl.dscr[1] EQ ""  THEN
-           v-cst[21]  = v-qty[1] / 1000 * ar-invl.cost.
-        ELSE
-           v-cst[21]  = v-qty[1] * ar-invl.cost.
+         IF dEstGM GT 999.99 THEN dEstGM = 999.99.
+         IF dEstGM LT -999.99 THEN dEstGM = -999.99.
+         IF dActGM GT 999.99 THEN dActGM = 999.99.
+         IF dActGM LT -999.99 THEN dActGM = -999.99.
+                
+           v-cst[21]  = v-qty[1] * dCostPerEA.
         
         if v-sort then
         do i = 1 to 3:
@@ -485,16 +502,36 @@
               
               RUN fg/GetProductionQty.p (INPUT cocode, INPUT ar-invl.job-no, INPUT ar-invl.job-no2, INPUT ar-invl.i-no, INPUT NO, OUTPUT dProductionQty).
               
+              IF ar-invl.dscr[1] EQ "EA" THEN
+              dCostPerEA = ar-invl.cost.
+              ELSE DO: 
+                  RUN Conv_ValueFromUOMtoUOMWithLot(ar-invl.company, ar-invl.i-no, "FG", 
+                                                  ar-invl.cost, ar-invl.dscr[1], "EA", 
+                                                  0, 0, 0, 0, 0, 0, "",         
+                                                  OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cErrorMessage).            
+              END.
+             
+              IF ar-invl.pr-qty-uom EQ "EA" THEN
+              dUnitPricePerEA = ar-invl.unit-pr.
+              ELSE DO: 
+                 RUN Conv_ValueToEA(ar-invl.company, ar-invl.i-no, ar-invl.unit-pr, ar-invl.pr-qty-uom, 0, OUTPUT dUnitPricePerEA).
+              END.
+              
               ASSIGN
-                   dEstRevenue         = ar-invl.ship-qty * ar-invl.unit-pr
-                   dEstCost            = ar-invl.ship-qty * ar-invl.cost
+                   dEstRevenue         = ar-invl.ship-qty * dUnitPricePerEA
+                   dEstCost            = ar-invl.ship-qty * dCostPerEA
                    dEstMargin          = dEstRevenue - dEstCost
                    dEstGM              = (dEstMargin * 100) / dEstRevenue
-                   dActRevenue         = dProductionQty * ar-invl.unit-pr
-                   dActCost            = dProductionQty * ar-invl.cost
+                   dActRevenue         = dProductionQty * dUnitPricePerEA
+                   dActCost            = dProductionQty * dCostPerEA
                    dActMargin          = dActRevenue - dActCost
                    dActGM              = (dActMargin * 100) / dActRevenue
                    dMFGTotalVariance   = dActMargin - dEstMargin.
+                   
+                   IF dEstGM GT 999.99 THEN dEstGM = 999.99.
+                   IF dEstGM LT -999.99 THEN dEstGM = -999.99.
+                   IF dActGM GT 999.99 THEN dActGM = 999.99.
+                   IF dActGM LT -999.99 THEN dActGM = -999.99.
             end.
 
             ASSIGN
@@ -503,10 +540,7 @@
              v-cst[11]  = v-qty[1] / 1000 * ar-invl.std-fix-cost
              v-cst[16]  = v-qty[1] / 1000 * ar-invl.std-var-cost.
 
-            IF ar-invl.dscr[1] = "M" OR ar-invl.dscr[1] EQ ""  THEN
-               v-cst[21]  = v-qty[1] / 1000 * ar-invl.cost.
-            ELSE
-               v-cst[21]  = v-qty[1] * ar-invl.cost.
+            v-cst[21]  = v-qty[1] * dCostPerEA.
           end.
         end.
       end.
@@ -568,22 +602,22 @@
                           WHEN "inv"         THEN cVarValue = string(w-data.inv-no) .                        
                           WHEN "i-no"        THEN cVarValue = string(w-data.i-no,"x(15)") .                               
                           WHEN "job"         THEN cVarValue = string(w-data.job-no) .                            
-                          WHEN "mat-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[1],"->>>,>>9.99") ELSE "" .      
-                          WHEN "lbr-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[2],"->>>,>>9.99") ELSE "" .                  
-                          WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-brdc[3],"->>>,>>9.99") ELSE "" .                            
-                          WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-brdc[4],"->>>,>>9.99") ELSE "" .         
-                          WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[5],"->>>,>>9.99") ELSE "" .     
+                          WHEN "mat-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[1],"->>>,>>>,>>9.99") ELSE "" .      
+                          WHEN "lbr-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[2],"->>,>>>,>>9.99") ELSE "" .                  
+                          WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-brdc[3],"->>,>>>,>>9.99") ELSE "" .                            
+                          WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-brdc[4],"->>,>>>,>>9.99") ELSE "" .         
+                          WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-brdc[5],"->>>,>>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[2],"->>>,>>>,>>9.99<<") .
-                          WHEN "act-mat-cost" THEN cVarValue = string(decimal(tt-report2.key-06),"->,>>>,>>9.99") .
-                          WHEN "EstRevenue"       THEN cVarValue = string(dEstRevenue). 
-                          WHEN "EstCost"          THEN cVarValue = string(dEstCost).
-                          WHEN "EstMargin"        THEN cVarValue = string(dEstMargin).
-                          WHEN "EstGM"            THEN cVarValue = string(dEstGM,"->>>,>>9.99").
-                          WHEN "ActRevenue"       THEN cVarValue = string(dActRevenue).
-                          WHEN "ActCost"          THEN cVarValue = string(dActCost).
-                          WHEN "ActMargin"        THEN cVarValue = string(dActMargin).
-                          WHEN "ActGM"            THEN cVarValue = string(dActGM,"->>>,>>9.99").
-                          WHEN "MFGTotalVariance" THEN cVarValue = string(dMFGTotalVariance).
+                          WHEN "act-mat-cost" THEN cVarValue = string(decimal(tt-report2.key-06),"->>>,>>>,>>9.99") .
+                          WHEN "EstRevenue"       THEN cVarValue = string(dEstRevenue,"->>>,>>>,>>9.99"). 
+                          WHEN "EstCost"          THEN cVarValue = string(dEstCost,"->>>,>>>,>>9.99").
+                          WHEN "EstMargin"        THEN cVarValue = string(dEstMargin,"->>>,>>>,>>9.99").
+                          WHEN "EstGM"            THEN cVarValue = IF dEstGM NE ? THEN string(dEstGM,"->>>,>>9.99") ELSE "       0.00".
+                          WHEN "ActRevenue"       THEN cVarValue = string(dActRevenue,"->>>,>>>,>>9.99").
+                          WHEN "ActCost"          THEN cVarValue = string(dActCost,"->>>,>>9.99").
+                          WHEN "ActMargin"        THEN cVarValue = string(dActMargin,"->>>,>>>,>>9.99").
+                          WHEN "ActGM"            THEN cVarValue = IF dActGM NE ? THEN string(dActGM,"->>>,>>9.99") ELSE "       0.00".
+                          WHEN "MFGTotalVariance" THEN cVarValue = string(dMFGTotalVariance,"->>,>>>,>>>,>>9.99").
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -654,11 +688,11 @@
                           WHEN "inv"         THEN cVarValue = "" .                        
                           WHEN "i-no"        THEN cVarValue = "" .                               
                           WHEN "job"         THEN cVarValue = "" .                            
-                          WHEN "mat-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[3],"->>>,>>9.99") ELSE "" .      
+                          WHEN "mat-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[3],"->>>,>>>,>>9.99") ELSE "" .      
                           WHEN "lbr-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[8],"->>>,>>9.99") ELSE "" .                  
                           WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[13],"->>>,>>9.99") ELSE "" .                            
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[18],"->>>,>>9.99") ELSE "" .         
-                          WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[23],"->>>,>>9.99") ELSE "" .     
+                          WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[23],"->>>,>>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[3],"->>>,>>>,>>9.99<<") . 
                           WHEN "act-mat-cost" THEN cVarValue = "" .
                           OTHERWISE cVarValue = "" .
@@ -733,11 +767,11 @@
                           WHEN "inv"         THEN cVarValue = "" .                        
                           WHEN "i-no"        THEN cVarValue = "" .                               
                           WHEN "job"         THEN cVarValue = "" .                            
-                          WHEN "mat-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[4],"->>>,>>9.99") ELSE "" .      
+                          WHEN "mat-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[4],"->>>,>>>,>>9.99") ELSE "" .      
                           WHEN "lbr-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[9],"->>>,>>9.99") ELSE "" .                  
                           WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[14],"->>>,>>9.99") ELSE "" .                            
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[19],"->>>,>>9.99") ELSE "" .         
-                          WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[24],"->>>,>>9.99") ELSE "" .     
+                          WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[24],"->>>,>>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[4],"->>>,>>>,>>9.99<<") . 
                           WHEN "act-mat-cost" THEN cVarValue = "" .
                           OTHERWISE cVarValue = "" .
@@ -822,11 +856,11 @@
                           WHEN "inv"         THEN cVarValue = "" .                        
                           WHEN "i-no"        THEN cVarValue = "" .                               
                           WHEN "job"         THEN cVarValue = "" .                            
-                          WHEN "mat-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[5],"->>>,>>9.99") ELSE "" .      
+                          WHEN "mat-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[5],"->>>,>>>,>>9.99") ELSE "" .      
                           WHEN "lbr-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[10],"->>>,>>9.99") ELSE "" .                  
                           WHEN "fix-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[15],"->>>,>>9.99") ELSE "" .                            
                           WHEN "var-oh"      THEN cVarValue = IF v-cost2 THEN string(v-cst[20],"->>>,>>9.99") ELSE "" .         
-                          WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[25],"->>>,>>9.99") ELSE "" .     
+                          WHEN "ttl-cst"     THEN cVarValue = IF v-cost2 THEN string(v-cst[25],"->>>,>>>,>>9.99") ELSE "" .     
                           WHEN "sal-amt"     THEN cVarValue = string(v-amt[5],"->>>,>>>,>>9.99<<") .  
                           WHEN "act-mat-cost" THEN cVarValue = "" .
                           OTHERWISE cVarValue = "" .

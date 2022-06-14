@@ -68,7 +68,7 @@ DEFINE VARIABLE cFieldListToSelect AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
-/* Removed Prep Tax Code - 16.8.9 - Tkt#48289 - MYT - 4/30/19 */
+/* Removed Prep Tax Group - 16.8.9 - Tkt#48289 - MYT - 4/30/19 */
 ASSIGN 
     cTextListToSelect  = "Company,Scope Type,Scope ID,Client ID"
 

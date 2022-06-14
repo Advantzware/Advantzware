@@ -4,20 +4,16 @@
 &Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
-
   File: 
-
   Description: 
-
   Input Parameters:
       <none>
-
   Output Parameters:
       <none>
-
   Author: 
-
-  Created: 
+  Created:
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No).
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -79,13 +75,14 @@ DEF TEMP-TABLE tt-report NO-UNDO
 
 ASSIGN 
     cTextListToSelect  = "Invoice#,Customer#,Customer Name,Invoice Date,Bol#,Order#,Printed,Invoice Total," +
-                                                "Status,Shipto,Shipto Name,Contact,Sales Tax Group,Terms Code,Freight Pay Code," +
+                                                "Status,Shipto,Shipto Name,Contact,Tax Group,Terms Code,Freight Pay Code," +
                                                 "Cust PO#,Carrier,FOB Code,Job#,Job2,Est#,Item#," +
                                                 "Name,Cust Part#,Qty Order,Item Dscr1,Item Dscr2," +
                                                 "Qty Ship,Qty Invoice,UOM,Rep1,Rep Name1,Rep2,Rep Name2,Rep3,Rep Name3," +
                                                 "Comm1,Comm2,Comm3,Cost,Case,Discount,Taxable,Ext. Price," +
                                                 "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant,Invoice Comment,Tax Amount,Freight Amount," +
-                                                "Customer Tax Status,Customer Tax Code,Customer Tax Id,Customer Tax Expiration Date,Ship To Tax Code,Ship To Taxable Status"
+                                                "Customer Tax Status,Customer Tax Group,Customer Tax Id,Customer Tax Expiration Date,Ship To Tax Group,Ship To Taxable Status," +
+                                                "Edi Price,Edi Price UOM,Site ID"
     cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +
                                         "po-no,inv-head.carrier,inv-head.fob-code,job-no,job-no2,est-no,i-no," +
@@ -93,13 +90,14 @@ ASSIGN
                                         "ship-qty,inv-qty,pr-uom,sman1,sname1,sman2,sname2,sman3,sname3," +
                                         "comm1,comm2,comm3,cost,cas-cnt,disc,tax,t-price," +
                                         "csr,line-sales-tax,ord-head-ship-stat,ord-line,bill-note,Auto,reason,cAccountant,cInvComment,inv-head.t-inv-tax,inv-head.t-inv-freight," +
-                                        "custTaxStatus,custTaxCode,custTaxId,taxExpDate,shiptoTaxCode,shiptoStatus "
-    cFieldLength       = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,8,2,6,15," +
+                                        "custTaxStatus,custTaxCode,custTaxId,taxExpDate,shiptoTaxCode,shiptoStatus," +
+                                        "ediPrice,ediPriceUom,siteID"
+    cFieldLength       = "15,15,15,20,15,30,15,15," + "15,15,15,20,15,30,15," + "15,15,15,9,3,8,15," +
                        "30,15,10,30,30," + "15,15,5,4,25,4,25,4,25," + "7,7,7,10,10,10,10,10," + "15,15,15,15,15,10,100,12,60,10,10," +
-                       "6,8,20,10,14,6"
+                       "6,8,20,10,14,6," + "10,13,16"
     cFieldType         = "c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,i,c,c," +
                         "c,c,i,c,c," + "i,i,c,c,c,c,c,c,c," + "i,i,i,i,i,i,c,i," + "c,c,c,i,c,c,c,c,c,d,d," +
-                        "c,c,c,c,c,c"
+                        "c,c,c,c,c,c," + "i,c,c"
     .
 
 {sys/inc/ttRptSel.i}
@@ -195,7 +193,7 @@ DEFINE VARIABLE begin_item    AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_order   AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE begin_order   AS INTEGER   FORMAT ">>>>>>>9" INITIAL 0 
     LABEL "From Order#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -225,7 +223,7 @@ DEFINE VARIABLE end_item      AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_order     AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE end_order     AS INTEGER   FORMAT ">>>>>>>9" INITIAL 99999999 
     LABEL "To Order#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -1192,6 +1190,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE cShiptoTaxCode   AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cShiptoTaxStatus AS CHARACTER NO-UNDO .
     DEFINE VARIABLE lv-ord-no        LIKE inv-line.ord-no.
+    DEFINE VARIABLE cSiteId AS CHARACTER NO-UNDO .
 
 
     DEFINE BUFFER b-shipto FOR shipto.
@@ -1269,7 +1268,8 @@ PROCEDURE run-report :
             DO:
                 ASSIGN
                     cShiptoTaxCode   = b-shipto.tax-code
-                    cShiptoTaxStatus = STRING(b-shipto.tax-mandatory).
+                    cShiptoTaxStatus = STRING(b-shipto.tax-mandatory)
+                    cSiteId          = STRING(b-shipto.siteID) .
             END.  
             IF inv-head.stat EQ "H" THEN
                 v-stat = "On Hold".
@@ -1488,6 +1488,12 @@ PROCEDURE run-report :
                             cVarValue = STRING(cShiptoTaxCode).
                         WHEN "shiptoStatus"           THEN 
                             cVarValue = STRING(cShiptoTaxStatus).
+                        WHEN "ediPrice"           THEN 
+                            cVarValue = STRING(inv-line.ediPrice).
+                        WHEN "ediPriceUom"           THEN 
+                            cVarValue = STRING(inv-line.ediPriceUOM).
+                        WHEN "siteID"           THEN 
+                            cVarValue = STRING(cSiteId).    
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1534,7 +1540,8 @@ PROCEDURE run-report :
             DO:
                 ASSIGN
                     cShiptoTaxCode   = b-shipto.tax-code
-                    cShiptoTaxStatus = STRING(b-shipto.tax-mandatory).
+                    cShiptoTaxStatus = STRING(b-shipto.tax-mandatory)
+                    cSiteId          = STRING(b-shipto.siteID).
             END.  
    
             IF inv-head.stat EQ "H" THEN
@@ -1720,7 +1727,13 @@ PROCEDURE run-report :
                         WHEN "shiptoTaxCode"          THEN 
                             cVarValue = STRING(cShiptoTaxCode).
                         WHEN "shiptoStatus"           THEN 
-                            cVarValue = STRING(cShiptoTaxStatus).    
+                            cVarValue = STRING(cShiptoTaxStatus).
+                        WHEN "ediPrice"           THEN 
+                            cVarValue = STRING(inv-line.ediPrice).
+                        WHEN "ediPriceUom"           THEN 
+                            cVarValue = STRING(inv-line.ediPriceUOM).
+                        WHEN "siteID"           THEN 
+                            cVarValue = STRING(cSiteId).    
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1832,4 +1845,3 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-

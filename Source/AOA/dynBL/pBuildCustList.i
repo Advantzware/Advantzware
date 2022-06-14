@@ -28,6 +28,7 @@ PROCEDURE pBuildCustList:
              NO-ERROR.
         IF AVAILABLE ttCustList THEN 
         opcEndCust = ttCustList.cust-no.
+        lActive = AVAILABLE ttCustList.
     END. /* if lactive */
     oplList = lActive.
 END PROCEDURE.

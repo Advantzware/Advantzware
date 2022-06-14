@@ -1,12 +1,12 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
      if first-of(rm-rcpth.po-no)  then v-first[1] = yes.
      if first-of(rm-rcpth.i-no) then v-first[2] = yes.
 
      assign
-      v-job-no = fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-                 trim(rm-rdtlh.job-no) + "-" + string(rm-rdtlh.job-no2,"99")
+      v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rdtlh.job-no, rm-rdtlh.job-no2)) 
       v-value  = rm-rdtlh.cost * rm-rdtlh.qty.
 
-     if v-job-no begins "-" then v-job-no = "".
+     if trim(v-job-no) begins "-" then v-job-no = "".
      
      /*BV - 07121305*/
      /*IF tb_issue-detail THEN DO:*/
@@ -21,14 +21,14 @@
              ld-under-per = 0 .
          FIND FIRST bf-job-hdr 
                 WHERE bf-job-hdr.company EQ rm-rdtlh.company
-                    AND bf-job-hdr.job-no EQ rm-rdtlh.job-no
+                    AND bf-job-hdr.job-no  EQ rm-rdtlh.job-no
                     AND bf-job-hdr.job-no2 EQ rm-rdtlh.job-no2
                     AND bf-job-hdr.frm     EQ rm-rdtlh.s-num
                 NO-LOCK NO-ERROR.
         IF NOT AVAIL bf-job-hdr THEN
             FIND FIRST bf-job-hdr 
-                WHERE bf-job-hdr.company EQ rm-rdtlh.company
-                    AND bf-job-hdr.job-no EQ rm-rdtlh.job-no
+                WHERE bf-job-hdr.company   EQ rm-rdtlh.company
+                    AND bf-job-hdr.job-no  EQ rm-rdtlh.job-no
                     AND bf-job-hdr.job-no2 EQ rm-rdtlh.job-no2
                 NO-LOCK NO-ERROR.
         IF AVAIL bf-job-hdr THEN DO:
@@ -53,7 +53,7 @@
      FIND FIRST po-ordl 
          WHERE po-ordl.company EQ cocode
            AND po-ordl.po-no EQ int(rm-rcpth.po-no) 
-           AND po-ordl.job-no EQ rm-rcpth.job-no
+           AND po-ordl.job-no  EQ rm-rcpth.job-no
            AND po-ordl.job-no2 EQ rm-rcpth.job-no2
            AND po-ordl.i-no EQ rm-rcpth.i-no 
 	       AND (po-ordl.LINE EQ rm-rcpth.po-line OR rm-rcpth.po-line EQ 0  )
@@ -99,7 +99,7 @@
             ELSE IF ITEM.i-code EQ "E" THEN do:
                FIND FIRST job-mat WHERE
                  job-mat.company EQ rm-rcpth.company AND
-                 job-mat.job-no EQ rm-rcpth.job-no AND
+                 job-mat.job-no  EQ rm-rcpth.job-no AND
                  job-mat.job-no2 EQ rm-rcpth.job-no2 AND
                  job-mat.i-no EQ rm-rcpth.i-no AND
                  job-mat.frm EQ rm-rdtlh.s-num
@@ -175,7 +175,7 @@
                      WHEN "i-name" THEN cVarValue = string(rm-rcpth.i-name,"x(30)") .
                      WHEN "po-no" THEN cVarValue = STRING(rm-rcpth.po-no,"x(8)") .
                      WHEN "rita-code" THEN cVarValue = STRING(rm-rcpth.rita-code,"x(2)").
-                     WHEN "v-job-no" THEN cVarValue =     STRING(v-job-no,"x(9)").
+                     WHEN "v-job-no" THEN cVarValue =     STRING(v-job-no,"x(13)").
                      WHEN "tag" THEN cVarValue = STRING(rm-rdtlh.tag,"x(20)").
                      WHEN "qty" THEN cVarValue = STRING(ld-rqty,"->>>>>9.99<<").
                      WHEN "loc" THEN cVarValue = STRING(rm-rdtlh.loc,"x(5)") .

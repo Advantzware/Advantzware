@@ -16,6 +16,7 @@
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
 /* Mod 01     Task  10091314    */ 
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 CREATE WIDGET-POOL.
 
@@ -60,7 +61,7 @@ ASSIGN
                                                "Press Qty,DC Qty,Plan'd Waste,Qty  Produced,Qty Received,Qty Ordered"
     cFieldListToSelect = "job,cust,mach,fg-job,avg-up,isu-sht,prs-sht," +
                                         "ctng-prs,ctng-isu,pln-wst,crt-pro,fg-rece,cust-ord"
-    cFieldLength       = "10,8,8,7,11,10,11," + "12,14,13,13,12,11"
+    cFieldLength       = "13,8,8,7,11,10,11," + "12,14,13,13,12,11"
     cFieldType         = "c,c,c,i,i,i,i," + "i,i,i,i,i,i" 
     .
 
@@ -147,32 +148,32 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Beginning Date" 
     VIEW-AS FILL-IN 
-    SIZE 18 BY .95 NO-UNDO.
+    SIZE 20.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Date" 
     VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+    SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file        AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ScrapReport.csv" 
     LABEL "Name" 
@@ -294,14 +295,14 @@ DEFINE FRAME FRAME-A
     rd_jstat AT ROW 2.91 COL 43 NO-LABELS
     begin_job-no AT ROW 4.33 COL 24 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 4.33 COL 37 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 4.33 COL 39 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    end_job-no AT ROW 4.33 COL 67 COLON-ALIGNED HELP
+    end_job-no AT ROW 4.33 COL 65 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 4.33 COL 79 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 4.33 COL 80 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    begin_date AT ROW 5.52 COL 24 COLON-ALIGNED
-    end_date AT ROW 5.52 COL 67 COLON-ALIGNED HELP
+    begin_date AT ROW 5.3 COL 24 COLON-ALIGNED
+    end_date AT ROW 5.3 COL 65 COLON-ALIGNED HELP
     "Enter Ending Due Date"
     tb_off AT ROW 7.67 COL 39
     tb_flex AT ROW 7.67 COL 58
@@ -1381,10 +1382,8 @@ CartonsProducedbyJob,FGReceived,CustomerOrderQty".
         ASSIGN
             v-stat  = SUBSTR(rd_jstat,1,1)
 
-            v-fjob  = FILL(" ",6 - length(TRIM(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
-            v-tjob  = FILL(" ",6 - length(TRIM(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99")
+            v-fjob  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+            v-tjob  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
 
             v-fdate = DATE(begin_date:SCREEN-VALUE)
             v-tdate = DATE(END_date:SCREEN-VALUE)
@@ -1449,15 +1448,15 @@ CartonsProducedbyJob,FGReceived,CustomerOrderQty".
 
     IF v-pr-list NE "" THEN
         FOR EACH job
-            WHERE job.company            EQ cocode
-            AND job.job-no             GE substr(v-fjob,1,6)
-            AND job.job-no             LE substr(v-tjob,1,6)
-            AND fill(" ",6 - length(TRIM(job.job-no))) +
-            trim(job.job-no) +  string(job.job-no2,"99")
+            WHERE job.company            EQ cocode            
+            AND FILL(" ", iJobLen - length(TRIM(job.job-no))) +
+            trim(job.job-no) +  string(job.job-no2,"999")
             GE v-fjob
-            AND fill(" ",6 - length(TRIM(job.job-no))) +
-            trim(job.job-no) +  string(job.job-no2,"99")
+            AND FILL(" ", iJobLen - length(TRIM(job.job-no))) +
+            trim(job.job-no) +  string(job.job-no2,"999")
             LE v-tjob
+            and job.job-no2 ge int(begin_job-no2)
+            and job.job-no2 le int(end_job-no2)
             AND (v-stat                EQ "A"                   OR
             (v-stat               EQ "O" AND job.opened)   OR
             (v-stat               EQ "C" AND NOT job.opened))
@@ -1676,39 +1675,6 @@ CartonsProducedbyJob,FGReceived,CustomerOrderQty".
             DO:
                 v-blank     = v-blank / v-sheet .
                 v-blanks[1] = v-sheets[1] * v-blank - v-blanks[3].
-                /*       v-blanks[1] = v-sheets[3] - (v-blanks[3] / v-sheet) .  /* Mod 01     Task  10091314    */ */
-
-
-                /*   display trim(job.job-no) + "-" + string(job.job-no2,"99") format "x(9)"
-                                 column-label "Job#"
-                           job-hdr.cust-no
-                                 column-label "Customer"
-                           bjob-mch.m-code  
-                                 column-label "Machine"
-                           v-sheet         
-                                 column-label "# FG/!Job"
-                           v-blank
-                                 column-label "Avg # up!on the Job"
-                           v-sheets[1]
-                                 column-label "Issued!Sheets"
-                           v-sheets[2]
-                                 column-label "Sheets!Issued to!Press by!Sheeter"
-                           v-sheets[3]
-                                 column-label "Sheets!Issued to!Cutting by!Press"
-                           v-sheets[4]
-                                 column-label "Sheets Cut!by Cutting!Issued to!Finishing"
-                           v-blanks[1]
-                                 column-label "Plan!Waste for!Cartons"
-                           v-blanks[2]
-                                 column-label "Cartons!Produced!by Job"
-                           v-blanks[3]
-                                 column-label "FG!Received"
-                           v-blanks[4]
-                                 column-label "Customer!Order Qty"
-                           skip(1)
-             
-                       with frame scrap no-attr-space no-box down STREAM-IO width 132. */
-
 
                 ASSIGN 
                     cDisplay       = ""
@@ -1721,7 +1687,7 @@ CartonsProducedbyJob,FGReceived,CustomerOrderQty".
                     cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                         WHEN "job"       THEN 
-                            cVarValue = STRING((job.job-no) + "-" + string(job.job-no2,"99")) .
+                            cVarValue = STRING((job.job-no) + "-" + string(job.job-no2,"999")) .
                         WHEN "cust"       THEN 
                             cVarValue = STRING(job-hdr.cust-no) .
                         WHEN "mach"         THEN 
@@ -1761,25 +1727,6 @@ CartonsProducedbyJob,FGReceived,CustomerOrderQty".
                     PUT STREAM s-temp UNFORMATTED  
                         cExcelDisplay SKIP.
                 END.
-
-                /*    if tb_excel then
-                    do:
-                      assign str_buffa = "".
-                      assign str_buffa = trim(job.job-no) + "-" + string(job.job-no2,"99") + v-comma   /* Mod 01     Task  10091314    */ 
-                                       + trim(job-hdr.cust-no)                             + v-comma
-                                       + trim(bjob-mch.m-code)                             + v-comma
-                                       + trim(string(v-sheet,'->9'))                        + v-comma 
-                                       + trim(string(v-blank,'->9.999'))                    + v-comma
-                                       + trim(string(v-sheets[1],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-sheets[2],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-sheets[3],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-sheets[4],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-blanks[1],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-blanks[2],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-blanks[3],'->>>>>>>9'))            + v-comma
-                                       + trim(string(v-blanks[4],'->>>>>>>9')).      
-                      PUT STREAM s-temp UNFORMATTED str_buffa SKIP.
-                    end. */
 
                 ASSIGN
                     v-sheet  = 0

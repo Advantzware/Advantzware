@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -99,7 +100,7 @@ END.
           AND {system/brMatches.i  job-hdr.cust-no fi_cust-no}   ~
           AND {system/brMatches.i  job-hdr.i-no fi_i-no}   ~
           AND job-hdr.est-no    BEGINS fi_est-no    ~
-          AND job-hdr.job-no    BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) BEGINS fi_job-no    ~
           AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
           AND (job-hdr.due-date GE fiBeginDate OR fiBeginDate EQ ?) ~
           AND (job-hdr.due-date LE fiEndDate OR fiEndDate EQ ?)
@@ -125,7 +126,7 @@ END.
     IF lv-sort-by EQ "cust-no"    THEN job-hdr.cust-no                                                                                                  ELSE ~
     IF lv-sort-by EQ "i-no"       THEN job-hdr.i-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "est-no"     THEN job-hdr.est-no                                                                                                   ELSE ~
-    IF lv-sort-by EQ "job-no"     THEN STRING(job-hdr.job-no,"x(6)") + STRING(job-hdr.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"     THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job-hdr.job-no, job-hdr.job-no2))                                  ELSE ~
     IF lv-sort-by EQ "close-date" THEN STRING(YEAR(job.close-date),"9999") + STRING(MONTH(job.close-date),"99") + STRING(DAY(job.close-date),"99")      ELSE ~
                                        STRING(YEAR(job.start-date),"9999") + STRING(MONTH(job.start-date),"99") + STRING(DAY(job.start-date),"99")
 
@@ -321,12 +322,12 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 25 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 14 BY 1
+     SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1
@@ -375,13 +376,14 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(7)":U COLUMN-BGCOLOR 8
+      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 15
+            COLUMN-BGCOLOR 8 LABEL-BGCOLOR 14
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 5.6
             LABEL-BGCOLOR 14
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
       job-hdr.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       job-hdr.est-no COLUMN-LABEL "Estimate#" FORMAT "x(8)":U WIDTH 14
             LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>9":U WIDTH 12 LABEL-BGCOLOR 14
       job-hdr.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       job.start-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
@@ -420,10 +422,10 @@ DEFINE FRAME F-Main
      fibeginDate AT ROW 1.91 COL 105.8 COLON-ALIGNED NO-LABEL WIDGET-ID 48
      fiEndDate AT ROW 1.91 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 50
      fi_job-no AT ROW 1.91 COL 2.6 NO-LABEL
-     fi_job-no2 AT ROW 1.91 COL 16.8 COLON-ALIGNED
-     fi_i-no AT ROW 1.95 COL 25 COLON-ALIGNED NO-LABEL
+     fi_job-no2 AT ROW 1.91 COL 17.2 COLON-ALIGNED
+     fi_i-no AT ROW 1.91 COL 25.2 COLON-ALIGNED NO-LABEL
      fi_cust-no AT ROW 1.91 COL 51.8 COLON-ALIGNED NO-LABEL
-     fi_est-no AT ROW 1.95 COL 71 COLON-ALIGNED NO-LABEL
+     fi_est-no AT ROW 1.91 COL 71 COLON-ALIGNED NO-LABEL
      fi_ord-no AT ROW 1.91 COL 89 COLON-ALIGNED NO-LABEL
      tb_open AT ROW 2.95 COL 108
      tb_closed AT ROW 2.95 COL 127.2
@@ -542,15 +544,15 @@ ASSIGN
      _TblOptList       = ","
      _Where[1]         = "ASI.job-hdr.job = 0"
      _FldNameList[1]   > ASI.job-hdr.job-no
-"job-hdr.job-no" "Job#" "x(7)" "character" 8 ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no" "Job#" ? "character" 8 ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.job-no2
-"job-hdr.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no2" "" "999" "integer" ? ? ? 14 ? ? yes ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.i-no
 "job-hdr.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.job-hdr.est-no
 "job-hdr.est-no" "Estimate#" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.job-hdr.ord-no
-"job-hdr.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.ord-no" ? ? "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.job-hdr.cust-no
 "job-hdr.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.job.start-date
@@ -1533,7 +1535,7 @@ PROCEDURE reopen-query :
              fi_est-no:SCREEN-VALUE  = ""
              fi_i-no:SCREEN-VALUE    = ""
              fi_job-no:SCREEN-VALUE  = bf-job-hdr.job-no
-             fi_job-no2:SCREEN-VALUE = STRING(bf-job-hdr.job-no2, "99")
+             fi_job-no2:SCREEN-VALUE = STRING(bf-job-hdr.job-no2, "999")
              fi_ord-no:SCREEN-VALUE  = ""
              fi_sort-by:SCREEN-VALUE = "".
     ASSIGN
@@ -2061,6 +2063,9 @@ FUNCTION overUnderPct RETURNS INTEGER
     rtnValue = ((ipBalance / oe-ordl.qty) - 1) * 100.
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
+    
+    IF rtnValue GT 999 THEN rtnValue = 999.
+    ELSE IF rtnValue LT -999 THEN rtnValue = -999.
     END. /* avail oe-ordl */
   END. /* avail job-hdr */
   RETURN rtnValue.

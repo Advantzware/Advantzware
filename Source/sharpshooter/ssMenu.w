@@ -445,6 +445,7 @@ PROCEDURE pBuildttMenuTree :
             INDEX(prgrms.prgmname,".") EQ 0,
             prgrms.itemParent,
             prgrms.prgmname,
+            prgrms.dir_group,
             (IF prgrms.customMenuTitle NE "" THEN prgrms.customMenuTitle ELSE prgrms.prgTitle),
             prgrms.menuImage[1],
             prgrms.mnemonic,
@@ -505,6 +506,7 @@ PROCEDURE pCreatettMenuTree-1 :
     DEFINE INPUT PARAMETER iplMenu             AS LOGICAL   NO-UNDO.
     DEFINE INPUT PARAMETER ipcParent           AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcChild            AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcProgramDirectory AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcText             AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcImage            AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcMnemonic         AS CHARACTER NO-UNDO.
@@ -524,6 +526,7 @@ PROCEDURE pCreatettMenuTree-1 :
         ttMenuTree.isMenu     = iplMenu
         ttMenuTree.treeParent = ipcParent
         ttMenuTree.treeChild  = ipcChild
+        ttMenuTree.dirGroup   = ipcProgramDirectory
         ttMenuTree.treeText   = ipcText
         ttMenuTree.baseText   = fTranslate(ENTRY(1,ipcText),NO)
         ttMenuTree.treeImage  = ipcImage
@@ -689,6 +692,16 @@ PROCEDURE pDisplayMenuTree-1 :
             bttMenuTree.hRectangle:ROW    = dRow
             bttMenuTree.hRectangle:HIDDEN = NO
             .
+
+        IF NOT bttMenuTree.isMenu AND 
+           SEARCH(bttMenuTree.dirGroup + "/" + bttMenuTree.treeChild + "r") EQ ? AND
+           SEARCH(bttMenuTree.dirGroup + "/" + bttMenuTree.treeChild + "p") EQ ? AND
+           SEARCH(bttMenuTree.dirGroup + "/" + bttMenuTree.treeChild + "w") EQ ? THEN
+            ASSIGN
+                bttMenuTree.hRectangle:BGCOLOR = 8
+                bttMenuTree.hEditor:BGCOLOR    = 8
+                .
+                
         IF lMenuImage THEN 
         ASSIGN
             bttMenuTree.hImage:COL    = bttMenuTree.hRectangle:WIDTH / 2

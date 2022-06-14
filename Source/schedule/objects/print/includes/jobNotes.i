@@ -21,7 +21,7 @@
       PUT UNFORMATTED
         '"' jobNotes.noteDate '",'
         '"' STRING(jobNotes.noteTime,'HH:MM:SSam') '",'
-        '"' jobNotes.noteText '"'.
+        '"' REPLACE(jobNotes.noteText,CHR(10)," ") '"'.
       noteCnt = noteCnt + 1.
     END. /* else */
     ELSE /* not excel show note */

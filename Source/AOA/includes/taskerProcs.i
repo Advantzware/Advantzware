@@ -556,7 +556,8 @@ PROCEDURE pTasks :
             END. /* if ne ? */
         END.
         /* check if running is beyond task time limit */
-        IF Task.isRunning EQ YES AND
+        IF AVAILABLE Task        AND
+           Task.isRunning EQ YES AND
            Task.taskStart NE ?   AND
            Task.expired   EQ NO  AND
            DATETIME(DATE(Task.taskStart), MTIME(Task.taskStart) + INTEGER(dTaskTimeLimit) * 60000) LT NOW AND

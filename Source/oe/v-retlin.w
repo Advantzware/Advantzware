@@ -9,6 +9,7 @@
 
   File: oe\v-retlin.w
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No).
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -196,12 +197,12 @@ DEFINE FRAME F-Main
      oe-retl.ord-no AT ROW 1.48 COL 12 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-retl.po-no AT ROW 1.48 COL 36 COLON-ALIGNED
+     oe-retl.po-no AT ROW 1.48 COL 34.5 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
-     oe-retl.job-no AT ROW 1.48 COL 71 COLON-ALIGNED
+     oe-retl.job-no AT ROW 1.48 COL 67.5 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 11 BY 1
+          SIZE 14 BY 1
      oe-retl.job-no2 AT ROW 1.48 COL 82 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 6 BY 1

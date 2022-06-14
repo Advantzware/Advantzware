@@ -1,0 +1,68 @@
+Wed 12/29/2021 Merge/Compile 
+---------------------------------------------------- 
+16:49:31.03 Validating/adding auditTbl/Fld records 
+16:49:31.04 Updating SQL permissions 
+16:49:35.13 Pulling latest merges from GitHub 
+No local changes to save
+Fetching origin
+HEAD is now at 5e45c317b Merge pull request #9468 from Advantzware/feature/105869-Changing-order-Due-Date-changes-Release-Date
+16:49:51.96 Copying program files to /Devel environment 
+16:49:51.97   Deleting and recreating /Devel/Source directory 
+16:50:18.13   Copying source files from repository to /Devel/Source 
+23745 File(s) copied
+16:53:06.95   Copying resource files from repository to /Devel/Resources 
+1556 File(s) copied
+16:53:15.79   Removing /Devel/Override 
+16:53:15.80 Source/Resource copy complete 
+16:53:15.81 Begin compiling program files 
+Should complete approximately 17:13 
+17:14:14.88 Merge/Compile Complete 
+---------------------------------------------------- 
+. 
+Creating program library (.pl) files... 
+Finished creating program library (.pl) files... 
+17:14:41.27 Begin devel database backup 
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+549404 active blocks out of 549453 blocks in TESTDEVELd will be dumped. (6686)
+39168 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.4 GBytes of media. (9285)
+Restore would require an estimated 628945 db blocks using 2.4 GBytes of media. (9286)
+Backed up 549660 db blocks in 00:01:18
+Wrote a total of 15103 backup blocks using 2.0 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+OpenEdge Release 11.6.3 as of Thu Sep  8 19:01:50 EDT 2016
+
+591357 active blocks out of 591358 blocks in TESTDEVELa will be dumped. (6686)
+4096 BI blocks will be dumped. (6688)
+Backup requires an estimated 2.3 GBytes of media. (9285)
+Restore would require an estimated 600765 db blocks using 2.3 GBytes of media. (9286)
+Backed up 591613 db blocks in 00:01:15
+Wrote a total of 14085 backup blocks using 1.8 GBytes of media. (13625)
+
+Backup complete. (3740)
+
+17:20:03.80 Ending devel database backup 
+17:20:03.81   Copying zipped backup to helpsvr 
+        1 file(s) copied.
+Wed 12/29/2021 Merge/Compile 
+---------------------------------------------------- 
+16:33:13.16 Validating/adding auditTbl/Fld records 
+16:33:13.16 Updating SQL permissions 
+16:33:17.81 Pulling latest merges from GitHub 
+No local changes to save
+Fetching origin
+HEAD is now at 7f5d6ba06 Merge pull request #9354 from Advantzware/feature/100562_OB1_Automated_Billing_Rules__MOD_ID_10088
+16:33:46.95 Copying program files to /Devel environment 
+16:33:46.95   Deleting and recreating /Devel/Source directory 
+16:34:21.35   Copying source files from repository to /Devel/Source 
+23745 File(s) copied
+16:37:05.12   Copying resource files from repository to /Devel/Resources 
+1556 File(s) copied
+16:37:14.89   Removing /Devel/Override 
+16:37:14.91 Source/Resource copy complete 
+16:37:14.91 Begin compiling program files 
+Should complete approximately 16:57 
+

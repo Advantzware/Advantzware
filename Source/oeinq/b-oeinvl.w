@@ -278,7 +278,7 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
@@ -326,14 +326,14 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
+      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>>":U WIDTH 12 LABEL-BGCOLOR 14
       ar-invl.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
       ar-invl.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
       ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
             WIDTH 15
       ar-invl.actnum COLUMN-LABEL "GL Acct#" FORMAT "x(25)":U WIDTH 30 LABEL-BGCOLOR 14
       ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 20 LABEL-BGCOLOR 14
-      ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
+      ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(30)":U
             WIDTH 20 LABEL-BGCOLOR 14
       ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U WIDTH 20 LABEL-BGCOLOR 14
@@ -483,7 +483,7 @@ ASSIGN
   AND ASI.ar-invl.ord-no = ASI.oe-ordl.ord-no"
      _JoinCode[2]      = "ASI.ar-inv.x-no = ASI.ar-invl.x-no"
      _FldNameList[1]   > ASI.ar-invl.inv-no
-"ar-invl.inv-no" "Inv#" ">>>>>>>>" "integer" ? ? ? ? ? ? yes ? no no "9" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.inv-no" "Inv#" ">>>>>>>>" "integer" ? ? ? ? ? ? yes ? no no "12" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ar-invl.bol-no
 "ar-invl.bol-no" "BOL#" ">>>>>>>>" "integer" ? ? ? ? ? ? yes ? no no "9" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.ar-invl.cust-no

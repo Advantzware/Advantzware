@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -460,15 +461,15 @@ DEFINE VARIABLE begin_i-no      AS CHARACTER FORMAT "X(15)":U
     VIEW-AS FILL-IN 
     SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job       AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job       AS CHARACTER FORMAT "X(9)":U 
     LABEL "From Job#" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job2      AS INTEGER   FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job2      AS INTEGER   FORMAT "999":U INITIAL 0 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_labels    AS INTEGER   FORMAT ">>>>":U INITIAL 2 
     LABEL "# of Labels per Skid" 
@@ -505,15 +506,15 @@ DEFINE VARIABLE end_i-no        AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job         AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE end_job         AS CHARACTER FORMAT "X(9)":U 
     LABEL "To Job#" 
     VIEW-AS FILL-IN 
     SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job2        AS INTEGER   FORMAT "99":U INITIAL 99 
+DEFINE VARIABLE end_job2        AS INTEGER   FORMAT "999":U INITIAL 999 
     LABEL "-" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-no      AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0 
     LABEL "To Order#" 
@@ -1073,10 +1074,10 @@ ON HELP OF FRAME FRAME-A
 
             .
 
-        IF begin_job NE "" AND LENGTH(begin_job) LT 6 THEN
-            begin_job = FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job).
-        IF end_job NE "" AND LENGTH(end_job) LT 6 THEN
-            end_job = FILL(" ",6 - LENGTH(TRIM(end_job))) + TRIM(end_job).
+        IF begin_job NE "" AND LENGTH(begin_job) LT 9 THEN
+            begin_job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job)) .
+        IF end_job NE "" AND LENGTH(end_job) LT 9 THEN
+            end_job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job)) .
 
         lv-handle = FOCUS:HANDLE.
 
@@ -1438,17 +1439,15 @@ ON LEAVE OF end_i-no IN FRAME FRAME-A /* To Item# */
                 AND itemfg.i-no EQ END_i-no NO-LOCK NO-ERROR.
             IF AVAILABLE itemfg AND itemfg.alloc EQ YES THEN
                 rd_comps:SCREEN-VALUE = "U".
-            IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 99.
+            IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 999.
             FIND FIRST job-hdr NO-LOCK
-                WHERE job-hdr.company EQ cocode
-                AND job-hdr.job-no  GE begin_job
-                AND job-hdr.job-no  LE end_job
-                AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) + 
-                TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"99")  
-                GE (begin_job + STRING(begin_job2,"99"))
-                AND FILL(" ",6 - length(TRIM(job-hdr.job-no))) +
-                TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"99")  
-                LE (end_job + STRING(end_job2,"99"))
+                WHERE job-hdr.company EQ cocode                 
+                AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) + 
+                TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"999")  
+                GE (begin_job + STRING(begin_job2,"999"))
+                AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
+                TRIM(job-hdr.job-no) + STRING(job-hdr.job-no2,"999")  
+                LE (end_job + STRING(end_job2,"999"))
                 AND job-hdr.job-no2    EQ INT(begin_job2:SCREEN-VALUE) NO-ERROR.
 
             IF AVAILABLE job-hdr THEN
@@ -3750,7 +3749,7 @@ PROCEDURE create-loadtag :
                 fg-rctd.qty-case   = loadtag.qty-case
                 fg-rctd.partial    = loadtag.partial
                 fg-rctd.cases      = IF loadtag.qty-case NE 0 THEN TRUNC(fg-rctd.t-qty / loadtag.qty-case,0) ELSE 0
-                fg-rctd.cases-unit = loadtag.case-bundle
+                fg-rctd.cases-unit = loadtag.case-bundle  + INTEGER(DYNAMIC-FUNCTION("fGetOverageQuantitySubUnitsPerUnit" IN hdInventoryProcs,INTEGER(loadtag.partial))) 
                 fg-rctd.loc        = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE loadtag.loc
                 fg-rctd.loc-bin    = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE loadtag.loc-bin
                 fg-rctd.tag        = loadtag.tag-no
@@ -4016,7 +4015,7 @@ PROCEDURE create-text-file :
 
         EACH-ORD:
         FOR EACH w-ord:
-            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"999").
             IF v-job BEGINS "-" OR v-job = ? /* 9901 CAH */
                 THEN v-job = STRING(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
             FIND FIRST itemfg WHERE itemfg.company = cocode
@@ -4205,13 +4204,13 @@ PROCEDURE create-text-file :
 
             ASSIGN
                 w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
-                v-job          = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+                v-job          = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)) .
             IF v-job BEGINS "-" THEN v-job = "".
             ASSIGN
-                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
                 lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
                 lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
                 lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -5026,7 +5025,7 @@ PROCEDURE dispJobInfo :
 
         FIND FIRST bf-job WHERE
             bf-job.company EQ cocode AND
-            bf-job.job-no EQ ipcJobNo AND
+            bf-job.job-no  EQ ipcJobNo AND
             bf-job.job-no2 EQ ipiJobNo2
             NO-LOCK NO-ERROR.
 
@@ -5065,10 +5064,10 @@ PROCEDURE dispJobInfo :
             ASSIGN
                 begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
                 begin_job:SCREEN-VALUE    = ipcJobNo         
-                begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"99")
+                begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"999")
                 end_ord-no:SCREEN-VALUE   = STRING(v-last-order)
                 end_job:SCREEN-VALUE      = ipcJobNo     
-                end_job2:SCREEN-VALUE     = STRING(ipiJobNo2,"99")
+                end_job2:SCREEN-VALUE     = STRING(ipiJobNo2,"999")
                 begin_i-no:SCREEN-VALUE   = v-frstitem
                 end_i-no:SCREEN-VALUE     = v-lastitem.    
       
@@ -5516,7 +5515,7 @@ PROCEDURE from-ord :
     DO:
         IF AVAILABLE b-job-hdr THEN
             FIND FIRST ttbljob WHERE ttbljob.company = b-job-hdr.company
-                AND ttbljob.job-no = b-job-hdr.job-no
+                AND ttbljob.job-no  = b-job-hdr.job-no
                 AND ttbljob.job-no2 = b-job-hdr.job-no2
                 AND ttbljob.ord-no = oe-ordl.ord-no
                 NO-LOCK NO-ERROR.
@@ -6338,7 +6337,7 @@ PROCEDURE get-jobord-info :
         lCheckBlank = NO .
 
     ASSIGN
-        lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + lv-job-no
+        lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) 
         v-job2    = INT(lv-job-no2).
     RUN dispJobInfo (INPUT cocode, INPUT lv-job-no, INPUT v-job2,INPUT iForm, INPUT iBlank-no, INPUT lCheckForm, INPUT lCheckBlank, OUTPUT oplCheckForm ).
     IF lCheckForm AND oplCheckForm THEN
@@ -6351,7 +6350,7 @@ PROCEDURE get-jobord-info :
 /*
 FIND FIRST bf-job WHERE
      bf-job.company EQ cocode AND
-     bf-job.job-no EQ lv-job-no AND
+     bf-job.job-no  EQ lv-job-no AND
      bf-job.job-no2 EQ v-job2
      NO-LOCK NO-ERROR.
 
@@ -6386,10 +6385,10 @@ DO:
    ASSIGN
       begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
       begin_job:SCREEN-VALUE    = lv-job-no         
-      begin_job2:SCREEN-VALUE   = STRING(v-job2,"99")
+      begin_job2:SCREEN-VALUE   = STRING(v-job2,"999")
       end_ord-no:SCREEN-VALUE   = STRING(v-last-order)
       end_job:SCREEN-VALUE      = lv-job-no     
-      end_job2:SCREEN-VALUE     = STRING(v-job2,"99")
+      end_job2:SCREEN-VALUE     = STRING(v-job2,"999")
       begin_i-no:SCREEN-VALUE = v-frstitem
       end_i-no:SCREEN-VALUE   = v-lastitem.           
 
@@ -6445,10 +6444,10 @@ IF AVAIL bf-jobhdr THEN DO:
       ASSIGN
          begin_ord-no:SCREEN-VALUE = STRING(bf-oe-ordl.ord-no) 
          begin_job:SCREEN-VALUE    = lv-job-no         
-         begin_job2:SCREEN-VALUE   = STRING(v-job2,"99")
+         begin_job2:SCREEN-VALUE   = STRING(v-job2,"999")
          end_ord-no:SCREEN-VALUE   = STRING(bf-oe-ordl.ord-no)  
          end_job:SCREEN-VALUE      = lv-job-no     
-         end_job2:SCREEN-VALUE     = STRING(v-job2,"99").
+         end_job2:SCREEN-VALUE     = STRING(v-job2,"999").
 
       IF v-lncnt EQ 1 THEN DO WITH FRAME {&FRAME-NAME}:
          ASSIGN
@@ -6489,10 +6488,10 @@ IF AVAIL bf-jobhdr THEN DO:
       ASSIGN
          begin_ord-no:SCREEN-VALUE = "0" 
          begin_job:SCREEN-VALUE    = lv-job-no         
-         begin_job2:SCREEN-VALUE   = STRING(v-job2,"99")
+         begin_job2:SCREEN-VALUE   = STRING(v-job2,"999")
          end_ord-no:SCREEN-VALUE   = "0"  
          end_job:SCREEN-VALUE      = lv-job-no     
-         end_job2:SCREEN-VALUE     = STRING(v-job2,"99").
+         end_job2:SCREEN-VALUE     = STRING(v-job2,"999").
 
       FOR EACH bf-job-hdr-2 FIELDS(i-no) WHERE
           bf-job-hdr-2.company EQ bf-jobhdr.company AND
@@ -6938,7 +6937,7 @@ PROCEDURE get-set-full-qty :
     lv-out-qty = 0.
     FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
         (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
-        AND trim(b-fg-rctd.job-no) = trim(ipc-job-no)
+        AND b-fg-rctd.job-no  = ipc-job-no
         AND b-fg-rctd.job-no2 = INT(ipi-job-no2)
         AND b-fg-rctd.i-no = ipc-i-no 
         NO-LOCK :
@@ -7134,14 +7133,13 @@ PROCEDURE leave-job-label :
             RELEASE job-hdr.
             RELEASE shipto.
 
-            v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
-                + TRIM(begin_job:SCREEN-VALUE).
+            v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job:SCREEN-VALUE)) .
 
             IF begin_i-no:SCREEN-VALUE EQ end_i-no:SCREEN-VALUE AND
                 begin_i-no:SCREEN-VALUE NE "" THEN
                 FIND FIRST job-hdr WHERE
                     job-hdr.company EQ cocode AND
-                    job-hdr.job-no EQ v-job-no AND
+                    job-hdr.job-no  EQ v-job-no AND
                     job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
                     job-hdr.i-no EQ begin_i-no:SCREEN-VALUE AND
                     job-hdr.ord-no NE 0
@@ -7150,7 +7148,7 @@ PROCEDURE leave-job-label :
             DO:
                 FIND FIRST job-hdr WHERE
                     job-hdr.company EQ cocode AND
-                    job-hdr.job-no EQ v-job-no AND
+                    job-hdr.job-no  EQ v-job-no AND
                     job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
                     job-hdr.ord-no NE 0
                     NO-LOCK NO-ERROR.
@@ -7158,7 +7156,7 @@ PROCEDURE leave-job-label :
                 IF NOT AVAILABLE job-hdr THEN
                     FIND FIRST job-hdr WHERE
                         job-hdr.company EQ cocode AND
-                        job-hdr.job-no EQ v-job-no AND
+                        job-hdr.job-no  EQ v-job-no AND
                         job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
                         NO-LOCK NO-ERROR.
             END.
@@ -7305,16 +7303,13 @@ PROCEDURE leave-job-label :
         END.
     END.
 
-    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
-        + TRIM(begin_job:SCREEN-VALUE).
+    v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job:SCREEN-VALUE))  .
     IF begin_i-no:SCREEN-VALUE EQ "" THEN
         RUN dispJobInfo (INPUT cocode, INPUT v-job-no, INPUT INT(begin_job2:SCREEN-VALUE),0,0,NO,NO,OUTPUT oplCheckForm).
 
 
-    v-job-no = FILL(" ",6 - LENGTH(TRIM(begin_job:SCREEN-VALUE)))
-        + TRIM(begin_job:SCREEN-VALUE).
-    v-job-no-end = FILL(" ",6 - LENGTH(TRIM(end_job:SCREEN-VALUE)))
-        + TRIM(end_job:SCREEN-VALUE).
+    v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job:SCREEN-VALUE)) .
+    v-job-no-end = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job:SCREEN-VALUE)).
 
     IF INT(end_job2:SCREEN-VALUE) > 0 AND TRIM(v-job-no) > ""  THEN 
     DO:
@@ -7323,9 +7318,9 @@ PROCEDURE leave-job-label :
 
         FOR EACH b-job-hdr-2  WHERE
             b-job-hdr-2.company EQ cocode AND
-            b-job-hdr-2.job-no  GE v-job-no AND
+            FILL(" ", iJobLen - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no) GE v-job-no AND
             b-job-hdr-2.job-no2 GE INT(begin_job2:SCREEN-VALUE) AND
-            b-job-hdr-2.job-no  LE v-job-no-end AND                
+            FILL(" ", iJobLen - length(TRIM(b-job-hdr-2.job-no))) + trim(b-job-hdr-2.job-no)  LE v-job-no-end AND                
             b-job-hdr-2.job-no2 LE INT(end_job2:SCREEN-VALUE) AND
             b-job-hdr-2.i-no    GE begin_i-no:SCREEN-VALUE AND
             b-job-hdr-2.i-no    LE end_i-no:SCREEN-VALUE
@@ -7985,7 +7980,7 @@ PROCEDURE post-return :
 
         bf-fg-rctd.partial    = loadtag.partial
         bf-fg-rctd.cases      = TRUNC(bf-fg-rctd.t-qty / bf-fg-rctd.qty-case,0)
-        bf-fg-rctd.cases-unit = loadtag.case-bundle
+        bf-fg-rctd.cases-unit = loadtag.case-bundle + INTEGER(DYNAMIC-FUNCTION("fGetOverageQuantitySubUnitsPerUnit" IN hdInventoryProcs,INTEGER(loadtag.partial)))
         bf-fg-rctd.loc        = IF cFGDefWhse NE "" THEN cFGDefWhse ELSE loadtag.loc
         bf-fg-rctd.loc-bin    = IF cFGDefBin  NE "" THEN cFGDefBin  ELSE loadtag.loc-bin
         bf-fg-rctd.tag        = loadtag.tag-no
@@ -8549,8 +8544,8 @@ PROCEDURE temp-job :
 
     FOR EACH job
         WHERE job.company EQ cocode
-        AND job.job-no  EQ SUBSTR(ip-job-no,1,6)
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,7,2))
+        AND job.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
         AND (v-stat EQ "A" OR
         (v-stat EQ "C" AND job.opened EQ NO) OR
         (v-stat EQ "O" AND job.opened EQ YES))

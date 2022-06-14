@@ -1,0 +1,308 @@
+[
+  {
+    "rec_key": "299906246224705383478",
+    "estCostGroupID": "costGroup1",
+    "estCostGroupLevelID": 1,
+    "estCostGroupDesc": "Direct Materials Dscr",
+    "costGroupLabel": "Direct Material",
+    "costGroupSequence": 1,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383479",
+    "estCostGroupID": "costGroup10",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Misc Labor - Expenses Dscr",
+    "costGroupLabel": "Misc Labor - Expenses",
+    "costGroupSequence": 10,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383480",
+    "estCostGroupID": "costGroup11",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Prep Material - Expenses Dscr",
+    "costGroupLabel": "Prep Material - Expenses",
+    "costGroupSequence": 11,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383481",
+    "estCostGroupID": "costGroup12",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Misc Material - Expenses Dscr",
+    "costGroupLabel": "Misc Material - Expenses",
+    "costGroupSequence": 12,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383482",
+    "estCostGroupID": "costGroup13",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "User Defined Expense 1 Dscr",
+    "costGroupLabel": "User Defined Expense 1",
+    "costGroupSequence": 13,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383483",
+    "estCostGroupID": "costGroup14",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "User Defined Expense 2 Dscr",
+    "costGroupLabel": "User Defined Expense 2",
+    "costGroupSequence": 14,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383484",
+    "estCostGroupID": "costGroup15",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "User Defined Expense 3 Dscr",
+    "costGroupLabel": "User Defined Expense 3",
+    "costGroupSequence": 15,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383485",
+    "estCostGroupID": "costGroup16",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Other Expenses Dscr",
+    "costGroupLabel": "Other Expenses",
+    "costGroupSequence": 16,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383486",
+    "estCostGroupID": "costGroup17",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "GS&A Material Dscr",
+    "costGroupLabel": "GS&A Material",
+    "costGroupSequence": 19,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383487",
+    "estCostGroupID": "costGroup18",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "GS&A Labor Dscr",
+    "costGroupLabel": "GS&A Labor",
+    "costGroupSequence": 20,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383488",
+    "estCostGroupID": "costGroup19",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Freight Dscr",
+    "costGroupLabel": "Freight",
+    "costGroupSequence": 23,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383489",
+    "estCostGroupID": "costGroup2",
+    "estCostGroupLevelID": 1,
+    "estCostGroupDesc": "Prep Material - Factory Dscr",
+    "costGroupLabel": "Prep Material - Factory",
+    "costGroupSequence": 2,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383490",
+    "estCostGroupID": "costGroup20",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Commission Dscr",
+    "costGroupLabel": "Commission",
+    "costGroupSequence": 24,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383491",
+    "estCostGroupID": "costGroup21",
+    "estCostGroupLevelID": 4,
+    "estCostGroupDesc": "Prep Material - Profit Dscr",
+    "costGroupLabel": "Prep Material - Profit",
+    "costGroupSequence": 25,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383492",
+    "estCostGroupID": "costGroup22",
+    "estCostGroupLevelID": 4,
+    "estCostGroupDesc": "Misc Material - Profit Dscr",
+    "costGroupLabel": "Misc Material - Profit",
+    "costGroupSequence": 26,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383493",
+    "estCostGroupID": "costGroup23",
+    "estCostGroupLevelID": 4,
+    "estCostGroupDesc": "Prep Labor - Profit Dscr",
+    "costGroupLabel": "Prep Labor - Profit",
+    "costGroupSequence": 27,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383494",
+    "estCostGroupID": "costGroup24",
+    "estCostGroupLevelID": 4,
+    "estCostGroupDesc": "Misc Labor - Profit Dscr",
+    "costGroupLabel": "Misc Labor - Profit",
+    "costGroupSequence": 28,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383495",
+    "estCostGroupID": "costGroup25",
+    "estCostGroupLevelID": 4,
+    "estCostGroupDesc": "Profit Dscr",
+    "costGroupLabel": "Profit",
+    "costGroupSequence": 29,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383496",
+    "estCostGroupID": "costGroup26",
+    "estCostGroupLevelID": 5,
+    "estCostGroupDesc": "Prep Labor - Separate Dscr",
+    "costGroupLabel": "Prep Labor - Separate",
+    "costGroupSequence": 30,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383497",
+    "estCostGroupID": "costGroup27",
+    "estCostGroupLevelID": 5,
+    "estCostGroupDesc": "Misc Labor - Separate Dscr",
+    "costGroupLabel": "Misc Labor - Separate",
+    "costGroupSequence": 31,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383498",
+    "estCostGroupID": "costGroup28",
+    "estCostGroupLevelID": 5,
+    "estCostGroupDesc": "Prep Material - Separate Dscr",
+    "costGroupLabel": "Prep Material - Separate",
+    "costGroupSequence": 32,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383499",
+    "estCostGroupID": "costGroup29",
+    "estCostGroupLevelID": 5,
+    "estCostGroupDesc": "Misc Material - Separate Dscr",
+    "costGroupLabel": "Misc Material - Separate",
+    "costGroupSequence": 33,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383500",
+    "estCostGroupID": "costGroup3",
+    "estCostGroupLevelID": 1,
+    "estCostGroupDesc": "Misc Material - Factory Dscr",
+    "costGroupLabel": "Misc Material - Factory",
+    "costGroupSequence": 3,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383501",
+    "estCostGroupID": "costGroup30",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Direct Material Markup",
+    "costGroupLabel": "Direct Material Markup",
+    "costGroupSequence": 21,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383502",
+    "estCostGroupID": "costGroup31",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "GS&A Board",
+    "costGroupLabel": "GS&A Board",
+    "costGroupSequence": 18,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383503",
+    "estCostGroupID": "costGroup32",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Warehousing",
+    "costGroupLabel": "Warehousing",
+    "costGroupSequence": 17,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383504",
+    "estCostGroupID": "costGroup33",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Folding",
+    "costGroupLabel": "Folding",
+    "costGroupSequence": 22,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383505",
+    "estCostGroupID": "costGroup34",
+    "estCostGroupLevelID": 5,
+    "estCostGroupDesc": "Cost Deviation",
+    "costGroupLabel": "Cost Deviation",
+    "costGroupSequence": 23,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383506",
+    "estCostGroupID": "costGroup4",
+    "estCostGroupLevelID": 1,
+    "estCostGroupDesc": "Direct Labor Dscr",
+    "costGroupLabel": "Direct Labor",
+    "costGroupSequence": 4,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383507",
+    "estCostGroupID": "costGroup5",
+    "estCostGroupLevelID": 1,
+    "estCostGroupDesc": "Prep Labor - Factory Dscr",
+    "costGroupLabel": "Prep Labor - Factory",
+    "costGroupSequence": 5,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383508",
+    "estCostGroupID": "costGroup6",
+    "estCostGroupLevelID": 1,
+    "estCostGroupDesc": "Misc Labor - Factory Dscr",
+    "costGroupLabel": "Misc Labor - Factory",
+    "costGroupSequence": 6,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383509",
+    "estCostGroupID": "costGroup7",
+    "estCostGroupLevelID": 1,
+    "estCostGroupDesc": "Variable Overhead Dscr",
+    "costGroupLabel": "Variable Overhead",
+    "costGroupSequence": 7,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383510",
+    "estCostGroupID": "costGroup8",
+    "estCostGroupLevelID": 2,
+    "estCostGroupDesc": "Fixed Overhead Dscr",
+    "costGroupLabel": "Fixed Overhead",
+    "costGroupSequence": 8,
+    "company": ""
+  },
+  {
+    "rec_key": "299906246224705383511",
+    "estCostGroupID": "costGroup9",
+    "estCostGroupLevelID": 3,
+    "estCostGroupDesc": "Prep Labor - Expenses Dscr",
+    "costGroupLabel": "Prep Labor - Expenses",
+    "costGroupSequence": 9,
+    "company": ""
+  }
+]

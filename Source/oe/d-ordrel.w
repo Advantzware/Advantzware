@@ -2124,16 +2124,10 @@ PROCEDURE pCreateNewRel :
     DEFINE VARIABLE rShipTo             AS ROWID   NO-UNDO.
     DEFINE VARIABLE lFirstReleaseOfItem AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cShipNote   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
     DEFINE VARIABLE dtDateRule AS DATE NO-UNDO.
     DEFINE VARIABLE dCalcRelDate  AS DATE NO-UNDO.
     DEFINE VARIABLE dCalcPromDate AS DATE NO-UNDO.
 
-     IF glShipNotesExpanded THEN do:
-         RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
-         THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hNotesProcs).
-     END.
-  
     /* Code placed here will execute PRIOR to standard behavior. */
 
     RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
@@ -2348,8 +2342,8 @@ PROCEDURE pCreateNewRel :
 
              IF glShipNotesExpanded THEN do:
                 
-                RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT cShipNote).
-                RUN UpdateShipNote IN hNotesProcs (oe-rel.rec_key,
+                RUN Notes_GetNoteOfType (shipto.rec_key, "ES", OUTPUT cShipNote).
+                RUN Notes_UpdateShipNote (oe-rel.rec_key,
                                                    cShipNote) .
             END.
 
@@ -2384,8 +2378,8 @@ PROCEDURE pCreateNewRel :
                         oe-rel.ship-i[4]    = shipto.notes[4].
 
                     IF glShipNotesExpanded THEN do:
-                        RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT cShipNote).
-                        RUN UpdateShipNote IN hNotesProcs (oe-rel.rec_key,
+                        RUN Notes_GetNoteOfType (shipto.rec_key, "ES", OUTPUT cShipNote).
+                        RUN Notes_UpdateShipNote (oe-rel.rec_key,
                                                    cShipNote) .
                     END.
                     LEAVE .
@@ -2407,9 +2401,6 @@ PROCEDURE pCreateNewRel :
         MESSAGE " Order Line item record is not avail..." VIEW-AS ALERT-BOX ERROR.
         RETURN ERROR.
     END.
-     
-    IF glShipNotesExpanded THEN
-        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hNotesProcs).
 
 END PROCEDURE.
 
@@ -2599,7 +2590,6 @@ PROCEDURE pUpdate-record :
     DEFINE VARIABLE lLocChanged AS LOG       NO-UNDO.
     DEFINE VARIABLE v-q-back    AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cShipNote   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
 
     /* Code placed here will execute PRIOR to standard behavior. */
     IF NOT AVAILABLE oe-rel AND lv-rel-recid <> ? THEN
@@ -2821,10 +2811,8 @@ PROCEDURE pUpdate-record :
 
             IF glShipNotesExpanded THEN do:
 
-                RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
-                RUN GetNoteOfType IN hNotesProcs (shipto.rec_key, "ES", OUTPUT cShipNote).
-                RUN UpdateShipNote IN hNotesProcs (oe-rel.rec_key,
-                                                   cShipNote) .
+                RUN Notes_GetNoteOfType (shipto.rec_key, "ES", OUTPUT cShipNote).
+                RUN Notes_UpdateShipNote (oe-rel.rec_key, cShipNote) .
             END.
 
         END.
@@ -3020,7 +3008,7 @@ PROCEDURE create-oe-rell :
     DEFINE VARIABLE li                AS INTEGER   NO-UNDO.
     DEFINE VARIABLE ll                AS LOG       NO-UNDO.
     DEFINE VARIABLE ll-bin-tag        AS LOG       NO-UNDO.
-    DEFINE VARIABLE lv-job-no         AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE lv-job-no         AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE lv-selected-value AS cha       NO-UNDO. /*all,one,notag*/
     DEFINE VARIABLE v-s-code          AS CHARACTER NO-UNDO.
     DEFINE BUFFER b-reftable FOR reftable.
@@ -3166,9 +3154,9 @@ PROCEDURE create-oe-rell :
     DO:
         ASSIGN
             ll        = NO
-            lv-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
+            lv-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
-        IF lv-job-no EQ "-00" THEN lv-job-no = "".
+        IF lv-job-no EQ "-000" THEN lv-job-no = "".
 
 
         v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE

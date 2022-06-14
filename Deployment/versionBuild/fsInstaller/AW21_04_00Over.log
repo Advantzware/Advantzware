@@ -1,0 +1,25 @@
+-------------------------------------------------------------------------------------------------------------
+Beginning run of fsInstaller system on 12/23/21 at 14:42:14                                          --TIME--
+-------------------------------------------------------------------------------------------------------------
+Initiating ipCreateObject in fsInstaller.w                                                           14:42:15
+Completing ipCreateObject in fsInstaller.w                                                           14:42:15
+ 
+Initiating ipConnectDBs in fsInstaller.w                                                             14:42:15
+Completing ipConnectDBs in fsInstaller.w                                                             14:42:15
+ 
+Initiating ipCompileBase in fsInstaller.w                                                            14:42:15
+**************** PROPATH *****************
+   (PROPATH display suppressed. See config file for PROPATH details.
+******************************************
+    ERROR: Compile for C:\ASIgui\Environments\21.04.00\Oversource\system\session.p FAILED            14:42:15
+    ERROR:  ** Unknown Field or Variable name - altSubjectID. (201)                                  14:42:15
+    ERROR:  ** C:\ASIgui\Environments\21.04.00\Oversource\system\session.p Could not understand line 2753. (198)14:42:15
+  Base Code compile (5 entries) completed with 1 errors                                              14:42:16
+Completing ipCompileBase in fsInstaller.w                                                            14:42:16
+ 
+-------------------------------------------------------------------------------------------------------------
+Ending run of fsInstaller system on 12/23/21 at 14:42:16                                    Elapsed: 00:00:02
+-------------------------------------------------------------------------------------------------------------
+ 
+ 
+ 

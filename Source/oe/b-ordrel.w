@@ -19,6 +19,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 USING system.SharedConfig.
 
 CREATE WIDGET-POOL.
@@ -1122,7 +1123,7 @@ FOR EACH fg-set WHERE fg-set.set-no = oe-ordl.i-no
           oe-rel.ship-i[3]    = shipto.notes[3]
           oe-rel.ship-i[4]    = shipto.notes[4]
           oe-rel.spare-char-1 = shipto.loc.
-        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+        RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
     END.  
     /* check that itemfg-loc exists */
     IF oe-rel.spare-char-1 GT "" THEN
@@ -1406,7 +1407,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
          oe-rel.frt-pay   = oe-rell.frt-pay
          oe-rel.fob-code  = oe-rell.fob-code.
         
-        RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
+        RUN pCopyShipNote (oe-relh.rec_key, oe-rel.rec_key).
         RUN set-lot-from-boll (INPUT ROWID(oe-rel), INPUT ROWID(oe-rell),
                                INPUT ROWID(oe-boll)).
         RUN oe/custxship.p (oe-rel.company,
@@ -1543,7 +1544,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
            oe-rel.frt-pay   = oe-rell.frt-pay
            oe-rel.fob-code  = oe-rell.fob-code.
            
-          RUN CopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
+          RUN pCopyShipNote (oe-relh.rec_key, oe-rel.rec_key). 
           RUN oe/custxship.p (oe-rel.company,
                               oe-rel.cust-no,
                               oe-rel.ship-id,
@@ -2412,7 +2413,7 @@ PROCEDURE create-job :
            IF AVAIL sys-ctrl THEN
               v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
           
-           v-bld-job = FILL(" ",6 - LENGTH(TRIM(v-bld-job))) + TRIM(v-bld-job).
+           v-bld-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-bld-job)) .
 
            FIND LAST b-job NO-LOCK
                WHERE b-job.company EQ itemfg.company
@@ -2668,9 +2669,9 @@ ll-bin-tag = AVAIL oe-ordl             AND
 IF ll-bin-tag THEN DO:
   ASSIGN
    ll        = NO
-   lv-job-no = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
+   lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)) .
 
-  IF lv-job-no EQ "-00" THEN lv-job-no = "".
+  IF trim(lv-job-no) BEGINS "-000" THEN lv-job-no = "".
 
 
  v-s-code  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE
@@ -4645,8 +4646,8 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -4654,13 +4655,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
     

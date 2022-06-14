@@ -22,6 +22,7 @@ def input param ip-rowid AS ROWID no-undo.
 
 def output param op-char-val as cha no-undo.
 
+{sys/inc/var.i}
 DEF BUFFER bf-eb FOR eb.
 
 DEFINE TEMP-TABLE tt-temp
@@ -88,7 +89,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _FREEFORM
   QUERY BROWSE-1 NO-LOCK DISPLAY
       tt-temp.est-no FORMAT "X(8)"
-      tt-temp.form-no LABEL "S"
+      tt-temp.form-no LABEL "F"
       tt-temp.blank-no LABEL "B"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

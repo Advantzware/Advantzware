@@ -841,7 +841,7 @@ FORM HEADER
 
     WITH PAGE-TOP FRAME f-top STREAM-IO WIDTH 135 NO-BOX.
 
-FORM ar-inv.inv-no          FORMAT ">>>>>>9"
+FORM ar-inv.inv-no          FORMAT ">>>>>>>9"
      SPACE(3)
      ar-inv.inv-date        FORMAT "99/99/99"
      tt-report.due-date     FORMAT "99/99/99"
@@ -1025,7 +1025,7 @@ SESSION:SET-WAIT-STATE ("general").
                ELSE ""                                             '",'
            '"' IF FIRST-OF(tt-report.key-02) AND AVAIL cust THEN
                   cust.NAME ELSE ""                                '",'
-           '"' ar-inv.inv-no  FORMAT ">>>>>>9"                     '",'
+           '"' ar-inv.inv-no  FORMAT ">>>>>>>9"                     '",'
            '"' ar-inv.inv-date                                     '",'
            '"' IF ws_disc-avail NE 0 AND v-disc THEN
                   STRING(ar-inv.inv-date + ar-inv.disc-days)

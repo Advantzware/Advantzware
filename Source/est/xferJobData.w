@@ -73,7 +73,7 @@ DEFINE VARIABLE opSpoilCol AS LOGICAL NO-UNDO.
 DEFINE VARIABLE mrStdCol AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttblEstOp NO-UNDO
-  FIELD s-num LIKE est-op.s-num LABEL 'S'
+  FIELD s-num LIKE est-op.s-num LABEL 'F'
   FIELD d-seq LIKE est-op.d-seq
   FIELD b-num LIKE est-op.b-num LABEL 'B'
   FIELD p-num LIKE est-op.op-pass LABEL 'P'
@@ -356,7 +356,7 @@ DEFINE QUERY ttblEstOp FOR
 DEFINE BROWSE estOpBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS estOpBrowse C-Win _STRUCTURED
   QUERY estOpBrowse NO-LOCK DISPLAY
-      est-op.s-num COLUMN-LABEL "S" FORMAT ">9":U WIDTH 6.2
+      est-op.s-num COLUMN-LABEL "F" FORMAT ">9":U WIDTH 6.2
       est-op.b-num COLUMN-LABEL "B" FORMAT ">9":U WIDTH 2.2
       est-op.op-pass COLUMN-LABEL "P" FORMAT ">9":U
       est-op.m-code COLUMN-LABEL "Machine" FORMAT "x(10)":U
@@ -374,8 +374,8 @@ DEFINE BROWSE estOpBrowse
 DEFINE BROWSE jobBrowse
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS jobBrowse C-Win _STRUCTURED
   QUERY jobBrowse NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U WIDTH 8.2
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U WIDTH 2.2
+      job-hdr.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U WIDTH 15
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 5.6
       job-hdr.qty FORMAT ">>,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -573,7 +573,7 @@ THEN C-Win:HIDDEN = no.
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Where[1]         = "{&estOpWhere}"
      _FldNameList[1]   > asi.est-op.s-num
-"est-op.s-num" "S" ? "integer" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-op.s-num" "F" ? "integer" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.est-op.b-num
 "est-op.b-num" "B" ? "integer" ? ? ? ? ? ? no ? no no "2.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.est-op.op-pass
@@ -613,9 +613,9 @@ AND job-hdr.opened EQ FALSE"
   AND ASI.job.job-no = ASI.job-hdr.job-no
   AND ASI.job.job-no2 = ASI.job-hdr.job-no2"
      _FldNameList[1]   > asi.job-hdr.job-no
-"job-hdr.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no" "Job" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.job-hdr.job-no2
-"job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "2.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   = asi.job-hdr.qty
      _Query            is NOT OPENED
 */  /* BROWSE jobBrowse */

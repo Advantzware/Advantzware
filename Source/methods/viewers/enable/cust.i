@@ -2,7 +2,7 @@
 DEF BUFFER b-inv-head FOR inv-head.
 
 &IF '{&CUSTOMER-TOTALS}' NE '' &THEN
-IF NOT ll-secure THEN DO:
+IF NOT ll-secure AND v-custpass THEN DO:
   RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
   IF NOT ll-secure THEN RETURN "adm-error".
 END.
@@ -17,7 +17,7 @@ DO WITH FRAME {&FRAME-NAME}:
   RELEASE inv-head.
   RELEASE b-inv-head.
 
-  IF cust.inv-meth EQ ? AND cust.cust-no NE "" THEN
+  IF AVAIL cust AND cust.inv-meth EQ ? AND cust.cust-no NE "" THEN
   FIND FIRST inv-head NO-LOCK
       WHERE inv-head.company       EQ cust.company
         AND inv-head.cust-no       EQ cust.cust-no

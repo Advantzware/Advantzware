@@ -1,3 +1,0 @@
-            <OrderReference orderID="$OrderReferenceID$">
-               <DocumentReference payloadID="$OrderPayloadID$" />
-            </OrderReference>

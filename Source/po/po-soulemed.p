@@ -299,9 +299,7 @@ print-po-blok:
           ASSIGN v-num-add = 0.
 
           FIND FIRST job WHERE job.company EQ cocode 
-                           and job.job-no EQ STRING(FILL(" ",6 - 
-                                                    LENGTH(TRIM(po-ordl.job-no)))) +
-                                                    TRIM(po-ordl.job-no) 
+                           AND job.job-no EQ po-ordl.job-no 
                            AND job.job-no2 EQ po-ordl.job-no2 NO-LOCK NO-ERROR.
           IF AVAIL job THEN DO:
 
@@ -395,9 +393,9 @@ print-po-blok:
           END.
       END.
 
-      v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99").
+      v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
       
-      IF v-job-no = "-00" THEN v-job-no = "".
+      IF v-job-no = "-000" THEN v-job-no = "".
 
       PUT po-ordl.LINE       FORMAT ">>9"         SPACE(3)          
           po-ordl.i-no       FORMAT "x(23)"       SPACE(13)

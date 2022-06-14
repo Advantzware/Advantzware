@@ -77,6 +77,10 @@ DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR lRecFound AS LOGICAL NO-UNDO .
 DEF VAR lShtcalcWarm-log AS LOGICAL NO-UNDO .
 
+DEFINE VARIABLE cNK1Value           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lWoodStyle          AS LOGICAL   NO-UNDO.
+
 {cec/bestfitc.i NEW SHARED}
 
 assign cocode = g_company
@@ -286,7 +290,7 @@ DEFINE FRAME Corr
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEM-PAIRS "Normal","N",
                      "Blank","B",
-                     "Sheet","S"
+                     "Form","S"
           DROP-DOWN-LIST
           SIZE 13 BY 1
      ef.board AT ROW 2.43 COL 12 COLON-ALIGNED
@@ -542,7 +546,7 @@ DEFINE FRAME Corr
      "Adders" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 10.05 COL 5
           FGCOLOR 9 
-     "S  /  B" VIEW-AS TEXT
+     "F  /  B" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 10.29 COL 106
           FGCOLOR 9 
      "Cost/" VIEW-AS TEXT
@@ -881,7 +885,9 @@ DO:
    def var char-val as cha no-undo.
    def var lv-rowid as rowid no-undo.
    DEF VAR lw-focus AS WIDGET NO-UNDO.
-
+   DEFINE VARIABLE cFieldsValue  AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE cFoundValue   AS CHARACTER     NO-UNDO.
+   DEFINE VARIABLE recFoundRecID AS RECID         NO-UNDO.
 
    lw-focus = FOCUS.
 
@@ -903,6 +909,14 @@ DO:
                   RUN new-board.
               END. /* IF char-val NE "" THEN DO: */
            END. /* if foam */
+           ELSE IF AVAIL style AND style.type = "W" THEN  DO: /* Wood */               
+              RUN AOA/dynLookupSetParam.p (155, ROWID(style), OUTPUT char-val).
+              IF char-val NE ""  THEN DO:
+                ef.board:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-no", char-val).
+                ef.brd-dscr:SCREEN-VALUE IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "item.i-name", char-val).
+                APPLY "ENTRY":U TO ef.board.
+              END.
+           END.
            ELSE DO:
                run windows/l-board1.w (eb.company,lv-ind,lw-focus:screen-value, output lv-rowid).
                IF lv-rowid NE ? THEN DO:
@@ -1160,15 +1174,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board V-table-Win
 ON LEAVE OF ef.board IN FRAME Corr /* Board */
 DO:
+   DEF VAR lIsMatlGroup AS LOG NO-UNDO.
+    
    if lastkey <> -1 and self:screen-value <> "" 
    then do:
   {&methods/lValidateError.i YES}
-       find first item where item.company = gcompany and
-                             ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                              (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
-                              item.industry = lv-industry and
-                              item.i-no = self:screen-value
-                              no-lock no-error.
+      ASSIGN lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, self:screen-value, "Wood") EQ TRUE.
+     
+        FIND FIRST item WHERE 
+            item.company = gcompany AND 
+            (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+            item.industry = lv-industry AND 
+            item.i-no = SELF:SCREEN-VALUE 
+            NO-LOCK NO-ERROR.
+                              
        if not avail item then do:
           message "Invalid Board. Try Help." view-as alert-box error.
           return no-apply.
@@ -1198,8 +1217,12 @@ DO:
                 xef.board = ef.board:screen-value
                 xef.roll   = ef.roll:screen-value in frame {&frame-name} EQ "Y"
                 .
-
-         run cec/calc-dim.p .
+         
+           IF lCEUseNewLayoutCalc THEN
+               RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+           ELSE
+               run cec/calc-dim.p .
+               
          find xef where recid(xef) = recid(ef).
          find xeb where recid(xeb) = recid(eb).
          assign ef.lsh-len:screen-value = string({sys/inc/k16.i xef.lsh-len} )
@@ -1812,7 +1835,11 @@ DO:
               xef.n-out-d = 0.
        {sys/inc/k16bb.i xef.lsh-len }
        {sys/inc/k16bb.i xef.lsh-wid }
-       run cec/calc-dim.p .
+       
+        IF lCEUseNewLayoutCalc THEN
+            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+        ELSE
+            run cec/calc-dim.p .
 
        find xef where recid(xef) = recid(ef).
        find xeb where recid(xeb) = recid(eb).
@@ -2570,7 +2597,12 @@ DO:
      assign
       xef.xgrain = ef.xgrain:screen-value in frame {&frame-name}
       xef.roll   = ef.roll:screen-value in frame {&frame-name} EQ "Y".
-     run cec/calc-dim.p .
+     
+      IF lCEUseNewLayoutCalc THEN
+          RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+      ELSE
+          run cec/calc-dim.p .
+          
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
      assign ef.lsh-len:screen-value = string({sys/inc/k16.i xef.lsh-len} )
@@ -2628,6 +2660,11 @@ ASSIGN
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF         
 
+RUN sys/ref/nk1look.p (INPUT gcompany, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+IF lRecFound THEN
+    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+
+
 /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -2678,7 +2715,7 @@ PROCEDURE auto-calc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/  
-
+   DEFINE VARIABLE cItemUom AS CHARACTER NO-UNDO.
    {custom/checkuse.i}
 
    ll-auto-calc-selected = yes.
@@ -2716,6 +2753,12 @@ PROCEDURE auto-calc :
           eb.num-len:screen-value = string("0")
           eb.num-wid:screen-value = string("0")
           eb.num-dep:screen-value = string("0").
+   
+   IF lNewVendorItemCost THEN 
+   DO:
+       cItemUom = fGetVendItemCostUOM(ITEM.company, ITEM.i-no).
+       ef.cost-uom:SCREEN-VALUE = IF cItemUom NE "" THEN cItemUom ELSE ef.cost-uom:SCREEN-VALUE . 
+   END.       
 
    run dispatch ('enable-fields').
    disable ef.gsh-wid ef.gsh-len ef.gsh-dep
@@ -3445,7 +3488,8 @@ PROCEDURE local-display-fields :
   DEF VAR lv-tot-wid AS INT NO-UNDO.
   DEF VAR lv-tot-up AS INT NO-UNDO.
   def var li-n-cuts as int no-undo.
-
+  DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+  
   DEF BUFFER bf-eb FOR eb.
 
   IF VALID-HANDLE(br-flm) THEN DELETE WIDGET br-flm.
@@ -3457,36 +3501,37 @@ PROCEDURE local-display-fields :
   DO WITH FRAME {&FRAME-NAME}:
 
      IF v-cecscrn-char EQ "Decimal" THEN do:
+        iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .        
         ASSIGN
-           ef.gsh-wid:FORMAT = ">>>9.999999"
-           ef.gsh-len:FORMAT = ">>>9.999999"
-           ef.gsh-dep:FORMAT = ">>>9.999999"
-           ef.nsh-wid:FORMAT = ">>>9.999999"
-           ef.nsh-len:FORMAT = ">>>9.999999"
-           ef.nsh-dep:FORMAT = ">>>9.999999"
-           ef.trim-w:FORMAT = ">>>9.999999"
-           ef.trim-l:FORMAT = ">>>9.999999"
-           ef.trim-d:FORMAT = ">>>9.999999"
-           eb.t-wid:FORMAT = ">>>9.999999"
-           eb.t-len:FORMAT = ">>>>9.999999"
-           eb.t-dep:FORMAT = ">>>>9.999999"
-           ef.lsh-wid:FORMAT = ">>9.999999"
-           ef.lsh-len:FORMAT = ">>9.999999"
-           ef.leaf-w[1]:FORMAT = ">>9.999999"
-           ef.leaf-w[2]:FORMAT = ">>9.999999"
-           ef.leaf-w[3]:FORMAT = ">>9.999999"
-           ef.leaf-w[4]:FORMAT = ">>9.999999"
-           ef.leaf-l[1]:FORMAT = ">>9.999999"
-           ef.leaf-l[2]:FORMAT = ">>9.999999"
-           ef.leaf-l[3]:FORMAT = ">>9.999999"
-           ef.leaf-l[4]:FORMAT = ">>9.999999"
+           ef.gsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.gsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.gsh-dep:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-dep:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.trim-w:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.trim-l:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.trim-d:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           eb.t-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           eb.t-len:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
+           eb.t-dep:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.lsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.lsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-w[1]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-w[2]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-w[3]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-w[4]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-l[1]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-l[2]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-l[3]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.leaf-l[4]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
                 /* eb.t-sqin:FORMAT = ">>>>>9.99999"*/ .
 
         IF eb.t-sqin GT 999999  THEN
             ASSIGN
-            eb.t-sqin:FORMAT = ">>>>>>>>>9.99999" 
+            eb.t-sqin:FORMAT = ">>>>>>>>>9." + FILL("9",INTEGER(iDecimalValue))
             eb.t-sqin:WIDTH = 17.2 .
-        ELSE ASSIGN eb.t-sqin:FORMAT = ">>>>>9.99999" .
+        ELSE ASSIGN eb.t-sqin:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue)) .
      END.
      ELSE do:
          ASSIGN
@@ -3503,7 +3548,8 @@ PROCEDURE local-display-fields :
   END.
 
   assign lv-is-foam = no
-         lv-industry = "".
+         lv-industry = ""
+         lWoodStyle  = NO.
       
 
     IF ef.board = "" THEN
@@ -3517,6 +3563,7 @@ PROCEDURE local-display-fields :
   IF AVAIL style THEN
   DO:
      IF style.type = "F" then lv-is-foam = yes.
+     IF Style.TYPE = "W" THEN lWoodStyle = YES.
      lv-industry = style.industry.
   END.
 
@@ -3750,6 +3797,8 @@ PROCEDURE local-update-record :
   DEF VAR l-fit-len AS DEC NO-UNDO.
   DEF VAR l-fit-wid AS DEC NO-UNDO.
   DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  DEF VAR lIsMatlGroup AS LOG NO-UNDO.
+  
   def buffer bf-eb for eb.
 {&methods/lValidateError.i YES}
 IF NOT ll-auto-calc-selected THEN
@@ -3784,14 +3833,15 @@ IF NOT ll-auto-calc-selected THEN
     
     else if ef.m-code:screen-value = "" then ef.m-dscr:screen-value = "". 
 
-    RUN new-m-code.
-
+    RUN new-m-code. 
+    ASSIGN 
+        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:screen-value, "Wood") EQ TRUE.
     if EF.BOARD:screen-value <> "" and
-       not can-find (first item where item.company = gcompany and
-                                      ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
-                                      (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
-                                      item.industry = lv-industry and
-                                      item.i-no = ef.board:screen-value)
+       not CAN-FIND (FIRST item WHERE 
+            item.company = gcompany AND 
+            (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+            item.industry = lv-industry AND 
+            item.i-no = ef.board:SCREEN-VALUE) 
     then do:
          message "Invalid Board. Try Help." view-as alert-box error.
          apply "entry" to ef.board.
@@ -4126,16 +4176,17 @@ PROCEDURE new-board :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv AS CHAR NO-UNDO.
-
+  DEF VAR lIsMatlGroup AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST item
-        WHERE item.company  EQ gcompany
-          AND ((INDEX("BPR",item.mat-type) GT 0 AND NOT lv-is-foam) OR
-               (INDEX("1234",item.mat-type) GT 0 AND lv-is-foam))
-          AND item.industry EQ lv-industry
-          AND item.i-no     EQ ef.board:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
+    ASSIGN 
+        lIsMatlGroup = DYNAMIC-FUNCTION ("fIsMatlGroup",gcompany, ef.board:SCREEN-VALUE, "Wood") EQ TRUE.
+    FIND FIRST item WHERE 
+        item.company = gcompany AND 
+        (INDEX("BPR1234",item.mat-type) > 0 OR (lIsMatlGroup AND lWoodStyle)) AND 
+        item.industry = lv-industry AND 
+        item.i-no = ef.board:SCREEN-VALUE
+        NO-LOCK NO-ERROR. 
     IF AVAIL item AND TRIM(ef.board:SCREEN-VALUE) NE "" THEN DO:
       ASSIGN
        ef.test:SCREEN-VALUE     = item.reg-no

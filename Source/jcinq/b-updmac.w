@@ -164,11 +164,11 @@ DEFINE BROWSE BROWSE-2
   QUERY BROWSE-2 DISPLAY
       tt-mch-tran.tran-type     COLUMN-LABEL "Type"
    tt-mch-tran.tran-date        COLUMN-LABEL "Date" FORMAT "99/99/99"
-   tt-mch-tran.job-no           COLUMN-LABEL "Job #" FORMAT "X(6)" WIDTH 8.5
-   tt-mch-tran.job-no2          COLUMN-LABEL "" FORMAT ">9" WIDTH 2.8
+   tt-mch-tran.job-no           COLUMN-LABEL "Job #" FORMAT "X(9)" WIDTH 15
+   tt-mch-tran.job-no2          COLUMN-LABEL "" FORMAT ">>9" WIDTH 5.4
    tt-mch-tran.machine-code     COLUMN-LABEL "Machine" FORMAT "X(15)" WIDTH 18
    tt-mch-tran.dept             COLUMN-LABEL "Dept"
-   tt-mch-tran.sheet-no         COLUMN-LABEL "Sheet" FORMAT "ZZ9" WIDTH 7
+   tt-mch-tran.sheet-no         COLUMN-LABEL "Form" FORMAT "ZZ9" WIDTH 7
    tt-mch-tran.blank-no         COLUMN-LABEL "Blank" FORMAT "ZZ9" WIDTH 7
    tt-mch-tran.pass             COLUMN-LABEL "Pass" FORMAT ">>>" WIDTH 6
    tt-mch-tran.i-no             COLUMN-LABEL "FG Item #" FORMAT "X(15)" WIDTH 20

@@ -427,9 +427,7 @@ assign
                    v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -483,8 +481,8 @@ assign
           end. /* v-shtsiz */        
         end. /* avail item and item.mat-type eq "B" */
 
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99").
-        IF v-job-no = "-00" THEN v-job-no = "".
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
+        IF v-job-no = "-000" THEN v-job-no = "".
         
         IF FIRST-OF(po-ordl.line) THEN
         DO:

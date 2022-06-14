@@ -214,6 +214,17 @@ def var lv-industry as cha no-undo.
       assign xef.n-out   = trunc(xef.gsh-wid / IF xef.xgrain EQ "S" THEN xef.nsh-len ELSE xef.nsh-wid,0)
              xef.n-out-l = trunc(xef.gsh-len / IF xef.xgrain EQ "S" THEN xef.nsh-wid ELSE xef.nsh-len,0).
 
+    IF AVAIL mach THEN 
+    DO:
+        IF xef.n-out   GT mach.num-wid AND mach.num-wid NE 0 THEN
+            xef.n-out   = mach.num-wid.
+        IF xef.n-out-l GT mach.num-len AND mach.num-len NE 0 THEN
+            xef.n-out-l = mach.num-len.
+    END.
+
+    IF xef.n-out   LE 0 THEN xef.n-out   = 1.
+    IF xef.n-out-l LE 0 THEN xef.n-out-l = 1.
+    
     ASSIGN
      xef.n-out-d = 1
      xef.nsh-dep = xeb.t-dep
@@ -222,15 +233,7 @@ def var lv-industry as cha no-undo.
 
     IF xef.n-cuts LT 0 THEN xef.n-cuts = 0.
 
-    IF AVAIL mach THEN DO:
-      IF xef.n-out   GT mach.num-wid AND mach.num-wid NE 0 THEN
-        xef.n-out   = mach.num-wid.
-      IF xef.n-out-l GT mach.num-len AND mach.num-len NE 0 THEN
-        xef.n-out-l = mach.num-len.
-    END.
-
-    IF xef.n-out   LE 0 THEN xef.n-out   = 1.
-    IF xef.n-out-l LE 0 THEN xef.n-out-l = 1.
+    
 
     IF item.i-code eq "E" then do:
       assign xeb.num-dep = 1

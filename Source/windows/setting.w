@@ -351,7 +351,8 @@ PROCEDURE adm-create-objects :
                      HIDE-SETTING-FILTER = FALSE,
                      HIDE-SCOPE-FILTER = TRUE,
                      SETTING-FILTER-TYPE = SettingType,
-                     LOAD-DATA-FROM-TT = FALSE':U ,
+                     LOAD-DATA-FROM-TT = FALSE,
+                     COLUMN-NAME = TRUE':U ,
              OUTPUT h_setting ).
        RUN set-position IN h_setting ( 9.71 , 1.80 ) NO-ERROR.
        RUN set-size IN h_setting ( 28.05 , 180.20 ) NO-ERROR.
@@ -388,13 +389,14 @@ PROCEDURE adm-create-objects :
              INPUT  'browsers/setting.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'SAVE-TYPE = DATABASE,
-                     BROWSE-COLUMNS = settingName|description|settingValue|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
-                     BROWSE-COLUMNS-DISPLAY = scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID,
+                     BROWSE-COLUMNS = settingName|description|scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID|settingValue,
+                     BROWSE-COLUMNS-DISPLAY = scopeTable|scopeField1|scopeField2|scopeField3|inactive|settingUser|programID|settingValue,
                      HIDE-SEARCH = FALSE,
                      HIDE-SETTING-FILTER = FALSE,
                      HIDE-SCOPE-FILTER = FALSE,
                      SETTING-FILTER-TYPE = Setting,
-                     LOAD-DATA-FROM-TT = FALSE':U ,
+                     LOAD-DATA-FROM-TT = FALSE,
+                     COLUMN-NAME = FALSE':U ,
              OUTPUT h_setting-3 ).
        RUN set-position IN h_setting-3 ( 16.62 , 2.00 ) NO-ERROR.
        RUN set-size IN h_setting-3 ( 23.19 , 104.00 ) NO-ERROR.

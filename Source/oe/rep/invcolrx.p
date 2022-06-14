@@ -1,7 +1,7 @@
 /* ------------------------------------------ oe/rep/invcolrx.p 08040901 GDM */
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = ColorX                        */
 /* ------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 
 {sys/inc/var.i shared}
@@ -92,17 +92,38 @@ DEF VAR v-frt-tax AS DEC NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
-ASSIGN ls-image1 = "images\CCC.jpg"
-       ls-image2 = "".
+DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
+DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
 
-FILE-INFO:FILE-NAME = ls-image1.
-ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-FILE-INFO:FILE-NAME = ls-image2.
-ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF lRecFound AND cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath",
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-1 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN
+    ls-full-img1 = cRtnChar + ">"
+    .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -451,7 +472,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                 v-price  format ">>>,>>9.9999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                STRING(v-ord-no) FORM "x(8)" SPACE(7)
                 inv-line.i-no SPACE(1)
                 inv-line.part-dscr1  FORMAT "x(30)"
                 v-ship-qty  format "->>>,>>9" SPACE(8)
@@ -605,7 +627,10 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         "<=8><R+3>" "" 
         "<=8><R+4> Total Invoice:" inv-head.t-inv-rev FORM "->>,>>9.99" .
 
-    PUT "<FArial><R58><C1><P12><B> THANK YOU. </B> <P9> " SKIP
+    PUT "<FArial><R58><C1><P12><B> THANK YOU. </B> <P9> " SKIP(1)
+        "  Certificate Registration Code: SCS-COC-004377-CH FSC"  SKIP
+        "  Trademark License Number FSC-C113126"     SKIP
+        "  FSC Recycled Credit" SKIP
    /*      "  Your business is greatly appreciated! Thank You!"SKIP
          "  Please pay by invoice - no statements are issued." SKIP
          "  24% per annum interest charge on overdue accounts. " SKIP

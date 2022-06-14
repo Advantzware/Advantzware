@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invxcsc.p  */
 /* PRINT INVOICE   Xprint Form for Container Services          */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -530,10 +530,10 @@ END.
             PUT space(1) tt-inv-line.inv-qty format "->>>>>9" SPACE(1)                       
                 tt-inv-line.ship-qty  format "->>>>>9" SPACE(1)                              
                 /*v-bo-qty  format   "->>>>>9" SPACE(1)*/                                    
-                tt-inv-line.ord-no FORM ">>>>>>9" SPACE(1)                                   
+                tt-inv-line.ord-no FORM ">>>>>>>9" SPACE(1)                                   
                 tt-inv-line.i-no  format "x(15)" SPACE(1)                                    
                 tt-inv-line.i-name  format "x(25)" SPACE(1)                                  
-                tt-inv-line.v-price /* format ">>>9.9999" */ FORMAT ">>,>>9.99" SPACE(2)     
+                tt-inv-line.v-price /* format ">>>9.9999" */ FORMAT ">>,>>9.99" SPACE(1)     
                 tt-inv-line.v-uom FORMAT "x(3)" SPACE(1)                                                   
                 tt-inv-line.t-price  format "->>>,>>9.99"                                    
                 SKIP.                                                                        
@@ -545,8 +545,8 @@ END.
 
               if v-part-info ne "" OR tt-inv-line.part-no <> "" then do:
                 /*put space(40) v-part-info skip.*/
-                 IF v = 1 THEN PUT SPACE(25) tt-inv-line.part-no FORMAT "x(15)" SPACE v-part-info SKIP.
-                 ELSE   PUT SPACE(41) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(26) tt-inv-line.part-no FORMAT "x(15)" SPACE v-part-info SKIP.
+                 ELSE   PUT SPACE(42) v-part-info SKIP.
                  v-printline = v-printline + 1.
               end.
             end.

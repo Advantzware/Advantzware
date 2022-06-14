@@ -42,7 +42,7 @@ def var lv-type-dscr as cha no-undo.
 
 &scoped-define fld-name-1 loadtag.tag-no
 &scoped-define fld-name-2 loadtag.i-no
-&scoped-define fld-name-3 trim(loadtag.job-no)
+&scoped-define fld-name-3 loadtag.job-no
 &scoped-define SORTBY-1 BY loadtag.tag-no
 &scoped-define SORTBY-2 BY loadtag.i-no
 &scoped-define SORTBY-3 BY loadtag.job-no
@@ -177,11 +177,11 @@ DEFINE BROWSE BROWSE-1
       loadtag.tag-no FORMAT "X(23)":U
       loadtag.i-no FORMAT "x(15)":U
       loadtag.i-name FORMAT "x(30)":U
-      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(6)":U
-      loadtag.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      loadtag.job-no COLUMN-LABEL "Job" FORMAT "x(9)":U
+      loadtag.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       loadtag.loc FORMAT "x(5)":U
       loadtag.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
-      loadtag.ord-no FORMAT ">>>>>9":U
+      loadtag.ord-no FORMAT ">>>>>>>9":U
       loadtag.po-no COLUMN-LABEL "PO#" FORMAT ">>>>>>>9":U
       loadtag.qty COLUMN-LABEL "On Hand" FORMAT "->>>,>>>,>>9.9<<<<<":U
 /* _UIB-CODE-BLOCK-END */

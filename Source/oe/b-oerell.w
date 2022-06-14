@@ -107,7 +107,7 @@ DEFINE QUERY external_tables FOR oe-relh.
 oe-rell.po-no oe-rell.qty oe-rell.tag oe-rell.loc oe-rell.loc-bin ~
 oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no oe-rell.cases ~
 oe-rell.qty-case oe-rell.partial oe-rell.rel-no oe-rell.b-ord-no ~
-oe-rell.s-code oe-ordl.part-no oe-rell.link-no oe-rell.lot-no
+oe-rell.s-code oe-ordl.part-no oe-rell.link-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table oe-rell.ord-no oe-rell.i-no ~
 oe-rell.po-no oe-rell.qty oe-rell.tag oe-rell.loc oe-rell.loc-bin ~
 oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no oe-rell.cases ~
@@ -136,9 +136,12 @@ oe-ordl.line eq oe-rell.line OUTER-JOIN NO-LOCK ~
 
 
 /* Definitions for FRAME F-Main                                         */
+&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
+    ~{&OPEN-QUERY-br_table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS br_table RECT-1 
+&Scoped-Define DISPLAYED-OBJECTS qty-total qty-balance 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -198,20 +201,19 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE qty-balance AS DECIMAL FORMAT "->>,>>>,>>9" INITIAL 0 
+     LABEL "Balance Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.
 
 DEFINE VARIABLE qty-total AS INTEGER FORMAT "->>,>>>,>>9":U INITIAL 0 
      LABEL "Total Qty" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE qty-balance AS DECIMAL FORMAT "->>,>>>,>>9" INITIAL 0 
-     LABEL "Balance Qty" 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
-
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 60 BY 1.20.
+     SIZE 60 BY 1.19.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -224,35 +226,27 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      oe-rell.ord-no FORMAT ">>>>>>":U WIDTH 8
+      oe-rell.ord-no FORMAT ">>>>>>>>":U WIDTH 12
       oe-rell.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 22
       oe-rell.po-no FORMAT "x(15)":U WIDTH 22
-      oe-rell.qty COLUMN-LABEL "Qty" FORMAT "->>,>>>,>>>":U WIDTH 12
+      oe-rell.qty COLUMN-LABEL "Qty" FORMAT "->>,>>>,>>>":U
       oe-rell.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U WIDTH 28
       oe-rell.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 7
       oe-rell.loc-bin COLUMN-LABEL "Bin Loc." FORMAT "x(8)":U WIDTH 10
-      oe-rell.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
-      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 3
+      oe-rell.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 12
+      oe-rell.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 6
       oe-rell.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12
       oe-rell.cases COLUMN-LABEL "Units" FORMAT "->>>,>>>":U WIDTH 9
       oe-rell.qty-case COLUMN-LABEL "Qty/Unit" FORMAT ">>>,>>>":U
             LABEL-FGCOLOR 0
       oe-rell.partial COLUMN-LABEL "Partial" FORMAT "->>,>>>,>>>":U
-            WIDTH 12
       oe-rell.rel-no COLUMN-LABEL "Rel#" FORMAT ">>>":U WIDTH 5
       oe-rell.b-ord-no COLUMN-LABEL "" FORMAT ">>":U WIDTH 3
-      oe-rell.s-code COLUMN-LABEL "Type" FORMAT "x(12)":U WIDTH 14
-      VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEM-PAIRS "B-Both","B",
-                     "S-Ship","S",
-                     "I-Invoice","I",
-                     "T-Transfer","T"
-          DROP-DOWN-LIST
-      oe-ordl.part-no FORMAT "x(15)":U WIDTH 22
+      oe-rell.s-code COLUMN-LABEL "S/I" FORMAT "!":U WIDTH 4
+      oe-ordl.part-no FORMAT "x(30)":U WIDTH 22
       oe-rell.link-no COLUMN-LABEL "Rel. Seq. #" FORMAT ">>>>>>>>9":U
             WIDTH 15
-      oe-rell.lot-no FORMAT "x(15)":U WIDTH 22
   ENABLE
       oe-rell.ord-no
       oe-rell.i-no
@@ -278,8 +272,8 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
-     qty-total AT ROW 8.10 COL 80 COLON-ALIGNED
-     qty-balance AT ROW 8.10 COL 110 COLON-ALIGNED
+     qty-total AT ROW 8.1 COL 80 COLON-ALIGNED
+     qty-balance AT ROW 8.1 COL 110 COLON-ALIGNED
      RECT-1 AT ROW 8 COL 70
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -343,14 +337,13 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN qty-total IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN qty-balance IN FRAME F-Main
-   NO-ENABLE                                                            */
-
 ASSIGN 
        br_table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
 
+/* SETTINGS FOR FILL-IN qty-balance IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN qty-total IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -371,13 +364,13 @@ oe-ordl.ord-no eq oe-rell.ord-no and
 oe-ordl.i-no eq oe-rell.i-no and
 oe-ordl.line eq oe-rell.line"
      _FldNameList[1]   > ASI.oe-rell.ord-no
-"oe-rell.ord-no" ? ">>>>>>" "integer" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.ord-no" ? ">>>>>>>>" "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-rell.i-no
 "oe-rell.i-no" "FG Item#" ? "character" ? ? ? ? ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.oe-rell.po-no
 "oe-rell.po-no" ? ? "character" ? ? ? ? ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.oe-rell.qty
-"oe-rell.qty" "Qty" "->>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.qty" "Qty" "->>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-rell.tag
 "oe-rell.tag" "Tag" "x(20)" "character" ? ? ? ? ? ? yes ? no no "28" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-rell.loc
@@ -385,9 +378,9 @@ oe-ordl.line eq oe-rell.line"
      _FldNameList[7]   > ASI.oe-rell.loc-bin
 "oe-rell.loc-bin" "Bin Loc." ? "character" ? ? ? ? ? ? yes ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-rell.job-no
-"oe-rell.job-no" "Job#" ? "character" ? ? ? ? ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.job-no" "Job#" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-rell.job-no2
-"oe-rell.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "3" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.job-no2" "" ? "integer" ? ? ? ? ? ? yes ? no no "6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-rell.cust-no
 "oe-rell.cust-no" "Customer#" ? "character" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-rell.cases
@@ -395,7 +388,7 @@ oe-ordl.line eq oe-rell.line"
      _FldNameList[12]   > ASI.oe-rell.qty-case
 "oe-rell.qty-case" "Qty/Unit" ">>>,>>>" "integer" ? ? ? ? 0 ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.oe-rell.partial
-"oe-rell.partial" "Partial" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.partial" "Partial" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-rell.rel-no
 "oe-rell.rel-no" "Rel#" ">>>" "integer" ? ? ? ? ? ? no ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.oe-rell.b-ord-no
@@ -403,12 +396,10 @@ oe-ordl.line eq oe-rell.line"
      _FldNameList[16]   > ASI.oe-rell.s-code
 "oe-rell.s-code" "S/I" "!" "character" ? ? ? ? ? ? yes "Enter (I)nvoice only, (S)hip only, (B)oth invoice & ship, or (T)ransfer" no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" ? ? "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.part-no" ? "x(30)" "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.oe-rell.link-no
 "oe-rell.link-no" "Rel. Seq. #" ">>>>>>>>9" "integer" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[18]   > ASI.oe-rell.lot-no
-"oe-rell.lot-no" ? ? "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _Query            is NOT OPENED
+     _Query            is OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
 
@@ -937,20 +928,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Disable-navigation B-table-Win 
-PROCEDURE Disable-navigation :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE delete_item B-table-Win 
 PROCEDURE delete_item :
 /*------------------------------------------------------------------------------
@@ -967,6 +944,19 @@ PROCEDURE delete_item :
    RUN local-delete-record .
   
   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Disable-navigation B-table-Win 
+PROCEDURE Disable-navigation :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1080,6 +1070,57 @@ PROCEDURE display-orditm :
   end.
   li-nxt-rel-no = li-nxt-rel-no + 1.
   oe-rell.rel-no:SCREEN-VALUE = STRING(li-nxt-rel-no).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-qty B-table-Win 
+PROCEDURE display-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iordered AS INTEGER NO-UNDO .
+  DEFINE VARIABLE iqty-rel AS INTEGER NO-UNDO .
+  DEFINE VARIABLE ibal-rel AS INTEGER NO-UNDO .
+  DEFINE BUFFER bf-oe-ordl-2 FOR oe-ordl.
+  DEFINE BUFFER bf-oe-rell FOR oe-rell .
+
+IF AVAIL oe-rell THEN DO:
+find first bf-oe-ordl-2 NO-LOCK
+       WHERE bf-oe-ordl-2.company = cocode 
+         AND bf-oe-ordl-2.ord-no = oe-rell.ord-no
+         AND bf-oe-ordl-2.i-no = oe-rell.i-no NO-ERROR.
+
+  if avail bf-oe-ordl-2 then
+     assign
+        iordered = bf-oe-ordl-2.qty
+        iqty-rel = bf-oe-ordl-2.t-rel-qty
+        .
+  else assign iordered = 0
+              iqty-rel = 0 .
+  IF iqty-rel < 0  THEN iqty-rel = 0.
+
+     ibal-rel = 0 .
+     FOR EACH bf-oe-rell WHERE bf-oe-rell.company eq oe-relh.company and 
+         bf-oe-rell.r-no    eq oe-relh.r-no 
+         use-index r-no NO-LOCK, 
+         FIRST oe-ordl WHERE oe-ordl.company eq bf-oe-rell.company and 
+         oe-ordl.ord-no eq bf-oe-rell.ord-no and 
+         oe-ordl.i-no eq bf-oe-rell.i-no and 
+         oe-ordl.line eq bf-oe-rell.line  NO-LOCK 
+         BY bf-oe-rell.ord-no :
+        ibal-rel = ibal-rel + bf-oe-rell.qty .
+     END.
+     
+   ASSIGN qty-total = ibal-rel
+          qty-balance = iordered - ibal-rel .
+
+  display qty-total qty-balance  with frame {&frame-name}.
+END.
 
 END PROCEDURE.
 
@@ -1581,9 +1622,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger B-table-Win
-PROCEDURE pRunAPIOutboundTrigger:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger B-table-Win 
+PROCEDURE pRunAPIOutboundTrigger :
 /*------------------------------------------------------------------------------
  Purpose: Runs the API call in the parent viewer
  Notes:
@@ -1612,11 +1652,9 @@ PROCEDURE pRunAPIOutboundTrigger:
                 ).
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Refresh-browse B-table-Win 
 PROCEDURE Refresh-browse :
@@ -1962,7 +2000,7 @@ PROCEDURE valid-job-no :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      lv-job-no = TRIM(oe-rell.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-     lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
+     lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
      oe-rell.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = lv-job-no.
 
     IF relmerge-int EQ 0 THEN DO:
@@ -2077,55 +2115,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-qty B-table-Win 
-PROCEDURE display-qty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE iordered AS INTEGER NO-UNDO .
-  DEFINE VARIABLE iqty-rel AS INTEGER NO-UNDO .
-  DEFINE VARIABLE ibal-rel AS INTEGER NO-UNDO .
-  DEFINE BUFFER bf-oe-ordl-2 FOR oe-ordl.
-  DEFINE BUFFER bf-oe-rell FOR oe-rell .
-
-IF AVAIL oe-rell THEN DO:
-find first bf-oe-ordl-2 NO-LOCK
-       WHERE bf-oe-ordl-2.company = cocode 
-         AND bf-oe-ordl-2.ord-no = oe-rell.ord-no
-         AND bf-oe-ordl-2.i-no = oe-rell.i-no NO-ERROR.
-
-  if avail bf-oe-ordl-2 then
-     assign
-        iordered = bf-oe-ordl-2.qty
-        iqty-rel = bf-oe-ordl-2.t-rel-qty
-        .
-  else assign iordered = 0
-              iqty-rel = 0 .
-  IF iqty-rel < 0  THEN iqty-rel = 0.
-
-     ibal-rel = 0 .
-     FOR EACH bf-oe-rell WHERE bf-oe-rell.company eq oe-relh.company and 
-         bf-oe-rell.r-no    eq oe-relh.r-no 
-         use-index r-no NO-LOCK, 
-         FIRST oe-ordl WHERE oe-ordl.company eq bf-oe-rell.company and 
-         oe-ordl.ord-no eq bf-oe-rell.ord-no and 
-         oe-ordl.i-no eq bf-oe-rell.i-no and 
-         oe-ordl.line eq bf-oe-rell.line  NO-LOCK 
-         BY bf-oe-rell.ord-no :
-        ibal-rel = ibal-rel + bf-oe-rell.qty .
-     END.
-     
-   ASSIGN qty-total = ibal-rel
-          qty-balance = iordered - ibal-rel .
-
-  display qty-total qty-balance  with frame {&frame-name}.
-END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

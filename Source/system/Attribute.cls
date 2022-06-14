@@ -75,8 +75,8 @@ CLASS system.Attribute:
      Notes:
     ------------------------------------------------------------------------------*/
     METHOD PRIVATE LONGCHAR pReplaceAttributes( iplcRequestData AS LONGCHAR, ipcSourceTable AS CHARACTER, ipBufferHandle AS HANDLE ):
-        DEFINE VARIABLE hdField       AS HANDLE    NO-UNDO.
-        DEFINE VARIABLE cFieldValue   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE hdField        AS HANDLE    NO-UNDO.
+        DEFINE VARIABLE cFieldValue    AS CHARACTER NO-UNDO.
         
         IF NOT VALID-HANDLE(ipBufferHandle) THEN
             RETURN iplcRequestData.
@@ -86,17 +86,17 @@ CLASS system.Attribute:
               AND attribute.attributeName NE ?
               AND attribute.dbFieldName   NE "":
             cFieldValue = "".
-            
-            IF ipBufferHandle:AVAILABLE THEN DO:
-                hdField = ipBufferHandle:BUFFER-FIELD(attribute.dbFieldName) NO-ERROR.
-                    
-                IF VALID-HANDLE (hdField) THEN
-                    cFieldValue = STRING(hdField:BUFFER-VALUE(attribute.dbFieldExtent)).
-            END.
+            IF INDEX(iplcRequestData, "$" + attribute.attributeName) EQ 0 THEN
+                NEXT.
+                
+            hdField = ipBufferHandle:BUFFER-FIELD(attribute.dbFieldName) NO-ERROR.
+                
+            IF VALID-HANDLE (hdField) AND ipBufferHandle:AVAILABLE THEN
+                cFieldValue = STRING(hdField:BUFFER-VALUE(attribute.dbFieldExtent)).
             
             UpdateRequestData (INPUT-OUTPUT iplcRequestData, attribute.attributeName, cFieldValue).                  
         END.        
-                
+            
         RETURN iplcRequestData.
     END METHOD.    
 END CLASS.

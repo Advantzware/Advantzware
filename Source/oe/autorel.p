@@ -32,7 +32,8 @@ DEFINE VARIABLE cMessage           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lActiveScope       AS LOGICAL   NO-UNDO.  
 DEFINE VARIABLE lValidLocation     AS LOGICAL   NO-UNDO. 
 DEFINE VARIABLE hdOutboundProcs    AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hdOrderProcs       AS HANDLE    NO-UNDO.    
+DEFINE VARIABLE hdOrderProcs       AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lMultiFreight      AS LOGICAL   NO-UNDO.
 DEFINE STREAM sRelErrorLog.
 
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
@@ -172,23 +173,32 @@ DO:
                     + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
                     + "|type=win,name=fi3,enable=true,label=Question,FORMAT=X(30),height=11".
     
-                RUN custom/d-prompt.w (INPUT "yes-no", cParmList, "", OUTPUT cReturnValues).
+                RUN pCheckMultiFreight(BUFFER oe-rel, OUTPUT lMultiFreight). 
+                IF NOT lMultiFreight THEN
+                DO:
+                    RUN custom/d-prompt.w (INPUT "yes-no", cParmList, "", OUTPUT cReturnValues).
     
-                DO i = 1 TO NUM-ENTRIES(cReturnValues) BY 2.
-                    IF ENTRY(i, cReturnValues) EQ "default" THEN
-                        lMergeWithExisting = LOGICAL(ENTRY(i + 1, cReturnValues)) NO-ERROR.
-                    IF ENTRY(i, cReturnValues) EQ "tg1" THEN
-                        lPromptEachItem = LOGICAL(ENTRY(i + 1, cReturnValues)) NO-ERROR.
-                    IF ENTRY(i, cReturnValues) EQ "tg2" THEN
-                        lMergeNew = LOGICAL(ENTRY(i + 1, cReturnValues)) NO-ERROR.            
+                    DO i = 1 TO NUM-ENTRIES(cReturnValues) BY 2.
+                        IF ENTRY(i, cReturnValues) EQ "default" THEN
+                            lMergeWithExisting = LOGICAL(ENTRY(i + 1, cReturnValues)) NO-ERROR.
+                        IF ENTRY(i, cReturnValues) EQ "tg1" THEN
+                            lPromptEachItem = LOGICAL(ENTRY(i + 1, cReturnValues)) NO-ERROR.
+                        IF ENTRY(i, cReturnValues) EQ "tg2" THEN
+                            lMergeNew = LOGICAL(ENTRY(i + 1, cReturnValues)) NO-ERROR.            
+                    END.
+                    cPromptMethod = (IF lPromptEachItem THEN "ALWAYS" ELSE "NEVER").
+                    /* If they check of merge to new release only, then set cPromptMethod to FIRST and use that to  */
+                    /* make sure it doesn't merge on the first time through, then change cPromptMethod back to 'ALWAYS' */
+                    IF NOT lPromptEachItem AND NOT lMergeNew THEN
+                        cPromptMethod = "FIRST".                      
                 END.
-                cPromptMethod = (IF lPromptEachItem THEN "ALWAYS" ELSE "NEVER").
-                /* If they check of merge to new release only, then set cPromptMethod to FIRST and use that to  */
-                /* make sure it doesn't merge on the first time through, then change cPromptMethod back to 'ALWAYS' */
-                IF NOT lPromptEachItem AND NOT lMergeNew THEN
-                    cPromptMethod = "FIRST".                                                                       
+                ELSE DO:
+                   cPromptMethod = "FIRST".
+                END.
+                                                                                      
 
             END. /*lFirst*/
+                        
 
             IF lMergeWithExisting THEN 
             DO:
@@ -430,5 +440,26 @@ PROCEDURE LogError:
             ).
     END. /* do idx */
 END PROCEDURE.
+      
+PROCEDURE pCheckMultiFreight:
+    DEFINE PARAMETER BUFFER ipbf-oe-rel FOR oe-rel.    
+    DEFINE OUTPUT PARAMETER lMultiFrtRel AS LOGICAL     NO-UNDO.
+    DEFINE BUFFER b-oe-rel FOR oe-rel.
+    
+     FOR EACH b-oe-rel NO-LOCK ~
+         WHERE b-oe-rel.company  EQ ipbf-oe-rel.company  
+           AND b-oe-rel.po-no    EQ ipbf-oe-rel.po-no    
+           AND b-oe-rel.r-no     NE ipbf-oe-rel.r-no     
+           AND b-oe-rel.rel-date EQ ipbf-oe-rel.rel-date 
+           AND b-oe-rel.cust-no  EQ ipbf-oe-rel.cust-no 
+           AND b-oe-rel.ord-no   EQ ipbf-oe-rel.ord-no             
+           and (b-oe-rel.frt-pay NE ipbf-oe-rel.frt-pay ) 
+           :              
+         lMultiFrtRel = YES.
+         LEAVE.
+     END.
+    
+END PROCEDURE.    
+    
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */

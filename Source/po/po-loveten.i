@@ -38,8 +38,7 @@ FOR EACH po-ordl
        
   assign
    v-print-lines = 6
-   v-job         = fill(" ",6 - length(trim(po-ordl.job-no))) +
-                   trim(po-ordl.job-no) 
+   v-job         = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no))
    xg-flag       = no.
 
   if v-job ne "" then
@@ -149,8 +148,7 @@ FOR EACH po-ordl
   if avail item and item.mat-type eq "B" then do:
     find first job
         where job.company eq po-ord.company
-          and job.job-no  eq fill(" ",6 - length(trim(po-ordl.job-no))) +
-                                  trim(po-ordl.job-no)
+          and job.job-no  eq po-ordl.job-no
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
         
@@ -245,7 +243,7 @@ FOR EACH po-ordl
   
   if v-job ne "" then
   DO:
-     v-job = trim(v-job) + "-" + string(po-ordl.job-no2,"99").
+     v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job, po-ordl.job-no2))).
       
      IF po-ordl.s-num NE ? THEN
         v-job = v-job + "." + STRING(po-ordl.s-num,"99").
@@ -304,9 +302,9 @@ FOR EACH po-ordl
                                                                                
      
   PUT {1} v-ord-qty FORMAT "X(6)" TO 6
-          cVendItem FORMAT "X(29)" AT 8
-          v-adder[1] FORMAT "X(9)" AT 37
-          v-job AT 47
+          cVendItem FORMAT "X(25)" AT 8
+          v-adder[1] FORMAT "X(9)" AT 35
+          v-job AT 44
           po-ordl.cost format ">>,>>9.99<<<" AT 60
           space(1) vsTmpLine
           cItemNo FORMAT "x(23)" AT 8

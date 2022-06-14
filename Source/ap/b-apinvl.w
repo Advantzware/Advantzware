@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -250,6 +251,10 @@ FUNCTION display-snum RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-actdscr B-table-Win 
 FUNCTION get-actdscr RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
+  
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getcurrentpo B-table-Win 
+FUNCTION getcurrentpo RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -316,7 +321,7 @@ DEFINE BROWSE Browser-Table
       display-item-no() @ lv-item-no
       ap-invl.dscr COLUMN-LABEL "Description" FORMAT "x(35)":U
             LABEL-BGCOLOR 14
-      display-job() @ lv-job-no COLUMN-LABEL "Job#" FORMAT "x(10)":U
+      display-job() @ lv-job-no COLUMN-LABEL "Job#" FORMAT "x(13)":U
       display-snum() @ lv-snum
       display-bnum() @ lv-bnum
   ENABLE
@@ -467,7 +472,7 @@ ASSIGN
      _FldNameList[15]   > ASI.ap-invl.dscr
 "ap-invl.dscr" "Description" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
-"display-job() @ lv-job-no" "Job#" "x(10)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-job() @ lv-job-no" "Job#" "x(13)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
 "display-snum() @ lv-snum" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
@@ -662,7 +667,7 @@ DO:
    DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
   IF LASTKEY NE -1 OR lReselectingReceipts THEN DO:
     lReselectingReceipts = FALSE.
-    RUN valid-po-no(OUTPUT lReturnError) NO-ERROR.    
+    RUN valid-po-no(YES, OUTPUT lReturnError) NO-ERROR.    
     IF lReturnError THEN RETURN NO-APPLY.
 
     IF INT({&self-name}:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:
@@ -1051,6 +1056,50 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE buildTempTable B-table-Win 
+PROCEDURE buildTempTable :
+/*------------------------------------------------------------------------------
+  Purpose: Builds the temp-table of available receipts for PO    
+  Parameters:  ROWID of PO-ORD
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipriPO AS RECID NO-UNDO.
+
+
+FIND po-ord WHERE RECID(po-ord) = ipriPO NO-LOCK NO-ERROR.
+
+FOR EACH tt-pol:
+    DELETE tt-pol.
+END.
+  
+
+IF AVAILABLE po-ord THEN 
+DO:     
+    FOR EACH po-ordl 
+        WHERE po-ordl.company EQ po-ord.company 
+          AND po-ordl.po-no EQ po-ord.po-no 
+           AND (NOT CAN-FIND(FIRST ap-invl 
+                            WHERE ap-invl.i-no EQ ap-inv.i-no
+                              AND ap-invl.po-no EQ po-ordl.po-no
+                              AND {ap/invlline.i -1} EQ po-ordl.line
+                            USE-INDEX i-no))
+        USE-INDEX po-no NO-LOCK:
+        
+        IF LOOKUP(po-ordl.stat,"X,F") > 0 /* not deleted or cancelled */ THEN
+            NEXT.    
+            
+            CREATE tt-pol.
+            ASSIGN 
+                tt-pol.rec-id  = RECID(po-ordl)                
+                tt-pol.selekt  = NO.           
+    END.
+END. /*avail po-ord*/
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-amt B-table-Win 
 PROCEDURE calc-amt :
@@ -2329,7 +2378,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   /* === validation ---- */
   IF adm-adding-record THEN do:
-      RUN valid-po-no(OUTPUT lReturnError) NO-ERROR.
+      RUN valid-po-no(NO, OUTPUT lReturnError) NO-ERROR.
       IF lReturnError THEN RETURN NO-APPLY.
   END.
   
@@ -2588,17 +2637,18 @@ PROCEDURE pReselectReceipts PRIVATE:
         FIND CURRENT ap-invl EXCLUSIVE-LOCK NO-ERROR.
         IF AVAILABLE ap-invl THEN DO:
             DELETE ap-invl.
-
+                 
+            ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = "".     
             RUN dispatch (
                 INPUT "open-query"
-                ).            
-            {methods/run_link.i "TableIO-Source" "auto-line-add"}
-
-            IF AVAILABLE ap-invl THEN DO:
-                APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
-
-                ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(ipiPOID).
+                ).           
                 
+            {methods/run_link.i "TableIO-Source" "auto-line-add"}
+                             
+            APPLY "ENTRY" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.                  
+            IF AVAILABLE ap-invl THEN DO:                           
+
+                ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = STRING(ipiPOID).                                         
                 lReselectingReceipts = TRUE.
                 
                 APPLY "LEAVE" TO ap-invl.po-no IN BROWSE {&BROWSE-NAME}.
@@ -3134,12 +3184,15 @@ PROCEDURE valid-po-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iplMessage AS LOGICAL NO-UNDO.
   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR lv-msg2 AS CHAR NO-UNDO.
   DEFINE VARIABLE lMessage  AS LOGICAL NO-UNDO.
   DEFINE VARIABLE lResponse AS LOGICAL   NO-UNDO.
   DEF BUFFER b-ap-invl FOR ap-invl.
+  DEF VAR tRecQty AS DEC NO-UNDO.
+  DEF VAR tInvQty AS DEC NO-UNDO.
   
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3177,6 +3230,10 @@ PROCEDURE valid-po-no :
             po-ordl.company EQ po-ord.company AND 
             po-ordl.po-no   EQ po-ord.po-no:
             
+            ASSIGN 
+                tRecQty = tRecQty + po-ordl.t-rec-qty
+                tInvQty = tInvQty + po-ordl.t-inv-qty.
+                
             IF po-ordl.t-rec-qty EQ 0 THEN DO:
                 FIND FIRST ITEM NO-LOCK
                      WHERE item.company EQ cocode
@@ -3193,7 +3250,8 @@ PROCEDURE valid-po-no :
                 UPDATE lMessage.
                 IF lMessage THEN 
                     RUN pReCalculateRecQty.
-            END.                 
+            END. 
+            IF iplMessage THEN
             RUN ap/valid-po2.p (BUFFER po-ordl, BUFFER b-ap-invl ,OUTPUT lv-msg2).
             IF lv-msg2 NE "" THEN DO:
                 MESSAGE TRIM(lv-msg2) VIEW-AS ALERT-BOX WARNING buttons yes-no UPDATE lContinue AS LOG.
@@ -3216,10 +3274,36 @@ PROCEDURE valid-po-no :
          NOT CAN-FIND(FIRST tt-ap-invl WHERE tt-ap-invl.i-no EQ ap-inv.i-no) THEN DO:
 
         RUN build-table (RECID(po-ord)).
+                
+        IF NOT apinvmsg-log 
+        AND tInvQty GE tRecQty  
+        THEN DO:          
+          MESSAGE "This PO has no uninvoiced receipts." SKIP 
+                  "Do you want to continue processing?"
+                   VIEW-AS ALERT-BOX QUESTION 
+                   BUTTONS OK-CANCEL UPDATE lcheckflg as logical.
+          IF lcheckflg THEN
+          DO:
+               EMPTY TEMP-TABLE ttInventoryStock.
+               
+               RUN buildTempTable (RECID(po-ord)).
+               
+               RUN ap/d-selpos.w (
+                    INPUT  RECID(ap-inv),
+                    INPUT-OUTPUT TABLE tt-pol BY-REFERENCE,
+                    INPUT-OUTPUT TABLE ttInventoryStock BY-REFERENCE
+                    ).
 
-        IF NOT apinvmsg-log AND lv-num-rec LE 0 THEN
-          lv-msg = "All receipts for this PO have been invoiced already".
+               IF CAN-FIND(FIRST tt-pol
+                          WHERE tt-pol.selekt
+                            AND tt-pol.qty-to-inv NE 0) THEN
+               RUN create-ap-from-po.
 
+               ELSE
+                 lv-msg = "Nothing selected for this PO".
+          END.
+          ELSE oplReturnError = YES.
+        END.
         ELSE DO:
             EMPTY TEMP-TABLE ttInventoryStock.
             
@@ -3299,6 +3383,7 @@ PROCEDURE valid-qty :
     DEFINE VARIABLE lError                      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage                    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lResponse                   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iPurchaseOrder              AS INTEGER   NO-UNDO.
     
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
@@ -3328,13 +3413,15 @@ PROCEDURE valid-qty :
               RETURN.
           END.
           ELSE DO:
+              iPurchaseOrder = INTEGER(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}).
               RUN dispatch (
                   INPUT "cancel-record"
                   ).
                 
               RUN pReselectReceipts(
-                  INPUT INTEGER(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+                  INPUT iPurchaseOrder
                   ).
+              RETURN.    
           END.
       END.
       ELSE IF lRecordsFound AND DECIMAL(ap-invl.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT dQuantityAvailableToInvoice AND NOT lQuantityExceededWarned AND NOT lHasNegativeReceipts THEN DO:
@@ -3840,7 +3927,7 @@ FUNCTION display-job RETURNS CHARACTER
                        AND po-ordl.po-no = ap-invl.po-no
                        AND po-ordl.LINE = ap-invl.LINE - (ap-invl.po-no * 1000)
                        NO-LOCK NO-ERROR.
-  IF AVAIL po-ordl THEN RETURN po-ordl.job-no + "-" + STRING(po-ordl.job-no2,">9").
+  IF AVAIL po-ordl THEN RETURN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)) .
   ELSE RETURN "".   /* Function return value. */
 
 END FUNCTION.
@@ -3916,6 +4003,23 @@ FUNCTION get-actdscr RETURNS CHARACTER
      ELSE RETURN "".
   END.
   ELSE RETURN "".   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getcurrentpo B-table-Win 
+FUNCTION getcurrentpo RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  IF AVAIL ap-invl THEN
+    RETURN ap-invl.po-no.
+  ELSE RETURN -1.  /* Function return value. */
 
 END FUNCTION.
 

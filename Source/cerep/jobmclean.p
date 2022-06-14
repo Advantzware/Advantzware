@@ -32,8 +32,8 @@ ELSE
 {cecrep/jc-soule.i}
 DEFINE NEW SHARED VARIABLE save_id       AS RECID.
 DEFINE NEW SHARED VARIABLE v-today       AS DATE      INIT TODAY.
-DEFINE NEW SHARED VARIABLE v-job         AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2        AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE NEW SHARED VARIABLE v-job         AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2        AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart     LIKE style.dscr.
 DEFINE NEW SHARED VARIABLE v-dsc         LIKE oe-ordl.part-dscr1 EXTENT 2.
 DEFINE NEW SHARED VARIABLE v-size        AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -163,14 +163,14 @@ ASSIGN
 /* build tt-reftable */
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (production OR
     job-hdr.ftick-prnt           EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -230,14 +230,14 @@ END.
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (production OR
     job-hdr.ftick-prnt           EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -412,10 +412,10 @@ FOR EACH job-hdr NO-LOCK
                 v-fill SKIP.
 
         PUT "<C2><B>Customer:<P10>" v-cust-name  "<P10>"
-            "<B><C39>Delivery Date: " ( IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  "<C68>Order # :" TRIM(STRING(iOrderNo,">>>>>>9")) FORMAT "x(8)" SKIP
+            "<B><C39>Delivery Date: " ( IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  "<C68>Order # :" TRIM(STRING(iOrderNo,">>>>>>>9")) FORMAT "x(8)" SKIP
             "<C2>" cLabelSetItem FORMAT "x(14)" cSetItemName FORMAT "x(15)"  .
        
-        PUT "<C68>Job #: </B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" SKIP
+        PUT "<C68>Job #: </B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" SKIP
             "<C2><b>" cLabelSetPart FORMAT "x(18)" cSetPartNo FORMAT "x(15)" SKIP
             v-fill SKIP .
         PUT "<R4.8><P20><C24>" IF lFSC THEN "FSC" ELSE "" "<C40>" cNewOrderValue FORMAT "x(13)" "<P10><R6></b>" SKIP  .
@@ -639,7 +639,8 @@ FOR EACH job-hdr NO-LOCK
                                          "<C2><B>Blank | </B>" STRING(bff-eb.blank-no,"99")  
                                          "<P10><C20><b>Size: </B>" (string(bff-eb.len,">9.9999") + " x " + STRING(bff-eb.wid,">9.9999") + " x " + STRING(bff-eb.dep,">9.9999")) FORMAT "x(40)" 
                                           "<C45>" bff-eb.spc-no FORMAT "x(30)" SKIP 
-                                        "<P10><C20><b>Blank Size: </B>" (string(bff-eb.t-len,">9.9999") + " x " + STRING(bff-eb.t-wid,">9.9999") ) FORMAT "x(40)" SKIP.
+                                         "<C2><FROM><C+13><R+2><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" + string((job-hdr.job-no) + "-" + STRING(job-hdr.job-no2) + "-" + STRING(bff-eb.form-no)) + "><R-2>" FORMAT "x(250)"
+                                        "<P10><C20><b>Blank Size: </B>" (STRING(bff-eb.t-len,">9.9999") + " x " + STRING(bff-eb.t-wid,">9.9999") ) FORMAT "x(40)" SKIP.
                                          IF LINE-COUNTER > 70 THEN DO: 
                                              PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
                                              PAGE.
@@ -1216,9 +1217,9 @@ PROCEDURE pPrintHeader :
         "<C65>Report Date: "  TODAY /*"  PRINTED DATE:" TODAY*/  "</B><P10>" SKIP
         v-fill SKIP
         "<C2><B>Customer: <P10>" v-cust-name  "<P10>"
-        "<B><C39>Delivery Date: "  (IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  " <C68>Order #: " TRIM(STRING(iOrderNo,">>>>>>9"))  SKIP
+        "<B><C39>Delivery Date: "  (IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  " <C68>Order #: " TRIM(STRING(iOrderNo,">>>>>>>9"))  SKIP
         "  " cLabelSetItem FORMAT "x(14)" cSetItemName FORMAT "x(15)"
-        "<C68>Job #: " v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" SKIP
+        "<C68>Job #: " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" SKIP
         "  " cLabelSetPart FORMAT "x(18)" cSetPartNo FORMAT "x(15)" SKIP
         v-fill SKIP
         "<R4><C40><P20>" cNewOrderValue FORMAT "x(13)" "</B><P10><R6.5>" SKIP .

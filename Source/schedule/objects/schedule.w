@@ -1591,6 +1591,10 @@ PROCEDURE local-initialize :
   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF ID EQ "" THEN DO:
+    DELETE OBJECT THIS-PROCEDURE.
+    RETURN.
+  END.
   INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/config.dat')) NO-ECHO.
   IMPORT version.
   INPUT CLOSE.
@@ -1753,7 +1757,9 @@ PROCEDURE pFromPending :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN pFromPending IN h_board.
+    DEFINE INPUT PARAMETER ipdtAsOfDate AS DATE NO-UNDO.
+
+    RUN pFromPending IN h_board (ipdtAsOfDate).
 
 END PROCEDURE.
 
@@ -1767,7 +1773,9 @@ PROCEDURE pFromPendingByDueDate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN pFromPendingByDueDate IN h_board.
+    DEFINE INPUT PARAMETER ipdtAsOfDate AS DATE NO-UNDO.
+
+    RUN pFromPendingByDueDate IN h_board (ipdtAsOfDate).
 
 END PROCEDURE.
 
@@ -1937,16 +1945,26 @@ PROCEDURE winReSize :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE offSet AS INTEGER NO-UNDO.
 
-  offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS GT 600 THEN 30 ELSE 0.
-  IF {&WINDOW-NAME}:HEIGHT-PIXELS LT 600 THEN {&WINDOW-NAME}:HEIGHT-PIXELS = 600.
-  IF {&WINDOW-NAME}:WIDTH-PIXELS LT 800 THEN {&WINDOW-NAME}:WIDTH-PIXELS = 800.
   ASSIGN
-    {&WINDOW-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS - offSet
-    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-    FRAME {&FRAME-NAME}:WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
-    FRAME {&FRAME-NAME}:HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
-    FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS = {&WINDOW-NAME}:WIDTH-PIXELS
-    FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS.
+    {&WINDOW-NAME}:X = 0
+    {&WINDOW-NAME}:Y = 0
+    {&WINDOW-NAME}:HEIGHT-PIXELS = SESSION:HEIGHT-PIXELS
+    {&WINDOW-NAME}:WIDTH-PIXELS  = SESSION:WIDTH-PIXELS
+    .
+  offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS LE 600 THEN 0
+           ELSE INTEGER({&WINDOW-NAME}:STATUS-AREA) - 1.22.
+  IF {&WINDOW-NAME}:HEIGHT-PIXELS LT 600 THEN
+  {&WINDOW-NAME}:HEIGHT-PIXELS = 600.
+  IF {&WINDOW-NAME}:WIDTH-PIXELS  LT 800 THEN
+  {&WINDOW-NAME}:WIDTH-PIXELS  = 800.
+  ASSIGN
+    {&WINDOW-NAME}:HEIGHT-PIXELS              = {&WINDOW-NAME}:HEIGHT-PIXELS - offSet
+    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
+    FRAME {&FRAME-NAME}:WIDTH-PIXELS          = {&WINDOW-NAME}:WIDTH-PIXELS
+    FRAME {&FRAME-NAME}:HEIGHT-PIXELS         = {&WINDOW-NAME}:HEIGHT-PIXELS
+    FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS
+    FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
+    .
   IF reSized THEN RETURN.
   reSized = YES.
   RUN moveBoardObjects (FRAME {&FRAME-NAME}:WIDTH-PIXELS - 800).

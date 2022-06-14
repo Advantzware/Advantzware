@@ -39,30 +39,31 @@ ELSE
   lines-per-page = 99.
 
 IF tb_freeze-note THEN
-   for each job-hdr 
-        where job-hdr.company               eq cocode
-          and (production OR job-hdr.ftick-prnt eq reprint OR
+   FOR EACH job-hdr 
+        WHERE job-hdr.company               EQ cocode
+          AND (production OR job-hdr.ftick-prnt EQ reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) +
+              STRING(job-hdr.job-no2,"999")  GE fjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) +
+              STRING(job-hdr.job-no2,"999")  LE tjob-no
+/*          AND job-hdr.job-no2 GE fjob-no2*/
+/*          AND job-hdr.job-no2 LE tjob-no2*/
               NO-LOCK,
-        first job
-        where job.company                   eq cocode
-          and job.job                       eq job-hdr.job
-          and job.job-no                    eq job-hdr.job-no
-          and job.job-no2                   eq job-hdr.job-no2
-          and (job.stat                      ne "H" OR lv-format-f EQ 'Colonial' OR lv-format-f EQ 'CCC-Hybrid' )
+        FIRST job
+        WHERE job.company                   EQ cocode
+          AND job.job                       EQ job-hdr.job
+          AND job.job-no                    EQ job-hdr.job-no
+          AND job.job-no2                   EQ job-hdr.job-no2
+          AND (job.stat                     NE "H" OR lv-format-f EQ 'Colonial' OR lv-format-f EQ 'CCC-Hybrid' )
           AND (job.pr-printed EQ reprint OR NOT production)
           AND (tb_app-unprinted EQ NO OR
               (tb_app-unprinted AND job.pr-printed = NO AND
                job.opened = YES AND job.cs-to-pr = YES))
         EXCLUSIVE-LOCK:
+        
         RUN jc\jobnotes.p(BUFFER job).
 
         ASSIGN job.freezeNote = YES 
@@ -78,27 +79,25 @@ IF tb_freeze-note THEN
 
 FIND CURRENT job NO-LOCK NO-ERROR.
 
-for each job-hdr NO-LOCK
-    where job-hdr.company               eq cocode
-      and (production OR job-hdr.ftick-prnt eq reprint OR
+FOR EACH job-hdr NO-LOCK
+    WHERE job-hdr.company                   EQ cocode
+      AND (production OR job-hdr.ftick-prnt EQ reprint OR
           PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-      and job-hdr.job-no                ge substr(fjob-no,1,6)
-      and job-hdr.job-no                le substr(tjob-no,1,6)
-
-      and fill(" ",6 - length(trim(job-hdr.job-no))) +
-          trim(job-hdr.job-no) +
-          string(job-hdr.job-no2,"99")  ge fjob-no
-
-      and fill(" ",6 - length(trim(job-hdr.job-no))) +
-          trim(job-hdr.job-no) +
-          string(job-hdr.job-no2,"99")  le tjob-no
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+          TRIM(job-hdr.job-no) +
+          STRING(job-hdr.job-no2,"999")  GE fjob-no
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+          TRIM(job-hdr.job-no) +
+          STRING(job-hdr.job-no2,"999")  LE tjob-no
+      AND job-hdr.job-no2 GE fjob-no2
+      AND job-hdr.job-no2 LE tjob-no2
     USE-INDEX job-no,
-    first job
-        where job.company                   eq cocode
-          and job.job                       eq job-hdr.job
-          and job.job-no                    eq job-hdr.job-no
-          and job.job-no2                   eq job-hdr.job-no2
-          and job.stat                      ne "H"
+    FIRST job
+        WHERE job.company                   EQ cocode
+          AND job.job                       EQ job-hdr.job
+          AND job.job-no                    EQ job-hdr.job-no
+          AND job.job-no2                   EQ job-hdr.job-no2
+          AND job.stat                      NE "H"
           AND (job.pr-printed EQ reprint OR NOT production)
           AND (tb_app-unprinted EQ NO OR
               (tb_app-unprinted AND job.pr-printed = NO AND
@@ -313,33 +312,32 @@ DEF VAR v-sample-on-ct AS LOG NO-UNDO.
 
 IF ip-industry EQ "Fold" AND tb_fold AND lv-format-f EQ "Colonial" THEN
 DO:
-   for each job-hdr WHERE
-       job-hdr.company               eq cocode AND
-       job-hdr.job-no                ge substr(fjob-no,1,6) AND
-       job-hdr.job-no                le substr(tjob-no,1,6) AND
-       fill(" ",6 - length(trim(job-hdr.job-no))) +
-           trim(job-hdr.job-no) +
-           string(job-hdr.job-no2,"99")  ge fjob-no AND
-       fill(" ",6 - length(trim(job-hdr.job-no))) +
-           trim(job-hdr.job-no) +
-           string(job-hdr.job-no2,"99")  le tjob-no AND
-       (job-hdr.ftick-prnt           eq reprint OR
-        PROGRAM-NAME(2) MATCHES "*r-tickt2*" ) AND
-       can-find(first job where job.company eq cocode
-                  and job.job     eq job-hdr.job
-                  and job.job-no  eq job-hdr.job-no
-                  and job.job-no2 eq job-hdr.job-no2
+   FOR EACH job-hdr WHERE job-hdr.company         EQ cocode 
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) +
+              STRING(job-hdr.job-no2,"999")  GE fjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+              TRIM(job-hdr.job-no) +
+              STRING(job-hdr.job-no2,"999")  LE tjob-no
+          AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2 
+          AND (job-hdr.ftick-prnt           eq reprint 
+          OR  PROGRAM-NAME(2) MATCHES "*r-tickt2*" ) 
+          AND CAN-FIND(FIRST job WHERE job.company    EQ cocode
+                                      AND job.job     EQ job-hdr.job
+                                      AND job.job-no  EQ job-hdr.job-no
+                                      AND job.job-no2 EQ job-hdr.job-no2
         /*and job.stat    ne "H"*/),
-       first est
-        where est.company = job.company
-          AND est.est-no                    eq job-hdr.est-no
-          and est.est-type                  LE 4
-        no-lock,
-       first eb fields(company procat) WHERE
+       FIRST est
+        WHERE est.company = job.company
+          AND est.est-no                    EQ job-hdr.est-no
+          AND est.est-type                  LE 4
+        NO-LOCK,
+       FIRST eb FIELDS(company procat) WHERE
              eb.company = job-hdr.company AND
              eb.loc     =  job-hdr.loc AND
              eb.est-no  = job-hdr.est-no
-             no-lock:
+             NO-LOCK:
 
        IF CAN-FIND(FIRST prodl WHERE prodl.company EQ eb.company AND
           prodl.prolin EQ 'Printed' AND
@@ -814,7 +812,7 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobamcarton.p (lv-format-c).
   END.
-  ELSE IF lv-format-c = "PkgAtlanta" THEN do:
+  ELSE IF lv-format-c = "PkgAtlanta" OR lv-format-c = "Onducorr" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobPkgAtl.p (lv-format-c).
   END.

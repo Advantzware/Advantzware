@@ -397,7 +397,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "__________________________________________________________________________________________________________________" 
     "<R57><C1>" "<B>  Signature of Receipt </B>" 
     "<R58><C1>" "Customer ________________________________________                       Carrier _______________________________________" AT 20 
-    "<R60><C1>" "Date ____________________________________________                       Date _________________________________________" AT 20    
+    "<R60><C1>" "Date ____________________________________________                       Date _________________________________________" AT 20 SKIP(1)   
+    "<C30>" "Certificate Registration Code: SCS-COC-004377-CH FSC"  SKIP
+    "<C34>" "Trademark License Number FSC-C113126"     SKIP
+    "<C40>" "FSC Recycled Credit" SKIP
     .
 
   v-printline = v-printline + 14.

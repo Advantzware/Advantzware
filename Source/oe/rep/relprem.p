@@ -1,5 +1,6 @@
 /* ----------------------------------------------- oe/rep/relprem.p 04/01 JLF */
 /* Print OE Release/Picking tickets (Fibre Container)                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -107,25 +108,25 @@ format header
        skip(1)
          
        "Order#"                         to 6
-       "Item / Descrip"                 at 8
-       "Whs  / Bin"                     at 39
-       "Units"                          to 59
+       "Item / Descrip"                 AT 10
+       "Whs  / Bin"                     AT 40
+       "Units"                          TO 59
        "Unit Count"                     to 70
        "Rel Qty"                        to 80
        
        "------"                         to 6
-       "--------------"                 at 8
-       "----------"                     at 39
-       "-----"                          to 59
+       "--------------"                 AT 10
+       "----------"                     AT 40
+       "-----"                          TO 59
        "----------"                     to 70
        "-------"                        to 80
        
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format oe-rell.ord-no                   to 6
-       w-par                            at 8    format "x(30)"
-       v-bin                            at 39   format "x(14)"
-       w-cas                            to 59   format "->>>>"
+format oe-rell.ord-no                   to 8
+       w-par                            AT 10    format "x(30)"
+       v-bin                            AT 40   format "x(14)"
+       w-cas                            TO 59   format "->>>>"
        w-c-c                            to 70   format "->>>>>>>>"
        v-rel-qty                        to 80   format "->>>>>>>>"
     
@@ -174,8 +175,8 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
           where oe-ord.company eq oe-rell.company
             and oe-ord.ord-no  eq oe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-pay-dscr = IF oe-rell.frt-pay NE "" THEN oe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-pay-dscr:
              when "P" THEN v-frt-pay-dscr = "Prepaid".
              when "C" THEN v-frt-pay-dscr = "Collect".
              when "B" THEN v-frt-pay-dscr = "Bill".

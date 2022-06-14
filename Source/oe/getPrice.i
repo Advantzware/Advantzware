@@ -10,32 +10,40 @@ PROCEDURE getPrice:
     DEFINE VARIABLE cPriceUOM        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemID          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iQuoteNo         LIKE quotehd.q-no NO-UNDO.
+    DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 
     FIND bf-oe-ordl 
         WHERE ROWID(bf-oe-ordl) EQ ipriOeOrdl 
         NO-ERROR.  
-    IF NOT AVAILABLE bf-oe-ordl THEN RETURN NO-APPLY. 
-    ELSE 
+    IF NOT AVAILABLE bf-oe-ordl THEN RETURN NO-APPLY.   
+    
+    RUN pGetNk1QuotePriceMatrix(INPUT bf-oe-ordl.company, OUTPUT lQuotePriceMatrix).
+    
+    ASSIGN
+        save_id   = RECID(bf-oe-ordl)
+        lv-rowid  = ROWID(bf-oe-ordl)
+        v-i-item  = bf-oe-ordl.i-no
+        v-i-qty   = INT(bf-oe-ordl.qty)
+        v-qty-mod = YES. /* new record, so will have been modified */
+    
+    IF lQuotePriceMatrix THEN     
+    DO:    
+       RUN oe/oe-price.p.    
+    END.
+    ELSE IF NOT lQuotePriceMatrix THEN     
     DO: 
         IF AVAILABLE bf-oe-ordl THEN 
         DO:
             IF NOT AVAILABLE xoe-ord THEN
                 FIND FIRST xoe-ord NO-LOCK  
-                    WHERE xoe-ord.company EQ g_company
+                    WHERE xoe-ord.company EQ bf-oe-ordl.company
                     AND xoe-ord.ord-no  EQ bf-oe-ordl.ord-no
                     NO-ERROR.
-
-            ASSIGN
-                save_id   = RECID(bf-oe-ordl)
-                lv-rowid  = ROWID(bf-oe-ordl)
-                v-i-item  = bf-oe-ordl.i-no
-                v-i-qty   = INT(bf-oe-ordl.qty)
-                v-qty-mod = YES. /* new record, so will have been modified */
-
+                        
             FIND FIRST itemfg NO-LOCK
-                WHERE itemfg.company EQ cocode
+                WHERE itemfg.company EQ bf-oe-ordl.company
                 AND itemfg.i-no    EQ v-i-item
                 NO-ERROR.
         
@@ -92,8 +100,10 @@ PROCEDURE getPrice:
                         bf-oe-ordl.pr-uom = cPriceUOM
                         .                  
             END. /* est-no <> "" */
-        END.
-        RUN Conv_CalcTotalPrice(bf-oe-ordl.company, 
+        END.               
+    END. /*ELSE bf-oe-ordl is available */
+    
+    RUN Conv_CalcTotalPrice(bf-oe-ordl.company, 
                         bf-oe-ordl.i-no,
                         bf-oe-ordl.qty,
                         bf-oe-ordl.price,
@@ -101,6 +111,20 @@ PROCEDURE getPrice:
                         bf-oe-ordl.disc,
                         bf-oe-ordl.cas-cnt,    
                         OUTPUT bf-oe-ordl.t-price).
-        //{oe/ordltot3.i bf-oe-ordl qty bf-oe-ordl}
-    END. /*ELSE bf-oe-ordl is available */
 END PROCEDURE.
+
+PROCEDURE pGetNk1QuotePriceMatrix:
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplReturn AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE lRecFound  AS LOGICAL    NO-UNDO.
+    DEFINE VARIABLE cRtnChar   AS CHARACTER  NO-UNDO.  
+    
+    RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+    
+    IF lRecFound THEN
+    oplReturn = LOGICAL(cRtnChar) NO-ERROR.  
+    
+END PROCEDURE.    

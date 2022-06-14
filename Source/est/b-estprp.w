@@ -165,7 +165,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      est-prep.s-num COLUMN-LABEL "Sht #" FORMAT ">>>":U
+      est-prep.s-num COLUMN-LABEL "Form" FORMAT ">>>":U
       est-prep.b-num COLUMN-LABEL "B #" FORMAT ">>>":U
       est-prep.code FORMAT "x(20)":U WIDTH 20
       est-prep.qty FORMAT "->>,>>9.9":U
@@ -277,7 +277,7 @@ ASSIGN
      _JoinCode[1]      = "ASI.est-prep.company = ASI.est.company
   AND ASI.est-prep.est-no = ASI.est.est-no"
      _FldNameList[1]   > ASI.est-prep.s-num
-"est-prep.s-num" "Sht #" ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-prep.s-num" "Form" ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.est-prep.b-num
 "est-prep.b-num" "B #" ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.est-prep.code

@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relkeyst.i           */
 /* Print OE Release/Picking tickets (Keystone)                                */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -102,7 +103,7 @@ format header
        oe-relh.ship-i[3]                at 2
        oe-relh.ship-i[4]                at 2
        
-       fill("-",80)                             format "x(80)"
+       fill("-",82)                             format "x(82)"
          
        "Ship Via"
        "DelZone"                        at 27
@@ -116,38 +117,38 @@ format header
        v-weight                         to 57
        v-frt-pay-dscr                   at 65
          
-       fill("-",80)                             format "x(80)"
+       fill("-",82)                             format "x(82)"
          
        skip(1)
          
        "Order#"                         to 6
-       "Item / Descrip"                 at 8
-       "Tag/Whs/Bin"                    at 29
-       "X"                              at 50
-       "#Pal"                           to 55
-       "#Cas"                           to 60
-       "Count"                          to 70
-       "Bin Qty"                        to 80
+       "Item / Descrip"                 at 10
+       "Tag/Whs/Bin"                    at 31
+       "X"                              at 52
+       "#Pal"                           to 57
+       "#Cas"                           to 62
+       "Count"                          to 72
+       "Bin Qty"                        to 82
        "Job#"                           TO 6
-       "------"                         to 6
-       "--------------"                 at 8
-       "----------"                     at 29
-       "-"                              at 50
-       "----"                           to 55
-       "----"                           to 60
-       "-----"                          to 70
-       "-------"                        to 80
+       "--------"                       to 8
+       "--------------"                 at 10
+       "----------"                     at 31
+       "-"                              at 52
+       "----"                           to 57
+       "----"                           to 62
+       "-----"                          to 72
+       "-------"                        to 82
        
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(20)"
-       v-bin                            at 29   format "x(20)"
-       w-x                              at 50   format "X/"
-       w-pal                            to 55   format "->>>"
-       w-cas                            to 60   format "->>>"
-       w-c-c                            to 70   format "->>>>>>>>"
-       w-qty[1]                         to 80   format "->>>>>>>>"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(20)"
+       v-bin                            at 31   format "x(20)"
+       w-x                              at 52   format "X/"
+       w-pal                            to 57   format "->>>"
+       w-cas                            to 62   format "->>>"
+       w-c-c                            to 72   format "->>>>>>>>"
+       w-qty[1]                         to 82   format "->>>>>>>>"
     
     with down frame rel-mid no-box no-label STREAM-IO width 85.
 
@@ -198,8 +199,8 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
           where oe-ord.company eq oe-rell.company
             and oe-ord.ord-no  eq oe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-pay-dscr = IF oe-rell.frt-pay NE "" THEN oe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-pay-dscr:
              when "P" THEN v-frt-pay-dscr = "Prepaid".
              when "C" THEN v-frt-pay-dscr = "Collect".
              when "B" THEN v-frt-pay-dscr = "Bill".

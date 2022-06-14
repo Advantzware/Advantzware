@@ -1,7 +1,7 @@
 /* ------------------------------------------ oe/rep/invprstl.p 11200902 GDM */
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = Loylang & LoylangBSF                      */
 /* ------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -622,8 +622,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             SPACE(0)               
              inv-line.t-price  FORMAT "->>>,>>9.99"                
            SKIP
-            SPACE(1)  v-ord-no 
-            SPACE(10) v-i-dscr FORMAT "x(30)"
+            SPACE(1)  TRIM(STRING(v-ord-no,">>>>>>>9")) 
+            SPACE(8) v-i-dscr FORMAT "x(30)"
             SPACE(2) inv-line.qty FORMAT "->>>>>9"
             SPACE(13) v-pc  
             SPACE(1)  v-price-head 

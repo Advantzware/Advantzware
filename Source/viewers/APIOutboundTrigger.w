@@ -86,8 +86,7 @@ APIOutboundTrigger.description APIOutboundTrigger.inActive
 &Scoped-define ENABLED-TABLES APIOutboundTrigger
 &Scoped-define FIRST-ENABLED-TABLE APIOutboundTrigger
 &Scoped-Define ENABLED-OBJECTS RECT-6 
-&Scoped-Define DISPLAYED-FIELDS APIOutboundTrigger.apiID ~
-APIOutboundTrigger.clientID APIOutboundTrigger.triggerID ~
+&Scoped-Define DISPLAYED-FIELDS APIOutboundTrigger.triggerID ~
 APIOutboundTrigger.description APIOutboundTrigger.inActive 
 &Scoped-define DISPLAYED-TABLES APIOutboundTrigger
 &Scoped-define FIRST-DISPLAYED-TABLE APIOutboundTrigger
@@ -95,8 +94,6 @@ APIOutboundTrigger.description APIOutboundTrigger.inActive
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
-&Scoped-define ADM-ASSIGN-FIELDS APIOutboundTrigger.apiID ~
-APIOutboundTrigger.clientID 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -130,29 +127,21 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 127.2 BY 7.38.
+     SIZE 127.2 BY 3.81.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     APIOutboundTrigger.apiID AT ROW 1.86 COL 22.8 COLON-ALIGNED WIDGET-ID 8
-          VIEW-AS FILL-IN 
-          SIZE 40.4 BY 1
-          BGCOLOR 3 FGCOLOR 15 
-     APIOutboundTrigger.clientID AT ROW 1.86 COL 79 COLON-ALIGNED WIDGET-ID 10
-          VIEW-AS FILL-IN 
-          SIZE 40.4 BY 1
-          BGCOLOR 3 FGCOLOR 15 
-     APIOutboundTrigger.triggerID AT ROW 3.38 COL 22.8 COLON-ALIGNED WIDGET-ID 6
+     APIOutboundTrigger.triggerID AT ROW 1.24 COL 23 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 34 BY 1
           BGCOLOR 15 
-     APIOutboundTrigger.description AT ROW 5 COL 10.8 WIDGET-ID 2
+     APIOutboundTrigger.description AT ROW 2.43 COL 11 WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 102 BY 1
           BGCOLOR 15 
-     APIOutboundTrigger.inActive AT ROW 6.76 COL 25 WIDGET-ID 4
+     APIOutboundTrigger.inActive AT ROW 3.62 COL 25 WIDGET-ID 4
           VIEW-AS TOGGLE-BOX
           SIZE 14 BY .81
           BGCOLOR 15 
@@ -160,7 +149,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         FGCOLOR 9 FONT 6 WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 9 FONT 6 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -218,10 +207,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN APIOutboundTrigger.apiID IN FRAME F-Main
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN APIOutboundTrigger.clientID IN FRAME F-Main
-   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN APIOutboundTrigger.description IN FRAME F-Main
    ALIGN-L                                                              */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -518,13 +503,7 @@ PROCEDURE pSetDefaults :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
-    IF AVAILABLE APIOutbound THEN
-        ASSIGN
-            APIOutboundTrigger.apiID:SCREEN-VALUE    = APIOutbound.apiID
-            APIOutboundTrigger.clientID:SCREEN-VALUE = APIOutbound.clientID
-            .
-           
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -542,6 +521,8 @@ PROCEDURE pUpdateFields :
         ASSIGN
             APIOutboundTrigger.company       = APIOutbound.company
             APIOutboundTrigger.apiOutboundID = APIOutbound.apiOutboundID
+            APIOutboundTrigger.apiID         = APIOutbound.apiID
+            APIOutboundTrigger.clientID      = APIOutbound.clientID            
             APIOutboundTrigger.createBy      = USERID("ASI")
             APIOutboundTrigger.createTime    = NOW
             . 

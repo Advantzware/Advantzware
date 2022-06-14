@@ -39,6 +39,8 @@ DEFINE VARIABLE cImportAPIRoute AS CHARACTER NO-UNDO INITIAL "/api/810APInvoice"
 DEFINE VARIABLE hdInboundProcs AS HANDLE    NO-UNDO.
 RUN api/InboundProcs.p PERSISTENT SET hdInboundProcs.
 
+RUN spSetSettingContext.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -95,6 +97,10 @@ DEFINE VARIABLE h_v-apinv AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-recbrd AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-aphld AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vi-poordl AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-porec AS HANDLE NO-UNDO. 
+DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -301,6 +307,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 1.00 , 28.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/attachvinv.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -311,7 +325,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Receipts' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -526,6 +540,39 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-recbrd ,
              h_p-cashl , 'AFTER':U ).
     END. /* Page 2 */
+    WHEN 3 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'po/vi-poord1.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vi-poordl ).
+       RUN set-position IN h_vi-poordl ( 5.05 , 4.00 ) NO-ERROR.
+       /* Size in UIB:  ( 4.38 , 144.00 ) */
+    
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'poinq/f-porec.w':U ,
+             INPUT  {&WINDOW-NAME} ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_f-porec ).
+       RUN set-position IN h_f-porec ( 8.00 , 4.00 ) NO-ERROR.
+      RUN set-size IN h_f-porec ( 12.38 , 146.00 ) NO-ERROR. 
+       
+        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_movecol-2 ).
+       RUN set-position IN h_movecol-2 ( 1.00 , 24.80 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+       
+       /* Links to SmartViewer h_movecol. */
+       RUN add-link IN adm-broker-hdl ( h_f-porec , 'move-columns':U , h_movecol-2 ). 
+              
+       /* Adjust the tab order of the smart objects. */
+    END. /* Page 6 */
 
   END CASE.
   /* Select a Startup page. */
@@ -586,6 +633,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
@@ -778,11 +826,23 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE lAvail      AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE lUpdateDate AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE li-prev-page AS INT NO-UNDO.
+  DEFINE VARIABLE li-cur-page  AS INT NO-UNDO.
+    
+  ASSIGN 
+      li-prev-page = li-cur-page.    
+  RUN GET-ATTRIBUTE ("current-page").
+  ASSIGN 
+      li-cur-page = INT(RETURN-VALUE).       
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+  
+  IF li-cur-page EQ 3 THEN
+    RUN pGetPoRecs.
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
@@ -825,6 +885,37 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPoRecs W-Win 
+PROCEDURE pGetPoRecs :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE iPONum AS INTEGER NO-UNDO.
+   DEFINE VARIABLE iPOLine AS INTEGER NO-UNDO.
+   
+   iPONum = DYNAMIC-FUNCTION ('GetCurrentPO' IN h_b-apinvl).
+   iPOLine = DYNAMIC-FUNCTION ('display-line' IN h_b-apinvl).
+
+   IF VALID-HANDLE(h_f-porec) THEN
+      RUN populate-tt IN h_f-porec(
+          INPUT iPONum, 
+          INPUT iPOLine
+          ).
+   
+   IF VALID-HANDLE(h_vi-poordl) THEN
+      RUN pGetPONumber IN h_vi-poordl(
+          INPUT iPONum          
+          ).       
+          
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit W-Win 
 PROCEDURE pInit :
@@ -927,6 +1018,19 @@ PROCEDURE select_attvinv :
       END.
    END.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win
+PROCEDURE OpenSetting:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN windows/setting-dialog.w.
 
 END PROCEDURE.
 

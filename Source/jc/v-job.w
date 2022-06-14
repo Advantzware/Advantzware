@@ -18,6 +18,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -272,13 +273,13 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      job.job-no AT ROW 1.24 COL 19 COLON-ALIGNED
-          LABEL "Job Number" FORMAT "x(6)"
+          LABEL "Job Number" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 
-     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL
+     job.job-no2 AT ROW 1.24 COL 37 COLON-ALIGNED NO-LABEL FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 11 BY 1
+          SIZE 7 BY 1
           BGCOLOR 15 
      job.est-no AT ROW 1.24 COL 65 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
@@ -428,7 +429,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN job.job-no IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN job.job-no2 IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN job.orderType IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
@@ -794,7 +795,7 @@ PROCEDURE add-job :
   
   DEFINE BUFFER bf-job-hdr FOR job-hdr.
   
-  IF NOT lAddFromTool THEN
+  IF NOT lAddFromTool AND cJobType EQ "Molded" THEN
   DO:
       RUN jc/d-addJob.w (INPUT NO, OUTPUT lAddOption). 
       IF lAddOption = "" THEN RETURN NO-APPLY.    /* cancel */
@@ -810,8 +811,8 @@ PROCEDURE add-job :
      DO:
          FIND FIRST bf-job-hdr NO-LOCK
              WHERE bf-job-hdr.company EQ cocode
-             AND bf-job-hdr.job-no EQ cJobNo
-             AND bf-job-hdr.job-no2 EQ iJobNo2 NO-ERROR .
+             AND bf-job-hdr.job-no    EQ cJobNo
+             AND bf-job-hdr.job-no2   EQ iJobNo2 NO-ERROR .
 
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl). 
          IF AVAILABLE bf-job-hdr THEN
@@ -1224,8 +1225,11 @@ PROCEDURE local-assign-record :
            FIND FIRST itemfg WHERE itemfg.company EQ cocode
                       AND itemfg.i-no EQ job-hdr.i-no
                       NO-LOCK NO-ERROR.
-          IF AVAILABLE itemfg THEN
-          run fg/fg-reset.p (recid(itemfg)).
+          IF AVAILABLE itemfg THEN 
+          DO:
+           RUN fg/chkfgloc.p (itemfg.i-no, job-hdr.loc). 
+           RUN fg/fg-reset.p (recid(itemfg)).
+          END. 
   END. /* each job-hdr */
     
    IF adm-new-record THEN DO:
@@ -1437,9 +1441,7 @@ PROCEDURE local-delete-record :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"Record-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN set-attribute-list IN WIDGET-HANDLE(char-hdl) ("REC-DELETED=yes").
-
-  RUN pUpdateFGItemQty(BUFFER job).
-  
+      
   RUN pUpdateCommittedQty(recid(job)).
 
   RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
@@ -1904,7 +1906,7 @@ PROCEDURE local-update-record :
              INPUT  "AddJob",                                        /* Trigger ID (Mandatory) */
              INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
              INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-             INPUT  job.job-no + "-" + STRING(job.job-no2, "99"),      /* Primary ID for which API is called for (Mandatory) */   
+             INPUT  job.job-no + "-" + STRING(job.job-no2, "999"),      /* Primary ID for which API is called for (Mandatory) */   
              INPUT  "Job add triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
              ) NO-ERROR.
       
@@ -2659,9 +2661,8 @@ PROCEDURE valid-job-no :
   ll-valid = YES.
 
   DO WITH FRAME {&frame-name}:
-    job.job-no:SCREEN-VALUE =
-        FILL(" ",6 - LENGTH(TRIM(job.job-no:SCREEN-VALUE))) +
-        TRIM(job.job-no:SCREEN-VALUE).
+    job.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', job.job-no:SCREEN-VALUE))
+        .
 
     IF TRIM(job.job-no:SCREEN-VALUE) EQ "" THEN DO:
       MESSAGE "Job# Cannot be BLANK..."
@@ -2882,14 +2883,15 @@ PROCEDURE validate-est :
             li        = 0.  
             
            /* Use last 5 digits of estimate# */
-           IF LENGTH(TRIM(v-bld-job)) GT 5 THEN 
+           IF LENGTH(TRIM(v-bld-job)) GT 5 AND iJobLen EQ 6 THEN 
              v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 2).
+           ELSE v-bld-job = " " + SUBSTRING(TRIM(v-bld-job), 1).  
              
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
 
            ASSIGN
-              v-bld-job = FILL(" ",6 - LENGTH(TRIM(v-bld-job))) + TRIM(v-bld-job)
+              v-bld-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-bld-job))
               ll = NO.
 
            IF CAN-FIND(FIRST xjob WHERE
@@ -2937,7 +2939,7 @@ PROCEDURE validate-est :
 
       ASSIGN
        job.job-no:SCREEN-VALUE  = v-bld-job
-       job.job-no2:SCREEN-VALUE = STRING(li,"99").
+       job.job-no2:SCREEN-VALUE = STRING(li,"999").
     END.
 
     /*FIND FIRST job-hdr OF job NO-LOCK NO-ERROR.
@@ -3145,40 +3147,6 @@ PROCEDURE check-tandem-button :
 
 
   RUN custom/frame-en.p (FRAME {&FRAME-NAME}:HANDLE, "{&ENABLED-FIELDS}", OUTPUT op-enabled).
-            
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateFGItemQty V-table-Win 
-PROCEDURE pUpdateFGItemQty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE PARAMETER BUFFER ipbf-job FOR job.
-   DEFINE VARIABLE lRecalcOnHand AS LOGICAL INIT NO NO-UNDO.
-   DEFINE VARIABLE lRecalcOnOrder AS LOGICAL INIT YES NO-UNDO.
-   DEFINE VARIABLE lRecalcAllocated AS LOGICAL INIT NO NO-UNDO.
-   DEFINE VARIABLE lRecalcBackOrder AS LOGICAL INIT NO NO-UNDO.
-        
-   DEFINE BUFFER bf-job-hdr FOR job-hdr.
-    
-   FOR EACH bf-job-hdr NO-LOCK
-        WHERE bf-job-hdr.company EQ ipbf-job.company
-        AND bf-job-hdr.job EQ ipbf-job.job
-        AND bf-job-hdr.job-no EQ ipbf-job.job-no
-        AND bf-job-hdr.job-no2 EQ ipbf-job.job-no2
-        AND bf-job-hdr.ord-no EQ 0:
-             
-        RUN util/upditmfg.p (
-                   INPUT ROWID(bf-job-hdr),
-                   INPUT -1
-                   ).               
-   END.   
             
 END PROCEDURE.
 

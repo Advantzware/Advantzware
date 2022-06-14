@@ -11,8 +11,8 @@ def input parameter v-format like sys-ctrl.char-fld.
 
 def new shared var save_id as recid.
 def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
+def new shared var v-job as char format "x(9)" extent 2 init [" ","zzzzzzzzz"].
+def new shared var v-job2 as int format "999" extent 2 init [000,999].
 def new shared var v-stypart like style.dscr.
 def new shared var v-dsc like oe-ordl.part-dscr1 extent 2.
 def new shared var v-size as char format "x(26)" extent 2.
@@ -249,7 +249,7 @@ END FUNCTION.
 
 format HEADER 
        "<OLANDSCAPE><P10>" skip
-       "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
+       "JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "</B>"
        "<B><P12>F A C T O R Y   T I C K E T</B><P10>" at 52  "ORDER DATE:" at 120 v-start-date skip
        v-fill
     with no-box frame head no-labels stream-io width 155.
@@ -424,7 +424,7 @@ ASSIGN
                         and eb.form-no     eq job-hdr.frm
                         AND eb.blank-no > 0 NO-LOCK NO-ERROR.
         ASSIGN
-          v-bar-no = /*IF AVAIL eb THEN eb.spc-no ELSE*/ trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+          v-bar-no = /*IF AVAIL eb THEN eb.spc-no ELSE*/ TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
           v-bar-no = barCode(v-bar-no).
 
         

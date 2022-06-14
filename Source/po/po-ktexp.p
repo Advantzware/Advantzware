@@ -267,13 +267,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     PUT "01"                                        FORMAT "x(2)".
     
     /* PURCHASE ORDER # */
-    PUT po-ord.po-no                                FORMAT "99999999".
+    PUT po-ord.po-no                                FORMAT "999999".
     
     /* PURCHASE ORDER LINE # */
     PUT po-ordl.line                                FORMAT "99".
     
     /* PURCHASE ORDER # */
-    PUT po-ord.po-no                                FORMAT "99999999".
+    PUT po-ord.po-no                                FORMAT "999999".
     
     /* PURCHASE ORDER LINE # */
     PUT po-ordl.line                                FORMAT "99".
@@ -594,8 +594,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
        FIND FIRST job
             WHERE job.company EQ cocode
-              AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) +
-                                 TRIM(po-ordl.job-no)
+              AND job.job-no  EQ po-ordl.job-no
               AND job.job-no2 EQ po-ordl.job-no2
             NO-LOCK NO-ERROR.
         
@@ -699,8 +698,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     IF po-ordl.job-no NE "" THEN
     FIND FIRST job NO-LOCK
         WHERE job.company EQ cocode
-          AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) +
-                             TRIM(po-ordl.job-no)
+          AND job.job-no  EQ po-ordl.job-no
           AND job.job-no2 EQ po-ordl.job-no2
         NO-ERROR.
     IF AVAILABLE job THEN DO:
@@ -709,7 +707,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       IF po-ordl.job-no EQ "" THEN v-job-no = "".
 
       IF v-job-no EQ "-" THEN v-job-no = "".
-      v-desc-no = STRING(po-ordl.po-no,"99999999") + "-" + STRING(po-ordl.LINE,"99") + "/" + v-job-no + "-" + STRING(po-ordl.s-num,"99") . 
+      v-desc-no = STRING(po-ordl.po-no,"999999") + "-" + STRING(po-ordl.LINE,"99") + "/" + v-job-no + "-" + STRING(po-ordl.s-num,"99") . 
     END.
 
     PUT v-desc-no                                   FORMAT "x(21)".

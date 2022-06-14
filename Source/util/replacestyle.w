@@ -42,6 +42,9 @@ DEF VAR ld-k-len-array LIKE eb.k-len-array2 NO-UNDO.
 def new shared temp-table formule field formule as dec extent 12.
 DEF VAR lv-panels as log no-undo.
 DEF VAR ll-blank-size-changed AS LOG NO-UNDO.
+DEFINE VARIABLE lCEUseNewLayoutCalc AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cNK1Value AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 DO TRANSACTION:
    {sys/inc/ceroute.i C}
@@ -116,9 +119,9 @@ DEFINE VARIABLE v-status AS CHARACTER FORMAT "X(256)":U
      SIZE 80 BY 1.1 NO-UNDO.
 
 DEFINE VARIABLE v-recalc-estimates AS LOGICAL INITIAL yes 
-     LABEL "Auto Recalc Estimates?" 
+     LABEL "Reset Layout and Box Design for Estimates?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 36 BY .81 NO-UNDO.
+     SIZE 62 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -127,7 +130,7 @@ DEFINE FRAME Dialog-Frame
      v-old-style AT ROW 1.76 COL 19 COLON-ALIGNED
      v-new-style AT ROW 3 COL 19 COLON-ALIGNED
      v-cust-no AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 2
-     v-recalc-estimates AT ROW 5.76 COL 19 WIDGET-ID 4
+     v-recalc-estimates AT ROW 5.76 COL 19.4 WIDGET-ID 4
      Btn_OK AT ROW 8.62 COL 21
      Btn_Cancel AT ROW 8.62 COL 38.6
      v-status AT ROW 10.76 COL 1 NO-LABEL
@@ -228,6 +231,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   end.
   lv-panels = sys-ctrl.log-fld.
 
+    RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
+    IF lRecFound THEN
+        lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
+    
   RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -832,7 +839,10 @@ PROCEDURE update-sheet :
      {sys/inc/ceroute1.i w id l en}
    END.
       
-   RUN cec/calc-dim.p.
+    IF lCEUseNewLayoutCalc THEN
+        RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+    ELSE
+        RUN cec/calc-dim.p.
   
    IF ceroute-chr NE "" THEN DO:
      FIND FIRST mach
@@ -848,7 +858,10 @@ PROCEDURE update-sheet :
         xeb.num-wid  = 1
         xeb.num-len  = 1.
   
-       RUN cec/calc-dim1.p NO-ERROR.
+         IF lCEUseNewLayoutCalc THEN
+             RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+         ELSE
+             RUN cec/calc-dim1.p NO-ERROR.
   
        ASSIGN
         xef.gsh-len = xef.gsh-len - (xef.nsh-len * xef.n-out-l)

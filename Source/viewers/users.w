@@ -1329,9 +1329,6 @@ DO:
             RETURN NO-APPLY.
         END.
         
-        IF users.user_program[3]:SCREEN-VALUE  EQ "" THEN ASSIGN 
-            users.user_program[3]:SCREEN-VALUE = cSysTemp + "\" + SELF:SCREEN-VALUE.
-            
         FIND FIRST ttUsers WHERE
             ttUsers.ttfUserID EQ SELF:SCREEN-VALUE AND 
             ttUsers.ttfPdbname EQ "*"
@@ -2236,14 +2233,32 @@ PROCEDURE local-update-record :
               OUTPUT cMessage
               ) NO-ERROR.
               IF NOT lCreated THEN DO:
-                  MESSAGE "Unable to find report path '" + cFilePath + "' to export report file"
+                  MESSAGE "Unable to find report path '" + cFilePath + "' to export report files."
                       VIEW-AS ALERT-BOX ERROR.
                   RETURN.
               END. /* IF NOT lCreated */
             END.  /* IF v-ans */
         END.   /* IF FILE-INFO:FILE-type */
     END.     /* IF users.user_program[2] */
-
+    ELSE DO: /* If the report temp folder was left blank, default it */
+        ASSIGN 
+            users.user_program[2]:SCREEN-VALUE = SESSION:TEMP-DIRECTORY + "\" + users.user_id:SCREEN-VALUE
+            users.user_program[2]:SCREEN-VALUE = REPLACE(users.user_program[2]:SCREEN-VALUE,"\\","\").
+        FILE-INFO:FILE-NAME = users.user_program[2]:SCREEN-VALUE.
+        cFilePath = FILE-INFO:FILE-NAME.
+        IF FILE-INFO:FILE-TYPE EQ ? THEN DO:
+            RUN FileSys_CreateDirectory(INPUT  cFilePath,
+                                        OUTPUT lCreated,
+                                        OUTPUT cMessage
+                                        ) NO-ERROR.
+            IF NOT lCreated THEN DO:
+                MESSAGE "Unable to find report path '" + cFilePath + "' to export report files."
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END. /* IF NOT lCreated */
+        END.   /* IF FILE-INFO:FILE-type */
+    END.
+    
     IF users.user_program[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
         IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" 
         OR SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN DO:
@@ -2264,13 +2279,31 @@ PROCEDURE local-update-record :
               OUTPUT cMessage
               ) NO-ERROR.
               IF NOT lCreated THEN DO:
-                  MESSAGE "Unable to find report path '" + cFilePath + "' to export report file"
+                  MESSAGE "Unable to find label path '" + cFilePath + "' to export label files."
                       VIEW-AS ALERT-BOX ERROR.
                   RETURN.
               END. /* IF NOT lCreated */
             END.   /* IF v-ans2 */
         END.     /* IF FILE-INFO:FILE-type */
     END.        /* IF users.user_program[3] */
+    ELSE DO: /* If the label folder was left blank, default it */
+        ASSIGN 
+            users.user_program[3]:SCREEN-VALUE = SESSION:TEMP-DIRECTORY + "\" + users.user_id:SCREEN-VALUE
+            users.user_program[3]:SCREEN-VALUE = REPLACE(users.user_program[3]:SCREEN-VALUE,"\\","\").
+        FILE-INFO:FILE-NAME = users.user_program[3]:SCREEN-VALUE.
+        cFilePath = FILE-INFO:FILE-NAME.
+        IF FILE-INFO:FILE-TYPE EQ ? THEN DO:
+            RUN FileSys_CreateDirectory(INPUT  cFilePath,
+                                        OUTPUT lCreated,
+                                        OUTPUT cMessage
+                                        ) NO-ERROR.
+            IF NOT lCreated THEN DO:
+                MESSAGE "Unable to find label path '" + cFilePath + "' to export label files."
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END. /* IF NOT lCreated */
+        END.   /* IF FILE-INFO:FILE-type */
+    END.
 
     IF fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
         MESSAGE

@@ -43,8 +43,10 @@ DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
 
 {CRM/ttCRMCustomers.i}
+{api/ttCustomer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -65,13 +67,13 @@ DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
 &Scoped-define INTERNAL-TABLES ttCRMCustomers
 
 /* Definitions for BROWSE crmAccounts                                   */
-&Scoped-define FIELDS-IN-QUERY-crmAccounts ttCRMCustomers.tickerSymbol ttCRMCustomers.crmName ttCRMCustomers.crmPhone ttCRMCustomers.xxApplyAction ttCRMCustomers.action ttCRMCustomers.custName ttCRMCustomers.custAreaCode ttCRMCustomers.custPhone ttCRMCustomers.custStreet ttCRMCustomers.custStreet2 ttCRMCustomers.custCity ttCRMCustomers.custState ttCRMCustomers.custCode   
+&Scoped-define FIELDS-IN-QUERY-crmAccounts ttCRMCustomers.tickerSymbol ttCRMCustomers.crmName ttCRMCustomers.crmPhone ttCRMCustomers.crmStreet ttCRMCustomers.crmStreet2 ttCRMCustomers.crmCity ttCRMCustomers.crmState ttCRMCustomers.crmCode ttCRMCustomers.xxApplyAction ttCRMCustomers.action ttCRMCustomers.custName ttCRMCustomers.custAreaCode ttCRMCustomers.custPhone ttCRMCustomers.custStreet ttCRMCustomers.custStreet2 ttCRMCustomers.custCity ttCRMCustomers.custState ttCRMCustomers.custCode   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-crmAccounts ttCRMCustomers.xxApplyAction   
 &Scoped-define ENABLED-TABLES-IN-QUERY-crmAccounts ttCRMCustomers
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-crmAccounts ttCRMCustomers
 &Scoped-define SELF-NAME crmAccounts
-&Scoped-define QUERY-STRING-crmAccounts FOR EACH ttCRMCustomers
-&Scoped-define OPEN-QUERY-crmAccounts OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers.
+&Scoped-define QUERY-STRING-crmAccounts FOR EACH ttCRMCustomers WHERE ttCRMCustomers.action EQ cAction OR cAction EQ ""
+&Scoped-define OPEN-QUERY-crmAccounts OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers WHERE ttCRMCustomers.action EQ cAction OR cAction EQ "".
 &Scoped-define TABLES-IN-QUERY-crmAccounts ttCRMCustomers
 &Scoped-define FIRST-TABLE-IN-QUERY-crmAccounts ttCRMCustomers
 
@@ -79,9 +81,9 @@ DEFINE VARIABLE ipcCompany AS CHARACTER NO-UNDO INITIAL "001".
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS svSelect crmAccounts btnApply btnReset ~
+&Scoped-Define ENABLED-OBJECTS tgShowAddOnly svSelect crmAccounts btnReset ~
 btnSave btnCancel 
-&Scoped-Define DISPLAYED-OBJECTS svSelect svStatus 
+&Scoped-Define DISPLAYED-OBJECTS tgShowAddOnly svSelect svStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -98,25 +100,20 @@ btnSave btnCancel
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnApply 
-     IMAGE-UP FILE "CRM/images/apply.jpg":U
-     LABEL "&Apply" 
-     SIZE 4.4 BY 1 TOOLTIP "Apply Selected Actions".
-
 DEFINE BUTTON btnCancel AUTO-GO 
-     IMAGE-UP FILE "CRM/images/cancel.jpg":U
+     IMAGE-UP FILE "Graphics/32x32/exit_white.png":U
      LABEL "&Cancel" 
-     SIZE 4.4 BY 1 TOOLTIP "Cancel".
+     SIZE 8 BY 1.91 TOOLTIP "Cancel".
 
 DEFINE BUTTON btnReset 
-     IMAGE-UP FILE "CRM/images/reset.jpg":U
+     IMAGE-UP FILE "Graphics/32x32/refresh.png":U
      LABEL "&Reset" 
-     SIZE 4.4 BY 1 TOOLTIP "Reset".
+     SIZE 8 BY 1.9 TOOLTIP "Reset".
 
 DEFINE BUTTON btnSave 
-     IMAGE-UP FILE "CRM/images/save.jpg":U
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
      LABEL "&Save" 
-     SIZE 4.4 BY 1 TOOLTIP "Save Selected Actions".
+     SIZE 8 BY 1.9 TOOLTIP "Save Selected Actions".
 
 DEFINE VARIABLE svStatus AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -126,6 +123,11 @@ DEFINE VARIABLE svSelect AS LOGICAL INITIAL no
      LABEL "Select" 
      VIEW-AS TOGGLE-BOX
      SIZE 10 BY .81 NO-UNDO.
+
+DEFINE VARIABLE tgShowAddOnly AS LOGICAL INITIAL no 
+     LABEL "Show Add Only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -140,6 +142,11 @@ DEFINE BROWSE crmAccounts
       ttCRMCustomers.tickerSymbol
     ttCRMCustomers.crmName
     ttCRMCustomers.crmPhone
+    ttCRMCustomers.crmStreet
+    ttCRMCustomers.crmStreet2
+    ttCRMCustomers.crmCity
+    ttCRMCustomers.crmState
+    ttCRMCustomers.crmCode
     ttCRMCustomers.xxApplyAction VIEW-AS TOGGLE-BOX
     ttCRMCustomers.action
     ttCRMCustomers.custName
@@ -154,28 +161,27 @@ DEFINE BROWSE crmAccounts
     ttCRMCustomers.xxApplyAction
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 225 BY 5.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 264 BY 5.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     svSelect AT ROW 1 COL 67 WIDGET-ID 2
+     tgShowAddOnly AT ROW 1 COL 116 WIDGET-ID 84
+     svSelect AT ROW 1 COL 165.4 WIDGET-ID 2
      crmAccounts AT ROW 1.95 COL 2 WIDGET-ID 200
-     btnApply AT ROW 7.19 COL 95 HELP
-          "Apply Selected Actions" WIDGET-ID 76
-     btnReset AT ROW 7.19 COL 100 HELP
+     btnReset AT ROW 7.19 COL 118 HELP
           "Reset" WIDGET-ID 16
-     btnSave AT ROW 7.19 COL 105 HELP
+     btnSave AT ROW 7.19 COL 130.8 HELP
           "Save Selected Actions" WIDGET-ID 18
-     btnCancel AT ROW 7.19 COL 110 HELP
+     btnCancel AT ROW 7.19 COL 143.6 HELP
           "Cancel" WIDGET-ID 4
      svStatus AT ROW 7.19 COL 2 NO-LABEL WIDGET-ID 78
      "CRM Accounts" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.24 COL 26 WIDGET-ID 80
      "Advantzware Customers" VIEW-AS TEXT
-          SIZE 24 BY .62 AT ROW 1.24 COL 126 WIDGET-ID 82
-     SPACE(77.00) SKIP(6.56)
+          SIZE 24 BY .62 AT ROW 1.24 COL 213.6 WIDGET-ID 82
+     SPACE(28.39) SKIP(7.32)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "CRM (Customers)" WIDGET-ID 100.
@@ -232,7 +238,8 @@ ASSIGN
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE crmAccounts
 /* Query rebuild information for BROWSE crmAccounts
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers.
+OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers
+WHERE ttCRMCustomers.action EQ cAction OR cAction EQ "".
      _END_FREEFORM
      _Query            is NOT OPENED
 */  /* BROWSE crmAccounts */
@@ -249,18 +256,6 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttCRMCustomers.
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* CRM (Customers) */
 DO:
     APPLY "END-ERROR":U TO SELF.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnApply
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnApply Dialog-Frame
-ON CHOOSE OF btnApply IN FRAME Dialog-Frame /* Apply */
-DO:
-    RUN pApplyCRM.
-    BROWSE crmAccounts:REFRESH() NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -296,12 +291,37 @@ END.
 ON VALUE-CHANGED OF svSelect IN FRAME Dialog-Frame /* Select */
 DO:
   ASSIGN {&SELF-NAME}.
-  FOR EACH ttCRMCustomers:
+  FOR EACH ttCRMCustomers
+      WHERE ttCRMCustomers.action EQ cAction OR cAction EQ "":
       ttCRMCustomers.xxApplyAction = {&SELF-NAME}.
       IF ttCRMCustomers.action EQ "" THEN
       ttCRMCustomers.xxApplyAction = NO.
   END. /* each ttCRMCustomers */
   BROWSE crmAccounts:REFRESH() NO-ERROR.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tgShowAddOnly
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tgShowAddOnly Dialog-Frame
+ON VALUE-CHANGED OF tgShowAddOnly IN FRAME Dialog-Frame /* Show Add Only */
+DO:
+    IF SELF:CHECKED THEN
+        cAction = "Add".
+    ELSE
+        cAction = "".
+    
+    IF cAction EQ "Add" THEN DO:
+        FOR EACH ttCRMCustomers
+            WHERE ttCRMCustomers.action        NE "Add"
+              AND ttCRMCustomers.xxApplyAction EQ TRUE:
+            ttCRMCustomers.xxApplyAction = FALSE.
+        END. 
+    END.
+        
+    {&OPEN-QUERY-{&BROWSE-NAME}}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -371,9 +391,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY svSelect svStatus 
+  DISPLAY tgShowAddOnly svSelect svStatus 
       WITH FRAME Dialog-Frame.
-  ENABLE svSelect crmAccounts btnApply btnReset btnSave btnCancel 
+  ENABLE tgShowAddOnly svSelect crmAccounts btnReset btnSave btnCancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -425,14 +445,17 @@ PROCEDURE pGetCRM :
             ASSIGN
                 iHeight = 20 + iRows * 17
                 FRAME {&FRAME-NAME}:HEIGHT-PIXELS = 80 + iHeight
-                btnApply:Y  = BROWSE crmAccounts:Y + iHeight + 5
-                btnReset:Y  = btnApply:Y
-                btnSave:Y   = btnApply:Y
-                btnCancel:Y = btnApply:Y
-                svStatus:Y  = btnApply:Y
+                btnReset:Y  = BROWSE crmAccounts:Y + iHeight + 5
+                btnSave:Y   = btnReset:Y
+                btnCancel:Y = btnReset:Y
+                svStatus:Y  = btnReset:Y
                 .
             BROWSE crmAccounts:HEIGHT-PIXELS = iHeight.
         END. /* irows gt 5 */
+        
+        tgShowAddOnly:CHECKED = FALSE.
+        cAction = "".
+        
         {&OPEN-QUERY-crmAccounts}
         svStatus:SCREEN-VALUE = "".
     END.

@@ -78,9 +78,8 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fi_stock-no fi_part-no fi_part-dscr1 ~
-fi_part-dscr2 fi_procat fi_len fi_wid fi_dep rd_alloc tb_unitize Btn_SAVE ~
-RECT-5 
+&Scoped-Define ENABLED-OBJECTS RECT-5 fi_stock-no fi_part-no fi_part-dscr1 ~
+fi_part-dscr2 fi_procat fi_len fi_wid fi_dep rd_alloc tb_unitize Btn_SAVE 
 &Scoped-Define DISPLAYED-OBJECTS fi_stock-no fi_part-no fi_part-dscr1 ~
 fi_part-dscr2 fi_procat fi_len fi_wid fi_dep rd_alloc tb_unitize 
 
@@ -127,10 +126,10 @@ DEFINE VARIABLE fi_part-dscr2 AS CHARACTER FORMAT "x(30)"
      SIZE 44 BY 1
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "x(15)" 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "x(30)" 
      LABEL "Set Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1
+     SIZE 44 BY 1
      FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fi_procat AS CHARACTER FORMAT "x(5)" 
@@ -158,7 +157,7 @@ DEFINE VARIABLE rd_alloc AS LOGICAL
      SIZE 41 BY 2.62 NO-UNDO.
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 76 BY 12.62.
 
 DEFINE VARIABLE tb_unitize AS LOGICAL INITIAL no 
@@ -186,11 +185,11 @@ DEFINE FRAME D-Dialog
      rd_alloc AT ROW 9.81 COL 26 NO-LABEL
      tb_unitize AT ROW 12.43 COL 26
      Btn_SAVE AT ROW 14.57 COL 30
-     RECT-5 AT ROW 1 COL 1
      "Set Allocation :" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 10.52 COL 7
           FGCOLOR 9 
-     SPACE(52.00) SKIP(5.09)
+     RECT-5 AT ROW 1 COL 1
+     SPACE(0.00) SKIP(2.99)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -436,9 +435,10 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME rd_alloc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_alloc D-Dialog
-ON VALUE-CHANGED OF rd_alloc IN FRAME D-Dialog                      /*Task# 01291403*/
+ON VALUE-CHANGED OF rd_alloc IN FRAME D-Dialog
 DO:
 
     ASSIGN rd_alloc.
@@ -455,6 +455,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -541,8 +542,8 @@ PROCEDURE enable_UI :
   DISPLAY fi_stock-no fi_part-no fi_part-dscr1 fi_part-dscr2 fi_procat fi_len 
           fi_wid fi_dep rd_alloc tb_unitize 
       WITH FRAME D-Dialog.
-  ENABLE fi_stock-no fi_part-no fi_part-dscr1 fi_part-dscr2 fi_procat fi_len 
-         fi_wid fi_dep rd_alloc tb_unitize Btn_SAVE RECT-5 
+  ENABLE RECT-5 fi_stock-no fi_part-no fi_part-dscr1 fi_part-dscr2 fi_procat 
+         fi_len fi_wid fi_dep rd_alloc tb_unitize Btn_SAVE 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

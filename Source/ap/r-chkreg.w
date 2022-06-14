@@ -1782,7 +1782,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"9999999"),
+                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"99999999"),
                 "AP").
 
             RUN GL_SpCreateGLHist(cocode,
@@ -1795,7 +1795,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"9999999"),
+                "Vendor:" + string(ap-sel.vend-no,"x(8)") + " Inv:" + STRING(ap-sel.inv-no,"99999999"),
                 "AP").
         END.
     END.
@@ -1855,13 +1855,15 @@ PROCEDURE post-gl :
 
                 CREATE ap-pay.
                 ASSIGN
-                    ap-pay.company   = cocode
-                    ap-pay.check-act = ap-sel.actnum
-                    ap-pay.check-no  = lv-check-no
-                    ap-pay.period    = tran-period
-                    ap-pay.c-no      = x + 1
-                    ap-pay.vend-no   = ap-sel.vend-no
-                    ap-pay.bank-code = ap-sel.bank-code.
+                    ap-pay.company          = cocode
+                    ap-pay.check-act        = ap-sel.actnum
+                    ap-pay.check-no         = lv-check-no
+                    ap-pay.period           = tran-period
+                    ap-pay.c-no             = x + 1
+                    ap-pay.vend-no          = ap-sel.vend-no
+                    ap-pay.bank-code        = ap-sel.bank-code
+                    ap-pay.transactionDate  = tran-date
+                    .
 
                 IF ap-pay.check-no NE ap-sel.check-no THEN
                     ASSIGN
@@ -1975,7 +1977,7 @@ PROCEDURE post-gl :
                 tran-period,
                 "A",
                 tran-date,
-                "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"9999999"),
+                "Vendor:" + string(ap-inv.vend-no,"x(8)") + " Inv:" + STRING(ap-inv.inv-no,"99999999"),
                 "AP").
         END.
 

@@ -1,7 +1,7 @@
 /* ----------------------------------------------- oe/rep/bolpnp.p  11/98 FWK */
 /* PRINT P&P BOL                                                              */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No. */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 
@@ -52,9 +52,9 @@ FORM
   space(0) tt-oe-boll.cases format ">>>>"
   space(0) tt-oe-boll.qty-case format ">>>>>>"
   space(2) tt-oe-boll.po-no format "x(36)"
-  space(2) tt-oe-boll.ord-no
+  space(0) tt-oe-boll.ord-no
   space(2) tt-oe-boll.p-c
-  space(2) tt-oe-boll.weight FORMAT ">>>>>>9" skip
+  space(1) tt-oe-boll.weight FORMAT ">>>>>>9" skip
   with frame ln-s down no-box no-labels stream-io width 90.
 
 FORM
@@ -210,8 +210,8 @@ do:     /* production mode */
                  "P.O. No. / Item / Description  "
                  "Order# P/C  Wt." skip
                  "--------- --------- -- ------"
-                 "-------------------------------------"
-                 "------ --- -------" skip
+                 "-----------------------------------"
+                 "-------- --- ------" skip
               with frame hd-top-comp no-box no-labels page-top stream-io width 90.
           VIEW frame hd-top-comp.
         end.

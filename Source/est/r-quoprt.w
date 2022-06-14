@@ -72,10 +72,13 @@ DEFINE VARIABLE v-tmp-lines-per-page AS INTEGER   NO-UNDO.
 DEFINE VARIABLE vlSkipRec            AS LOG       NO-UNDO.
 DEFINE VARIABLE vcDefaultForm        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-termPath          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcRequestData        AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs      AS HANDLE    NO-UNDO.
 
 {custom/xprint.i}
 
 {methods/prgsecur.i}
+{api/ttAPIOutboundEvent.i}
 
 /* Build a Table to keep sequence of pdf files */
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
@@ -97,7 +100,7 @@ DEFINE            VARIABLE cRtnChar            AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE lBussFormModle      AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE dQuoteValue         AS DECIMAL   NO-UNDO .
-DEFINE            VARIABLE cCheckLeftMarFormat AS CHARACTER INITIAL "QuoPrintVAL,quoprint 1,quoprint 2,quoprint 10,McElroy,quoprint 20,xprint,quoprint 11,quoprint10-CAN,QuoPrint-Excel-Mex,Onducorr" NO-UNDO .
+DEFINE            VARIABLE cCheckLeftMarFormat AS CHARACTER INITIAL "QuoPrintVAL,quoprint 1,quoprint 2,quoprint 10,McElroy,quoprint 20,xprint,quoprint 11,GC,quoprint10-CAN,QuoPrint-Excel-Mex,Onducorr" NO-UNDO .
 
 DEFINE            VARIABLE lAsiUser            AS LOGICAL   NO-UNDO .
 DEFINE            VARIABLE hPgmSecurity        AS HANDLE    NO-UNDO.
@@ -118,6 +121,8 @@ DEFINE BUFFER b1-cust     FOR cust.
 DEFINE BUFFER b-quotehd   FOR quotehd.
 DEFINE BUFFER b-est       FOR est.
 DEFINE BUFFER b-quotehd-2 FOR quotehd.
+
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 {XMLOutput/XMLOutput.i &NEW=NEW &XMLSysCtrl=XMLQuote &Company=cocode} /* rstark 05181205 */
 
@@ -674,6 +679,9 @@ ON END-ERROR OF C-Win /* Print Quotes */
 ON WINDOW-CLOSE OF C-Win /* Print Quotes */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        IF VALID-HANDLE (hdOutboundProcs) THEN
+            DELETE PROCEDURE hdOutboundProcs.
+            
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -2059,6 +2067,73 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound C-Win
+PROCEDURE pCallAPIOutbound PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF v-print-fmt EQ "quoprint 11" THEN DO:
+        system.SharedConfig:Instance:SetValue("SendQuote_Print2ndItemDescription", STRING(tb_print-2nd-dscr:CHECKED)).
+        system.SharedConfig:Instance:SetValue("SendQuote_PrintBoxDesign", STRING(tb_prt-box:CHECKED)).
+        system.SharedConfig:Instance:SetValue("SendQuote_PrintSetComponents", STRING(tb_prt-comp:CHECKED)).
+        
+        RUN Outbound_PrepareAndExecuteForScopeAndClient IN hdOutboundProcs (
+            INPUT  cocode,                                         /* Company Code (Mandatory) */
+            INPUT  "",                                             /* Location Code (Mandatory) */
+            INPUT  "SendQuote",                                    /* API ID (Mandatory) */
+            INPUT  ipcFormat,                                      /* Client ID */
+            INPUT  ipcScopeID,                                     /* Scope ID */
+            INPUT  ipcScopeType,                                   /* Scope Type */
+            INPUT  "PrintQuote",                                   /* Trigger ID (Mandatory) */
+            INPUT  "TTQuote",                                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(TEMP-TABLE tt-quote:HANDLE),             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  "Quote Print",                                  /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Quote print",                                  /* Event's description (Optional) */
+            OUTPUT lSuccess,                                       /* Success/Failure flag */
+            OUTPUT cMessage                                        /* Status message */
+            ).
+
+        system.SharedConfig:Instance:DeleteValue("SendQuote_Print2ndItemDescription").
+        system.SharedConfig:Instance:DeleteValue("SendQuote_PrintBoxDesign").
+        system.SharedConfig:Instance:DeleteValue("SendQuote_PrintSetComponents").
+
+        RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+        
+        lcRequestData = "".
+        
+        FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+        IF AVAILABLE ttAPIOutboundEvent THEN DO:
+            FIND FIRST apiOutboundEvent NO-LOCK
+                 WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+                 NO-ERROR.
+            IF AVAILABLE apiOutboundEvent THEN
+                lcRequestData = apiOutboundEvent.requestData.
+        END.    
+        
+        IF lcRequestData NE "" THEN
+            COPY-LOB FROM lcRequestData TO FILE list-name.
+            
+        RUN Outbound_ResetContext IN hdOutboundProcs. 
+    END.   
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
 PROCEDURE pRunFormatValueChanged :
     /*------------------------------------------------------------------------------
@@ -2071,7 +2146,7 @@ PROCEDURE pRunFormatValueChanged :
         IF NOT AVAILABLE est OR est.est-type LE 4 THEN DISABLE tb_note tb_comm.
         IF NOT AVAILABLE est OR est.est-type LE 4 OR 
             (v-print-fmt NE "XPrint" AND v-print-fmt NE "RFC" AND v-print-fmt NE "quoprint 1" AND v-print-fmt NE "quoprint 2" AND v-print-fmt NE "quoprint 10" AND v-print-fmt NE "McElroy" AND v-print-fmt NE "QuoPrintVAL" AND
-            v-print-fmt NE "quoprint 11" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Chattanooga"  AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
+            v-print-fmt NE "quoprint 11" AND v-print-fmt NE "GC" AND v-print-fmt NE "quoprint 20" AND v-print-fmt NE "Chattanooga"  AND v-print-fmt NE "Printers"  AND v-print-fmt NE "Hughes" AND v-print-fmt NE "Simkins" AND v-print-fmt NE "Oklahoma")
             THEN 
         DO:
             ASSIGN
@@ -2221,7 +2296,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE lv-quo-no LIKE quotehd.q-no NO-UNDO.
     DEFINE VARIABLE lv-loc    LIKE quotehd.loc INIT "" NO-UNDO.
     DEFINE VARIABLE li        AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE lIsAPIActive    AS LOGICAL   NO-UNDO.
+    
     {sys/form/r-top.i}
     {sys/inc/print1.i}
 
@@ -2265,8 +2341,11 @@ PROCEDURE run-report :
         MESSAGE "Format is invalid or not found - Set the proper format in NK1 - "  v-print-fmt VIEW-AS ALERT-BOX INFORMATION.
         RETURN.
     END.
-
-    {sys/inc/outprint.i value(lines-per-page)}
+    
+    RUN Outbound_IsApiClientAndScopeActive IN hdOutboundProcs (cocode, "", "SendQuote", v-print-fmt, "", "", "PrintQuote", OUTPUT lIsAPIActive).
+    
+    IF NOT lIsAPIActive THEN
+        {sys/inc/outprint.i value(lines-per-page)}
 
     IF td-show-parm THEN RUN show-param.
 
@@ -2299,7 +2378,10 @@ PROCEDURE run-report :
                 /*USE-INDEX cust2 */
                 NO-LOCK:
                 CREATE tt-quote.
-                tt-quote.row-id = ROWID(quotehd).
+                ASSIGN
+                    tt-quote.row-id  = ROWID(quotehd)
+                    tt-quote.cust-no = quotehd.cust-no
+                    .
             END.
 
         ELSE
@@ -2312,7 +2394,10 @@ PROCEDURE run-report :
                 AND quotehd.q-no    LE tquote
                 USE-INDEX q-no NO-LOCK:
                 CREATE tt-quote.
-                tt-quote.row-id = ROWID(quotehd).
+                ASSIGN
+                    tt-quote.row-id  = ROWID(quotehd)
+                    tt-quote.cust-no = quotehd.cust-no
+                    .
             END.                                                
 
         DO li = 1 TO NUM-ENTRIES(v-quo-list):
@@ -2331,8 +2416,10 @@ PROCEDURE run-report :
             DO:
                 CREATE tt-quote.
                 ASSIGN
-                    tt-quote.row-id = ROWID(quotehd)
-                    tt-quote.tt-seq = li.
+                    tt-quote.row-id  = ROWID(quotehd)
+                    tt-quote.tt-seq  = li
+                    tt-quote.cust-no = quotehd.cust-no.
+                    .
             END.
         END.
     END.
@@ -2534,9 +2621,12 @@ PROCEDURE run-report :
                     END.
             END CASE.
         END.
-
-    RUN value(v-program).
-
+    
+    RUN pCallAPIOutbound(v-print-fmt, "", "").
+    
+    IF NOT lIsAPIActive THEN
+        RUN VALUE(v-program).
+    
     FOR EACH report WHERE report.term-id EQ v-term-id:
         DELETE report.
     END.
@@ -2835,7 +2925,7 @@ PROCEDURE SetQuoForm :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER icPrintFormat AS CHARACTER NO-UNDO.
-    IF INDEX("Pacific,Xprint,RFC,quoprint 1,quoprint 2,quoprint 10,McElroy,QuoPrintVAL,quoprint 11,quoprint 20,Chattanooga,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Altex,Oklahoma,Accord,Onducorr",icPrintFormat) > 0 THEN
+    IF INDEX("Pacific,Xprint,RFC,quoprint 1,quoprint 2,quoprint 10,McElroy,QuoPrintVAL,quoprint 11,GC,quoprint 20,Chattanooga,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Altex,Oklahoma,Accord,Onducorr",icPrintFormat) > 0 THEN
         is-xprint-form = YES.     
     ELSE is-xprint-form = NO.
 
@@ -2913,6 +3003,10 @@ PROCEDURE SetQuoForm :
             ASSIGN 
                 v-program      = "cec/quote/quoxprnt11.p" 
                 lines-per-page = 66.
+        WHEN "GC" THEN 
+            ASSIGN 
+                v-program      = "cec/quote/quoGc.p" 
+                lines-per-page = 66.        
         WHEN "Printers" THEN 
             ASSIGN 
                 v-program      = "cec/quote/quoprnts.p" 

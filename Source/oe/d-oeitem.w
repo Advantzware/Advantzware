@@ -246,6 +246,7 @@ DEFINE VARIABLE lQuotePriceMatrix        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lCreateJobFromFG         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUnspecified             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGItem                  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSettingValue            AS LOGICAL   NO-UNDO.
 
 ll-new-file = CAN-FIND(FIRST asi._file WHERE asi._file._file-name EQ "cust-part").
 
@@ -471,7 +472,7 @@ IF llRecFound THEN
 po-ord oe-rel oe-ordl oe-ord itemfg
 
 /* Definitions for BROWSE browseAllocated                               */
-&Scoped-define FIELDS-IN-QUERY-browseAllocated ttAllocated.ord-no ttAllocated.cust-no ttAllocated.cust-name ttAllocated.qty ttAllocated.ship-qty ttAllocated.due-date ttAllocated.price ttAllocated.pr-uom ttAllocated.part-no ttAllocated.po-no ttAllocated.allocated   
+&Scoped-define FIELDS-IN-QUERY-browseAllocated ttAllocated.ord-no ttAllocated.cust-no ttAllocated.cust-name ttAllocated.qty ttAllocated.ship-qty ttAllocated.due-date ttAllocated.price ttAllocated.pr-uom ttAllocated.part-no ttAllocated.po-no ttAllocated.allocated ttAllocated.loc   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseAllocated   
 &Scoped-define SELF-NAME browseAllocated
 &Scoped-define QUERY-STRING-browseAllocated FOR EACH ttAllocated
@@ -593,7 +594,8 @@ oe-ordl.whsed oe-ordl.s-man[1] oe-ordl.s-pct[1] oe-ordl.s-comm[1] ~
 oe-ordl.s-man[2] oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.s-man[3] ~
 oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct ~
 oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
-oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
+oe-ordl.ediPrice oe-ordl.t-cost 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no ~
 oe-ordl.sourceEstimateID oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
@@ -634,7 +636,7 @@ oe-ordl.spare-char-2
 &Scoped-define ENABLED-TABLES oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
-Btn_hist fi_jobStartDate btn-quotes btnTagsUnder 
+Btn_hist fi_jobStartDate btn-quotes 
 &Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
@@ -646,12 +648,13 @@ oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.s-man[2] oe-ordl.s-pct[2] ~
 oe-ordl.s-comm[2] oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] ~
 oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code ~
 oe-ordl.req-date oe-ordl.prom-date oe-ordl.spare-char-1 oe-ordl.spare-dec-1 ~
-oe-ordl.spare-char-2 
+oe-ordl.spare-char-2 oe-ordl.ediPrice oe-ordl.t-cost 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
-&Scoped-Define DISPLAYED-OBJECTS fiPrevOrder fiPromDtLabel fi_type-dscr ~
-fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 ~
-fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate 
+&Scoped-Define DISPLAYED-OBJECTS dTotalMargin fiPrevOrder fiPromDtLabel ~
+fi_type-dscr fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl ~
+fi_sname-1 fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate ~
+fi_edi-price-uom 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -871,6 +874,11 @@ DEFINE BUTTON btnTagsOverrn
      LABEL "" 
      SIZE 4.2 BY .95 TOOLTIP "Show Details".
 
+DEFINE BUTTON btnTagsTax 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4.2 BY .95 TOOLTIP "Show Details".
+
 DEFINE BUTTON btnTagsUnder 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
@@ -901,6 +909,12 @@ DEFINE BUTTON Btn_OK
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE dTotalMargin AS DECIMAL FORMAT "->>,>>>,>>9.99":U INITIAL 0 
+     LABEL "Tot Margin" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
+
 DEFINE VARIABLE fiPrevOrder AS CHARACTER FORMAT "X(256)":U 
      LABEL "Prev Order" 
      VIEW-AS FILL-IN 
@@ -910,6 +924,12 @@ DEFINE VARIABLE fiPrevOrder AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE fiPromDtLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Promise Date:" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fi_edi-price-uom AS CHARACTER FORMAT "x(4)" INITIAL "EA" 
+     LABEL "UOM" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY .81
+     BGCOLOR 15 FGCOLOR 1  NO-UNDO.
 
 DEFINE VARIABLE fi_jobStartDate AS DATE FORMAT "99/99/9999":U 
      LABEL "Job Start Date" 
@@ -987,11 +1007,11 @@ DEFINE RECTANGLE RECT-39
 
 DEFINE RECTANGLE RECT-40
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 64 BY 10.
+     SIZE 64 BY 11.1.
 
 DEFINE RECTANGLE RECT-41
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 64 BY 5.81.
+     SIZE 64 BY 4.76.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -1043,10 +1063,10 @@ DEFINE BROWSE browseAllocated
 DEFINE BROWSE browseJobs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseJobs d-oeitem _STRUCTURED
   QUERY browseJobs NO-LOCK DISPLAY
-      job-hdr.job-no FORMAT "x(6)":U
-      job-hdr.job-no2 FORMAT ">9":U
-      job-hdr.est-no FORMAT "x(5)":U
-      job-hdr.ord-no FORMAT ">>>>>9":U
+      job-hdr.job-no FORMAT "x(9)":U
+      job-hdr.job-no2 FORMAT ">>9":U
+      job-hdr.est-no FORMAT "X(8)":U
+      job-hdr.ord-no FORMAT ">>>>>>>9":U
       job-hdr.cust-no FORMAT "x(8)":U
       job-hdr.due-date FORMAT "99/99/9999":U
       job.stat FORMAT "x":U
@@ -1082,7 +1102,7 @@ DEFINE BROWSE browsePOs
       po-ordl.po-no FORMAT ">>>>>>>9":U
       po-ordl.vend-no FORMAT "x(8)":U
       po-ordl.due-date FORMAT "99/99/9999":U
-      po-ordl.job-no FORMAT "x(6)":U
+      po-ordl.job-no FORMAT "x(9)":U
       po-ordl.ord-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       po-ordl.t-rec-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       po-ordl.cost FORMAT "->,>>>,>>9.99<<<<":U
@@ -1100,7 +1120,7 @@ DEFINE BROWSE browseReleases
   QUERY browseReleases NO-LOCK DISPLAY
       oe-rel.spare-char-1 COLUMN-LABEL "From" FORMAT "x(8)":U
       oe-ord.cust-no COLUMN-LABEL "Customer" FORMAT "x(8)":U
-      oe-ord.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>9":U
+      oe-ord.ord-no COLUMN-LABEL "Order" FORMAT ">>>>>>>9":U
       oe-rel.tot-qty COLUMN-LABEL "Release!Qty" FORMAT "->>,>>>,>>9":U
       oe-rel.stat FORMAT "X":U
       oe-ordl.qty FORMAT "->>,>>>,>>9.9<<":U
@@ -1112,12 +1132,12 @@ DEFINE BROWSE browseReleases
       fGetPrUOM() @ cUOM
       oe-ordl.t-price COLUMN-LABEL "Extended!Price" FORMAT "->>,>>>,>>9.99":U
       oe-ordl.i-no COLUMN-LABEL "Item" FORMAT "x(15)":U
-      oe-ordl.part-no COLUMN-LABEL "Customer Part" FORMAT "x(15)":U
+      oe-ordl.part-no COLUMN-LABEL "Customer Part" FORMAT "x(32)":U
       oe-ordl.po-no COLUMN-LABEL "Customer PO" FORMAT "x(15)":U
       oe-ord.po-no COLUMN-LABEL "Order PO" FORMAT "x(15)":U
-      oe-ordl.est-no COLUMN-LABEL "Estimate" FORMAT "x(5)":U
-      oe-ordl.job-no COLUMN-LABEL "Job!Number" FORMAT "x(6)":U
-      oe-ordl.job-no2 COLUMN-LABEL "Run" FORMAT ">9":U
+      oe-ordl.est-no COLUMN-LABEL "Estimate" FORMAT "X(8)":U
+      oe-ordl.job-no COLUMN-LABEL "Job!Number" FORMAT "x(9)":U
+      oe-ordl.job-no2 COLUMN-LABEL "Run" FORMAT ">>9":U
       oe-ord.ord-date COLUMN-LABEL "Order Date" FORMAT "99/99/9999":U
       oe-ord.stat COLUMN-LABEL "Order!Status" FORMAT "x":U
       oe-ordl.inv-qty COLUMN-LABEL "Invoice!Quantity" FORMAT "->>,>>>,>>9.99":U
@@ -1148,11 +1168,12 @@ DEFINE BROWSE browseReleases
 DEFINE FRAME d-oeitem
      browseLocations AT ROW 1.24 COL 145
      browseJobs AT ROW 1.24 COL 145
+     dTotalMargin AT ROW 7.43 COL 93.2 COLON-ALIGNED WIDGET-ID 50
      iPrintAvailQty AT ROW 16.24 COL 147 NO-LABEL
-     fiPrevOrder AT ROW 9.57 COL 93.6 COLON-ALIGNED WIDGET-ID 28
+     fiPrevOrder AT ROW 10.86 COL 93.6 COLON-ALIGNED WIDGET-ID 28
      fiPromDtLabel AT ROW 14.81 COL 104 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     fi_type-dscr AT ROW 6.71 COL 119.6 COLON-ALIGNED NO-LABEL
-     oe-ordl.est-no AT ROW 1.48 COL 15.8 COLON-ALIGNED FORMAT "x(8)"
+     fi_type-dscr AT ROW 8.57 COL 119.6 COLON-ALIGNED NO-LABEL
+     oe-ordl.est-no AT ROW 1.48 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FGCOLOR 1 
@@ -1161,30 +1182,30 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.job-no AT ROW 1.38 COL 95.2 COLON-ALIGNED FORMAT "x(6)"
+     oe-ordl.job-no AT ROW 1.38 COL 95.2 COLON-ALIGNED FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
           BGCOLOR 15 FGCOLOR 1 
      oe-ordl.job-no2 AT ROW 1.38 COL 112.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 6.8 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.qty AT ROW 2.43 COL 15.8 COLON-ALIGNED
+     oe-ordl.qty AT ROW 2.43 COL 15.6 COLON-ALIGNED
           LABEL "Quantity" FORMAT "->>>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 17.6 BY 1
           BGCOLOR 15 FGCOLOR 1 
      fi_qty-uom AT ROW 2.43 COL 33.4 COLON-ALIGNED HELP
           "Enter Unit of Measure for Purchasing this Raw Material" NO-LABEL
-     oe-ordl.i-no AT ROW 3.38 COL 15.8 COLON-ALIGNED
+     oe-ordl.i-no AT ROW 3.38 COL 15.6 COLON-ALIGNED
           LABEL "FG Item#" FORMAT "x(15)"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.part-no AT ROW 4.33 COL 15.8 COLON-ALIGNED
-          LABEL "Cust Part #" FORMAT "x(15)"
+     oe-ordl.part-no AT ROW 4.33 COL 15.6 COLON-ALIGNED
+          LABEL "Cust Part #" FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 28 BY 1
+          SIZE 51 BY 1
           BGCOLOR 15 FGCOLOR 1 
      oe-ordl.i-name AT ROW 5.29 COL 15.6 COLON-ALIGNED
           LABEL "Name"
@@ -1225,14 +1246,9 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.price AT ROW 2.81 COL 93.2 COLON-ALIGNED FORMAT "->>,>>>,>>9.99<<<<"
+     oe-ordl.price AT ROW 3.43 COL 93.2 COLON-ALIGNED FORMAT "->>,>>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-          BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.pr-uom AT ROW 2.81 COL 121.8 COLON-ALIGNED
-          LABEL "UOM" FORMAT "XXX"
-          VIEW-AS FILL-IN 
-          SIZE 8.4 BY 1
           BGCOLOR 15 FGCOLOR 1 
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -1240,56 +1256,61 @@ DEFINE FRAME d-oeitem
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
-     oe-ordl.tax AT ROW 2.81 COL 133
+     oe-ordl.pr-uom AT ROW 3.43 COL 121.8 COLON-ALIGNED
+          LABEL "UOM" FORMAT "XXX"
+          VIEW-AS FILL-IN 
+          SIZE 7.2 BY 1
+          BGCOLOR 15 FGCOLOR 1 
+     oe-ordl.tax AT ROW 3.43 COL 131.8
           LABEL "Tax"
           VIEW-AS TOGGLE-BOX
-          SIZE 9 BY .81
-     oe-ordl.disc AT ROW 3.76 COL 93.2 COLON-ALIGNED FORMAT ">>9.99"
+          SIZE 8.2 BY .81
+     oe-ordl.disc AT ROW 4.38 COL 93.2 COLON-ALIGNED FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.cas-cnt AT ROW 3.76 COL 127.4 COLON-ALIGNED
+     oe-ordl.cas-cnt AT ROW 4.38 COL 127.4 COLON-ALIGNED
           LABEL "Qty/Unit" FORMAT ">>>,>>>"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.t-price AT ROW 4.71 COL 93.2 COLON-ALIGNED
+     oe-ordl.t-price AT ROW 5.33 COL 93.2 COLON-ALIGNED
           LABEL "Total Price"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.partial AT ROW 4.71 COL 127.4 COLON-ALIGNED
+     oe-ordl.partial AT ROW 5.33 COL 127.4 COLON-ALIGNED
           LABEL "Partial" FORMAT "->>>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.cost AT ROW 5.67 COL 93.2 COLON-ALIGNED
+     oe-ordl.cost AT ROW 7.43 COL 122.4 COLON-ALIGNED
           LABEL "Cost/M"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.cases-unit AT ROW 5.67 COL 127.4 COLON-ALIGNED
+     oe-ordl.cases-unit AT ROW 6.29 COL 127.4 COLON-ALIGNED
           LABEL "Units/Pallet" FORMAT ">>>>"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     spare-dec-1 AT ROW 6.71 COL 93.2 COLON-ALIGNED HELP
+     spare-dec-1 AT ROW 8.57 COL 93.2 COLON-ALIGNED HELP
           "" WIDGET-ID 4
           LABEL "Full Cost" FORMAT "->>,>>9.99"
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.type-code AT ROW 6.71 COL 113.8 COLON-ALIGNED NO-LABEL
+     oe-ordl.type-code AT ROW 8.57 COL 113.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer"
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.customField AT ROW 7.91 COL 93.2 COLON-ALIGNED
+     oe-ordl.customField AT ROW 9.52 COL 93.2 COLON-ALIGNED
           LABEL "Custom1"
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.managed AT ROW 9.24 COL 115.8
+     oe-ordl.managed AT ROW 10.57 COL 115.8
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY .81
-     oe-ordl.whsed AT ROW 10.1 COL 115.8 HELP
+     oe-ordl.whsed AT ROW 11.43 COL 115.8 HELP
           "Is line item warehoused?" WIDGET-ID 2
           LABEL "Run && Ship"
           VIEW-AS TOGGLE-BOX
@@ -1318,16 +1339,16 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.s-man[3] AT ROW 15.38 COL 2.4 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
-          BGCOLOR 15 FGCOLOR 1 
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
+     oe-ordl.s-man[3] AT ROW 15.38 COL 2.4 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 9 BY 1
+          BGCOLOR 15 FGCOLOR 1 
      oe-ordl.s-pct[3] AT ROW 15.38 COL 45.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -1343,13 +1364,13 @@ DEFINE FRAME d-oeitem
      fi_sname-2 AT ROW 14.38 COL 13.4 COLON-ALIGNED NO-LABEL
      fi_sname-3 AT ROW 15.38 COL 13.4 COLON-ALIGNED NO-LABEL
      fi_sname-lbl AT ROW 12.62 COL 18.4 COLON-ALIGNED NO-LABEL
-     oe-ordl.over-pct AT ROW 11.57 COL 121.2 COLON-ALIGNED
+     oe-ordl.over-pct AT ROW 12.57 COL 93.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 12.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.under-pct AT ROW 12.67 COL 121.2 COLON-ALIGNED
+     oe-ordl.under-pct AT ROW 12.67 COL 125.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 12.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
      oe-ordl.req-code AT ROW 13.62 COL 93.4 COLON-ALIGNED
           LABEL "Priority" FORMAT "XXXXX"
@@ -1390,18 +1411,14 @@ DEFINE FRAME d-oeitem
           BGCOLOR 15 FGCOLOR 1 
      fi_jobStartDate AT ROW 15.91 COL 121.2 COLON-ALIGNED WIDGET-ID 22
      btn-quotes AT ROW 17.43 COL 2 WIDGET-ID 20
-     btnTagsOverrn AT ROW 11.57 COL 137.8 WIDGET-ID 36
-     btnTagsUnder AT ROW 12.57 COL 137.8 WIDGET-ID 38
-     btnTags AT ROW 2.76 COL 113.2 WIDGET-ID 40
+     btnTagsOverrn AT ROW 12.57 COL 107.8 WIDGET-ID 36
+     btnTagsUnder AT ROW 12.67 COL 139.6 WIDGET-ID 38
+     btnTags AT ROW 3.38 COL 113.2 WIDGET-ID 40
      btnViewDetail AT ROW 17.43 COL 129
      btnLocations AT ROW 17.43 COL 145
      btnJobs AT ROW 17.43 COL 161
      btnPOs AT ROW 17.43 COL 177
      btnAllocated AT ROW 17.43 COL 193
-     btnReleases AT ROW 17.43 COL 209
-     browsePOs AT ROW 1.24 COL 145
-     browseAllocated AT ROW 1.24 COL 145
-     browseReleases AT ROW 1.24 COL 145
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -1409,10 +1426,27 @@ DEFINE FRAME d-oeitem
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
+     btnReleases AT ROW 17.43 COL 209
+     oe-ordl.ediPrice AT ROW 2.48 COL 93.2 COLON-ALIGNED WIDGET-ID 42
+          LABEL "Edi Price"
+          VIEW-AS FILL-IN 
+          SIZE 17.8 BY .81
+          BGCOLOR 15 FGCOLOR 1 
+     fi_edi-price-uom AT ROW 2.48 COL 122 COLON-ALIGNED HELP
+          "Enter Unit of Measure for Purchasing this Raw Material" WIDGET-ID 44
+     btnTagsTax AT ROW 3.38 COL 139.8 WIDGET-ID 46
+     oe-ordl.t-cost AT ROW 6.29 COL 93.2 COLON-ALIGNED WIDGET-ID 48
+          LABEL "Total Cost"
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+          BGCOLOR 15 FGCOLOR 1 
+     browsePOs AT ROW 1.24 COL 145
+     browseAllocated AT ROW 1.24 COL 145
+     browseReleases AT ROW 1.24 COL 145
      RECT-31 AT ROW 12.33 COL 2
      RECT-39 AT ROW 1.24 COL 2
      RECT-40 AT ROW 1.24 COL 80.2 WIDGET-ID 8
-     RECT-41 AT ROW 11.38 COL 80.2 WIDGET-ID 10
+     RECT-41 AT ROW 12.43 COL 80.2 WIDGET-ID 10
      SPACE(127.80) SKIP(1.38)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -1500,6 +1534,10 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnTagsOverrn IN FRAME d-oeitem
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsTax IN FRAME d-oeitem
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTagsUnder IN FRAME d-oeitem
+   NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON btnViewDetail IN FRAME d-oeitem
    NO-ENABLE                                                            */
 ASSIGN 
@@ -1518,8 +1556,12 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ordl.disc IN FRAME d-oeitem
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN dTotalMargin IN FRAME d-oeitem
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-ordl.e-num IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN oe-ordl.ediPrice IN FRAME d-oeitem
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-ordl.est-no IN FRAME d-oeitem
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN fiPrevOrder IN FRAME d-oeitem
@@ -1529,6 +1571,8 @@ ASSIGN
 ASSIGN 
        fiPromDtLabel:READ-ONLY IN FRAME d-oeitem        = TRUE.
 
+/* SETTINGS FOR FILL-IN fi_edi-price-uom IN FRAME d-oeitem
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_s-comm-lbl IN FRAME d-oeitem
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_s-pct-lbl IN FRAME d-oeitem
@@ -1600,10 +1644,12 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
-   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
+   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
+/* SETTINGS FOR FILL-IN oe-ordl.t-cost IN FRAME d-oeitem
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -2128,7 +2174,7 @@ DO:
 ON CHOOSE OF btnTags IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "",
             INPUT "Price-Source"
             ).
@@ -2143,11 +2189,26 @@ DO:
 ON CHOOSE OF btnTagsOverrn IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT oe-ordl.rec_key,
+            INPUT cocode + string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "",
             INPUT "Over Percentage"
             ).
     END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTagsTax
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTagsTax d-oeitem
+ON CHOOSE OF btnTagsTax IN FRAME d-oeitem
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT "",
+        INPUT "Tax-Source"
+        ).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2158,7 +2219,7 @@ DO:
 ON CHOOSE OF btnTagsUnder IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT oe-ordl.rec_key,
+            INPUT cocode + string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "",
             INPUT "Under Percentage"
             ).
@@ -2185,15 +2246,19 @@ ON CHOOSE OF Btn_Cancel IN FRAME d-oeitem /* Cancel */
 DO:
         lv-add-mode = NO.
         RUN ClearTagsForGroup(
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "Price-Source"
             ).
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT "Tax-Source"
+            ).
+        RUN ClearTagsForGroup(
+            INPUT cocode + string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "Under Percentage"
             ).
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "Over Percentage"
             ).
         IF ip-type EQ  'Update' THEN       
@@ -2361,6 +2426,7 @@ DO:
                                     RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
                                 RUN pAddTagInfoForGroup(
                                     oe-ordl.rec_key,
+                                    INPUT "Price-Source",
                                     INPUT "History Price"
                                     ).
                             END.
@@ -2516,6 +2582,7 @@ DO:
             DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
             OUTPUT dTotalPrice).
         oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+        dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
     //{oe/ordltot.i oe-ordl qty oe-ordl}  
     
     END.
@@ -2561,6 +2628,7 @@ DO:
                 DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
                 OUTPUT dTotalPrice).
             oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+            dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
     //{oe/ordltot.i oe-ordl qty oe-ordl  }
         END.
     
@@ -2944,7 +3012,7 @@ DO:
 
         END. /* modified */
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT "Price-Source",
             OUTPUT lAvailable
@@ -2992,13 +3060,12 @@ DO:
    
         ASSIGN 
             v-bld-job = "".
-        DO i = 1 TO 6:
+        DO i = 1 TO 9:
             IF SUBSTRING(INPUT oe-ordl.job-no,i,1) NE " " THEN
                 ASSIGN v-bld-job = v-bld-job +     substring(INPUT oe-ordl.job-no,i,1).
-        END. /* 1 - 6 */
+        END. /* 1 - 9 */
         ASSIGN 
-            oe-ordl.job-no:screen-value = STRING(FILL(" ",6 - length(v-bld-job))) +
-                   (TRIM(v-bld-job)).
+            oe-ordl.job-no:screen-value = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-bld-job)).
 
     END.
 
@@ -3010,7 +3077,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.job-no2 d-oeitem
 ON LEAVE OF oe-ordl.job-no2 IN FRAME d-oeitem /* Run # */
 DO:
-        RUN util/rjust.p (INPUT-OUTPUT v-bld-job, INPUT 6).
+        RUN util/rjust.p (INPUT-OUTPUT v-bld-job, INPUT 9).
         FIND FIRST job-hdr WHERE job-hdr.company = cocode AND
             job-hdr.job-no = v-bld-job AND
             job-hdr.job-no2 = INPUT oe-ordl.job-no2
@@ -3318,13 +3385,17 @@ DO:
                     RETURN NO-APPLY.
                 END.              
                 IF po-ordl.cons-uom EQ "M" THEN
+                do:
                     oe-ordl.cost:screen-value = STRING(po-ordl.cons-cost). 
+                    oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
+                END.    
                 ELSE 
                 DO:                 
                     RUN sys/ref/convcuom.p (po-ordl.cons-uom, "M", 0, 0, 0, 0,
                         po-ordl.cons-cost, OUTPUT ld-cost).
 
-                    oe-ordl.cost:screen-value = STRING(ld-cost).                          
+                    oe-ordl.cost:screen-value = STRING(ld-cost). 
+                    oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
                 END.
                 IF lNewVendorItemCost THEN .
                 ELSE 
@@ -3338,6 +3409,7 @@ DO:
                 IF AVAILABLE e-itemfg-vend THEN
                 DO:
                     oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
+                    oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
                 END.
             END.
         END.
@@ -3390,6 +3462,7 @@ DO:
                 DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
                 OUTPUT dTotalPrice).
             oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+            dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
 
         END.
     END.
@@ -3428,6 +3501,7 @@ DO:
                     RUN get-est-comm (INPUT ROWID(oe-ordl), INPUT YES).
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "Price was manually entered"
                     ).
             END.
@@ -3452,6 +3526,7 @@ DO:
             DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
             OUTPUT dTotalPrice).
         oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+        dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
 //  {oe/ordltot.i oe-ordl qty oe-ordl}
     END.
 
@@ -3541,7 +3616,8 @@ DO:
                     asi.oe-ordl.spare-dec-1:SENSITIVE  = NO
                     asi.oe-ordl.spare-char-2:SENSITIVE = NO.
             END.
-
+            oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
+            dTotalMargin:SCREEN-VALUE = STRING(DECIMAL(oe-ordl.t-price:screen-value) - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
         END.
 
     /*   if int(oe-ordl.qty:screen-value) < int(oe-ordl.cas-cnt:screen-value) then do: */
@@ -3754,14 +3830,12 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.tax d-oeitem
 ON VALUE-CHANGED OF oe-ordl.tax IN FRAME d-oeitem /* Tax */
 DO:
-        IF NOT AVAILABLE oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
-                oe-ord.ord-no = oe-ordl.ord-no NO-LOCK NO-ERROR. 
-        IF SELF:screen-value = "yes" AND oe-ord.tax-gr = "" THEN 
-        DO:
-            MESSAGE "Invalid tax code on order header. " VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
-        END.
-    END.
+    RUN pAddTagInfoForGroup(
+        INPUT oe-ordl.rec_key,
+        INPUT "Tax-Source",
+        INPUT "Manually adjusted"
+        ).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3994,7 +4068,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         li-prev-ord-qty   = oe-ordl.qty
         ld-prev-prom-date = oe-ordl.prom-date
         dtPrevDueDate     = oe-ordl.req-date
-        v-margin          = oe-ordl.q-qty.
+        v-margin          = oe-ordl.q-qty
+        fi_edi-price-uom  = oe-ordl.ediPriceUOM
+        dTotalMargin      = oe-ordl.t-price - (IF oe-ordl.t-cost NE ? THEN oe-ordl.t-cost ELSE 0).
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
@@ -4156,6 +4232,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             oe-ordl.SourceEstimateID:SENSITIVE  IN FRAME {&FRAME-NAME} = NO.  
             IF oescreen-cha EQ "item-qty" AND ip-type EQ "ADD" AND oe-ord.est-no NE ""   THEN
                 APPLY "entry" TO oe-ordl.i-no IN FRAME {&FRAME-NAME}.
+            ELSE DO:
+                APPLY "entry" TO oe-ordl.est-no IN FRAME {&FRAME-NAME}.
+            END.
         END.
 
         IF fgsecurity-log THEN
@@ -4168,7 +4247,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 (NOT CAN-DO(usergrps.users,USERID("NOSWEAT")) AND
                 TRIM(usergrps.users) NE "*") THEN
                 ASSIGN
-                    oe-ordl.cost:VISIBLE IN FRAME {&FRAME-NAME} = NO.
+                    oe-ordl.cost:VISIBLE IN FRAME {&FRAME-NAME} = NO
+                    oe-ordl.t-cost:VISIBLE IN FRAME {&FRAME-NAME} = NO .
         END.
 
         IF NOT oescreen-log
@@ -4182,6 +4262,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ASSIGN
                 asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
                 asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME}  = NO.
+                
+        RUN spGetSettingByName("EDIOrderChanged", OUTPUT cSettingValue).
+        
+        IF LOGICAL(cSettingValue) AND oe-ord.ediSubmitted EQ 1 THEN
+        ASSIGN             
+            asi.oe-ordl.ediPrice:HIDDEN IN FRAME {&FRAME-NAME} = NO            
+            fi_edi-price-uom:HIDDEN IN FRAME {&FRAME-NAME}     = NO.
+         ELSE
+         ASSIGN             
+            asi.oe-ordl.ediPrice:HIDDEN IN FRAME {&FRAME-NAME}  = YES              
+            fi_edi-price-uom:HIDDEN IN FRAME {&FRAME-NAME}      = YES. 
+       
 
         RUN spGetSettingByName("DisplayFGLocationDetails", OUTPUT cDisplayFGLocationDetails).
 
@@ -4685,6 +4777,7 @@ PROCEDURE chooseQuotedPrice :
                         .
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
                         ).
                 END.
@@ -4697,6 +4790,7 @@ PROCEDURE chooseQuotedPrice :
                         .
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Quoted Price - Quote Number:" + string(iQutNo) + " Quantity:" + string(lxQty)
                         ).
                 END.
@@ -4710,6 +4804,7 @@ PROCEDURE chooseQuotedPrice :
             DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
             OUTPUT dTotalPrice).
         oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+        dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
     //{oe/ordltot.i oe-ordl qty oe-ordl} 
     END.
 
@@ -4754,8 +4849,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem 
-PROCEDURE CopyShipNote PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem 
+PROCEDURE pCopyShipNote PRIVATE :
 /*------------------------------------------------------------------------------
      Purpose: Copies Ship Note from rec_key to rec_key
      Notes:
@@ -4763,13 +4858,7 @@ PROCEDURE CopyShipNote PRIVATE :
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -4933,11 +5022,11 @@ PROCEDURE create-job :
                     AND eb.cust-no  EQ oe-ord.cust-no NO-LOCK NO-ERROR.
             IF AVAILABLE eb THEN 
                 v-prod-cat = eb.procat.
-            v-job-no = FILL(" ",6 - length(TRIM(STRING(oe-ordl.ord-no)))) + string(oe-ordl.ord-no).
+            v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.ord-no)).
             RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                 INPUT-OUTPUT v-job-no2,
                 INPUT v-prod-cat,
-                INPUT FILL(" ",6 - LENGTH(TRIM(oe-ordl.est-no))) + TRIM(oe-ordl.est-no)).
+                INPUT FILL(" ",8 - LENGTH(TRIM(oe-ordl.est-no))) + TRIM(oe-ordl.est-no)).
      
             IF v-job-no NE "" THEN 
             DO:
@@ -5203,7 +5292,7 @@ PROCEDURE create-release :
                         oe-rel.ship-i[4]    = shipto.notes[4]
                         oe-rel.spare-char-1 = shipto.loc.
                     /* gdm - 06220908 end */
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                 END. /*v-relflg2*/
                 /* if add mode then use default carrier */
                 /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
@@ -5302,7 +5391,7 @@ PROCEDURE create-release :
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4]
                         oe-rel.spare-char-1 = shipto.loc.
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                 END.
                 /* check that itemfg-loc exists */
                 IF oe-rel.spare-char-1 GT "" THEN
@@ -5390,7 +5479,7 @@ PROCEDURE create-release :
                     oe-rel.ship-i[3]    = shipto.notes[3]
                     oe-rel.ship-i[4]    = shipto.notes[4]
                     oe-rel.spare-char-1 = shipto.loc.
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
             END. /*v-relflg2*/
     
             /* if add mode then use default carrier */
@@ -5517,7 +5606,13 @@ PROCEDURE crt-itemfg :
         itemfg.sell-uom   = oe-ordl.pr-uom:SCREEN-VALUE
         itemfg.alloc      = IF AVAILABLE xeb AND xeb.est-type LE 4 THEN v-allocf ELSE v-alloc
         .
-   
+
+    IF system.SharedConfig:Instance:GetValue("Tax-Source") NE "" THEN   
+        RUN pAddTagInfoForGroup(
+            INPUT oe-ordl.rec_key,
+            INPUT "Tax-Source",
+            INPUT system.SharedConfig:Instance:ConsumeValue("Tax-Source")
+            ).
 
     IF v-graphic-char NE "" THEN 
     DO:
@@ -5722,6 +5817,14 @@ PROCEDURE display-est-detail :
                 /*35645 - Taxable set by FG item flag only*/
                 oe-ordl.tax:SCREEN-VALUE        = STRING(fGetTaxable(itemfg.company, eb.cust-no, eb.ship-id, itemfg.i-no),"Y/N")
                 .
+
+            IF system.SharedConfig:Instance:GetValue("Tax-Source") NE "" THEN   
+                RUN pAddTagInfoForGroup(
+                    INPUT oe-ordl.rec_key,
+                    INPUT "Tax-Source",
+                    INPUT system.SharedConfig:Instance:ConsumeValue("Tax-Source")
+                    ).
+                            
             IF DECIMAL(oe-ordl.price:SCREEN-VALUE) = 0 THEN
             DO:
                 ASSIGN
@@ -5731,6 +5834,7 @@ PROCEDURE display-est-detail :
             
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "Item fg sell price Item-No:" + string(itemfg.i-no)
                     ).
             END.
@@ -5893,6 +5997,7 @@ PROCEDURE display-est-detail :
                     v-rel                       = lv-rel.
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "EST - Detail Quote EST No: " + STRING(quotehd.est-no) + " Quantity:" + string(lv-qty) + "Expiration Date: " + string(quotehd.expireDate)
                     ). 
             END.
@@ -5921,6 +6026,7 @@ PROCEDURE display-est-detail :
                     ll-got-qtprice              = YES.
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "Item Qty Price"  + " Quantity:" + string(lv-qty)
                     ).
             END.
@@ -5936,12 +6042,12 @@ PROCEDURE display-est-detail :
         
             ASSIGN
                 v-disp-prod-cat = eb.procat
-                v-job-no        = FILL(" ",6 - length(TRIM(STRING(oe-ordl.ord-no)))) + string(oe-ordl.ord-no).
+                v-job-no        = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.ord-no)).
 
             RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                 INPUT-OUTPUT v-job-no2,
                 INPUT v-disp-prod-cat,
-                INPUT FILL(" ",6 - LENGTH(TRIM(oe-ordl.est-no:SCREEN-VALUE))) + TRIM(oe-ordl.est-no:SCREEN-VALUE)).
+                INPUT FILL(" ",8 - LENGTH(TRIM(oe-ordl.est-no:SCREEN-VALUE))) + TRIM(oe-ordl.est-no:SCREEN-VALUE)).
             IF v-job-no NE "" THEN 
             DO:
                 ASSIGN
@@ -5988,6 +6094,7 @@ PROCEDURE display-est-detail :
         oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
         RUN pAddTagInfoForGroup(
             INPUT oe-ordl.rec_key,
+            INPUT "Price-Source",
             INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty)
             ).
     END.
@@ -6018,6 +6125,7 @@ PROCEDURE display-est-detail :
                 lv-q-no        = tt-item-qty-price.q-no.
         RUN pAddTagInfoForGroup(
             INPUT oe-ordl.rec_key,
+            INPUT "Price-Source",
             INPUT "Item Qty Price Quote No:" + STRING(lv-q-no)  + " Quantity:" + string(lv-qty)
             ).
     END.
@@ -6035,6 +6143,7 @@ PROCEDURE display-est-detail :
         DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
         OUTPUT dTotalPrice).
     oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+    dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
   //{oe/ordltot.i oe-ordl qty oe-ordl}
 
     oe-ordl.rec_key = est.rec_key.
@@ -6258,6 +6367,7 @@ PROCEDURE display-fgitem :
                             oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
                             RUN pAddTagInfoForGroup(
                                 INPUT oe-ordl.rec_key,
+                                INPUT "Price-Source",
                                 INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
                                 ).
                         END.
@@ -6277,6 +6387,7 @@ PROCEDURE display-fgitem :
                                     lv-q-no   = tt-item-qty-price.q-no.
                                 RUN pAddTagInfoForGroup(
                                     INPUT oe-ordl.rec_key,
+                                    INPUT "Price-Source",
                                     INPUT "Item Qty Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
                                     ).
                             END.
@@ -6297,6 +6408,7 @@ PROCEDURE display-fgitem :
                             DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
                             OUTPUT dTotalPrice).
                         oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+                        dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
               //{oe/ordltot.i oe-ordl qty oe-ordl}
                     END.           
                 END. 
@@ -6319,6 +6431,13 @@ PROCEDURE display-fgitem :
         /*35645 - Taxable set by FG item flag only*/
         oe-ordl.tax:SCREEN-VALUE = STRING(fGetTaxable(itemfg.company, oe-ord.cust-no, oe-ord.ship-id, itemfg.i-no),"Y/N").
 
+        IF system.SharedConfig:Instance:GetValue("Tax-Source") NE "" THEN   
+            RUN pAddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "Tax-Source",
+                INPUT system.SharedConfig:Instance:ConsumeValue("Tax-Source")
+                ).
+                
         RUN default-type (BUFFER itemfg).
 
         IF NOT AVAILABLE oe-ord THEN FIND oe-ord WHERE oe-ord.company = g_company AND
@@ -6356,11 +6475,13 @@ PROCEDURE display-fgitem :
             IF setFromHistory THEN 
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "History Price"
                     ).
             ELSE IF itemfg.sell-price <> 0 THEN 
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Item Sell Price"
                         ).
         END.
@@ -6564,11 +6685,13 @@ PROCEDURE display-fgpart :
             IF setFromHistory THEN 
                 RUN pAddTagInfoForGroup(
                     INPUT oe-ordl.rec_key,
+                    INPUT "Price-Source",
                     INPUT "History Price "
                     ). 
             ELSE IF itemfg.sell-price <> 0 THEN 
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Item Sell Price"
                         ). 
         END.
@@ -6637,7 +6760,8 @@ PROCEDURE display-fgpart :
 
             ASSIGN 
                 oe-ordl.cost:screen-value   = STRING(lv-out-cost)
-                oe-ordl.pr-uom:screen-value = itemfg.sell-uom.
+                oe-ordl.pr-uom:screen-value = itemfg.sell-uom
+                oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
 
             IF AVAILABLE po-ordl THEN
             DO:
@@ -6659,6 +6783,7 @@ PROCEDURE display-fgpart :
                     IF AVAILABLE e-itemfg-vend THEN
                     DO:
                         oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
+                        oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
                     END.
                     RELEASE po-ord.
                 END.
@@ -6782,6 +6907,10 @@ PROCEDURE display-item :
             fi_s-comm-lbl
             oe-ordl.SourceEstimateID            
             oe-ordl.managed
+            oe-ordl.ediPrice            
+            fi_edi-price-uom
+            oe-ordl.t-cost
+            dTotalMargin
             WITH FRAME {&frame-name}.
 
         /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
@@ -6825,9 +6954,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom spare-dec-1 
-          fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 fi_sname-2 
-          fi_sname-3 fi_sname-lbl fi_jobStartDate 
+  DISPLAY dTotalMargin fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom 
+          spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 
+          fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate fi_edi-price-uom 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
     DISPLAY oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 
@@ -6842,6 +6971,7 @@ PROCEDURE enable_UI :
           oe-ordl.s-comm[3] oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code 
           oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date 
           oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
+          oe-ordl.ediPrice oe-ordl.t-cost 
       WITH FRAME d-oeitem.
   ENABLE oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.qty fi_qty-uom 
          oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 
@@ -6854,7 +6984,7 @@ PROCEDURE enable_UI :
          oe-ordl.over-pct oe-ordl.under-pct oe-ordl.req-code oe-ordl.prom-code 
          oe-ordl.req-date oe-ordl.prom-date Btn_OK Btn_Done Btn_Cancel Btn_hist 
          oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
-         fi_jobStartDate btn-quotes btnTagsUnder 
+         fi_jobStartDate btn-quotes 
       WITH FRAME d-oeitem.
   {&OPEN-BROWSERS-IN-QUERY-d-oeitem}
 END PROCEDURE.
@@ -7058,6 +7188,9 @@ PROCEDURE final-steps2 :
         IF NOT v-qty-mod THEN               
             RUN oe/job-qty.p (INPUT  ROWID(oe-ordl), 
                 OUTPUT v-qty-mod).
+        
+        IF v-qty-mod = FALSE AND oe-ordl.po-no-po = 0 THEN
+            ASSIGN v-qty-mod = TRUE.
 
         IF  oe-ord.est-no EQ "" OR          /* Est no on order is blank, or */
             (v-qty-mod AND                  /* qty changed on an existing estimate-based line */
@@ -7100,7 +7233,11 @@ PROCEDURE final-steps2 :
                     RUN displayMessageQuestionLog (INPUT  "33",
                         OUTPUT lMsgResponse).
                 IF lMsgResponse THEN
+                DO:
+                    FRAME {&frame-name}:SENSITIVE = NO. 
                     RUN po/doPo.p(YES).
+                    FRAME {&frame-name}:SENSITIVE = YES.
+                END.
             END. 
         END.
   
@@ -7458,7 +7595,8 @@ PROCEDURE get-price :
     DEFINE VARIABLE lv-rowid     AS ROWID   NO-UNDO.
     DEFINE VARIABLE lv-price-ent LIKE price-ent NO-UNDO.
     DEFINE VARIABLE dTotalPrice  AS DECIMAL NO-UNDO.
-          
+    DEFINE VARIABLE iLevel       AS INTEGER NO-UNDO.
+    
     DO WITH FRAME {&FRAME-NAME}:
         IF NOT price-ent                           AND
             AVAILABLE oe-ordl                           THEN 
@@ -7490,10 +7628,13 @@ PROCEDURE get-price :
                 IF matrixExists THEN 
                 DO:  
                     matrixTag = "Item No:" + string(v-i-item) + " Customer No:" + string(oe-ordl.cust-no) + " Ship ID:" + oe-ordl.ship-id + " Quantity:" + string(v-i-qty). 
-
+                    
+                    RUN Price_GetPriceMatrixLevel(INPUT cocode, INPUT STRING(v-i-item), INPUT oe-ordl.cust-no, INPUT oe-ordl.ship-id, INPUT v-i-qty, OUTPUT iLevel).
+                             
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
-                        INPUT "Price Matrix " + matrixTag
+                        INPUT "Price-Source",
+                        INPUT "Price Matrix " + matrixTag + " Price Level:" + STRING(iLevel)
                         ). 
                 END.
                 FIND oe-ordl WHERE ROWID(oe-ordl) EQ lv-rowid NO-ERROR.
@@ -7508,6 +7649,7 @@ PROCEDURE get-price :
                     DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
                     OUTPUT dTotalPrice).
                 oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+                dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
         //{oe/ordltot.i oe-ordl qty oe-ordl}
             END.
 
@@ -7726,9 +7868,12 @@ PROCEDURE getCostFromEstimate :
                     WHERE bf-estCostItem.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
                     AND bf-estCostItem.customerPart EQ oe-ordl.part-no:SCREEN-VALUE
                     NO-ERROR. 
-            IF AVAILABLE bf-estCostItem THEN 
+            IF AVAILABLE bf-estCostItem THEN do: 
+              ASSIGN
                 oe-ordl.cost:SCREEN-VALUE = STRING((IF v-full-cost THEN bf-estCostItem.costTotalFull ELSE bf-estCostItem.costTotalFactory) /
-                    (bf-estCostItem.quantityRequired / 1000)).
+                    (bf-estCostItem.quantityRequired / 1000))
+                oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
+            END.        
         END.
         ELSE 
         DO:
@@ -7779,6 +7924,7 @@ PROCEDURE getCostFromEstimate :
     
                 oe-ordl.cost:SCREEN-VALUE = STRING((IF v-full-cost THEN tt-tot ELSE ord-cost) /
                     (INT(oe-ordl.qty:SCREEN-VALUE) / 1000)).
+                oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).    
             END.
         END.
     END.
@@ -7822,7 +7968,7 @@ PROCEDURE getTagsToReset :
     EMPTY TEMP-TABLE ttTag.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Price-Source",
         OUTPUT lAvailable
@@ -7831,7 +7977,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
+            INPUT  cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Price-Source",   
             OUTPUT  TABLE  ttTempTag
@@ -7844,18 +7990,41 @@ PROCEDURE getTagsToReset :
     END.
     ELSE     
         btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
-        
+
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT "oe-ordl",
+        INPUT "Tax-Source",
+        OUTPUT lAvailable
+        ).
+    IF lAvailable THEN DO:
+        EMPTY TEMP-TABLE ttTempTag.
+        RUN GetTags(
+            INPUT  cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
+            INPUT  "oe-ordl", 
+            INPUT  "Tax-Source",   
+            OUTPUT  TABLE  ttTempTag
+            ).
+        FOR EACH ttTempTag:
+            CREATE ttTag.
+            BUFFER-COPY ttTempTag TO ttTag.
+        END.      
+        btnTagsTax:SENSITIVE IN FRAME {&frame-name} = TRUE.
+    END.
+    ELSE     
+        btnTagsTax:SENSITIVE IN FRAME {&frame-name} = FALSE.
+                
+    RUN Tag_IsTagRecordAvailableForGroup(
+        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Over Percentage",
         OUTPUT lAvailable
-        ).
+        ).  
     IF lAvailable THEN  
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Over Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -7870,16 +8039,16 @@ PROCEDURE getTagsToReset :
         btnTagsOverrn:SENSITIVE IN FRAME {&frame-name} = FALSE.
         
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ordl.rec_key,
+        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
         INPUT "oe-ordl",
         INPUT "Under Percentage",
         OUTPUT lAvailable
-        ).
+        ).    
     IF lAvailable THEN  
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  oe-ordl.rec_key, 
+            INPUT  cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
             INPUT  "oe-ordl", 
             INPUT  "Under Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -7975,7 +8144,9 @@ PROCEDURE itemfg-cost :
                     oe-ordl.cost:screen-value = STRING(lv-cost)
                     /*oe-ordl.pr-uom:screen-value = itemfg.sell-uom ?? */ .                        
             END.
-      
+            
+            oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
+            
             IF AVAILABLE po-ordl AND int(oe-ordl.po-no-po:screen-value) NE 0 THEN
             DO:
                 FIND FIRST po-ord WHERE
@@ -7996,6 +8167,7 @@ PROCEDURE itemfg-cost :
                     IF AVAILABLE e-itemfg-vend THEN
                     DO:
                         oe-ordl.cost:SCREEN-VALUE = STRING(DEC(oe-ordl.cost:SCREEN-VALUE) * (1 + (e-itemfg-vend.markup / 100.0 ))).
+                        oe-ordl.t-cost:screen-value = string(decimal(oe-ordl.cost:SCREEN-VALUE) * integer(oe-ordl.qty:SCREEN-VALUE) / 1000).
                     END.
                     RELEASE po-ord.
                 END.
@@ -8164,6 +8336,7 @@ PROCEDURE leave-qty :
               
                     RUN pAddTagInfoForGroup(
                         INPUT oe-ordl.rec_key,
+                        INPUT "Price-Source",
                         INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
                         ).
                 END.
@@ -8183,6 +8356,7 @@ PROCEDURE leave-qty :
                             DELETE tt-item-qty-price.
                             RUN pAddTagInfoForGroup(
                                 INPUT oe-ordl.rec_key,
+                                INPUT "Price-Source",
                                 INPUT "Item Qty Price Quote No:" + string(lv-q-no)
                                 ).
                         END.
@@ -8228,6 +8402,7 @@ PROCEDURE leave-qty :
                 DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
                 OUTPUT dTotalPrice).
             oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+            dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
         //{oe/ordltot.i oe-ordl qty oe-ordl}
         END.
     END.
@@ -8509,6 +8684,7 @@ PROCEDURE OnSaveButton :
     DEFINE VARIABLE lPricehold           AS LOGICAL.
     DEFINE VARIABLE cPriceHoldMessage    AS CHARACTER.
     DEFINE VARIABLE dTotalPrice          AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lEdiChange           AS LOGICAL   NO-UNDO.
 
     DEFINE BUFFER b-oe-ordl FOR oe-ordl.
     DEFINE BUFFER b-oe-ord  FOR oe-ord.
@@ -8561,7 +8737,13 @@ PROCEDURE OnSaveButton :
             ll-price-mod    = oe-ordl.price:MODIFIED
             lv-price        = oe-ordl.price:SCREEN-VALUE
             ll-pruom-mod    = oe-ordl.pr-uom:MODIFIED
-            lv-pruom        = oe-ordl.pr-uom:SCREEN-VALUE.
+            lv-pruom        = oe-ordl.pr-uom:SCREEN-VALUE
+            lEdiChange      = oe-ordl.price:MODIFIED
+            lEdiChange      = oe-ordl.i-no:MODIFIED
+            lEdiChange      = oe-ordl.qty:MODIFIED
+            lEdiChange      = oe-ordl.pr-uom:MODIFIED
+            lEdiChange      = oe-ordl.part-no:MODIFIED
+            lEdiChange      = oe-ordl.po-no:MODIFIED.
      
         IF oe-ordl.vend-no:SCREEN-VALUE = "0"  THEN
             ASSIGN oe-ordl.vend-no:SCREEN-VALUE = "".
@@ -8648,6 +8830,7 @@ PROCEDURE OnSaveButton :
             DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
             OUTPUT dTotalPrice).
         oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+        dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
         //{oe/ordltot.i oe-ordl qty oe-ordl}
     END.
 
@@ -8713,7 +8896,7 @@ PROCEDURE OnSaveButton :
 
         IF oeDateChange-log 
             AND  NOT ll-new-record
-            AND  LOOKUP("promise Date", oeDateChange-chr) GT 0
+            AND  LOOKUP("Promise Date", oeDateChange-chr) GT 0
             AND  oe-ordl.prom-date NE ld-prev-prom-date 
             AND  ld-prev-prom-date NE ?
             AND  gcLastDateChange EQ "prom-date" THEN 
@@ -8796,16 +8979,22 @@ PROCEDURE OnSaveButton :
         FIND CURRENT oe-ordl EXCLUSIVE.
         FIND CURRENT oe-ord EXCLUSIVE.
         
+        IF lEdiChange AND oe-ord.ediSubmitted EQ 1 THEN 
+        oe-ord.ediModified = 1.
+        
         IF oeDateAuto-log AND OeDateAuto-Char EQ "Colonial" THEN 
         DO:             
-            RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                INPUT oe-ordl.req-date,
-                INPUT oe-ordl.prom-date,
-                INPUT "DueDate",
-                INPUT ROWID(oe-ordl),
-                OUTPUT dCalcDueDate,
-                OUTPUT dCalcPromDate).
-            oe-ordl.prom-date = dCalcPromDate.
+            IF cDueManualChanged AND NOT cPromManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+            END.
             
             IF NOT cDueManualChanged AND cPromManualChanged THEN 
             DO:
@@ -8818,18 +9007,18 @@ PROCEDURE OnSaveButton :
                     OUTPUT dCalcPromDate).
                 oe-ordl.req-date = dCalcDueDate.
             END.
-            ELSE
-                IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
-                DO:
-                    RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
-                        INPUT oe-ordl.req-date,
-                        INPUT oe-ordl.prom-date,
-                        INPUT "DueDate",
-                        INPUT ROWID(oe-ordl),
-                        OUTPUT dCalcDueDate,
-                        OUTPUT dCalcPromDate).
-                    oe-ordl.prom-date = dCalcPromDate.
-                END.
+
+            IF NOT cPromManualChanged AND NOT cDueManualChanged THEN 
+            DO:
+                RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
+                    INPUT oe-ordl.req-date,
+                    INPUT oe-ordl.prom-date,
+                    INPUT "DueDate",
+                    INPUT ROWID(oe-ordl),
+                    OUTPUT dCalcDueDate,
+                    OUTPUT dCalcPromDate).
+                oe-ordl.prom-date = dCalcPromDate.
+            END.
         END.
     
         RUN final-steps.
@@ -9185,18 +9374,18 @@ PROCEDURE pAddTag :
    
     DO WITH FRAME {&frame-name}:   
         RUN ClearTagsForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT oe-ordl.rec_key,
+            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcSource,
             OUTPUT lAvailable
@@ -9229,7 +9418,8 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
           Parameters:  <none>
           Notes:       
         ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcMessage AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
@@ -9240,31 +9430,29 @@ PROCEDURE pAddTagInfoForGroup PRIVATE :
     END.
     
     FIND FIRST bf-oe-ordl NO-LOCK 
-        WHERE bf-oe-ordl.rec_key EQ ipcRecKey NO-ERROR .
-    IF AVAILABLE bf-oe-ordl THEN
-    DO:
-        
+         WHERE bf-oe-ordl.rec_key EQ ipcRecKey NO-ERROR .
+    IF AVAILABLE bf-oe-ordl THEN DO:
         RUN ClearTagsForGroup(
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
-            INPUT "Price-Source"
+            INPUT cocode + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
+            INPUT ipcGroup
             ).
         RUN AddTagInfoForGroup(
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT cocode + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
             INPUT "oe-ordl",
             INPUT ipcMessage,
             INPUT "",
-            INPUT "Price-Source"
+            INPUT ipcGroup
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
-            INPUT "oe-ordl",
-            INPUT "Price-Source",
+            INPUT  cocode + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.LINE),
+            INPUT  "oe-ordl",
+            INPUT  ipcGroup,
             OUTPUT lAvailable
             ).
-        IF lAvailable THEN  
-            btnTags:SENSITIVE = TRUE.
-        ELSE 
-            btnTags:SENSITIVE = FALSE.
+        IF ipcGroup EQ "Price-Source" THEN
+            btnTags:SENSITIVE = lAvailable.
+        ELSE IF ipcGroup EQ "Tax-Source" THEN
+            btnTagsTax:SENSITIVE = lAvailable.
     END.
 END PROCEDURE.
 
@@ -9583,6 +9771,7 @@ PROCEDURE prev-quote-proc :
                                 lv-pruom                    = lxUom.
                             RUN pAddTagInfoForGroup(
                                 INPUT oe-ordl.rec_key,
+                                INPUT "Price-Source",
                                 INPUT "Quoted Price Quote No:" + string(lxQno) + " Quantity: " + string(lxQty)
                                 ).
                         END.
@@ -9623,6 +9812,7 @@ PROCEDURE prev-quote-proc :
                     DECIMAL(oe-ordl.cas-cnt:SCREEN-VALUE),    
                     OUTPUT dTotalPrice).
                 oe-ordl.t-price:SCREEN-VALUE = STRING(dTotalPrice).
+                dTotalMargin:SCREEN-VALUE = STRING(dTotalPrice - DECIMAL(oe-ordl.t-cost:SCREEN-VALUE)).
                     //{oe/ordltot.i oe-ordl qty oe-ordl} 
                 
             END. /* Do with frame */
@@ -10582,7 +10772,7 @@ PROCEDURE update-release :
                         oe-rel.ship-i[2]    = shipto.notes[2]
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4].
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
           
                 /* if add mode then use default carrier */
         
@@ -12853,7 +13043,7 @@ FUNCTION get-colonial-rel-date RETURNS DATE
                          opRelDate = dCalcRelDate.
                          IF opRelDate EQ oe-ordl.prom-date THEN
                          DO TRANSACTION:
-                             dCalcPromDate = get-date (oe-ordl.prom-date, 1, "-").
+                             dCalcPromDate = get-date (oe-ordl.prom-date, -1, "-").
                              FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
                              oe-ordl.prom-date = dCalcPromDate.
                              FIND CURRENT oe-ordl NO-LOCK.

@@ -242,30 +242,30 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-jobdetail.csv" 
      LABEL "If Yes, File Name" 
@@ -349,11 +349,11 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_job-no AT ROW 2.71 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 2
-     begin_job-no2 AT ROW 2.71 COL 38 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 2.71 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 4
      end_job-no AT ROW 2.71 COL 64 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 6
-     end_job-no2 AT ROW 2.71 COL 77 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.71 COL 80 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 8
      begin_date AT ROW 3.76 COL 26 COLON-ALIGNED
      end_date AT ROW 3.76 COL 64 COLON-ALIGNED HELP
@@ -1396,7 +1396,7 @@ FOR EACH job-hdr NO-LOCK
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "job"    THEN cVarValue = STRING(job-hdr.job-no) .
-                         WHEN "job2"   THEN cVarValue = STRING(job.job-no2,"99").
+                         WHEN "job2"   THEN cVarValue = STRING(job.job-no2,"999").
                          WHEN "cust"   THEN cVarValue = STRING(job-hdr.cust-no) .
                          WHEN "cust-name"  THEN cVarValue = IF AVAIL cust THEN string(cust.NAME) ELSE "" .
                          WHEN "fg-item"  THEN cVarValue = STRING(job-hdr.i-no,"x(15)") .
@@ -1458,8 +1458,8 @@ FOR EACH job-hdr NO-LOCK
               END.
 
               display 
-                  job-hdr.job-no  FORMAT "x(6)"
-                  job-hdr.job-no2 FORMAT "99" SPACE (2)
+                  job-hdr.job-no  FORMAT "x(9)"
+                  job-hdr.job-no2 FORMAT "999" SPACE (2)
                   job-mch.frm     FORMAT ">>>>>"  SPACE(2)
                   job-mch.blank-no FORMAT ">>>>>" SPACE(2)
                   job-mch.pass    FORMAT ">>>>>" SPACE(2)

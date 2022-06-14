@@ -82,12 +82,14 @@ loc.company location.fax
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH loc WHERE ~{&KEY-PHRASE} ~
       AND loc.company = gcompany NO-LOCK, ~
-      EACH location WHERE location.locationCode = loc.loc ~
+      EACH location WHERE location.company = loc.company  ~
+  AND location.locationCode = loc.loc ~
   AND location.rec_key = loc.addrRecKey OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH loc WHERE ~{&KEY-PHRASE} ~
       AND loc.company = gcompany NO-LOCK, ~
-      EACH location WHERE location.locationCode = loc.loc ~
+      EACH location WHERE location.company = loc.company  ~
+  AND location.locationCode = loc.loc ~
   AND location.rec_key = loc.addrRecKey OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table loc location
@@ -159,7 +161,7 @@ DEFINE BROWSE Browser-Table
       location.email FORMAT "x(60)":U
       location.subCode4 COLUMN-LABEL "Zip/Post" FORMAT "x(24)":U
             WIDTH 15.2
-      loc.addrRecKey FORMAT "X(20)":U
+      loc.addrRecKey FORMAT "x(26)":U
       location.subCode2 FORMAT "x(24)":U
       location.countryCode FORMAT "x(3)":U
       location.defaultBin FORMAT "x(8)":U
@@ -176,7 +178,7 @@ DEFINE BROWSE Browser-Table
       loc.whs-chg FORMAT ">>9.9999":U
       location.building FORMAT "x(24)":U
       location.notes FORMAT "x(60)":U
-      location.rec_key FORMAT "X(21)":U
+      location.rec_key FORMAT "x(26)":U
       location.room FORMAT "x(12)":U
       location.streetAddr[1] FORMAT "x(60)":U
       location.streetAddr[2] FORMAT "x(60)":U
@@ -265,7 +267,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -317,7 +319,8 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, OUTER, OUTER"
      _Where[1]         = "loc.company = gcompany"
-     _JoinCode[2]      = "ASI.location.locationCode = ASI.loc.loc
+     _JoinCode[2]      = "ASI.location.company = ASI.loc.company 
+  AND ASI.location.locationCode = ASI.loc.loc
   AND ASI.location.rec_key = ASI.loc.addrRecKey"
      _FldNameList[1]   = ASI.loc.loc
      _FldNameList[2]   > ASI.loc.dscr
@@ -502,6 +505,21 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+RUN fg/loc-exp.w.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record B-table-Win 
 PROCEDURE local-add-record :
 /*------------------------------------------------------------------------------
@@ -514,10 +532,6 @@ PROCEDURE local-add-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
-        
-        
 
 END PROCEDURE.
 
@@ -543,6 +557,32 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE repo-query B-table-Win 
+PROCEDURE repo-query :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+  ASSIGN auto_find = ""
+         auto_find:SCREEN-VALUE IN FRAME {&frame-name} = "" .
+
+  RUN local-open-query.
+  
+  DO WITH FRAME {&frame-name}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+  END.
+
+  RUN dispatch ("row-changed").
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -582,21 +622,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-RUN fg/loc-exp.w.
-
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,7 +1,7 @@
 /* ----------------------------------------------  */
 /*  cecrep/jobAtlBox.p(Copy of jobcard20)  Corrugated factory ticket  for AtlanticBox landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 DEFINE INPUT PARAMETER v-format AS CHARACTER.
@@ -233,16 +233,16 @@ DO v-local-loop = 1 TO v-local-copies:
                     iunder-run   = DECIMAL(cust.under-pct)
                     iover-run    = DECIMAL(cust.over-pct)
                              .
-               ASSIGN cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
+               ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
              ASSIGN  cCustName = cust.NAME 
                {sys/inc/ctrtext.i cCustName 30}.
       
         PUT "<C1><R1.2><#Start>"
             "<=Start><FROM><C108><R50><RECT><|1>"
             "<=Start><#JobStart>"
-            "<=JobStart><C+20><#JobTR>"
+            "<=JobStart><C+23><#JobTR>"
             "<=JobStart><R+3><#JobBL> "
-            "<=JobStart><C+20><R+3><#JobEnd>"
+            "<=JobStart><C+23><R+3><#JobEnd>"
             "<=JobStart><FROM><RECT#JobEnd><|1>"
             "<=JobTR><#HeaderStart>"
             "<=HeaderStart><C+58><#HeaderTR>"
@@ -266,7 +266,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<P14>                  "
             "<=JobLabel>Job #:"
             "<FGColor=Blue><B>   "
-            "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORMAT "x(10)"
+            "<=JobNum>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORMAT "x(13)"
             "</B><FGColor=Black>"
             "<P8> "
             "<=BlankLabel>Blank:"
@@ -741,7 +741,7 @@ DO v-local-loop = 1 TO v-local-copies:
       
          /* dept notes */
         ASSIGN
-           v-note-length   = 100
+           v-note-length   = 76
            v-tmp-lines     = 0
            j               = 0
            K               = 0
@@ -792,15 +792,18 @@ DO v-local-loop = 1 TO v-local-copies:
 
         FOR EACH notes WHERE notes.rec_key = bf-itemfg.rec_key 
                         AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
-         
+            IF v-prev-note-rec <> ? AND
+               v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
+            
             DO i = 1 TO LENGTH(notes.note_text) :        
                IF i - j >= v-note-length THEN ASSIGN j             = i
                                               lv-got-return = lv-got-return + 1.
                    
                v-tmp-lines = ( i - j ) / v-note-length.
                {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-               k = v-tmp-lines + lv-got-return.
+                            
+               k = v-tmp-lines + lv-got-return + 
+                   IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
                IF k < 9 THEN v-spec-note[k] = v-spec-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
                                   ELSE "" .              
            
@@ -810,6 +813,9 @@ DO v-local-loop = 1 TO v-local-copies:
                   j = i.
                END.         
             END.
+            ASSIGN v-prev-note-rec = RECID(notes)
+                   j               = 0
+                   lv-got-return   = 0.
          END.
     
 
@@ -891,11 +897,11 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SpecNotes1>" v-spec-note[1] FORMAT "x(100)" SKIP
               "<=SpecNotes2>" v-spec-note[2] FORMAT "x(100)" SKIP
               "<=SpecNotes3>" v-spec-note[3] FORMAT "x(100)"  SKIP
-              "<=SpecNotes1>" v-spec-note[4] FORMAT "x(100)" SKIP
-              "<=SpecNotes2>" v-spec-note[5] FORMAT "x(100)" SKIP
-              "<=SpecNotes3>" v-spec-note[6] FORMAT "x(100)"  SKIP
+              "<=SpecNotes4>" v-spec-note[4] FORMAT "x(100)" SKIP
+              "<=SpecNotes5>" v-spec-note[5] FORMAT "x(100)" SKIP
+              "<=SpecNotes6>" v-spec-note[6] FORMAT "x(100)"  SKIP
               .
-       
+                 
         v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
                         ELSE IF AVAILABLE xeb THEN xeb.ship-id
                         ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
@@ -913,9 +919,9 @@ DO v-local-loop = 1 TO v-local-copies:
         PUT  /*"<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
               "<=Start><#JobStart>"
-              "<=JobStart><C+20><#JobTR>"
+              "<=JobStart><C+23><#JobTR>"
               "<=JobStart><R+3><#JobBL> "
-              "<=JobStart><C+20><R+3><#JobEnd>"
+              "<=JobStart><C+23><R+3><#JobEnd>"
               "<=JobStart><FROM><RECT#JobEnd><|1>"
               "<=JobTR><#HeaderStart>"
               "<=HeaderStart><C+58><#HeaderTR>"
@@ -941,7 +947,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<P14>"
               "<=JobLabel>Job #:"
               "<FGColor=Blue><B> "
-              "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2)
+              "<=JobNum>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORMAT "x(13)"
               "</B><FGColor=Black>"
               "<P8>"
               "<=BlankLabel>Blank:"

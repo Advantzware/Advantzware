@@ -1,5 +1,6 @@
 "202007061848505434106" "001" "_ANY_" "Customer" "_default" "CalculateTax" "_ANY_" no
 "202005285503905315489" "001" "_ANY_" "_ANY_" "_default" "CheckTransfer" "_ANY_" no
+"202112095483208360305" "001" "_ANY_" "_ANY_" "_default" "GetExchangeRate" "GetExchangeRate" no
 "202110254042408178952" "001" "_ANY_" "_ANY_" "_default" "JobTicket" "_ANY_" no
 "202005285503905315490" "001" "_ANY_" "_ANY_" "_default" "SendAdvancedShipNotice" "_ANY_" no
 "202005285503905315492" "001" "_ANY_" "_ANY_" "_default1" "SendAdvancedShipNotice" "_ANY_" no

@@ -73,7 +73,7 @@ FUNCTION fJobIsOK RETURNS LOGICAL PRIVATE
                      
                  END.
           
-                STATUS DEFAULT job.job-no + "-" + STRING(job.job-no2, "99").               
+                STATUS DEFAULT TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))).               
                 opiCountProcess = opiCountProcess + 1.
                 IF ipcRunMethods EQ "Rebuild" THEN
                 DO:

@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relnstok.i */
 /* Print OE Release/Picking tickets    for NSTOCK Xprint  copy of PrimerX        */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* -----------------------------------------------------------------*/
 
 
@@ -9,7 +10,7 @@
 
 
 DEF TEMP-TABLE w-oe-rell NO-UNDO
-FIELD ord-no   AS INTEGER          FORMAT "ZZZZZ9"
+FIELD ord-no   AS INTEGER          FORMAT "ZZZZZZZ9"
 FIELD i-no     AS CHARACTER
 FIELD qty      AS INTEGER
 FIELD LINE     AS INTEGER
@@ -125,8 +126,8 @@ DEFINE SHARED VARIABLE v-print-components AS LOGICAL          NO-UNDO.
 DEFINE SHARED VARIABLE s-print-part-no    AS LOGICAL          NO-UNDO.
 
 
-FORMAT w-oe-rell.ord-no          TO 6
-v-bin                            AT 8    FORMAT "x(35)"
+FORMAT w-oe-rell.ord-no          TO 8
+v-bin                            AT 10   FORMAT "x(34)"
 w-bin.w-par                      AT 44   FORMAT "x(25)"
 w-bin.w-unit-count               TO 76   FORMAT "->>>>>"
 w-bin.w-units                    TO 83   FORMAT "->>>>>"
@@ -207,8 +208,8 @@ FOR EACH xoe-rell
   WHERE oe-ord.company EQ xoe-rell.company
   AND oe-ord.ord-no  EQ xoe-rell.ord-no
   NO-LOCK:
-  
-  CASE oe-ord.frt-pay:
+  v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+  CASE v-frt-terms:
     WHEN "P" THEN v-frt-terms = "Prepaid".
     WHEN "C" THEN v-frt-terms = "Collect".
     WHEN "B" THEN v-frt-terms = "Bill".
@@ -380,7 +381,8 @@ END. /* foR EACH tt-bin-file */
 
 EMPTY TEMP-TABLE w-bin.
 FOR EACH tt-item NO-LOCK:
- FOR EACH w-oe-rell WHERE w-oe-rell.set-no EQ tt-item.w-i-no USE-INDEX idx,
+ FOR EACH  w-oe-rell WHERE w-oe-rell.set-no EQ tt-item.w-i-no
+  AND w-oe-rell.ord-no EQ tt-item.w-ord-no USE-INDEX idx,
   FIRST oe-ordl
   WHERE oe-ordl.company EQ cocode
   AND oe-ordl.ord-no  EQ w-oe-rell.ord-no

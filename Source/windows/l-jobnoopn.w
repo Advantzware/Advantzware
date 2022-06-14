@@ -10,6 +10,7 @@
 
   File: windows\l-jobnoopn.w
   
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -27,6 +28,8 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
+
+{sys/inc/var.i new shared}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -151,12 +154,12 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 9
+      job-hdr.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 14
             LABEL-BGCOLOR 14
-      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">9":U
+      job-hdr.job-no2 COLUMN-LABEL "" FORMAT ">>9":U
       job-hdr.i-no FORMAT "x(15)":U WIDTH 19 LABEL-BGCOLOR 14
       job-hdr.est-no FORMAT "x(8)":U WIDTH 14 LABEL-BGCOLOR 14
-      job-hdr.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      job-hdr.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       job-hdr.cust-no FORMAT "x(8)":U WIDTH 12 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -230,7 +233,7 @@ ASSIGN
 ASI.job-hdr.opened = yes"
      _Where[2]         = "job.opened EQ YES"
      _FldNameList[1]   > ASI.job-hdr.job-no
-"job-hdr.job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-hdr.job-no" "Job#" ? "character" ? ? ? 14 ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-hdr.job-no2
 "job-hdr.job-no2" "" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-hdr.i-no
@@ -317,7 +320,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK,
               FIRST job OF job-hdr WHERE
                     job.opened EQ YES
@@ -382,7 +385,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK,
               FIRST job OF job-hdr WHERE
                     job.opened EQ YES
@@ -422,7 +425,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK,
               FIRST job OF job-hdr WHERE
                     job.opened EQ YES

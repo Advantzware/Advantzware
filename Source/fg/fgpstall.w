@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -345,7 +346,7 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "From Job#" 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
@@ -375,7 +376,7 @@ DEFINE VARIABLE end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
     LABEL "To Job#" 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
@@ -1824,7 +1825,7 @@ PROCEDURE create-text-file :
     DEFINE VARIABLE v-fgdsc2         LIKE itemfg.part-dscr2 NO-UNDO.
     DEFINE VARIABLE v-fgdsc3         LIKE itemfg.part-dscr3 NO-UNDO.
     DEFINE VARIABLE cRFIDTag         AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE v-job            AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE v-job            AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE v-count          AS INTEGER   NO-UNDO.
 
     FIND FIRST w-ord NO-ERROR.
@@ -1866,7 +1867,7 @@ PROCEDURE create-text-file :
         END.
 
         FOR EACH w-ord:
-            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+            v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
             IF v-job BEGINS "-" OR v-job = ? /* 9901 CAH */
                 THEN v-job = STRING(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
             FIND FIRST itemfg WHERE itemfg.company = cocode
@@ -2034,7 +2035,7 @@ PROCEDURE create-text-file :
           */
             ASSIGN
                 w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
-                v-job          = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+                v-job          = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
             IF v-job BEGINS "-" THEN v-job = "".
             ASSIGN
                 lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
@@ -4014,10 +4015,10 @@ PROCEDURE run-report PRIVATE :
 
     SESSION:SET-WAIT-STATE ("general").
 
-    IF LENGTH(begin_job-no) < 6 THEN
-        begin_job-no = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) + TRIM(begin_job-no).
-    IF LENGTH(end_job-no) < 6 THEN
-        end_job-no = FILL(" ",6 - LENGTH(TRIM(end_job-no))) + TRIM(end_job-no).
+    IF LENGTH(begin_job-no) < 9 THEN
+        begin_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)).
+    IF LENGTH(end_job-no) < 9 THEN
+        end_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no)).
 
     IF ip-run-what EQ "" THEN
         DISPLAY begin_job-no END_job-no WITH FRAME {&FRAME-NAME}.
@@ -4161,8 +4162,8 @@ PROCEDURE send-fgemail :
             v-fgemail-file = v-dir + trim(tt-email.cust-no) + ".txt".
             OUTPUT STREAM st-email TO VALUE(v-fgemail-file).
             PUT STREAM st-email 
-                "      Qty      JOB#       FG Item#          Part #          PO #            Item Name                 " SKIP
-                "============ ========== =============== =============== =============== ==============================" SKIP.
+                "      Qty      JOB#           FG Item#          Part #          PO #            Item Name                 " SKIP
+                "============ ============= =============== =============== =============== ==============================" SKIP.
         END.
 
         RELEASE bf-oe-ordl.
@@ -4189,7 +4190,7 @@ PROCEDURE send-fgemail :
 
         PUT STREAM st-email UNFORMATTED
             tt-email.qty FORM "->>>,>>>,>>9" " " 
-            tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-email.job-no, tt-email.job-no2))) FORM "x(13)"
             " " tt-email.i-no FORM "X(15)"
             " " (IF AVAILABLE bf-oe-ordl THEN bf-oe-ordl.part-no ELSE IF AVAILABLE bf-itemfg THEN bf-itemfg.part-no ELSE "") FORM "x(15)"
             " " (IF AVAILABLE bf-oe-ordl THEN bf-oe-ordl.po-no ELSE IF AVAILABLE bf-job-hdr THEN bf-job-hdr.po-no ELSE "") FORM "x(15)" 

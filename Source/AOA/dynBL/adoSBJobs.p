@@ -82,11 +82,19 @@ RETURN "ERROR".
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
+    DEFINE VARIABLE cADOClient AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cADOSBJobs AS CHARACTER NO-UNDO.
 
+    RUN spGetSettingByName ("ADOClient", OUTPUT cADOClient).
     /* create ActiveX Data Object connection */
     CREATE "ADODB.Connection.6.0" hConnection.
-    hConnection:ConnectionString = "{AOA/dynBL/IndepedentII.i}".
+    CASE cADOClient:
+        WHEN "IndepedentII" THEN
+        hConnection:ConnectionString = "{AOA/dynBL/IndepedentII.i}".
+        WHEN "Sumter" THEN
+        hConnection:ConnectionString = "{AOA/dynBL/Sumter.i}".
+    END CASE.
+
     /* open ADO connection */
     hConnection:Open (,,,) NO-ERROR.
     IF ERROR-STATUS:NUM-MESSAGES GT 0 THEN

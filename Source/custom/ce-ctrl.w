@@ -65,17 +65,18 @@ ce-ctrl.rm-rate-farm ce-ctrl.hand-pct ce-ctrl.hand-pct-farm ce-ctrl.def-ink ~
 ce-ctrl.def-inkcov ce-ctrl.whse-mrkup ce-ctrl.def-case ce-ctrl.def-pal ~
 ce-ctrl.fold-pct ce-ctrl.def-coat ce-ctrl.comm-mrkup ce-ctrl.spec-l[1] ~
 ce-ctrl.spec-%[1] ce-ctrl.r-cost ce-ctrl.spec-l[2] ce-ctrl.spec-%[2] ~
-ce-ctrl.spec-l[3] ce-ctrl.spec-%[3] ce-ctrl.hd-net ce-ctrl.mat-cost[1] ~
-ce-ctrl.mat-pct[1] ce-ctrl.lab-cost[1] ce-ctrl.lab-pct[1] ce-ctrl.hd-gross ~
-ce-ctrl.mat-cost[2] ce-ctrl.mat-pct[2] ce-ctrl.lab-cost[2] ~
-ce-ctrl.lab-pct[2] ce-ctrl.sell-by ce-ctrl.mat-cost[3] ce-ctrl.mat-pct[3] ~
-ce-ctrl.lab-cost[3] ce-ctrl.lab-pct[3] ce-ctrl.prof-mrkup ~
-ce-ctrl.mat-cost[4] ce-ctrl.mat-pct[4] ce-ctrl.lab-cost[4] ~
-ce-ctrl.lab-pct[4] ce-ctrl.comm-add ce-ctrl.sho-labor ce-ctrl.mat-cost[5] ~
-ce-ctrl.mat-pct[5] ce-ctrl.lab-cost[5] ce-ctrl.lab-pct[5] ~
-ce-ctrl.spec-add[1] ce-ctrl.spec-add[2] ce-ctrl.spec-add[3] ~
-ce-ctrl.mat-cost[6] ce-ctrl.mat-pct[6] ce-ctrl.lab-cost[6] ~
-ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] ce-ctrl.spec-add[8] 
+ce-ctrl.spare-char-1 ce-ctrl.spec-l[3] ce-ctrl.spec-%[3] ce-ctrl.hd-net ~
+ce-ctrl.mat-cost[1] ce-ctrl.mat-pct[1] ce-ctrl.lab-cost[1] ~
+ce-ctrl.lab-pct[1] ce-ctrl.hd-gross ce-ctrl.mat-cost[2] ce-ctrl.mat-pct[2] ~
+ce-ctrl.lab-cost[2] ce-ctrl.lab-pct[2] ce-ctrl.sell-by ce-ctrl.mat-cost[3] ~
+ce-ctrl.mat-pct[3] ce-ctrl.lab-cost[3] ce-ctrl.lab-pct[3] ~
+ce-ctrl.prof-mrkup ce-ctrl.mat-cost[4] ce-ctrl.mat-pct[4] ~
+ce-ctrl.lab-cost[4] ce-ctrl.lab-pct[4] ce-ctrl.comm-add ce-ctrl.sho-labor ~
+ce-ctrl.mat-cost[5] ce-ctrl.mat-pct[5] ce-ctrl.lab-cost[5] ~
+ce-ctrl.lab-pct[5] ce-ctrl.spec-add[1] ce-ctrl.spec-add[2] ~
+ce-ctrl.spec-add[3] ce-ctrl.mat-cost[6] ce-ctrl.mat-pct[6] ~
+ce-ctrl.lab-cost[6] ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] ~
+ce-ctrl.spec-add[8] 
 &Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH ce-ctrl SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH ce-ctrl SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME ce-ctrl
@@ -92,18 +93,18 @@ ce-ctrl.ls-length ce-ctrl.ls-trimw ce-ctrl.rm-rate ce-ctrl.rm-rate-farm ~
 ce-ctrl.hand-pct ce-ctrl.hand-pct-farm ce-ctrl.def-ink ce-ctrl.def-inkcov ~
 ce-ctrl.whse-mrkup ce-ctrl.def-case ce-ctrl.def-pal ce-ctrl.fold-pct ~
 ce-ctrl.def-coat ce-ctrl.comm-mrkup ce-ctrl.spec-l[1] ce-ctrl.spec-%[1] ~
-ce-ctrl.r-cost ce-ctrl.spec-l[2] ce-ctrl.spec-%[2] ce-ctrl.spec-l[3] ~
-ce-ctrl.spec-%[3] ce-ctrl.hd-net ce-ctrl.mat-cost[1] ce-ctrl.mat-pct[1] ~
-ce-ctrl.lab-cost[1] ce-ctrl.lab-pct[1] ce-ctrl.hd-gross ce-ctrl.mat-cost[2] ~
-ce-ctrl.mat-pct[2] ce-ctrl.lab-cost[2] ce-ctrl.lab-pct[2] ce-ctrl.sell-by ~
-ce-ctrl.mat-cost[3] ce-ctrl.mat-pct[3] ce-ctrl.lab-cost[3] ~
-ce-ctrl.lab-pct[3] ce-ctrl.prof-mrkup ce-ctrl.mat-cost[4] ~
-ce-ctrl.mat-pct[4] ce-ctrl.lab-cost[4] ce-ctrl.lab-pct[4] ce-ctrl.comm-add ~
-ce-ctrl.sho-labor ce-ctrl.mat-cost[5] ce-ctrl.mat-pct[5] ~
-ce-ctrl.lab-cost[5] ce-ctrl.lab-pct[5] ce-ctrl.spec-add[1] ~
-ce-ctrl.spec-add[2] ce-ctrl.spec-add[3] ce-ctrl.mat-cost[6] ~
-ce-ctrl.mat-pct[6] ce-ctrl.lab-cost[6] ce-ctrl.lab-pct[6] ce-ctrl.shp-add ~
-ce-ctrl.spec-add[6] ce-ctrl.spec-add[8] 
+ce-ctrl.r-cost ce-ctrl.spec-l[2] ce-ctrl.spec-%[2] ce-ctrl.spare-char-1 ~
+ce-ctrl.spec-l[3] ce-ctrl.spec-%[3] ce-ctrl.hd-net ce-ctrl.mat-cost[1] ~
+ce-ctrl.mat-pct[1] ce-ctrl.lab-cost[1] ce-ctrl.lab-pct[1] ce-ctrl.hd-gross ~
+ce-ctrl.mat-cost[2] ce-ctrl.mat-pct[2] ce-ctrl.lab-cost[2] ~
+ce-ctrl.lab-pct[2] ce-ctrl.sell-by ce-ctrl.mat-cost[3] ce-ctrl.mat-pct[3] ~
+ce-ctrl.lab-cost[3] ce-ctrl.lab-pct[3] ce-ctrl.prof-mrkup ~
+ce-ctrl.mat-cost[4] ce-ctrl.mat-pct[4] ce-ctrl.lab-cost[4] ~
+ce-ctrl.lab-pct[4] ce-ctrl.comm-add ce-ctrl.sho-labor ce-ctrl.mat-cost[5] ~
+ce-ctrl.mat-pct[5] ce-ctrl.lab-cost[5] ce-ctrl.lab-pct[5] ~
+ce-ctrl.spec-add[1] ce-ctrl.spec-add[2] ce-ctrl.spec-add[3] ~
+ce-ctrl.mat-cost[6] ce-ctrl.mat-pct[6] ce-ctrl.lab-cost[6] ~
+ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] ce-ctrl.spec-add[8] 
 &Scoped-define DISPLAYED-TABLES ce-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE ce-ctrl
 &Scoped-Define DISPLAYED-OBJECTS avg_cost fi_broker-pct rd-sp-1 rd-sp-2 ~
@@ -129,7 +130,8 @@ ce-ctrl.lab-pct[4] ce-ctrl.comm-add ce-ctrl.sho-labor ce-ctrl.mat-cost[5] ~
 ce-ctrl.mat-pct[5] ce-ctrl.lab-cost[5] ce-ctrl.lab-pct[5] ~
 ce-ctrl.spec-add[1] ce-ctrl.spec-add[2] ce-ctrl.spec-add[3] ~
 ce-ctrl.mat-cost[6] ce-ctrl.mat-pct[6] ce-ctrl.lab-cost[6] ~
-ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] ce-ctrl.spec-add[8] 
+ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] ce-ctrl.spec-add[8] ~
+ce-ctrl.spare-char-1
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -381,6 +383,16 @@ DEFINE FRAME DEFAULT-FRAME
           SIZE 10.4 BY 1
           BGCOLOR 15 
      rd-sp-2 AT ROW 12.29 COL 101 NO-LABEL
+     ce-ctrl.spare-char-1 AT ROW 13.1 COL 9 COLON-ALIGNED
+          LABEL "Type"
+          VIEW-AS COMBO-BOX INNER-LINES 4
+          LIST-ITEM-PAIRS "Assembled","No",
+                     "Assembled (auto-receive components)","Auto",
+                     "Unassembled","Yes",
+                     "Unassembled (Unitized)","Q"
+          DROP-DOWN-LIST
+          SIZE 42 BY 1
+          BGCOLOR 15 
      ce-ctrl.spec-l[3] AT ROW 13.48 COL 65 COLON-ALIGNED
           LABEL "S3"
           VIEW-AS FILL-IN 
@@ -420,6 +432,13 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
           BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 116.2 BY 24.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.mat-pct[2] AT ROW 17.29 COL 14 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -432,13 +451,6 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 116.2 BY 24.43.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.sell-by AT ROW 17.76 COL 93 COLON-ALIGNED
           LABEL "Calculate Sell Price on Net or Gross"
           VIEW-AS FILL-IN 
@@ -515,6 +527,13 @@ DEFINE FRAME DEFAULT-FRAME
           LABEL "S3"
           VIEW-AS TOGGLE-BOX
           SIZE 12 BY .81
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 116.2 BY 24.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.mat-cost[6] AT ROW 22.05 COL 1 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
@@ -527,13 +546,6 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
           BGCOLOR 15 
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 116.2 BY 24.43.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.lab-pct[6] AT ROW 22.05 COL 43 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -559,24 +571,24 @@ DEFINE FRAME DEFAULT-FRAME
      ls-title2 AT ROW 15.38 COL 15 COLON-ALIGNED NO-LABEL
      ls-title3 AT ROW 15.38 COL 34 COLON-ALIGNED NO-LABEL
      ls-title4 AT ROW 15.38 COL 44 COLON-ALIGNED NO-LABEL
-     "Farm" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 3.62 COL 103
-          FONT 6
-     "Mark Up Options" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 3.62 COL 59
-          FONT 6
-     "Press Feed Type:" VIEW-AS TEXT
-          SIZE 16.6 BY 1 AT ROW 6.71 COL 7
      "What If/Print Options" VIEW-AS TEXT
           SIZE 25 BY .62 AT ROW 14.67 COL 59
           FONT 6
-     "MFG" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 3.62 COL 91
+     "Estimating Defaults" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 3.62 COL 4
           FONT 6
      "Add to Fact. Costs" VIEW-AS TEXT
           SIZE 18 BY .81 AT ROW 21.33 COL 58
-     "Estimating Defaults" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 3.62 COL 4
+     "MFG" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 3.62 COL 91
+          FONT 6
+     "Press Feed Type:" VIEW-AS TEXT
+          SIZE 16.6 BY 1 AT ROW 6.71 COL 7
+     "Mark Up Options" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 3.62 COL 59
+          FONT 6
+     "Farm" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 3.62 COL 103
           FONT 6
      RECT-15 AT ROW 23.71 COL 68
      RECT-20 AT ROW 3.86 COL 2
@@ -664,6 +676,8 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN ce-ctrl.def-pal IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN ce-ctrl.spare-char-1 IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1 EXP-LABEL                                                */      
 /* SETTINGS FOR FILL-IN ce-ctrl.e-num IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN ce-ctrl.e-range[1] IN FRAME DEFAULT-FRAME
@@ -897,7 +911,7 @@ DO:
 ON VALUE-CHANGED OF avg_cost IN FRAME DEFAULT-FRAME
 DO:
         ASSIGN {&SELF-NAME}
-            ce-ctrl.avg-cscost = IF {&SELF-NAME} THEN 1 ELSE 0.
+            .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -962,7 +976,8 @@ DO:
                 Btn_Close:LABEL    = "&Close".
             FIND CURRENT ce-ctrl EXCLUSIVE-LOCK.  
             ASSIGN {&LIST-1}
-                rd-sp-1 rd-sp-2 rd-sp-3.
+                rd-sp-1 rd-sp-2 rd-sp-3
+                ce-ctrl.avg-cscost = IF avg_cost THEN 1 ELSE 0.
 
             RUN reftable-values (NO).
         END.
@@ -1190,21 +1205,23 @@ PROCEDURE enable_UI :
           ce-ctrl.def-ink ce-ctrl.def-inkcov ce-ctrl.whse-mrkup ce-ctrl.def-case 
           ce-ctrl.def-pal ce-ctrl.fold-pct ce-ctrl.def-coat ce-ctrl.comm-mrkup 
           ce-ctrl.spec-l[1] ce-ctrl.spec-%[1] ce-ctrl.r-cost ce-ctrl.spec-l[2] 
-          ce-ctrl.spec-%[2] ce-ctrl.spec-l[3] ce-ctrl.spec-%[3] ce-ctrl.hd-net 
-          ce-ctrl.mat-cost[1] ce-ctrl.mat-pct[1] ce-ctrl.lab-cost[1] 
-          ce-ctrl.lab-pct[1] ce-ctrl.hd-gross ce-ctrl.mat-cost[2] 
-          ce-ctrl.mat-pct[2] ce-ctrl.lab-cost[2] ce-ctrl.lab-pct[2] 
-          ce-ctrl.sell-by ce-ctrl.mat-cost[3] ce-ctrl.mat-pct[3] 
-          ce-ctrl.lab-cost[3] ce-ctrl.lab-pct[3] ce-ctrl.prof-mrkup 
-          ce-ctrl.mat-cost[4] ce-ctrl.mat-pct[4] ce-ctrl.lab-cost[4] 
-          ce-ctrl.lab-pct[4] ce-ctrl.comm-add ce-ctrl.sho-labor 
-          ce-ctrl.mat-cost[5] ce-ctrl.mat-pct[5] ce-ctrl.lab-cost[5] 
-          ce-ctrl.lab-pct[5] ce-ctrl.spec-add[1] ce-ctrl.spec-add[2] 
-          ce-ctrl.spec-add[3] ce-ctrl.mat-cost[6] ce-ctrl.mat-pct[6] 
-          ce-ctrl.lab-cost[6] ce-ctrl.lab-pct[6] ce-ctrl.shp-add 
-          ce-ctrl.spec-add[6] ce-ctrl.spec-add[8] 
+          ce-ctrl.spec-%[2] ce-ctrl.spare-char-1 ce-ctrl.spec-l[3] 
+          ce-ctrl.spec-%[3] ce-ctrl.hd-net ce-ctrl.mat-cost[1] 
+          ce-ctrl.mat-pct[1] ce-ctrl.lab-cost[1] ce-ctrl.lab-pct[1] 
+          ce-ctrl.hd-gross ce-ctrl.mat-cost[2] ce-ctrl.mat-pct[2] 
+          ce-ctrl.lab-cost[2] ce-ctrl.lab-pct[2] ce-ctrl.sell-by 
+          ce-ctrl.mat-cost[3] ce-ctrl.mat-pct[3] ce-ctrl.lab-cost[3] 
+          ce-ctrl.lab-pct[3] ce-ctrl.prof-mrkup ce-ctrl.mat-cost[4] 
+          ce-ctrl.mat-pct[4] ce-ctrl.lab-cost[4] ce-ctrl.lab-pct[4] 
+          ce-ctrl.comm-add ce-ctrl.sho-labor ce-ctrl.mat-cost[5] 
+          ce-ctrl.mat-pct[5] ce-ctrl.lab-cost[5] ce-ctrl.lab-pct[5] 
+          ce-ctrl.spec-add[1] ce-ctrl.spec-add[2] ce-ctrl.spec-add[3] 
+          ce-ctrl.mat-cost[6] ce-ctrl.mat-pct[6] ce-ctrl.lab-cost[6] 
+          ce-ctrl.lab-pct[6] ce-ctrl.shp-add ce-ctrl.spec-add[6] 
+          ce-ctrl.spec-add[8] 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-15 RECT-20 RECT-21 RECT-22 RECT-23 Btn_Update Btn_Close 
+  ENABLE RECT-15 RECT-20 RECT-21 RECT-22 RECT-23 ce-ctrl.spare-char-1 
+         Btn_Update Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

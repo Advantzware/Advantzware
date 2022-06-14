@@ -1346,7 +1346,7 @@ IF tb_excel THEN DO:
                  + "EDI,Bal Method,Mfg/Whse Days,Pallet,Case/Bundle,Stmnt Freq,"
                  + "Territory,Cr. Acct #,Ord. Loc.,Carrier,Delivery Zone,Cr. Rating,Hold Days/Inv.,Credit Lim,"
                  + "Partial Ship,Fr Pay Meth,Order Lim,Taxable,FOB Orig/Dest,Cred. Hold,"
-                 + "TAX Code,Fin. Chrgs,Invoice Per PO,TAX Resale ID#,Exp.,"
+                 + "TAX Group,Fin. Chrgs,Invoice Per PO,TAX Resale ID#,Exp.,"
                  + "Terms Code,Credit Hold Term,Date Added,Discount,MarkUp,"
                  + "Underrun,Overrun,E-Mail/Web Address,Load Tags".
 

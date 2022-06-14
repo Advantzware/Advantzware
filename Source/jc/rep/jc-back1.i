@@ -1,15 +1,16 @@
 /* ---------------------------------------------- jc/rep/jc-back1.i 06/00 JLF */
 /* Job Backlog by MSF/Kicks                                                   */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
-
-      and job.job-no     ge substr(v-fjob,1,6)
-      and job.job-no     le substr(v-tjob,1,6)
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      
+      and FILL(" ", iJobLen - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          ge v-fjob
-      and fill(" ",6 - length(trim(job.job-no))) +
-          trim(job.job-no) + string(job.job-no2,"99")
+      and FILL(" ", iJobLen - length(trim(job.job-no))) +
+          trim(job.job-no) + string(job.job-no2,"999")
                          le v-tjob
+     AND job.job-no2 GE int(begin_job-no2)
+     AND job.job-no2 LE int(end_job-no2)
     use-index stat-idx NO-LOCK,
 
     each job-mch
@@ -133,8 +134,7 @@
        tt-report.key-03  = job-hdr.cust-no
        tt-report.key-04  = if avail eb then eb.part-no else
                            if avail itemfg then itemfg.part-no else ""
-       tt-report.key-05  = fill(" ",6 - length(trim(job.job-no))) +
-                           trim(job.job-no) + string(job.job-no2,"99")
+       tt-report.key-05  = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job.job-no, job.job-no2)) 
        tt-report.key-06  = if avail est and
                               (est.est-type eq 2 or est.est-type eq 6) then
                              "SET" else ""

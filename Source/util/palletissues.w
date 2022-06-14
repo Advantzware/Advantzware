@@ -11,6 +11,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -73,14 +74,14 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE beg_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "From FG Item" 
@@ -92,14 +93,14 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE FI_units-per-pallet AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Units per pallet" 
@@ -319,18 +320,19 @@ DO:
 
    IF FI_units-per-pallet > 0 THEN DO:
       ASSIGN
-         v-job-no[1]    = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                          TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
-         v-job-no[2]    = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                          TRIM(end_job-no)   + STRING(INT(end_job-no2),"99").
+         v-job-no[1]    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+         v-job-no[2]    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) .
 
       FOR EACH job-hdr NO-LOCK WHERE job-hdr.company = cocode
                                  AND job-hdr.i-no   GE beg_i-no
                                  AND job-hdr.i-no   LE end_i-no
-                                 AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +                             
-                                     TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") GE v-job-no[1] 
-                                 AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +                             
-                                     TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"99") LE v-job-no[2] :
+                                 AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +                             
+                                     TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") GE v-job-no[1] 
+                                 AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +                             
+                                     TRIM(job-hdr.job-no) + STRING(INT(job-hdr.job-no2),"999") LE v-job-no[2] 
+                                 AND job-hdr.job-no2 GE int(begin_job-no2)
+                                 AND job-hdr.job-no2 LE int(end_job-no2)    :
+
          FOR EACH job-mat NO-LOCK WHERE job-mat.company = job-hdr.company
                                     AND job-mat.job     = job-hdr.job
                                     AND job-mat.job-no  = job-hdr.job-no

@@ -21,6 +21,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -865,8 +866,7 @@ PROCEDURE rm-post-issue :
       
 
       find first job  where job.company eq rm-rctd.company
-                and job.job-no  eq fill(" ",6 - length(trim(rm-rctd.job-no))) +
-                                   trim(rm-rctd.job-no)
+                and job.job-no  eq rm-rctd.job-no
                 and job.job-no2 eq rm-rctd.job-no2
               no-error.
 
@@ -875,8 +875,8 @@ PROCEDURE rm-post-issue :
              find job-mat where recid(job-mat) eq v-recid no-error.          
              if not avail job-mat then do:
                 message " Job Mat Record not found for "
-                      string(job.job-no + "-" + string(job.job-no2,"99") +
-                             "  " + rm-rcpt.i-no).
+                      TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) +
+                             "  " + rm-rcpt.i-no.
                 return error.
              end.
 

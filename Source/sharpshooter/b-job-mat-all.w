@@ -32,6 +32,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -183,7 +184,7 @@ DEFINE BROWSE br_table
     job-mat.blank-no COLUMN-LABEL "Blank" FORMAT "99" WIDTH 10
     job-mat.rm-i-no COLUMN-LABEL "Item No" WIDTH 35
     item.i-dscr COLUMN-LABEL "Item Description" WIDTH 55 
-    job-mat.qty-all COLUMN-LABEL "Allocation" FORMAT "->>,>>9.99<<<<":U WIDTH 27
+    job-mat.qty-all COLUMN-LABEL "Allocation" FORMAT "->>,>>>,>>9.99<<<<":U WIDTH 27
     getAvailQty() @ iAvailQty COLUMN-LABEL "Qty Available" FORMAT "->>>,>>>,>>9.9<<<<<":U WIDTH 29      
     job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
     job-mat.all-flg FORMAT "Yes/No":U WIDTH 18 COLUMN-LABEL "Allocated"

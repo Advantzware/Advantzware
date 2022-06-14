@@ -275,8 +275,8 @@ DEFINE VARIABLE tgSigned AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnTags AT ROW 7.00 COL 139.6 WIDGET-ID 34
-     btnTags1 AT ROW 5.00 COL 139.6 WIDGET-ID 34
+     btnTags AT ROW 7.62 COL 139.6 WIDGET-ID 34
+     btnTags1 AT ROW 5.62 COL 139.6 WIDGET-ID 34
      oe-bolh.bol-no AT ROW 1.24 COL 8 COLON-ALIGNED
           LABEL "BOL#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
@@ -315,12 +315,12 @@ DEFINE FRAME F-Main
           "Enter customer number."
           LABEL "Customer#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1 
-     oe-bolh.loc AT ROW 4.52 COL 38 COLON-ALIGNED
+          SIZE 15 BY 1
+     oe-bolh.loc AT ROW 4.52 COL 78.6 COLON-ALIGNED
           LABEL "Loc" FORMAT "x(5)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1 
-     oe-bolh.trailer AT ROW 4.52 COL 69.6 COLON-ALIGNED
+          SIZE 15 BY 1
+     oe-bolh.trailer AT ROW 4.52 COL 108.6 COLON-ALIGNED
           LABEL "Trailer#"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1      
@@ -331,8 +331,8 @@ DEFINE FRAME F-Main
      oe-bolh.cwt AT ROW 5.57 COL 69.6 COLON-ALIGNED
           LABEL "Rate/100 Wt"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1   
-     oe-bolh.quotedFreight AT ROW 5.95 COL 122.4 COLON-ALIGNED
+          SIZE 16 BY 1
+     oe-bolh.quotedFreight AT ROW 6.57 COL 122.4 COLON-ALIGNED
           LABEL "Quoted Freight"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
@@ -340,15 +340,15 @@ DEFINE FRAME F-Main
           LABEL "Total Weight" FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     oe-bolh.freight AT ROW 7 COL 122.4 COLON-ALIGNED
+     oe-bolh.freight AT ROW 7.62 COL 122.4 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     oe-bolh.freightCalculationAmount AT ROW 4.95 COL 122.4 COLON-ALIGNED
+     oe-bolh.freightCalculationAmount AT ROW 5.57 COL 122.4 COLON-ALIGNED
           LABEL "Calculated Freight" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     cust_name AT ROW 6.48 COL 58 COLON-ALIGNED NO-LABEL
+     cust_name AT ROW 4.52 COL 29.8 COLON-ALIGNED NO-LABEL
      ship_name AT ROW 6.43 COL 14 COLON-ALIGNED NO-LABEL
      cust_addr1 AT ROW 7.43 COL 58 COLON-ALIGNED NO-LABEL      
      ship_addr1 AT ROW 7.38 COL 14 COLON-ALIGNED NO-LABEL
@@ -389,7 +389,7 @@ DEFINE FRAME F-Main
      cOrderBy AT ROW 1.24 COL 71.4 COLON-ALIGNED
      btnCalendar-1 AT ROW 1.24 COL 54
      cBillFreightDscr AT ROW 2.33 COL 121.2 COLON-ALIGNED NO-LABEL WIDGET-ID 300
-     dBillableFreight AT ROW 8.05 COL 122.4 COLON-ALIGNED WIDGET-ID 302
+     dBillableFreight AT ROW 8.67 COL 122.4 COLON-ALIGNED WIDGET-ID 302
      "@" VIEW-AS TEXT
           SIZE 1.8 BY .62 AT ROW 1.33 COL 134.2 WIDGET-ID 298
      RECT-2 AT ROW 1 COL 1
@@ -489,9 +489,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN cust_name IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-       cust_name:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* SETTINGS FOR FILL-IN cust_state IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -1654,6 +1651,7 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE dOldCwt AS DECIMAL NO-UNDO.
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dtOldBolDate AS DATE NO-UNDO.
   
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
@@ -1667,7 +1665,8 @@ PROCEDURE local-assign-record :
    old-carrier = oe-bolh.carrier
    old-shipid  = oe-bolh.ship-id
    old-loc     = oe-bolh.loc
-   dOldCwt     = oe-bolh.cwt.
+   dOldCwt     = oe-bolh.cwt
+   dtOldBolDate = oe-bolh.bol-date.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1727,7 +1726,16 @@ PROCEDURE local-assign-record :
       END.
     END.
   END.
-
+  
+  IF dtOldBolDate NE oe-bolh.bol-date AND NOT adm-new-record THEN
+  DO:
+       MESSAGE "Update BOL lines date" 
+               VIEW-AS ALERT-BOX QUESTION 
+               BUTTONS OK-CANCEL UPDATE lcheckflg AS LOGICAL .
+       IF lcheckflg THEN          
+       RUN pUpdateLineBolDate.
+  END.
+  
   IF (old-carrier NE new-carrier OR old-shipid NE new-shipid OR 
       new-loc NE new-loc OR (dOldCwt NE dNewCwt ) )
       THEN DO:
@@ -2415,7 +2423,7 @@ PROCEDURE release-update :
     IF oe-bolh.stat EQ "H" THEN
       ASSIGN
        oe-bolh.stat = "R"
-       oe-bolh.printed = YES.
+       oe-bolh.printed = NO.
 
     ELSE ASSIGN oe-bolh.stat = "H"
                 oe-bolh.printed = NO.
@@ -2522,6 +2530,27 @@ PROCEDURE pCalcFrtForce :
           
       END.          
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateLineBolDate V-table-Win 
+PROCEDURE pUpdateLineBolDate :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    
+    IF AVAILABLE oe-bolh THEN
+    FOR EACH bf-oe-boll EXCLUSIVE-LOCK
+        WHERE bf-oe-boll.company EQ oe-bolh.company 
+        AND bf-oe-boll.b-no EQ oe-bolh.b-no:
+        ASSIGN
+          bf-oe-boll.bol-date = oe-bolh.bol-date.
+    END.
+    RELEASE bf-oe-boll.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

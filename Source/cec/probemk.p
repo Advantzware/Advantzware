@@ -104,7 +104,7 @@ END.
 
 FIND CURRENT probe EXCLUSIVE-LOCK NO-ERROR.
 ASSIGN  board-cst = probe.boardCostTotal
-        probe.manHoursTotal = op-tot[8] + op-tot[9].
+        probe.manHoursTotal = op-tot[1] + op-tot[2].  //Changed from Total Man Hours to just Total Hours per ticket 105169
 FIND CURRENT probe NO-LOCK NO-ERROR.
 
 IF ord-cost GT 0 AND qm GT 0 THEN 

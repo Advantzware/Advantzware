@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invhenry.p  */
 /* PRINT INVOICE   Henry  Form                         */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -139,6 +139,9 @@ ASSIGN
     cInvMessage5 = cInvMessage[5]
     .
 */
+{methods/pPrintImageOnBack.i v-print-fmt "first"}
+/* v-print-fmt => ".\custfiles\Images\<FormatName>BackImage.pdf" */
+/* After which Page- Image will print  (First, All) */
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -464,6 +467,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                  v-case-cnt = "".
 
           IF v-printline > 50 THEN DO:
+               RUN pPrintImageOnBack.
                PAGE.
                v-printline = 0.
                {oe/rep/invhenry.i}
@@ -615,23 +619,23 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
           IF NOT lPrintQtyAll THEN DO:
             PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" SPACE(1)
                 v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
-                v-price-head 
-                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
+                //v-price-head 
+                inv-line.t-price  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99"*/                     
                 SKIP.
           END.
           ELSE DO:
               PUT SPACE(1)v-ord-qty  FORMAT "->>>>>>9" SPACE(1)
                 v-inv-qty  FORMAT "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(2)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
-                v-price-head 
-                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
+                //v-price-head 
+                inv-line.t-price  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99"                     */
                 SKIP.
 
           END.
@@ -660,18 +664,18 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                    IF lPrintQtyAll THEN DO:
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>>9" .
                      IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(11) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(11) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(2) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(2) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                    END.
                    ELSE DO:
                         IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                    END. /* else do*/
 
@@ -716,6 +720,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                     
                          DO i = 1 TO v-tmp-lines:
                             IF v-printline > 50 THEN DO:
+                               RUN pPrintImageOnBack.
                                PAGE.
                                v-printline = 0.
                                {oe/rep/invhenry.i}
@@ -745,6 +750,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
           IF FIRST(inv-misc.ord-no) THEN
           DO:
             IF v-printline > 50 THEN DO:
+               RUN pPrintImageOnBack.
                PAGE.
                v-printline = 0.
                {oe/rep/invhenry.i}
@@ -780,6 +786,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
              v-lines   = v-lines + 1.
           END.
           IF v-printline > 53 THEN DO:
+             RUN pPrintImageOnBack.
              PAGE.
              v-printline = 0.
              {oe/rep/invhenry.i}
@@ -793,6 +800,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
            DO i = 1 TO 4:
                 IF v-inst[i] <> "" THEN DO:                
                    IF v-printline > 50 THEN DO:
+                      RUN pPrintImageOnBack.
                       PAGE.
                       v-printline = 0.
                       {oe/rep/invhenry.i}
@@ -890,7 +898,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
          ELSE 
            PUT "<R56><p9><C42><#8><FROM><R+10><C+41.4><RECT> " 
             "<=8> Sales      :          EUR           GBP           USD"
-            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99" " USD" dExchangeRate[2] FORMAT "->>,>>9.99" " USD" "      1.00 USD"
+            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99<<<<<" " USD" dExchangeRate[2] FORMAT "->>,>>9.99<<<<<" " USD" "      1.00 USD"
             "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
             "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
             "<=8><R+4> " v-bot-lab[1] 
@@ -912,7 +920,7 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
          ELSE
          PUT "<R56><p9><C42><#8><FROM><R+8><C+41.4><RECT> " 
             "<=8> Sales      :           EUR           GBP           USD"
-            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99" " USD" dExchangeRate[2] FORMAT "->>,>>9.99" " USD" "      1.00 USD"
+            "<=8><R+1> Conversion :" dExchangeRate[1] FORMAT "->>,>>9.99<<<<<" " USD" dExchangeRate[2] FORMAT "->>,>>9.99<<<<<" " USD" "      1.00 USD"
             "<=8><R+2> Sub Total  :" (v-subtot-lines * dExchangeRate[1]) FORM "€->,>>>,>>9.99"  (v-subtot-lines * dExchangeRate[2]) FORM "£->,>>>,>>9.99" v-subtot-lines FORM "$->,>>>,>>9.99"
             "<=8><R+3> Freight    :" (v-inv-freight * dExchangeRate[1])  FORMAT "->>,>>>,>>9.99" (v-inv-freight * dExchangeRate[2])  FORMAT "->>,>>>,>>9.99" v-inv-freight FORMAT "->>,>>>,>>9.99"
             "<=8><R+4> " v-bot-lab[1] 
@@ -923,6 +931,8 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
     ASSIGN
        v-printline = v-printline + 6
        v-page-num = PAGE-NUM.
+       
+    RUN pPrintImageOnBack.
     PAGE.
  
     END. /* each xinv-head */

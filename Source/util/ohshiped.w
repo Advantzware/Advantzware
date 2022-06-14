@@ -193,7 +193,7 @@ DO:
        END.
        IF v-ship-qty <> 0 THEN DO:
           DISP fg-bin.i-no fg-bin.tag FORM "x(20)" 
-               fg-bin.job-no + "-" + string(fg-bin.job-no2,"99") WHEN fg-bin.job-no <> "" FORM "x(10)" LABEL "Job#"
+               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-bin.job-no, fg-bin.job-no2))) WHEN fg-bin.job-no <> "" FORM "x(13)" LABEL "Job#"
                fg-bin.qty LABEL "On Hand Qty"
                v-ship-qty LABEL "Shipped Qty" WITH STREAM-IO DOWN.
        END.                     

@@ -31,11 +31,11 @@ DEFINE TEMP-TABLE ttImportWarehouse
     FIELD email                 AS CHARACTER FORMAT "x(60)" COLUMN-LABEL "Email" HELP "Optional - Size:60"
     FIELD subCode4              AS CHARACTER FORMAT "x(24)" COLUMN-LABEL "Zip/Post" HELP "Optional - Size:24"
     FIELD countryCode           AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Country" HELP "Optional - Size:3"
-    FIELD handlingCost          AS INTEGER FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Handling" HELP "Optional - Decimal"
-    FIELD storageCost1          AS INTEGER FORMAT "->>,>>9.99" COLUMN-LABEL "Storage 1" HELP "Optional - Decimal"
-    FIELD storageCost2          AS INTEGER FORMAT "->>,>>9.99" COLUMN-LABEL "Storage 2" HELP "Optional - Decimal"
-    FIELD storageCost3          AS INTEGER FORMAT "->>,>>9.99" COLUMN-LABEL "Storage 3" HELP "Optional - Decimal"
-    FIELD storageCost4          AS INTEGER FORMAT "->>,>>9.99" COLUMN-LABEL "Storage 4" HELP "Optional - Decimal"
+    FIELD handlingCost          AS DECIMAL FORMAT "->,>>>,>>9.99" COLUMN-LABEL "Handling" HELP "Optional - Decimal"
+    FIELD storageCost1          AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Storage 1" HELP "Optional - Decimal"
+    FIELD storageCost2          AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Storage 2" HELP "Optional - Decimal"
+    FIELD storageCost3          AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Storage 3" HELP "Optional - Decimal"
+    FIELD storageCost4          AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Storage 4" HELP "Optional - Decimal"
     FIELD locationSquareFeet    AS INTEGER FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Location Gross" HELP "Optional - Integer"
     FIELD palletCapacity        AS INTEGER FORMAT ">>>,>>>,>>9" COLUMN-LABEL "Pallets" HELP "Optional - Integer"
     FIELD division              AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Division" HELP "Optional - Size:12"
@@ -49,6 +49,8 @@ DEFINE TEMP-TABLE ttImportWarehouse
     FIELD isAPIEnabled          AS CHARACTER FORMAT "x" COLUMN-LABEL "API Enabled" HELP "Optional - Yes or No (blank=No)"
     FIELD lActive               AS CHARACTER FORMAT "x" COLUMN-LABEL "Consignment" HELP "Optional - Yes or No (blank=No)"
     FIELD lovOwner              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Owner" HELP "Optional - Size:8"
+    FIELD floorPositions        AS INTEGER FORMAT ">>>>>>9" COLUMN-LABEL "# Floor Positions" HELP "Optional - Integer"
+    FIELD rackPositions         AS INTEGER FORMAT ">>>>>>9" COLUMN-LABEL "# Rack Positions" HELP "Optional - Integer"
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
  
@@ -135,7 +137,11 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueD (ipbf-ttImportWarehouse.geoLong, iplIgnoreBlanks, INPUT-OUTPUT bf-location.geoLong).                                       
     RUN pAssignValueC (ipbf-ttImportWarehouse.externalID1, iplIgnoreBlanks, INPUT-OUTPUT bf-location.externalID[1]).                                 
     RUN pAssignValueC (ipbf-ttImportWarehouse.notes, iplIgnoreBlanks, INPUT-OUTPUT bf-location.notes).                                   
-    RUN pAssignValueC (ipbf-ttImportWarehouse.lActive, iplIgnoreBlanks, INPUT-OUTPUT bf-location.lActive).                             
+    RUN pAssignValueC (ipbf-ttImportWarehouse.lActive, iplIgnoreBlanks, INPUT-OUTPUT bf-location.lActive).
+    RUN pAssignValueI (ipbf-ttImportWarehouse.floorPositions, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.floorPositions).
+    RUN pAssignValueI (ipbf-ttImportWarehouse.rackPositions, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.rackPositions).
+    
+    RUN pUpdateStorageCost(BUFFER bf-loc).
                                       
     RELEASE bf-loc.
     RELEASE bf-location.
@@ -245,4 +251,35 @@ PROCEDURE pValidate PRIVATE:
     DELETE OBJECT hdValidator.
 
 END PROCEDURE.
+
+PROCEDURE pUpdateStorageCost PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Validates a given Import Record for key fields
+     Notes:
+    ------------------------------------------------------------------------------*/
+     DEFINE PARAMETER BUFFER ipbf-loc FOR loc.
+     
+     DEFINE BUFFER bf-storageCost FOR storageCost.
+     
+     FIND FIRST bf-storageCost EXCLUSIVE-LOCK
+          WHERE bf-storageCost.loc EQ ipbf-loc.loc 
+          AND bf-storageCost.company EQ ipbf-loc.company NO-ERROR.
+     IF NOT AVAIL bf-storageCost THEN
+     DO:
+          CREATE bf-storageCost.
+          ASSIGN
+          bf-storageCost.loc     = ipbf-loc.loc
+          bf-storageCost.company = ipbf-loc.company.
+     END.
+          
+     ASSIGN
+     bf-storageCost.handlingFee = ipbf-loc.handlingCost
+     bf-storageCost.stack1High  = ipbf-loc.storageCost[1]
+     bf-storageCost.stack2High  = ipbf-loc.storageCost[2]
+     bf-storageCost.stack3High  = ipbf-loc.storageCost[3]
+     bf-storageCost.stack4High  = ipbf-loc.storageCost[4].   
+     
+     RELEASE bf-storageCost.
+     
+END PROCEDURE.    
 

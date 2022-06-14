@@ -36,22 +36,38 @@ when expanding userExtent, changes need to be made in the following:
    8. viewers/includes/viewersInclude.i (reopenBrowse)
    9. config.w [fieldsFrame] (defs)
 *******************************************************************/
-&GLOBAL-DEFINE version1 v3.005
-&GLOBAL-DEFINE version2 v3.006
-&GLOBAL-DEFINE version3 v4.000
-&GLOBAL-DEFINE version4 v4.001
-&GLOBAL-DEFINE version5 v4.002
-&GLOBAL-DEFINE version6 v4.003
-&GLOBAL-DEFINE version7 v4.004
-&GLOBAL-DEFINE version8 v4.005
-&GLOBAL-DEFINE version9 v4.006
-&GLOBAL-DEFINE version v4.007
+&GLOBAL-DEFINE version1 v4.000
+&GLOBAL-DEFINE version2 v4.001
+&GLOBAL-DEFINE version3 v4.002
+&GLOBAL-DEFINE version4 v4.003
+&GLOBAL-DEFINE version5 v4.004
+&GLOBAL-DEFINE version6 v4.005
+&GLOBAL-DEFINE version7 v4.006
+&GLOBAL-DEFINE version8 v4.007
+&GLOBAL-DEFINE version9 v4.008
+&GLOBAL-DEFINE version v4.009
 
 &IF DEFINED(installDir) EQ 0 &THEN
 DEFINE VARIABLE clientDat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE codeDir   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE staticDat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE sbUser    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hHandle   AS HANDLE    NO-UNDO.
+
+hHandle = SESSION:FIRST-PROCEDURE.
+DO WHILE VALID-HANDLE(hHandle):
+    IF (INDEX(PROGRAM-NAME(1),"sbPro")  NE 0 AND INDEX(hHandle:NAME,"sbView") NE 0) OR
+       (INDEX(PROGRAM-NAME(1),"sbView") NE 0 AND INDEX(hHandle:NAME,"sbPro")  NE 0) THEN 
+    DO:
+        MESSAGE 
+            "Another Version of Schedule Board is already open." SKIP
+            "Running multiple Schedule Board's in the same Session is Prohibited."
+        VIEW-AS ALERT-BOX WARNING.
+        DELETE OBJECT THIS-PROCEDURE.
+        RETURN.
+    END.
+    hHandle = hHandle:NEXT-SIBLING.
+END. /* do while */
 
 IF &IF DEFINED(FWD-VERSION) > 0 &THEN RT-OPSYS &ELSE 
 OPSYS &ENDIF = "unix" THEN DO:

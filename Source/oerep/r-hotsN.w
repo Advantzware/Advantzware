@@ -15,7 +15,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */
+     
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
@@ -67,7 +68,7 @@ IF lRecFound THEN
     lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
 
-DEFINE VARIABLE v-ord-no-text AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-ord-no-text AS CHARACTER FORMAT "x(13)" NO-UNDO.
 
 DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD qty             LIKE oe-rell.qty
@@ -102,8 +103,8 @@ ASSIGN
                             "ld-qty-rec,lv-routing,w-ord.ord-qty,v-comp-qty,w-ord.onh-qty,v-job-qty,v-ship-city,lv-text," + 
                             "w-ord.v-note1,w-ord.v-note2,w-ord.v-note3,w-ord.v-note4,skids,w-ord.cust-name,ship-zip,lot-no"
     cFieldLength       = "5,3,7,15,15,15," +
-                      "6,11,7,8,7,10,10,13," +
-                      "8,15,7,7,8,7,15,26," + "60,60,60,60,8,30,11,15"
+                      "8,13,7,8,7,10,10,13," +
+                      "8,15,9,7,9,7,15,26," + "60,60,60,60,8,30,11,15"
     cFieldType         = "c,c,c,c,c,c," + "i,c,i,c,i,c,c,i," + "i,c,i,i,i,i,c,c,"  + "c,c,c,c,i,c,c,c"
     .
 

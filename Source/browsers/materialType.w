@@ -78,7 +78,7 @@ DEFINE VARIABLE lMoveColumn      AS LOGICAL   NO-UNDO INITIAL TRUE.
 /* Definitions for BROWSE materialType                                  */
 &Scoped-define FIELDS-IN-QUERY-materialType materialType.materialType ~
 materialType.materialDescription materialType.calculationType ~
-materialType.autoIssue 
+materialType.autoIssue materialType.consumedByDept materialType.materialTypeGroup
 &Scoped-define ENABLED-FIELDS-IN-QUERY-materialType 
 &Scoped-define QUERY-STRING-materialType FOR EACH materialType WHERE ~{&KEY-PHRASE} ~
       AND materialType.company = cCompany  ~
@@ -170,7 +170,8 @@ DEFINE VARIABLE cbAutoIssue AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cbCalculationType AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS COMBO-BOX INNER-LINES 5
+     VIEW-AS COMBO-BOX INNER-LINES 9
+     LIST-ITEM-PAIRS "Item 1"," Item 1"
      DROP-DOWN-LIST
      SIZE 19 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -200,12 +201,15 @@ DEFINE BROWSE materialType
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS materialType B-table-Win _STRUCTURED
   QUERY materialType NO-LOCK DISPLAY
       materialType.materialType FORMAT "x(8)":U LABEL-BGCOLOR 22
-      materialType.materialDescription FORMAT "x(40)":U
-      materialType.calculationType FORMAT "x(32)":U LABEL-BGCOLOR 22
+      materialType.materialDescription FORMAT "x(40)":U LABEL-BGCOLOR 22
+      materialType.materialTypeGroup FORMAT "x(8)":U COLUMN-LABEL "System Type" LABEL-BGCOLOR 22
+      materialType.consumedByDept FORMAT "x(2)":U COLUMN-LABEL "Department" LABEL-BGCOLOR 22
       materialType.autoIssue FORMAT "Enabled/Disabled":U LABEL-BGCOLOR 22 VIEW-AS TOGGLE-BOX
+      materialType.calculationType FORMAT "x(32)":U COLUMN-LABEL "Calculation Method" LABEL-BGCOLOR 22     
+      
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 125 BY 12.62.
+    WITH NO-ASSIGN SEPARATORS SIZE 165 BY 15.62.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -259,8 +263,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 15.19
-         WIDTH              = 125.2.
+         HEIGHT             = 18.19
+         WIDTH              = 170.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -318,10 +322,15 @@ AND (ASI.materialType.autoIssue EQ lAutoIssue OR lAutoIssue EQ ?)"
      _FldNameList[1]   > ASI.materialType.materialType
 "materialType" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = ASI.materialType.materialDescription
-     _FldNameList[3]   > ASI.materialType.calculationType
-"calculationType" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.materialType.autoIssue
+"materialDescription" ? ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
+     _FldNameList[3]   > ASI.materialType.materialTypeGroup
+"materialTypeGroup" "System Type" "x(8)" "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > ASI.materialType.consumedByDept
+"consumedByDept" "Department" "x(2)" "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > ASI.materialType.autoIssue
 "autoIssue" ? "Enabled/Disabled" "logical" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "TOGGLE-BOX" "," ? ? 5 no 0 no no
+     _FldNameList[6]   > ASI.materialType.calculationType
+"calculationType" "Calculation Method" ? "character" ? ? ? 22 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
      _Query            is NOT OPENED
 */  /* BROWSE materialType */
 &ANALYZE-RESUME
@@ -443,6 +452,9 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 {methods/sortByProc.i "pByMaterialType" "materialType.materialType"}
 {methods/sortByProc.i "pByCalculationType" "materialType.calculationType"}
 {methods/sortByProc.i "pByAutoIssue" "materialType.autoIssue"}
+{methods/sortByProc.i "pByMaterialDescription" "materialType.materialDescription"}
+{methods/sortByProc.i "pByConsumedByDept" "materialType.consumedByDept"}
+{methods/sortByProc.i "pByMaterialTypeGroup" "materialType.materialTypeGroup"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -555,7 +567,6 @@ PROCEDURE pInit :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -565,15 +576,11 @@ PROCEDURE pInit :
         OUTPUT cCompany
         ).
         
-    RUN rm/MaterialProcs.p PERSISTENT SET hdMaterialProcs.
-    
-    RUN Material_GetCalculationTypeList IN hdMaterialProcs (
+    RUN Material_GetCalculationTypeList (
         OUTPUT cCalculationTypeList
         ).
         
-    DELETE PROCEDURE hdMaterialProcs.
-    
-    cbCalculationType:LIST-ITEMS = "ALL," + cCalculationTypeList.
+    cbCalculationType:LIST-ITEM-PAIRS = "ALL,ALL," + cCalculationTypeList.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -593,6 +600,12 @@ PROCEDURE pReopenBrowse :
             RUN pByCalculationType.
         WHEN "autoIssue" THEN
             RUN pByAutoIssue.
+        WHEN "materialDescription" THEN
+            RUN pByMaterialDescription. 
+        WHEN "consumedByDept" THEN
+            RUN pByConsumedByDept.
+        WHEN "materialTypeGroup" THEN
+            RUN pByMaterialTypeGroup.    
     END CASE.
 END PROCEDURE.
 

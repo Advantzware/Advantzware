@@ -65,6 +65,7 @@ IF AVAIL sys-ctrl THEN
 DEFINE VARIABLE dMargin  AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE lFirst   AS LOGICAL   NO-UNDO INITIAL YES.
 DEFINE VARIABLE cFreight AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEDIInvoice AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cSortBy  AS CHARACTER NO-UNDO INITIAL "r-no".
 DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
@@ -104,11 +105,11 @@ DEFINE VARIABLE lSortAsc AS LOGICAL   NO-UNDO.
   IF cSortBy  EQ 'fob-code'      THEN inv-head.fob-code ELSE ~
   IF cSortBy  EQ 'multi-invoice' THEN STRING(inv-head.multi-invoice) ELSE ~
   IF cSortBy  EQ 'multi-inv-no'  THEN STRING(inv-head.multi-inv-no,'>>>>>9') ELSE ~
-  IF cSortBy  EQ 'ediInvoice'    THEN STRING(inv-head.ediInvoice) ELSE ~
+  IF cSortBy  EQ 'cEDIInvoice'   THEN STRING(inv-head.ediInvoice) ELSE ~
   IF cSortBy  EQ 'spare-char-5'  THEN STRING(inv-head.spare-char-5) ELSE ~
   IF cSortBy  EQ 'cFreight'      THEN inv-head.frt-pay ELSE ~
   IF cSortBy  EQ 'accountant'    THEN cust.accountant ELSE ~
-  STRING(inv-head.inv-no,'>>>>>>9') ~  
+  STRING(inv-head.inv-no,'>>>>>>>9') ~  
   
 &SCOPED-DEFINE sortby-phrase-asc ~
     {&sortby-log}                ~
@@ -146,7 +147,7 @@ f-ordno() @ li-ord-no inv-head.printed inv-head.t-inv-rev ~
 getStatus() @ ls-status inv-head.autoApproved ~
 inv-head.company f-cust-Po() @ li-cust-Po inv-head.t-inv-tax ~
 inv-head.t-inv-freight inv-head.fob-code pGetFreightTerms() @ cFreight ~
-inv-head.multi-invoice inv-head.multi-inv-no inv-head.ediInvoice ~
+inv-head.multi-invoice inv-head.multi-inv-no pGetEDIInvoice() @ cEDIInvoice ~
 inv-head.spare-char-5 pGetMargin() @ dMargin cust.accountant
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH inv-head WHERE ~{&KEY-PHRASE} ~
@@ -203,6 +204,13 @@ FUNCTION f-ordno RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getStatus B-table-Win 
 FUNCTION getStatus RETURNS CHARACTER
   ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD pGetEDIInvoice B-table-Win 
+FUNCTION pGetEDIInvoice RETURNS CHARACTER PRIVATE
+  (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -340,7 +348,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       inv-head.r-no COLUMN-LABEL "InvoiceId" FORMAT ">>>>>>>9":U
             LABEL-BGCOLOR 14
-      inv-head.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>9":U
+      inv-head.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>9":U
             LABEL-BGCOLOR 14
       inv-head.cust-no COLUMN-LABEL "Cust #" FORMAT "x(8)":U WIDTH 10.6
             LABEL-BGCOLOR 14
@@ -370,7 +378,8 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       inv-head.multi-inv-no COLUMN-LABEL "Group #" FORMAT ">>>>>9":U
             LABEL-BGCOLOR 14
-      inv-head.ediInvoice FORMAT "yes/no":U LABEL-BGCOLOR 14
+      pGetEDIInvoice() @ cEDIInvoice COLUMN-LABEL "EDI" FORMAT "x(5)":U
+            LABEL-BGCOLOR 14
       inv-head.spare-char-5 COLUMN-LABEL "Comment" FORMAT "x(60)":U
             LABEL-BGCOLOR 14
       pGetMargin() @ dMargin COLUMN-LABEL "Margin%" LABEL-BGCOLOR 14
@@ -528,7 +537,7 @@ ASI.inv-head.multi-invoice = no"
      _FldNameList[1]   > ASI.inv-head.r-no
 "inv-head.r-no" "InvoiceId" ">>>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.inv-head.inv-no
-"inv-head.inv-no" "Invoice#" ">>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-head.inv-no" "Invoice#" ">>>>>>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.inv-head.cust-no
 "inv-head.cust-no" "Cust #" ? "character" ? ? ? 14 ? ? no ? no no "10.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.inv-head.cust-name
@@ -563,8 +572,8 @@ ASI.inv-head.multi-invoice = no"
 "inv-head.multi-invoice" "Grouped" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.inv-head.multi-inv-no
 "inv-head.multi-inv-no" "Group #" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
-     _FldNameList[20]   > ASI.inv-head.ediInvoice
-"inv-head.ediInvoice" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[17]   > "_<CALC>"
+"pGetEDIInvoice() @ cEDIInvoice" "EDI" "x(3)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.inv-head.spare-char-5
 "inv-head.spare-char-5" "Comment" "x(60)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
@@ -1261,6 +1270,24 @@ END.
 
   RETURN cReturn.   /* Function return value. */
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION pGetEDIInvoice B-table-Win 
+FUNCTION pGetEDIInvoice RETURNS CHARACTER PRIVATE
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    IF inv-head.ediInvoice
+    THEN
+        RETURN "NO". 
+    ELSE 
+        RETURN "YES".
+    
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

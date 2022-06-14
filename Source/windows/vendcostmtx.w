@@ -42,6 +42,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+RUN spSetSettingContext.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -100,6 +101,8 @@ DEFINE VARIABLE h_p-updsavRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navicoRes AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_import AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-price AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-approve AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -333,6 +336,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 1.00 , 28.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
@@ -455,7 +466,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -481,6 +492,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_vp-price ).
        RUN set-position IN h_vp-price ( 22.20 , 70.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 17.20 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-approve.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_p-approve ).
+       RUN set-position IN h_p-approve ( 22.20 , 52.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 17.20 ) */
 
       
        /* Initialize other pages that this page requires. */
@@ -499,6 +518,10 @@ PROCEDURE adm-create-objects :
        
        /* Links to SmartViewer h_vp-price. */
        RUN add-link IN adm-broker-hdl ( h_b-vendcostvalue , 'price-change':U , h_vp-price ).
+       
+       /* Links to SmartViewer h_vp-price. */
+       RUN add-link IN adm-broker-hdl ( h_venditemcost-2 , 'Record':U , h_p-approve ).
+       //RUN add-link IN adm-broker-hdl ( h_venditemcost-2 , 'approve-change':U , h_p-approve ).
        
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_venditemcost-2 ,
@@ -787,7 +810,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win
+PROCEDURE OpenSetting:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN windows/setting-dialog.w.
+    {sharpshooter/settingChangeDialog.i}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :

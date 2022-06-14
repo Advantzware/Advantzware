@@ -1204,12 +1204,14 @@ PROCEDURE pJasperLastPageFooter :
     DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cParameter     AS CHARACTER NO-UNDO EXTENT 100.
+    DEFINE VARIABLE cParamName     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cValue         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
     DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iParameterRow  AS INTEGER   NO-UNDO INITIAL 1.
     
-    DEFINE BUFFER bDynValueParam FOR dynValueParam.
+    DEFINE BUFFER bDynValueParam     FOR dynValueParam.
+    DEFINE BUFFER bDynValueParamName FOR dynValueParam.
     
     CASE ipcType:
         WHEN "user-print" THEN DO:
@@ -1264,6 +1266,7 @@ PROCEDURE pJasperLastPageFooter :
                    BY dynValueParam.sortOrder
                 :
                 IF dynValueParam.paramName BEGINS "svS" THEN NEXT.
+                IF INDEX(dynValueParam.paramName,"DatePickList") NE 0 THEN NEXT.
                 ASSIGN
                     cParameter[iParameterRow] = IF dynValueParam.paramLabel EQ ? THEN REPLACE(dynValueParam.paramName,"sv","")
                                                 ELSE REPLACE(dynValueParam.paramLabel,":","")
@@ -1271,34 +1274,59 @@ PROCEDURE pJasperLastPageFooter :
                     cValue = IF dynValueParam.paramValue NE ? AND
                                 dynValueParam.paramValue NE CHR(254) THEN dynValueParam.paramValue ELSE ""
                     .
-                FIND FIRST bDynValueParam NO-LOCK
-                     WHERE bDynValueParam.subjectID    EQ dynValueParam.subjectID
-                       AND bDynValueParam.user-id      EQ dynValueParam.user-id
-                       AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
-                       AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
-                       AND bDynValueParam.sortOrder    EQ dynValueParam.sortOrder + 1
+                /* find default record for the parameter */
+                FIND FIRST bDynValueParamName NO-LOCK
+                     WHERE bDynValueParamName.subjectID    EQ dynValueParam.subjectID
+                       AND bDynValueParamName.user-id      EQ "_default"
+                       AND bDynValueParamName.prgmName     EQ "dynSubjct."
+                       AND bDynValueParamName.paramValueID EQ 0
+                       AND bDynValueParamName.paramName    EQ dynValueParam.paramName
                      NO-ERROR.
-                IF AVAILABLE bDynValueParam AND
-                   bDynValueParam.paramLabel EQ ? AND
-                   INDEX(bDynValueParam.paramName,"DatePickList") NE 0 THEN DO:
-                    dtDate = DATE(dynValueParam.paramValue) NO-ERROR.
-                    IF ERROR-STATUS:ERROR THEN
-                    dtDate = ?.
-                    ASSIGN
-                        cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + bDynValueParam.paramValue + ")"
-                        cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999")
-                        .
-                END. /* if avail */
+                IF AVAILABLE bDynValueParamName THEN DO:
+                    /* find next default record of the parameter looking for data pick list */
+                    FIND FIRST bDynValueParam NO-LOCK
+                         WHERE bDynValueParam.subjectID    EQ bDynValueParamName.subjectID
+                           AND bDynValueParam.user-id      EQ bDynValueParamName.user-id
+                           AND bDynValueParam.prgmName     EQ bDynValueParamName.prgmName
+                           AND bDynValueParam.paramValueID EQ bDynValueParamName.paramValueID
+                           AND bDynValueParam.sortOrder    EQ bDynValueParamName.sortOrder + 1
+                           AND bDynValueParam.paramLabel   EQ ?
+                           AND bDynValueParam.paramName    BEGINS "DatePickList"
+                         NO-ERROR.
+                    IF AVAILABLE bDynValueParam THEN DO:
+                        /* find user record for the date option chosen */
+                        cParamName = bDynValueParam.paramName.
+                        FIND FIRST bDynValueParam NO-LOCK
+                             WHERE bDynValueParam.subjectID    EQ dynValueParam.subjectID
+                               AND bDynValueParam.user-id      EQ dynValueParam.user-id
+                               AND bDynValueParam.prgmName     EQ dynValueParam.prgmName
+                               AND bDynValueParam.paramValueID EQ dynValueParam.paramValueID
+                               AND bDynValueParam.paramName    EQ cParamName
+                             NO-ERROR.
+                        IF AVAILABLE bDynValueParam THEN DO:
+                            dtDate = DATE(dynValueParam.paramValue) NO-ERROR.
+                            IF ERROR-STATUS:ERROR THEN
+                            dtDate = ?.
+                            ASSIGN
+                                cParameter[iParameterRow] = cParameter[iParameterRow] + " (" + bDynValueParam.paramValue + ")"
+                                cValue = STRING(DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin, bDynValueParam.paramValue, dtDate),"99/99/9999")
+                                .
+                        END. /* if avail */
+                    END. /* if avail */
+                END. /* avail bdynvalueparamname */
                 IF cValue EQ ? THEN
                 cValue = "".
                 ASSIGN
                     cParameter[iParameterRow] = REPLACE(cParameter[iParameterRow],"@@@",cValue)
+.
                     iParameterRow = iParameterRow + 1
                     .
             END. /* each dynvalueparam */
-        END. /* dynparamvalue */
+        END. /* when dynparamvalue */
     END CASE.
     
+    IF iParameterRow GT 35 THEN
+    iParameterRow = 35.
     IF dynParamValue.pageHeight GE (iParameterRow + 3) * 14 THEN DO:
         /* last page footer band */
         PUT STREAM sJasper UNFORMATTED
@@ -1313,7 +1341,7 @@ PROCEDURE pJasperLastPageFooter :
             "x=~"" 0 "~" "
             "y=~"" 14 "~" "
             "width=~"" 560 "~" "
-            "height=~"" (iParameterRow - 1) * 14 "~"/>" SKIP
+            "height=~"" iParameterRow * 14 "~"/>" SKIP
             "            </rectangle>" SKIP
             "            <staticText>" SKIP
             "                <reportElement "
@@ -1340,7 +1368,7 @@ PROCEDURE pJasperLastPageFooter :
                 "            </staticText>" SKIP
                 .
         END. /* do idx */
-        RUN pJasperPageBottom (iParameterRow * 14).
+        RUN pJasperPageBottom ((iParameterRow + 1) * 14).
         PUT STREAM sJasper UNFORMATTED
             "        </band>" SKIP
             "    </lastPageFooter>" SKIP

@@ -44,6 +44,8 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+{sys/inc/var.i}
+
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
@@ -190,11 +192,11 @@ DEFINE VARIABLE cb-formno AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 10 BY 1
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE cb-jobno2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cb-jobno2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "00" 
+     LIST-ITEMS "000" 
      DROP-DOWN-LIST
-     SIZE 10.2 BY 1
+     SIZE 11 BY 1
      FONT 37 NO-UNDO.
 
 DEFINE VARIABLE btnExitText AS CHARACTER FORMAT "X(256)":U INITIAL "EXIT" 
@@ -698,9 +700,9 @@ DO:
         APPLY "LEAVE":U TO SELF.
                     
         ASSIGN
-            cb-jobno2:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 6 AND
-                                         INDEX(cb-jobno2:LIST-ITEMS, STRING(INTEGER(ENTRY(6,cFieldsValue,"|")),"99")) GT 0 THEN
-                                          ENTRY(6,cFieldsValue,"|")
+            cb-jobno2:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 9 AND
+                                         INDEX(cb-jobno2:LIST-ITEMS, STRING(INTEGER(ENTRY(9,cFieldsValue,"|")),"999")) GT 0 THEN
+                                          ENTRY(9,cFieldsValue,"|")
                                       ELSE
                                           ENTRY(1,cb-jobno2:LIST-ITEMS)
             cb-formno:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 8 AND
@@ -730,7 +732,7 @@ DO:
     DEFINE VARIABLE cBlankNo   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lParse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValidJob  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iJobFormat AS INTEGER   NO-UNDO INITIAL 6.
+    DEFINE VARIABLE iJobFormat AS INTEGER   NO-UNDO INITIAL 9.
         
     IF VALID-HANDLE(hKeyboard) THEN
         DELETE OBJECT hKeyboard.
@@ -763,14 +765,14 @@ DO:
         ).
     
     cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, 6, TRUE
+                      "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, iJobLen, TRUE
                       ).                                  
 
     IF lParse THEN
         ASSIGN
-            SELF:SCREEN-VALUE = cJobNo    
+            SELF:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))
             cFormattedJobno = DYNAMIC-FUNCTION (
-                              "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                              "fAddSpacesToString" IN hdJobProcs, cJobNo, iJobLen, TRUE
                               ).
 
     IF cMessage NE "" THEN DO:
@@ -802,9 +804,9 @@ DO:
 
     IF cJobno2ListItems EQ "" THEN
         ASSIGN 
-            cJobno2ListItems       = "00"
+            cJobno2ListItems       = "000"
             cb-jobno2:LIST-ITEMS   = cJobno2ListItems 
-            cb-jobno2:SCREEN-VALUE = "00".
+            cb-jobno2:SCREEN-VALUE = "000".
     ELSE
         cb-jobno2:LIST-ITEMS = cJobno2ListItems.
  
@@ -825,7 +827,7 @@ DO:
         cb-blankno:LIST-ITEMS = cBlanknoListItems.
 
     IF lParse THEN DO:
-        IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0) OR
+        IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"999")) LE 0) OR
            (cFormNo NE "" AND INDEX(cFormnoListItems,STRING(INTEGER(cFormNo),"99")) LE 0) OR
            (cBlankNo NE "" AND INDEX(cBlanknoListitems,STRING(INTEGER(cBlankNo),"99")) LE 0) THEN DO:
             RUN pStatusMessage ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.", 3).
@@ -833,10 +835,10 @@ DO:
             ASSIGN
                 cFormattedJobNo         = ""
                 SELF:SCREEN-VALUE       = ""
-                cb-jobno2:LIST-ITEMS    = "00"
+                cb-jobno2:LIST-ITEMS    = "000"
                 cb-formno:LIST-ITEMS    = "00"
                 cb-blankno:LIST-ITEMS   = "00"
-                cb-jobno2:SCREEN-VALUE  = "00"
+                cb-jobno2:SCREEN-VALUE  = "000"
                 cb-formno:SCREEN-VALUE  = "00"
                 cb-blankno:SCREEN-VALUE = "00"
                 .           
@@ -847,7 +849,7 @@ DO:
                 cb-jobno2:SCREEN-VALUE  = IF cJobNo2 EQ "" THEN 
                                               ENTRY(1,cJobno2ListItems)
                                           ELSE
-                                              STRING(INTEGER(cJobNo2),"99")
+                                              STRING(INTEGER(cJobNo2),"999")
                 cb-formno:SCREEN-VALUE  = IF cFormNo EQ "" THEN
                                               ENTRY(1,cFormnoListItems)
                                           ELSE
@@ -894,6 +896,7 @@ DO:
         
         RETURN NO-APPLY.
     END.
+    ELSE RUN pStatusMessage ("", 0).
 
     RUN updateJobDetails.
     
@@ -1119,7 +1122,7 @@ PROCEDURE jobScan :
     DEFINE VARIABLE lValidJob AS LOGICAL NO-UNDO.
     
     ASSIGN 
-        cJobno2ListItems  = STRING(ipiJobno2,"99")
+        cJobno2ListItems  = STRING(ipiJobno2,"999")
         cFormnoListItems  = STRING(ipiFormno,"99")
         cBlanknoListitems = STRING(ipiBlankno,"99").            
            
@@ -1131,7 +1134,7 @@ PROCEDURE jobScan :
             cb-jobno2:LIST-ITEMS    = cJobno2ListItems
             cb-formno:LIST-ITEMS    = cFormnoListItems
             cb-blankno:LIST-ITEMS   = cBlanknoListItems
-            cb-jobno2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
+            cb-jobno2:SCREEN-VALUE  = STRING(ipiJobno2,"999")
             cb-formno:SCREEN-VALUE  = STRING(ipiFormno,"99")
             cb-blankno:SCREEN-VALUE = STRING(ipiBlankno,"99")
             ls-jobno:SCREEN-VALUE   = ipcJobno
@@ -1429,8 +1432,8 @@ PROCEDURE tagScan :
                 INPUT iBlankNo
                 ).
         END.
-        ELSE IF ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME}   NE cJobNo OR 
-                cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}  NE STRING(iJobNo2,"99") OR
+        ELSE IF ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME}   NE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo)) OR 
+                cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME}  NE STRING(iJobNo2,"999") OR
                 cb-formno:SCREEN-VALUE IN FRAME {&FRAME-NAME}  NE STRING(iFormNo,"99") OR
                 cb-blankno:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE STRING(iBlankNo,"99")
             THEN DO:
@@ -1453,7 +1456,7 @@ PROCEDURE tagScan :
                 RETURN.    
         END.
         
-        cFormattedJobno = cJobNo.
+        cFormattedJobno = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo)).
                 
         FIND FIRST ttBrowseInventory NO-LOCK
              WHERE ttBrowseInventory.company         EQ ipcCompany

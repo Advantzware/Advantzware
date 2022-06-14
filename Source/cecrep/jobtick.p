@@ -258,23 +258,23 @@ do v-local-loop = 1 to v-local-copies:
             (IF AVAILABLE xoe-ordl AND xoe-ord.po-no NE "" THEN xoe-ordl.po-no ELSE IF AVAILABLE xoe-ord THEN xoe-ord.po-no ELSE job-hdr.po-no) FORMAT "x(15)"
             "Set Qty:"
             trim(string(if avail xoe-ordl then xoe-ordl.qty
-                                          else job-hdr.qty,">>>,>>9"))
+                                          else job-hdr.qty,">,>>>,>>9"))
                         when avail xeb and xeb.est-type eq 6    format "x(9)"
             "<=#3><R-4> Job Qty:"
-             trim(string(job-hdr.qty * v-pqty,">>>,>>9"))    format "x(7)"
+             trim(string(job-hdr.qty * v-pqty,">,>>>,>>9"))    format "x(9)"
             "Order Qty:"
             trim(string( (if avail xoe-ordl then xoe-ordl.qty
                                              else job-hdr.qty) *
                                             if est.form-qty le 1 then 1
-                                            else v-pqty,">>>,>>9"))
-                                            format "x(7)"
+                                            else v-pqty,">,>>>,>>9"))
+                                            format "x(9)"
             "<=#3><R-3> Cust Part #:" lv-part-no 
             "<=#3><R-2> Overrun:" 
              trim(string(lv-over-run,">>9.99%")) format "x(7)"                                                         
             "Underrun:"
             trim(string(lv-under-run,">>9.99%")) format "x(7)"
-            "<=#3><R-1>        " lv-ord-qty * ( 1 + round((lv-over-run) / 100,2)) FORM ">>>,>>9"
-                       "         "     lv-ord-qty * ( 1 - round((lv-under-run) / 100,2)) FORM ">>>,>>9" "</b>"
+            "<=#3><R-1>        " lv-ord-qty * ( 1 + round((lv-over-run) / 100,2)) FORM ">,>>>,>>9"
+                       "         "     lv-ord-qty * ( 1 - round((lv-under-run) / 100,2)) FORM ">,>>>,>>9" "</b>"
             WITH NO-BOX NO-LABELS NO-ATTR-SPACE WIDTH 145 STREAM-IO.
 
      PUT UNFORMATTED
@@ -324,7 +324,7 @@ do v-local-loop = 1 to v-local-copies:
                 "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
-                trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
+                trim(string(v-sht-qty * v-form-sqft / 1000,">>>>9.9<"))
                                                                 format "x(11)"
                 "<=#6><R-5> 1:"
                 w-i.i-code
@@ -376,7 +376,7 @@ do v-local-loop = 1 to v-local-copies:
                 w-i.i-code2
                 w-i.i-qty2 when w-i.i-qty2 ne 0
                 "<=#7><R+4> Impressions:"
-                trim(string(v-dc-qty))    format "x(7)"
+                trim(string(v-dc-qty))    format "x(9)"
                 " To: " +
                 trim(string({sys/inc/k16v.i xef.nsh-wid},">>9.99")) +
                 "x" +
@@ -395,7 +395,7 @@ do v-local-loop = 1 to v-local-copies:
                 "L: " + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
-                trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
+                trim(string(v-sht-qty * v-form-sqft / 1000,">>>>9.9<"))
                                                                 format "x(11)"
                 "<=#6><R-5> Ink 1:"
                 w-i.i-dscr
@@ -439,7 +439,7 @@ do v-local-loop = 1 to v-local-copies:
                 w-i.i-qty when w-i.i-qty ne 0
                 "LBS" when w-i.i-dscr ne ""
                 "<=#7><R+4> Impressions:"
-                trim(string(v-dc-qty))    format "x(7)"
+                trim(string(v-dc-qty))    format "x(9)"
                 " To: " +
                 trim(string({sys/inc/k16v.i xef.nsh-wid},">>9.99")) +
                 "x" +
@@ -717,8 +717,8 @@ do v-local-loop = 1 to v-local-copies:
                v-cus[1] AT 3 "<b> PO#: " v-po-no " Set Qty: "  v-set-qty "</b>"
                v-i-line[2] AT 90
                SKIP
-               v-cus[2] AT 3 "<b> Job Qty:" trim(string(job-hdr.qty * v-pqty,">>>,>>9"))    format "x(7)"
-               " Order Qty:" string(v-ord-qty) format "x(7)" "</b>"
+               v-cus[2] AT 3 "<b> Job Qty:" trim(string(job-hdr.qty * v-pqty,">,>>>,>>9"))    format "x(9)"
+               " Order Qty:" string(v-ord-qty) format "x(9)" "</b>"
                v-i-line[3] AT 90 SKIP
                v-cus[3] AT 3  "<b> Cust Part #:" lv-part-no "</b>"
                v-i-line[4] AT 90 SKIP

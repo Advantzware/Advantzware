@@ -476,7 +476,7 @@
 
           run fg/comp-upd.p (recid(itemfg), v-reduce-qty * -1, "q-ono",v-est-no).
 
-          IF {2}.pur-uom NE itemfg.prod-uom              AND
+          IF {2}.ext-cost GT 0 AND {2}.pur-uom NE itemfg.prod-uom              AND
              (NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, {2}.pur-uom) OR
               NOT DYNAMIC-FUNCTION("Conv_IsEAUOM",itemfg.company, itemfg.i-no, itemfg.prod-uom))  THEN
           run sys/ref/convcuom.p({2}.pur-uom, itemfg.prod-uom, 0, 0, 0, 0,
@@ -514,22 +514,29 @@
                     
           END.
           ELSE DO:
-              ASSIGN
-                  itemfg.std-mat-cost = {2}.ext-cost / {2}.t-qty.
-              IF itemfg.prod-uom EQ "M" THEN ASSIGN
-                  itemfg.std-mat-cost =  itemfg.std-mat-cost * 1000.
-              ASSIGN 
-                  itemfg.std-tot-cost = itemfg.std-mat-cost.
+              IF {2}.ext-cost GT 0 then
+              DO:
+                  ASSIGN
+                      itemfg.std-mat-cost = {2}.ext-cost / {2}.t-qty.
+                  IF itemfg.prod-uom EQ "M" THEN ASSIGN
+                      itemfg.std-mat-cost =  itemfg.std-mat-cost * 1000.
+                  ASSIGN 
+                      itemfg.std-tot-cost = itemfg.std-mat-cost.
+              END.    
           END.
-          ASSIGN 
-             itemfg.total-std-cost = itemfg.std-tot-cost                         
-             itemfg.last-cost    = itemfg.std-tot-cost.
-             itemfg.avg-cost =  (((itemfg.q-onh - {2}.t-qty) * itemfg.avg-cost) + (itemfg.std-tot-cost * {2}.t-qty))  / itemfg.q-onh.
-         FIND FIRST fg-ctrl NO-LOCK  
-             WHERE fg-ctrl.company EQ itemfg.company
-             NO-ERROR.
-         IF AVAIL fg-ctrl AND fg-ctrl.inv-meth = "A" THEN
-             itemfg.total-std-cost = itemfg.avg-cost.                     
+          IF {2}.ext-cost GT 0 then
+          DO:
+              ASSIGN 
+                 itemfg.total-std-cost = itemfg.std-tot-cost.
+              IF itemfg.std-tot-cost GT 0 THEN                          
+                 itemfg.last-cost    = itemfg.std-tot-cost.
+                 itemfg.avg-cost =  (((itemfg.q-onh - {2}.t-qty) * itemfg.avg-cost) + (itemfg.std-tot-cost * {2}.t-qty))  / itemfg.q-onh.
+              FIND FIRST fg-ctrl NO-LOCK  
+                  WHERE fg-ctrl.company EQ itemfg.company
+                  NO-ERROR.
+              IF AVAIL fg-ctrl AND fg-ctrl.inv-meth = "A" THEN
+                 itemfg.total-std-cost = itemfg.avg-cost. 
+          END.   
   end.  /* rita-code = "r" */
   else if {1}.rita-code eq "S" then DO:      /** SHIPPMENTS **/
   

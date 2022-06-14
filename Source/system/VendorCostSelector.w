@@ -58,9 +58,15 @@ DEFINE INPUT PARAMETER ipdDimDepth AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER ipcDimUOM AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipdBasisWeight AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER ipcBasisWeightUOM AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcAdderList      AS CHARACTER EXTENT 6 NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR ttVendItemCost. 
 DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE cAdderValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iIndex      AS INTEGER   NO-UNDO.
+
+DEFINE BUFFER bf-item FOR ITEM.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -85,7 +91,7 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) AND (ttVendItemCost.estimateNo = ipcEstimateNo OR ttVendItemCost.estimateNo = "") by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
@@ -96,9 +102,9 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-13 tbShowAll brVendItemCost bOk bCancel ~
-fiItem fiTitle fiLen fiWid fiDep fiQuantity fiUOM 
+fiItem fiTitle fiLen fiWid fiDep fiQuantity fiUOM fiAdders 
 &Scoped-Define DISPLAYED-OBJECTS tbShowAll fiItem fiLen fiWid fiDep lItem ~
-lSize x x-2 fiQuantity fiUOM lQuantity lShow 
+lSize x x-2 fiQuantity fiUOM lQuantity lShow fiAdders cAdders 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -121,6 +127,16 @@ DEFINE BUTTON bCancel
 DEFINE BUTTON bOk 
      LABEL "Ok" 
      SIZE 15 BY 1.29.
+
+DEFINE VARIABLE cAdders AS CHARACTER FORMAT "X(256)":U INITIAL "Adders:" 
+      VIEW-AS TEXT 
+     SIZE 9 BY .62
+     BGCOLOR 23 FGCOLOR 24 FONT 6 NO-UNDO.
+
+DEFINE VARIABLE fiAdders AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 144 BY 1.1
+     BGCOLOR 23 FGCOLOR 24 FONT 0 NO-UNDO.
 
 DEFINE VARIABLE fiDep AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -194,10 +210,10 @@ DEFINE VARIABLE x-2 AS CHARACTER FORMAT "X(256)":U INITIAL "X"
 
 DEFINE RECTANGLE RECT-13
      EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 157 BY 3.81
+     SIZE 157 BY 5.48
      BGCOLOR 23 FGCOLOR 24 .
 
-DEFINE VARIABLE tbShowAll AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbShowAll AS LOGICAL INITIAL no 
      LABEL "" 
      VIEW-AS TOGGLE-BOX
      SIZE 3 BY .81
@@ -217,7 +233,7 @@ DEFINE BROWSE brVendItemCost
             LABEL-BGCOLOR 14    FORMAT "x(10)"
       ttvendItemCost.estimateNo +  
         (IF  ttvendItemCost.formNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.formNo ) )) +
-        (IF  ttvendItemCost.blankNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.blankNo ) ))   COLUMN-LABEL "Estimate" 
+        (IF  ttvendItemCost.blankNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.blankNo ) )) LABEL-BGCOLOR 14  COLUMN-LABEL "Estimate" 
       ttVendItemCost.costPerVendorUOM   COLUMN-LABEL "Cost"    
              LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"  
       ttVendItemCost.vendorUOM    COLUMN-LABEL "UOM"  
@@ -242,15 +258,15 @@ DEFINE BROWSE brVendItemCost
            // WIDTH 24 LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.4 BY 15.19
-         FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 158.4 BY 13.52
+         FONT 34 ROW-HEIGHT-CHARS .9.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
      tbShowAll AT ROW 3.62 COL 141 WIDGET-ID 336
-     brVendItemCost AT ROW 5.29 COL 159 RIGHT-ALIGNED WIDGET-ID 200
+     brVendItemCost AT ROW 6.95 COL 159 RIGHT-ALIGNED WIDGET-ID 200
      bOk AT ROW 21.05 COL 61.6 WIDGET-ID 342
      bCancel AT ROW 21.05 COL 85.6 WIDGET-ID 344
      fiItem AT ROW 1.86 COL 11.6 NO-LABEL WIDGET-ID 66
@@ -267,6 +283,8 @@ DEFINE FRAME DEFAULT-FRAME
      fiUOM AT ROW 3.38 COL 46.8 COLON-ALIGNED NO-LABEL WIDGET-ID 358
      lQuantity AT ROW 3.67 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 52
      lShow AT ROW 3.71 COL 144.6 NO-LABEL WIDGET-ID 338
+     fiAdders AT ROW 5.05 COL 12 COLON-ALIGNED NO-LABEL
+     cAdders AT ROW 5.29 COL 2 COLON-ALIGNED NO-LABEL
      RECT-13 AT ROW 1.24 COL 2 WIDGET-ID 22
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -298,16 +316,16 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 199.8
          VIRTUAL-HEIGHT     = 33.57
          VIRTUAL-WIDTH      = 199.8
-         MAX-BUTTON         = NO
-         RESIZE             = NO
-         SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         MAX-BUTTON         = no
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -326,6 +344,15 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    ALIGN-R                                                              */
 ASSIGN 
        brVendItemCost:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
+/* SETTINGS FOR FILL-IN cAdders IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       cAdders:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
+ASSIGN 
+       fiAdders:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE
+       fiAdders:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 ASSIGN 
        fiDep:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
@@ -371,7 +398,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN x-2 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -437,8 +464,18 @@ END.
 ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Ok */
 DO:
     IF AVAILABLE ttVendItemCost THEN
-    ttVendItemCost.isSelected = TRUE.
-    APPLY 'CLOSE' TO THIS-PROCEDURE.
+    DO:
+        IF ttVendItemCost.IsValid = FALSE THEN 
+            MESSAGE "This Vendor cost is invalid." SKIP
+                "Reason: " + ttVendItemCost.Reason SKIP
+                "Please select a valid Vendor Cost."        
+                VIEW-AS ALERT-BOX. 
+        ELSE    
+        DO:
+            ttVendItemCost.isSelected = TRUE.
+            APPLY 'CLOSE' TO THIS-PROCEDURE.
+        END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -510,12 +547,12 @@ bCancel:LOAD-IMAGE("Graphics/32x32/cancel.png").
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-           
-    RUN BuildVendItemCosts(
+
+    RUN BuildVendItemCostsWithAdders(
      INPUT  ipcCompany,
      INPUT  ipcItemID,
      INPUT  ipcItemType,
-     INPUT  ipcScope,
+     INPUT  "All", //ipcScope,
      INPUT  iplIncludeBlankVendor,
      INPUT  ipcEstimateNo,
      INPUT  ipiFormNo,
@@ -528,6 +565,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      INPUT  ipcDimUOM,
      INPUT  ipdBasisWeight,
      INPUT  ipcBasisWeightUOM,
+     INPUT  ipcAdderList,
      OUTPUT  TABLE  ttVendItemCost,
      OUTPUT  oplError,
      OUTPUT  opcMessage).
@@ -544,6 +582,28 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fiUOM:SCREEN-VALUE      = ipcQuantityUOM
         .
  
+    IF CAN-FIND(FIRST ttVendItemCost WHERE ttVendItemCost.isValid = TRUE) THEN 
+    DO:
+        DO iIndex = 1 TO EXTENT(ipcAdderList):
+            IF ipcAdderList[iIndex] <> "" THEN
+            DO:
+                FOR FIRST bf-item NO-LOCK 
+                    WHERE bf-item.company = ipcCompany
+                      AND bf-item.i-no    = ipcAdderList[iIndex]: 
+                          
+                    IF cAdderValue = "" THEN 
+                        cAdderValue = ipcAdderList[iIndex] + " - " + bf-item.i-name.
+                    ELSE  
+                        cAdderValue = cAdderValue + ", " + ipcAdderList[iIndex] + " - " + bf-item.i-name.
+                END.
+            END.
+        END.
+        IF cAdderValue <> "" THEN
+            fiAdders:SCREEN-VALUE = cAdderValue.
+    END.
+    IF cAdderValue = "" THEN 
+        cAdders:HIDDEN = TRUE.
+        
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -596,10 +656,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tbShowAll fiItem fiLen fiWid fiDep lItem lSize x x-2 fiQuantity fiUOM 
-          lQuantity lShow 
+          lQuantity lShow fiAdders cAdders 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-13 tbShowAll brVendItemCost bOk bCancel fiItem fiTitle fiLen 
-         fiWid fiDep fiQuantity fiUOM 
+         fiWid fiDep fiQuantity fiUOM fiAdders 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

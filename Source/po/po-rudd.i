@@ -23,8 +23,7 @@
 
         assign
          v-print-lines = 5
-         v-job         = fill(" ",6 - length(trim(po-ordl.job-no))) +
-                         trim(po-ordl.job-no)
+         v-job         = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no))
          v-adder[1]    = ""
          v-adder[2]    = ""
          xg-flag       = no.
@@ -71,7 +70,7 @@
 
         if (line-counter + v-print-lines) gt page-size then page {1}.
 
-        v-job = trim(v-job) + "-" + trim(string(po-ordl.job-no2,"99")).
+        v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job, po-ordl.job-no2))).
         if trim(v-job) begins "-" then v-job = "".
 
         v-po-tot = v-po-tot + po-ordl.t-cost.
@@ -97,9 +96,7 @@
              v-len = trunc(po-ordl.s-len,0) + v-len.
 
             FIND FIRST job WHERE job.company = cocode AND
-                                      job.job-no = STRING(FILL(" ",6 - LENGTH(
-                                                  TRIM(po-ordl.job-no)))) +
-                                                  TRIM(po-ordl.job-no) AND
+                                      job.job-no = po-ordl.job-no AND
                                       job.job-no2 = po-ordl.job-no2
                                  NO-LOCK NO-ERROR.
             IF AVAIL job THEN

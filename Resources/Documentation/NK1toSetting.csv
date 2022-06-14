@@ -68,3 +68,16 @@ ZohoClientID,Logical,ZohoCRM,Logical,ZoHo CRM Active,YES|NO,NO,No,ZoHoCRM,No
 ZohoClientID,Character,ZohoClientID,Character,ZoHo Client ID,1000.JZ0PMBMAND7RPQ1LZP1QQHPG0KWMLZ,1000.JZ0PMBMAND7RPQ1LZP1QQHPG0KWMLZ,No,ZoHoCRM,No
 ZohoClientSecret,Character,ZohoClientSecret,Character,ZoHo Client Secret,a54de56bc72f068a546b25c539f5f0b01858a4ac8b,a54de56bc72f068a546b25c539f5f0b01858a4ac8b,No,ZoHoCRM,No
 ZohoRefreshToken,Character,ZohoRefreshToken,Character,ZoHo Refresh Token,1000.9d3c98f80d53e7b27dcef14b80bb3e20.f08610cd5b76f5b3a4ade67f17a6c956,1000.9d3c98f80d53e7b27dcef14b80bb3e20.f08610cd5b76f5b3a4ade67f17a6c956,No,ZoHoCRM,No
+ApplyInvoiceApprovals,Logical,InvoiceApproval,Character,Utilize auto approval of invoices,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalBillNotes,Logical,InvoiceApprovalBillNotes,Character,Invoice Approval Bill Notes,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalExpectZero,Logical,InvoiceApprovalExpectZero,Character,Expected revenue is zero for invoice in total,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalFreightAmount,Logical,InvoiceApprovalFreightAmount,Character,"If freight is billable, that freight amount is not zero",Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalFreightTerms,Logical,InvoiceApprovalFreightTerms,Character,Verify that the freight terms are valid,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalInvoiceStatus,Logical,InvoiceApprovalInvoiceStatus,Character,Invoice status is not on Hold,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalMiscCharge,Logical,InvoiceApprovalMiscCharge,Character,Do not auto approve if invoice has a misc item,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalOrderlineChange,Logical,InvoiceApprovalOrderlineChange,Character,Order line manually overridden,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalPriceGTCost,Logical,InvoiceApprovalPriceGTCost,Character,Item Price is greater than the cost of the item,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalTaxableCheck,Logical,InvoiceApprovalTaxableCheck,Character,Ship to is taxable and any line is not set as taxable,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+InvoiceApprovalTaxCalc,Logical,InvoiceApprovalTaxCalc,Character,Unable to calculate tax,Off|On|On Also During Post,Off,No,InvoiceApproval,No
+Notepad,Logical,Notepad,Logical,Notepad instead of Standard Screen Output? Active,YES|NO,NO,Yes,Notepad,No
+Notepad,Character,NotepadValue,Character,Notepad instead of Standard Screen Output? Value,|Notepad,,Yes,Notepad,No

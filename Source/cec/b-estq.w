@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -165,7 +166,8 @@ DEFINE VARIABLE lIsMatches      AS LOGICAL   NO-UNDO.
              
 &SCOPED-DEFINE for-eqty                            ~
           FIRST ASI.est-qty WHERE  est-qty.company = ASI.est.company ~
-                             AND ASI.est-qty.est-no = ASI.est.est-no  
+                             AND ASI.est-qty.est-no = ASI.est.est-no ~
+                             AND est-qty.eqty EQ eb.eqty
 
 &SCOPED-DEFINE for-ef                     ~
            each ASI.ef WHERE ASI.ef.company = ASI.est.company ~
@@ -472,7 +474,7 @@ DEFINE VARIABLE vi_part-dscr1 AS CHARACTER FORMAT "X(30)":U
      SIZE 36 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -581,7 +583,7 @@ DEFINE BROWSE Browser-Table
       display-combo-qty () @ est-qty.eqty
       est-qty.eqty FORMAT "->,>>>,>>9":U LABEL-BGCOLOR 14
       display-combo-qty () @ est-qty.eqty
-      eb.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      eb.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       eb.stock-no COLUMN-LABEL "FG Item #" FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 LABEL-BGCOLOR 14
       eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U LABEL-BGCOLOR 14
@@ -904,7 +906,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no B-table-Win
 ON ENTRY OF begin_cust-no IN FRAME F-Main
 DO:
-/*    RUN spSetSessionParam ("CustListID", "EC").*/
+    RUN spSetSessionParam ("CustListID", "EC").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2524,6 +2526,29 @@ PROCEDURE paper-clip-image-proc :
   
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery B-table-Win 
+PROCEDURE pReOpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    
+  RUN local-open-query.
+  
+  DO WITH FRAME {&frame-name}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
+    RUN dispatch ('row-changed').
+    APPLY "value-changed" TO {&browse-name}.
+    RETURN NO-APPLY.  
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

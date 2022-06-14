@@ -31,6 +31,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -63,7 +64,7 @@ DEF VAR ld-cons-uom AS CHAR NO-UNDO.
 &SCOPED-DEFINE for-each1                       ~
     FOR EACH job                               ~
         WHERE {&key-phrase}                    ~
-          AND job.job-no     BEGINS fi_job-no  ~
+          AND FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) BEGINS fi_job-no  ~
           AND (job.job-no2   EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                     ~
@@ -84,7 +85,7 @@ DEF VAR ld-cons-uom AS CHAR NO-UNDO.
     IF lv-sort-by EQ "wid"        THEN STRING(job-mat.wid,"-9999999999.99999")              ELSE ~
     IF lv-sort-by EQ "due-date"   THEN STRING(job.due-date)              ELSE ~
     IF lv-sort-by EQ "len"        THEN STRING(job-mat.len,"-9999999999.99999")              ELSE ~
-                                       STRING(job-mat.job-no,"x(6)") + STRING(job-mat.job-no2,"99")
+                                       STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', job-mat.job-no, job-mat.job-no2))
 
 &SCOPED-DEFINE sortby BY job-mat.rm-i-no BY job-mat.job-no BY job-mat.job-no2
 
@@ -189,16 +190,16 @@ DEFINE BUTTON btn_show
      LABEL "&Show All" 
      SIZE 12 BY 1.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Job#" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_name AS CHARACTER FORMAT "x(30)" 
@@ -261,10 +262,10 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       job-mat.rm-i-no COLUMN-LABEL "RM Item#" FORMAT "x(10)":U
             WIDTH 15 LABEL-BGCOLOR 14
-      job-mat.job-no COLUMN-LABEL "  Job#" FORMAT "x(6)":U WIDTH 9
+      job-mat.job-no COLUMN-LABEL "  Job#" FORMAT "x(9)":U WIDTH 14
             LABEL-BGCOLOR 14
-      job-mat.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 4 LABEL-BGCOLOR 14
-      job-mat.frm COLUMN-LABEL "S" FORMAT ">>>":U WIDTH 5 LABEL-BGCOLOR 14
+      job-mat.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 5.6 LABEL-BGCOLOR 14
+      job-mat.frm COLUMN-LABEL "F" FORMAT ">>>":U WIDTH 5 LABEL-BGCOLOR 14
       job-mat.blank-no COLUMN-LABEL "B" FORMAT ">>>":U WIDTH 5
             LABEL-BGCOLOR 14
       job-mat.qty COLUMN-LABEL "Required" FORMAT "->>>,>>9.9<<<<":U
@@ -278,7 +279,7 @@ DEFINE BROWSE Browser-Table
       cons-uom() @ ld-cons-uom COLUMN-LABEL "RM UOM" FORMAT "X(4)":U
             WIDTH 10 LABEL-BGCOLOR 14
       job-mat.wid FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
-      job-mat.len FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
+      job-mat.len FORMAT ">>>>9.99<<<<":U LABEL-BGCOLOR 14
       job.due-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
   ENABLE
       job-mat.rm-i-no
@@ -405,11 +406,11 @@ ASSIGN
      _FldNameList[1]   > ASI.job-mat.rm-i-no
 "job-mat.rm-i-no" "RM Item#" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.job-mat.job-no
-"job-mat.job-no" "  Job#" ? "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.job-no" "  Job#" ? "character" ? ? ? 14 ? ? yes ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.job-mat.job-no2
-"job-mat.job-no2" "" "99" "integer" ? ? ? 14 ? ? yes ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.job-no2" "" "999" "integer" ? ? ? 14 ? ? yes ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.job-mat.frm
-"job-mat.frm" "S" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.frm" "F" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.job-mat.blank-no
 "job-mat.blank-no" "B" ">>>" "integer" ? ? ? 14 ? ? yes ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.job-mat.qty
@@ -425,7 +426,7 @@ ASSIGN
      _FldNameList[11]   > asi.job-mat.wid
 "job-mat.wid" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.job-mat.len
-"job-mat.len" ? ? "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"job-mat.len" ? ">>>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.job.due-date
 "job.due-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
@@ -590,7 +591,7 @@ DO:
      fi_rm-i-no
      fi_job-no
      fi_job-no2.
-
+          
     RUN dispatch ("open-query").
   END.
 
@@ -676,6 +677,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

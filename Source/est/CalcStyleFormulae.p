@@ -13,6 +13,10 @@
     Created     : Tue Jun 20 08:50:05 EDT 2017
     Notes       :
   ----------------------------------------------------------------------*/
+  
+  DEFINE TEMP-TABLE formule NO-UNDO 
+    FIELD formule AS DECIMAL EXTENT 12
+    .
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriEb               AS ROWID NO-UNDO.
@@ -20,17 +24,12 @@ DEFINE INPUT PARAMETER iplRound             AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER iplDecimal           AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER ipdDecimalFactor     AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER ipdConversionFactor  AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER TABLE FOR formule.
 
 
 DEFINE VARIABLE iIndex        AS INTEGER NO-UNDO.
 DEFINE VARIABLE dSquareBoxFit AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dScores       AS DECIMAL NO-UNDO.
-
-
-
-/*REFACTOR - consider better temp-table with more descriptive fields*/
-DEFINE SHARED TEMP-TABLE formule 
-    FIELD formule AS DECIMAL EXTENT 12.
 
 
 /* ********************  Preprocessor Definitions  ******************** */

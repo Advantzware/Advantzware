@@ -120,7 +120,7 @@ IF oeDateAuto-log AND oeDateAuto-chr EQ "Colonial" THEN DO:
         WHEN "PromiseDate" THEN
         opdDueDate = get-date (ipdPromDate, INTEGER(shipto.del-time), "+").
         WHEN "RelDate" THEN
-        opdDueDate = get-date (ipdPromDate, INTEGER(shipto.del-time), "-").
+        opdDueDate = get-date (ipdPromDate, 0, "-").
     END CASE.
 END.
 

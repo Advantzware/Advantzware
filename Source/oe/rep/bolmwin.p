@@ -1,5 +1,6 @@
-/* ---------------------------------------------- oe/rep/bolwin.p 01/05 YSK */
+/* ---------------------------------------------- oe/rep/bolwin.p 01/05 YSK   */
 /* PRINT Indiana Carton                                                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -37,7 +38,7 @@ def var v-part-comp         as   char format "x" NO-UNDO.
 def var v-part-qty          as   DEC NO-UNDO.
 def var v-ord-no            like oe-boll.ord-no NO-UNDO.
 def var v-po-no             like oe-bolh.po-no NO-UNDO.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 DEF VAR v-tot-palls AS INT FORM ">>>9" NO-UNDO.
 def var v-ship-name  like shipto.ship-name NO-UNDO.

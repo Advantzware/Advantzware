@@ -11,8 +11,8 @@ DEFINE INPUT PARAMETER v-format LIKE sys-ctrl.char-fld.
 
 DEFINE NEW SHARED VARIABLE save_id        AS RECID.
 DEFINE NEW SHARED VARIABLE v-today        AS DATE      INIT TODAY FORMAT 99/99/9999.
-DEFINE NEW SHARED VARIABLE v-job          AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2         AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE NEW SHARED VARIABLE v-job          AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2         AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart      LIKE style.dscr.
 DEFINE NEW SHARED VARIABLE v-dsc          LIKE oe-ordl.part-dscr1 EXTENT 2.
 DEFINE NEW SHARED VARIABLE v-size         AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -202,6 +202,13 @@ DEFINE        VARIABLE cCycleValue      AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cTotalCount      AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cExpectedPallets AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cEstRecKey       AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE lPrintSetHeader  AS LOGICAL NO-UNDO.
+DEFINE        VARIABLE cBarCode         AS CHARACTER NO-UNDO.
+
+DEFINE TEMP-TABLE tt-reftable NO-UNDO LIKE reftable
+    FIELD est-type LIKE est.est-type.
+
+DEFINE BUFFER bff-job-hdr FOR job-hdr.    
 
 {cec/msfcalc.i}
 DEFINE BUFFER bf-eb     FOR eb.
@@ -227,10 +234,10 @@ DEFINE NEW SHARED FRAME head.
 
 FORMAT HEADER
          "<C45>HENRY MOLDED PRODUCTS,INC."   SKIP
-         "<C47>Job/Head Especificación"  
+         "<C47>Job/Head Especificaciï¿½n"  
          "<C84>Fecha:"  v-today  SKIP
-         "<P16><C24>Número de orden:<B>" STRING(v-job-no)"</B>" 
-         "<C52>Máquina: " "<B>" cJobMachCode "</B>"
+         "<P16><C22>Nï¿½mero de orden:<B>" STRING(v-job-no)"</B>" 
+         "<C50>Mï¿½quina: " "<B>" cJobMachCode "</B>"
          "<C68>Ciclos: " "<B>" cCycleValue "</B>"
          "<P10><C84>Fecha De Vencimiento:"  v-due-date SKIP(1)
          /*v-fill*/
@@ -266,14 +273,14 @@ ASSIGN
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
+    AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
+    string(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
     trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    string(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (job-hdr.ftick-prnt            EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
     AND CAN-FIND(FIRST job WHERE job.company EQ cocode
@@ -291,7 +298,81 @@ FOR EACH job-hdr NO-LOCK
 
     BREAK BY job-hdr.job
     BY job-hdr.job-no
-    BY job-hdr.job-no2:
+    BY job-hdr.job-no2
+    BY job-hdr.frm
+    BY job-hdr.blank-no:
+    
+    IF est.est-type = 2 THEN
+    FOR EACH eb NO-LOCK 
+                  WHERE eb.company EQ est.company
+                    AND eb.est-no EQ est.est-no 
+                    AND eb.form-no NE 0:          
+        CREATE tt-reftable.
+        ASSIGN
+        tt-reftable.reftable = "jc/jc-calc.p"
+        tt-reftable.company  = job-hdr.company
+        tt-reftable.loc      = ""
+        tt-reftable.CODE     = STRING(job-hdr.job,"999999999")
+        tt-reftable.code2    = job-hdr.i-no
+        tt-reftable.val[12]  = eb.form-no
+        tt-reftable.val[13]  = eb.blank-no
+        tt-reftable.est-type = est.est-type .
+        
+    END.
+    FIND FIRST tt-reftable WHERE tt-reftable.reftable EQ "jc/jc-calc.p"
+        AND tt-reftable.company  EQ job-hdr.company
+        AND tt-reftable.loc      EQ ""
+        AND tt-reftable.code     EQ STRING(job-hdr.job,"999999999")
+        AND tt-reftable.val[12] = job-hdr.frm   
+        NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE tt-reftable THEN 
+    DO:
+        CREATE tt-reftable.
+        ASSIGN 
+            tt-reftable.reftable = "jc/jc-calc.p"
+            tt-reftable.company  = job-hdr.company
+            tt-reftable.loc      = ""
+            tt-reftable.CODE     = STRING(job-hdr.job,"999999999")
+            tt-reftable.code2    = job-hdr.i-no
+            tt-reftable.val[12]  = job-hdr.frm
+            tt-reftable.val[13]  = job-hdr.blank-no
+            tt-reftable.est-type = est.est-type.
+
+    END.
+END.
+    
+
+FOR EACH job-hdr NO-LOCK
+    WHERE job-hdr.company               EQ cocode
+    AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
+    trim(job-hdr.job-no) +
+    string(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) +
+    trim(job-hdr.job-no) +
+    string(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
+    AND (job-hdr.ftick-prnt            EQ v-reprint OR
+    PROGRAM-NAME(2) MATCHES "*r-tickt2*")
+    AND CAN-FIND(FIRST job WHERE job.company EQ cocode
+    AND job.job     EQ job-hdr.job
+    AND job.job-no  EQ job-hdr.job-no
+    AND job.job-no2 EQ job-hdr.job-no2
+    AND job.stat    NE "H")
+    USE-INDEX job-no,
+
+    FIRST est
+    WHERE est.company  EQ job-hdr.company
+    AND est.est-no   EQ job-hdr.est-no
+    AND est.est-type LE 4  
+    NO-LOCK,
+    EACH tt-reftable WHERE (tt-reftable.val[12] EQ job-hdr.frm OR est.est-type EQ 2 ) NO-LOCK
+
+    BREAK BY job-hdr.job
+    BY job-hdr.job-no
+    BY job-hdr.job-no2
+    BY tt-reftable.val[12]
+    BY tt-reftable.val[13]:
 
     IF NOT job-hdr.ftick-prnt THEN 
     DO WHILE TRUE:
@@ -311,11 +392,15 @@ FOR EACH job-hdr NO-LOCK
         CREATE tt-fgitem.
         tt-fgitem.i-no = job-hdr.i-no.
     END.
-    IF FIRST-OF(job-hdr.job-no2) THEN v-first = YES.
+    
+    IF FIRST-OF(tt-reftable.val[12]) THEN v-first = YES.
+    IF FIRST-OF(job-hdr.job-no2) THEN
+    ASSIGN        
+        lPrintSetHeader = NO. 
       
     /** PRINT JOB HEADER **/
     IF v-first THEN 
-    DO:
+    DO:       
         ASSIGN
             v-job-no  = job-hdr.job-no
             v-job-no2 = job-hdr.job-no2.
@@ -343,20 +428,13 @@ FOR EACH job-hdr NO-LOCK
                 NO-LOCK NO-ERROR.
                 
         ASSIGN 
-            cJobMachCode = TRIM(job-mch.m-code)
-            cCycleValue  = TRIM(STRING(job-mch.run-qty)) .
+            cJobMachCode = IF AVAIL job-mch THEN TRIM(job-mch.m-code) ELSE ""
+            cCycleValue  = IF AVAIL job-mch THEN TRIM(STRING(job-mch.run-qty)) ELSE "" .
         v-due-date = IF AVAILABLE oe-ord THEN oe-ord.due-date ELSE job.due-date.
         
-        IF NOT FIRST(job-hdr.job-no) THEN PAGE.
+                
         PUT "<FCalibri>" .
-        IF lSpanish THEN
-        DO:
-           VIEW FRAME headSpanish.
-        END.
-        ELSE DO:
-           VIEW FRAME head.
-        END.
-        
+               
         v-printline = 5 .
         IF v-format EQ "Fibre" THEN VIEW FRAME bott.
 
@@ -369,6 +447,7 @@ FOR EACH job-hdr NO-LOCK
                 AND job-mch.job     EQ job.job
                 AND job-mch.job-no  EQ job.job-no
                 AND job-mch.job-no2 EQ job.job-no2
+                AND job-mch.frm = int(tt-reftable.val[12])
                 NO-LOCK,
 
                 FIRST mach
@@ -466,20 +545,21 @@ FOR EACH job-hdr NO-LOCK
                     wrk-prep.ml    = IF AVAILABLE prep THEN prep.ml ELSE ?.
             END.
         END.
-END. /* first job-no */
+
 
 FOR EACH ef
     NO-LOCK WHERE ef.company EQ job-hdr.company
     AND ef.est-no  EQ job-hdr.est-no
+    AND ef.form-no EQ tt-reftable.val[12]
     BREAK BY ef.est-no BY ef.form-no:
-
+          
     v-job-qty = 0.
-    FOR EACH xjob-hdr
+    FOR EACH xjob-hdr FIELDS(qty)
         WHERE xjob-hdr.company EQ cocode
         AND xjob-hdr.job     EQ job-hdr.job
         AND xjob-hdr.job-no  EQ job-hdr.job-no
         AND xjob-hdr.job-no2 EQ job-hdr.job-no2
-        AND xjob-hdr.i-no    EQ job-hdr.i-no
+        AND (xjob-hdr.i-no    EQ job-hdr.i-no OR est.est-type EQ 2)
         NO-LOCK:
         v-job-qty = v-job-qty + xjob-hdr.qty.
     END.
@@ -494,57 +574,19 @@ FOR EACH ef
             v-est-qty = v-est-qty + eb.yld-qty.
         END.
 
-    ELSE v-fac = 1.
+    ELSE v-fac = 1.    
 
     FOR EACH tt-eb:
         DELETE tt-eb.
     END.
-    IF ef.form-no EQ job-hdr.frm THEN  
+    IF ef.form-no EQ tt-reftable.val[12] THEN  
     DO:
-        /* temp table to print all for set too*/
-        lv-is-set = NO.
-        IF est.est-type = 2 AND
-            CAN-FIND(FIRST eb WHERE eb.company = ef.company AND eb.est-no = ef.est-no
-            AND eb.form-no = 0) 
-            THEN 
-        DO:
-            lv-is-set = YES.
-            FOR EACH eb WHERE eb.company     EQ ef.company
-                AND eb.est-no      EQ ef.est-no
-                AND eb.form-no > 0 NO-LOCK                
-                BREAK BY eb.form-no:
-                CREATE tt-eb.
-                ASSIGN 
-                    tt-eb.eb-recid = RECID(eb)                        
-                    .
-            END.
-        END.
-        ELSE 
-        DO:
-            FOR EACH eb NO-LOCK WHERE eb.company     EQ ef.company
-                AND eb.est-no      EQ ef.est-no
-                AND eb.form-no     EQ ef.form-no
-                AND ((eb.stock-no  EQ job-hdr.i-no AND
-                eb.stock-no  NE "") OR
-                (eb.blank-no  EQ job-hdr.blank-no OR
-                (eb.blank-no EQ 1 AND
-                (est.est-type EQ 2 OR est.est-type EQ 6)) AND
-                eb.stock-no  EQ ""))
-                BREAK BY eb.form-no.
-
-                CREATE tt-eb.
-                ASSIGN 
-                    tt-eb.eb-recid = RECID(eb)
-                    .
-
-            END.
-        END.
-        /* Header */
-                
+                         
         FIND FIRST wrk-op NO-LOCK NO-ERROR .
         i = 0.
-        IF v-first THEN 
-        DO:
+        IF NOT lPrintSetHeader THEN 
+        DO:  
+            lPrintSetHeader = YES.
             iItemCount = 0.
             FOR EACH job-mat
                 WHERE job-mat.company EQ cocode
@@ -558,6 +600,14 @@ FOR EACH ef
                 NO-LOCK:
                 cBoardDscr =  ITEM.i-no + " - " + ITEM.i-name .
                 LEAVE.
+            END.
+            
+            IF lSpanish THEN
+            DO:
+               VIEW FRAME headSpanish.
+            END.
+            ELSE DO:
+               VIEW FRAME head.
             END.
             
             RUN pGetPrintLabel1(INPUT lSpanish, OUTPUT cJobLabel, OUTPUT cMachineLabel, OUTPUT cCycles, OUTPUT cFurnish,
@@ -589,27 +639,23 @@ FOR EACH ef
             PUT "<=#3><R-10> <C41.2><B>" cItemList FORMAT "x(30)"  "</b> "  SKIP
                 "<C42>  " cItemID FORMAT "x(27)"       "<C55>" cMoldCount FORMAT "x(25)" SKIP    .
             j = 9.     
-            FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
-                AND bf-jobhdr.job-no = job-hdr.job-no
-                AND bf-jobhdr.job-no2 = job-hdr.job-no2
-                BREAK BY bf-jobhdr.blank-no:
-                             
-                FIND FIRST itemfg NO-LOCK
-                    WHERE itemfg.company EQ bf-jobhdr.company
-                    AND itemfg.i-no    EQ bf-jobhdr.i-no
-                    NO-ERROR .  
             
-                FIND FIRST b-eb NO-LOCK
-                     WHERE b-eb.company EQ cocode
-                     AND b-eb.est-no    EQ bf-jobhdr.est-no
-                     AND b-eb.form-no   EQ bf-jobhdr.frm
-                     AND b-eb.blank-no  EQ bf-jobhdr.blank-no  
-                     NO-ERROR.
-                i = i + 1.
-                PUT "<=#3><C41.2><R-" + STRING(j - i) + ">" FORMAT "x(18)" i FORMAT "9"  "<C42>  " bf-jobhdr.i-no  FORMAT "x(15)" 
-                    "<C55>" (IF AVAILABLE b-eb THEN b-eb.num-up ELSE 0)  SKIP   .
-               
-            END. 
+            FOR EACH b-eb NO-LOCK
+                WHERE b-eb.company EQ cocode
+                  AND b-eb.est-no    EQ job-hdr.est-no
+                  AND (b-eb.form-no  GT 0 OR b-eb.est-type EQ 2)
+                  BY b-eb.form-no 
+                  BY b-eb.blank-no:
+                  
+                  FIND FIRST itemfg NO-LOCK
+                    WHERE itemfg.company EQ job-hdr.company
+                    AND itemfg.i-no    EQ b-eb.stock-no
+                    NO-ERROR .
+                    
+                  i = i + 1.
+                  PUT "<=#3><C41.2><R-" + STRING(j - i) + ">" FORMAT "x(18)" i FORMAT "9"  "<C42>  " b-eb.stock-no  FORMAT "x(15)" 
+                      "<C55>" (IF AVAILABLE b-eb THEN b-eb.num-up ELSE 0)  SKIP   .  
+            END.
             PUT SKIP(j - i) .
          
             PUT "<=#4><P10> <C64.2><B> " cGeneralNotes FORMAT "x(18)" "</b> "  SKIP .
@@ -647,17 +693,21 @@ FOR EACH ef
                 END.
             END.
          
-            PUT "<P10>"  SKIP(9 - i)    .
+            PUT "<P10>"  SKIP(9 - i)    .           
+            
         END.
         
         /*==========*/
+        IF ef.form-no EQ tt-reftable.val[12] THEN  
         ebloop:
-        FOR EACH tt-eb,
-            EACH eb WHERE RECID(eb) = tt-eb.eb-recid
+        FOR EACH eb
+            WHERE eb.company     EQ ef.company
+            AND eb.est-no      EQ ef.est-no
+            AND (eb.form-no     EQ ef.form-no OR (ef.form-no EQ 1 AND eb.form-no EQ 0))
+            NO-LOCK
             
             BREAK BY eb.form-no BY eb.blank-no.
-
-            IF est.est-type EQ 4 AND eb.stock-no NE job-hdr.i-no THEN NEXT ebloop.
+                             
             IF iItemCount GT 1 AND iItemCount MOD 2 EQ 0 THEN 
             DO:           
                 PAGE.
@@ -706,6 +756,7 @@ FOR EACH ef
                 WHERE job-mat.company EQ cocode
                 AND job-mat.job     EQ job-hdr.job
                 AND job-mat.frm     EQ eb.form-no
+                AND job-mat.blank-no EQ eb.blank-no
                 NO-LOCK,
                 FIRST item
                 {sys/look/itemivW.i}
@@ -773,15 +824,20 @@ FOR EACH ef
                          string(eb.dep)
             v-size[2] = eb.i-coldscr.             
             
-              
-        IF v-first THEN do:
-            RUN pGetPrintLabel2(INPUT lSpanish, OUTPUT cItemSpecLabel, OUTPUT cFGItemLabel, OUTPUT cKeyItemLabel, OUTPUT cMoldsLabel, OUTPUT cWetWeightLabel,
-                                 OUTPUT cFirstDryLabel, OUTPUT cDscrLabel , OUTPUT cMoldIDsLabel, OUTPUT cBoneDryLabel , OUTPUT cMoistureLabel,
-                                 OUTPUT cSizeLabel, OUTPUT cJigAvailableLabel, OUTPUT cMinWeightLabel, OUTPUT cFiberContentLabel, OUTPUT cPackingLabel , 
-                                 OUTPUT cPalletCountLabel, OUTPUT cPalletSizeLabel, OUTPUT cCartonCodeLabel, OUTPUT cPalletLabel, OUTPUT cInstructionsLabel, OUTPUT cTotalCount, OUTPUT cExpectedPallets).
-                                 
-            PUT "<R-0.5><C45>" cItemSpecLabel FORMAT "x(23)" SKIP .
-        END.    
+        FIND FIRST bff-job-hdr NO-LOCK
+             WHERE bff-job-hdr.company  EQ job-hdr.company
+               AND bff-job-hdr.job-no   EQ job-hdr.job-no
+               AND bff-job-hdr.job-no2  EQ job-hdr.job-no2
+               AND bff-job-hdr.frm      EQ job-hdr.frm
+               AND bff-job-hdr.blank-no EQ eb.blank-no NO-ERROR.
+        
+        RUN pGetPrintLabel2(INPUT lSpanish, OUTPUT cItemSpecLabel, OUTPUT cFGItemLabel, OUTPUT cKeyItemLabel, OUTPUT cMoldsLabel, OUTPUT cWetWeightLabel,
+                             OUTPUT cFirstDryLabel, OUTPUT cDscrLabel , OUTPUT cMoldIDsLabel, OUTPUT cBoneDryLabel , OUTPUT cMoistureLabel,
+                             OUTPUT cSizeLabel, OUTPUT cJigAvailableLabel, OUTPUT cMinWeightLabel, OUTPUT cFiberContentLabel, OUTPUT cPackingLabel , 
+                             OUTPUT cPalletCountLabel, OUTPUT cPalletSizeLabel, OUTPUT cCartonCodeLabel, OUTPUT cPalletLabel, OUTPUT cInstructionsLabel, OUTPUT cTotalCount, OUTPUT cExpectedPallets).
+                             
+        PUT "<R-0.5><C45>" cItemSpecLabel FORMAT "x(23)" SKIP .
+        
             
         PUT "<C2><#5><R+3><C+108><RECT#5><|3>" SKIP
             "<C2><#6><R+12><C+45><RECT#6><|3>"
@@ -796,7 +852,7 @@ FOR EACH ef
             AND oe-ordl.ord-no  EQ job-hdr.ord-no
             AND oe-ordl.job-no  EQ job-hdr.job-no
             AND oe-ordl.job-no2 EQ job-hdr.job-no2
-            AND oe-ordl.i-no    EQ job-hdr.i-no
+            AND oe-ordl.i-no    EQ eb.stock-no
             NO-LOCK NO-ERROR.
 
         IF AVAILABLE oe-ordl THEN 
@@ -811,22 +867,20 @@ FOR EACH ef
             
         RELEASE w-lo.
         FIND FIRST w-lo NO-ERROR.
-            
+        
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ job-hdr.company
-            AND itemfg.i-no    EQ job-hdr.i-no
-            NO-ERROR .           
-        
+            AND itemfg.i-no    EQ eb.stock-no
+            NO-ERROR .          
         
             IF eb.tr-cnt NE 0 THEN
             DO:
-               ASSIGN dExpectedPallets =  ( job-hdr.qty / eb.tr-cnt ) .
+               ASSIGN dExpectedPallets =  ( (IF AVAILABLE bff-job-hdr THEN bff-job-hdr.qty ELSE job-hdr.qty) / eb.tr-cnt ) .
                 {sys/inc/roundup.i dExpectedPallets}
             END.
-            ELSE dExpectedPallets = 0 .
-            
-         
-        PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" "<C8><B>" job-hdr.i-no FORMAT "x(15)"  "</B><C20>" cKeyItemLabel FORMAT "x(15)" "<B>"  job-hdr.keyItem "</B> "  
+            ELSE dExpectedPallets = 0 .                  
+                    
+        PUT "<=#5> <C3>" cFGItemLabel FORMAT "x(10)" "<C8><B>" eb.stock-no FORMAT "x(15)"  "</B><C20>" cKeyItemLabel FORMAT "x(15)" "<B>" (IF AVAIL bff-job-hdr THEN bff-job-hdr.keyItem ELSE job-hdr.keyItem) "</B> "  
             "<C35>" cMoldsLabel FORMAT "x(8)" "<C44><B>" TRIM(STRING(eb.num-up)) "</B>"   
             "<C50>" cWetWeightLabel FORMAT "x(13)" "<C59><B>" STRING(fGetMiscFields(itemfg.rec_key,"00001")) "</B>" 
             "<C65>" cFirstDryLabel FORMAT "x(14)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00003")) "</B>" SKIP
@@ -839,12 +893,16 @@ FOR EACH ef
             "<C50>" cMinWeightLabel FORMAT "x(12)" "<C59><B>" STRING(fGetMiscFields(itemfg.rec_key,"00002")) "</B>" 
             "<C65>" cFiberContentLabel FORMAT "x(20)" "<C74><B>" STRING(fGetMiscFields(itemfg.rec_key,"00006")) "</B>" SKIP
             .
+        IF AVAILABLE bff-job-hdr THEN
+        cBarCode = STRING(TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bff-job-hdr.job-no, bff-job-hdr.job-no2))) + "-" + STRING(bff-job-hdr.frm,"99") + "-" + STRING(bff-job-hdr.blank-no,"99")).
+        ELSE
+        cBarCode = STRING(TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")).
                
         PUT "<=#5><R+0.5><UNITS=INCHES><C80><FROM><C105><r+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" 
-        STRING(TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(job-hdr.frm,"99") + "-" + STRING(job-hdr.blank-no,"99")) FORMAT "x(15)" "><R-3>" . 
+        cBarCode FORMAT "x(19)" "><R-3>" . 
                
         PUT "<=#6><R-1> <C3><B>" cPackingLabel FORMAT "x(8)"  "</B>" SKIP
-            "<C3>" cTotalCount                 FORMAT "x(23)" "<B><C15>" TRIM(STRING(job-hdr.qty, ">>>,>>>,>>9")) "</B>"
+            "<C3>" cTotalCount                 FORMAT "x(23)" "<B><C15>" TRIM(STRING((IF AVAILABLE bff-job-hdr THEN bff-job-hdr.qty ELSE job-hdr.qty), ">>>,>>>,>>9")) "</B>"
             "<C25>" cCartonCodeLabel           FORMAT "x(20)" "<C35>" TRIM(eb.cas-no) SKIP
             "<C3>" cPalletCountLabel           FORMAT "x(23)" "<C15>" TRIM(STRING(eb.tr-cnt,">,>>>,>>9"))    
             "<C25>" cPalletSizeLabel           FORMAT "x(23)" "<C35>" TRIM(IF AVAILABLE eb THEN (STRING(eb.tr-len) + " x " +  STRING(eb.tr-wid) + " x " +  STRING(eb.tr-dep)) ELSE "") FORMAT "x(12)" SKIP
@@ -896,6 +954,8 @@ END. /* do: */
        
 END. /* each ef */
 
+END. /* first job-no */
+
       
 IF LAST(job-hdr.job-no2) THEN 
 DO:
@@ -927,7 +987,7 @@ DO:
                            "<=12><C30><FROM><R+4><C30><LINE><|3>"
                            "<=12><C60><FROM><R+4><C60><LINE><|3>"
                           "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" itemfg.i-no
-                          "<=12><R+2><C8>" string(bf-jobhdr.job-no + "-" + STRING(bf-jobhdr.job-no,"99")) FORMAT "x(12)"   "<C35>"  bf-jobhdr.est-no  
+                          "<=12><R+2><C8>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-jobhdr.job-no, bf-jobhdr.job-no2))) FORM "x(13)"   "<C35>"  bf-jobhdr.est-no  
                           "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
                           "<=12><R+4><C1><FROM><C106><LINE><||3>"
                           "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP.  
@@ -1028,20 +1088,20 @@ PROCEDURE pGetPrintLabel1:
    
     IF iplSpanish THEN DO:
      ASSIGN
-         opcJobLabel      = "Número de orden: "
-         opcMachineLabel  = "Máquina: "
+         opcJobLabel      = "Nï¿½mero de orden: "
+         opcMachineLabel  = "Mï¿½quina: "
          opcCycles        = "Ciclos: "
          opcFurnish       = "Material de pulpa: "
          opcConsistency   = "Consistencia de pulpa: "
          opcMoldTime      = "Tiempo de molde: "
-         opcAgitation     = "Agitación: "
+         opcAgitation     = "Agitaciï¿½n: "
          opcDelay         = "Retrasar: "
          opcOverTemp      = "Temperatura del horno:"
          opcBeltSpeed     = "Velocidad de la Correa: "
          opcDryTime       = "Tiempo seco:"
          opcItemList      = "Lista de articulos "
-         opcItemID        = "Identificación del artículo"
-         opcItemName      = "Nombre del árticulo "
+         opcItemID        = "Identificaciï¿½n del artï¿½culo"
+         opcItemName      = "Nombre del ï¿½rticulo "
          opcMoldCount     = "Cantidad de moldes "
          opcGeneralNotes  = "Notas generales"
          opcPreAgitate    = "Pre-agitar: "
@@ -1109,24 +1169,24 @@ PROCEDURE pGetPrintLabel2:
       
     IF iplSpanish THEN DO:
      ASSIGN
-      opcItemSpecLabel     = "Específico del artículo" /* 23*/
+      opcItemSpecLabel     = "Especï¿½fico del artï¿½culo" /* 23*/
       opcFGItemLabel       = "Articulo: "    /* 10*/
-      opcKeyItemLabel      = "Artículo clave: "   /* 15*/
+      opcKeyItemLabel      = "Artï¿½culo clave: "   /* 15*/
       opcMoldsLabel        = "Moldes: "     /*8*/
       opcWetWeightLabel    = "Peso Mojado: "   /*13*/
       opcFirstDryLabel     = "Primero seco: " /* 14*/
-      opcDscrLabel         = "Descripción: "  /*13*/
-      opcMoldIDsLabel      = "Identificación del molde:"  /*25*/
+      opcDscrLabel         = "Descripciï¿½n: "  /*13*/
+      opcMoldIDsLabel      = "Identificaciï¿½n del molde:"  /*25*/
       opcBoneDryLabel      = "Peso seco:"  /*10*/
       opMoistureLabel      = "Humedad:" /*8*/
       opcSizeLabel         = "Talla: "  /*7*/
       opcJigAvailableLabel = "Plantilla disponible:"  /*21*/
-      opcMinWeightLabel    = "Peso mínimo:"    /*12*/
+      opcMinWeightLabel    = "Peso mï¿½nimo:"    /*12*/
       opcFiberContentLabel = "Contenido de fibra: " /*20*/
       opcPackingLabel      = "Embalaje"  /*8*/
       opcPalletCountLabel  = "Cantidad en la paleta: " /*23*/
-      opcPalletSizeLabel   = "Tamaño de la paleta: "  /*21*/
-      opcCartonCodeLabel   = "Código de cartón:"  /*18*/
+      opcPalletSizeLabel   = "Tamaï¿½o de la paleta: "  /*21*/
+      opcCartonCodeLabel   = "Cï¿½digo de cartï¿½n:"  /*18*/
       opcPalletLabel       = "Paleta:"     /*7*/
       opcInstructionsLabel = "Instrucciones"  /*13*/
       opcTotalCount        = "Cuenta total:"  /*14*/

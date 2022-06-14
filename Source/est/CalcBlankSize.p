@@ -16,8 +16,8 @@
 DEFINE INPUT PARAMETER ipcIndustry AS CHARACTER NO-UNDO. 
 DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
 
-/*Refactor Globals or poorly defined shared temp-tables*/
-DEFINE NEW SHARED TEMP-TABLE formule 
+
+DEFINE TEMP-TABLE formule NO-UNDO
     FIELD formule AS DECIMAL EXTENT 12
     .
 /*Refactor Global Buffers*/
@@ -89,7 +89,8 @@ RUN est/CalcStyleFormulae.p (ROWID(eb),
     lRound,
     lDecimal,
     dDecimalFactor,
-    dConversionFactor).
+    dConversionFactor,
+    OUTPUT TABLE formule).
                                
 /*formule is populated by CalcStyleFormulae*/
 FIND FIRST formule NO-LOCK NO-ERROR.

@@ -40,6 +40,8 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lIsCopiesVisible   AS LOGICAL NO-UNDO INITIAL TRUE.
 DEFINE VARIABLE lIsCopiesSensitive AS LOGICAL NO-UNDO INITIAL TRUE.
 
+DEFINE VARIABLE oKeyboard  AS system.Keyboard  NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -55,7 +57,7 @@ DEFINE VARIABLE lIsCopiesSensitive AS LOGICAL NO-UNDO INITIAL TRUE.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fiCopies 
+&Scoped-Define ENABLED-OBJECTS btnKeyboardCopies fiCopies 
 &Scoped-Define DISPLAYED-OBJECTS fiCopies 
 
 /* Custom List Definitions                                              */
@@ -70,6 +72,11 @@ DEFINE VARIABLE lIsCopiesSensitive AS LOGICAL NO-UNDO INITIAL TRUE.
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnKeyboardCopies 
+     IMAGE-UP FILE "Graphics/24x24/keyboard.gif":U NO-FOCUS
+     LABEL "Keyboard" 
+     SIZE 6.4 BY 1.52 TOOLTIP "Keyboard".
+
 DEFINE VARIABLE fiCopies AS INTEGER FORMAT ">>9":U INITIAL 0 
      LABEL "COPIES" 
      VIEW-AS FILL-IN 
@@ -80,7 +87,8 @@ DEFINE VARIABLE fiCopies AS INTEGER FORMAT ">>9":U INITIAL 0
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiCopies AT ROW 1.24 COL 34 COLON-ALIGNED WIDGET-ID 2
+     btnKeyboardCopies AT ROW 1.19 COL 47 WIDGET-ID 136 NO-TAB-STOP 
+     fiCopies AT ROW 1.24 COL 30 COLON-ALIGNED WIDGET-ID 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -114,7 +122,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW s-object ASSIGN
          HEIGHT             = 2.91
-         WIDTH              = 50.
+         WIDTH              = 52.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -142,6 +150,9 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
+       btnKeyboardCopies:HIDDEN IN FRAME F-Main           = TRUE.
+
+ASSIGN 
        fiCopies:PRIVATE-DATA IN FRAME F-Main     = 
                 "COPIES".
 
@@ -160,6 +171,24 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btnKeyboardCopies
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnKeyboardCopies s-object
+ON CHOOSE OF btnKeyboardCopies IN FRAME F-Main /* Keyboard */
+DO:
+    APPLY "ENTRY":U TO fiCopies.    
+    
+    oKeyboard:OpenKeyboardOverride (fiCopies:HANDLE, "Qwerty"). 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
 
@@ -349,6 +378,40 @@ PROCEDURE SetCopies :
     END.
     
     fiCopies:SCREEN-VALUE = STRING(ipiCopies).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetKeyboard s-object 
+PROCEDURE SetKeyboard :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipoKeyboard AS system.Keyboard NO-UNDO.
+    
+    oKeyboard = ipoKeyboard.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ShowKeyboard s-object 
+PROCEDURE ShowKeyboard :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    ASSIGN
+        btnKeyboardCopies:VISIBLE   = TRUE
+        btnKeyboardCopies:SENSITIVE = TRUE
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

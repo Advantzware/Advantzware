@@ -39,6 +39,8 @@ DEF BUFFER b-inv-line FOR inv-line.
 DEF BUFFER b-inv-misc FOR inv-misc.
 DEF BUFFER b-cust FOR cust.
 
+RUN spSetSettingContext.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -92,6 +94,7 @@ DEFINE VARIABLE h_p-invmis AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-invvw AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_q-invbol AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-invbil AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-oebolh AS HANDLE NO-UNDO.
@@ -276,6 +279,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {custom/initializeprocs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -312,6 +316,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_smartmsg ).
        RUN set-position IN h_smartmsg ( 1.24 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 1.00 , 28.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/optionse.w':U ,
@@ -956,6 +968,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win
+PROCEDURE OpenSetting:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN windows/setting-dialog.w.
+    {sharpshooter/settingChangeDialog.i}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE refreshBrowse W-Win 
 PROCEDURE refreshBrowse :
 /*------------------------------------------------------------------------------
@@ -1016,9 +1044,10 @@ PROCEDURE select_attcust :
  DEF BUFFER b-cust FOR cust.
 
  DEF VAR v-order-no AS INT NO-UNDO.
-
+ 
+ IF AVAILABLE inv-head THEN    
  FIND FIRST b-inv-head WHERE
-      b-inv-head.rec_key EQ rec_key_value
+      b-inv-head.rec_key EQ inv-head.rec_key
       NO-LOCK NO-ERROR.
 
  IF AVAIL b-inv-head THEN

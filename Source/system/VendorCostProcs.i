@@ -33,6 +33,7 @@ DEFINE TEMP-TABLE ttVendItemCost LIKE vendItemCost
     FIELD reasonNotValid AS CHARACTER
     .
 
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 

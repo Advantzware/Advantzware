@@ -1015,9 +1015,11 @@ DO:
     RUN valid-mat-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
-    IF AVAIL mat THEN
-    mat_dscr:SCREEN-VALUE = mat.dscr.
+    FIND FIRST materialType NO-LOCK
+         WHERE materialType.company EQ cocode 
+         AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
+    IF AVAIL materialType THEN
+    mat_dscr:SCREEN-VALUE = materialType.materialDescription.
 
    &Scoped-define mat-types-enable YES
     DO WITH FRAME {&FRAME-NAME}:
@@ -1064,34 +1066,46 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_mat-type V-table-Win
 ON VALUE-CHANGED OF fi_mat-type IN FRAME F-Main /* Mat'l Type */
 DO:
-  &Scoped-define mat-types-enable NO
+    &Scoped-define mat-types-enable NO
 
-  FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST materialType NO-LOCK
+        WHERE materialType.company EQ cocode 
+        AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE NO-ERROR.
 
-  IF AVAIL mat THEN DO:
-    mat_dscr:SCREEN-VALUE = mat.dscr.
+    IF AVAIL materialType THEN DO:
+        mat_dscr:SCREEN-VALUE = materialType.materialDescription.
 
-    &Scoped-define mat-types-enable YES
-    DO WITH FRAME {&FRAME-NAME}:
-      {custom/mattypes.i}
+        FIND FIRST mat NO-LOCK WHERE 
+            mat.mat EQ fi_mat-type:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL mat THEN DO:
+            CREATE mat.
+            ASSIGN 
+                mat.company = "*"
+                mat.mat = materialType.materialType
+                mat.dscr = materialType.materialDescription.
+        END.
+
+        &Scoped-define mat-types-enable YES
+        DO WITH FRAME {&FRAME-NAME}:
+            {custom/mattypes.i}
+        END.
+        &UNDEFINE mat-types-enable
+
+        IF fi_mat-type:SCREEN-VALUE = "R" THEN do:
+            ASSIGN
+                item.reg-no:LABEL = "Paper Type" .
+            IF item.reg-no:SCREEN-VALUE = "" THEN ASSIGN
+                item.reg-no:SCREEN-VALUE = "Writing"
+                item.s-wid:SCREEN-VALUE = "17.00"
+                item.s-len:SCREEN-VALUE = "22.00" .
+        END.
+        ELSE IF INDEX("BAP1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN do:
+            ASSIGN
+                item.reg-no:LABEL = "Reg.#" 
+                .
+        END.
     END.
-    &UNDEFINE mat-types-enable
-
-    IF fi_mat-type:SCREEN-VALUE = "R" THEN do:
-        ASSIGN
-            item.reg-no:LABEL = "Paper Type" .
-          IF item.reg-no:SCREEN-VALUE = "" THEN
-              ASSIGN
-              item.reg-no:SCREEN-VALUE = "Writing"
-              item.s-wid:SCREEN-VALUE = "17.00"
-              item.s-len:SCREEN-VALUE = "22.00" .
-    END.
-    ELSE IF INDEX("BAP1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN do:
-        ASSIGN
-            item.reg-no:LABEL = "Reg.#" 
-            .
-    END.
-  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1349,12 +1363,12 @@ PROCEDURE enable-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF AVAILABLE item THEN
+  
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_mat-type.
-    IF INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w.
-    IF item.mat-type EQ "C" THEN ENABLE item.flute fi_reg-no.
-    IF INDEX("BAPR1234",item.mat-type) GT 0 THEN do:
+    IF AVAIL ITEM AND INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w.
+    IF AVAIL ITEM AND item.mat-type EQ "C" THEN ENABLE item.flute fi_reg-no.
+    IF AVAIL ITEM AND INDEX("BAPR1234",item.mat-type) GT 0 THEN do:
          ENABLE fi_ect.
          IF fi_mat-type = "R" THEN do:
             ASSIGN
@@ -1495,7 +1509,13 @@ PROCEDURE local-assign-record :
   assign cocode = gcompany
          locode = gloc
          fi_mat-type = lv-mat-type
-         item.mat-type = lv-mat-type.   
+         item.mat-type = lv-mat-type. 
+         
+  FIND FIRST materialType NO-LOCK
+         WHERE materialType.company EQ cocode 
+         AND materialType.materialType EQ item.mat-type NO-ERROR.
+  IF AVAIL materialType THEN       
+  ITEM.materialType = materialType.materialTypeGroup.       
 
   if adm-new-record and item.mat-type = "D" then do:  /* from rm/cpall.i */
      find first bf-item where bf-item.company = gcompany and
@@ -2170,7 +2190,8 @@ PROCEDURE valid-mat-type :
   DO WITH FRAME {&FRAME-NAME}:
     fi_mat-type:SCREEN-VALUE = CAPS(fi_mat-type:SCREEN-VALUE).
 
-    IF NOT CAN-FIND(FIRST mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE) THEN DO:
+    IF NOT CAN-FIND(FIRST materialType WHERE materialType.company EQ cocode
+                    AND materialType.materialType EQ fi_mat-type:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid Material Type. Try Help."  VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fi_mat-type IN FRAME {&FRAME-NAME}.
       RETURN ERROR.

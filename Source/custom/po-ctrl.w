@@ -60,7 +60,8 @@ DEFINE VARIABLE giCurrPo AS INTEGER NO-UNDO.
 &Scoped-define FRAME-NAME po-ctrl
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-16 fiNextPo Btn_Update Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 fiNextPo Btn_Update ~
+Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] 
 &Scoped-define DISPLAYED-TABLES po-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE po-ctrl
@@ -78,16 +79,16 @@ DEFINE VARIABLE giCurrPo AS INTEGER NO-UNDO.
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Close 
-    LABEL "&Close" 
-    SIZE 16 BY 1.29.
+     LABEL "&Close" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Update 
-    LABEL "&Update" 
-    SIZE 16 BY 1.29.
+     LABEL "&Update" 
+     SIZE 16 BY 1.29.
 
 DEFINE VARIABLE fiNextPo AS CHARACTER FORMAT "X(8)":U 
      LABEL "Next Purchase Order Number" 
@@ -99,15 +100,15 @@ DEFINE RECTANGLE RECT-15
      SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-16
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 61 BY 3.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 69 BY 4.29.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME po-ctrl
-     fiNextPo AT ROW 2.33 COL 29 COLON-ALIGNED WIDGET-ID 2
-     po-ctrl.rng-po-no[1] AT ROW 3.43 COL 29 COLON-ALIGNED
+     fiNextPo AT ROW 2.33 COL 30 COLON-ALIGNED WIDGET-ID 2
+     po-ctrl.rng-po-no[1] AT ROW 3.43 COL 30 COLON-ALIGNED
           LABEL "Range of PO Numers"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -117,17 +118,17 @@ DEFINE FRAME po-ctrl
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
           BGCOLOR 15 
-     Btn_Update AT ROW 6 COL 32 HELP
+     Btn_Update AT ROW 5.91 COL 37.9 HELP
           "Update/Save System Configurations"
-     Btn_Close AT ROW 6 COL 48 HELP
+     Btn_Close AT ROW 5.91 COL 53.9 HELP
           "Cancel Update or Close Window"
-     RECT-15 AT ROW 5.76 COL 31
-     RECT-16 AT ROW 1 COL 1
+     RECT-15 AT ROW 5.76 COL 37.5
+     RECT-16 AT ROW 1 COL 1.5
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 64.8 BY 6.05
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 71.4 BY 7.33
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -144,30 +145,30 @@ DEFINE FRAME po-ctrl
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "P/O Control"
-        HEIGHT             = 6.05
-        WIDTH              = 64.8
-        MAX-HEIGHT         = 6.52
-        MAX-WIDTH          = 64.8
-        VIRTUAL-HEIGHT     = 6.52
-        VIRTUAL-WIDTH      = 64.8
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "P/O Control"
+         HEIGHT             = 7.48
+         WIDTH              = 71.4
+         MAX-HEIGHT         = 12.52
+         MAX-WIDTH          = 124.8
+         VIRTUAL-HEIGHT     = 12.52
+         VIRTUAL-WIDTH      = 124.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -182,17 +183,19 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME po-ctrl
    FRAME-NAME                                                           */
 ASSIGN 
-    Btn_Close:PRIVATE-DATA IN FRAME po-ctrl = "ribbon-button".
+       Btn_Close:PRIVATE-DATA IN FRAME po-ctrl     = 
+                "ribbon-button".
 
 ASSIGN 
-    Btn_Update:PRIVATE-DATA IN FRAME po-ctrl = "ribbon-button".
+       Btn_Update:PRIVATE-DATA IN FRAME po-ctrl     = 
+                "ribbon-button".
 
 /* SETTINGS FOR FILL-IN po-ctrl.rng-po-no[1] IN FRAME po-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN po-ctrl.rng-po-no[2] IN FRAME po-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -206,7 +209,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* P/O Control */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -220,7 +223,7 @@ ON END-ERROR OF C-Win /* P/O Control */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* P/O Control */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -342,9 +345,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         CREATE po-ctrl.
         po-ctrl.company = gcompany.
     END.
-    FIND FIRST po-ctrl WHERE po-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
-    Btn_Update:LOAD-IMAGE("Graphics/32x32/update.png").
-    Btn_Close:LOAD-IMAGE("Graphics/32x32/close.png").
+    FIND FIRST po-ctrl WHERE po-ctrl.company EQ gcompany NO-LOCK NO-ERROR.    
     RUN enable_UI.
 
 
@@ -373,18 +374,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,24 +393,24 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY fiNextPo 
-        WITH FRAME po-ctrl IN WINDOW C-Win.
-    IF AVAILABLE po-ctrl THEN 
-        DISPLAY po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] 
-            WITH FRAME po-ctrl IN WINDOW C-Win.
-    ENABLE RECT-16 fiNextPo Btn_Update Btn_Close 
-        WITH FRAME po-ctrl IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-po-ctrl}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY fiNextPo 
+      WITH FRAME po-ctrl IN WINDOW C-Win.
+  IF AVAILABLE po-ctrl THEN 
+    DISPLAY po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] 
+      WITH FRAME po-ctrl IN WINDOW C-Win.
+  ENABLE RECT-15 RECT-16 fiNextPo Btn_Update Btn_Close 
+      WITH FRAME po-ctrl IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-po-ctrl}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

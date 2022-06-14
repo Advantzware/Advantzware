@@ -1,7 +1,7 @@
 /* ------------------------------------------------ oe/rep/invoice.p  9/94 RM */
 /* PRINT INVOICE - O/E MODULE                                                 */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -36,7 +36,7 @@ def var v-tax-code like stax.tax-code.
 def var v-tx-rate like stax.tax-rate.
 def var v-ans as log init no.
 def var v-date-ship as date FORMAT "99/99/99" init today.
-def var v-del-no as int format ">>>>>>".
+def var v-del-no as int format ">>>>>>>>".
 def var v-bol-cases like oe-boll.cases.
 def var v-set-qty as DECIMAL.
 def var v-part-qty as dec format "999.9999".
@@ -56,7 +56,7 @@ def var v-ord-del-hdr  as char format "x(4)" init "Del#".
 def var v-part-info    as char format "x(30)".
 def var v-beeler-lines as int.
 def var v              as int.
-def var v-ord#         as int format ">>>>>>" no-undo.
+def var v-ord#         as int format ">>>>>>>>" no-undo.
 def var v-remit-to     as char format "x(90)".
 
 def var v-c-name         like company.name.

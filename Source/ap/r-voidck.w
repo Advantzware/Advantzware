@@ -754,9 +754,10 @@ do transaction on error undo, leave:
                          ap-pay.reconciled = no
                          on error undo postit, leave postit:
 
-       assign ap-pay.cleared = yes
-              ap-pay.reconciled = ?
-              v-tot-amt-paid = v-tot-amt-paid + ap-pay.check-amt.
+       assign ap-pay.cleared         = yes
+              ap-pay.reconciled      = ?
+              ap-pay.transactionDate = udate
+              v-tot-amt-paid         = v-tot-amt-paid + ap-pay.check-amt.
 
        find first bank where bank.company = cocode and
                              bank.bank-code = ap-pay.bank-code no-error.

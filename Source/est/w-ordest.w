@@ -476,7 +476,7 @@ PROCEDURE adm-create-objects :
        RUN init-pages IN THIS-PROCEDURE ('12':U) NO-ERROR.
 
        /* Links to SmartViewer h_vi-est3. */
-       RUN add-link IN adm-broker-hdl ( h_q-est3 , 'Record':U , h_vi-est3 ).
+       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_vi-est3 ).
 
        /* Links to SmartViewer h_v-est3. */
        RUN add-link IN adm-broker-hdl ( h_p-inkpak , 'TableIO':U , h_v-est3 ).

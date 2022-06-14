@@ -1,0 +1,25 @@
+-------------------------------------------------------------------------------------------------------------
+Beginning run of fsInstaller system on 12/29/21 at 17:50:57                                          --TIME--
+-------------------------------------------------------------------------------------------------------------
+Initiating ipCreateObject in fsInstaller.w                                                           17:50:57
+Completing ipCreateObject in fsInstaller.w                                                           17:51:12
+ 
+Initiating ipConnectDBs in fsInstaller.w                                                             17:51:12
+Completing ipConnectDBs in fsInstaller.w                                                             17:51:12
+ 
+Initiating ipCompileBase in fsInstaller.w                                                            17:51:12
+**************** PROPATH *****************
+   (PROPATH display suppressed. See config file for PROPATH details.
+******************************************
+    ERROR: Compile for C:\ASIgui\Environments\21.04.15\Source\adm\objects\p-updtxn.w FAILED          17:51:33
+    ERROR:  ** "adm\support\admhlp.i" was not found. (293)                                           17:51:34
+    ERROR:  ** C:\ASIgui\Environments\21.04.15\Source\adm\objects\p-updtxn.w Could not understand line 50. (193)17:51:34
+  Base Code compile (19366 entries) completed with 1 errors                                          18:06:33
+Completing ipCompileBase in fsInstaller.w                                                            18:06:33
+ 
+-------------------------------------------------------------------------------------------------------------
+Ending run of fsInstaller system on 12/29/21 at 18:06:33                                    Elapsed: 00:15:36
+-------------------------------------------------------------------------------------------------------------
+ 
+ 
+ 

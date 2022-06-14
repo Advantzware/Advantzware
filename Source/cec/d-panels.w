@@ -2205,38 +2205,44 @@ PROCEDURE decimal-format :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE VARIABLE cFormat AS CHARACTER NO-UNDO.
    DO WITH FRAME {&FRAME-NAME}:
+       
+        cFormat = "->>,>>9.999999".
+        IF v-cecscrn-decimals GT 0 THEN
+        cFormat = "->>,>>9." + FILL("9",INTEGER(v-cecscrn-decimals)).
+        
       ASSIGN
-         val-1:FORMAT = "->>,>>9.999999"
-         val-2:FORMAT = "->>,>>9.999999"
-         val-3:FORMAT = "->>,>>9.999999"
-         val-4:FORMAT = "->>,>>9.999999"
-         val-5:FORMAT = "->>,>>9.999999"
-         val-6:FORMAT = "->>,>>9.999999"
-         val-7:FORMAT = "->>,>>9.999999"
-         val-8:FORMAT = "->>,>>9.999999"
-         val-9:FORMAT = "->>,>>9.999999"
-         val-10:FORMAT = "->>,>>9.999999"
-         val-11:FORMAT = "->>,>>9.999999"
-         val-12:FORMAT = "->>,>>9.999999"
-         val-13:FORMAT = "->>,>>9.999999"
-         val-14:FORMAT = "->>,>>9.999999"
-         val-15:FORMAT = "->>,>>9.999999"
-         val-16:FORMAT = "->>,>>9.999999"
-         val-17:FORMAT = "->>,>>9.999999"
-         val-18:FORMAT = "->>,>>9.999999"
-         val-19:FORMAT = "->>,>>9.999999"
-         val-20:FORMAT = "->>,>>9.999999"
-         val-21:FORMAT = "->>,>>9.999999"
-         val-22:FORMAT = "->>,>>9.999999"
-         val-23:FORMAT = "->>,>>9.999999"
-         val-24:FORMAT = "->>,>>9.999999"
-         val-25:FORMAT = "->>,>>9.999999"
-         val-26:FORMAT = "->>,>>9.999999"
-         val-27:FORMAT = "->>,>>9.999999"
-         val-28:FORMAT = "->>,>>9.999999"
-         val-29:FORMAT = "->>,>>9.999999"
-         val-30:FORMAT = "->>,>>9.999999".
+         val-1:FORMAT = cFormat
+         val-2:FORMAT = cFormat
+         val-3:FORMAT = cFormat
+         val-4:FORMAT = cFormat
+         val-5:FORMAT = cFormat
+         val-6:FORMAT = cFormat
+         val-7:FORMAT = cFormat
+         val-8:FORMAT = cFormat
+         val-9:FORMAT = cFormat
+         val-10:FORMAT = cFormat
+         val-11:FORMAT = cFormat
+         val-12:FORMAT = cFormat
+         val-13:FORMAT = cFormat
+         val-14:FORMAT = cFormat
+         val-15:FORMAT = cFormat
+         val-16:FORMAT = cFormat
+         val-17:FORMAT = cFormat
+         val-18:FORMAT = cFormat
+         val-19:FORMAT = cFormat
+         val-20:FORMAT = cFormat
+         val-21:FORMAT = cFormat
+         val-22:FORMAT = cFormat
+         val-23:FORMAT = cFormat
+         val-24:FORMAT = cFormat
+         val-25:FORMAT = cFormat
+         val-26:FORMAT = cFormat
+         val-27:FORMAT = cFormat
+         val-28:FORMAT = cFormat
+         val-29:FORMAT = cFormat
+         val-30:FORMAT = cFormat.
    END.
 END PROCEDURE.
 

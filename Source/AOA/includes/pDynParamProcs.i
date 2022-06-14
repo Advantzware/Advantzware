@@ -48,6 +48,9 @@ PROCEDURE pDatePickList :
     IF VALID-HANDLE(iphCalendar) THEN
     iphCalendar:SENSITIVE = iphPickList:SCREEN-VALUE EQ "Fixed Date".
 
+    IF lModified EQ NO AND lInitialized EQ YES THEN
+    lModified = iphWidget:MODIFIED.
+
 END PROCEDURE.
 
 PROCEDURE pInitDynParameters :
@@ -207,6 +210,9 @@ PROCEDURE pSaveDynParamValues :
     DEFINE VARIABLE hWidget    AS HANDLE  NO-UNDO.
     DEFINE VARIABLE iSortOrder AS INTEGER NO-UNDO.
     
+    DEFINE BUFFER bDynSubjectParamSet FOR dynSubjectParamSet.
+    DEFINE BUFFER bDynParamSetDtl     FOR dynParamSetDtl.
+
     DO TRANSACTION:
         EMPTY TEMP-TABLE ttParamOrder.
         FIND CURRENT dynParamValue EXCLUSIVE-LOCK.
@@ -244,6 +250,7 @@ PROCEDURE pSaveDynParamValues :
             :
             DELETE dynValueParam.
         END. /* each dynvalueparam */
+        iSortOrder = 500.
         FOR EACH ttParamOrder:
             CREATE dynValueParam.
             ASSIGN
@@ -265,6 +272,7 @@ PROCEDURE pSaveDynParamValues :
             hWidget = FRAME outputFrame:HANDLE
             hWidget = hWidget:FIRST-CHILD
             hWidget = hWidget:FIRST-CHILD
+            iSortOrder = 900
             .
         DO WHILE VALID-HANDLE(hWidget):
             IF CAN-DO("EDITOR,RADIO-SET,TOGGLE-BOX",hWidget:TYPE) THEN DO:
@@ -284,6 +292,29 @@ PROCEDURE pSaveDynParamValues :
             END. /* if hwidget:type */
             hWidget = hWidget:NEXT-SIBLING.
         END. /* do while */
+        iSortOrder = 0.
+        FOR EACH bDynSubjectParamSet NO-LOCK
+            WHERE bDynSubjectParamSet.subjectID EQ dynParamValue.subjectID,
+            EACH bDynParamSetDtl NO-LOCK
+            WHERE bDynParamSetDtl.paramSetID EQ bDynSubjectParamSet.paramSetID
+               BY bDynSubjectParamSet.sortOrder
+               BY bDynParamSetDtl.paramRow
+               BY bDynParamSetDtl.paramCol
+            :
+            FIND FIRST dynValueParam EXCLUSIVE-LOCK
+                 WHERE dynValueParam.subjectID    EQ dynParamValue.subjectID
+                   AND dynValueParam.user-id      EQ dynParamValue.user-id
+                   AND dynValueParam.prgmName     EQ dynParamValue.prgmName
+                   AND dynValueParam.paramValueID EQ dynParamValue.paramValueID
+                   AND dynValueParam.paramName    EQ bDynParamSetDtl.paramName
+                 NO-ERROR.
+                 .
+            IF AVAILABLE dynValueParam THEN
+            ASSIGN
+                iSortOrder              = iSortOrder + 1
+                dynValueParam.sortOrder = iSortOrder
+                .
+        END. // each bdynsubjectparamset
         RELEASE dynValueParam.
 &ENDIF        
     END. /* do trans */

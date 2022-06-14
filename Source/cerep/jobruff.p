@@ -10,8 +10,8 @@ DEFINE INPUT PARAMETER v-format LIKE sys-ctrl.char-fld.
 
 DEFINE NEW SHARED VARIABLE save_id          AS RECID.
 DEFINE NEW SHARED VARIABLE v-today          AS DATE      INIT TODAY.
-DEFINE NEW SHARED VARIABLE v-job            AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2           AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE NEW SHARED VARIABLE v-job            AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2           AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart        LIKE style.dscr.
 DEFINE            VARIABLE v-dsc            LIKE oe-ordl.part-dscr1 EXTENT 3.
 DEFINE NEW SHARED VARIABLE v-size           AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -232,6 +232,7 @@ DEF VAR v-spoil LIKE job-mch.wst-prct NO-UNDO.
 DEF VAR v-output AS INT FORM ">,>>>,>>9" NO-UNDO.
 DEFINE VARIABLE cRelStat AS CHARACTER NO-UNDO .
 DEFINE BUFFER bf-item FOR ITEM .
+DEFINE BUFFER bff-item FOR ITEM .
 DEFINE VARIABLE cBarCodeVal AS CHARACTER NO-UNDO .
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS CHAR FORMAT "x(200)" NO-UNDO.
@@ -243,6 +244,7 @@ DEFINE VARIABLE lAssembled AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cSetFGItem AS CHARACTER NO-UNDO . 
 DEFINE VARIABLE dPerSetQty AS DECIMAL NO-UNDO .
 DEFINE VARIABLE lPrintSetHeader AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iDisplayOrderQty AS INTEGER NO-UNDO.
 DEFINE BUFFER bff-eb FOR eb. 
 ASSIGN 
     ls-image1 = "images\ruffino.png"
@@ -479,7 +481,7 @@ DO:
         
     IF FIRST-OF(job-hdr.job-no2) THEN 
         v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.
-    cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") .
+    cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
     /*v-pg-num = IF PAGE-NUMBER >= 2 THEN PAGE-NUMBER - 1 ELSE 0.*/
      /*VIEW FRAME head.*/       
 
@@ -958,7 +960,7 @@ FOR EACH ef
            AND bff-eb.form-no EQ 0
            AND bff-eb.est-type EQ 2 :
                         
-           lAssembled = IF bff-eb.set-is-assembled EQ YES THEN YES ELSE NO .
+           lAssembled = IF (bff-eb.set-is-assembled EQ YES OR bff-eb.set-is-assembled EQ ? ) THEN YES ELSE NO .
            cSetFGItem = bff-eb.stock-no  .
            lPrintSetHeader = TRUE.
            RUN pPrintData(ROWID(bff-eb)).
@@ -1020,9 +1022,9 @@ PROCEDURE pPrintHeader :
 
     DEFINE INPUT PARAMETER ipiType AS INTEGER NO-UNDO .
     IF ipiType EQ 0 THEN
-         cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(eb.form-no,"99") + "-" + STRING(eb.blank-no,"99") .
+         cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2) + "-" + STRING(eb.form-no,"99") + "-" + STRING(eb.blank-no,"99"))) .
     IF ipiType EQ 1 THEN
-         cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99")  .
+         cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
          PUT 
             "<FGCOLOR=GREEN><LINECOLOR=GREEN><R5><C58.5><From><R11><C58.5><Line><||6>"
             "<=1>" .
@@ -1036,17 +1038,17 @@ PROCEDURE pPrintHeader :
 END PROCEDURE.
 
 PROCEDURE pPrintData:
-       DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+       DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .       
        FIND FIRST bf-xeb WHERE ROWID(bf-xeb) EQ ipriRowid NO-LOCK NO-ERROR. 
        ASSIGN cDieNo = bf-xeb.die-no.
          RUN pPrintHeader(1) .
         
-          PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(bf-xeb.form-no,"99")) FORM "x(14)" "<P10>" SKIP
-            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  job-hdr.ord-no  FORMAT ">>>>>9"  SKIP          
+          PUT "<R5><C1><FGCOLOR=GREEN>CUSTOMER                          SHIP TO"            "<P12><C59>Job#: <FGCOLOR=BLACK>"  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2) + "-" + STRING(bf-xeb.form-no,"99"))) FORM "x(16)" "<P10>" SKIP
+            v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  TRIM(STRING(job-hdr.ord-no,">>>>>>>9")) FORMAT "X(8)"  SKIP          
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN> CUST PO: <FGCOLOR=BLACK>" (if avail oe-ord THEN oe-ord.po-no ELSE "")  FORMAT "x(15)"   SKIP
             v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>ORD DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"        SKIP
             v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>DUE DATE: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)" SKIP
-            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(6)"        SKIP 
+            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(8)"        SKIP 
             v-fill SKIP
             "<R-0.5><C1><FGCOLOR=GREEN>Item On Job:" SKIP
             "<C4><P9>ITEM#  <C16>CUST PART# <C28>DESCRIPTION  <C50>FORM <C54>BLANK <C59>#UP <C64>ORDER QTY <C72>OVERS <C77>UNDERS <FGCOLOR=BLACK>" SKIP .
@@ -1082,7 +1084,32 @@ PROCEDURE pPrintData:
                         AND bf-oe-ordl.job-no2 EQ job-hdr.job-no2
                         AND bf-oe-ordl.i-no EQ bf-eb.stock-no                         
                         NO-ERROR .    
-                END.    
+                END.
+                ELSE DO:
+                  FIND FIRST bf-oe-ordl NO-LOCK
+                        WHERE bf-oe-ordl.company EQ bf-eb.company
+                        AND bf-oe-ordl.ord-no  EQ bf-eb.ord-no                         
+                        AND bf-oe-ordl.i-no EQ bf-eb.stock-no 
+                        AND bf-oe-ordl.form-no = int(tt-reftable.val[12])
+                        NO-ERROR .   
+                  FIND FIRST bf-oe-ordl NO-LOCK
+                        WHERE bf-oe-ordl.company EQ bf-eb.company
+                        AND bf-oe-ordl.ord-no  EQ bf-eb.ord-no                         
+                        AND bf-oe-ordl.i-no EQ bf-eb.stock-no                         
+                        NO-ERROR .      
+                END.
+                    
+                iDisplayOrderQty = IF AVAIL bf-oe-ordl AND bf-oe-ordl.qty NE 0 THEN bf-oe-ordl.qty ELSE IF AVAIL bf-job-hdr AND bf-job-hdr.qty NE 0 THEN bf-job-hdr.qty ELSE v-ord-qty . 
+                   
+                IF lAssembled AND bf-eb.est-type EQ 2 THEN
+                DO:
+                    FIND FIRST fg-set NO-LOCK
+                         WHERE fg-set.company EQ bf-eb.company
+                         AND fg-set.set-no EQ cSetFgItem
+                         AND fg-set.part-no EQ bf-eb.stock-no NO-ERROR.
+                    IF AVAILABLE fg-set THEN
+                      iDisplayOrderQty =  iDisplayOrderQty * fg-set.qtyPerSet.                        
+                END.                                         
                                                          
                 PUT "<C1.5>" STRING(string(iCount) + "." ) FORMAT "x(2)" 
                     "<C4>"  bf-eb.stock-no FORMAT "x(15)"
@@ -1091,7 +1118,7 @@ PROCEDURE pPrintData:
                     "<C51>" bf-eb.form-no FORMAT ">9"
                     "<C55>" bf-eb.blank-no FORMAT ">9"
                     "<C59>" bf-eb.num-up FORMAT ">>>"
-                    "<C64>" (IF AVAIL bf-oe-ordl AND bf-oe-ordl.qty NE 0 THEN bf-oe-ordl.qty ELSE IF AVAIL bf-job-hdr AND bf-job-hdr.qty NE 0 THEN bf-job-hdr.qty ELSE v-ord-qty) FORMAT ">>>>>>>>"
+                    "<C64>" iDisplayOrderQty FORMAT ">>>>>>>>"
                     "<C72>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.over-pct ELSE v-over-pct) FORMAT ">>>>%"
                     "<C77>" (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.under-pct ELSE dUnderPct) FORMAT ">>>>%" SKIP.
                 iCount = iCount + 1 .
@@ -1329,14 +1356,14 @@ PROCEDURE pPrintDetail:
          END.
                   
 
-        PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C60>Job#: <FGCOLOR=BLACK>"  string(job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") + "-" + STRING(bf-xeb.form-no,"99") + "-" + STRING(bf-xeb.blank-no,"99") ) FORM "x(16)" "<P10>" SKIP
+        PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C59>Job#: <FGCOLOR=BLACK>"  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2) + "-" + STRING(bf-xeb.form-no,"99") + "-" + STRING(bf-xeb.blank-no,"99"))) FORM "x(19)" "<P10>" SKIP
             v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-no) ELSE "")  SKIP        
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN> Cust Po: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.po-no) ELSE "")  FORMAT "x(15)"         SKIP 
             v-cus[3]  v-shipto[3] AT 35                                 "<C60><FGCOLOR=GREEN>Ord Date: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-date) ELSE "")  FORMAT "x(10)"         SKIP
             v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>Due Date: <FGCOLOR=BLACK>"   (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)"   SKIP
-            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(6)"        SKIP
+            "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(8)"        SKIP
             v-fill SKIP
-            "<FGCOLOR=GREEN>ORDER QUANTITY:<FGCOLOR=BLACK>" v-ord-qty   "<C25><FGCOLOR=GREEN>OVER:<FGCOLOR=BLACK>" v-over-pct FORMAT ">>>>%" "<C36><FGCOLOR=GREEN>UNDER:<FGCOLOR=BLACK>" dUnderPct FORMAT ">>>>%" 
+            "<FGCOLOR=GREEN>ORDER QUANTITY:<FGCOLOR=BLACK>" iDisplayOrderQty   "<C25><FGCOLOR=GREEN>OVER:<FGCOLOR=BLACK>" v-over-pct FORMAT ">>>>%" "<C36><FGCOLOR=GREEN>UNDER:<FGCOLOR=BLACK>" dUnderPct FORMAT ">>>>%" 
              "<C54><FGCOLOR=GREEN>PRINT #UP:<FGCOLOR=BLACK>"bf-xeb.num-UP FORM ">>9" "    <FGCOLOR=GREEN>DIE CUT #UP:<FGCOLOR=BLACK>" v-tot-up  FORM ">>9"  /*"<C51><FGCOLOR=GREEN>TOTAL COLORS<FGCOLOR=BLACK> "   eb.i-coldscr*/ SKIP
             "<C1><FGCOLOR=GREEN>   FG ITEM: <FGCOLOR=BLACK>" bf-xeb.stock-no FORMAT "x(15)"      "<C25><FGCOLOR=GREEN>DESC:<FGCOLOR=BLACK>" bf-xeb.part-dscr1 FORMAT "x(30)"        "<C54><FGCOLOR=GREEN>STYLE: <FGCOLOR=BLACK>" v-stypart FORMAT "x(30)" SKIP
             "<C1><FGCOLOR=GREEN> CUST PART: <FGCOLOR=BLACK>" bf-xeb.part-no FORMAT "x(15)"     "<C29>"    bf-xeb.part-dscr2 FORMAT "x(30)"          "<C54><FGCOLOR=GREEN> SIZE: <FGCOLOR=BLACK>" string(STRING(bf-xeb.len) + "x" + string(bf-xeb.wid) + "x" + string(bf-xeb.dep)) FORMAT "x(40)" SKIP
@@ -1593,12 +1620,16 @@ PROCEDURE pPrintDetail:
             IF NOT AVAILABLE tt-key2 THEN CREATE tt-key2.                                       
             V-PRT-UP = v-up * ef.n-out-l.
             
+            FIND FIRST bff-item NO-LOCK 
+                WHERE bff-item.company EQ cocode
+                AND bff-item.i-no      EQ bf-eb.tr-no NO-ERROR.
+            
             IF PAGE-SIZE - LINE-COUNTER LE 12 THEN PAGE. 
             PUT 
-              "<C3><FGCOLOR=GREEN>SHIP TO: "  "<C40><FGCOLOR=GREEN>CUST PO: <FGCOLOR=BLACK>" (IF AVAIL oe-ordl THEN oe-ordl.po-no ELSE "") FORMAT "x(15)" "<C59><FGCOLOR=GREEN>  CASE WEIGHT: <FGCOLOR=BLACK>" string(bf-eb.cas-wt) FORMAT "x(10)"   SKIP
-              "<C7>" v-shipto[1] "<C43><FGCOLOR=GREEN> QTY: <FGCOLOR=BLACK>" IF AVAIL xjob-hdr THEN string(xjob-hdr.qty) ELSE "" SKIP
-              "<C7>" v-shipto[2] "<C42><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-cnt)   "<C61><FGCOLOR=GREEN>  PER CASE: <FGCOLOR=BLACK>" bf-eb.cas-no FORMAT "x(15)" SKIP
-              "<C7>" v-shipto[3] "<C42><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-pal)   "<C60><FGCOLOR=GREEN> PER PALLET: <FGCOLOR=BLACK>" bf-eb.tr-no FORMAT "x(15)" SKIP
+              "<C3><FGCOLOR=GREEN>SHIP TO: "  "<C35.35><FGCOLOR=GREEN>CUST PO: <FGCOLOR=BLACK>" (IF AVAIL oe-ordl THEN oe-ordl.po-no ELSE "") FORMAT "x(15)" SKIP
+              "<C7>" v-shipto[1] "<C37.85><FGCOLOR=GREEN> QTY: <FGCOLOR=BLACK>" IF AVAIL xjob-hdr THEN string(xjob-hdr.qty) ELSE "" SKIP
+              "<C7>" v-shipto[2] "<C37><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-cnt)   "<C46.85><FGCOLOR=GREEN>  PER CASE: <FGCOLOR=BLACK>" bf-eb.cas-no FORMAT "x(15)" SKIP
+              "<C7>" v-shipto[3] "<C37><FGCOLOR=GREEN> PACK: <FGCOLOR=BLACK>" string(bf-eb.cas-pal)   "<C46><FGCOLOR=GREEN> PER PALLET: <FGCOLOR=BLACK>" ( IF AVAIL bff-item THEN string(bff-item.i-NAME) ELSE "" ) FORM "x(30)" SKIP
               "<C7>" v-shipto[4]  SKIP
               "<C3><FGCOLOR=GREEN>PART#: <FGCOLOR=BLACK>" bf-eb.part-no FORMAT "x(15)" SKIP
               "<C4><FGCOLOR=GREEN>DESC: <FGCOLOR=BLACK>" bf-eb.part-dscr1 FORMAT "x(30)" SKIP

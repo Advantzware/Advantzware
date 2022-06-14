@@ -484,6 +484,10 @@ PROCEDURE epUserRecordCheck :
     ELSE ASSIGN 
         lTrack = users.track_usage.
 
+    /* 106835 - check for user temp folder and if not present create it */
+    /* Note that there are no supers at this point, and Propath is still indeterminate, so calls to
+        filesysprocs and/or osprocs may not be available */
+    OS-CREATE-DIR VALUE(users.user_program[2]) NO-ERROR.
 
 END PROCEDURE.
 
