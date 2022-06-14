@@ -1155,6 +1155,7 @@ PROCEDURE pLocationScan PRIVATE :
     DEFINE VARIABLE cCurrentWarehouse AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCurrentLocation  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lLocationConfirm  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cTag              AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
@@ -1168,7 +1169,9 @@ PROCEDURE pLocationScan PRIVATE :
     END.
     
     oLoadTag:SetContext (cCompany, lItemType /* ItemType */, ipcTag).
-
+    
+    cTag = oLoadTag:GetValue("Tag").
+    
     IF NOT oLoadTag:IsAvailable() THEN DO:
         ASSIGN
             oplError   = TRUE
@@ -1180,11 +1183,11 @@ PROCEDURE pLocationScan PRIVATE :
     cItemID = oLoadTag:GetValue("ItemID").
     
     IF lItemType THEN DO:
-        oRMBin:SetContext (cCompany, cItemID, ipcTag).
+        oRMBin:SetContext (cCompany, cItemID, cTag).
         IF NOT oRMBin:IsAvailable() THEN DO:
             ASSIGN
                 oplError   = TRUE
-                opcMessage = "FG Bin not available for tag '" + ipcTag + "'"
+                opcMessage = "RM Bin not available for tag '" + ipcTag + "'"
                 .
             RETURN.
         END.
@@ -1205,7 +1208,7 @@ PROCEDURE pLocationScan PRIVATE :
             RETURN.        
         END.
      
-        oFGBin:SetContext (cCompany, cItemID, ipcTag).
+        oFGBin:SetContext (cCompany, cItemID, cTag).
         IF NOT oFGBin:IsAvailable() THEN DO:
             ASSIGN
                 oplError   = TRUE
@@ -1246,7 +1249,7 @@ PROCEDURE pLocationScan PRIVATE :
             INPUT  cCompany, 
             INPUT  ipcWarehouse,
             INPUT  ipcLocation, 
-            INPUT  ipcTag,
+            INPUT  cTag,
             INPUT  cItemID,
             INPUT  STRING(lItemType, "RM/FG"),
             INPUT  cUserID, 
