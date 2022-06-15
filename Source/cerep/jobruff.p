@@ -958,17 +958,17 @@ FOR EACH ef
            WHERE bff-eb.company EQ eb.company
            AND bff-eb.est-no EQ eb.est-no
            AND bff-eb.form-no EQ 0
-           AND bff-eb.est-type EQ 2 :
+           AND bff-eb.est-type EQ 2:
                         
            lAssembled = IF (bff-eb.set-is-assembled EQ YES OR bff-eb.set-is-assembled EQ ? ) THEN YES ELSE NO .
-           cSetFGItem = bff-eb.stock-no  .
+           cSetFGItem = bff-eb.stock-no.
            lPrintSetHeader = TRUE.
            RUN pPrintData(ROWID(bff-eb)).
            PAGE.
        END.
    END.
       
-    IF FIRST-OF(eb.form-no) THEN do:  
+    IF FIRST-OF(eb.form-no) THEN do:        
       RUN pPrintData(ROWID(eb)) . 
                      
     END.  /* first-of eb */
@@ -1037,8 +1037,12 @@ PROCEDURE pPrintHeader :
 
 END PROCEDURE.
 
-PROCEDURE pPrintData:
-       DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .       
+PROCEDURE pPrintData:    
+            
+       DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+              
+       DEFINE VARIABLE inInkCount AS INTEGER NO-UNDO.
+               
        FIND FIRST bf-xeb WHERE ROWID(bf-xeb) EQ ipriRowid NO-LOCK NO-ERROR. 
        ASSIGN cDieNo = bf-xeb.die-no.
          RUN pPrintHeader(1) .
@@ -1172,7 +1176,8 @@ PROCEDURE pPrintData:
             x      = 2
             i      = 1
             v-ink1 = ""
-            v-ink2 = "".
+            v-ink2 = ""
+            inInkCount = 0.
 
         FOR EACH wrk-ink WHERE wrk-ink.form-no = bf-xeb.form-no
              AND wrk-ink.Iform EQ 1 
@@ -1198,18 +1203,21 @@ PROCEDURE pPrintData:
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
-                  i         = i + 1         . 
+                  i         = i + 1         
+                  inInkCount = inInkCount + 1. 
           DELETE wrk-ink. 
         END. /* each wrk-ink */
+        
         ASSIGN
             v-skip          = NO
             v-plate-printed = NO.
-        iCount = 1 .
-        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(bf-xeb.i-col) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
+        iCount = 1.        
+        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(inInkCount) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   bf-xeb.i-coldscr FORMAT "x(35)" SKIP.
         
         PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C37.3>Per<C42.2>U <C44.4>S <FGCOLOR=BLACK>" SKIP. 
+        
         DO j = 1 TO 12:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN do:
@@ -1452,7 +1460,7 @@ PROCEDURE pPrintDetail:
         ASSIGN
             v-skip          = NO
             v-plate-printed = NO.
-        iCount = 1 .    
+        iCount = 1.    
         PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(bf-xeb.i-col) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   bf-xeb.i-coldscr FORMAT "x(35)" SKIP.
