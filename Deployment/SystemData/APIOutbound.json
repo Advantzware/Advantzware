@@ -1930,5 +1930,33 @@
     "hostSSHKey": "",
     "useLocationValidation": false,
     "autoIncrement": false
+  },
+  {
+    "rec_key": "202206145691809515671",
+    "apiID": "PrintPurchaseOrder",
+    "endPoint": "",
+    "isSSLEnabled": false,
+    "authType": "basic",
+    "userName": "",
+    "password": "",
+    "requestData": "<PREVIEW><MODAL=NO><\/PROGRESS><FArial>$ReportHeader$$PurchaseOrderGroupHeader$$PurchaseOrders$$PurchaseOrderGroupFooter$$ReportFooter$",
+    "requestDataType": "",
+    "requestVerb": "",
+    "clientID": "_default",
+    "inActive": true,
+    "createTime": "2022-06-14T15:48:38.678",
+    "createBy": "asi",
+    "requestHandler": "",
+    "responseHandler": "",
+    "company": "",
+    "apiOutboundID": 71,
+    "saveFile": true,
+    "saveFileFolder": "C:\\tmp",
+    "description": "Purchase Order business form for format poprint 1",
+    "requestType": "SAVE",
+    "transactionCounter": 0,
+    "hostSSHKey": "",
+    "useLocationValidation": false,
+    "autoIncrement": false
   }
 ]

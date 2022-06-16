@@ -3443,5 +3443,18 @@
     "clientID": "_default",
     "apiOutboundTriggerID": 270,
     "apiOutboundID": 70
+  },
+  {
+    "company": "",
+    "rec_key": "202206145691809515692",
+    "apiID": "PrintPurchaseOrder",
+    "triggerID": "PrintPurchaseOrder",
+    "description": "Trigger to print a purchase order",
+    "inActive": false,
+    "createTime": "2022-06-14T16:49:54.681",
+    "createBy": "asi",
+    "clientID": "_default",
+    "apiOutboundTriggerID": 271,
+    "apiOutboundID": 71
   }
 ]
