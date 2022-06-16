@@ -1487,7 +1487,7 @@ PROCEDURE run-report :
 
     ASSIGN
         cAPIScopeID   = IF ip-cust-no EQ "" THEN "" ELSE IF ip-sold-no EQ "" THEN ip-cust-no ELSE ip-cust-no + "," + ip-sold-no
-        cAPIScopeType = IF ip-cust-no EQ "" THEN "" ELSE IF ip-sold-no EQ "" THEN "Customer" ELSE "ShpTo"
+        cAPIScopeType = IF ip-cust-no EQ "" THEN "" ELSE IF ip-sold-no EQ "" THEN "Customer" ELSE "ShipTo"
         .
         
     RUN Outbound_IsApiClientAndScopeActive IN hdOutboundProcs (cocode, "", "PrintInvoice", v-print-fmt, cAPIScopeID, cAPIScopeType, "PrintInvoice", OUTPUT lIsAPIActive).
