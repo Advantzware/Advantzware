@@ -659,7 +659,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ord.po-no COLUMN-LABEL "Order PO#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      getitempo() @ cItemPo COLUMN-LABEL "Item PO#" WIDTH 30 LABEL-BGCOLOR 14
+      getitempo() @ cItemPo COLUMN-LABEL "Item PO#" FORMAT "x(15)" WIDTH 30 LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 12
@@ -872,7 +872,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[11]   > ASI.oe-ord.po-no
 "oe-ord.po-no" "Order PO#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
-"getitempo() @ cItemPo" "Item PO#" ? "character" ? ? ? 14 ? ? yes ? no no "30" yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
+"getitempo() @ cItemPo" "Item PO#" "x(15)" "character" ? ? ? 14 ? ? yes ? no no "30" yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
      _FldNameList[13]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-ordl.job-no
@@ -1114,6 +1114,7 @@ DO:
       fi_part-no
       fi_ord-no
       fi_po-no1
+      fiItemPo
       fi_est-no
       fi_job-no
       fi_job-no2
