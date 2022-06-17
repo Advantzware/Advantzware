@@ -116,7 +116,7 @@ DEFINE VARIABLE browse-order AS INTEGER
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 74 BY 2.62.
+     SIZE 87 BY 2.62.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -134,7 +134,7 @@ DEFINE BROWSE Browser-Table
       rejct-cd.dscr FORMAT "x(45)":U WIDTH 51.4
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 85 BY 16.91
+    WITH NO-ASSIGN SEPARATORS SIZE 87 BY 16.91
          FONT 2.
 
 
@@ -185,7 +185,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 85.8.
+         WIDTH              = 88.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
