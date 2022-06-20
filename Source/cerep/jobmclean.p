@@ -1062,7 +1062,7 @@ PROCEDURE pGetBlankQtys PRIVATE:
     DEFINE OUTPUT PARAMETER opiQtyYield AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiQtyRequest AS INTEGER NO-UNDO.
     
-    FOR FIRST estCostHeader NO-LOCK
+    FOR LAST estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
         AND estCostHeader.jobID EQ ipcJobID
         AND estCostHeader.jobID2 EQ ipiJobID2,
@@ -1191,7 +1191,7 @@ PROCEDURE pGetFormQtys PRIVATE:
       
     END. 
     
-    FOR FIRST estCostHeader NO-LOCK
+    FOR LAST estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
         AND estCostHeader.jobID EQ ipcJobID
         AND estCostHeader.jobID2 EQ ipiJobID2,
@@ -1524,7 +1524,7 @@ PROCEDURE pPrintOperationsForForm PRIVATE:
         RUN pPrintHeader .
     END.
 
-    FOR FIRST estCostHeader NO-LOCK
+    FOR LAST estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
         AND estCostHeader.jobID EQ ipcJobID
         AND estCostHeader.jobID2 EQ ipiJobID2,
