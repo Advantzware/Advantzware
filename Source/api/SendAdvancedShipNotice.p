@@ -52,6 +52,7 @@
     DEFINE VARIABLE cOrderDate    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDelivDate    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPOID         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBuyerPart    AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cPostalID      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPostalName    AS CHARACTER NO-UNDO.
@@ -305,12 +306,21 @@
                  NO-ERROR.
             IF AVAILABLE bf-itemfg THEN
                 cItemName = bf-itemfg.i-name.
-                
+            
+            FIND FIRST oe-ordl NO-LOCK 
+                 WHERE oe-ordl.company EQ oe-boll.company
+                   AND oe-ordl.ord-no  EQ oe-boll.ord-no
+                   AND oe-ordl.line    EQ oe-boll.line
+                 NO-ERROR.
+            IF AVAILABLE oe-ordl THEN
+                cBuyerPart = oe-ordl.part-no.
+                                                 
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemLineID", STRING(oe-boll.line)).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantity", cQuantity).                            
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemQuantityUOM", cUOM).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemID", oe-boll.i-no).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemName", cItemName).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "BuyerPart", cBuyerPart).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "HLCount", iHLCount).
             
             lcItemConcatData = lcItemConcatData + lcItemData.
