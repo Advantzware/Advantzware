@@ -7218,10 +7218,8 @@ PROCEDURE pCreateSetEstimate :
       FOR EACH bf-eb NO-LOCK
           WHERE bf-eb.company EQ cocode
             AND bf-eb.est-no EQ bff-eb.est-no BY bf-eb.form-no :       
-          IF bf-eb.sourceEstimate NE "" THEN 
-            RUN est/BuildFarmForLogistics.p (INPUT ROWID(bf-eb),INPUT YES, INPUT YES).
-          ELSE 
-            RUN est/dNewMiscCost.w( INPUT ROWID(bf-eb)) .
+          
+            RUN est/BuildFarmForLogistics.p (INPUT ROWID(bf-eb),INPUT YES).            
       END.  
   END.      
         
