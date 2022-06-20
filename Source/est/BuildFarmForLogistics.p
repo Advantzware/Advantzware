@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriEb AS ROWID.
 DEFINE INPUT PARAMETER iplPromptForQuotes AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER iplSubAssembly AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttQuantityCost
     FIELD iQty       AS INTEGER
@@ -55,7 +56,7 @@ RUN pCopyInksAndDesign(BUFFER eb).
 RUN pGetCostFrom(INPUT eb.company,OUTPUT cMiscEstimateSource). 
 
 IF cMiscEstimateSource EQ "Estimate" THEN
-    RUN pBuildQuantitiesAndCostsFromProbe(BUFFER eb).
+    RUN pBuildQuantitiesAndCostsFromEstimate(BUFFER eb, iplSubAssembly).
 ELSE IF cMiscEstimateSource EQ "Quote" THEN
     DO:
         RUN pBuildQuantitiesAndCostsFromQuote(BUFFER eb).    
@@ -119,20 +120,21 @@ RELEASE bf-vendItemCostLevel.
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE pBuildQuantitiesAndCostsFromProbe PRIVATE:
+PROCEDURE pBuildQuantitiesAndCostsFromEstimate PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Queries each probe for an estimate, building a tt of unique quantities, 
      starting with the latest probe for a given quantity
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE INPUT PARAMETER iplSubAssembly AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cEstNo AS CHARACTER.
     
     EMPTY TEMP-TABLE ttQuantityCost.
     cEstNo = ipbf-eb.sourceEstimate.
     RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
-    
+       
     FOR EACH probe NO-LOCK 
         WHERE probe.company EQ ipbf-eb.company
         AND probe.est-no EQ cEstNo
@@ -146,10 +148,16 @@ PROCEDURE pBuildQuantitiesAndCostsFromProbe PRIVATE:
             CREATE ttQuantityCost.
             ASSIGN 
                 ttQuantityCost.iQty       = probe.est-qty
-                ttQuantityCost.dCostPerEA = probe.sell-price / 1000
+                ttQuantityCost.dCostPerEA = IF iplSubAssembly THEN probe.fact-cost / 1000 ELSE probe.sell-price / 1000
                 .  
         END.            
-    END.        
+    END.
+    FIND FIRST ttQuantityCost
+    WHERE ttQuantityCost.iQty EQ eb.bl-qty
+    NO-ERROR.
+    IF NOT AVAILABLE ttQuantityCost THEN DO:
+        
+    END.            
 
 END PROCEDURE.  
 

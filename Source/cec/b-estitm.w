@@ -7108,7 +7108,7 @@ PROCEDURE pCreateMiscEstimate :
 
   IF AVAIL bff-eb THEN DO:
       IF bff-eb.sourceEstimate NE "" THEN 
-        RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT YES).
+        RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT YES, INPUT NO).
       ELSE 
         RUN est/dNewMiscCost.w( INPUT riEb ) .
   END.
@@ -7173,27 +7173,6 @@ PROCEDURE pCreateMoldEstimate :
       WHERE bff-eb.company EQ cocode
         AND ROWID(bff-eb) EQ riEb NO-ERROR .
 
-
-  /*IF AVAIL bff-eb THEN DO:
-      IF bff-eb.sourceEstimate NE "" THEN 
-        RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT YES).
-      ELSE 
-        RUN est/dNewMiscCost.w( INPUT riEb ) .
-  END.
-  IF iCount > 0 AND AVAIL bff-eb THEN do:
-      
-      RUN CreateEstReleaseForEstBlank(INPUT riEb,INPUT NO, OUTPUT iEstReleaseID ,
-                                     OUTPUT lError,OUTPUT cMessage) .
-
-      FIND FIRST estRelease NO-LOCK
-          WHERE estRelease.company EQ cocode 
-          AND estRelease.estReleaseID EQ estReleaseID NO-ERROR .
-
-      IF AVAIL estRelease THEN
-          //RUN est/dNewMiscUpd.w (RECID(estRelease), riEb, "Update", OUTPUT lv-rowid) .
-          RUN est/estReleases.w (riEb).
-
-  END.*/
   
   IF iCount > 0 THEN DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -7240,7 +7219,7 @@ PROCEDURE pCreateSetEstimate :
           WHERE bf-eb.company EQ cocode
             AND bf-eb.est-no EQ bff-eb.est-no BY bf-eb.form-no :       
           IF bf-eb.sourceEstimate NE "" THEN 
-            RUN est/BuildFarmForLogistics.p (INPUT ROWID(bf-eb),INPUT YES).
+            RUN est/BuildFarmForLogistics.p (INPUT ROWID(bf-eb),INPUT YES, INPUT YES).
           ELSE 
             RUN est/dNewMiscCost.w( INPUT ROWID(bf-eb)) .
       END.  

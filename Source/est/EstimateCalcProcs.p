@@ -79,7 +79,7 @@ DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*F
 DEFINE VARIABLE gcCECostSourceLookup                  AS CHARACTER NO-UNDO.  /*CECostSource*/
 DEFINE VARIABLE giPromptForErrorLevel                 AS INTEGER   NO-UNDO.  /*CEShowErrorsAndWarnings*/
 DEFINE VARIABLE glAutoRecostBoard                     AS LOGICAL   NO-UNDO.  /*CEAutoRecostBoard*/
-
+DEFINE VARIABLE glSeparateSetHeaderAsForm0            AS LOGICAL   NO-UNDO.  /*CESetHeaderForm*/
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -187,6 +187,22 @@ PROCEDURE CalculateEstimate:
     DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
     
     RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, 0, iplPurge, NO, OUTPUT iEstCostHeaderID).
+    
+END PROCEDURE.
+
+PROCEDURE CalculateEstimateForQuantity:
+    /*------------------------------------------------------------------------------
+     Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantity AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, ipiQuantity, iplPurge, NO, OUTPUT iEstCostHeaderID).
     
 END PROCEDURE.
 
@@ -3029,7 +3045,8 @@ PROCEDURE pBuildItems PRIVATE:
                 
                 IF AVAILABLE bf-ttEstCostForm THEN DO:
                     bf-ttEstCostForm.quantityFGOnForm = ipbf-ttEstCostHeader.quantityMaster.
-                    RUN pProcessOperations(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostForm).
+                    IF glSeparateSetHeaderAsForm0 THEN 
+                        RUN pProcessOperations(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostForm).
                 END.
                 IF eb.pur-man THEN /*Refactor - this should be .unitized*/
                 DO:
@@ -4168,16 +4185,16 @@ PROCEDURE pProcessEstMaterial PRIVATE:
             bf-ttEstCostMaterial.quantityRequiredSetupWaste = (bf-estMaterial.wastePercent / 100) * bf-ttEstCostMaterial.quantityRequiredNoWaste
             bf-ttEstCostMaterial.weightTotal = bf-estMaterial.weightPerEA * bf-ttEstCostMaterial.quantityRequiredNoWaste
             .
-/*        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN                                         */
-/*        DO:                                                                                                                */
-/*            /*Associate Form 0 materials to the unitize form (Form 1)*/                                                    */
-/*            ASSIGN                                                                                                         */
-/*                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID                                */
-/*                bf-ttEstCostMaterial.estCostBlankID = 0                                                                    */
-/*                .                                                                                                          */
-/*            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).*/
-/*        END.                                                                                                               */
-/*        ELSE                                                                                                               */
+        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm AND NOT glSeparateSetHeaderAsForm0 THEN
+        DO:
+            /*Associate Form 0 materials to the unitize form (Form 1)*/
+            ASSIGN
+                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID
+                bf-ttEstCostMaterial.estCostBlankID = 0
+                .
+            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).
+        END.
+        ELSE
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bf-ttEstCostForm).
         
     END.
@@ -5324,16 +5341,16 @@ PROCEDURE pProcessPacking PRIVATE:
                 bf-ttEstCostMaterial.weightTotal = ttPack.dWeightTare * bf-ttEstCostMaterial.quantityRequiredNoWaste.
             END.
         
-/*        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN                                         */
-/*        DO:                                                                                                                */
-/*            /*Associate Form 0 materials to the unitize form (Form 1)*/                                                    */
-/*            ASSIGN                                                                                                         */
-/*                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID                                */
-/*                bf-ttEstCostMaterial.estCostBlankID = 0                                                                    */
-/*                .                                                                                                          */
-/*            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).*/
-/*        END.                                                                                                               */
-/*        ELSE                                                                                                               */
+        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm AND NOT glSeparateSetHeaderAsForm0 THEN
+        DO:
+            /*Associate Form 0 materials to the unitize form (Form 1)*/
+            ASSIGN
+                bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID
+                bf-ttEstCostMaterial.estCostBlankID = 0
+                .
+            RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).
+        END.
+        ELSE
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bf-ttEstCostForm).
         
     END.
@@ -6142,6 +6159,9 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipcCompany, "CEShowErrorsAndWarnings", "I" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
         giPromptForErrorLevel = IF lFound THEN INTEGER (cReturn) ELSE 0.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CESetHeaderForm", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+        glSeparateSetHeaderAsForm0 = lFound AND cReturn = "Separate Form 0".
        
 END PROCEDURE.
 

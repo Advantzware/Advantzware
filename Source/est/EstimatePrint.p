@@ -46,10 +46,12 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD SIMONListSeparate           AS CHARACTER INITIAL "S,O,N"
     FIELD useReferenceQuantity        AS LOGICAL INITIAL NO
     FIELD printByForm                 AS LOGICAL INITIAL YES
+    FIELD printForm0Separately        AS LOGICAL INITIAL NO
     FIELD printSummary                AS LOGICAL INITIAL YES
     FIELD printSummaryFirst           AS LOGICAL INITIAL YES
     FIELD printAnalysis               AS LOGICAL INITIAL YES
     FIELD printNotes                  AS LOGICAL INITIAL YES
+    FIELD printSubAssemblyDetail      AS LOGICAL INITIAL NO
     FIELD operationTimeInHHMM         AS LOGICAL 
     FIELD summColQuantityShow         AS LOGICAL INITIAL NO
     FIELD summColQuantityLabel        AS CHARACTER INITIAL "Quantity"
@@ -268,6 +270,7 @@ PROCEDURE pBuildSections PRIVATE:
     DEFINE VARIABLE dRefQty       AS DECIMAL   NO-UNDO.
     
     DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    DEFINE BUFFER bf-estCostForm   FOR estCostForm.
     
     EMPTY TEMP-TABLE ttSection.
     FIND FIRST bf-estCostHeader NO-LOCK 
@@ -292,15 +295,15 @@ PROCEDURE pBuildSections PRIVATE:
         FIND CURRENT bf-estCostHeader NO-LOCK.
         IF opbf-ttCEFormatConfig.printByForm THEN 
         DO:
-            FOR EACH estCostForm NO-LOCK 
-                WHERE estCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
-                //AND estCostForm.formNo NE 0
-                BY estCostForm.formNo
+            FOR EACH bf-estCostForm NO-LOCK 
+                WHERE bf-estCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID
+                AND (bf-estCostForm.formNo NE 0 OR opbf-ttCEFormatConfig.printForm0Separately)
+                BY bf-estCostForm.formNo
                 :
                 iSectionCount = iSectionCount + 1.
                 CREATE ttSection.
                 ASSIGN 
-                    ttSection.rec_keyParent = estCostForm.rec_key
+                    ttSection.rec_keyParent = bf-estCostForm.rec_key
                     ttSection.iSequence     = iSectionCount
                     ttSection.cType         = "Form"
                     .
@@ -365,6 +368,7 @@ PROCEDURE pBuildConfig PRIVATE:
     DEFINE VARIABLE lLoaded       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cFormatMaster AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormatFont   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSetAsForm0   AS CHARACTER NO-UNDO.
 
     EMPTY TEMP-TABLE ttCEFormatConfig.
         
@@ -375,6 +379,10 @@ PROCEDURE pBuildConfig PRIVATE:
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEFormatFont", "C" /* Character */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cFormatFont, OUTPUT lRecFound).
+    
+    RUN sys/ref/nk1look.p (INPUT ipcCompany, "CESetHeaderForm", "C" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cSetAsForm0, OUTPUT lRecFound).
     
     IF cFormatMaster EQ "Config" THEN 
     DO:
@@ -391,8 +399,13 @@ PROCEDURE pBuildConfig PRIVATE:
     ELSE
         RUN pBuildConfigFromTemplate(cFormatMaster, cFormatFont, BUFFER opbf-ttCEFormatConfig).
     
+    
+        
     IF AVAILABLE opbf-ttCEFormatConfig THEN 
     DO:
+        IF NOT opbf-ttCEFormatConfig.printForm0Separately THEN //If not activated in template, pull from settings
+            opbf-ttCEFormatConfig.printForm0Separately= cSetAsForm0 EQ "Separate Form 0" .            
+        
         IF opbf-ttCEFormatConfig.outputFile EQ "" AND ipcOutputFile EQ "" THEN  
             ttCEFormatConfig.outputFile = "C:\tmp\CheckTest.xpr".
         ELSE IF ipcOutputFile NE "" THEN 
@@ -532,32 +545,36 @@ PROCEDURE pPrintConsolidated PRIVATE:
        ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcEstHeaderRecKey AS CHARACTER NO-UNDO.
     DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
+    DEFINE INPUT PARAMETER iplPrintPageHeader AS LOGICAL NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO. 
     
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    DEFINE BUFFER bf-estCostForm   FOR estCostForm.
     
-    FIND FIRST estCostHeader NO-LOCK 
-        WHERE estCostHeader.rec_key EQ ipcEstHeaderRecKey
+    FIND FIRST bf-estCostHeader NO-LOCK 
+        WHERE bf-estCostHeader.rec_key EQ ipcEstHeaderRecKey
         NO-ERROR.
-    IF NOT AVAILABLE estCostHeader THEN RETURN.
-    RUN pPrintPageHeader(BUFFER estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintItemInfoForHeader(BUFFER estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintMaterialInfoForHeader(BUFFER estCostHeader,INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    IF NOT AVAILABLE bf-estCostHeader THEN RETURN.
+    IF iplPrintPageHeader THEN 
+        RUN pPrintPageHeader(BUFFER bf-estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintItemInfoForHeader(BUFFER bf-estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintMaterialInfoForHeader(BUFFER bf-estCostHeader,INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
-/*    FOR EACH estCostForm NO-LOCK                                                                                                                                                   */
-/*        WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:                                                                                                        */
-/*        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).*/
-/*        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).*/
+/*    FOR EACH bf-estCostForm NO-LOCK                                                                                                                                                   */
+/*        WHERE bf-estCostForm.bf-estCostHeaderID EQ bf-estCostHeader.bf-estCostHeaderID:                                                                                                        */
+/*        RUN pPrintMiscInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).*/
+/*        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER bf-estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).*/
 /*    END.                                                                                                                                                                           */
-    RELEASE estCostForm.
-    RUN pPrintOperationsInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RELEASE estCostForm.
-    RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RELEASE estCostForm.
-    RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    FOR EACH estCostForm NO-LOCK 
-        WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
-        RUN pPrintSeparateChargeInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RELEASE bf-estCostForm.
+    RUN pPrintOperationsInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RELEASE bf-estCostForm.
+    RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RELEASE bf-estCostForm.
+    RUN pPrintCostSummaryInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    FOR EACH bf-estCostForm NO-LOCK 
+        WHERE bf-estCostForm.estCostHeaderID EQ bf-estCostHeader.estCostHeaderID:
+        RUN pPrintSeparateChargeInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
     
 END PROCEDURE.
@@ -572,26 +589,37 @@ PROCEDURE pPrintForm PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO. 
 
-    FIND FIRST estCostForm NO-LOCK 
-        WHERE estCostForm.rec_key EQ ipcEstFormRecKey
+    DEFINE VARIABLE lSubAssemblyPrinted AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostForm FOR estCostForm.
+    DEFINE BUFFER bf-estCostHeader FOR estCostHeader.
+    
+    FIND FIRST bf-estCostForm NO-LOCK 
+        WHERE bf-estCostForm.rec_key EQ ipcEstFormRecKey
         NO-ERROR.
-    IF AVAILABLE estCostForm THEN 
-        FIND FIRST estCostHeader NO-LOCK
-            WHERE estCostHeader.estCostHeaderID EQ estCostForm.estCostHeaderID
+    IF AVAILABLE bf-estCostForm THEN 
+        FIND FIRST bf-estCostHeader NO-LOCK
+            WHERE bf-estCostHeader.estCostHeaderID EQ bf-estCostForm.estCostHeaderID
             NO-ERROR.
-    IF NOT AVAILABLE estCostHeader THEN RETURN.
+    IF NOT AVAILABLE bf-estCostHeader THEN RETURN.
 
-    RUN pPrintPageHeader(BUFFER estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintItemInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    IF fTypePrintsLayout(estCostHeader.estType) THEN 
-        RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintMaterialInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintOperationsInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintCostSummaryInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    RUN pPrintSeparateChargeInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintPageHeader(BUFFER bf-estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    //Print sub assembly if required 
+    IF ipbf-ttCEFormatConfig.printSubAssemblyDetail THEN 
+        RUN pPrintSubAssembly(BUFFER bf-estCostHeader, BUFFER bf-estCostForm , BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount, OUTPUT lSubAssemblyPrinted).
+    IF NOT lSubAssemblyPrinted THEN DO:
+        //Standard Form Printing
+        RUN pPrintItemInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        IF fTypePrintsLayout(bf-estCostHeader.estType) THEN 
+            RUN pPrintLayoutInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMaterialInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMiscInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMiscInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintOperationsInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintCostSummaryInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintSeparateChargeInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    END. //Standard form printing 
     
 END PROCEDURE.
 
@@ -1412,48 +1440,48 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Die:", NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.dieWidth, 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.dieLength,4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightDieUOM, NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ipbf-estCostForm.dieWidth, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostForm.dieLength,4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, ipbf-estCostForm.dimUOM , NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, ipbf-estCostForm.areaUOM , NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, ipbf-estCostForm.weightDieUOM, NO, NO, NO).
     END.
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelNet, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.netWidth, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.netLength,4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.netArea, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostForm.numOutNet, 4, 0, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightNetSheet, 5, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightNetUOM, NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ipbf-estCostForm.netWidth, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostForm.netLength,4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, ipbf-estCostForm.dimUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostForm.netArea, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, ipbf-estCostForm.areaUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], ipbf-estCostForm.numOutNet, 4, 0, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostForm.weightNetSheet, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, ipbf-estCostForm.weightNetUOM, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelGross, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.grossWidth, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.grossLength, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightGrossSheet, 5, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightGrossUOM, NO, NO, NO).
-    IF estCostForm.rollWidth NE 0 THEN 
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ipbf-estCostForm.grossWidth, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostForm.grossLength, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, ipbf-estCostForm.dimUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, ipbf-estCostForm.areaUOM , NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostForm.weightGrossSheet, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, ipbf-estCostForm.weightGrossUOM, NO, NO, NO).
+    IF ipbf-estCostForm.rollWidth NE 0 THEN 
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Roll:", NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[2], TRIM(STRING(estCostForm.rollWidth,">>>9.99999")) , NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[2], TRIM(STRING(ipbf-estCostForm.rollWidth,">>>9.99999")) , NO, NO, YES).
     END.
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Totals->", YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[2],  "Sheets:", YES, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + 1, estCostForm.grossQtyRequiredTotal, 9, 0, YES, YES, YES, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.grossQtyRequiredTotalAreaUOM , YES, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.grossQtyRequiredTotalWeight, 7, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.grossQtyRequiredTotalWeightUOM, NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + 1, ipbf-estCostForm.grossQtyRequiredTotal, 9, 0, YES, YES, YES, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, ipbf-estCostForm.grossQtyRequiredTotalAreaUOM , YES, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostForm.grossQtyRequiredTotalWeight, 7, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, ipbf-estCostForm.grossQtyRequiredTotalWeightUOM, NO, NO, NO).
 END PROCEDURE.
 
 PROCEDURE pPrintMaterialInfoForHeader PRIVATE:
@@ -1465,6 +1493,9 @@ PROCEDURE pPrintMaterialInfoForHeader PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
 
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.
+    DEFINE BUFFER bf-estCostForm FOR estCostForm.
+    
     DEFINE VARIABLE dTotal       AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityInM AS DECIMAL NO-UNDO.
                    
@@ -1473,28 +1504,28 @@ PROCEDURE pPrintMaterialInfoForHeader PRIVATE:
     ASSIGN 
         dTotal       = 0.
          
-    FOR EACH estCostMaterial NO-LOCK 
-        WHERE estCostMaterial.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID,
-        FIRST estCostForm NO-LOCK 
-        WHERE estCostForm.estCostFormID EQ estCostMaterial.estCostFormID 
+    FOR EACH bf-estCostMaterial NO-LOCK 
+        WHERE bf-estCostMaterial.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID,
+        FIRST bf-estCostForm NO-LOCK 
+        WHERE bf-estCostForm.estCostFormID EQ bf-estCostMaterial.estCostFormID 
         BREAK 
-        BY estCostMaterial.estCostHeaderID
-        BY estCostMaterial.formNo
-        BY estCostMaterial.blankNo
-        BY estCostMaterial.sequenceOfMaterial:
+        BY bf-estCostMaterial.estCostHeaderID
+        BY bf-estCostMaterial.formNo
+        BY bf-estCostMaterial.blankNo
+        BY bf-estCostMaterial.sequenceOfMaterial:
         
         ASSIGN 
-            dQuantityInM = estCostForm.quantityFGOnForm / 1000
+            dQuantityInM = bf-estCostForm.quantityFGOnForm / 1000
             .
         
-        IF FIRST-OF(estCostMaterial.estCostHeaderID) THEN 
-            RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER estCostForm, BUFFER estCostMaterial, "Heading", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).            
+        IF FIRST-OF(bf-estCostMaterial.estCostHeaderID) THEN 
+            RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER bf-estCostForm, BUFFER bf-estCostMaterial, "Heading", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).            
         
-        RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER estCostForm, BUFFER estCostMaterial, "Detail", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER bf-estCostForm, BUFFER bf-estCostMaterial, "Detail", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         
-        IF LAST-OF(estCostMaterial.estCostHeaderID) THEN DO:
+        IF LAST-OF(bf-estCostMaterial.estCostHeaderID) THEN DO:
             dQuantityInM = ipbf-estCostHeader.quantityMaster / 1000.
-            RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER estCostForm, BUFFER estCostMaterial, "Totals", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER bf-estCostForm, BUFFER bf-estCostMaterial, "Totals", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         END.
     END.
     
@@ -1509,6 +1540,8 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
+    
+    DEFINE BUFFER bf-estCostMaterial FOR estCostMaterial.   
    
     DEFINE VARIABLE iColumn      AS INTEGER EXTENT 10 INITIAL [5,20,36,48,60,70,82].
     DEFINE VARIABLE dTotal       AS DECIMAL NO-UNDO.
@@ -1520,24 +1553,24 @@ PROCEDURE pPrintMaterialInfoForForm PRIVATE:
         dTotal       = 0
         dQuantityInM = ipbf-estCostForm.quantityFGOnForm / 1000. 
     
-    RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER estCostMaterial, "Heading", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-    FOR EACH estCostMaterial NO-LOCK 
-        WHERE estCostMaterial.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID 
-        AND estCostMaterial.estCostFormID EQ ipbf-estCostForm.estCostFormID
-        BY estCostMaterial.formNo DESCENDING
-        BY estCostMaterial.blankNo
-        BY estCostMaterial.sequenceOfMaterial:
+    RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostMaterial, "Heading", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    FOR EACH bf-estCostMaterial NO-LOCK 
+        WHERE bf-estCostMaterial.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID 
+        AND bf-estCostMaterial.estCostFormID EQ ipbf-estCostForm.estCostFormID
+        BY bf-estCostMaterial.formNo DESCENDING
+        BY bf-estCostMaterial.blankNo
+        BY bf-estCostMaterial.sequenceOfMaterial:
         
-        IF estCostMaterial.isPrimarySubstrate 
+        IF bf-estCostMaterial.isPrimarySubstrate 
             AND (NOT fTypePrintsBoard(ipbf-estCostHeader.estType) 
             OR fFormIsPurchasedFG(ipbf-estCostForm.estCostFormID)) THEN 
             NEXT.
             
-        RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER estCostMaterial, "Detail", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostMaterial, "Detail", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             
     END.    
         
-    RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER estCostMaterial, "Totals", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pPrintMaterialDetail(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, BUFFER bf-estCostMaterial, "Totals", dQuantityInM, INPUT-OUTPUT dTotal, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
 END PROCEDURE.
 
@@ -1702,8 +1735,8 @@ PROCEDURE pPrintSeparateChargeInfoForForm PRIVATE:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1] + 1, "Charges Billed Separately", NO, YES, NO).
-        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMiscInfoForForm(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintMiscInfoForForm(BUFFER ipbf-estCostHeader, BUFFER ipbf-estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListSeparate, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
 END PROCEDURE.
 
@@ -1813,6 +1846,54 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
 
+END PROCEDURE.
+
+PROCEDURE pPrintSubAssembly PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-estCostForm FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO. 
+    DEFINE OUTPUT PARAMETER oplPrinted AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-eb FOR eb.
+    DEFINE BUFFER bf-SubAssemblyEstCostHeader FOR estCostHeader.
+    
+    FIND FIRST bf-eb NO-LOCK 
+        WHERE bf-eb.company EQ ipbf-estCostForm.company
+        AND bf-eb.est-no EQ ipbf-estCostForm.estimateNo
+        AND bf-eb.form-no EQ ipbf-estCostForm.formNo
+        AND bf-eb.sourceEstimate NE ""
+        NO-ERROR.
+    IF AVAILABLE bf-eb THEN DO:
+        FIND FIRST bf-SubAssemblyEstCostHeader NO-LOCK 
+            WHERE bf-SubAssemblyEstCostHeader.company EQ bf-eb.company
+            AND bf-SubAssemblyEstCostHeader.estimateNo EQ bf-eb.sourceEstimate
+            AND bf-SubAssemblyEstCostHeader.jobID EQ ""
+            AND bf-SubAssemblyEstCostHeader.quantityMaster EQ ipbf-estCostForm.quantityFGOnForm
+            NO-ERROR.
+        IF NOT AVAILABLE bf-SubAssemblyEstCostHeader THEN DO:
+            RUN CalculateEstimateForQuantity IN hdEstimateCalcProcs (bf-eb.company, bf-eb.sourceEstimate, NO, ipbf-estCostForm.quantityFGOnForm).
+            FIND FIRST bf-SubAssemblyEstCostHeader NO-LOCK 
+                WHERE bf-SubAssemblyEstCostHeader.company EQ bf-eb.company
+                AND bf-SubAssemblyEstCostHeader.estimateNo EQ bf-eb.sourceEstimate
+                AND bf-SubAssemblyEstCostHeader.jobID EQ ""
+                AND bf-SubAssemblyEstCostHeader.quantityMaster EQ ipbf-estCostForm.quantityFGOnForm
+            NO-ERROR.
+        END.
+        IF AVAILABLE bf-SubAssemblyEstCostHeader THEN DO: 
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pWriteToCoordinates(iopiRowCount, 5, "Sub Assembly for Form " + STRING(ipbf-estCostForm.formNo,"99"), YES, NO, NO).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pPrintConsolidated(bf-SubAssemblyEstCostHeader.rec_key, BUFFER ipbf-ttCEFormatConfig, NO, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            oplPrinted = YES.
+        END.
+        
+    END.
 END PROCEDURE.
 
 PROCEDURE pPrintSummary PRIVATE:

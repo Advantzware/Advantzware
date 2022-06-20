@@ -140,7 +140,7 @@ PROCEDURE Job_GetJobNo:
     RUN sys/ref/nk1look.p (ipcCompany, "JOB#", "C", NO, NO, "", "", OUTPUT cJobFormat, OUTPUT lFound).
     
     IF iplIsSubAssembly THEN DO:
-        iopcJobNo = DYNAMIC-FUNCTION('sfFormat_SingleJob', fGetJobPrefix(ipcCompany) + iopcJobNo).
+        iopcJobNo = DYNAMIC-FUNCTION('sfFormat_SingleJob', fGetJobSubAssemblyPrefix(ipcCompany) + iopcJobNo).
     END.
     ELSE          
         CASE cJobFormat:

@@ -81,8 +81,8 @@ PROCEDURE pBuildSubAssemblyJobs PRIVATE:
     END.
     cJob = DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",bf-job.job-no,bf-job.job-no2).
     FIND FIRST bf-est NO-LOCK 
-        WHERE bf-est.company EQ job.company
-        AND bf-est.est-no EQ job.est-no
+        WHERE bf-est.company EQ bf-job.company
+        AND bf-est.est-no EQ bf-job.est-no
         NO-ERROR. 
     IF AVAILABLE bf-est THEN 
     DO:
@@ -113,6 +113,7 @@ PROCEDURE pBuildSubAssemblyJobs PRIVATE:
                         AND bf-SubEst.est-no EQ bf-eb.sourceEstimate
                         NO-ERROR.
                     IF AVAILABLE bf-SubEst THEN 
+
                     DO:
                         CREATE ttSubAssemblyJob.
                         ASSIGN 
@@ -165,8 +166,8 @@ PROCEDURE pCreateSubAssemblyJob PRIVATE:
         
     IF NOT AVAILABLE bf-est OR NOT AVAILABLE bf-job-hdr THEN RETURN.
     ASSIGN 
-        cJobNo = job-hdr.job-no
-        iJobNo2 = job-hdr.frm
+        cJobNo = bf-job-hdr.job-no
+        iJobNo2 = bf-job-hdr.frm
         .
          
     RUN Job_GetJobNoInternal (
@@ -186,7 +187,7 @@ PROCEDURE pCreateSubAssemblyJob PRIVATE:
     RUN Job_GetJobNo(bf-est.company,
                      bf-est.est-no, 
                      0, //Order 
-                     bf-job-hdr.i-no, 
+                     iJobNoInternal, 
                      bf-job-hdr.job, 
                      YES,  //is subassembly 
                      INPUT-OUTPUT cJobNo, 
@@ -201,7 +202,7 @@ PROCEDURE pCreateSubAssemblyJob PRIVATE:
     RUN jc/BuildJob.p (ROWID(bf-job), 0, bf-job-hdr.qty, OUTPUT oplError, OUTPUT iopcMessage).                       
     //RUN jc/jc-calc.p (RECID(bf-job), YES) NO-ERROR.
 
-    RUN pUpdateFGItemQty(BUFFER bf-job).
+    //aRUN pUpdateFGItemQty(BUFFER bf-job).
 
 
 END PROCEDURE.

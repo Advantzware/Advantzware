@@ -916,7 +916,7 @@ DEFINE VARIABLE riEb          AS ROWID     NO-UNDO .
         IF AVAILABLE bff-eb THEN 
         DO:
       
-            RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT NO).
+            RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT NO, INPUT NO).
       
             PUT UNFORMATTED  
                 'Vendor Item Cost Created ' STRING(bff-eb.est-no)   SKIP.                 
