@@ -1065,7 +1065,8 @@ PROCEDURE pGetBlankQtys PRIVATE:
     FOR LAST estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
         AND estCostHeader.jobID EQ ipcJobID
-        AND estCostHeader.jobID2 EQ ipiJobID2,
+        AND estCostHeader.jobID2 EQ ipiJobID2
+        USE-INDEX estCostHeaderId,
         FIRST estCostBlank NO-LOCK
         WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
         AND estCostBlank.formNo EQ ipiFormNo
@@ -1194,7 +1195,8 @@ PROCEDURE pGetFormQtys PRIVATE:
     FOR LAST estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
         AND estCostHeader.jobID EQ ipcJobID
-        AND estCostHeader.jobID2 EQ ipiJobID2,
+        AND estCostHeader.jobID2 EQ ipiJobID2
+        USE-INDEX estCostHeaderId,
         EACH estCostBlank NO-LOCK
         WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
         AND estCostBlank.formNo EQ ipiFormNo:
@@ -1527,7 +1529,8 @@ PROCEDURE pPrintOperationsForForm PRIVATE:
     FOR LAST estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
         AND estCostHeader.jobID EQ ipcJobID
-        AND estCostHeader.jobID2 EQ ipiJobID2,
+        AND estCostHeader.jobID2 EQ ipiJobID2
+        USE-INDEX estCostHeaderId,
         EACH estCostOperation NO-LOCK
         WHERE estCostOperation.estCostHeaderID EQ estCostHeader.estCostHeaderID
         AND estCostOperation.formNo EQ ipiFormNo,
