@@ -1590,6 +1590,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLastRecordFocus B-table-Win 
+PROCEDURE pSetLastRecordFocus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+         
+  DO WITH FRAME {&FRAME-NAME}:
+    GET LAST {&BROWSE-NAME}.
+    IF AVAILABLE ar-cashl THEN
+    REPOSITION {&browse-name} TO ROWID ROWID(ar-cashl) NO-ERROR.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION calc-inv-bal B-table-Win 

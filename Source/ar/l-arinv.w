@@ -237,21 +237,8 @@ ASSIGN
                             RECID(ar-inv) EQ tt-report.rec-id NO-LOCK
                             ~{&SORTBY-PHRASE}
      _END_FREEFORM       
-     _Query            is OPENED
- 
-     _FldNameList[1]   > ASI.ar-inv.cust-no
-"ar-inv.cust-no" "Customer#" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.ar-inv.inv-no
-"ar-inv.inv-no" "Invoice#" ">>>>>>>>" "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.ar-inv.inv-date
-"ar-inv.inv-date" ? ? "date" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.ar-inv.net
-"ar-inv.net" "Net" ? "decimal" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.ar-inv.paid
-"ar-inv.paid" ? ? "decimal" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.ar-inv.due
-"ar-inv.due" "Balance Due" ? "decimal" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _Query            is OPENED
+     _Query            is OPENED    
+    
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
@@ -289,7 +276,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = ar-inv.inv-no:screen-value in browse {&browse-name}
+   op-char-val = ar-inv.inv-no:screen-value in BROWSE BROWSE-1
                  .
    op-rec-val = recid(ar-inv).              
    apply "window-close" to frame {&frame-name}. 
@@ -330,7 +317,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = ar-inv.inv-no:screen-value in browse {&browse-name}.
+   op-char-val = ar-inv.inv-no:screen-value in browse BROWSE-1.
    op-rec-val = recid(ar-inv).              
    apply "window-close" to frame {&frame-name}. 
       

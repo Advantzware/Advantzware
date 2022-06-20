@@ -313,24 +313,24 @@ DEFINE QUERY BROWSE-3 FOR
 DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 Dialog-Frame _STRUCTURED
   QUERY BROWSE-3 NO-LOCK DISPLAY
-      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>9":U
-      ar-invl.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U
-      ar-invl.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U
-      ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
-      ar-inv.net COLUMN-LABEL "Net" FORMAT "->>,>>>,>>9.99":U
-      ar-inv.paid FORMAT "->,>>>,>>9.99":U
-      ar-inv.due FORMAT "->>,>>>,>>9.99":U
-      ar-invl.actnum COLUMN-LABEL "GL Acct#" FORMAT "x(25)":U
-      ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
-      ar-invl.part-no FORMAT "x(30)":U
-      ar-invl.ord-no FORMAT ">>>>>>>9":U
-      ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U
-      ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U
-      ar-invl.i-name FORMAT "x(30)":U
-      ar-inv.runNumber FORMAT ">>>>>>>>9":U
-      ar-inv.postedDate FORMAT "99/99/99":U
-      ar-inv.glYear FORMAT "9999":U
-      getPeriod() @ iPeriod COLUMN-LABEL "Period" FORMAT ">>>":U
+      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
+      ar-invl.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
+      ar-invl.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      ar-inv.net COLUMN-LABEL "Net" FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ar-inv.paid FORMAT "->,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ar-inv.due FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ar-invl.actnum COLUMN-LABEL "GL Acct#" FORMAT "x(25)":U LABEL-BGCOLOR 14
+      ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
+      ar-invl.part-no FORMAT "x(30)":U LABEL-BGCOLOR 14
+      ar-invl.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
+      ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U LABEL-BGCOLOR 14
+      ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      ar-invl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
+      ar-inv.runNumber FORMAT ">>>>>>>>9":U LABEL-BGCOLOR 14
+      ar-inv.postedDate FORMAT "99/99/99":U LABEL-BGCOLOR 14
+      ar-inv.glYear FORMAT "9999":U LABEL-BGCOLOR 14
+      getPeriod() @ iPeriod COLUMN-LABEL "Period" FORMAT ">>>":U LABEL-BGCOLOR 14
   ENABLE
       ar-invl.inv-no
       ar-invl.bol-no
