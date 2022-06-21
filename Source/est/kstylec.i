@@ -2,21 +2,6 @@
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
-find first sys-ctrl
-    where sys-ctrl.company eq x2-eb.company
-      and sys-ctrl.name    eq "ROUND"
-    no-lock no-error.
-if not avail sys-ctrl then do:
-  create sys-ctrl.
-  assign
-   sys-ctrl.company = x2-eb.company
-   sys-ctrl.name    = "ROUND"
-   sys-ctrl.descrip = "Round Up Scoring Allowances?".
-  MESSAGE sys-ctrl.descrip
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-      UPDATE sys-ctrl.log-fld.
-end.
-
 /* get rid of any blank/space or invalid character */
 do i = 1 to length(tmpstore):
    if keycode(substring(tmpstore,i,1)) = 32 or
@@ -80,7 +65,7 @@ end.
 
 do i = 1 to EXTENT(num):
   num[i] = num[i] * li-16-32 /*16 or 32*/.
-  if sys-ctrl.log-fld then do:
+  if lRound then do:
     {sys/inc/roundup.i num[i]}
   end.
   ELSE IF v-cecscrn-char NE "Decimal" THEN

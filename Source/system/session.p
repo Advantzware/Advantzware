@@ -96,7 +96,13 @@ DEFINE TEMP-TABLE ttProgramHandle NO-UNDO
 
 DEFINE TEMP-TABLE ttAuditFld NO-UNDO 
     LIKE AuditFld.
-                     
+
+DEFINE TEMP-TABLE ttPrimaryIndex NO-UNDO
+    FIELD tableName   AS CHARACTER
+    FIELD indexFields AS CHARACTER
+    INDEX tableName IS PRIMARY tableName
+    .
+                         
 {system/ttSessionParam.i}
 {system/ttPermissions.i}
 {system/ttSetting.i}
@@ -224,6 +230,19 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetPrimaryIndexFields) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetPrimaryIndexFields Procedure
+FUNCTION sfGetPrimaryIndexFields RETURNS CHARACTER 
+  ( ipcTableName AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
 
@@ -508,6 +527,25 @@ FOR EACH Audit.AuditFld NO-LOCK
     WHERE Audit.AuditFld.Audit EQ YES:
     CREATE ttAuditFld.
     BUFFER-COPY Audit.AuditFld TO ttAuditFld.
+END.
+
+/* Creating a temp-table with table's primary index fields */
+FOR EACH ASI._file NO-LOCK:
+    CREATE ttPrimaryIndex.
+    ttPrimaryIndex.tableName = ASI._file._file-name.
+
+    FIND FIRST ASI._index NO-LOCK
+         WHERE RECID(ASI._index) EQ ASI._file._prime-index
+         NO-ERROR.
+    IF AVAILABLE ASI._index THEN DO:
+        FOR EACH ASI._index-field OF ASI._index NO-LOCK:
+            FIND FIRST ASI._field NO-LOCK
+                 WHERE RECID(ASI._field) EQ ASI._index-field._field-recid
+                 NO-ERROR.
+            ttPrimaryIndex.indexFields = ttPrimaryIndex.indexFields + ASI._field._field-name + ",".  
+        END.
+    END.
+    ttPrimaryIndex.indexFields = TRIM(ttPrimaryIndex.indexFields,",").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3622,6 +3660,31 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetPrimaryIndexFields) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetPrimaryIndexFields Procedure
+FUNCTION sfGetPrimaryIndexFields RETURNS CHARACTER 
+  ( ipcTableName AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    FIND FIRST ttPrimaryIndex
+         WHERE ttPrimaryIndex.tableName EQ ipcTableName
+         NO-ERROR.
+    IF AVAILABLE ttPrimaryIndex THEN
+        RETURN ttPrimaryIndex.indexFields.
+    ELSE
+        RETURN "".
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
 
