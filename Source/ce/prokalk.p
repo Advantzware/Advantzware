@@ -24,7 +24,7 @@ DEF VAR fil_id AS RECID NO-UNDO.
 DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
 
-RUN pSetGlobalVars (xest.company).
+RUN pGetSettingValue (xest.company).
 
 {ce/mach-ink.i new}
 
@@ -61,7 +61,7 @@ xef.gsh-qty = cumul.
 release est-op.
 
 
-PROCEDURE pSetGlobalVars PRIVATE:
+PROCEDURE pGetSettingValue PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:

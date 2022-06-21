@@ -56,7 +56,7 @@ DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iVarn      AS INTEGER NO-UNDO.
 DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
 
-RUN pSetGlobalVars(xef.company).
+RUN pGetSettingValue(xef.company).
 
 
 find est-op where recid(est-op) eq fil_id no-error.
@@ -189,7 +189,7 @@ find xef where recid(xef) = save_id no-lock no-error.
 qty = save-qty.
 
 
-PROCEDURE pSetGlobalVars PRIVATE:
+PROCEDURE pGetSettingValue PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:

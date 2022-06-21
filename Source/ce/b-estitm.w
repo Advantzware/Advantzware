@@ -205,7 +205,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
 
-RUN pSetGlobalVars(cocode).
+RUN pGetSettingValue(cocode).
 RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR.
@@ -5203,8 +5203,8 @@ END PROCEDURE.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetGlobalVars B-table-Win
-PROCEDURE pSetGlobalVars PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettingValue B-table-Win
+PROCEDURE pGetSettingValue PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:

@@ -72,7 +72,7 @@ DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iVarn      AS INTEGER NO-UNDO.
 DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
 
-RUN pSetGlobalVars(xef.company).
+RUN pGetSettingValue(xef.company).
 
 
 {ce/mach-ink.i}
@@ -398,7 +398,7 @@ END.
 
 END PROCEDURE.
 
-PROCEDURE pSetGlobalVars PRIVATE:
+PROCEDURE pGetSettingValue PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Sets the NK1 setting global variables that are pertinent to the session
      Notes:
