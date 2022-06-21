@@ -150,11 +150,12 @@ FOR EACH job-hdr NO-LOCK
         END.
     END.
     
-    FIND FIRST estCostHeader NO-LOCK
+    FIND LAST estCostHeader NO-LOCK
          WHERE estCostHeader.company    = job-hdr.company
            AND estCostHeader.estimateNo = job-hdr.est-no
            AND estCostHeader.jobID      = job-hdr.job-no
            AND estCostHeader.jobid2     = job-hdr.job-no2
+         USE-INDEX estCostHeaderId
          NO-ERROR.
     IF NOT AVAILABLE estCostHeader THEN
         NEXT.
