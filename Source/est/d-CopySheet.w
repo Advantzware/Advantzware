@@ -278,7 +278,15 @@ DO:
         RETURN NO-APPLY.
     END. 
     ELSE 
-        lopError = NO.   
+    DO:
+        MESSAGE "Are you sure you want to Copy Blank Info? " VIEW-AS ALERT-BOX WARNING
+        BUTTON YES-NO UPDATE lCopyBlankInfo AS LOG.
+        IF lCopyBlankInfo THEN 
+            lopError = NO.
+        ELSE 
+            lopError = YES.    
+    END.     
+           
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -294,7 +302,7 @@ END.
 /* ***************************  Main Block  *************************** */
 
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 

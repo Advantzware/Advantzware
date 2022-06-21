@@ -118,10 +118,6 @@ PROCEDURE pCopyBlanks PRIVATE:
     DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
     
-    MESSAGE "Are you sure you want to Copy Blank Info? " VIEW-AS ALERT-BOX WARNING
-        BUTTON YES-NO UPDATE lCopyBlankInfo AS LOG.        
-    IF lCopyBlankInfo THEN 
-    DO: 
         FIND FIRST ipbf-ttBlanksToCopy NO-LOCK 
             WHERE ipbf-ttBlanksToCopy.lisSelected = YES NO-ERROR.
         IF AVAILABLE ipbf-ttBlanksToCopy THEN
@@ -207,15 +203,11 @@ PROCEDURE pCopyBlanks PRIVATE:
                                           
                 END. /* IF AVAILABLE buf2-ef AND AVAILABLE buf2-eb  THEN */
                 
-            END. /* FOR EACH  ipbf-ttBlanksToCopyInto NO-LOCK */    
-                      
-        END. /* IF AVAILABLE buf-ef AND AVAILABLE buf-eb THEN */
-        
-        MESSAGE "Blank Information Copied."
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-        
-    END. /* IF lCopyBlankInfo THEN */ 
-             
+            END. /* FOR EACH  ipbf-ttBlanksToCopyInto NO-LOCK */  
+            MESSAGE "Blank Information Copied."
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.                       
+        END. /* IF AVAILABLE buf-ef AND AVAILABLE buf-eb THEN */       
+                   
     RELEASE buf-eb.
     RELEASE buf2-eb.
     RELEASE buf-ef.
