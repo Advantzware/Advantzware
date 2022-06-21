@@ -1122,6 +1122,7 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     DEFINE VARIABLE cClientTransactionCounter AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCompany                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserID                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStockNotes               AS CHARACTER FORMAT "x(80)" EXTENT 6 NO-UNDO.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
     RUN spGetSessionParam ("UserID", OUTPUT cUserID).
@@ -1173,7 +1174,15 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXEmail", bf-cust.email).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAreaCode", bf-cust.area-code).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXPhone", bf-cust.phone).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXFax", bf-cust.fax).        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXFax", bf-cust.fax).  
+        
+        RUN pStockNotes(INPUT bf-cust.rec_key, OUTPUT cStockNotes).  
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote1", cStockNotes[1]).     
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote2", cStockNotes[2]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote3", cStockNotes[3]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote4", cStockNotes[4]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote5", cStockNotes[5]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote6", cStockNotes[6]).
     END.
     
     RUN Format_UpdateLineCount (INPUT-OUTPUT ioplcRequestData).
@@ -2136,4 +2145,64 @@ PROCEDURE pCreateTTRequestData PRIVATE:
         ttRequestData.requestStatus        = cRequestStatusInitialized
         .
 END.
+
+
+PROCEDURE pStockNotes PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcReckey LIKE cust.rec_key NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
+
+    DEFINE VARIABLE rcPrevNoteRec AS RECID NO-UNDO.
+    DEFINE VARIABLE dTmpLines     AS DEC NO-UNDO.
+    DEFINE VARIABLE iGotReturn    AS INT NO-UNDO.
+    DEFINE VARIABLE iPrevExtent   AS INT NO-UNDO.
+    DEFINE VARIABLE iLineChars    AS INT INIT 72 NO-UNDO.
+    DEFINE VARIABLE iJCount       AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iKCount       AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount        AS INTEGER NO-UNDO.
+    
+    ASSIGN 
+        dTmpLines  = 0
+        iJCount    = 0
+        iKCount    = 0
+        iGotReturn = 0.
+
+    FOR EACH notes NO-LOCK
+        WHERE notes.rec_key EQ ipcReckey 
+          AND notes.note_type = "G"
+          AND notes.note_group = "BN" :
+          
+        IF rcPrevNoteRec <> ? AND
+           rcPrevNoteRec <> RECID(notes) THEN iPrevExtent = iKCount.
+        DO iCount = 1 TO LENGTH(notes.note_text) :        
+               IF iCount - iJCount >= iLineChars THEN ASSIGN iJCount = iCount
+                                                     iGotReturn = iGotReturn + 1.
+                      
+               dTmpLines = ( iCount - iJCount ) / iLineChars.
+               {SYS/INC/ROUNDUP.I dTmpLines}
+               iKCount = dTmpLines + iGotReturn +
+                   IF (rcPrevNoteRec <> RECID(notes) AND rcPrevNoteRec <> ?) THEN iPrevExtent ELSE 0.
+
+               IF iKCount > 0 AND iKCount <= 6 THEN opcNotes[iKCount] = opcNotes[iKCount] + 
+                                      IF SUBSTRING(notes.note_text,iCount,1) <> CHR(10) AND SUBSTRING(notes.note_text,iCount,1) <> CHR(13)
+                                      THEN SUBSTRING(notes.note_text,iCount,1)
+                                      ELSE "" .              
+               
+               IF SUBSTRING(note_text,iCount,1) = CHR(10) OR SUBSTRING(note_text,iCount,1) = CHR(13)                 
+               THEN do:
+                      iGotReturn = iGotReturn + 1.
+                      iJCount = iCount.
+               END.
+        END.
+        ASSIGN rcPrevNoteRec = RECID(notes)
+               iJCount = 0
+               iGotReturn = 0.
+        
+        IF iKCount > 6 THEN LEAVE.
+    END.
+
+END PROCEDURE.
 

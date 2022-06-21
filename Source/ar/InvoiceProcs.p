@@ -229,6 +229,7 @@ PROCEDURE pAssignCommonLineData PRIVATE:
             RUN oe/pallcalc.p (ROWID(bf-oe-boll), OUTPUT iPallets).
 
             ipbf-ttInv.totalPallets = ipbf-ttInv.totalPallets + iPallets.
+            ipbf-ttInv.invoicePC = IF bf-oe-boll.p-c THEN "C" ELSE "P" .
         END.    
     END.
         
