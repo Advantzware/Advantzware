@@ -1,4 +1,4 @@
-// format : <Program Name(Without extension)> "<Category Tags>"
+// format : <Program Name(Without extension)> "<Category Tags>" <Program HotKey Override>(This is usually fetched from progrms table, use this in cases where window does not match the prgrms record name)
 CRM/crmContacts. "CRM,ZohoCRM"
 CRM/crmCustomers. "CRM,ZohoCRM"
 sharpshooter/w-bolLoadtag. "SSPrintBOLTag,Window"
@@ -21,4 +21,5 @@ sharpshooter/w-rmIssue. "SSRMIssue,Window,Keyboard"
 system/mainMenu. "MainMenu"
 oe/w-oeinv. "InvoiceApproval"
 ap/w-apinv. "APPosting"
+oe/InvoiceRegisterN. "Vertex" OB4
 windows/vendcostmtx. "FGItemApproval"
