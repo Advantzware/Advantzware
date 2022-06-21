@@ -78,8 +78,17 @@ IF AVAIL est THEN DO:
 
       IF eb.form-no  NE lv-frm OR
          eb.blank-no NE lv-blk THEN DO:
-        {sys/inc/xeb-form.i "eb." "eb.blank-no" "lv-frm" "lv-blk"}
-        
+        RUN Estimate_UpdateEstDependencies(
+            INPUT eb.company,
+            INPUT eb.loc,
+            INPUT eb.est-no,
+            INPUT eb.form-no,
+            INPUT eb.blank-no,
+            INPUT eb.eqty,
+            INPUT eb.est-type,
+            INPUT lv-frm,
+            INPUT lv-blk
+            ).        
         FIND FIRST bf-eb EXCLUSIVE-LOCK 
              WHERE ROWID(bf-eb) EQ ROWID(eb)
              NO-ERROR.
@@ -99,7 +108,17 @@ IF AVAIL est THEN DO:
 
     ELSE
     IF ef.form-no NE lv-frm THEN DO:
-      {sys/inc/xeb-form.i "ef." "0" "lv-frm" "0"}
+      RUN Estimate_UpdateEstDependencies(
+          INPUT ef.company,
+          INPUT ef.loc,
+          INPUT ef.est-no,
+          INPUT ef.form-no,
+          INPUT 0,
+          INPUT ef.eqty,
+          INPUT ef.est-type,
+          INPUT lv-frm,
+          INPUT 0
+          ).         
         
       FIND FIRST bf-ef EXCLUSIVE-LOCK 
            WHERE ROWID(bf-ef) EQ ROWID(ef)
