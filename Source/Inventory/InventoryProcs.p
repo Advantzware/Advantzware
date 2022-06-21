@@ -699,12 +699,15 @@ PROCEDURE pConvertFGToRM PRIVATE:
                     bf-loadtag.tag-date  = TODAY
                     bf-loadtag.tag-time  = TIME
                     .
-
+            
+            /* If item is Roll then length is in feets. So convert the quantity into inches by multiplying with 12 */
+            dQuantity = bf-fg-bin.qty * (IF bf-item.r-wid NE 0 THEN 12 ELSE 1).
+            
             RUN Conv_QuantityFromUOMToUOM (
                 INPUT  bf-item.company,
                 INPUT  bf-item.i-no,
                 INPUT  "RM",
-                INPUT  bf-fg-bin.qty,
+                INPUT  dQuantity,
                 INPUT  "EA", 
                 INPUT  bf-item.cons-uom,
                 INPUT  0,
@@ -1637,7 +1640,7 @@ PROCEDURE pCreateFGTransaction PRIVATE:
         bf-fg-rctd.cost           = bf-fg-bin.std-tot-cost
         bf-fg-rctd.trans-time     = TIME
         bf-fg-rctd.reject-code[1] = ipcReasonCode
-        bf-fg-rctd.ext-cost       = (bf-fg-rctd.t-qty / (IF bf-fg-rctd.pur-uom EQ "M" THEN 1000 ELSE 1)) * bf-fg-bin.std-tot-cost
+        bf-fg-rctd.std-cost       = bf-fg-bin.std-tot-cost
         bf-fg-rctd.cust-no        = bf-fg-bin.cust-no
         bf-fg-rctd.reject-code[1] = ipcReasonCode
         bf-fg-rctd.created-by     = USERID("ASI")
