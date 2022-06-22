@@ -1126,13 +1126,22 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
     RUN spGetSessionParam ("UserID", OUTPUT cUserID).
     
-    DEFINE BUFFER bf-cust FOR cust.
+    DEFINE BUFFER bf-cust               FOR cust.
+    DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
     
     ASSIGN
         cAPITransactionCounter    = STRING(fGetAPITransactionCounter(ipiAPIOutboundID))
         cClientTransactionCounter = STRING(fGetClientTransactionCounter(ipiAPIOutboundID))
         .
-        
+
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+    
+    FOR EACH bf-APIOutboundContent NO-LOCK
+        WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID
+          AND bf-APIOutboundContent.contentType   EQ "User":
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, bf-APIOutboundContent.contentKey, bf-APIOutboundContent.contentValue).
+    END.
+    
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APITransCounter", cAPITransactionCounter).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate", TODAY).

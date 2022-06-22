@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : InventoryProcs.p
     Purpose     : 
@@ -1578,6 +1577,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
             bf-rm-rctd.cost-uom       = bf-item.cons-uom
             bf-rm-rctd.adjustmentCode = ipcReasonCode
             bf-rm-rctd.tag2           = ipcRMLot
+            bf-rm-rctd.user-id        = USERID("ASI")
             bf-rm-rctd.enteredBy      = USERID("ASI")
             bf-rm-rctd.enteredDT      = NOW
             opriRMRctd                = ROWID(bf-rm-rctd)
@@ -3283,6 +3283,7 @@ PROCEDURE pGetFGTransactions PRIVATE:
                 ttBrowseInventory.warehouse        = bf-fg-rctd.loc
                 ttBrowseInventory.location         = bf-fg-rctd.loc-bin
                 ttBrowseInventory.quantity         = bf-fg-rctd.qty
+                ttBrowseInventory.quantityUOM      = bf-fg-rctd.pur-uom
                 ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-fg-rctd))
                 ttBrowseInventory.inventoryStatus  = "Unposted"
                 ttBrowseInventory.lastTransTime    = NOW
@@ -3332,6 +3333,7 @@ PROCEDURE pGetRMTransactions PRIVATE:
                 ttBrowseInventory.warehouse        = bf-rm-rctd.loc
                 ttBrowseInventory.location         = bf-rm-rctd.loc-bin
                 ttBrowseInventory.quantity         = bf-rm-rctd.qty
+                ttBrowseInventory.quantityUOM      = bf-rm-rctd.pur-uom
                 ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-rm-rctd))
                 ttBrowseInventory.inventoryStatus  = "Unposted"
                 ttBrowseInventory.lastTransTime    = NOW

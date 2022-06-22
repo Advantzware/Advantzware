@@ -1067,7 +1067,7 @@ FOR EACH job-hdr NO-LOCK
       userField[6]   = setUserField(6,IF AVAILABLE eb THEN eb.plate-no ELSE '')
       userField[7]   = setUserField(7,IF AVAILABLE po-ordl AND (lUseForm EQ NO OR
                        po-ordl.s-num EQ job-mch.frm) THEN STRING(po-ordl.po-no,'>>>>>>>9') ELSE '')
-      userField[8]   = setUserField(8,IF AVAIL eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
+      userField[8]   = setUserField(8,IF AVAILABLE eb AND eb.est-type EQ 6 THEN eb.stock-no /* set */
                                  ELSE IF job-mch.i-no NE '' THEN job-mch.i-no
                                  ELSE IF AVAILABLE itemfg AND itemfg.i-no EQ '' THEN itemfg.i-no
                                  ELSE itemDescription)

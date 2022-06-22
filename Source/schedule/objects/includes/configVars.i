@@ -49,6 +49,7 @@ DEFINE VARIABLE lightBulbColor          AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lockButtons             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE loadCapacity            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE monitorInterval         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE moveLockedJob           AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE moveUndoRedo            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE noteButtons             AS INTEGER   NO-UNDO INITIAL 1.
 DEFINE VARIABLE packOption              AS INTEGER   NO-UNDO INITIAL 5.

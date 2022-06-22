@@ -19,6 +19,7 @@ DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowAllQuantities AS LOGICAL NO-UNDO.
 
 {est/ttEstSysConfig.i}
+{system\FormulaProcs.i}
 
 DEFINE TEMP-TABLE ttSection
     FIELD rec_keyParent AS CHARACTER 
@@ -50,6 +51,8 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD printSummaryFirst           AS LOGICAL INITIAL YES
     FIELD printAnalysis               AS LOGICAL INITIAL YES
     FIELD printNotes                  AS LOGICAL INITIAL YES
+    FIELD printBoxDesigns             AS LOGICAL INITIAL YES
+    FIELD showDimensionsIn16ths       AS LOGICAL INITIAL YES
     FIELD operationTimeInHHMM         AS LOGICAL 
     FIELD summColQuantityShow         AS LOGICAL INITIAL NO
     FIELD summColQuantityLabel        AS CHARACTER INITIAL "Quantity"
@@ -90,8 +93,10 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
 DEFINE STREAM sEstOutput.
 DEFINE VARIABLE hdOutputProcs       AS HANDLE.
 DEFINE VARIABLE hdEstimateCalcProcs AS HANDLE.
+DEFINE VARIABLE hdFormulaProcs      AS HANDLE    NO-UNDO.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 RUN est/EstimateCalcProcs.p PERSISTENT SET hdEstimateCalcProcs.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -183,6 +188,8 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
         opbf-ttCEFormatConfig.printByForm                 = INDEX(ipcFormatMaster, "By Form") GT 0
         opbf-ttCEFormatConfig.printAnalysis               = INDEX(ipcFormatMaster, "Analysis") GT 0
         opbf-ttCEFormatConfig.printNotes                  = INDEX(ipcFormatMaster, "No Notes") EQ 0
+        opbf-ttCEFormatConfig.printBoxDesigns             = YES
+        opbf-ttCEFormatConfig.showDimensionsIn16ths       = YES 
         opbf-ttCEFormatConfig.showProfitPercent           = YES
         opbf-ttCEFormatConfig.summColItemNameShow         = YES
         opbf-ttCEFormatConfig.summColItemNameCol          = 2
@@ -332,6 +339,16 @@ PROCEDURE pBuildSections PRIVATE:
             CREATE ttSection.
             ASSIGN   
                 ttSection.cType         = "Analysis"
+                ttSection.iSequence     = iSectionCount
+                ttSection.rec_keyParent = bf-estCostHeader.rec_key
+                .
+        END.
+        IF opbf-ttCEFormatConfig.printBoxDesigns THEN 
+        DO:
+            iSectionCount = iSectionCount + 1.
+            CREATE ttSection.
+            ASSIGN   
+                ttSection.cType         = "BoxDesign"
                 ttSection.iSequence     = iSectionCount
                 ttSection.rec_keyParent = bf-estCostHeader.rec_key
                 .
@@ -525,6 +542,192 @@ PROCEDURE pLoadConfig PRIVATE:
     
 END PROCEDURE.
 
+PROCEDURE pPrintBoxDetail PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
+
+DEFINE VARIABLE cFGItem AS CHARACTER FORMAT "X(100)" NO-UNDO.
+DEFINE VARIABLE cFGitemName AS CHARACTER FORMAT "X(30)" NO-UNDO.
+DEFINE VARIABLE cHdr AS CHARACTER FORMAT "X(100)" NO-UNDO.
+DEFINE VARIABLE cLineText AS CHARACTER FORMAT "X(65)" NO-UNDO.
+DEFINE VARIABLE iLengthFGItem AS INTEGER NO-UNDO.
+DEFINE VARIABLE cLscore LIKE box-design-hdr.lscore NO-UNDO.
+DEFINE VARIABLE cLcumscore LIKE box-design-hdr.lcum-score NO-UNDO.
+
+DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+          
+        cFGItem = "Board:" + string(ipbf-ef.board) + ",".    
+        FIND FIRST ITEM NO-LOCK 
+            WHERE ITEM.company EQ ipbf-ef.company
+              AND ITEM.i-no EQ ipbf-ef.board NO-ERROR.
+        IF AVAILABLE ITEM THEN 
+            cFGItem = cFGItem + ITEM.i-Name.
+            cFGItem = cFGItem + "   FG Item: ". 
+            iLengthFGItem = LENGTH (cFGItem).
+            cFGItem       = cFGItem + string(ipbf-eb.stock-no,"x(15)").    
+        RUN pWriteToCoordinates(iopiRowCount, 6, cFGItem, NO, NO, NO). 
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                
+        FIND FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ ipbf-ef.company AND
+            itemfg.i-no EQ ipbf-eb.stock-no NO-ERROR.     
+        cFGItemName = IF AVAILABLE itemFG THEN itemfg.i-name ELSE "".
+        RUN pWriteToCoordinates(iopiRowCount, iLengthFGItem - 7, cFGItemName, NO, NO, NO).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+           
+        FIND FIRST box-design-hdr NO-LOCK
+            WHERE box-design-hdr.design-no EQ 0
+              AND box-design-hdr.company   EQ ipbf-eb.company 
+              AND box-design-hdr.est-no    EQ ipbf-eb.est-no
+              AND box-design-hdr.form-no   EQ ipbf-eb.form-no
+              AND box-design-hdr.blank-no  EQ ipbf-eb.blank-no NO-ERROR.
+
+        FIND FIRST style NO-LOCK
+            WHERE style.company EQ ipbf-eb.company
+              AND style.style   EQ  ipbf-eb.style NO-ERROR.
+        IF NOT  AVAILABLE box-design-hdr AND  AVAILABLE  style THEN 
+            FIND FIRST box-design-hdr NO-LOCK                 
+                WHERE box-design-hdr.design-no EQ style.design-no NO-ERROR.
+                  
+        ASSIGN 
+            cHdr = "Design #: " + TRIM(STRING(IF AVAILABLE style AND box-design-hdr.design-no EQ 0 THEN              
+                                          style.design-no ELSE box-design-hdr.design-no,">>>")) +
+                           "   " + box-design-hdr.DESCRIPTION + "    CorrDir:"  +
+                           IF ef.xgrain = "N" THEN "Vertical" ELSE "Horizontal".
+                           
+        RUN pWriteToCoordinates(iopiRowCount, 10, cHdr, NO, NO, NO).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        
+        IF box-design-hdr.lscore BEGINS "No Design" THEN 
+        DO: 
+            RUN pWriteToCoordinates(iopiRowCount, 2, box-design-hdr.lscore, NO, NO, NO).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).    
+        END. 
+        ELSE IF AVAILABLE style AND ipbf-eb.est-type GE 5 THEN 
+        DO:
+            cLscore    = TRIM (box-design-hdr.lscore, " ").
+            cLcumscore = TRIM (box-design-hdr.lcum-score, " ").
+            RUN Output_WriteToXprintFontChange("Courier New", 11).                 
+            RUN pWriteToCoordinates(iopiRowCount, 3, cLscore, NO, NO, NO).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pWriteToCoordinates(iopiRowCount, 3, cLcumscore, NO, NO, NO).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN Output_WriteToXprintFontChange("Calibri", 11).   
+        END.  
+              
+        IF box-design-hdr.box-image = "" THEN 
+        DO:      
+            FOR EACH box-design-line OF box-design-hdr
+                NO-LOCK
+                WHERE box-design-line.line-text <> ""
+                BREAK BY box-design-line.design-no:
+                RUN pWriteToCoordinates(iopiRowCount, 2, cLineText, NO, NO, NO).
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            END.
+        END. 
+        ELSE 
+        DO:
+            FILE-INFO:FILE-NAME = box-design-hdr.box-image.
+            RUN Output_WriteToXprintImage(iopiRowCount,2,25,65,FILE-INFO:FULL-PATHNAME).
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            FOR EACH box-design-line OF box-design-hdr NO-LOCK:
+                IF AVAILABLE style AND ipbf-eb.est-type GE 5 THEN
+                DO:
+                    RUN pWriteToCoordinates(iopiRowCount, 70, TRIM(box-design-line.wscore), NO, NO, NO).
+                    RUN pWriteToCoordinates(iopiRowCount, 75, TRIM(box-design-line.wcum-score), NO, NO, NO).
+                END. 
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            END.
+            IF iopiRowCount LT 20 AND iopiRowCount GT 8 THEN 
+                ASSIGN iopiRowCount = iopiRowCount + 20.
+        END.                          
+END PROCEDURE.
+
+PROCEDURE pPrintBoxDesign PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcEstHeaderRecKey AS CHARACTER NO-UNDO.
+DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
+DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER NO-UNDO.
+DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER NO-UNDO.
+
+DEFINE BUFFER bf-primaryEstCostHeader FOR estCostHeader.
+    
+    FIND FIRST bf-primaryEstCostHeader NO-LOCK 
+        WHERE bf-primaryEstCostHeader.rec_key EQ ipcEstHeaderRecKey NO-ERROR.
+    IF NOT AVAILABLE bf-primaryEstCostHeader THEN RETURN.  
+    
+    FOR EACH estCostBlank NO-LOCK 
+        WHERE estCostBlank.estCostHeaderID EQ bf-primaryEstCostHeader.estCostHeaderID,
+        FIRST estCostItem NO-LOCK 
+        WHERE estCostItem.estCostItemID EQ estCostBlank.estCostItemID,
+        FIRST ef NO-LOCK 
+        WHERE ef.est-no EQ estCostBlank.estimateNo
+          AND ef.form-no EQ estCostBlank.formNo,
+        FIRST eb NO-LOCK 
+        WHERE eb.est-no EQ ef.est-no 
+          AND eb.form-no EQ ef.form-no
+          AND eb.blank-no EQ estCostBlank.blankNo
+              BY estCostItem.formNo
+              BY estCostItem.blankNo:   
+                   
+        RUN pPrintBoxInfoHeader(BUFFER estCostItem, BUFFER bf-primaryEstCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintBoxDetail(BUFFER eb, BUFFER ef, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        IF iopiRowCount GT 40 THEN     
+            RUN AddPage(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount ).
+    END.
+        
+ 
+END PROCEDURE.
+
+PROCEDURE pPrintBoxInfoHeader PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Print Box Info Header
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-estCostItem   FOR estCostItem.
+    DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
+    DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
+    DEFINE INPUT-OUTPUT PARAMETER iopiRowCount  AS INTEGER.
+    
+    DEFINE VARIABLE cOperationIds        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOperationIdsOrdered AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount               AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iStartColumn AS INTEGER INITIAL 2.
+    
+    FOR EACH estCostOperation NO-LOCK
+        WHERE estCostOperation.Company EQ ipbf-estCostHeader.company
+          AND estCostOperation.EstimateNo EQ ipbf-estCostHeader.EstimateNo 
+              :
+              IF LOOKUP(estCostOperation.operationID,cOperationIds) = 0 THEN
+                  cOperationIds = cOperationIds + "," + estCostOperation.operationID.
+    END. 
+             
+    ASSIGN cOperationIds = TRIM(cOperationIds, ",").
+    DO iCount = NUM-ENTRIES(cOperationIds) TO 1 BY -1:
+        cOperationIdsOrdered = cOperationIdsOrdered + "," + ENTRY (iCount, cOperationIds).
+    END.  
+    ASSIGN cOperationIdsOrdered = TRIM(cOperationIdsOrdered, ","). 
+    RUN pWriteToCoordinates(iopiRowCount, iStartColumn, "Estimate#: " + ipbf-estCostHeader.estimateno, NO, NO, NO).
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
+
+    RUN pWriteToCoordinates(iopiRowCount, iStartColumn, "Customer:", NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iStartColumn + 8, ipbf-estCostItem.customerID + FILL(" ", 11 - LENGTH(ipbf-estCostItem.customerID)) + ipbf-estCostItem.customerName, 41, NO, NO, NO).
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    RUN pWriteToCoordinates(iopiRowCount, iStartColumn, cOperationIdsOrdered, NO, NO, NO).
+   
+END PROCEDURE.
+
 PROCEDURE pPrintConsolidated PRIVATE:
     /*------------------------------------------------------------------------------
         Purpose: Processes the output for a given form
@@ -544,7 +747,7 @@ PROCEDURE pPrintConsolidated PRIVATE:
         WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
         RUN pPrintItemInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         IF fTypePrintsLayout(estCostHeader.estType) THEN 
-            RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
     FOR EACH estCostForm NO-LOCK 
         WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID:
@@ -593,7 +796,7 @@ PROCEDURE pPrintForm PRIVATE:
     RUN pPrintPageHeader(BUFFER estCostHeader, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintItemInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     IF fTypePrintsLayout(estCostHeader.estType) THEN 
-        RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintLayoutInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintMaterialInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pPrintMiscInfoForForm(BUFFER estCostHeader, BUFFER estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -1189,12 +1392,14 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
     DEFINE VARIABLE cLabelBlank   AS CHARACTER INIT "Blank #" NO-UNDO  . 
     DEFINE VARIABLE cLabelNet     AS CHARACTER INIT "Net:" NO-UNDO  .
     DEFINE VARIABLE cLabelGross   AS CHARACTER INIT "Gross:" NO-UNDO  .
     DEFINE VARIABLE lWoodEstimate AS LOGICAL   NO-UNDO  .
+    DEFINE VARIABLE opdConvertTo16th LIKE estCostBlank.blankWidth NO-UNDO.
    
     DEFINE VARIABLE iColumn       AS INTEGER   EXTENT 10 INITIAL [12,22,32,45,58,72].
     
@@ -1219,23 +1424,47 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         WHERE estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelBlank + TRIM(STRING(estCostBlank.blankNo,">>9")) + ":", NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostBlank.blankWidth, 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostBlank.blankLength, 4, 5, NO, YES, NO, NO, YES).
+        ASSIGN opdConvertTo16th = estCostBlank.blankWidth.
+        RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+        IF ttCEFormatConfig.showDimensionsIn16ths THEN 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostBlank.blankWidth, 4, 5, NO, YES, NO, NO, YES).
+        ASSIGN opdConvertTo16th = estCostBlank.blankLength.
+        RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+        IF ttCEFormatConfig.showDimensionsIn16ths THEN
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostBlank.blankLength, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostBlank.dimUOM , NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostBlank.blankArea, 4, 5, NO, YES, NO, NO, YES).
+        ASSIGN opdConvertTo16th = estCostBlank.blankArea.
+        RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+        IF ttCEFormatConfig.showDimensionsIn16ths THEN
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostBlank.blankArea, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostBlank.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostBlank.numOut, 4, 0, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostBlank.weightPerBlank * 1000, 5, 4, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostBlank.weightPerBlank * 1000, 5, 4, NO, YES, NO, NO, YES). 
         RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostBlank.weightUOM + "/M", NO, NO, NO).
     END.
     IF NOT lWoodEstimate THEN
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Die:", NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.dieWidth, 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.dieLength,4, 5, NO, YES, NO, NO, YES).
+        ASSIGN opdConvertTo16th = estCostForm.dieWidth.
+        RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+        IF ttCEFormatConfig.showDimensionsIn16ths THEN
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.dieWidth, 4, 5, NO, YES, NO, NO, YES).
+        ASSIGN opdConvertTo16th = estCostForm.dieLength.
+        RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+        IF ttCEFormatConfig.showDimensionsIn16ths THEN 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2),4, 2, NO, YES, NO, NO, YES).
+        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.dieLength,4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
+        ASSIGN opdConvertTo16th = estCostForm.dieArea.
+        RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+        IF ttCEFormatConfig.showDimensionsIn16ths THEN
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightDieUOM, NO, NO, NO).
@@ -1243,20 +1472,44 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelNet, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.netWidth, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.netLength,4, 5, NO, YES, NO, NO, YES).
+    ASSIGN opdConvertTo16th = estCostForm.netWidth.
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+    IF ttCEFormatConfig.showDimensionsIn16ths THEN
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+    ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.netWidth, 4, 5, NO, YES, NO, NO, YES).
+    ASSIGN opdConvertTo16th = estCostForm.netLength.
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+    IF ttCEFormatConfig.showDimensionsIn16ths THEN
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2),4, 2, NO, YES, NO, NO, YES).
+    ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.netLength,4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.netArea, 4, 5, NO, YES, NO, NO, YES).
+    ASSIGN opdConvertTo16th = estCostForm.netArea.
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+    IF ttCEFormatConfig.showDimensionsIn16ths THEN
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+    ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.netArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostForm.numOutNet, 4, 0, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightNetSheet, 5, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightNetUOM, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelGross, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.grossWidth, 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.grossLength, 4, 5, NO, YES, NO, NO, YES).
+    ASSIGN opdConvertTo16th = estCostForm.grossWidth.
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+    IF ttCEFormatConfig.showDimensionsIn16ths THEN
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+    ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], estCostForm.grossWidth, 4, 5, NO, YES, NO, NO, YES).
+    ASSIGN opdConvertTo16th = estCostForm.grossLength.
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+    IF ttCEFormatConfig.showDimensionsIn16ths THEN
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+    ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostForm.grossLength, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostForm.dimUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
+    ASSIGN opdConvertTo16th = estCostForm.grossArea.
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+    IF ttCEFormatConfig.showDimensionsIn16ths THEN
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
+    ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightGrossSheet, 5, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightGrossUOM, NO, NO, NO).
@@ -1270,7 +1523,11 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Totals->", YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[2],  "Sheets:", YES, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + 1, estCostForm.grossQtyRequiredTotal, 9, 0, YES, YES, YES, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
+    ASSIGN opdConvertTo16th = estCostForm.grossQtyRequiredTotalArea.
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
+    IF ttCEFormatConfig.showDimensionsIn16ths THEN
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, YES, NO, YES).
+    ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.grossQtyRequiredTotalAreaUOM , YES, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.grossQtyRequiredTotalWeight, 7, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.grossQtyRequiredTotalWeightUOM, NO, NO, NO).
@@ -1710,9 +1967,17 @@ PROCEDURE pProcessSections PRIVATE:
             WHEN "Notes" THEN 
             RUN pPrintNotes(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).          
             WHEN "Analysis" THEN 
-            RUN pPrintAnalysis(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).          
+            RUN pPrintAnalysis(ttSection.rec_keyParent, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount). 
+            WHEN "BoxDesign" THEN 
+            RUN pPrintBoxDesign(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).         
         END CASE.
-        RUN AddPage(INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount ).
+        IF ttSection.cType EQ "BoxDesign" THEN 
+        DO: 
+            IF iRowCount GT 40 THEN  
+            RUN AddPage(INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount ). 
+        END.    
+        ELSE 
+            RUN AddPage(INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount ).        
     END.
     
 

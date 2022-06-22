@@ -204,6 +204,8 @@ FOR EACH ar-cash
               AND ar-inv.cust-no EQ ar-cashl.cust-no
               AND ar-inv.inv-no  EQ ar-cashl.inv-no NO-ERROR.
         IF AVAIL ar-inv THEN DO:
+            IF FIRST(ar-cashl.check-no) 
+            THEN 
             ASSIGN 
                 v-memo-name    = ar-inv.cust-name
                 v-memo-addr[1] = ar-inv.addr[1] 
@@ -296,7 +298,7 @@ FOR EACH ar-cash
         END.
 
 
-        IF FIRST-OF(ar-cashl.check-no) 
+        IF FIRST(ar-cashl.check-no) 
           THEN DO:
 
             FIND FIRST cust NO-LOCK
@@ -348,10 +350,10 @@ FOR EACH ar-cash
             v-po-no                 FORMAT "x(11)"      SPACE(1)
             v-ord-no                FORMAT "x(8)"       SPACE(1)
             v-item-no               FORMAT "x(15)"      SPACE(5)
-            lv-desc                 FORMAT "x(30)"      SPACE(3)
+            lv-desc                 FORMAT "x(30)"      SPACE(2)
             IF v-creamt NE 0 
             THEN v-creamt 
-            ELSE  v-debamt          FORMAT "->>,>>9.99" .
+            ELSE  v-debamt          FORMAT "->>>,>>9.99" .
        PUT v-cust-part AT 33 
             SKIP(1).
         

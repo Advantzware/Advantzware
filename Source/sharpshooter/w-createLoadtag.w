@@ -1152,7 +1152,8 @@ PROCEDURE pPOTagPrint PRIVATE :
             LEAVE.
     END.
     
-    RUN pStatusMessage(INPUT cMessage, INPUT 3).
+    IF lError THEN
+        RUN pStatusMessage(INPUT cMessage, INPUT 3).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

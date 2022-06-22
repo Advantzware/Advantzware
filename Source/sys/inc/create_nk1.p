@@ -53,7 +53,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
            + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength,CEShowErrorsAndWarnings,"
-           + "CECostSource,CEStyleF"
+           + "CECostSource,CEStyleF,ROUND"
            .
                       
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1765,6 +1765,17 @@ CASE ip-nk1-value:
             INPUT YES,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
             ).                                            
+    WHEN "ROUND" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Round Up Scoring Allowances?", /* Description */
+            INPUT "",                             /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).                      
 END CASE.
 ELSE
 CASE ip-nk1-value:
