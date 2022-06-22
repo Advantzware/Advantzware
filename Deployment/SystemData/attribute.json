@@ -3969,6 +3969,27 @@
     "rec_key": "202201098631308436435"
   },
   {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineDepth",
+    "dbTableName": "itemfg",
+    "rec_key": "202206156369509515895"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineLength",
+    "dbTableName": "itemfg",
+    "rec_key": "202206156368409515893"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineWidth",
+    "dbTableName": "itemfg",
+    "rec_key": "202206156369009515894"
+  },
+  {
     "dbFieldName": "i-name",
     "dbFieldExtent": 0,
     "attributeName": "FGItemName",
@@ -3988,6 +4009,13 @@
     "attributeName": "IsASet",
     "dbTableName": "itemfg",
     "rec_key": "202204015976608577303"
+  },
+  {
+    "dbFieldName": "part-dscr3",
+    "dbFieldExtent": 0,
+    "attributeName": "FGItemPartDescription3",
+    "dbTableName": "itemfg",
+    "rec_key": "202206156188909515889"
   },
   {
     "dbFieldName": "procat",
@@ -5250,6 +5278,13 @@
     "rec_key": "202111190040508130749"
   },
   {
+    "dbFieldName": "part-no",
+    "dbFieldExtent": 0,
+    "attributeName": "BuyerPart",
+    "dbTableName": "oe-ordl",
+    "rec_key": "202206095535509515278"
+  },
+  {
     "dbFieldName": "po-no",
     "dbFieldExtent": 0,
     "attributeName": "POID",
@@ -5355,11 +5390,130 @@
     "rec_key": "202111190040508130750"
   },
   {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POSubTotal",
+    "dbTableName": "po-ord",
+    "rec_key": "202206160436109516019"
+  },
+  {
     "dbFieldName": "buyer",
     "dbFieldExtent": 0,
     "attributeName": "POBuyer",
     "dbTableName": "po-ord",
     "rec_key": "202201114188908455004"
+  },
+  {
+    "dbFieldName": "contact",
+    "dbFieldExtent": 0,
+    "attributeName": "POContact",
+    "dbTableName": "po-ord",
+    "rec_key": "202206154516309515820"
+  },
+  {
+    "dbFieldName": "due-date",
+    "dbFieldExtent": 0,
+    "attributeName": "PODueDate",
+    "dbTableName": "po-ord",
+    "rec_key": "202206147615209515754"
+  },
+  {
+    "dbFieldName": "fob-code",
+    "dbFieldExtent": 0,
+    "attributeName": "POFOBCode",
+    "dbTableName": "po-ord",
+    "rec_key": "202206154521009515821"
+  },
+  {
+    "dbFieldName": "frt-pay",
+    "dbFieldExtent": 0,
+    "attributeName": "POFreightPay",
+    "dbTableName": "po-ord",
+    "rec_key": "202206154658809515822"
+  },
+  {
+    "dbFieldName": "po-change-date",
+    "dbFieldExtent": 0,
+    "attributeName": "POChangeDate",
+    "dbTableName": "po-ord",
+    "rec_key": "202206147612309515753"
+  },
+  {
+    "dbFieldName": "po-date",
+    "dbFieldExtent": 0,
+    "attributeName": "PODate",
+    "dbTableName": "po-ord",
+    "rec_key": "202206147608809515752"
+  },
+  {
+    "dbFieldName": "po-no",
+    "dbFieldExtent": 0,
+    "attributeName": "POID",
+    "dbTableName": "po-ord",
+    "rec_key": "202206147606609515751"
+  },
+  {
+    "dbFieldName": "ship-addr",
+    "dbFieldExtent": 1,
+    "attributeName": "POShipAddress1",
+    "dbTableName": "po-ord",
+    "rec_key": "202206148209009515767"
+  },
+  {
+    "dbFieldName": "ship-addr",
+    "dbFieldExtent": 2,
+    "attributeName": "POShipAddress2",
+    "dbTableName": "po-ord",
+    "rec_key": "202206148209509515768"
+  },
+  {
+    "dbFieldName": "ship-city",
+    "dbFieldExtent": 0,
+    "attributeName": "POShipCity",
+    "dbTableName": "po-ord",
+    "rec_key": "202206148210709515769"
+  },
+  {
+    "dbFieldName": "ship-name",
+    "dbFieldExtent": 0,
+    "attributeName": "POShipName",
+    "dbTableName": "po-ord",
+    "rec_key": "202206148207509515766"
+  },
+  {
+    "dbFieldName": "ship-state",
+    "dbFieldExtent": 0,
+    "attributeName": "POShipState",
+    "dbTableName": "po-ord",
+    "rec_key": "202206148211309515770"
+  },
+  {
+    "dbFieldName": "ship-zip",
+    "dbFieldExtent": 0,
+    "attributeName": "POShipZip",
+    "dbTableName": "po-ord",
+    "rec_key": "202206148212109515771"
+  },
+  {
+    "dbFieldName": "stat",
+    "dbFieldExtent": 0,
+    "attributeName": "POStatus",
+    "dbTableName": "po-ord",
+    "rec_key": "202206147200209515739"
+  },
+  {
+    "dbFieldName": "t-cost",
+    "dbFieldExtent": 0,
+    "attributeName": "POTotalCost",
+    "dbTableName": "po-ord",
+    "rec_key": "202206160412109516016"
+  },
+  {
+    "dbFieldName": "tax",
+    "dbFieldExtent": 0,
+    "attributeName": "POTax",
+    "dbTableName": "po-ord",
+    "rec_key": "202206160412909516017"
   },
   {
     "dbFieldName": "vend-no",
@@ -5369,6 +5523,83 @@
     "rec_key": "202204138545209191908"
   },
   {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "AdderAvailable",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206160061109516004"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineCost",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155511309515838"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineNotes",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206158388709515980"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLinePurchasedUOM",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155168409515836"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLinePurchaseQuantityUOM",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155167209515835"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineQuantity",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155082309515834"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineStatusDescription",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206156100409515882"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "ScoreSize16ths1",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206158277909515969"
+  },
+  {
+    "dbFieldName": "",
+    "dbFieldExtent": 0,
+    "attributeName": "ScoreSize16ths2",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206158278309515970"
+  },
+  {
+    "dbFieldName": "dscr",
+    "dbFieldExtent": 1,
+    "attributeName": "POLineDescription1",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206156127509515884"
+  },
+  {
+    "dbFieldName": "dscr",
+    "dbFieldExtent": 2,
+    "attributeName": "POLineDescription2",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206156128009515885"
+  },
+  {
     "dbFieldName": "due-date",
     "dbFieldExtent": 0,
     "attributeName": "DueDate",
@@ -5376,11 +5607,88 @@
     "rec_key": "202204138526509191907"
   },
   {
+    "dbFieldName": "i-name",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineItemName",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206156009909515876"
+  },
+  {
+    "dbFieldName": "i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineItemID",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155174309515837"
+  },
+  {
+    "dbFieldName": "job-no",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineJobNo",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155674309515849"
+  },
+  {
+    "dbFieldName": "job-no2",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineJobNo2",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155674809515850"
+  },
+  {
+    "dbFieldName": "line",
+    "dbFieldExtent": 0,
+    "attributeName": "POLine",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155031109515833"
+  },
+  {
+    "dbFieldName": "over-pct",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineOverPercent",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155984909515872"
+  },
+  {
     "dbFieldName": "po-no",
     "dbFieldExtent": 0,
     "attributeName": "POID",
     "dbTableName": "po-ordl",
     "rec_key": "202201208270508475752"
+  },
+  {
+    "dbFieldName": "s-num",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineFormNo",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155966309515869"
+  },
+  {
+    "dbFieldName": "setup",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineSetup",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206156001409515874"
+  },
+  {
+    "dbFieldName": "t-cost",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineTotalCost",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155689809515851"
+  },
+  {
+    "dbFieldName": "under-pct",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineUnderPercent",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206155986009515873"
+  },
+  {
+    "dbFieldName": "vend-i-no",
+    "dbFieldExtent": 0,
+    "attributeName": "POLineVendorItemID",
+    "dbTableName": "po-ordl",
+    "rec_key": "202206160032709516001"
   },
   {
     "dbFieldName": "vend-no",
@@ -5577,5 +5885,82 @@
     "attributeName": "TermsDescription",
     "dbTableName": "terms",
     "rec_key": "202204216306409192259"
+  },
+  {
+    "dbFieldName": "add1",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorAddress1",
+    "dbTableName": "vend",
+    "rec_key": "202206148218509515774"
+  },
+  {
+    "dbFieldName": "add2",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorAddress2",
+    "dbTableName": "vend",
+    "rec_key": "202206148219409515775"
+  },
+  {
+    "dbFieldName": "area-code",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorAreaCode",
+    "dbTableName": "vend",
+    "rec_key": "202206148224109515779"
+  },
+  {
+    "dbFieldName": "city",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorCity",
+    "dbTableName": "vend",
+    "rec_key": "202206148220309515776"
+  },
+  {
+    "dbFieldName": "fax",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorFax",
+    "dbTableName": "vend",
+    "rec_key": "202206148228509515782"
+  },
+  {
+    "dbFieldName": "fax-area",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorFaxAreaCode",
+    "dbTableName": "vend",
+    "rec_key": "202206148226009515780"
+  },
+  {
+    "dbFieldName": "name",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorName",
+    "dbTableName": "vend",
+    "rec_key": "202206148216009515773"
+  },
+  {
+    "dbFieldName": "phone",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorPhone",
+    "dbTableName": "vend",
+    "rec_key": "202206148227309515781"
+  },
+  {
+    "dbFieldName": "state",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorState",
+    "dbTableName": "vend",
+    "rec_key": "202206148220909515777"
+  },
+  {
+    "dbFieldName": "vend-no",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorID",
+    "dbTableName": "vend",
+    "rec_key": "202206148214009515772"
+  },
+  {
+    "dbFieldName": "zip",
+    "dbFieldExtent": 0,
+    "attributeName": "VendorZip",
+    "dbTableName": "vend",
+    "rec_key": "202206148221609515778"
   }
 ]
