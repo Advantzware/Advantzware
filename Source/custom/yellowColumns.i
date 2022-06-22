@@ -531,6 +531,17 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Sheet!len' THEN STRING(po-ordl.s-len,'999.9999') ELSE ~
   STRING(po-ordl.po-no,'99999999') ~{&SORTED}
 
+&ELSEIF '{&yellowColumnsName}' EQ 'l-arinv' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+  IF sortColumn EQ 'Customer#' THEN  ar-inv.cust-no ELSE ~
+  IF sortColumn EQ 'Invoice#' THEN  string(ar-inv.inv-no,'99999999') ELSE ~
+  IF sortColumn EQ 'Invoice Date' THEN STRING(YEAR(ar-inv.inv-date),'9999') + ~
+  STRING(MONTH(ar-inv.inv-date),'99') + ~
+  STRING(DAY(ar-inv.inv-date),'99') ELSE ~
+  IF sortColumn EQ 'Net' THEN STRING(ar-inv.net,'->>,>>>,>>9.99') ELSE ~
+  IF sortColumn EQ 'Amount Paid' THEN string(ar-inv.paid,'->>,>>>,>>9.99') ELSE ~
+  STRING(ar-inv.inv-no,'99999999') ~{&SORTED}
+
 &ELSEIF '{&yellowColumnsName}' EQ 'l-poordl' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Item#' THEN  po-ordl.i-no ELSE ~
