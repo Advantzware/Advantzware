@@ -95,6 +95,32 @@ ASSIGN
     .
     
 /* **********************  Internal Procedures  *********************** */
+PROCEDURE Estimate_DeleteEstCostCatGroupLevel:
+/*------------------------------------------------------------------------------
+     Purpose: Returns the system data in Temp-tables
+     Notes: If No data is setup in user specific tables then use system tables 
+    ------------------------------------------------------------------------------*/
+            
+    DEFINE BUFFER bf-estCostCategory         FOR estCostCategory.     
+    DEFINE BUFFER bf-estCostGroup            FOR estCostGroup.
+    DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel.     
+       
+    /* Delete custom data  */
+    FOR EACH bf-estCostCategory EXCLUSIVE-LOCK:
+        DELETE bf-estCostCategory.
+    END.
+    
+    /* Delete custom data  */
+    FOR EACH bf-estCostGroup EXCLUSIVE-LOCK:        
+        DELETE bf-estCostGroup. 
+    END.
+   
+    /* Delete custom data  */
+    FOR EACH bf-estCostGroupLevel EXCLUSIVE-LOCK:
+         DELETE bf-estCostGroupLevel.
+    END.
+    
+END PROCEDURE.
 
 PROCEDURE Estimate_GetSystemDataForEstimate:
 /*------------------------------------------------------------------------------

@@ -31,9 +31,11 @@ DEFINE INPUT  PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
 {methods/defines/hndldefs.i}
 
 {methods/defines/globdefs.i}
-{sys/inc/var.i shared}
+{sys/inc/var.i NEW SHARED}
 
 {est/ttEstSysConfig.i}
+
+RUN spGetSessionParam("Company", OUTPUT cocode).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
