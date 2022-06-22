@@ -836,6 +836,16 @@ ON VALUE-CHANGED OF tb_16ths IN FRAME FRAME-A /* Show LWD in 16ths? */
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME v-job-list
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-job-list C-Win
+ON LEAVE OF v-job-list IN FRAME FRAME-A
+    DO: 
+        IF v-job-list:SCREEN-VALUE NE "" THEN
+            RUN pFillJobord.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 
@@ -1572,14 +1582,14 @@ PROCEDURE from-po :
         WHERE po-ordl.company   EQ po-ord.company
         AND po-ordl.po-no     EQ po-ord.po-no
         AND po-ordl.i-no      GE v-fitem[1]
-        AND po-ordl.i-no      LE v-fitem[2]
+        AND po-ordl.i-no      LE v-fitem[2]        
         AND po-ordl.item-type EQ YES
         AND (v-stat EQ "A"                         OR
         (v-stat EQ "C" AND NOT po-ord.opened) OR
-        (v-stat EQ "O" AND po-ord.opened))
+        (v-stat EQ "O" AND po-ord.opened))         
         AND (CAN-FIND(ttblJob WHERE trim(ttblJob.job-no) EQ trim(po-ordl.job-no)
         AND ttblJob.job-no2 EQ po-ordl.job-no2) OR
-        NOT CAN-FIND(FIRST ttblJob))
+        (NOT CAN-FIND(FIRST ttblJob) AND begin_job EQ "" AND end_job EQ ""))
         USE-INDEX po-no /*BREAK BY po-ordl.i-no*/:
         /*IF FIRST-OF(po-ordl.i-no) THEN*/ RUN createWPO.
     END. /* each po-ordl */
@@ -2358,6 +2368,7 @@ PROCEDURE run-report :
     EMPTY TEMP-TABLE w-po.
     EMPTY TEMP-TABLE tt-tag.
     EMPTY TEMP-TABLE ttblJob.
+    EMPTY TEMP-TABLE tt-po.
 
     IF v-job-list NE "" AND
         (ASC(SUBSTRING(v-job-list,LENGTH(v-job-list),1)) = 10 OR
@@ -2385,28 +2396,28 @@ PROCEDURE run-report :
             lv-job-no NE "" THEN
             RUN temp-job (lv-job-no).
     END. /* do i */
-
+       
     IF begin_job NE '' OR end_job NE '' THEN
         FOR EACH job NO-LOCK
             WHERE job.company EQ cocode
             AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no)  GE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job)) 
             AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no)  LE STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job)) 
             AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
-            GE
-            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2)) 
+            GE             
+            FILL(" ", iJobLen - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"999")
             AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
-            LE
-            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
+            LE             
+            FILL(" ", iJobLen - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"999")
             AND (v-stat EQ "A"                      OR
             (v-stat EQ "C" AND NOT job.opened) OR
             (v-stat EQ "O" AND job.opened))
             AND NOT CAN-FIND(FIRST ttblJob
             WHERE trim(ttblJob.job-no)  EQ trim(job.job-no)
-            AND ttblJob.job-no2 EQ job.job-no2): 
+            AND ttblJob.job-no2 EQ job.job-no2):   
             CREATE ttblJob.
             ASSIGN
                 ttblJob.job-no  = job.job-no
-                ttblJob.job-no2 = job.job-no2.
+                ttblJob.job-no2 = job.job-no2. 
         END. /* each job */
 
     FOR EACH w-file:
@@ -2444,8 +2455,8 @@ PROCEDURE run-report :
 
     FOR EACH po-ord NO-LOCK
         WHERE po-ord.company EQ cocode
-        AND po-ord.po-no   GE v-fpo-no[1]
-        AND po-ord.po-no   LE v-fpo-no[2]
+        AND (po-ord.po-no   GE v-fpo-no[1] OR begin_job NE "")
+        AND (po-ord.po-no   LE v-fpo-no[2] OR end_job NE "")
         AND po-ord.stat    NE "H" 
         AND (v-stat EQ "A"                         OR
         (v-stat EQ "C" AND NOT po-ord.opened) OR
@@ -2928,6 +2939,49 @@ PROCEDURE xprint-tag :
     FILE-INFO:FILE-NAME = list-name.
     RUN printfile (FILE-INFO:FILE-NAME).
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFillJobord C-Win 
+PROCEDURE pFillJobord :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    
+    DEFINE VARIABLE ll            AS INTEGER   INIT 1 NO-UNDO.
+    DEFINE VARIABLE cJobNo        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobNo2       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cJobFill      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJob2         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE li            AS INTEGER   NO-UNDO.
+    
+    cJobFill = ENTRY(1,v-job-list:SCREEN-VALUE IN FRAME {&FRAME-NAME}).  
+    
+    DO li = 1 TO LENGTH(cJobFill):
+        IF INDEX("/:-",SUBSTR(cJobFill,li,1)) GT 0 THEN
+            ll = ll + 1.          
+        ELSE 
+        DO:
+            IF ll EQ 1 THEN cJobNo = cJobNo + SUBSTR(cJobFill,li,1).
+            ELSE IF ll EQ 2 THEN cJobNo2 = cJobNo2 + SUBSTR(cJobFill,li,1).                
+        END.
+    END.    
+
+    ASSIGN
+        cJobNo = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo)) 
+        iJob2    = INT(cJobNo2).
+   
+      ASSIGN          
+         begin_job:SCREEN-VALUE    = cJobNo         
+         begin_job2:SCREEN-VALUE   = STRING(iJob2)
+         end_job:SCREEN-VALUE      = cJobNo         
+         end_job2:SCREEN-VALUE     = STRING(iJob2)
+         NO-ERROR.     
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
