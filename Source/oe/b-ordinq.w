@@ -2870,7 +2870,7 @@ FUNCTION fGetJobOnhandQtyNotAll RETURNS INTEGER
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
   
-  irtnValue = ipJobOnHand - (ipActBolQty - ipActRelQty). 
+  irtnValue = ipJobOnHand - (ipActBolQty + ipActRelQty). 
 
   RETURN irtnValue.
 
@@ -2888,7 +2888,7 @@ FUNCTION fGetOrdQtyOnHand RETURNS INTEGER
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
   
-  irtnValue = ipOnHand - (ipActBolQty - ipActRelQty). 
+  irtnValue = ipOnHand - (ipActBolQty + ipActRelQty). 
 
   RETURN irtnValue.
 
