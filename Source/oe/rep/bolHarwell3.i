@@ -40,7 +40,7 @@ FOR EACH tt-boll,
         
         IF NOT LAST(tt-boll.cases) THEN 
         DO:
-            IF v-printline >= 60 THEN 
+            IF v-printline >= 68 THEN 
             DO: 
                 v-printline = 0.
                 PAGE {1}.
@@ -50,7 +50,7 @@ FOR EACH tt-boll,
         END.
         ELSE 
         DO:  
-            IF v-printline >= 48 THEN 
+            IF v-printline >= 58 THEN 
             DO:
                 v-printline = 0.
                 PAGE {1}.
@@ -163,7 +163,7 @@ FOR EACH tt-boll,
          
             IF NOT LAST(tt-boll.cases) THEN 
             DO:
-                IF v-printline >= 62 THEN 
+                IF v-printline >= 68 THEN 
                 DO: 
                     v-printline = 0.
                     j = j - 30.
@@ -174,7 +174,7 @@ FOR EACH tt-boll,
             END.
             ELSE 
             DO:                           
-                IF v-printline >= 45 THEN 
+                IF v-printline >= 58 THEN 
                 DO: 
                     v-printline = 0.
                     PAGE {1}.
@@ -226,7 +226,7 @@ FOR EACH tt-boll,
 
         IF NOT LAST(tt-boll.cases) THEN 
         DO:
-            IF v-printline >= 60 THEN 
+            IF v-printline >= 68 THEN 
             DO: 
                 v-printline = 0.
                 PAGE {1}.
@@ -236,7 +236,7 @@ FOR EACH tt-boll,
         END.
         ELSE 
         DO:   
-            IF v-printline >= 49 THEN 
+            IF v-printline >= 58 THEN 
             DO: 
                 v-printline = 0.
                 PAGE {1}.
@@ -258,7 +258,7 @@ FOR EACH tt-boll,
 
                 IF NOT LAST(tt-boll.cases) THEN 
                 DO:
-                    IF v-printline >= 60 THEN 
+                    IF v-printline >= 68 THEN 
                     DO: 
                         v-printline = 0.
                         PAGE {1}.
@@ -267,7 +267,7 @@ FOR EACH tt-boll,
                 END.
                 ELSE 
                 DO:                           
-                    IF v-printline >= 48 THEN 
+                    IF v-printline >= 58 THEN 
                     DO: 
                         v-printline = 0.
                         PAGE {1}.
