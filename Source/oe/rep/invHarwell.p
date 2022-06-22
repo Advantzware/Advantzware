@@ -476,7 +476,7 @@ FOR EACH report NO-LOCK WHERE
                 v-part-line = ""
                 v-case-cnt  = "".
 
-            IF v-printline > 54 THEN DO:
+            IF v-printline > 62 THEN DO:
                 PAGE.
                 v-printline = 0.
                 {oe/rep/invHarwell.i}
@@ -706,7 +706,7 @@ FOR EACH report NO-LOCK WHERE
                             {SYS/INC/ROUNDUP.I v-tmp-lines}
                     
                             DO i = 1 TO v-tmp-lines:
-                                IF v-printline > 50 THEN DO:
+                                IF v-printline > 56 THEN DO:
                                     PAGE.
                                     v-printline = 0.
                                     {oe/rep/invHarwell.i}
@@ -729,7 +729,7 @@ FOR EACH report NO-LOCK WHERE
             inv-misc.bill = "Y" 
             BREAK BY inv-misc.ord-no WITH FRAME detailm:
             IF FIRST(inv-misc.ord-no) THEN DO:
-                IF v-printline > 50 THEN DO:
+                IF v-printline > 62 THEN DO:
                     PAGE.
                     v-printline = 0.
                     {oe/rep/invHarwell.i}
@@ -786,7 +786,7 @@ FOR EACH report NO-LOCK WHERE
                 ASSIGN 
                     v-printline = v-printline + 2.
             END.
-            IF v-printline > 53 THEN DO:
+            IF v-printline > 62 THEN DO:
                 PAGE.
                 v-printline = 0.
                 {oe/rep/invHarwell.i}
@@ -798,7 +798,7 @@ FOR EACH report NO-LOCK WHERE
 
             DO i = 1 TO 4:
                 IF v-inst[i] <> "" THEN DO:                
-                    IF v-printline > 50 THEN DO:
+                    IF v-printline > 56 THEN DO:
                         PAGE.
                         v-printline = 0.
                         {oe/rep/invHarwell.i}
@@ -810,7 +810,7 @@ FOR EACH report NO-LOCK WHERE
 
             DO i = 1 TO 4:
                 IF cBillNotes[i] <> "" THEN DO:
-                    IF v-printline > 50 THEN DO:
+                    IF v-printline > 56 THEN DO:
                         PAGE.
                         v-printline = 0.
                         {oe/rep/invHarwell.i}

@@ -527,7 +527,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                         {SYS/INC/ROUNDUP.I v-tmp-lines}
                     
                         IF notes.note_text <> "" THEN DO i = 1 TO v-tmp-lines:
-                            IF v-printline > 54 THEN DO:
+                            IF v-printline > 62 THEN DO:
                                 PAGE.
                                 ASSIGN 
                                     v-printline = 0.
@@ -576,7 +576,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 v-printline = v-printline + 2.
         END.
 
-        IF v-printline > 50 THEN DO:
+        IF v-printline > 62 THEN DO:
             PAGE.
             ASSIGN 
                 v-printline = 0.
@@ -600,7 +600,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         {custom/notesprtA.i ar-inv v-inst 4}
         DO i = 1 TO 4:
             IF v-inst[i] <> "" THEN DO:                
-                IF v-printline > 50 THEN DO:
+                IF v-printline > 56 THEN DO:
                     PAGE.
                     ASSIGN 
                         v-printline = 0.
@@ -614,7 +614,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           
         DO i = 1 TO 4:
             IF ar-inv.bill-i[i] <> "" THEN DO:
-                IF v-printline > 50 THEN DO:
+                IF v-printline > 56 THEN DO:
                     PAGE.
                     ASSIGN 
                         v-printline = 0.
@@ -627,7 +627,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         END.
     END.
 
-    IF v-printline > 50 THEN DO:
+    IF v-printline > 62 THEN DO:
         PAGE.
         ASSIGN 
             v-printline = 0.
