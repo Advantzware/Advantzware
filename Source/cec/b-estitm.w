@@ -7219,7 +7219,7 @@ PROCEDURE pCreateSetEstimate :
           WHERE bf-eb.company EQ cocode
             AND bf-eb.est-no EQ bff-eb.est-no BY bf-eb.form-no :       
           
-            RUN est/BuildFarmForLogistics.p (INPUT ROWID(bf-eb),INPUT YES).            
+            RUN est/BuildFarmForLogistics.p (INPUT ROWID(bf-eb),INPUT YES, INPUT YES).            
       END.  
   END.      
         

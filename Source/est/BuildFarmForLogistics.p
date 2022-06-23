@@ -152,12 +152,7 @@ PROCEDURE pBuildQuantitiesAndCostsFromEstimate PRIVATE:
                 .  
         END.            
     END.
-    FIND FIRST ttQuantityCost
-    WHERE ttQuantityCost.iQty EQ eb.bl-qty
-    NO-ERROR.
-    IF NOT AVAILABLE ttQuantityCost THEN DO:
-        
-    END.            
+            
 
 END PROCEDURE.  
 
