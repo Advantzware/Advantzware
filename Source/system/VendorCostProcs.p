@@ -523,8 +523,21 @@ PROCEDURE CopyVendItemCost:
         WHERE vendItemCost.company    EQ ipcCompany
         AND vendItemCost.estimateNo EQ ipcEstimate
         AND vendItemCost.formNo     EQ ipiFormNo
-        AND vendItemCost.blankno    EQ ipiBlankNo:
-
+        AND vendItemCost.blankno    EQ ipiBlankNo
+        AND vendItemCost.itemID     EQ ipcItemID:
+        
+        FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK
+             WHERE bf-vendItemCost.company EQ ipcCompany
+             AND bf-vendItemCost.itemID EQ ipcItemID
+             AND bf-vendItemCost.ItemType EQ vendItemCost.ItemType
+             AND bf-vendItemCost.vendorID EQ vendItemCost.vendorID
+             AND bf-vendItemCost.customerID EQ vendItemCost.customerID
+             AND trim(bf-vendItemCost.EstimateNo) EQ trim(ipcNewEstimate)
+             AND bf-vendItemCost.formNo EQ INTEGER(vendItemCost.formNo)              
+             AND bf-vendItemCost.effectiveDate EQ DATE(vendItemCost.effectiveDate)
+             NO-ERROR.
+        
+        IF NOT AVAILABLE bf-vendItemCost THEN
         CREATE bf-vendItemCost .
         BUFFER-COPY vendItemCost EXCEPT company estimateNo rec_key vendItemCostID itemID TO bf-vendItemCost.
         ASSIGN
