@@ -5774,6 +5774,7 @@ PROCEDURE pPurgeCalculation PRIVATE:
     DEFINE BUFFER bf-probe         FOR probe.
     DEFINE BUFFER bf-probeit       FOR probeit.
     DEFINE BUFFER bf-ttEstCostHeader FOR ttEstCostHeader.
+    DEFINE BUFFER bf-estCostHeader   FOR estCostHeader.
     
     IF ipcJobNo EQ "" THEN DO:
         FOR EACH bf-probe EXCLUSIVE-LOCK 
@@ -5795,6 +5796,19 @@ PROCEDURE pPurgeCalculation PRIVATE:
             
         DELETE bf-ttEstCostHeader.    
     END.
+    
+    FOR EACH estCostHeader NO-LOCK 
+        WHERE estCostHeader.company    EQ ipcCompany
+          AND estCostHeader.estimateNo EQ ipcEstimateNo
+          AND estCostHeader.jobID      EQ ipcJobNo
+          AND estCostHeader.jobID2     EQ ipiJobNo2:
+        FIND FIRST bf-estCostHeader EXCLUSIVE-LOCK
+             WHERE bf-estCostHeader.estCostHeaderID EQ estCostHeader.estCostHeaderID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostHeader THEN
+            DELETE bf-estCostHeader.
+    END.
+   
     RELEASE bf-probe.
     RELEASE bf-probeit.
     RELEASE bf-ttEstCostHeader.
