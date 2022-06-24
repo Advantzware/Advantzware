@@ -699,7 +699,7 @@ PROCEDURE valid-note_form_no PRIVATE :
       /* Check if ls-header is a job-no (not an est-no). */
       FIND FIRST b1-job NO-LOCK
            WHERE b1-job.company = g_company
-             AND b1-job.job-no  = FILL(" ", iJobLen - length(trim(ls-header1))) + trim(ls-header1)
+             AND b1-job.job-no + STRING(b1-job.job-no2)  EQ ls-header1 
              NO-ERROR.
 
       /* If it is a job-no: */
