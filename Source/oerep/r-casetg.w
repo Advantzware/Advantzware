@@ -2044,6 +2044,7 @@ PROCEDURE from-ord :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iplCheckStatus AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iRno    AS INTEGER NO-UNDO .
     DEFINE VARIABLE iRelNo  AS INTEGER NO-UNDO .
 
@@ -2051,9 +2052,9 @@ PROCEDURE from-ord :
            
     FIND FIRST oe-ord
         WHERE ROWID(oe-ord) EQ ip-rowid
-        AND (v-stat EQ "A"                                    OR
+        AND ((v-stat EQ "A"                                    OR
         (v-stat EQ "C" AND INDEX("CZ",oe-ord.stat) GT 0) OR
-        (v-stat EQ "O" AND INDEX("CZ",oe-ord.stat) EQ 0))
+        (v-stat EQ "O" AND INDEX("CZ",oe-ord.stat) EQ 0)) OR iplCheckStatus) 
         NO-LOCK NO-ERROR.
 
     IF AVAILABLE oe-ord THEN
@@ -3003,7 +3004,7 @@ PROCEDURE run-report :
             WHERE oe-ord.company EQ cocode
             AND oe-ord.ord-no  EQ v-ford-no
             NO-LOCK:
-            RUN from-ord (ROWID(oe-ord)).
+            RUN from-ord (ROWID(oe-ord), NO).
         END.
 
     /*=======
@@ -3042,7 +3043,12 @@ PROCEDURE run-report :
                
             RUN from-job (ROWID(job),OUTPUT op-warning).
         END.
-
+        FIND FIRST w-ord NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE w-ord THEN
+        DO:
+            RUN pCheckComponents.
+        END.
+        
     FOR EACH w-ord,
         FIRST itemfg
         WHERE itemfg.company EQ cocode
@@ -3662,6 +3668,52 @@ PROCEDURE update-counts :
         END.
     RELEASE itemfg.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckComponents C-Win 
+PROCEDURE pCheckComponents :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+          
+    FIND FIRST job NO-LOCK
+         WHERE job.company EQ cocode
+           AND job.job-no  EQ begin_job
+           AND job.job-no2 EQ INT(begin_job2)
+           AND (v-stat EQ "A"      OR
+           (v-stat EQ "C" AND NOT job.opened) OR
+           (v-stat EQ "O" AND job.opened)) NO-ERROR.
+           
+    IF AVAILABLE job THEN
+    DO:       
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no    EQ begin_i-no
+               NO-ERROR.
+            
+        FIND FIRST eb NO-LOCK
+             WHERE eb.company   EQ cocode
+               AND eb.est-no    EQ job.est-no                
+               AND eb.stock-no  EQ begin_i-no
+               NO-ERROR.
+        IF AVAILABLE eb AND AVAILABLE itemfg THEN
+        DO:         
+           FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cocode 
+                  AND oe-ord.ord-no  EQ begin_ord-no                
+                NO-ERROR.   
+             
+           RUN from-ord (ROWID(oe-ord),YES).     
+                
+        END.                      
+    END.               
+               
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
