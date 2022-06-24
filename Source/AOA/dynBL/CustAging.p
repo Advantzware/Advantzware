@@ -37,6 +37,8 @@ DEFINE TEMP-TABLE ttCustAging NO-UNDO
 
 {sys/inc/var.i NEW SHARED}
 
+cocode = cCompany.
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:
