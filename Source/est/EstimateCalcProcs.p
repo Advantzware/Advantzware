@@ -2604,8 +2604,8 @@ PROCEDURE pCalcHeader PRIVATE:
             FIND CURRENT bf-ttEstCostHeader EXCLUSIVE-LOCK.
             bf-ttEstCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-ttEstCostHeader NO-LOCK.
-        END.
-        
+        END.                            
+       
         IF glAutoRecostBoard = TRUE THEN
         DO:
             RUN RecostBoardEst_RecostBoard IN ghRecostBoardEst(INPUT TABLE ttEstCostHeaderToCalc,
@@ -4910,21 +4910,23 @@ PROCEDURE pProcessGlues PRIVATE:
         EACH ttGlue NO-LOCK
         WHERE ttGlue.estHeaderID EQ ttEstCostOperation.estCostHeaderID
         AND ttGlue.estFormID EQ ttEstCostOperation.estCostFormID
-        AND ttGlue.estBlankID EQ ttEstCostOperation.estCostBlankID
+        AND (ttGlue.estBlankID EQ ttEstCostOperation.estCostBlankID 
+        OR (ttEstCostOperation.estCostBlankID EQ ? 
+        AND ttEstCostOperation.FeedType EQ "S"))
         ,
         FIRST ttEstCostBlank NO-LOCK 
         WHERE ttEstCostBlank.estCostHeaderID EQ ttGlue.estHeaderID
         AND ttEstCostBlank.estCostFormID EQ ttGlue.estFormID 
         AND ttEstCostBlank.estCostBlankID EQ ttGlue.estBlankID 
-        BY ttEstCostOperation.sequenceOfOperation DESCENDING:
-        
+        BY ttEstCostOperation.sequenceOfOperation DESCENDING: 
+
         RUN pAddEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, ttGlue.cItemID, ttEstCostBlank.estCostBlankID, BUFFER bf-ttEstCostMaterial).
         
         ASSIGN    
             bf-ttEstCostMaterial.addToWeightNet             = YES
-            bf-ttEstCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank
-            bf-ttEstCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank
-            bf-ttEstCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank
+            bf-ttEstCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
+            bf-ttEstCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
+            bf-ttEstCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
             dQtyRequiredMinDiff                           = ttGlue.dMinLbsPerJob - 
                                                     (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
             bf-ttEstCostMaterial.quantityUOM                = ttGlue.cQtyUOM
@@ -5029,15 +5031,15 @@ PROCEDURE pProcessInk PRIVATE:
         
     ASSIGN    
         bf-ttEstCostMaterial.addToWeightNet             = YES
-        ipbf-ttInk.dQtyRequiredPerBlank               = ipbf-ttInk.dCoveragePercent * ipbf-ttEstCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
-        dQtyRequiredPerForm                           = ipbf-ttEstCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
+        ipbf-ttInk.dQtyRequiredPerBlank                 = ipbf-ttInk.dCoveragePercent * ipbf-ttEstCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
+        dQtyRequiredPerForm                             = ipbf-ttEstCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
         bf-ttEstCostMaterial.quantityRequiredNoWaste    = ipbf-ttEstCostOperation.quantityInNoWaste * dQtyRequiredPerForm
-        bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostOperation.quantityInRunWaste * dQtyRequiredPerForm
+        bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostOperation.quantityInRunWaste * dQtyRequiredPerForm + (ipbf-ttEstCostOperation.quantityInkLbsWastedPerColor * (ipbf-ttInk.iCountInks + ipbf-ttInk.iCountCoatings))
         bf-ttEstCostMaterial.quantityRequiredSetupWaste = ipbf-ttEstCostOperation.quantityInSetupWaste * dQtyRequiredPerForm + ipbf-ttEstCostOperation.quantityInkLbsWastedPerSetup
-        dQtyRequiredMinDiff                           = ipbf-ttInk.dMinLbsPerJob - (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
+        dQtyRequiredMinDiff                             = ipbf-ttInk.dMinLbsPerJob - (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
         bf-ttEstCostMaterial.quantityUOM                = ipbf-ttInk.cQtyUOM
         bf-ttEstCostMaterial.noCharge                   = ipbf-ttInk.lNoCharge
-        .             
+        .            
     IF dQtyRequiredMinDiff GT 0 THEN 
         bf-ttEstCostMaterial.quantityRequiredMinDiff = dQtyRequiredMinDiff.
     
