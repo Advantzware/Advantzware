@@ -700,20 +700,17 @@ PROCEDURE pConvertFGToRM PRIVATE:
                     bf-loadtag.tag-time  = TIME
                     .
             
-            /* If item is Roll then length is in feets. So convert the quantity into inches by multiplying with 12 */
-            dQuantity = bf-fg-bin.qty * (IF bf-item.r-wid NE 0 THEN 12 ELSE 1).
-            
             RUN Conv_QuantityFromUOMToUOM (
                 INPUT  bf-item.company,
                 INPUT  bf-item.i-no,
                 INPUT  "RM",
-                INPUT  dQuantity,
+                INPUT  bf-fg-bin.qty,
                 INPUT  "EA", 
                 INPUT  bf-item.cons-uom,
                 INPUT  0,
-                INPUT  (IF bf-item.s-len EQ 0 THEN 12 ELSE bf-item.s-len), 
-                INPUT  (IF bf-item.s-wid EQ 0 THEN bf-item.r-wid ELSE bf-item.s-wid), 
-                INPUT  bf-item.s-dep,
+                INPUT  0, 
+                INPUT  0, 
+                INPUT  0,
                 INPUT  0,
                 OUTPUT dQuantity,
                 OUTPUT oplError,
@@ -728,9 +725,9 @@ PROCEDURE pConvertFGToRM PRIVATE:
                 INPUT  bf-fg-bin.pur-uom,
                 INPUT  (IF AVAILABLE bf-item THEN bf-item.cons-uom ELSE "M"), 
                 INPUT  0,
-                INPUT  bf-item.s-len,
-                INPUT  bf-item.s-wid,
-                INPUT  bf-item.s-dep,
+                INPUT  0,
+                INPUT  0,
+                INPUT  0,
                 INPUT  0, 
                 OUTPUT dCost,
                 OUTPUT oplError, 
