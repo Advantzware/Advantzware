@@ -102,11 +102,11 @@ iMiscEstimateSource = INTEGER(cRtnChar) NO-ERROR .
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS dQtyPerSet Btn_OK Btn_Done Btn_Cancel ~
 cCustPart cFGItem style-cod board fg-cat len wid dep rd_show1 item-name ~
-item-dscr RECT-21 RECT-38 RECT-39 tb_add-subassembly cSourceEst 
+item-dscr RECT-21 RECT-38 RECT-39 cSourceEst 
 &Scoped-Define DISPLAYED-OBJECTS est-no iForm iBlank cSetCustPart ~
 dQtyPerSet set-item-name cCustPart cFGItem style-cod style-dscr board ~
 fg-cat board-dscr cat-dscr len wid dep rd_show1 item-name item-dscr ~
-tb_add-subassembly cSourceEst 
+cSourceEst 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -253,11 +253,12 @@ DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE rd_show1 AS CHARACTER INITIAL "M" 
-     VIEW-AS RADIO-SET VERTICAL
+     VIEW-AS RADIO-SET horizontal 
      RADIO-BUTTONS 
           "Purchased", "P",
-"Manufactured", "M"
-     SIZE 22 BY 2.07 NO-UNDO.
+"Manufactured", "M",
+"Sub-Assembly", "S"
+     SIZE 56 BY 2.07 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -273,12 +274,6 @@ DEFINE RECTANGLE RECT-39
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
      SIZE 124.8 BY 9.35
      BGCOLOR 15 .
-
-DEFINE VARIABLE tb_add-subassembly AS LOGICAL INITIAL no 
-     LABEL "Add As SubAssembly" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 29 BY 1 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -305,8 +300,7 @@ DEFINE FRAME Dialog-Frame
      dep AT ROW 10.29 COL 79 COLON-ALIGNED WIDGET-ID 192
      item-name AT ROW 11.43 COL 79 COLON-ALIGNED WIDGET-ID 322
      item-dscr AT ROW 12.52 COL 79 COLON-ALIGNED WIDGET-ID 210
-     rd_show1 AT ROW 5.67 COL 7.8 NO-LABEL WIDGET-ID 324      
-     tb_add-subassembly AT ROW 6.33 COL 31 WIDGET-ID 260
+     rd_show1 AT ROW 5.77 COL 3.8 NO-LABEL WIDGET-ID 324      
      cSourceEst AT ROW 6.29 COL 79 COLON-ALIGNED WIDGET-ID 330
      "Set Header" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 1 COL 5 WIDGET-ID 206
@@ -373,9 +367,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN style-dscr IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-ASSIGN 
-       tb_add-subassembly:PRIVATE-DATA IN FRAME Dialog-Frame     = 
-                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -628,7 +619,7 @@ DO:
             ttInputEst.cBoard           = board
             ttInputEst.cStyle           = style-cod
             ttInputEst.dQtyPerSet       = dQtyPerSet
-            ttInputEst.lPurchased       = IF rd_show1 EQ "P" THEN TRUE ELSE FALSE
+            ttInputEst.lPurchased       = IF rd_show1 EQ "P" OR rd_show1 EQ "S" THEN TRUE ELSE FALSE
             .           
         IF cSourceEst:SCREEN-VALUE NE "" OR integer(cSourceEst:SCREEN-VALUE) NE 0 THEN
             RUN pGetTempValue.
@@ -977,6 +968,15 @@ DO:
 ON VALUE-CHANGED OF rd_show1 IN FRAME Dialog-Frame
 DO:
         ASSIGN {&self-name}.
+          
+        IF rd_show1 EQ "S" THEN             
+            cSourceEst:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+        ELSE do:
+           ASSIGN
+                cSourceEst:SENSITIVE IN FRAME {&FRAME-NAME}    = NO
+                cSourceEst:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" .
+           RUN pEnableField.
+        END.        
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1077,24 +1077,6 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME tb_add-subassembly
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_add-subassembly Dialog-Frame
-ON VALUE-CHANGED OF tb_add-subassembly IN FRAME Dialog-Frame /* Add As SubAssembly */
-DO:             
-        ASSIGN {&self-name}.    
-        IF tb_add-subassembly THEN             
-            cSourceEst:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-        ELSE ASSIGN
-                cSourceEst:SENSITIVE IN FRAME {&FRAME-NAME}    = NO
-                cSourceEst:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" .                
-        
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME wid
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wid Dialog-Frame
 ON LEAVE OF wid IN FRAME Dialog-Frame /* Width */
@@ -1181,8 +1163,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         btn_done:HIDDEN IN FRAME {&FRAME-NAME} = YES.
         IF cSourceEst:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
         do:
-            assign
-                tb_add-subassembly:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes"
+            ASSIGN                 
                 cSourceEst:SENSITIVE IN FRAME {&FRAME-NAME}            = YES.
                 RUN pDisableField.
         END.        
@@ -1249,12 +1230,12 @@ PROCEDURE display-item :
             len        = ttInputEst.dLength
             wid        = ttInputEst.dWidth
             dep        = ttInputEst.dDepth
-            rd_show1   = IF ttInputEst.lPurchased THEN "P" ELSE "M" 
+            rd_show1   = IF ttInputEst.lPurchased AND ttInputEst.cSourceEst NE "" THEN "S" ELSE IF ttInputEst.lPurchased THEN "P" ELSE "M" 
             cSourceEst = ttInputEst.cSourceEst.
     est-no = IF AVAILABLE eb THEN eb.est-no ELSE "".     
     cSetCustPart = ipcSetPart.
     set-item-name = ipcSetPartName.
-    IF ip-type EQ "Add" THEN 
+    IF ip-type EQ "Add" OR ip-type EQ "Copy" THEN 
     DO:
         j = 0 .
         FOR EACH bf-ttInputEst NO-LOCK BREAK BY bf-ttInputEst.iForm:
@@ -1264,11 +1245,12 @@ PROCEDURE display-item :
           
         iForm       =  (j + 1).
         iBlank      =  1 .  
-        IF iplAutoPart THEN 
+        IF iplAutoPart AND ip-type EQ "Add" THEN 
         DO:
             cCustPart = SUBSTRING(ipcPartNo,1,12) + "-" + string(j + 1 ,"99").  
             cFGItem   = SUBSTRING(ipcFGItem,1,12) + "-" + string(j + 1 ,"99") .
-        END.  
+        END.
+        IF ip-type EQ "Add" THEN
         fg-cat = ipcProCat.
     END.
        
@@ -1394,8 +1376,9 @@ PROCEDURE pGetEstDetail :
                 style-cod:SCREEN-VALUE = bf-eb.style
                 board:SCREEN-VALUE     = IF AVAILABLE ef THEN ef.board ELSE ""
                 fg-cat:SCREEN-VALUE    = bf-eb.procat
-                rd_show1:SCREEN-VALUE  = IF bf-eb.pur-man THEN "P" ELSE "M"               
-                .     
+                .
+            IF ipcEstType EQ "Wood" THEN
+            rd_show1:SCREEN-VALUE  = IF bf-eb.pur-man THEN "P" ELSE "M".  
                
             FIND FIRST ITEM NO-LOCK WHERE item.company = cocode
                 AND item.i-no EQ board:SCREEN-VALUE NO-ERROR .
@@ -1445,6 +1428,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableField D-Dialog 
+PROCEDURE pEnableField :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/       
+
+    DO WITH FRAME {&FRAME-NAME}:
+        ENABLE set-item-name style-cod style-dscr board fg-cat 
+        board-dscr cat-dscr len wid dep item-name item-dscr .
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -1458,11 +1459,11 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY est-no iForm iBlank cSetCustPart dQtyPerSet set-item-name cCustPart 
           cFGItem style-cod style-dscr board fg-cat board-dscr cat-dscr len wid 
-          dep rd_show1 item-name item-dscr tb_add-subassembly cSourceEst 
+          dep rd_show1 item-name item-dscr cSourceEst 
       WITH FRAME Dialog-Frame.
   ENABLE dQtyPerSet Btn_OK Btn_Done Btn_Cancel cCustPart cFGItem style-cod 
          board fg-cat len wid dep rd_show1 item-name item-dscr RECT-21 RECT-38 
-         RECT-39 tb_add-subassembly cSourceEst 
+         RECT-39 cSourceEst 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
