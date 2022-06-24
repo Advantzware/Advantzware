@@ -967,7 +967,33 @@ DO:
         DO WITH FRAME {&FRAME-NAME}:
             RUN validate NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+            FOR EACH estCostGroupSystem EXCLUSIVE-LOCK
+                 WHERE estCostGroupSystem.costGroupSequence GE 13 
+                  AND estCostGroupSystem.costGroupSequence LE 15 :
+                CASE estCostGroupSystem.costGroupSequence:
+                    WHEN 13 THEN 
+                    DO:
+                        IF ce-ctrl.spec-l[1]:SCREEN-VALUE NE "" THEN 
+                            ASSIGN estCostGroupSystem.CostGroupLabel = ce-ctrl.spec-l[1]:SCREEN-VALUE.
+                        ELSE 
+                            ASSIGN estCostGroupSystem.CostGroupLabel = "User Defined Expense 1".    
+                    END.  
+                    WHEN 14 THEN 
+                    DO:
+                        IF ce-ctrl.spec-l[2]:SCREEN-VALUE NE "" THEN 
+                            ASSIGN estCostGroupSystem.CostGroupLabel = ce-ctrl.spec-l[2]:SCREEN-VALUE.
+                        ELSE 
+                            ASSIGN estCostGroupSystem.CostGroupLabel = "User Defined Expense 2".    
+                    END.
+                    WHEN 15 THEN 
+                    DO:
+                        IF ce-ctrl.spec-l[3]:SCREEN-VALUE NE "" THEN 
+                            ASSIGN estCostGroupSystem.CostGroupLabel = ce-ctrl.spec-l[3]:SCREEN-VALUE.
+                        ELSE 
+                            ASSIGN estCostGroupSystem.CostGroupLabel = "User Defined Expense 3".    
+                    END.   
+                END CASE.  
+            END.   
             DISABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
 

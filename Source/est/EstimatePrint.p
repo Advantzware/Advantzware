@@ -26,6 +26,11 @@ DEFINE TEMP-TABLE ttSection
     FIELD cType         AS CHARACTER 
     .
     
+DEFINE TEMP-TABLE ttItemName NO-UNDO 
+    FIELD FormNo   LIKE estcostitem.formno
+    FIELD BlankNo  LIKE estcostitem.blankno
+    FIELD ItemName LIKE estcostitem.itemname.    
+    
 DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD outputFile                  AS CHARACTER 
     FIELD previewFile                 AS LOGICAL INITIAL YES
@@ -2098,7 +2103,9 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     DEFINE VARIABLE iIndex            AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iStartLevelsAfter AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cHeaderItemSumm   AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE dPriceTotal       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPrepCostTotal    AS DECIMAL   NO-UNDO.
+               
     RUN pGetEstCostGroupLevelTT(OUTPUT TABLE ttEstCostGroupLevel).
     
     iIndex = 0.
@@ -2244,6 +2251,44 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
         END.   
     END.   
     
+    IF ipbf-estCostHeader.estType EQ "Set" THEN
+    DO:
+        EMPTY TEMP-TABLE ttItemName.
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Individual Part # ", YES, YES, NO).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[2], "Description ", YES, YES, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[3], "Qty/Set ", YES, YES, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[4], "Price/EA ", YES, YES, YES).
+        
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        
+        FOR EACH estCostItem NO-LOCK 
+        WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+        AND NOT estCostItem.isSet
+        BY estCostItem.formNo
+        BY estCostItem.blankNo:
+            
+        CREATE ttItemName.
+        ASSIGN ttItemName.BlankNo  = estcostItem.BlankNo
+               ttItemName.FormNo   = estcostItem.FormNo
+               ttItemName.ItemName = estcostItem.ItemName.
+                   
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1], estCostItem.customerPart, 30, NO, NO, NO).
+        RUN pWriteToCoordinatesString(iopiRowCount, iColumn[2], estCostItem.itemName, 30, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostItem.quantityPerSet, 2, 1, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostItem.sellprice * estCostItem.quantityPerSet / 1000 , 4, 2, NO, YES, NO, NO, YES).
+        ASSIGN dPriceTotal = dPriceTotal + estCostItem.sellprice * estCostItem.quantityPerSet / 1000.
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        END. 
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[4], "--------------", NO, NO, YES).
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Set Total Price ", NO, NO, NO).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], dPriceTotal , 4, 2, NO, YES, NO, NO, YES). 
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).  
+    END.    
+    
     RUN pGetSummaryCosts(ipbf-estCostHeader.estCostHeaderID, ipbf-estCostHeader.rec_key, OUTPUT dCostTotal, OUTPUT dCostPerM).
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -2277,7 +2322,34 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
 
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    
+    FOR EACH estCostMisc NO-LOCK 
+        WHERE estCostMisc.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID 
+          AND estcostMisc.isPrep  
+    BREAK BY estCostMisc.estCostMiscID :
+        IF FIRST(estCostMisc) THEN
+        DO: 
+           RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Billable Prep", YES, YES, NO).
+           RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        END.
+        FIND FIRST ttItemName NO-LOCK 
+             WHERE ttItemName.FormNo  EQ estCostMisc.FormNo
+               AND ttItemName.BlankNo EQ estCostMisc.BlankNo NO-ERROR.
+        IF NOT AVAILABLE ttItemName AND estCostMisc.BlankNo EQ 0 THEN 
+            FIND FIRST ttItemName NO-LOCK 
+                 WHERE ttItemName.FormNo  EQ estCostMisc.FormNo NO-ERROR.
 
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostMisc.ItemID, NO, NO, NO).  
+        IF AVAILABLE ttItemName THEN 
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[2], ttItemName.ItemName, NO, NO, YES). 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostMisc.costTotal , 9, 2, YES, YES, NO, NO, YES). 
+        ASSIGN dPrepCostTotal = dPrepCostTotal + estCostMisc.costTotal.
+        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+    END.
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Total: ", NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], dPrepCostTotal , 9, 2, NO, YES, NO, NO, YES). 
+    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
+     
 END PROCEDURE.
 
 
