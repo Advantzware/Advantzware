@@ -7328,6 +7328,29 @@ PROCEDURE ipSetAsiPwd :
     END.
 
     RELEASE _user.
+    
+    FIND FIRST _User WHERE 
+        _User._UserId = "amsuser" 
+        EXCLUSIVE-LOCK NO-ERROR.
+
+    IF AVAIL (_User) THEN DO:
+        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
+        ASSIGN 
+            tempUser._Password = ENCODE("ProdProc").
+        DELETE _User.
+        CREATE _User.
+        BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
+    END.
+    ELSE DO:
+        CREATE _User.
+        ASSIGN
+            _User._UserId = "amsuser"
+            _User._Password = ENCODE("ProdProc")
+            _User._sql-only-user = TRUE.
+    END.
+
+    RELEASE _user.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
