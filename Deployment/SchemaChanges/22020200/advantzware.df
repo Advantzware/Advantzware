@@ -22736,15 +22736,6 @@ ADD FIELD "internal" OF "cust" AS logical
   MAX-WIDTH 1
   ORDER 1770
 
-ADD FIELD "emailPreference" OF "cust" AS integer 
-  FORMAT "9"
-  INITIAL "0"
-  LABEL "Email Preference"
-  POSITION 180
-  MAX-WIDTH 4
-  COLUMN-LABEL "Email Preference"
-  ORDER 1780
-
 ADD INDEX "cust" ON "cust" 
   AREA "Index"
   UNIQUE
@@ -31284,15 +31275,6 @@ ADD FIELD "lockLayout" OF "eb" AS logical
   POSITION 166
   MAX-WIDTH 1
   ORDER 1620
-
-ADD FIELD "receiveAsRMItemID" OF "eb" AS character 
-  FORMAT "x(10)"
-  INITIAL ""
-  LABEL "Receive As RM ItemID"
-  POSITION 167
-  MAX-WIDTH 20
-  COLUMN-LABEL "Receive As RM ItemID"
-  ORDER 1630
 
 ADD INDEX "est-qty" ON "eb" 
   AREA "Index"
@@ -45463,26 +45445,6 @@ ADD FIELD "costTotalFixedOverhead" OF "estCostHeader" AS decimal
   DECIMALS 6
   ORDER 1090
 
-ADD FIELD "hoursSetup" OF "estCostHeader" AS decimal 
-  DESCRIPTION "Setup/Make Ready Hours for cost header quantity"
-  FORMAT "->>,>>9.99"
-  INITIAL "0"
-  LABEL "Setup Hours"
-  POSITION 65
-  MAX-WIDTH 21
-  DECIMALS 6
-  ORDER 1100
-
-ADD FIELD "hoursRun" OF "estCostHeader" AS decimal 
-  DESCRIPTION "Run Hours for cost header quantity"
-  FORMAT "->>,>>9.99"
-  INITIAL "0"
-  LABEL "Run Hours"
-  POSITION 66
-  MAX-WIDTH 21
-  DECIMALS 6
-  ORDER 1110
-
 ADD INDEX "estCostHeaderID" ON "estCostHeader" 
   AREA "Data"
   UNIQUE
@@ -48302,17 +48264,6 @@ ADD FIELD "hoursRunMinimum" OF "estCostOperation" AS decimal
   HELP "Enter Min Run Hours for Operation Quantity"
   DECIMALS 6
   ORDER 800
-
-ADD FIELD "isCorrugator" OF "estCostOperation" AS logical 
-  DESCRIPTION "Is Operation a corrugator?"
-  FORMAT "yes/no"
-  INITIAL "no"
-  LABEL "Corrugator?"
-  POSITION 79
-  MAX-WIDTH 1
-  COLUMN-LABEL "Corrugator?"
-  HELP "Enter if operation is corrugator"
-  ORDER 810
 
 ADD INDEX "estCostOperationID" ON "estCostOperation" 
   AREA "Data"
@@ -66645,15 +66596,6 @@ ADD FIELD "weightPerEA" OF "itemfg" AS decimal
   DECIMALS 2
   ORDER 2280
 
-ADD FIELD "receiveAsRMItemID" OF "itemfg" AS character 
-  FORMAT "x(10)"
-  INITIAL ""
-  LABEL "Receive As RM ItemID"
-  POSITION 233
-  MAX-WIDTH 20
-  COLUMN-LABEL "Receive As RM ItemID"
-  ORDER 2300
-
 ADD INDEX "i-no" ON "itemfg" 
   AREA "Index"
   UNIQUE
@@ -66705,11 +66647,6 @@ ADD INDEX "procat" ON "itemfg"
   INDEX-FIELD "company" ASCENDING 
   INDEX-FIELD "procat" ASCENDING 
   INDEX-FIELD "i-no" ASCENDING 
-
-ADD INDEX "receiveAsRMItemID" ON "itemfg" 
-  AREA "Index"
-  INDEX-FIELD "company" ASCENDING 
-  INDEX-FIELD "receiveAsRMItemID" ASCENDING 
 
 ADD INDEX "rec_key" ON "itemfg" 
   AREA "Index"
@@ -75453,24 +75390,6 @@ ADD FIELD "glCode" OF "loc" AS character
   POSITION 17
   MAX-WIDTH 40
   ORDER 160
-
-ADD FIELD "floorPositions" OF "loc" AS integer 
-  FORMAT ">>>>>>9"
-  INITIAL "0"
-  LABEL "# Floor Positions"
-  POSITION 18
-  MAX-WIDTH 4
-  COLUMN-LABEL "# Floor Positions"
-  ORDER 170
-
-ADD FIELD "rackPositions" OF "loc" AS integer 
-  FORMAT ">>>>>>9"
-  INITIAL "0"
-  LABEL "# Rack Positions"
-  POSITION 19
-  MAX-WIDTH 4
-  COLUMN-LABEL "# Rack Positions"
-  ORDER 180
 
 ADD INDEX "loc" ON "loc" 
   AREA "Index"
@@ -129894,4 +129813,4 @@ ADD INDEX "si-rec_key" ON "zMessage"
 PSC
 cpstream=ISO8859-1
 .
-0002808473
+0002806595
