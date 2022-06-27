@@ -308,8 +308,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update - Upgrade Database"
-         COLUMN             = 3
-         ROW                = 1.48
+         COLUMN             = 5
+         ROW                = 2
          HEIGHT             = 22.91
          WIDTH              = 84
          MAX-HEIGHT         = 39.29

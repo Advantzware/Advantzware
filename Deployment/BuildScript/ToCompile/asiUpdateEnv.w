@@ -449,8 +449,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update - Programs/Data"
-         COLUMN             = 3
-         ROW                = 1.48
+         COLUMN             = 5
+         ROW                = 2
          HEIGHT             = 22.91
          WIDTH              = 84
          MAX-HEIGHT         = 34.29
@@ -661,108 +661,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ip_ProcessAll C-Win 
-PROCEDURE ip_ProcessAll :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("Beginning Patch Application").
-
-    ASSIGN
-        cOrigPropath = PROPATH
-        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + 
-                       cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," +
-                       PROPATH
-        PROPATH      = cNewPropath
-        .
-    ASSIGN
-        SELF:LABEL = IF SELF:SENSITIVE THEN "Processing..." ELSE SELF:LABEL 
-        SELF:SENSITIVE = FALSE
-        lSuccess = TRUE.
-
-    RUN ipUpdateUserControl.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = iopiStatus + 27.
-    ELSE RETURN.
-
-    RUN ipFixUsers.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 28.
-    ELSE RETURN.
-
-    RUN ipDelBadData.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 29.
-    ELSE RETURN.
-
-    RUN ipUpdateMaster.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 30.
-    ELSE RETURN.
-
-    RUN ipExpandFiles.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 50.
-    ELSE RETURN.
-
-    /* Load any external procs/supers that may need to be accessed */
-    IF NOT VALID-HANDLE(hSession) THEN DO:
-        RUN system/session.p PERSISTENT SET hSession.
-        SESSION:ADD-SUPER-PROCEDURE (hSession).
-    END. 
-    IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
-        RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
-        SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
-    END.
-
-    RUN ipDataFix.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 80.
-    ELSE RETURN.
-
-    RUN ipUpdateNK1s.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 82.
-    ELSE RETURN.
-
-    RUN ipCopyRelNotes.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 84.
-    ELSE RETURN.
-
-    RUN ipUpdateTTIniFile.
-    RUN ipWriteIniFile.
-    ASSIGN 
-        iopiStatus = 85.
-    
-    RUN ipUpdateSQLSettings IN THIS-PROCEDURE.
-    ASSIGN 
-        iopiStatus = 90.
-    RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
-    ASSIGN 
-        iopiStatus = 93.
-    RUN ipSetNewDbVersion IN THIS-PROCEDURE.
-    ASSIGN 
-        iopiStatus = 94.
-    
-    RUN ipStatus ("Patch Application Complete").
-
-    ASSIGN
-        fiFromVer:{&SV} = fiToVer:{&SV}
-        oplSuccess = TRUE.
-        
-    ASSIGN 
-        iopiStatus = 95
-        PROPATH = cOrigPropath.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipActivateParent C-Win 
 PROCEDURE ipActivateParent :
@@ -7954,6 +7852,107 @@ PROCEDURE ipVerifyNK1Changes :
         END.    
         OUTPUT STREAM logStream CLOSE.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ip_ProcessAll C-Win 
+PROCEDURE ip_ProcessAll :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("Beginning Patch Application").
+
+    ASSIGN
+        cOrigPropath = PROPATH
+        cNewPropath  = cEnvDir + "\" + fiEnvironment:{&SV} + "\Programs," + 
+                       cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," +
+                       PROPATH
+        PROPATH      = cNewPropath
+        .
+    ASSIGN
+        SELF:LABEL = IF SELF:SENSITIVE THEN "Processing..." ELSE SELF:LABEL 
+        SELF:SENSITIVE = FALSE
+        lSuccess = TRUE.
+
+    RUN ipUpdateUserControl.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = iopiStatus + 27.
+    ELSE RETURN.
+
+    RUN ipFixUsers.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 28.
+    ELSE RETURN.
+
+    RUN ipDelBadData.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 29.
+    ELSE RETURN.
+
+    RUN ipUpdateMaster.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 30.
+    ELSE RETURN.
+
+    RUN ipExpandFiles.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 50.
+    ELSE RETURN.
+
+    /* Load any external procs/supers that may need to be accessed */
+    IF NOT VALID-HANDLE(hSession) THEN DO:
+        RUN system/session.p PERSISTENT SET hSession.
+        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    END. 
+    IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
+        RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
+    END.
+
+    RUN ipDataFix.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 80.
+    ELSE RETURN.
+
+    RUN ipUpdateNK1s.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 82.
+    ELSE RETURN.
+
+    RUN ipCopyRelNotes.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 84.
+    ELSE RETURN.
+
+    RUN ipUpdateTTIniFile.
+    RUN ipWriteIniFile.
+    ASSIGN 
+        iopiStatus = 85.
+    
+    RUN ipUpdateSQLSettings IN THIS-PROCEDURE.
+    ASSIGN 
+        iopiStatus = 90.
+    RUN ipBackupDataFiles IN THIS-PROCEDURE ("NEW").
+    ASSIGN 
+        iopiStatus = 93.
+    RUN ipSetNewDbVersion IN THIS-PROCEDURE.
+    ASSIGN 
+        iopiStatus = 94.
+    
+    RUN ipStatus ("Patch Application Complete").
+
+    ASSIGN
+        fiFromVer:{&SV} = fiToVer:{&SV}
+        oplSuccess = TRUE.
+        
+    ASSIGN 
+        iopiStatus = 95
+        PROPATH = cOrigPropath.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

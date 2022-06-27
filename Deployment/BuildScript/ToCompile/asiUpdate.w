@@ -260,13 +260,12 @@ FUNCTION get64BitValue RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD mTime C-Win
-FUNCTION mTime RETURNS LOGICAL 
-  (INPUT iNumSecs AS INTEGER) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD mTime C-Win 
+FUNCTION mTime RETURNS LOGICAL
+  ( INPUT iNumSecs AS INTEGER ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -438,8 +437,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update"
-         COLUMN             = 3
-         ROW                = 1.48
+         COLUMN             = 5
+         ROW                = 2
          HEIGHT             = 22.91
          WIDTH              = 84
          MAX-HEIGHT         = 26.67
@@ -1867,8 +1866,8 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION mTime C-Win
-FUNCTION mTime RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION mTime C-Win 
+FUNCTION mTime RETURNS LOGICAL
   ( INPUT iNumSecs AS INTEGER ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -1885,8 +1884,7 @@ FUNCTION mTime RETURNS LOGICAL
     RETURN lresult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
