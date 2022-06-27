@@ -570,6 +570,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      OUTPUT  oplError,
      OUTPUT  opcMessage).
      
+     FOR EACH ttVendItemCost NO-LOCK:
+       ASSIGN ttVendItemCost.isSelected = NO.
+     END.
      
     RUN enable_UI.
 
