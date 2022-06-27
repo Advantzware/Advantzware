@@ -570,7 +570,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      OUTPUT  oplError,
      OUTPUT  opcMessage).
      
-     FOR EACH ttVendItemCost NO-LOCK:
+     FOR EACH ttVendItemCost:
        ASSIGN ttVendItemCost.isSelected = NO.
      END.
      
