@@ -81,25 +81,26 @@ PROCEDURE pCreateFGItem:
 
     CREATE itemfg.
     ASSIGN
-        itemfg.company    = ipbf-eb.company
-        itemfg.loc        = ipbf-eb.loc
-        itemfg.i-no       = ipcItemFGID
-        itemfg.i-name     = ipbf-eb.part-dscr1
-        itemfg.part-dscr1 = ipbf-eb.part-dscr2
-        itemfg.part-no    = ipbf-eb.part-no
-        itemfg.cust-no    = ipbf-eb.cust-no
-        itemfg.cust-name  = IF AVAILABLE cust THEN cust.name ELSE ""
-        itemfg.die-no     = ipbf-eb.die-no
-        itemfg.plate-no   = ipbf-eb.plate-no
-        itemfg.style      = ipbf-eb.style
-        itemfg.procat     = ipbf-eb.procat
-        itemfg.cad-no     = ipbf-eb.cad-no
-        itemfg.upc-no     = ipbf-eb.upc-no
-        itemfg.spc-no     = ipbf-eb.spc-no
-        itemfg.isaset     = (ipiEstType EQ 2 OR ipiEstType EQ 6) AND
-                     ipbf-eb.form-no EQ 0
-        itemfg.pur-man    = ipbf-eb.pur-man 
-        itemfg.alloc      = ipbf-eb.set-is-assembled
+        itemfg.company           = ipbf-eb.company
+        itemfg.loc               = ipbf-eb.loc
+        itemfg.i-no              = ipcItemFGID
+        itemfg.i-name            = ipbf-eb.part-dscr1
+        itemfg.part-dscr1        = ipbf-eb.part-dscr2
+        itemfg.part-no           = ipbf-eb.part-no
+        itemfg.cust-no           = ipbf-eb.cust-no
+        itemfg.cust-name         = IF AVAILABLE cust THEN cust.name ELSE ""
+        itemfg.die-no            = ipbf-eb.die-no
+        itemfg.plate-no          = ipbf-eb.plate-no
+        itemfg.style             = ipbf-eb.style
+        itemfg.procat            = ipbf-eb.procat
+        itemfg.cad-no            = ipbf-eb.cad-no
+        itemfg.upc-no            = ipbf-eb.upc-no
+        itemfg.spc-no            = ipbf-eb.spc-no
+        itemfg.isaset            = (ipiEstType EQ 2 OR ipiEstType EQ 6) AND
+                                    ipbf-eb.form-no EQ 0
+        itemfg.pur-man           = ipbf-eb.pur-man 
+        itemfg.alloc             = ipbf-eb.set-is-assembled
+        itemfg.receiveAsRMItemID = ipbf-eb.receiveAsRMItemID
         .
     
     RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
