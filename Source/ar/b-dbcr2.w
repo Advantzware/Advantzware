@@ -1206,11 +1206,12 @@ PROCEDURE printInv :
   
    IF AVAILABLE b-ar-inv THEN DO:
      RUN custom/setUserPrint.p (b-ar-inv.company,'ar-inv_.',
-                                'begin_inv,end_inv,begin_cust,end_cust,tb_reprint,tb_posted',
+                                'begin_inv,end_inv,begin_cust,end_cust,tb_reprint,tb_posted,begin_inv-id,end_inv-id',
                                 STRING(b-ar-inv.inv-no) + ',' + STRING(b-ar-inv.inv-no) + ',' +
                                 b-ar-inv.cust-no + ',' + b-ar-inv.cust-no + ',' +
-                                STRING(b-ar-inv.printed) + ',' + STRING(b-ar-inv.posted)).
-
+                                STRING(b-ar-inv.printed) + ',' + STRING(b-ar-inv.posted) + ',' + 
+                                STRING(ar-inv.x-no) + ',' + STRING(ar-inv.x-no))
+                                .
      RUN listobjs/ar-inv_.w.
    END.
 END PROCEDURE.
