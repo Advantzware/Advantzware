@@ -8,7 +8,7 @@
 
 DEFINE INPUT PARAMETER piOldVersion AS INTEGER NO-UNDO.
 
-{datadigger.i}
+{DataDigger.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -45,8 +45,8 @@ DEFINE INPUT PARAMETER piOldVersion AS INTEGER NO-UNDO.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW Procedure ASSIGN
-         HEIGHT             = 15
-         WIDTH              = 60.
+         HEIGHT             = 10.48
+         WIDTH              = 41.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -61,7 +61,7 @@ DEFINE INPUT PARAMETER piOldVersion AS INTEGER NO-UNDO.
 
 SESSION:SET-WAIT-STATE("general").
 
-RUN VALUE(SUBSTITUTE('ConvertFrom-&1', piOldVersion)).
+RUN VALUE(SUBSTITUTE('ConvertFrom-&1', piOldVersion)) NO-ERROR.
 RUN flushRegistry.
 
 SESSION:SET-WAIT-STATE("").
@@ -363,9 +363,44 @@ PROCEDURE convertFrom-24 :
     setRegistry('DataDigger:Favourites', btFavGroup.cGroup, btFavGroup.cTables).
   END.
 
+  /* Obsolete files */
+  OS-DELETE VALUE(SEARCH("dEditGroup.wrx")).
+
 END PROCEDURE. /* 24 */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-convertFrom-25) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE convertFrom-25 Procedure 
+PROCEDURE convertFrom-25 :
+/* v25 -> 26
+*/
+  DEFINE BUFFER bfConfig FOR ttConfig.
+
+  /* Query editor is now default not expanded on startup */
+  setRegistry("DataDigger", "QueryEditorState", ?).
+
+  /* Change of query separator */
+  RUN getRegistryTable(OUTPUT TABLE bfConfig).
+
+  FOR EACH bfConfig 
+    WHERE bfConfig.cSection BEGINS  "DB:" 
+      AND bfConfig.cSetting MATCHES "*:query:*":
+
+    setRegistry( bfConfig.cSection
+               , bfConfig.cSetting
+               , REPLACE( bfConfig.cValue, CHR(1, SESSION:CPINTERNAL, "UTF-8")
+                                         , CHR(2, SESSION:CPINTERNAL, "UTF-8") )  ).
+  END.
+
+END PROCEDURE. /* 25 */
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
