@@ -1210,7 +1210,7 @@ PROCEDURE printInv :
                                 STRING(b-ar-inv.inv-no) + ',' + STRING(b-ar-inv.inv-no) + ',' +
                                 b-ar-inv.cust-no + ',' + b-ar-inv.cust-no + ',' +
                                 STRING(b-ar-inv.printed) + ',' + STRING(b-ar-inv.posted) + ',' + 
-                                STRING(ar-inv.x-no) + ',' + STRING(ar-inv.x-no))
+                                STRING(b-ar-inv.x-no) + ',' + STRING(b-ar-inv.x-no))
                                 .
      RUN listobjs/ar-inv_.w.
    END.
