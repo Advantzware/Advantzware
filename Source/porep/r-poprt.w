@@ -1943,6 +1943,11 @@ PROCEDURE pCallAPIOutbound PRIVATE:
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
+    system.SharedConfig:Instance:SetValue("PrintPurchaseOrder_PrintCustomerCode", STRING(tb_cust-code:CHECKED)).
+    system.SharedConfig:Instance:SetValue("PrintPurchaseOrder_PrintFirstResource", STRING(tb_mach:CHECKED)).
+    system.SharedConfig:Instance:SetValue("PrintPurchaseOrder_PrintGrandTotalMSF", STRING(tb_grand-total:CHECKED)).
+    system.SharedConfig:Instance:SetValue("PrintPurchaseOrder_PrintScoreTypes", STRING(tb_score-types:CHECKED)).
+    system.SharedConfig:Instance:SetValue("PrintPurchaseOrder_PrintPrintPrices", STRING(tb_print-prices:CHECKED)).
     system.SharedConfig:Instance:SetValue("PrintPurchaseOrder_PrintMetric", STRING(tb_metric:CHECKED)).
         
     RUN Outbound_PrepareAndExecuteForScopeAndClient IN hdOutboundProcs (
@@ -1961,6 +1966,11 @@ PROCEDURE pCallAPIOutbound PRIVATE:
         OUTPUT cMessage                                        /* Status message */
         ).
 
+    system.SharedConfig:Instance:DeleteValue("PrintPurchaseOrder_PrintCustomerCode").
+    system.SharedConfig:Instance:DeleteValue("PrintPurchaseOrder_PrintFirstResource").
+    system.SharedConfig:Instance:DeleteValue("PrintPurchaseOrder_PrintGrandTotalMSF").
+    system.SharedConfig:Instance:DeleteValue("PrintPurchaseOrder_PrintScoreTypes").
+    system.SharedConfig:Instance:DeleteValue("PrintPurchaseOrder_PrintPrintPrices").
     system.SharedConfig:Instance:DeleteValue("PrintPurchaseOrder_PrintMetric").
 
     RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
