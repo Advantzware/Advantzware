@@ -407,11 +407,13 @@ DO:
         
         IF NOT VALID-OBJECT(oJsonParser) THEN
             oJsonParser = NEW ObjectModelParser().
-
-        oJsonObject = CAST(oJsonParser:Parse(INPUT lcDefaultData), JsonObject) NO-ERROR.
-
-        IF VALID-OBJECT(oJsonObject) THEN
-            oJsonObject:Write(INPUT-OUTPUT lcDefaultData, TRUE /* Formatted */). /* Beautifies the JSON for easy viewing */        
+        
+        IF lcDefaultData NE "" THEN DO:
+            oJsonObject = CAST(oJsonParser:Parse(INPUT lcDefaultData), JsonObject) NO-ERROR.
+            
+            IF NOT ERROR-STATUS:ERROR THEN
+                oJsonObject:Write(INPUT-OUTPUT lcDefaultData, TRUE /* Formatted */) NO-ERROR. /* Beautifies the JSON for easy viewing */        
+        END.
         
         RUN api/d-dataViewer.w (
             INPUT-OUTPUT lcDefaultData,
