@@ -343,9 +343,11 @@ DO:
      
     IF AVAILABLE ttEstCostMaterial THEN
     DO: 
+        cAdderList = "".
         FOR EACH bf-ef NO-LOCK
             WHERE bf-ef.company EQ ttEstCostMaterial.company
-            AND bf-ef.est-no  EQ ttEstCostMaterial.estimateNo:
+            AND bf-ef.est-no  EQ ttEstCostMaterial.estimateNo
+            AND bf-ef.form-no EQ ttEstCostMaterial.formNo:
             DO iCount = 1 TO 6:
                 IF bf-ef.adder[iCount] <> "" THEN 
                     cAdderList[iCount] = bf-ef.adder[iCount].

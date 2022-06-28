@@ -190,7 +190,7 @@ PROCEDURE os-Process-Hold-Status :
        ASSIGN vcStatus = "N"
               vcHoldType = "".
               
-       RUN ClearTagsForGroup (b-oe-ord.rec_key, "Reason Code").       
+       RUN ClearTagsForGroup (b-oe-ord.company + STRING(b-oe-ord.ord-no), "Reason Code").       
 
        /* Prompt to update items if more than one. */
        IF vi > 1 THEN
@@ -217,7 +217,7 @@ PROCEDURE os-Process-Hold-Status :
        ASSIGN vcStatus = (IF vcHoldType <> "" THEN "H" ELSE b-oe-ord.stat).
        IF vcHoldType NE "" THEN
         RUN AddTagHold (
-            INPUT b-oe-ord.rec_key,
+            INPUT b-oe-ord.company + STRING(b-oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT getOrdStatDescr(vcHoldType),
             INPUT "",

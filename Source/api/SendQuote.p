@@ -110,12 +110,15 @@ DEFINE VARIABLE cAdders                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBoxDesignImage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidthScoreMetric           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidthCumulativeScoreMetric AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogoColor                  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDisplayCompanyAddress      AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-quotehd  FOR quotehd.
 DEFINE BUFFER bf-quoteitm FOR quoteitm.
 DEFINE BUFFER bf-quoteqty FOR quoteqty.
 DEFINE BUFFER bf-quotechg FOR quotechg.
 DEFINE BUFFER bf-eb       FOR eb.
+DEFINE BUFFER bf-cust     FOR cust.
 
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -168,6 +171,9 @@ ELSE DO:
     oAttribute:RequestDataType = gcRequestDataType.
 
     RUN sys/ref/nk1look.p (cCompany, "BusinessFormLogo", "C", NO, YES, "", "", OUTPUT cBuisnessFormLogo, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (cCompany, "LOGOCOLR", "C", NO, YES, "", "", OUTPUT cLogoColor, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (cCompany, "QUOPRINT", "L" , YES, YES, "" , "", OUTPUT cDisplayCompanyAddress, OUTPUT lRecFound).
+    IF cLogoColor EQ "" THEN "BLACK".
     
     /* Code to send data from dynamic temp-table handle to static temp-table */
     hdTTHandle:WRITE-XML("MEMPTR", mptrTTQuote).
@@ -486,7 +492,7 @@ ELSE DO:
             lcPageHeader = oAttribute:ReplaceAttributes(lcPageHeader, BUFFER carrier:HANDLE).
             lcPageHeader = oAttribute:ReplaceAttributes(lcPageHeader, BUFFER est:HANDLE).
             
-            RUN pInsertPageHeaderFooter (INPUT-OUTPUT lcQuoteHeader, INPUT lcPageHeader, INPUT lcPageFooter).
+            RUN pInsertPageHeaderFooter (INPUT iNumLinesInPage, INPUT-OUTPUT lcQuoteHeader, INPUT lcPageHeader, INPUT lcPageFooter).
             
             lcConcatQuoteHeader = lcConcatQuoteHeader + lcQuoteHeader. 
             
@@ -591,7 +597,9 @@ ELSE DO:
     RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
     
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BusinessFormLogo", cBuisnessFormLogo).
-    
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "LogoColor", cLogoColor).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DisplayCompanyAddress", cDisplayCompanyAddress).
+
     ASSIGN   
         opcMessage       = ""
         oplSuccess       = TRUE
@@ -701,46 +709,3 @@ PROCEDURE pGetRequestData:
         oplcRequestData = REPLACE(oplcRequestData, "$" + ipcDetailID + "Footer" + "$", lcFooter).
     END.    
 END PROCEDURE.
-
-PROCEDURE pInsertPageHeaderFooter:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT-OUTPUT  PARAMETER ioplcRequestData AS LONGCHAR NO-UNDO.
-    DEFINE INPUT         PARAMETER iplcHeader       AS LONGCHAR NO-UNDO.
-    DEFINE INPUT         PARAMETER iplcFooter       AS LONGCHAR NO-UNDO.
-    
-    DEFINE VARIABLE iLineCount     AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE iIndex         AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE lcData         AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE iLastIndex     AS INTEGER  NO-UNDO INITIAL 1.
-    DEFINE VARIABLE lcRequestData1 AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcRequestData2 AS LONGCHAR NO-UNDO.
-    
-    DO WHILE ioplcRequestData MATCHES "*" + "$PageSeparator$" + "*":
-        iIndex = INDEX (ioplcRequestData, "$PageSeparator$").
-        IF iIndex LE 0 THEN
-            LEAVE.
-            
-        lcData = SUBSTRING(ioplcRequestData, iLastIndex, iIndex - iLastIndex - 1).
-        
-        lcData = ENTRY(NUM-ENTRIES(lcData, CHR(12)), lcData, CHR(12)).
-        
-        iLineCount = NUM-ENTRIES (lcData, CHR(10)).
-
-        lcRequestData1 = SUBSTRING(ioplcRequestData, 1, iIndex - 1).
-        lcRequestData2 = SUBSTRING(ioplcRequestData, iIndex + LENGTH("$PageSeparator$")).
-        
-        IF iLineCount GE iNumLinesInPage THEN
-            ASSIGN
-                ioplcRequestData = lcRequestData1 + iplcFooter + iplcHeader + lcRequestData2
-                iLastIndex       = iIndex + LENGTH("$PageSeparator$")
-                .
-        ELSE
-            ioplcRequestData = lcRequestData1 + lcRequestData2.
-        
-        RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
-    END. 
-END PROCEDURE.
-        

@@ -68,6 +68,13 @@ DEF VAR v-program-6 AS CHAR.
 
 DEF TEMP-TABLE tt-est-op LIKE est-op FIELD row-id AS ROWID.
 
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iVarn      AS INTEGER NO-UNDO.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
+
+RUN pGetSettingValue(xef.company).
+
+
 {ce/mach-ink.i}
 
 
@@ -389,4 +396,19 @@ FOR EACH est-op
   
 END.
 
+END PROCEDURE.
+
+PROCEDURE pGetSettingValue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
 END PROCEDURE.

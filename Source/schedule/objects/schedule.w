@@ -1757,7 +1757,9 @@ PROCEDURE pFromPending :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN pFromPending IN h_board.
+    DEFINE INPUT PARAMETER ipdtAsOfDate AS DATE NO-UNDO.
+
+    RUN pFromPending IN h_board (ipdtAsOfDate).
 
 END PROCEDURE.
 
@@ -1771,7 +1773,9 @@ PROCEDURE pFromPendingByDueDate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN pFromPendingByDueDate IN h_board.
+    DEFINE INPUT PARAMETER ipdtAsOfDate AS DATE NO-UNDO.
+
+    RUN pFromPendingByDueDate IN h_board (ipdtAsOfDate).
 
 END PROCEDURE.
 

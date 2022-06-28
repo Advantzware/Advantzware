@@ -152,7 +152,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE fiPOBlankWidthScore AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0 
-     LABEL "PO Blank Width Score" 
+     LABEL "PO Sheet Width Scores" 
      VIEW-AS FILL-IN 
      SIZE 11.6 BY 1
      BGCOLOR 15 FONT 4.
@@ -205,7 +205,7 @@ DEFINE RECTANGLE RECT-19
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 40 BY 11.43.
+     SIZE 42 BY 11.43.
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -400,7 +400,7 @@ DEFINE FRAME F-Main
           SIZE 30 BY .62 AT ROW 2.91 COL 99
           FGCOLOR 9 
      RECT-19 AT ROW 1 COL 1
-     RECT-7 AT ROW 3.14 COL 3
+     RECT-7 AT ROW 3.14 COL 1.5
      RECT-8 AT ROW 3.14 COL 46
      RECT-9 AT ROW 3.14 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 

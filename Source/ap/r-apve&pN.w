@@ -879,7 +879,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
              begin_user:SCREEN-VALUE = USERID("ASI")
              end_user:SCREEN-VALUE   = USERID("ASI").
-        IF cAPPostingUserId EQ "No" THEN
+        IF cAPPostingUserId EQ "No" AND NOT lAPSecure THEN
            ASSIGN
                begin_user:SENSITIVE    = NO
                end_user:SENSITIVE      = NO .
@@ -2058,7 +2058,8 @@ PROCEDURE valid-date :
             IF AVAIL bf-period THEN
             ASSIGN
                 begin_date:SCREEN-VALUE = STRING(bf-period.pst)
-                end_date:SCREEN-VALUE = STRING(bf-period.pend).
+                end_date:SCREEN-VALUE = STRING(bf-period.pend)
+                tran-period:SCREEN-VALUE = STRING(bf-period.pnum,"99").
 
             ll-warned = YES.
         END.

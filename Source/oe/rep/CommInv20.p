@@ -131,6 +131,7 @@ DEFINE VARIABLE cFobCode     AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cCurrCode    AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dTotalPrice    AS DECIMAL   NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -552,6 +553,15 @@ DO TRANSACTION:
         END.
             
         v-price-head = oe-ordl.pr-uom.
+        
+        RUN Conv_CalcTotalPrice(cocode, 
+            oe-ordl.i-no,
+            DECIMAL(v-ship-qty),
+            DECIMAL(oe-ordl.price),
+            oe-ordl.pr-uom,
+            DECIMAL(oe-ordl.disc),
+            DECIMAL(oe-ordl.cas-cnt),    
+            OUTPUT dTotalPrice).
   
         IF NOT lPrintQtyAll THEN 
         DO:
@@ -562,7 +572,7 @@ DO TRANSACTION:
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
                 v-price-head 
-                oe-ordl.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
+                dTotalPrice  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
                 SKIP.
         END.
         ELSE 
@@ -574,7 +584,7 @@ DO TRANSACTION:
                 v-i-dscr  FORMAT "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
                 v-price-head 
-                oe-ordl.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
+                dTotalPrice  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
                 SKIP.
 
         END.

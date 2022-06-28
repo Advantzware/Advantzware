@@ -162,26 +162,27 @@ do on error undo:
       END.
 
       assign
-       itemfg.company     = cocode
-       itemfg.loc         = locode
-       itemfg.job-date    = today
-       itemfg.i-no        = v-item-no
-       itemfg.q-ord       = v-tot-qty
-       itemfg.est-no      = s-est-no /*oe-ordl.est-no*/
-       itemfg.i-name      = v-item-name
-       itemfg.part-dscr1  = v-item-dscr1
-       itemfg.part-dscr2  = v-item-dscr2
-       itemfg.part-no     = v-item-part
-       itemfg.die-no      = bf-eb.die-no
-       itemfg.procat      = bf-eb.procat
-       itemfg.plate-no    = bf-eb.plate-no
-       itemfg.style       = bf-eb.style
-       itemfg.cad-no      = bf-eb.cad-no
-       itemfg.upc-no      = bf-eb.upc-no
-       itemfg.spc-no      = bf-eb.spc-no
-       itemfg.isaset      = no 
-       itemfg.pur-man     = bf-eb.form-no GT 0 AND bf-eb.pur-man
-       itemfg.alloc       = bf-eb.set-is-assembled
+       itemfg.company           = cocode
+       itemfg.loc               = locode
+       itemfg.job-date          = today
+       itemfg.i-no              = v-item-no
+       itemfg.q-ord             = v-tot-qty
+       itemfg.est-no            = s-est-no /*oe-ordl.est-no*/
+       itemfg.i-name            = v-item-name
+       itemfg.part-dscr1        = v-item-dscr1
+       itemfg.part-dscr2        = v-item-dscr2
+       itemfg.part-no           = v-item-part
+       itemfg.die-no            = bf-eb.die-no
+       itemfg.procat            = bf-eb.procat
+       itemfg.plate-no          = bf-eb.plate-no
+       itemfg.style             = bf-eb.style
+       itemfg.cad-no            = bf-eb.cad-no
+       itemfg.upc-no            = bf-eb.upc-no
+       itemfg.spc-no            = bf-eb.spc-no
+       itemfg.isaset            = no 
+       itemfg.pur-man           = bf-eb.form-no GT 0 AND bf-eb.pur-man
+       itemfg.alloc             = bf-eb.set-is-assembled
+       itemfg.receiveAsRMItemID = bf-eb.receiveAsRMItemID
        .        
 
        /* Create an itemfg-loc for the default warehouse */

@@ -428,7 +428,7 @@ PUT "<R35.5><C47><#7>Initial"
 v-printline = v-printline + 4.
 
 /*PUT "<R39><C30>" SKIP.*/
-RUN Notes_GetNotesArrayForObject (INPUT oe-bolh.rec_key, "ES", "", 130, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
+RUN Notes_GetNotesArrayForObject (INPUT oe-bolh.rec_key, "ES", "", "", 130, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
 
 IF opiArraySize <= 3 THEN DO:
     PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.

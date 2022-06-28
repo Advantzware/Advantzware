@@ -48,7 +48,7 @@ DEFINE VARIABLE hJobChecklist AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Change_Company Btn_tag RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Change_Company 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -94,10 +94,6 @@ DEFINE BUTTON Btn_Change_Company
      IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Exit" 
      SIZE 8 BY 1.91 TOOLTIP "Exit".
-     
-DEFINE BUTTON Btn_tag      
-     LABEL "Bar Codes" 
-     SIZE 14 BY 1.91 TOOLTIP "Bar Codes".     
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -108,7 +104,6 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      Btn_Change_Company AT ROW 1.24 COL 116
-     Btn_tag AT ROW 1.24 COL 101.60
      btnLanguage-7 AT ROW 1.24 COL 56 WIDGET-ID 22
      btnLanguage-1 AT ROW 1.24 COL 2
      btnLanguage-2 AT ROW 1.24 COL 11
@@ -258,17 +253,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_tag
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_tag s-object
-ON CHOOSE OF Btn_tag IN FRAME F-Main /* Exit */
-DO:      
-    {methods/run_link.i "CONTAINER" "open_sharp-shooter"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
@@ -331,7 +315,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN pCreateINIObjects ("Login,Logout,DataCollection,EmployeeStatus,MachineStatus,JobCheckList").
+  RUN pCreateINIObjects ("SharpShooter,Login,Logout,DataCollection,EmployeeStatus,MachineStatus,JobCheckList").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -418,10 +402,9 @@ PROCEDURE pClick :
         WHEN "JobCheckList" THEN DO:
             IF VALID-HANDLE(hJobChecklist) EQ NO THEN
             RUN touch/transactions.w PERSISTENT SET hJobChecklist.
-/*
-            RUN adm-initialize IN hJobChecklist.
-            RUN Disable-Folder-Tabs IN hJobChecklist (INPUT THIS-PROCEDURE).
-*/
+        END.
+        WHEN "SharpShooter" THEN DO:
+            {methods/run_link.i "CONTAINER" "open_sharp-shooter"}
         END.
     END CASE.
 

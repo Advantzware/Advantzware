@@ -1596,16 +1596,18 @@ DO:
 END.
 
 if avail xeb then do:
-    assign itemfg.die-no     = xeb.die-no
-           itemfg.plate-no   = xeb.plate-no
-           itemfg.style      = xeb.style
-           itemfg.procat     = xeb.procat
-           itemfg.cad-no     = xeb.cad-no
-           itemfg.upc-no     = xeb.upc-no
-           itemfg.spc-no     = xeb.spc-no
-           itemfg.isaset     = xeb.form-no eq 0
-           itemfg.pur-man    = xeb.pur-man      
-           itemfg.alloc      = NOT xeb.set-is-assembled.
+    assign itemfg.die-no            = xeb.die-no
+           itemfg.plate-no          = xeb.plate-no
+           itemfg.style             = xeb.style
+           itemfg.procat            = xeb.procat
+           itemfg.cad-no            = xeb.cad-no
+           itemfg.upc-no            = xeb.upc-no
+           itemfg.spc-no            = xeb.spc-no
+           itemfg.isaset            = xeb.form-no eq 0
+           itemfg.pur-man           = xeb.pur-man      
+           itemfg.alloc             = NOT xeb.set-is-assembled
+           itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+           .
 
     {oe/fgfreighta.i xeb}
 

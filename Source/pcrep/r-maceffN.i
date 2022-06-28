@@ -727,7 +727,18 @@ FOR EACH work-rep BREAK BY work-rep.sort-field
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
-            IF tb_excel THEN DO:
+            IF tb_excel THEN DO:            
+                 PUT STREAM excel UNFORMATTED
+                   SKIP(1)
+                   '"' "" '",'
+                   '"' "" '",'         
+                   '"' lv-sort + "  Jobs" '",'
+                   '"' STRING(sort-shift-jobs) '",'
+                   '"' "" '",' 
+                   '"' "" '",' 
+                   '"' "Setups:" '",'         
+                   '"' STRING(sort-shift-setups) '",' 
+                   '"' IF ((sort-mr-hrs * 60 ) / sort-shift-setups) NE ? THEN STRING((sort-mr-hrs * 60 ) / sort-shift-setups,">>>>9.99") ELSE "" '"' SKIP.
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.

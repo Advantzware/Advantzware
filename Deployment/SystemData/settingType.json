@@ -1,5 +1,20 @@
 [
   {
+    "rec_key": "202205101118109413773",
+    "settingTypeID": 717,
+    "description": " - No Vendor Tags\n - Parse Vendor Tags  (this would apply the Mask rules)",
+    "dataType": "Character",
+    "validValues": "No Vendor Tags,Parse Vendor Tags,Enter Vendor Tag Information",
+    "defaultValue": "No Vendor Tags",
+    "validValueMin": "",
+    "validValueMax": "",
+    "isPassword": false,
+    "categoryTags": "SSFGReceiveTransfer",
+    "settingName": "SSVendorTags",
+    "securityLevel": 0,
+    "hasContext": false
+  },
+  {
     "rec_key": "202205022355509369615",
     "settingTypeID": 716,
     "description": "Number of days to trigger the account verification",
@@ -819,7 +834,7 @@
     "validValueMin": "",
     "validValueMax": "",
     "isPassword": false,
-    "categoryTags": "",
+    "categoryTags": "SSFGReceiveTransfer",
     "settingName": "SSScanVendorTagPrompt",
     "securityLevel": 0,
     "hasContext": true
@@ -834,7 +849,7 @@
     "validValueMin": "",
     "validValueMax": "",
     "isPassword": false,
-    "categoryTags": "",
+    "categoryTags": "SSFGReceiveTransfer",
     "settingName": "SSScanVendorTagMask",
     "securityLevel": 0,
     "hasContext": true

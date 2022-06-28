@@ -12319,6 +12319,7 @@
 "vend-whse-trans-hist" "zz-char" no no
 "vend-whse-trans-hist" "zz-dec" no no
 "vend-whse-trans-hist" "zz-int" no no
+"vendItemCost" "approved" no no
 "vendItemCost" "blankNo" no no
 "vendItemCost" "company" no no
 "vendItemCost" "createdDate" no no

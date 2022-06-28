@@ -2,7 +2,7 @@
 DEF BUFFER b-inv-head FOR inv-head.
 
 &IF '{&CUSTOMER-TOTALS}' NE '' &THEN
-IF NOT ll-secure THEN DO:
+IF NOT ll-secure AND v-custpass THEN DO:
   RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
   IF NOT ll-secure THEN RETURN "adm-error".
 END.

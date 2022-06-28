@@ -61,6 +61,7 @@ DEFINE TEMP-TABLE ttWIPStandards NO-UNDO
     FIELD user-id     AS CHARACTER FORMAT "x(10)"                LABEL "User ID"
     FIELD cuts        AS INTEGER   FORMAT ">>>,>>9"              LABEL "Cuts"
     .
+{sys/inc/var.i NEW SHARED}
 {ce/mach-ink.i NEW}
 
 DEFINE NEW SHARED BUFFER xest FOR est.

@@ -343,7 +343,7 @@ DO:
                         job.est-no  = xest.est-no
                         .                        
                 END.
-                RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "","").  /*Copy all notes from Estimate to Job*/
+                IF nufile THEN RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "","").  /*Copy all notes from Estimate to Job*/
                 FOR EACH job-hdr WHERE job-hdr.company EQ cocode
                     AND job-hdr.job     EQ job.job
                     AND job-hdr.job-no  EQ job.job-no
@@ -426,7 +426,7 @@ DO:
             job.create-time = IF job.create-time EQ 0 THEN TIME ELSE job.create-time
             . 
     END.  
-    RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "", "").
+    IF nufile THEN RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "", "").
   
     FIND CURRENT job NO-LOCK.
 
@@ -1969,6 +1969,8 @@ PROCEDURE pUpdateJobQty PRIVATE:
     END.
     
     opriJobHdr = ROWID(job-hdr).
+    
+    RUN fg/chkfgloc.p (INPUT job-hdr.i-no, INPUT job-hdr.loc).
     
     IF job-hdr.frm EQ 0 THEN 
         job-hdr.frm = 1.

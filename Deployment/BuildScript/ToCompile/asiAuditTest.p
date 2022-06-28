@@ -10,7 +10,7 @@ FIND FIRST module NO-LOCK WHERE
 IF AVAIL module THEN ASSIGN 
     oplAuditLicensed = module.is-Used. 
 
-IF CAN-FIND(FIRST _file WHERE _file._file-name EQ "dep-table") THEN ASSIGN 
+IF CAN-FIND(FIRST _file WHERE _file._file-name EQ "estCostCategorySystem") THEN ASSIGN 
     oplHasTables = TRUE.
     
 

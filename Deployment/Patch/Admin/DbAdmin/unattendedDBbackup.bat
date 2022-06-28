@@ -1,6 +1,6 @@
 @ECHO OFF
 REM This program performs an unattended backup of all databases
-ECHO Beginning unattended backup...
+:: ECHO Beginning unattended backup...
 
 REM Check advantzware.ini for variable defaults
 CALL ..\getSysVars.bat
@@ -8,7 +8,7 @@ REM Do this AFTER you get the system variables
 SETLOCAL ENABLEDELAYEDEXPANSION
 
 FOR /f "skip=1" %%x IN ('wmic os get localdatetime') DO IF NOT DEFINED MyDate SET MyDate=%%x
-SET logFile=!Drive!\!topDir!\!adminDir!\!dbAdmin!\backup.log
+SET logFile=!Drive!\!topDir!\Admin\DbAdmin\backup.log
 
 IF "%drive%" == "" (
     ECHO advantzware.ini file not found...Exiting >> %logFile%
@@ -29,18 +29,18 @@ ECHO Beginning PROD database backup >> %logFile%
 
 !DbDrive!
 
-CD \!topDir!\!DbDir!\!dbProdDir!
-ECHO   Backing up !prodDbName! to !prodDbName!.bak >> %logFile%
-CALL !DLC!\bin\probkup online !prodDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.bak > NUL
-IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.bak (
-    ECHO     !prodDbName! backup complete >> !logFile!
+CD \!topDir!\Databases\Prod
+ECHO   Backing up asiProd to asiProd.bak >> %logFile%
+CALL !DLC!\bin\probkup online asiProd !MapDir!\Backups\Databases\asiProd.bak >> %logFile%
+IF EXIST !Drive!\!topDir!\Backups\Databases\asiProd.bak (
+    ECHO     asiProd backup complete >> !logFile!
     )
 
-CD \!topDir!\!DbDir!\!dbAuditDir!
-ECHO   Backing up !audDbName! to !audDbName!.bak >> %logFile%
-CALL !DLC!\bin\probkup online !audDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!audDbName!.bak > NUL
-IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!audDbName!.bak (
-    ECHO     !audDbName! backup complete >> !logFile!
+CD \!topDir!\Databases\Audit
+ECHO   Backing up audProd to audProd.bak >> %logFile%
+CALL !DLC!\bin\probkup online audProd !MapDir!\Backups\Databases\audProd.bak >> %logFile%
+IF EXIST !Drive!\!topDir!\Backups\Databases\audProd.bak (
+    ECHO     audProd backup complete >> !logFile!
     )
 
 FOR /f "skip=1" %%x IN ('wmic os get localdatetime') DO IF NOT DEFINED MyDate2 SET MyDate2=%%x

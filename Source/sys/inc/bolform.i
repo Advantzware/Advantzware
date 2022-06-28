@@ -326,8 +326,9 @@
              lines-per-page = 64.
        WHEN "Harwell" THEN
           ASSIGN
-             v-program = "oe/rep/bolharwl.p"
-             lines-per-page = 62.
+             v-program = "oe/rep/bolHarwell.p"
+             is-xprint-form = YES
+             lines-per-page = 72.
        WHEN "Chillic" THEN
           ASSIGN 
              v-program = "oe/rep/bolchill.p"
@@ -494,6 +495,11 @@
              v-program      = "oe/rep/bolacpix.p"
              is-xprint-form = YES
              lines-per-page = 66.
+         WHEN "Ruffino" THEN
+          ASSIGN
+             v-program      = "oe/rep/bolruff.p"
+             is-xprint-form = YES
+             lines-per-page = 66.    
 
        OTHERWISE
           ASSIGN

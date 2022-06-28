@@ -1,3 +1,14 @@
+"202204291401109351779" 714 "Attribute Name of the user count field in Zoho Desk" "Character" "" "cf_advantzware_user_count" "" "" no "ZohoDesk" "ZohoUserCountAttribute" 1000 no
+"202204291396809351777" 713 "Advantzware Account ID" "Character" "" "" "" "" no "ZohoDesk" "AdvantzwareAccountID" 1000 no
+"202204248562509317253" 712 "Backorders not automatically released
+Yes - allow back orders to create a planned release and release it to an actual release
+No - allow back orders to create a planned release, but not an actual release" "Logical" "Yes,No" "Yes" "" "" no "" "OEBackorderAutoRelease" 0 no
+"202203312081309179412" 711 "Set the default status of the Vendor Item Cost upon creation to be Approved" "Logical" "Yes,No" "No" "" "" no "FGItemApproval" "DefaultVendorCostStatusFGIApproval" 0 no
+"202203145437509094602" 709 "FTP Request Method" "Character" "cURL,Internal" "cURL" "" "" no "" "FTPRequestMethod" 0 no
+"202203145080109094077" 708 "Finished good item mask to auto-number finished good items" "Character" "" "TLLWW9999" "" "" no "AutoNumberMasks" "FinishedGoodItemMask" 0 no
+"202203145069609094075" 707 "Raw material item mask to auto-number raw material items" "Character" "" "TLLWW9999" "" "" no "AutoNumberMasks" "RawMaterialItemMask" 0 no
+"202203145064009094073" 706 "Vendor mask to auto-number vendor numbers" "Character" "" "CCC9999" "" "" no "AutoNumberMasks" "VendorNumberMask" 0 no
+"202203145057209094071" 705 "Customer mask to auto-number of customer numbers" "Character" "" "CCC9999" "" "" no "AutoNumberMasks" "CustomerNumberMask" 0 no
 "202202224354008566309" 704 "Default RM Item to select" "Character" "User Select,First Board,First Item" "User Select" "" "" no "SSRMIssue" "SSIssueDefaultRM" 0 no
 "202202224082108566298" 703 "Post Scanned items automatically" "Logical" "YES,NO" "NO" "" "" no "SSRMIssue" "AutoPost" 0 no
 "202202074618808553143" 702 "Allow user to override the status id of on hold tag
@@ -75,7 +86,7 @@ NK1=VertexAccessToken" "Logical" "YES,NO" "NO" "" "" no "Vertex" "Vertex" 0 no
 "202112131902608366717" 639 "No Prompt,
 Warn if Length of Scan not equal to Length of Mask, 
 Block if Length of Scan not equal to Length of Mask" "Character" "No Prompt,Warn if Length of Scan not equal to Length of Mask,Block if Length of Scan not equal to Length of Mask" "No Prompt" "" "" no "" "SSScanVendorTagPrompt" 0 yes
-"202112131871608366715" 638 "Format mask for parsing the vendor tags received from POs" "Character" "PPPPPPLLLQQQQQXXXX,PPPPPPLLLQQQQQ,PPPPPPPPLLLQQQQQXXXX" "PPPPPPLLLQQQQQXXXX" "" "" no "" "SSScanVendorTagMask" 0 yes
+"202112131871608366715" 638 "Format mask for parsing the vendor tags received from POs" "Character" "PPPPPPLLLQQQQQXXXX,PPPPPPLLLQQQQQ,PPPPPPPPLLLQQQQQXXXX,PPPPPPLLLQQQQQXXX" "PPPPPPLLLQQQQQXXXX" "" "" no "" "SSScanVendorTagMask" 0 yes
 "202112100949208363439" 636 "Always enable TS Time Buttons?" "Logical" "YES,NO" "NO" "" "" no "TouchScreen" "TSTimeB" 0 no
 "202112100949208363431" 634 "Touch-Screen Time Source - Server or Workstation" "Character" "Sserver,Workstation,NO" "NO" "" "" no "TouchScreen" "TSTime" 0 no
 "202112100949208363426" 632 "Show Schedule Board Pending Jobs" "Logical" "YES,NO" "NO" "" "" no "TouchScreen" "TSShowPending" 0 no

@@ -3111,7 +3111,7 @@ PROCEDURE build-work :
             END.
 
         IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
-            v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker"  THEN 
+            v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker" THEN 
         DO:
             IF AVAILABLE oe-bolh THEN 
             DO:
@@ -4846,7 +4846,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN END_bol#:HIDDEN IN FRAME {&FRAME-NAME}    = NO
                 END_bol#:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
-        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell,Henry") LE 0 THEN 
+        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell,Henry,Ruffino") LE 0 THEN 
         DO:
             tb_print-component:SCREEN-VALUE = "no".
             DISABLE tb_print-component.
@@ -4887,7 +4887,7 @@ PROCEDURE pRunFormatValueChanged :
         ELSE
             tb_print_ship:HIDDEN       = NO .
 
-        IF v-coc-fmt EQ "BOLCERT10" THEN 
+        IF v-coc-fmt EQ "BOLCERT10" OR v-coc-fmt EQ "Altex" THEN 
         DO:
             ASSIGN
                 tb_per-bol-line:HIDDEN       = NO
@@ -4920,7 +4920,7 @@ PROCEDURE pRunFormatValueChanged :
                 tb_print-unassemble-component:HIDDEN = YES.
 
                 
-        IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "bolfmt 30" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
+        IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "bolfmt 30" OR v-print-fmt = "LancoYork" OR v-print-fmt = "Ruffino" THEN  /* task 01121601 */
             ASSIGN
                 lbl_bolsort:HIDDEN = NO
                 rd_bol-sort:HIDDEN = NO .
@@ -5081,7 +5081,7 @@ PROCEDURE run-packing-list :
                 DO:
                     IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                         PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" OR v-print-fmt EQ "Harwell" THEN
                             PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -5343,7 +5343,7 @@ PROCEDURE run-report :
                 DO:
                     IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                         PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" OR v-print-fmt EQ "Harwell" THEN
                             PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                         ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -5408,6 +5408,8 @@ PROCEDURE run-report :
                                         RUN oe/rep/bolcardgp.p (v-print-fmt).
                                     ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
                                             RUN oe/rep/bolcrdbc.p (v-print-fmt).
+                                        ELSE IF v-program = "oe/rep/cocAltex.p" THEN
+                                                RUN oe/rep/cocAltex.p (?).
                                         ELSE RUN VALUE(v-program).
         END.
     END.
@@ -5635,7 +5637,7 @@ PROCEDURE run-report-ci :
                 DO:
                     IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                         PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" OR v-print-fmt EQ "Harwell" THEN
                             PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -5801,7 +5803,7 @@ PROCEDURE run-report-mail :
         DO:
             IF v-print-fmt = "Century"                     /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                 THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-            ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+            ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" OR v-print-fmt EQ "Harwell" THEN
                     PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
                 ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
                     ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
@@ -5837,6 +5839,8 @@ PROCEDURE run-report-mail :
                                         RUN oe/rep/bolcardgp.p (v-print-fmt).
                                     ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
                                             RUN oe/rep/bolcrdbc.p (v-print-fmt).
+                                        ELSE IF v-program = "oe/rep/cocAltex.p" THEN
+                                                RUN oe/rep/cocAltex.p (?).
                                         ELSE
                                             RUN value(v-program).
             END.
@@ -6113,6 +6117,10 @@ PROCEDURE SetBOLForm :
                 ASSIGN 
                     is-xprint-form = NO
                     v-program      = "oe/rep/cocpryst-xl.p". 
+            WHEN "Altex" THEN
+                ASSIGN 
+                    is-xprint-form = YES
+                    v-program      = "oe/rep/cocAltex.p". 
 
             OTHERWISE
             ASSIGN
