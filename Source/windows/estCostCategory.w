@@ -372,14 +372,14 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsavec ).
        RUN set-position IN h_p-updsavec ( 22.19 , 7.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsavec ( 1.87 , 25.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsavec ( 1.87 , 45.00 ) NO-ERROR.
        
-
+       RUN init-pages IN THIS-PROCEDURE ('2,3':U) NO-ERROR.
        /* Links to SmartBrowser h_estcategory. */
        RUN add-link IN adm-broker-hdl ( h_estcategory , 'Record':U , THIS-PROCEDURE ).
        RUN add-link IN adm-broker-hdl ( h_p-updsavec , 'TableIO':U , h_estcategory ).
        RUN add-link IN adm-broker-hdl ( h_estcategory , 'EditRecord':U , h_p-updsavec ).
-
+       RUN add-link IN adm-broker-hdl ( h_p-updsavec , 'ButtonEnable':U , h_estcategory ).
       
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_estcategory ,
@@ -409,7 +409,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_p-updsaveg ).
        RUN set-position IN h_p-updsaveg ( 22.19 , 7.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsaveg ( 1.87 , 25.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsaveg ( 1.87 , 45.00 ) NO-ERROR.
     
        RUN add-link IN adm-broker-hdl ( h_p-updsaveg , 'TableIO':U , h_b-estgrp).
 
@@ -446,7 +446,7 @@ PROCEDURE adm-create-objects :
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updsavel ).
        RUN set-position IN h_p-updsavel ( 22.19 , 7.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsavel ( 1.87 , 25.00 ) NO-ERROR.
+       RUN set-size IN h_p-updsavel ( 1.87 , 45.00 ) NO-ERROR.
       
        RUN add-link IN adm-broker-hdl ( h_p-updsavel , 'TableIO':U , h_b-estgrplvl).
       
@@ -594,6 +594,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery W-Win
+PROCEDURE pReOpenQuery:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+     
+     RUN dispatch IN h_b-estgrp ( INPUT 'open-query':U ) .
+     RUN local-open-query IN h_b-estgrplvl.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
