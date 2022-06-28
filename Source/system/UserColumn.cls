@@ -293,7 +293,7 @@ CLASS system.UserColumn:
         DEFINE VARIABLE cColumnName    AS CHARACTER NO-UNDO.
         DEFINE VARIABLE hBufferField AS HANDLE NO-UNDO.
         DEFINE VARIABLE iNumExtents AS INT NO-UNDO.
-        
+
         DEFINE VARIABLE iCurrentColPositionList AS INTEGER   NO-UNDO EXTENT.
         DEFINE VARIABLE cCurrentColNameList     AS CHARACTER NO-UNDO.
         DEFINE VARIABLE iIndex                  AS INTEGER   NO-UNDO.

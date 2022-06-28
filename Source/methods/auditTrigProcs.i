@@ -42,6 +42,7 @@ PROCEDURE pAuditDetail{1}:
     
     DEFINE VARIABLE cFieldDiffs   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE hdBufferField AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cFormatField  AS CHARACTER NO-UNDO.
     
     /* get primary index fields */
     RUN nosweat/primflds.p ("{&TABLENAME}", OUTPUT cIdxFields).
@@ -118,6 +119,18 @@ PROCEDURE pAuditDetail{1}:
                     AuditDtl.AuditAfterValue = fFormatValue(hTable[1], hTable[1]:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
                 END. /* if before and after difference or primary index field */
                 WHEN "DELETE" THEN DO:
+                    /* If field value is equal to initial value of the field then skip it unless it is a primary index field */
+                    IF NOT CAN-DO(cIdxFields,hTable[1]:BUFFER-FIELD(iAuditIdx):NAME) THEN DO:
+                        /* Use a variable to avoid errors that might generate while converting the data into format that does not support */
+                        cFormatField = STRING(hTable[1]:BUFFER-FIELD(iAuditIdx):BUFFER-VALUE(iExtent), hTable[1]:BUFFER-FIELD(iAuditIdx):FORMAT) NO-ERROR.
+        
+                        IF hTable[1]:BUFFER-FIELD(iAuditIdx):DATA-TYPE EQ "DATE" AND cFormatField EQ ? THEN
+                            cFormatField = "".
+                            
+                        IF hTable[1]:BUFFER-FIELD(iAuditIdx):INITIAL EQ cFormatField THEN
+                            NEXT.
+                    END.
+                          
                     RUN pCreateAuditDtl{1} (hTable[1]:BUFFER-FIELD(iAuditIdx):NAME).
                     AuditDtl.AuditBeforeValue = fFormatValue(hTable[1], hTable[1]:BUFFER-FIELD(iAuditIdx):NAME, iExtent).
                 END.

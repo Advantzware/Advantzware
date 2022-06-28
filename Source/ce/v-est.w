@@ -1787,8 +1787,7 @@ PROCEDURE copy-blank :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   RUN est/d-copyblank.w (INPUT ROWID(eb),
-                          INPUT ROWID(ef)).
+  RUN est/CopySheet.p(INPUT ROWID(eb)).  
 
 END PROCEDURE.
 

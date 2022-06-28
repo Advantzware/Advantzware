@@ -1,4 +1,3 @@
-
 /*------------------------------------------------------------------------
     File        : InventoryProcs.p
     Purpose     : 
@@ -1578,6 +1577,7 @@ PROCEDURE pCreateRMTransaction PRIVATE:
             bf-rm-rctd.cost-uom       = bf-item.cons-uom
             bf-rm-rctd.adjustmentCode = ipcReasonCode
             bf-rm-rctd.tag2           = ipcRMLot
+            bf-rm-rctd.user-id        = USERID("ASI")
             bf-rm-rctd.enteredBy      = USERID("ASI")
             bf-rm-rctd.enteredDT      = NOW
             opriRMRctd                = ROWID(bf-rm-rctd)

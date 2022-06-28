@@ -33,14 +33,22 @@ def SHARED var cocode     as   char  format "x(3)"  no-undo.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE lDisplayWood AS LOGICAL  NO-UNDO.
+DEFINE VARIABLE lDisplaySubAssembly AS LOGICAL NO-UNDO.
 
 {sys/inc/cadcam.i}
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEWood", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
+    OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lDisplayWood = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CESubAssembly", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lDisplaySubAssembly = LOGICAL(cRtnChar) NO-ERROR.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -529,6 +537,12 @@ IF fEnableMisc(cocode) THEN
  ASSIGN 
     Btn_new-set:HIDDEN = YES
     Btn_new-set:SENSITIVE = NO.
+ 
+ IF NOT lDisplaySubAssembly THEN
+ ASSIGN 
+    Btn_set-subassembly:HIDDEN = YES
+    Btn_set-subassembly:SENSITIVE = NO.
+ 
         
 IF fEnableImportForm(cocode) THEN 
     ASSIGN  

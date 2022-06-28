@@ -62,6 +62,13 @@ DEF TEMP-TABLE w-qty NO-UNDO
 
 {ce/mach-ink.i NEW}
 
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iVarn      AS INTEGER NO-UNDO.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
+
+RUN pGetSettingValue(xef.company).
+
+
 
 RUN ce/mach-ink.p.
 
@@ -174,5 +181,21 @@ ASSIGN
 xef.gsh-qty = cumul
 qty = save-qty
 r-spo[xef.form-no] = xef.gsh-qty - t-shtfrm[xef.form-no] - spo.
+
+
+PROCEDURE pGetSettingValue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */

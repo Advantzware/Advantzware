@@ -438,7 +438,7 @@ DO:
     IF lUseNewCalc THEN 
     DO:
         RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
-        IF NOT lBuildError THEN 
+        IF nufile AND NOT lBuildError THEN 
             RUN jc\BuildSubAssemblyJobs.p(ROWID(job), OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
     END.
     ELSE 

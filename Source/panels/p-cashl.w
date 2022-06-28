@@ -217,10 +217,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add C-WIn
 ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
 DO:
+   DEFINE VARIABLE phandle as widget-handle no-undo.
+   DEFINE VARIABLE char-hdl as CHARACTER no-undo.   
+   {methods/run_link.i "TableIO-target" "pSetLastRecordFocus" }
+  
   ASSIGN
    add-active = YES.
 
-  RUN notify ('add-record':U).
+  RUN notify ('add-record':U). 
 END.
 
 /* _UIB-CODE-BLOCK-END */

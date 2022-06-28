@@ -1591,6 +1591,14 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
   IF AVAIL itemfg THEN fi_i-no = itemfg.i-no.
  
+  ASSIGN 
+    fi_tag#      = ""
+    fi_rita-code = ""
+    fi_job-no    = ""
+    fi_job-no2   = 0
+    fi_po-no     = 0
+    .
+ 
   IF lFirst THEN DO:
       lFirst = NO.
       &SCOPED-DEFINE open-query         ~

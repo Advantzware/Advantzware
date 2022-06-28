@@ -44,6 +44,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i new shared}
+
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle             AS HANDLE    NO-UNDO.

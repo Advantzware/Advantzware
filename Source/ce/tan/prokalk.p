@@ -29,6 +29,11 @@ DEF NEW SHARED VAR CALL_id AS RECID NO-UNDO.
 
 DEF SHARED VAR qty AS INT NO-UNDO.
 
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
+
+RUN pGetSettingValue (xest.company).
+
 def workfile w-qty
   field b-num  like est-op.b-num
   field num-sh as dec.
@@ -120,5 +125,21 @@ for each w-qty:
   xef.gsh-qty = xef.gsh-qty + w-qty.num-sh.
 end.
 release est-op.
+
+    
+PROCEDURE pGetSettingValue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */
