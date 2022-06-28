@@ -115,6 +115,7 @@ DEFINE VARIABLE lBuildError        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cBuildErrorMessage AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lUseNewCalc        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPromptForNewCalc  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSubAssemblyActive AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUpdateLoc         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE hPrepProcs         AS HANDLE NO-UNDO.
 RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
@@ -430,7 +431,7 @@ DO:
   
     FIND CURRENT job NO-LOCK.
 
-    RUN pGetJobBuildVersionSettings (BUFFER job, OUTPUT lUseNewCalc, OUTPUT lPromptForNewCalc).
+    RUN pGetJobBuildVersionSettings (BUFFER job, OUTPUT lUseNewCalc, OUTPUT lPromptForNewCalc, OUTPUT lSubAssemblyActive).
     IF lUseNewCalc AND lPromptForNewCalc THEN 
         MESSAGE "Build Job With New Calculation?.  Job: " + 
         TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2))) VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE lUseNewCalc.
@@ -438,7 +439,7 @@ DO:
     IF lUseNewCalc THEN 
     DO:
         RUN jc\BuildJob.p(ROWID(job), IF AVAILABLE oe-ordl THEN oe-ordl.ord-no ELSE 0, 0, OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
-        IF nufile AND NOT lBuildError THEN 
+        IF nufile AND NOT lBuildError AND lSubAssemblyActive THEN 
             RUN jc\BuildSubAssemblyJobs.p(ROWID(job), OUTPUT lBuildError, OUTPUT cBuildErrorMessage).
     END.
     ELSE 
@@ -1672,6 +1673,7 @@ PROCEDURE pGetJobBuildVersionSettings PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-job FOR job.
     DEFINE OUTPUT PARAMETER oplUseNewCalc AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplPromptForNewCalc AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplSubAssemblyActive AS LOGICAL NO-UNDO.
 
     DEFINE VARIABLE cReturn   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound    AS LOGICAL   NO-UNDO.
@@ -1681,7 +1683,7 @@ PROCEDURE pGetJobBuildVersionSettings PRIVATE:
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cReturn, OUTPUT lFound).
     oplUseNewCalc = lFound AND cReturn EQ "New".
- 
+        
     RUN sys/ref/nk1look.p (ipbf-job.company, "JobBuildVersion", "I" /* Character */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cReturn, OUTPUT lFound).
@@ -1708,7 +1710,12 @@ PROCEDURE pGetJobBuildVersionSettings PRIVATE:
                         oplPromptForNewCalc = NO.            
                 END.
         END CASE.
-
+    
+    RUN sys/ref/nk1look.p (ipbf-job.company, "CESubAssembly", "L" /* Character */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cReturn, OUTPUT lFound).
+    oplSubAssemblyActive = lFound AND cReturn EQ "YES".
+    
 END PROCEDURE.
 
 PROCEDURE pGetParamValue:
