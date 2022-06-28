@@ -540,8 +540,8 @@ do v-local-loop = 1 to v-local-copies:
                      j = j + 1.
                      v-tmp-stype = IF v-xg-flag THEN xeb.k-len-scr-type2[j]
                                    ELSE xeb.k-wid-scr-type2[j].
-                     /*SUBSTRING(v-len-score,i,1) = v-tmp-stype.*/
-                     v-len-score2[j] = v-tmp-score + v-tmp-stype.
+                      
+                     v-len-score2[j] = (IF J EQ 1 THEN " " ELSE "") + v-tmp-stype + v-tmp-score .                      
                      v-tmp-score = "".
                   END.
                   ELSE v-tmp-score = v-tmp-score + " " /*SUBSTRING(v-len-score,i,1)*/.
