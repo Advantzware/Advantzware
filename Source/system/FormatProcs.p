@@ -747,7 +747,7 @@ PROCEDURE pUpdateRequestData PRIVATE:
                 .
         END.
         
-        IF cFormatType NE "" THEN DO:
+        IF cFormatType NE "" AND cFormat NE "" THEN DO:
             /* To convert a decimal value into integer without losing the original value */
             /* Decimal places will be rounded to Progress standard */
             IF cFormatType EQ "DECIMAL-INTEGER" OR cFormatType EQ "DEC-INT" THEN
@@ -843,8 +843,7 @@ PROCEDURE pUpdateRequestData PRIVATE:
             cTargetString = fEscapeExceptionCharactersJSON (cTargetString).
 
         /* Replace the key field with format and data type with the value */
-        IF (cFormat NE ? AND cFormat NE "") OR lFunctionAvail THEN
-            ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).
+        ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).
     END.    
 END PROCEDURE.
 
