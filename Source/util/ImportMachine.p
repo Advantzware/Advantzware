@@ -33,8 +33,8 @@ DEFINE TEMP-TABLE ttImportMach
     FIELD mr-waste                AS INTEGER FORMAT ">>>9" COLUMN-LABEL "MR Waste" HELP "Optional - Integer"
     FIELD daily-prod-hours        AS INTEGER FORMAT "->,>>>,>>9" COLUMN-LABEL "Lag TIME" HELP "Optional - Integer"
     FIELD therm                   AS CHARACTER FORMAT "Yes/No" COLUMN-LABEL "Use Lineal Feet in RUN Matrix" HELP "Optional - Logical Default No"
-    FIELD lab-rate1               AS DECIMAL FORMAT ">>9.99" COLUMN-LABEL "Labor Rate" HELP "Optional - Decimal"
-    FIELD lab-rate2               AS DECIMAL FORMAT ">>9.99" COLUMN-LABEL "Labor Rate(2)" HELP "Optional - Decimal"
+    FIELD lab-rate1               AS DECIMAL FORMAT ">>9.99" COLUMN-LABEL "MR Labor Rate" HELP "Optional - Decimal"
+    FIELD lab-rate2               AS DECIMAL FORMAT ">>9.99" COLUMN-LABEL "Run Labor Rate" HELP "Optional - Decimal"
     FIELD lab-rate3               AS DECIMAL FORMAT ">>9.99" COLUMN-LABEL "Labor Rate(3)" HELP "Optional - Decimal"
     FIELD mrk-rate                AS DECIMAL FORMAT ">>9.99" COLUMN-LABEL "MIN Charge" HELP "Optional - Decimal"
     FIELD mr-crusiz               AS DECIMAL FORMAT ">9.99" COLUMN-LABEL "Setup Crew" HELP "Optional - Decimal" 
@@ -80,6 +80,17 @@ DEFINE TEMP-TABLE ttImportMach
     FIELD gang-jobs               AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Gang Jobs?" HELP "Optional - Logical Default - No "
     FIELD plan-job                AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Plain Jobs Only" HELP "Optional - Logical Default - No"
     FIELD Obsolete                AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Inactive" HELP "Optional - Logical Default - No"
+    FIELD minBoxLengthWidth       AS DECIMAL FORMAT ">>9.99999" COLUMN-LABEL "Min Box L + W" HELP "Optional - Decimal"
+    FIELD maxBoxLengthWidth       AS DECIMAL FORMAT ">>9.99999" COLUMN-LABEL "Max Box L + W" HELP "Optional - Decimal"
+    FIELD minPanelHdHd            AS DECIMAL FORMAT ">>9.99999" COLUMN-LABEL "Min Panel Head to Head" HELP "Optional - Decimal"
+    FIELD maxPanelHdHd            AS DECIMAL FORMAT ">>9.99999" COLUMN-LABEL "Max Panel Head to Head" HELP "Optional - Decimal"
+    FIELD machineImage            AS CHARACTER FORMAT "x(256)" COLUMN-LABEL "Machine Image" HELP "Optional - Default: Graphics\32x32\gearwheels.png"
+    FIELD makeReadyXAxis          AS INTEGER FORMAT ">9" COLUMN-LABEL "Make Ready X Axis" HELP "Optional - Integer"
+    FIELD makeReadyYAxis          AS INTEGER FORMAT ">9" COLUMN-LABEL "Make Ready Y Axis" HELP "Optional - Integer"
+    FIELD runSpeedXAxis           AS INTEGER FORMAT ">9" COLUMN-LABEL "Run Speed X Axis" HELP "Optional - Integer"
+    FIELD runSpeedYAxis           AS INTEGER FORMAT ">9" COLUMN-LABEL "Run Speed Y Axis" HELP "Optional - Integer"
+    FIELD runSpoilXAxis           AS INTEGER FORMAT ">9" COLUMN-LABEL "Run Spoil X Axis" HELP "Optional - Integer"
+    FIELD runSpoilYAxis           AS INTEGER FORMAT ">9" COLUMN-LABEL "Run Spoil Y Axis" HELP "Optional - Integer"
     
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
@@ -107,6 +118,7 @@ PROCEDURE pProcessRecord PRIVATE:
     
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
     DEFINE BUFFER bf-mach FOR mach.
+    DEFINE BUFFER bf-mstd FOR mstd.
 
     FIND FIRST bf-mach EXCLUSIVE-LOCK 
         WHERE bf-mach.company EQ ipbf-ttImportMach.Company
@@ -123,7 +135,11 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-mach.loc       = ipbf-ttImportMach.loc
             bf-mach.m-code      = ipbf-ttImportMach.m-code .
     END.
-                                                                                                                                     
+    IF ipbf-ttImportMach.machineImage EQ "" THEN
+    DO:
+        ASSIGN ipbf-ttImportMach.machineImage = "Graphics\32x32\gearwheels.png".
+    END.
+    
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */                                                         
     RUN pAssignValueC (ipbf-ttImportMach.m-dscr, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.m-dscr).                                                   
     RUN pAssignValueC (ipbf-ttImportMach.dept1, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.dept[1]).                               
@@ -182,12 +198,36 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportMach.num-len, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.num-len).
     RUN pAssignValueC (ipbf-ttImportMach.industry, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.industry).
     
+    RUN pAssignValueC (ipbf-ttImportMach.minBoxLengthWidth, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.min_pan_lw).
+    RUN pAssignValueC (ipbf-ttImportMach.maxBoxLengthWidth, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.max_pan_lw).
+    RUN pAssignValueC (ipbf-ttImportMach.minPanelHdHd, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.min_hd_hd).
+    RUN pAssignValueC (ipbf-ttImportMach.maxPanelHdHd, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.max_hd_hd).
+    RUN pAssignValueC (ipbf-ttImportMach.machineImage, iplIgnoreBlanks, INPUT-OUTPUT bf-mach.machineImage[1]).
+        
     RUN pAssignValueCToL (ipbf-ttImportMach.therm,"Yes",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.therm).
     RUN pAssignValueCToL (ipbf-ttImportMach.coater,"Y",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.coater).
     RUN pAssignValueCToL (ipbf-ttImportMach.gang-jobs,"Yes",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.gang-jobs).
     RUN pAssignValueCToL (ipbf-ttImportMach.plan-job,"Yes",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.plain-job).
     RUN pAssignValueCToL (ipbf-ttImportMach.Obsolete,"Yes",iplIgnoreBlanks, INPUT-OUTPUT bf-mach.Obsolete).
    
+    
+    FIND FIRST bf-mstd EXCLUSIVE-LOCK
+        WHERE bf-mstd.company EQ ipbf-ttImportMach.Company
+          AND bf-mstd.loc     EQ ipbf-ttImportMach.Location
+          AND bf-mstd.m-code  EQ ipbf-ttImportMach.m-code
+         NO-ERROR.
+         
+    IF AVAIL bf-mstd THEN
+    DO:
+        RUN pAssignValueC (ipbf-ttImportMach.makeReadyXAxis, iplIgnoreBlanks, INPUT-OUTPUT bf-mstd.mr-x).
+        RUN pAssignValueC (ipbf-ttImportMach.makeReadyYAxis, iplIgnoreBlanks, INPUT-OUTPUT bf-mstd.mr-y).
+        RUN pAssignValueC (ipbf-ttImportMach.runSpeedXAxis, iplIgnoreBlanks, INPUT-OUTPUT bf-mstd.rs-x).
+        RUN pAssignValueC (ipbf-ttImportMach.runSpeedYAxis, iplIgnoreBlanks, INPUT-OUTPUT bf-mstd.rs-y).
+        RUN pAssignValueC (ipbf-ttImportMach.runSpoilXAxis, iplIgnoreBlanks, INPUT-OUTPUT bf-mstd.sp-x).
+        RUN pAssignValueC (ipbf-ttImportMach.runSpoilYAxis, iplIgnoreBlanks, INPUT-OUTPUT bf-mstd.sp-y).    
+    END.
+    
+    RELEASE bf-mstd .
     RELEASE bf-mach .
                                                                                                                                
                                                                                                                                
