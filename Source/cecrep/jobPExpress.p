@@ -687,12 +687,12 @@ DO v-local-loop = 1 TO v-local-copies:
            v-dept-note   = ""  .
         IF NOT v-dept-log THEN v-dept-codes = "". 
         
-        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
+        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, "", 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
                        
         ASSIGN         
         v-spec-note   = ""  .
         
-        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, "", 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
 
            
 
