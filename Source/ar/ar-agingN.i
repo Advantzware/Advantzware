@@ -2016,7 +2016,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "current"   THEN cVarValue = STRING(vCURRENT,"->>>,>>>,>>9.99").
                      WHEN "adtp"      THEN cVarValue = "".
                      WHEN "td"        THEN cVarValue = "".
-                     WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>,>>>,>>>9.99") .
+                     WHEN "per-1"     THEN cVarValue = STRING(per-day1,"->>>,>>>,>>9.99") .
                      WHEN "per-2"     THEN cVarValue = STRING(per-day2,"->>>,>>>,>>9.99") .
                      WHEN "per-3"     THEN cVarValue = STRING(per-day3,"->>>,>>>,>>9.99")  .
                      WHEN "per-4"     THEN cVarValue = STRING(per-day4,"->>>,>>>,>>9.99")  .

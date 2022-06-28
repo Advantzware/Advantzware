@@ -406,7 +406,7 @@ PROCEDURE export-xl:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-
+   RUN windows/EstCostCatExp.w .
 
 END PROCEDURE.
 	

@@ -338,24 +338,23 @@ DEFINE QUERY br-estitm FOR
 DEFINE BROWSE br-estitm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-estitm B-table-Win _STRUCTURED
   QUERY br-estitm NO-LOCK DISPLAY
-      est.est-no FORMAT "99999999":U WIDTH 12 COLUMN-FONT 2
-      est.est-date FORMAT "99/99/9999":U COLUMN-FONT 2
-      eb.cust-no FORMAT "x(8)":U COLUMN-FONT 2
+      est.est-no FORMAT "99999999":U WIDTH 12 
+      est.est-date FORMAT "99/99/9999":U 
+      eb.cust-no FORMAT "x(8)":U 
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
-            COLUMN-FONT 2
-      eb.part-no FORMAT "x(30)":U COLUMN-FONT 2
-      eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2
-      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U COLUMN-FONT 2
+      eb.part-no FORMAT "x(30)":U 
+      eb.part-dscr1 FORMAT "x(30)":U 
+      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U 
       eb.bl-qty COLUMN-LABEL "Qty" FORMAT ">>>,>>>,>>>":U WIDTH 15
-      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 COLUMN-FONT 2
-      ef.board FORMAT "x(12)":U COLUMN-FONT 2
+      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 
+      ef.board FORMAT "x(12)":U 
       ef.medium COLUMN-LABEL "Paper 1" FORMAT "x(10)":U WIDTH 13
       ef.flute COLUMN-LABEL "Paper 2" FORMAT "x(10)":U WIDTH 13
-      ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
-      eb.procat FORMAT "x(5)":U COLUMN-FONT 2
-      eb.len FORMAT ">9.99999":U COLUMN-FONT 2
-      eb.wid FORMAT ">9.99999":U COLUMN-FONT 2
-      eb.dep FORMAT ">9.99999":U COLUMN-FONT 2
+      ef.cal FORMAT ">9.99999<":U 
+      eb.procat FORMAT "x(5)":U 
+      eb.len FORMAT ">9.99999":U 
+      eb.wid FORMAT ">9.99999":U 
+      eb.dep FORMAT ">9.99999":U 
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
@@ -3248,7 +3247,7 @@ DEF VAR prev-board LIKE ef.board NO-UNDO.
 
 DEF BUFFER bf FOR ef.
 DEF BUFFER bf-est FOR est.
-
+DEFINE BUFFER bf-eb FOR eb.
 
 FIND bf-est WHERE RECID(bf-est) = ip-recid.
 
@@ -3257,7 +3256,10 @@ FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 IF bf-est.est-type NE 2 THEN
 DO:
     bf-est.est-type = 4.
-    RUN pReSetEstQty(rowid(est-qty)). 
+    RUN pReSetEstQty(rowid(est-qty)).
+    FOR EACH bf-eb OF bf-est:  
+      RUN set-yld-qty (ROWID(bf-eb)).
+    END.
 END.
 
 FIND LAST bf 

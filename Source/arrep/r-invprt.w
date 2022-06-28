@@ -368,11 +368,6 @@ DO:
   DEF VAR ll-ans AS LOG INIT NO NO-UNDO.
 
 
-  IF rd-dest EQ 1 AND v-print-fmt EQ "Harwell" THEN
-    MESSAGE "Is this a laser printer?:" VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-            UPDATE ll-ans.
-  IF ll-ans THEN lines-per-page = lines-per-page - 4.
-
   run run-report. 
 
   case rd-dest:
@@ -623,7 +618,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ELSE
   IF v-print-fmt EQ "Harwell" THEN
     ASSIGN
-     v-program      = "ar/rep/invharwl.p"
+     v-program      = "ar/rep/invHarwell.p"
      lines-per-page = 63.
 
   ELSE

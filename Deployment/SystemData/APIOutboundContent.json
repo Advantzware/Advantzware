@@ -222,5 +222,40 @@
     "contentType": "User",
     "contentKey": "NumberOfLinesInPage",
     "contentValue": "53"
+  },
+  {
+    "rec_key": "202205106048809196318",
+    "apiOutboundID": 70,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "65"
+  },
+  {
+    "rec_key": "202205175082209198304",
+    "apiOutboundID": 70,
+    "contentType": "User",
+    "contentKey": "FileSavePath",
+    "contentValue": "C:\\tmp"
+  },
+  {
+    "rec_key": "202205175438909198429",
+    "apiOutboundID": 70,
+    "contentType": "User",
+    "contentKey": "ReportARMiscAsLine",
+    "contentValue": "yes"
+  },
+  {
+    "rec_key": "202206146168209515726",
+    "apiOutboundID": 71,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "68"
+  },
+  {
+    "rec_key": "202206167691209516453",
+    "apiOutboundID": 71,
+    "contentType": "User",
+    "contentKey": "NotesLength",
+    "contentValue": "80"
   }
 ]

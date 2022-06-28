@@ -39,7 +39,7 @@
       "Page: " AT 145 PAGE-NUM FORM ">>9" SKIP
       /*" Date Due Ordered Item       Cust PO#        Order#  R# Ven    PO#   Brd Rcpt  Routing      Q-Order " +
       " Q-Comp Q-Onhand  Ship City         " v-line2 */
-       str-tit4 SKIP
+       str-tit4 FORM "x(200)" "</B>" SKIP
       v-line SKIP
      WITH FRAME pg-head NO-BOX PAGE-TOP NO-LABEL STREAM-IO WIDTH 200.
 
@@ -119,7 +119,7 @@
       IF rd-dest = 5 THEN 
          PUT UNFORMATTED "<PRINT=NO><OLANDSCAPE><PDF-LEFT=4mm><PDF-TOP=1mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(180)".
 
-   /*VIEW FRAME pg-head.*/
+   VIEW FRAME pg-head.
 
    EMPTY TEMP-TABLE tt-report.
 

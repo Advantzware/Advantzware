@@ -1329,26 +1329,27 @@ find first cust  where cust.company eq gcompany
 
 create itemfg.
 assign
- itemfg.company    = gcompany
- itemfg.loc        = gloc
- itemfg.i-no       = v-item
- itemfg.i-name     = xeb.part-dscr1
- itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.part-no    = xeb.part-no
- itemfg.cust-no    = xeb.cust-no
- itemfg.cust-name  = if avail cust then cust.name else ""
- itemfg.alloc      = v-alloc
- itemfg.die-no     = xeb.die-no
- itemfg.plate-no   = xeb.plate-no
- itemfg.style      = xeb.style
- itemfg.procat     = xeb.procat
- itemfg.cad-no     = xeb.cad-no
- itemfg.upc-no     = xeb.upc-no
- itemfg.spc-no     = xeb.spc-no
- itemfg.isaset     = (xest.est-type eq 2 or xest.est-type eq 6) and
-                     xeb.form-no eq 0
- itemfg.pur-man    = xeb.pur-man      
- itemfg.alloc      = v-alloc
+ itemfg.company           = gcompany
+ itemfg.loc               = gloc
+ itemfg.i-no              = v-item
+ itemfg.i-name            = xeb.part-dscr1
+ itemfg.part-dscr1        = xeb.part-dscr2
+ itemfg.part-no           = xeb.part-no
+ itemfg.cust-no           = xeb.cust-no
+ itemfg.cust-name         = if avail cust then cust.name else ""
+ itemfg.alloc             = v-alloc
+ itemfg.die-no            = xeb.die-no
+ itemfg.plate-no          = xeb.plate-no
+ itemfg.style             = xeb.style
+ itemfg.procat            = xeb.procat
+ itemfg.cad-no            = xeb.cad-no
+ itemfg.upc-no            = xeb.upc-no
+ itemfg.spc-no            = xeb.spc-no
+ itemfg.isaset            = (xest.est-type eq 2 or xest.est-type eq 6) and
+                            xeb.form-no eq 0
+ itemfg.pur-man           = xeb.pur-man
+ itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID      
+ itemfg.alloc             = v-alloc
  .
 
  /* Create an itemfg-loc for the default warehouse */

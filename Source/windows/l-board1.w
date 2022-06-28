@@ -317,7 +317,7 @@ DO:
         {srtord2.i 2}
         {srtord2.i 3}
     end.
-        apply "entry" to {&browse-name}.
+    apply "entry" to {&browse-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,8 +340,7 @@ END.
 &Scoped-define SELF-NAME lv-search
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-search Dialog-Frame
 ON LEAVE OF lv-search IN FRAME Dialog-Frame /* Search */
-or return of lv-search
-DO:
+DO:    
     assign rd-sort 
            lv-search.
     &scoped-define IAMWHAT Search

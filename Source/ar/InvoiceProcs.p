@@ -200,24 +200,46 @@ PROCEDURE pAssignCommonLineData PRIVATE:
     DEFINE BUFFER bf-oe-ord  FOR oe-ord.
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
     
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cErrorMessage AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE iPallets      AS INTEGER   NO-UNDO.
+        
     IF ipbf-ttInv.customerPONo EQ "" THEN 
         ipbf-ttInv.customerPONo = ipbf-ttInvLine.customerPONo.
 
     FIND FIRST bf-oe-bolh NO-LOCK 
          WHERE bf-oe-bolh.b-no EQ ipbf-ttInvLine.bNo 
          NO-ERROR.
-    IF AVAILABLE bf-oe-bolh THEN
-        ipbf-ttInvLine.bolID = bf-oe-bolh.bol-no.
+    IF AVAILABLE bf-oe-bolh THEN DO:
+        ASSIGN
+            ipbf-ttInvLine.bolID = bf-oe-bolh.bol-no
+            ipbf-ttInv.bolDate   = bf-oe-bolh.bol-date
+            .
+        
+        IF ipbf-ttInv.sourceTable EQ "ARINV" AND (NOT ipbf-ttInvLine.isMisc OR ipbf-ttInvLine.billable) AND ipbf-ttInv.bolID NE 0 THEN
+            ipbf-ttInv.bolID = bf-oe-bolh.bol-no.
+             
+        FOR EACH bf-oe-boll NO-LOCK 
+            WHERE bf-oe-boll.company EQ bf-oe-bolh.company 
+              AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no 
+              AND bf-oe-boll.i-no    EQ ipbf-ttInvLine.itemID 
+              AND bf-oe-boll.ord-no  EQ ipbf-ttInvLine.orderID:
+            RUN oe/pallcalc.p (ROWID(bf-oe-boll), OUTPUT iPallets).
+
+            ipbf-ttInv.totalPallets = ipbf-ttInv.totalPallets + iPallets.
+            ipbf-ttInv.invoicePC = IF bf-oe-boll.p-c THEN "C" ELSE "P" .
+        END.    
+    END.
         
     FIND FIRST bf-oe-ord NO-LOCK
          WHERE bf-oe-ord.company EQ ipbf-ttInv.company
            AND bf-oe-ord.ord-no EQ ipbf-ttInvLine.orderID
          NO-ERROR.
     IF AVAILABLE bf-oe-ord THEN DO:
+        ipbf-ttInv.isEDIOrder = bf-oe-ord.ediSubmitted EQ 1.
+        
         IF ipbf-ttInv.customerPONo EQ "" THEN 
             ipbf-ttInv.customerPONo = bf-oe-ord.po-no.
         
@@ -368,6 +390,9 @@ PROCEDURE pBuildDataForPosted PRIVATE:
             ttInv.fob                  = IF ipbf-ar-inv.fob BEGINS "ORIG" THEN "Origin" ELSE "Destination"
             ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE "" 
             ttInv.frtPay               = ipbf-ar-inv.frt-pay
+            ttInv.linkerID             = ipbf-ar-inv.x-no
+            ttInv.sourceTable          = "ARINV"
+            ttInv.sourceRowID          = ROWID(ipbf-ar-inv) 
             . 
 
         RUN Tax_CalculateForARInvWithDetail(
@@ -407,6 +432,8 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                                                        "EA"
                 ttInvLine.pricePerUOM            = bf-ar-invl.unit-pr * (1 - (bf-ar-invl.disc / 100))
                 ttInvLine.priceUOM               = bf-ar-invl.pr-uom
+                ttInvLine.ediPrice               = bf-ar-invl.ediPrice
+                ttInvLine.ediPriceUOM            = bf-ar-invl.ediPriceUOM
                 ttInvLine.customerPartID         = bf-ar-invl.part-no
                 ttInvLine.itemID                 = bf-ar-invl.inv-i-no
                 ttInvLine.itemName               = IF bf-ar-invl.misc THEN
@@ -429,6 +456,12 @@ PROCEDURE pBuildDataForPosted PRIVATE:
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = bf-ar-invl.misc
                 ttInvLine.bNo                    = bf-ar-invl.b-no
+                ttInvLine.linkerID               = ttInv.linkerID
+                ttInvLine.sourceTable            = "ARINVL"
+                ttInvLine.sourceRowID            = ROWID(bf-ar-invl) 
+                ttInv.salesPerson[1]             = IF ttInv.salesPerson[1] EQ "" AND bf-ar-invl.sman[1] NE "" THEN bf-ar-invl.sman[1] ELSE ""
+                ttInv.salesPerson[2]             = IF ttInv.salesPerson[2] EQ "" AND bf-ar-invl.sman[2] NE "" THEN bf-ar-invl.sman[2] ELSE ""
+                ttInv.salesPerson[3]             = IF ttInv.salesPerson[3] EQ "" AND bf-ar-invl.sman[3] NE "" THEN bf-ar-invl.sman[3] ELSE ""
                 .
             
             IF ttInvLine.isMisc THEN
@@ -571,8 +604,8 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
     
     IF AVAILABLE ipbf-inv-head THEN DO:
         FIND FIRST carrier NO-LOCK
-             WHERE carrier.company EQ inv-head.company
-               AND carrier.carrier EQ inv-head.carrier
+             WHERE carrier.company EQ ipbf-inv-head.company
+               AND carrier.carrier EQ ipbf-inv-head.carrier
              NO-ERROR.
         CREATE ttInv.
         ASSIGN             
@@ -605,6 +638,13 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
             ttInv.fob                  = IF ipbf-inv-head.fob BEGINS "ORIG" THEN "Origin" ELSE "Destination"
             ttInv.carrier              = IF AVAILABLE carrier THEN carrier.dscr ELSE ""
             ttInv.frtPay               = ipbf-inv-head.frt-pay
+            ttInv.linkerID             = ipbf-inv-head.r-no
+            ttInv.salesPerson[1]       = ipbf-inv-head.sman[1]
+            ttInv.salesPerson[2]       = ipbf-inv-head.sman[2]
+            ttInv.salesPerson[3]       = ipbf-inv-head.sman[3]
+            ttInv.bolID                = ipbf-inv-head.bol-no
+            ttInv.sourceTable          = "INVHEAD"
+            ttInv.sourceRowID          = ROWID(ipbf-inv-head) 
             . 
 
         RUN Tax_CalculateForInvHeadWithDetail(
@@ -644,6 +684,8 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.pricePerUOM            = bf-inv-line.price * (1 - (bf-inv-line.disc / 100))
                 ttInvLine.pricePerEach           = bf-inv-line.t-price / bf-inv-line.inv-qty
                 ttInvLine.priceUOM               = bf-inv-line.pr-uom
+                ttInvLine.ediPrice               = bf-inv-line.ediPrice
+                ttInvLine.ediPriceUOM            = bf-inv-line.ediPriceUOM
                 ttInvLine.customerPartID         = bf-inv-line.part-no
                 ttInvLine.itemID                 = bf-inv-line.i-no
                 ttInvLine.itemName               = bf-inv-line.i-name
@@ -656,6 +698,9 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.taxGroup               = ttInv.taxGroup
                 ttInvLine.isMisc                 = FALSE
                 ttInvLine.bNo                    = bf-inv-line.b-no
+                ttInvLine.linkerID               = ttInv.linkerID
+                ttInvLine.sourceTable            = "INVLINE"
+                ttInvLine.sourceRowID            = ROWID(bf-inv-line) 
                 .
 
             lFirst = TRUE.
@@ -730,6 +775,9 @@ PROCEDURE pBuildDataForUnposted PRIVATE:
                 ttInvLine.customerPONo           = bf-inv-misc.po-no
                 ttInvLine.customerPONoNoBlank    = bf-inv-misc.po-no
                 ttInvLine.taxGroup               = ttInv.taxGroup
+                ttInvLine.linkerID               = ttInv.linkerID
+                ttInvLine.sourceTable            = "INVMISC"
+                ttInvLine.sourceRowID            = ROWID(bf-inv-misc) 
                 ttInvLine.isMisc                 = TRUE
                 .
             

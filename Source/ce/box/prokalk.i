@@ -1,6 +1,7 @@
 /* ----------------------------------------------- ce/box/prokalk.i 07/96 JLF */
 /* recalculate values of sequenced machines.                                  */
 /* -------------------------------------------------------------------------- */
+
 {est/op-lock.i xest}
 
 IF NEW op-lock AND NOT xef.op-lock THEN
@@ -12,53 +13,78 @@ FIND FIRST mach {sys/look/machW.i} AND
               mach.m-code  EQ est-op.m-code NO-LOCK NO-ERROR.
        
 IF est-op.op-pass EQ 0 THEN est-op.op-pass = 1.
+
 IF est-op.dept EQ "PR" OR est-op.dept EQ "CT" THEN 
 DO:
     maxco = 0.
-    FIND FIRST w-ink
-        WHERE w-ink.form-no EQ est-op.s-num
-        AND w-ink.pass    EQ est-op.op-pass
-        NO-LOCK NO-ERROR.
-
-    IF AVAILABLE w-ink THEN 
+    
+    /* In case of NK1 settings Color count wil be determined by Unit#*/
+    IF glAssignUnitsForInk THEN
     DO:
-        IF est-op.num-col + est-op.num-coat EQ 0 THEN
+        RUN Estimate_CalcInkUsingUnitNo (est-op.company, est-op.est-no, est-op.s-num, 0, est-op.op-pass, OUTPUT est-op.num-col, OUTPUT est-op.num-coat, OUTPUT lUnitSetup).
+        maxco = est-op.num-col + est-op.num-coat.
+    END.
+    
+    IF NOT glAssignUnitsForInk OR NOT lUnitSetup THEN
+    DO:
+        FIND FIRST w-ink
+            WHERE w-ink.form-no EQ est-op.s-num
+            AND w-ink.pass    EQ est-op.op-pass
+            NO-LOCK NO-ERROR.
+    
+        IF AVAILABLE w-ink THEN 
         DO:
-            ASSIGN
-                est-op.num-col  = w-ink.inks
-                est-op.num-coat = w-ink.varn
-                v-program-6     = PROGRAM-NAME(6).
-
-            IF est-op.s-num GT 1 AND
-            index(PROGRAM-NAME(5),"est/oeselest") GT 0 AND
-
-                (  INDEX(v-program-6,"est-from-tandem oe/v-ord") GT 0 OR 
-               INDEX(v-program-6,"order-from-est oe/v-ord") GT 0 OR
-               INDEX(v-program-6,"upd-new-tandem oe/d-oeitem") GT 0 OR
-                CAN-FIND(FIRST b-eb3 WHERE /*adding new part to an
-                existing estimate that came from a master estimate*/
-                b-eb3.company EQ xeb.company AND
-                b-eb3.est-no  EQ xeb.est-no AND
-                b-eb3.master-est-no NE "")) THEN
+            IF est-op.num-col + est-op.num-coat EQ 0 THEN
             DO:
                 ASSIGN
-                    v-num-inks    = xeb.i-col
-                    est-op.plates = v-num-inks
-                    /*est-op.fountains = v-num-inks*/ .
+                    est-op.num-col  = w-ink.inks
+                    est-op.num-coat = w-ink.varn
+                    .
+                    
             END.
+            ELSE
+                ASSIGN
+                    w-ink.inks = est-op.num-col
+                    w-ink.varn = est-op.num-coat.
+    
+            maxco = MIN(w-ink.inks + w-ink.varn,mach.max-color).
         END.
-        ELSE
-            ASSIGN
-                w-ink.inks = est-op.num-col
-                w-ink.varn = est-op.num-coat.
+    END.
+    v-program-6     = PROGRAM-NAME(6).
+    
+    IF est-op.s-num GT 1 AND
+            index(PROGRAM-NAME(5),"est/oeselest") GT 0 AND
 
-        maxco = MIN(w-ink.inks + w-ink.varn,mach.max-color).
+        (  INDEX(v-program-6,"est-from-tandem oe/v-ord") GT 0 OR 
+               INDEX(v-program-6,"order-from-est oe/v-ord") GT 0 OR
+               INDEX(v-program-6,"upd-new-tandem oe/d-oeitem") GT 0 OR
+        CAN-FIND(FIRST b-eb3 WHERE /*adding new part to an
+                existing estimate that came from a master estimate*/
+        b-eb3.company EQ xeb.company AND
+        b-eb3.est-no  EQ xeb.est-no AND
+        b-eb3.master-est-no NE "")) THEN
+    DO:
+        ASSIGN
+            v-num-inks    = xeb.i-col
+            est-op.plates = v-num-inks
+            /*est-op.fountains = v-num-inks*/ .
     END.
 END.
 ELSE 
 DO:
     /*14152 - Calculate the maxco using all ink passes for non printers/coaters*/
     maxco = 0. 
+    
+    /* In case of NK1 settings Color count wil be determined by Unit#*/
+    IF glAssignUnitsForInk THEN
+    DO:
+        RUN Estimate_CalcInkUsingUnitNo (est-op.company, est-op.est-no, est-op.s-num, 0, 0, OUTPUT maxco, OUTPUT iVarn, OUTPUT lUnitSetup).
+        
+        IF lUnitSetup THEN
+            maxco = maxco + iVarn.
+    END.
+    
+    IF NOT glAssignUnitsForInk OR NOT lUnitSetup THEN
     FOR EACH w-ink:
         maxco = maxco + w-ink.inks + w-ink.varn.
     END.

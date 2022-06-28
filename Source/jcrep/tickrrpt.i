@@ -812,7 +812,7 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobamcarton.p (lv-format-c).
   END.
-  ELSE IF lv-format-c = "PkgAtlanta" THEN do:
+  ELSE IF lv-format-c = "PkgAtlanta" OR lv-format-c = "Onducorr" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobPkgAtl.p (lv-format-c).
   END.

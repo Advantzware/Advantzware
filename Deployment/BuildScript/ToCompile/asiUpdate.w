@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE WTRUE 1
 &SCOPED-DEFINE WFALSE 0
 
-{iniFileVars.i}
+{updateFileVars.i}
 
 DEFINE STREAM s1.
 DEFINE STREAM sInstr.
@@ -51,6 +51,7 @@ DEFINE STREAM logFile.
 DEFINE STREAM outStream.
 DEFINE STREAM logStream.
 DEFINE STREAM iniStream.
+DEFINE STREAM sKeep.
 
 DEFINE TEMP-TABLE ttDatabases
     FIELD cName AS CHARACTER
@@ -63,6 +64,8 @@ DEFINE TEMP-TABLE ttDatabases
 
 DEF TEMP-TABLE ttUpdateLog
     FIELD cLine AS CHAR. 
+    
+    
 DEF NEW SHARED TEMP-TABLE ttUpdateHist
     FIELD fromVersion AS CHAR 
     FIELD toVersion AS CHAR 
@@ -74,6 +77,7 @@ DEF NEW SHARED TEMP-TABLE ttUpdateHist
     FIELD user_id AS CHAR 
     FIELD success AS LOG INITIAL NO 
     FIELD updLog AS CHAR.     
+    
 DEF TEMP-TABLE ttBackupSize
     FIELD ttType AS CHAR 
     FIELD ttID AS CHAR 
@@ -81,11 +85,13 @@ DEF TEMP-TABLE ttBackupSize
 
 DEFINE VARIABLE c7ZErrFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE c7ZOutputFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAsiDbDir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAsiDbLongName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAsiDbName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAsiDbVer AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cAuditDbLongName AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cAuditDbName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAudDbDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAudDbLongName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAudDbName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAudDbVer AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBadDirList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCfgCfg AS CHARACTER NO-UNDO.
@@ -131,9 +137,11 @@ DEFINE VARIABLE deMinLevel AS DECIMAL NO-UNDO INITIAL 16.7.
 DEFINE VARIABLE dupCtr AS INTEGER NO-UNDO.
 DEFINE VARIABLE hPreRun AS HANDLE.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
+DEFINE VARIABLE iAsiDbPort AS INTEGER NO-UNDO.
 DEFINE VARIABLE iAsiDbVer AS INTEGER NO-UNDO.
+DEFINE VARIABLE iAudDbPort AS INTEGER NO-UNDO.
 DEFINE VARIABLE iAudDbVer AS INTEGER NO-UNDO.
-DEFINE VARIABLE iStatus AS INTEGER NO-UNDO.
+DEFINE VARIABLE iStatus AS INTEGER NO-UNDO INITIAL 1.
 DEFINE VARIABLE iCtr AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCurrAudVer AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCurrDbVer AS INTEGER NO-UNDO.
@@ -156,13 +164,16 @@ DEFINE VARIABLE iUserCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iUserLevel AS INTEGER NO-UNDO.
 DEFINE VARIABLE jCtr AS INTEGER NO-UNDO.
 DEFINE VARIABLE lAllOK AS LOG NO-UNDO.
+DEFINE VARIABLE lBackupASI AS LOG NO-UNDO.
+DEFINE VARIABLE lBackupAudit AS LOG NO-UNDO.
+DEFINE VARIABLE lPurgeAudit AS LOG NO-UNDO.
+DEFINE VARIABLE lKeepFiles AS LOG NO-UNDO.
 DEFINE VARIABLE lConnectAudit AS LOG NO-UNDO.
 DEFINE VARIABLE lCorrupt AS LOG NO-UNDO.
 DEFINE VARIABLE lFoundIni AS LOG NO-UNDO.
 DEFINE VARIABLE lFoundUsr AS LOG NO-UNDO.
 DEFINE VARIABLE lHeader AS LOG NO-UNDO.
 DEFINE VARIABLE ll-ans AS LOG NO-UNDO.
-DEFINE VARIABLE lMakeBackup AS LOG NO-UNDO.
 DEFINE VARIABLE lNeedUsercontrol AS LOG NO-UNDO.
 DEFINE VARIABLE lOKtoProceed AS LOG  NO-UNDO.
 DEFINE VARIABLE lSuccess AS LOG NO-UNDO.
@@ -219,10 +230,12 @@ END PROCEDURE.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-4 RECT-6 fiUserID bCancel ~
-fiPassword slEnvList eStatus 
-&Scoped-Define DISPLAYED-OBJECTS fiUserID fiPassword slEnvList ~
-fiFromVersion fiToVersion fiStatus eStatus 
+&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-4 RECT-6 RECT-7 fiUserID bCancel ~
+eStatus 
+&Scoped-Define DISPLAYED-OBJECTS fiCredentials fiUserID fiPassword ~
+fiTargetEnv fiTargetDB slEnvList slDBList fiOptions tbBackupASI tbBackupAUD ~
+tbPurgeAudit fiPurgeLimit fiMins tbKeepFiles fiFromVersion fiToVersion ~
+fiStatus eStatus 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -247,6 +260,13 @@ FUNCTION get64BitValue RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD mTime C-Win 
+FUNCTION mTime RETURNS LOGICAL
+  ( INPUT iNumSecs AS INTEGER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -264,26 +284,46 @@ DEFINE BUTTON bUpdate
 
 DEFINE VARIABLE eStatus AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 75 BY 3.81 NO-UNDO.
+     SIZE 77 BY 3.81 NO-UNDO.
 
-DEFINE VARIABLE fiBackupDisabled AS CHARACTER FORMAT "X(256)":U INITIAL " Backup is DISABLED" 
+DEFINE VARIABLE fiCredentials AS CHARACTER FORMAT "X(256)":U INITIAL " Credentials:" 
      VIEW-AS FILL-IN 
-     SIZE 21 BY 1
-     FGCOLOR 12  NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiFromVersion AS CHARACTER FORMAT "X(256)":U 
-     LABEL "From Version" 
+     LABEL "Process will Upgrade From Version" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Password" 
+DEFINE VARIABLE fiMins AS CHARACTER FORMAT "X(256)":U INITIAL "mins.)" 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Status:" 
+DEFINE VARIABLE fiOptions AS CHARACTER FORMAT "X(256)":U INITIAL "Options:" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY .81 NO-UNDO.
+     SIZE 10 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U 
+     LABEL "ASI-supplied Password" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiPurgeLimit AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "(Limit purge to" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY .95 NO-UNDO.
+
+DEFINE VARIABLE fiStatus AS CHARACTER FORMAT "X(256)":U INITIAL "Status/Help:" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY .81 NO-UNDO.
+
+DEFINE VARIABLE fiTargetDB AS CHARACTER FORMAT "X(256)":U INITIAL " Target Database:" 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiTargetEnv AS CHARACTER FORMAT "X(256)":U INITIAL " Target Environment:" 
+     VIEW-AS FILL-IN 
+     SIZE 22 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiToVersion AS CHARACTER FORMAT "X(256)":U 
      LABEL "To Version" 
@@ -291,54 +331,93 @@ DEFINE VARIABLE fiToVersion AS CHARACTER FORMAT "X(256)":U
      SIZE 13 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiUserID AS CHARACTER FORMAT "X(256)":U 
-     LABEL "User ID" 
+     LABEL "Enter your name" 
      VIEW-AS FILL-IN 
-     SIZE 30 BY 1 NO-UNDO.
+     SIZE 40 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 78 BY 3.33.
+     SIZE 81 BY 3.33.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 78 BY 2.86.
+     SIZE 81 BY 3.57.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 75 BY 1.43
+     SIZE 75 BY 1
      FGCOLOR 3 .
+
+DEFINE RECTANGLE RECT-7
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 81 BY 4.52.
 
 DEFINE RECTANGLE rStatusBar
      EDGE-PIXELS 1 GRAPHIC-EDGE    
-     SIZE 10 BY 1.43
+     SIZE 10 BY 1
      BGCOLOR 3 FGCOLOR 3 .
 
-DEFINE VARIABLE slEnvList AS CHARACTER 
+DEFINE VARIABLE slDBList AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 30 BY 1.67 NO-UNDO.
+     SIZE 26 BY 2.38 NO-UNDO.
+
+DEFINE VARIABLE slEnvList AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE NO-DRAG SCROLLBAR-VERTICAL 
+     SIZE 26 BY 2.38 NO-UNDO.
+
+DEFINE VARIABLE tbBackupASI AS LOGICAL INITIAL yes 
+     LABEL "Backup ASI database (before upgrade)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 44 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tbBackupAUD AS LOGICAL INITIAL yes 
+     LABEL "Backup AUDIT database (before upgrade)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 45 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tbKeepFiles AS LOGICAL INITIAL no 
+     LABEL "Keep files in Updates directory to re-apply to another Environment" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 68 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tbPurgeAudit AS LOGICAL INITIAL no 
+     LABEL "Purge Audit records" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     fiCredentials AT ROW 1 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 70 NO-TAB-STOP 
      fiUserID AT ROW 2.19 COL 19 COLON-ALIGNED WIDGET-ID 18
-     bCancel AT ROW 2.19 COL 63 WIDGET-ID 16 NO-TAB-STOP 
-     fiPassword AT ROW 3.38 COL 19 COLON-ALIGNED WIDGET-ID 20 PASSWORD-FIELD 
-     slEnvList AT ROW 6.24 COL 21 NO-LABEL WIDGET-ID 58
-     bUpdate AT ROW 9.1 COL 5 WIDGET-ID 14
-     fiFromVersion AT ROW 9.1 COL 62 COLON-ALIGNED WIDGET-ID 38
-     fiToVersion AT ROW 10.29 COL 62 COLON-ALIGNED
-     fiStatus AT ROW 11.48 COL 1 COLON-ALIGNED NO-LABEL
-     eStatus AT ROW 12.43 COL 3 NO-LABEL WIDGET-ID 52
-     fiBackupDisabled AT ROW 18.38 COL 27 COLON-ALIGNED NO-LABEL
+     bCancel AT ROW 2.19 COL 70 WIDGET-ID 16 NO-TAB-STOP 
+     fiPassword AT ROW 3.38 COL 25 COLON-ALIGNED WIDGET-ID 20 PASSWORD-FIELD 
+     fiTargetEnv AT ROW 5.05 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 72 NO-TAB-STOP 
+     fiTargetDB AT ROW 5.05 COL 41 COLON-ALIGNED NO-LABEL WIDGET-ID 74 NO-TAB-STOP 
+     slEnvList AT ROW 6.24 COL 6 NO-LABEL WIDGET-ID 58
+     slDBList AT ROW 6.24 COL 46 NO-LABEL WIDGET-ID 76
+     fiOptions AT ROW 9.1 COL 1 COLON-ALIGNED NO-LABEL WIDGET-ID 60 NO-TAB-STOP 
+     tbBackupASI AT ROW 10.05 COL 14 WIDGET-ID 62
+     tbBackupAUD AT ROW 11 COL 14 WIDGET-ID 64
+     tbPurgeAudit AT ROW 11.95 COL 14 WIDGET-ID 66
+     fiPurgeLimit AT ROW 11.95 COL 53 COLON-ALIGNED WIDGET-ID 80
+     fiMins AT ROW 11.95 COL 60 COLON-ALIGNED NO-LABEL WIDGET-ID 82 NO-TAB-STOP 
+     tbKeepFiles AT ROW 12.91 COL 14 WIDGET-ID 68
+     fiFromVersion AT ROW 14.57 COL 36 COLON-ALIGNED WIDGET-ID 38
+     fiToVersion AT ROW 14.57 COL 61 COLON-ALIGNED
+     bUpdate AT ROW 16 COL 23 WIDGET-ID 14
+     fiStatus AT ROW 17.43 COL 2 COLON-ALIGNED NO-LABEL
+     eStatus AT ROW 18.38 COL 4 NO-LABEL WIDGET-ID 52
      RECT-2 AT ROW 1.48 COL 2 WIDGET-ID 44
      RECT-4 AT ROW 5.52 COL 2 WIDGET-ID 48
-     rStatusBar AT ROW 16.71 COL 3
-     RECT-6 AT ROW 16.71 COL 3
+     rStatusBar AT ROW 22.43 COL 5
+     RECT-6 AT ROW 22.43 COL 5
+     RECT-7 AT ROW 9.57 COL 2 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 79.8 BY 18.48 WIDGET-ID 100.
+         SIZE 84 BY 22.91 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -358,23 +437,23 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update"
-         COLUMN             = 3
-         ROW                = 1.48
-         HEIGHT             = 18.48
-         WIDTH              = 79.8
+         COLUMN             = 5
+         ROW                = 2
+         HEIGHT             = 22.91
+         WIDTH              = 84
          MAX-HEIGHT         = 26.67
-         MAX-WIDTH          = 81
+         MAX-WIDTH          = 84
          VIRTUAL-HEIGHT     = 26.67
-         VIRTUAL-WIDTH      = 81
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         VIRTUAL-WIDTH      = 84
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -390,24 +469,60 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
    FRAME-NAME                                                           */
 /* SETTINGS FOR BUTTON bUpdate IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fiBackupDisabled IN FRAME DEFAULT-FRAME
-   NO-DISPLAY NO-ENABLE                                                 */
+/* SETTINGS FOR FILL-IN fiCredentials IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 ASSIGN 
-       fiBackupDisabled:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+       fiCredentials:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
 /* SETTINGS FOR FILL-IN fiFromVersion IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiMins IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiMins:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiOptions IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiOptions:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiPassword IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiPurgeLimit IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiStatus IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 ASSIGN 
        fiStatus:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
 
+/* SETTINGS FOR FILL-IN fiTargetDB IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiTargetDB:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiTargetEnv IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiTargetEnv:READ-ONLY IN FRAME DEFAULT-FRAME        = TRUE.
+
 /* SETTINGS FOR FILL-IN fiToVersion IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE rStatusBar IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR SELECTION-LIST slDBList IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR SELECTION-LIST slEnvList IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbBackupASI IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbBackupAUD IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbKeepFiles IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX tbPurgeAudit IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -446,30 +561,18 @@ DO:
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME DEFAULT-FRAME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL DEFAULT-FRAME C-Win
-ON ALT-B OF FRAME DEFAULT-FRAME ANYWHERE 
-DO:
-    ASSIGN 
-        lMakeBackup = NOT lMakeBackup
-        fiBackupDisabled:{&SV} = "Backup is disabled"
-        fiBackupDisabled:VISIBLE {&in} = NOT lMakeBackup.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &Scoped-define SELF-NAME bCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bCancel C-Win
 ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Exit */
 OR CHOOSE OF bUpdate
     DO:
         DEFINE VARIABLE cFTPxmit AS CHARACTER NO-UNDO.
-    
-        ASSIGN
+        
+        ASSIGN 
+            lBackupASI = tbBackupASI:CHECKED IN FRAME default-frame
+            lBackupAudit = tbBackupAUD:CHECKED 
+            lPurgeAudit = tbPurgeAudit:CHECKED 
+            lKeepFiles = tbKeepFiles:CHECKED
             cFTPxmit = cEnvAdmin + "\FTPout.txt".
     
         CASE SELF:NAME:
@@ -523,17 +626,19 @@ OR CHOOSE OF bUpdate
                     RUN ipStatus(" ").
     
                     RUN ipProcess.
-                    
             
                     IF lSuccess THEN DO:
                         ASSIGN 
                             cOutFile = cOutDir + "-SUCCESS.txt".
                         RUN ipSendVerification.
+                        ASSIGN  
+                            iStatus = 100.
                         RUN ipStatus("Upgrade Complete.").
                         MESSAGE 
                             "Congratulations! Your Advantzware update completed successfully."
                             VIEW-AS ALERT-BOX.
                         APPLY 'close' TO THIS-PROCEDURE.
+                        QUIT.
                     END.
                     ELSE DO:
                         ASSIGN 
@@ -557,25 +662,15 @@ OR CHOOSE OF bUpdate
 
 &Scoped-define SELF-NAME fiPassword
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPassword C-Win
-ON LEAVE OF fiPassword IN FRAME DEFAULT-FRAME /* Password */
+ON LEAVE OF fiPassword IN FRAME DEFAULT-FRAME /* ASI-supplied Password */
+OR RETURN OF fiPassword
 DO:
-
-        IF SELF:{&SV} EQ "" THEN 
-        DO:
-            RUN ipStatus("  Entered blank Password").
-            MESSAGE
-                "This function does not allow blank passwords." SKIP
-                "If your user id has a blank password, you must" SKIP
-                "use a userid with higher-level privileges."
-                VIEW-AS ALERT-BOX ERROR.
-            RUN ipStatus("  Advised that this is not allowed in upgrade process").
-            APPLY 'entry' TO fiUserID.
-            RETURN NO-APPLY.
-        END.
-    
-        IF (fiUserID:{&SV} EQ "asi" AND NOT SELF:{&SV} EQ "Pack@$!")
-        OR (fiUserID:{&SV} EQ "admin" AND NOT SELF:{&SV} EQ "installme") THEN 
-        DO:
+        IF SELF:{&SV} EQ "Boxco2020"
+        OR SELF:{&SV} EQ "Boxco2020!" THEN ASSIGN 
+            iUserLevel = 10.
+        ELSE IF SELF:{&SV} EQ "installme" THEN ASSIGN 
+            iUserLevel = 6.
+        ELSE DO:
             MESSAGE 
                 "You entered an invalid Password." SKIP 
                 "Please re-enter or cancel."
@@ -586,17 +681,23 @@ DO:
             RETURN NO-APPLY.
         END. 
         
-        IF NUM-ENTRIES(slEnvList:LIST-ITEMS) GT 1 THEN DO:
-            ASSIGN
-                slEnvList:SENSITIVE = TRUE
-                bUpdate:SENSITIVE = TRUE.
+        ASSIGN 
+            slEnvList:SENSITIVE = TRUE 
+            slDbList:SENSITIVE = TRUE 
+            tbBackupASI:SENSITIVE = TRUE
+            tbBackupAUD:SENSITIVE = TRUE
+            tbKeepFiles:SENSITIVE = TRUE
+            tbPurgeAudit:SENSITIVE = TRUE
+            bUpdate:SENSITIVE = TRUE.
+            
+        APPLY 'value-changed' TO slEnvList.
+                    
+        IF NUM-ENTRIES(slEnvList:LIST-ITEMS) GT 1 THEN 
             APPLY 'entry' TO slEnvList.
-        END.
-        ELSE DO:
-            ASSIGN
-                bUpdate:SENSITIVE = TRUE.
+        ELSE IF NUM-ENTRIES(slDbList:LIST-ITEMS) GT 1 THEN
+            APPLY 'entry' TO slDbList.
+        ELSE 
             APPLY 'entry' TO bUpdate.
-        END.
     
         RETURN NO-APPLY.
 
@@ -608,45 +709,43 @@ DO:
 
 &Scoped-define SELF-NAME fiUserID
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
-ON ENTRY OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
+ON ENTRY OF fiUserID IN FRAME DEFAULT-FRAME /* Enter your name */
 OR ENTRY OF fiPassword
-    OR ENTRY OF slEnvList
-    OR ENTRY OF bUpdate
-    DO:
-        CASE SELF:NAME:
-            WHEN "fiUserID" THEN 
-                ASSIGN
-                    eStatus:{&SV}       = eStatus:{&SV} + "Enter a valid ASI update userid..." + CHR(10)
-                    eStatus:CURSOR-LINE = eStatus:NUM-LINES.
-            WHEN "fiPassword" THEN 
-                ASSIGN
-                    eStatus:{&SV}       = eStatus:{&SV} + "Enter the password for this user..." + CHR(10)
-                    eStatus:CURSOR-LINE = eStatus:NUM-LINES.
-            WHEN "slEnvList" THEN 
-                ASSIGN
-                    eStatus:{&SV}       = eStatus:{&SV} + "Select the environment to update..." + CHR(10)
-                    eStatus:CURSOR-LINE = eStatus:NUM-LINES.
-            WHEN "bUpdate" THEN 
-                ASSIGN
-                    eStatus:{&SV}       = eStatus:{&SV} + "Choose to start the update process..." + CHR(10)
-                    eStatus:CURSOR-LINE = eStatus:NUM-LINES.
-        END CASE.
-    END.
-
-ON LEAVE OF slEnvList
-    DO:
-        RUN ipStatus("  User chose the " + SELF:{&SV} + " environment.").
-    END.
+OR ENTRY OF slEnvList
+OR ENTRY OF bUpdate
+OR ENTRY OF slDbList
+DO:
+    CASE SELF:NAME:
+        WHEN "fiUserID" THEN 
+            ASSIGN
+                eStatus:{&SV}       = eStatus:{&SV} + "HELP: Enter your name (not a UserID)" + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        WHEN "fiPassword" THEN 
+            ASSIGN
+                eStatus:{&SV}       = eStatus:{&SV} + "HELP: Enter a valid upgrade password" + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        WHEN "slEnvList" THEN 
+            ASSIGN
+                eStatus:{&SV}       = eStatus:{&SV} + "HELP: Select the environment to update" + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        WHEN "slDbList" THEN 
+            ASSIGN
+                eStatus:{&SV}       = eStatus:{&SV} + "HELP: Select the database to update" + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+        WHEN "bUpdate" THEN 
+            ASSIGN
+                eStatus:{&SV}       = eStatus:{&SV} + "HELP: Click to start the update process" + CHR(10)
+                eStatus:CURSOR-LINE = eStatus:NUM-LINES.
+    END CASE.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiUserID C-Win
-ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
+ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* Enter your name */
 DO:
-    DEF VAR lUserOK AS LOG. 
-    
     IF SELF:{&SV} = "" THEN 
     DO:
         RUN ipStatus("  Blank UserID - ENTRY to Exit button").
@@ -654,22 +753,15 @@ DO:
         RETURN NO-APPLY.
     END.
 
-    IF SELF:{&SV} NE "asi"
-    AND SELF:{&SV} NE "admin" THEN 
-    DO:
-        RUN ipValidUser (OUTPUT lUserOK).
-        IF NOT lUserOK THEN DO: 
-            MESSAGE 
-                "This is not a valid user id for this function." SKIP 
-                "Please re-enter or Exit."
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY 'entry' TO SELF.
-            RETURN NO-APPLY.
-        END.
-    END.
-
+    IF SELF:{&SV} EQ "asi" THEN ASSIGN 
+        iUserLevel = 10.
+    ELSE ASSIGN 
+        iUserLevel = 6.
+        
     RUN ipStatus("  Entered UserID " + SELF:{&SV}).
 
+    ASSIGN 
+        fiPassword:SENSITIVE = TRUE.
     APPLY 'entry' TO fiPassword.
     RETURN NO-APPLY.
     
@@ -682,24 +774,59 @@ END.
 &Scoped-define SELF-NAME slEnvList
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL slEnvList C-Win
 ON VALUE-CHANGED OF slEnvList IN FRAME DEFAULT-FRAME
+OR VALUE-CHANGED OF slDbList
 DO:
-        CASE SELF:NAME:
-            WHEN "slEnvList" THEN 
-                DO:
-                    ASSIGN
-                        iIndex = LOOKUP(SELF:{&SV},SELF:LIST-ITEMS)
-                        fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
-                        iCurrEnvVer = fIntVer(fiFromVersion:{&SV})
-                        iCurrDbVer = fIntVer(ENTRY(iIndex,cDBVerList))
-                        iCurrAudVer = fIntVer(ENTRY(iIndex,cAudVerList))
-                        cAsiDbName = ENTRY(iIndex,cDBList)
-                        cAuditDbName = ENTRY(iIndex,cAudDbList)
-                        cAsiDbLongName = cDbDir + "\" + ENTRY(iIndex,cDbDirList) + "\" + cAsiDbName
-                        cAuditDbLongName = cDbDir + "\" + ENTRY(iIndex,cAudDirList) + "\" + cAuditDbName
-                        ENTRY(3,cOutDir,"-") = SELF:{&SV}.
-                END.
-        END CASE.
-    END.
+    CASE SELF:NAME:
+        WHEN "slEnvList" THEN DO:
+            ASSIGN
+                iIndex = LOOKUP(SELF:{&SV},SELF:LIST-ITEMS)
+                fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
+                iCurrEnvVer = fIntVer(fiFromVersion:{&SV})
+                ENTRY(3,cOutDir,"-") = SELF:{&SV}
+                slDbList:LIST-ITEMS = "".
+            DO ictr = 1 TO NUM-ENTRIES(cDbVerList):
+                IF ENTRY(iCtr,cDbVerList) EQ fiFromVersion:{&SV} THEN DO: 
+                    slDbList:ADD-LAST(ENTRY(iCtr,cDbList)).
+                END.                
+            END.
+            IF NUM-ENTRIES(slDbList:LIST-ITEMS) EQ 1 THEN DO:
+                ASSIGN 
+                    slDbList:{&SV} = ENTRY(1,slDbList:LIST-ITEMS).
+                APPLY 'value-changed' TO slDbList.
+            END.
+        END.
+        WHEN "slDbList" THEN DO:
+            ASSIGN 
+                iIndex = LOOKUP(slDbList:{&SV},cDbList)
+                cAsiDbName = ENTRY(iIndex,cDBList)
+                cAsiDbLongName = cDbDir + "\" + ENTRY(iIndex,cDbDirList) + "\" + cAsiDbName + ".db"
+                iAsiDbPort = INTEGER(ENTRY(iIndex,cDBPortList))
+                cAsiDbDir = ENTRY(iIndex,cDBDirList)
+                cAudDbName = ENTRY(iIndex,cAudDbList)
+                cAudDbLongName = cDbDir + "\" + ENTRY(iIndex,cAudDirList) + "\" + cAudDbName + ".db"
+                iAudDbPort = INTEGER(ENTRY(iIndex,cAudPortList))
+                cAudDbDir = ENTRY(iIndex,cAudDirList)
+                .
+        END.
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbPurgeAudit
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbPurgeAudit C-Win
+ON VALUE-CHANGED OF tbPurgeAudit IN FRAME DEFAULT-FRAME /* Purge Audit records */
+DO:
+    IF SELF:CHECKED THEN ASSIGN 
+        fiPurgeLimit:SENSITIVE = TRUE 
+        fiPurgeLimit:{&SV} = IF fiPurgeLimit:{&SV} EQ "0" THEN "30" ELSE fiPurgeLimit:{&SV}.
+    ELSE ASSIGN 
+        fiPurgeLimit:SENSITIVE = FALSE
+        fiPurgeLimit:{&SV} = "0".
+     
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -749,28 +876,40 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                        OUTPUT cIniLoc).
     IF cIniLoc NE "" THEN 
         RUN ipReadIniFile.
+    ELSE DO:
+        ASSIGN 
+            lKeepFiles = TRUE.        
+        RUN ipSetKeepFlag.
+        RETURN.    
+    END.
+    
     RUN ipExpandVarNames.
         
     ASSIGN
-        lMakeBackup = TRUE 
         slEnvList:LIST-ITEMS = cEnvList
-        slEnvList:SCREEN-VALUE = ENTRY(1,cEnvList)
+        slEnvList:{&SV} = ENTRY(1,slEnvList:LIST-ITEMS)
         iIndex              = 1
         fiFromVersion:{&SV} = ENTRY(iIndex,cEnvVerList)
         iCurrEnvVer         = fIntVer(fiFromVersion:{&SV})
         iCurrDbVer          = fIntVer(ENTRY(iIndex,cDBVerList))
         iCurrAudVer         = fIntVer(ENTRY(iIndex,cAudVerList))
         cAsiDbName          = ENTRY(iIndex,cDBList)
-        cAuditDbName        = ENTRY(iIndex,cAudDbList)
+        cAudDbName          = ENTRY(iIndex,cAudDbList)
         cAsiDbLongName      = cDbDir + "\" + ENTRY(iIndex,cDbDirList) + "\" + cAsiDbName
-        cAuditDbLongName      = cDbDir + "\" + ENTRY(iIndex,cAudDirList) + "\" + cAuditDbName
-        iStatus             = 1
-        rStatusBar:WIDTH    = MIN(75,(iStatus / 100) * 75).
+        cAudDbLongName      = cDbDir + "\" + ENTRY(iIndex,cAudDirList) + "\" + cAudDbName
+        iStatus             = 2
+        lSuccess            = TRUE 
+        .
 
     RUN ipGetPatchList.
+    IF NOT lSuccess THEN DO:
+        ASSIGN 
+            lKeepFiles = TRUE.        
+        RUN ipSetKeepFlag.
+        RETURN.    
+    END.    
 
     ASSIGN
-        slEnvList:SENSITIVE = FALSE
         bUpdate:SENSITIVE = FALSE
         cIpAddress     = "34.203.15.64"
         cFtpUser       = "ftptest"
@@ -785,6 +924,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    STRING(YEAR(TODAY),"9999") +
                    STRING(MONTH(TODAY),"99") +
                    STRING(DAY(TODAY),"99") + "-" + slEnvList:SCREEN-VALUE
+        iStatus = 3
         .    
     
     EMPTY TEMP-TABLE ttUpdateHist.
@@ -797,6 +937,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ttUpdateHist.startTime = STRING(TIME,"HH:MM:SS AM")
         ttUpdateHist.success = FALSE.
 
+    ASSIGN 
+        iStatus = 4.
     RUN ipStatus("Initialize").
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -840,10 +982,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiUserID fiPassword slEnvList fiFromVersion fiToVersion fiStatus 
-          eStatus 
+  DISPLAY fiCredentials fiUserID fiPassword fiTargetEnv fiTargetDB slEnvList 
+          slDBList fiOptions tbBackupASI tbBackupAUD tbPurgeAudit fiPurgeLimit 
+          fiMins tbKeepFiles fiFromVersion fiToVersion fiStatus eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-2 RECT-4 RECT-6 fiUserID bCancel fiPassword slEnvList eStatus 
+  ENABLE RECT-2 RECT-4 RECT-6 RECT-7 fiUserID bCancel eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -870,27 +1013,29 @@ PROCEDURE ipCheckDiskSpace :
                        OUTPUT iDiskFreeSpace,
                        OUTPUT iDiskTotalSpace).
                        
-    IF NOT lMakeBackup THEN DO:
+    IF NOT lBackupASI 
+    AND NOT lBackupAudit THEN DO:
         ASSIGN 
             oplOKToProceed = TRUE.
         RETURN.
     END. 
     
-    RUN ipStatus("  Calculating estimated DB Backup size").
-    RUN ipGetDbBakSize (cAsiDbName, cAsiDbLongName, OUTPUT iAsiBakSize).                       
-    RUN ipGetDbBakSize (cAuditDbName, cAuditDbLongName, OUTPUT iAudBakSize).
-    RUN ipStatus("  Estimated DB Backup size is " + STRING(iAsiBakSize + iAudBakSize,">>>,>>9.9<" ) + " MB").
-    
-    IF iDiskFreeSpace - iAsiBakSize - iAudBakSize - 2000 LT 0 THEN DO:
-        MESSAGE 
-            "There is a problem with disk space on this server.  " +
-            "Please provide a minimum of " + TRIM(STRING((2000 + iAsiBakSize + iAudBakSize) / 1024,">>>,>>9.9<")) + 
-            " GB of free space before continuing."
-            VIEW-AS ALERT-BOX ERROR.
-        ASSIGN  
-            oplOKToProceed = FALSE.
-    END.
-    ELSE ASSIGN
+/*    RUN ipStatus("  Calculating estimated DB Backup size").                                                        */
+/*    RUN ipGetDbBakSize (cAsiDbName, cAsiDbLongName, OUTPUT iAsiBakSize).                                           */
+/*    RUN ipGetDbBakSize (cAudDbName, cAudDbLongName, OUTPUT iAudBakSize).                                           */
+/*    RUN ipStatus("  Estimated DB Backup size is " + STRING(iAsiBakSize + iAudBakSize,">>>,>>9.9<" ) + " MB").      */
+/*                                                                                                                   */
+/*    IF iDiskFreeSpace - iAsiBakSize - iAudBakSize - 2000 LT 0 THEN DO:                                             */
+/*        MESSAGE                                                                                                    */
+/*            "There is a problem with disk space on this server.  " +                                               */
+/*            "Please provide a minimum of " + TRIM(STRING((2000 + iAsiBakSize + iAudBakSize) / 1024,">>>,>>9.9<")) +*/
+/*            " GB of free space before continuing."                                                                 */
+/*            VIEW-AS ALERT-BOX ERROR.                                                                               */
+/*        ASSIGN                                                                                                     */
+/*            oplOKToProceed = FALSE.                                                                                */
+/*    END.                                                                                                           */
+/*    ELSE                                                                                                           */
+    ASSIGN
         oplOKToProceed = TRUE.
                            
 END PROCEDURE.
@@ -938,7 +1083,6 @@ PROCEDURE ipExpandVarNames :
         cUpdProgramDir = cUpdatesDir + "\" + cUpdProgramDir
         cUpdRelNotesDir = cUpdatesDir + "\" + cUpdRelNotesDir
         cUpdStructureDir = cUpdatesDir + "\" + cUpdStructureDir
-        lmakeBackup = IF INDEX(cMakeBackup,"Y") NE 0 OR INDEX(cMakeBackup,"T") NE 0 THEN TRUE ELSE FALSE
         lConnectAudit = IF INDEX(cConnectAudit,"Y") NE 0 OR INDEX(cConnectAudit,"T") NE 0 THEN TRUE ELSE FALSE
         cLockoutTries = SUBSTRING(cLockoutTries,1,1)
         iLockoutTries = IF cLockoutTries NE "" 
@@ -1134,6 +1278,14 @@ PROCEDURE ipGetPatchList :
     ASSIGN
         cPatchList = "".
 
+    IF SEARCH(cUpdatesDir + "\patch.mft") EQ ? THEN DO:
+        MESSAGE 
+            "Unable to locate the patch manifest file."
+            VIEW-AS ALERT-BOX ERROR.
+        lSuccess = FALSE.
+        RETURN.
+    END. 
+    
     INPUT FROM VALUE (cUpdatesDir + "\patch.mft").
     REPEAT:
         IMPORT 
@@ -1172,65 +1324,71 @@ PROCEDURE ipProcess :
     DEFINE VARIABLE cEnvVer AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iEnv AS INTEGER NO-UNDO.
     DEFINE VARIABLE cFileToRun AS CHARACTER NO-UNDO.
-    
         
     ASSIGN 
         lSuccess = TRUE.
-        
-    IF fiUserID:{&SV} EQ "asi" THEN ASSIGN
-        iUserLevel = 10.
-    ELSE IF fiUserID:{&SV} EQ "admin" THEN ASSIGN
-        iUserLevel = 6.
-    ELSE DO:
-        MESSAGE 
-            "Unable to start this process with the credentials supplied."
-            VIEW-AS ALERT-BOX.
-        RUN ipStatus("Invalid credentials.  Abort.").
-        QUIT.
-    END.
+
+    IF lKeepFiles THEN        
+        RUN ipSetKeepFlag.
 
     IF iCurrDbVer LT iPatchDbVer
-    OR iCurrAudVer LT iPatchAudVer
-    OR iCurrEnvVer = 16070000 THEN 
+    OR iCurrAudVer LT iPatchAudVer 
+    OR lBackupASI 
+    OR lBackupAudit
+    THEN 
     DO:
-                
-        RUN ipStatus("Database requires upgrade...").
+        ASSIGN 
+            iStatus = 5.
+        RUN ipStatus("Database requires upgrade/backup...").
         
         ASSIGN
             iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
-            c-Win:VISIBLE = FALSE 
             lSuccess = FALSE 
-            .
-
-        RUN ipStatus("Initiating asiUpdateDB.w").
-        ASSIGN
             c-Win:VISIBLE = FALSE. 
         
         IF SEARCH("asiUpdateDB.r") NE ? 
-        OR SEARCH("asiUpdateDB.w") NE ? THEN 
-        DO:
-            ASSIGN 
-                cFileToRun = "asiUpdateDB.w".
-        END.
+        OR SEARCH("asiUpdateDB.w") NE ? THEN ASSIGN 
+            cFileToRun = "asiUpdateDB.w".
         ELSE ASSIGN 
             cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateDB.w".
  
-        RUN  VALUE (cFileToRun) (ENTRY(iEnv,cDBList),
-            ENTRY(iEnv,cDBPortList),
-            ENTRY(iEnv,cDbDirList),
-            iEnv,
+        /* Give the OS time to close the log file so next pgm can re-open it */
+        ETIME(YES).
+        DO WHILE ETIME LE 2000:
+            ASSIGN 
+                iCtr = iCtr.
+        END.
+        
+        ASSIGN
+            c-Win:VISIBLE = FALSE.
+
+        RUN VALUE(cFileToRun) (
+            cAsiDbName,
+            cAsiDbLongName,
+            iAsiDbPort,
+            cAsiDbDir,
+            cAudDbName,
+            cAudDbLongName,
+            iAudDbPort,
+            cAudDbDir,
             iCurrDbVer,
             iPatchDbVer,
             iCurrAudVer,
             iPatchAudVer,
             iUserLevel,
-            lMakeBackup,
+            lBackupASI,
+            lBackupAudit,
             cLogFile,
             OUTPUT lSuccess,
-            INPUT-OUTPUT iStatus).
+            INPUT-OUTPUT iStatus
+            ).
+
         ASSIGN
             c-Win:VISIBLE = TRUE
-            rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75). 
+            iStatus = 20.
+        
+        mTime(2).
+                    
         RUN ipStatus("Return from asiUpdateDB.w").
 
         IF lSuccess THEN 
@@ -1251,8 +1409,8 @@ PROCEDURE ipProcess :
                     ttDatabases.cAudVer = ENTRY(iCtr,cAudVerList).
             END.
             ASSIGN 
-                lMakeBackup = FALSE.
-            
+                lBackupASI = FALSE 
+                lBackupAudit = FALSE. 
         END. 
         ELSE 
         DO:
@@ -1260,17 +1418,10 @@ PROCEDURE ipProcess :
                 "The system upgrade was NOT successful.  Please" SKIP  
                 "contact Advantzware technical support for assistance."
                 VIEW-AS ALERT-BOX ERROR.
-            QUIT.
+            RETURN.   
         END.
     END.
-    ELSE ASSIGN 
-        iStatus = iStatus + 2
-        rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75).
   
-    ASSIGN
-        iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
-        .
-
     DO iCtr = 1 TO NUM-ENTRIES(cDbList):
         CREATE ttDatabases.
         ASSIGN
@@ -1283,26 +1434,22 @@ PROCEDURE ipProcess :
             ttDatabases.cAudVer = ENTRY(iCtr,cAudVerList).
     END.
         
-    FIND FIRST ttDatabases WHERE
-        ttDatabases.cName EQ ENTRY(iEnv,cDBList) AND
-        ttDatabases.cPort EQ ENTRY(iEnv,cDBPortList)
-        NO-ERROR.
-    IF AVAILABLE ttDatabases THEN ASSIGN
-            cAudDb = ttDatabases.cAudName
-            cPort = ttDatabases.cAudPort.
-
+    ASSIGN 
+        iStatus = 23.
     RUN ipStatus("Connecting databases").
     RUN ipStatus("  Connecting ASI DB with statement...").
     ASSIGN
-        cConnect = "-db " + ENTRY(iEnv,cDBList) + 
+        cConnect = "-db " + cAsiDbName + 
                    " -H " + chostName +
-                   " -S " + ENTRY(iEnv,cDBPortList) +
+                   " -S " + STRING(iAsiDbPort,"9999") +
                    " -N tcp -ld ASI".
     RUN ipStatus("    " + cConnect).
+
     CONNECT VALUE(cConnect) NO-ERROR.
+
     IF NOT CONNECTED ("asi") THEN 
     DO:
-        RUN ipStatus("  DB connection failed.  Cancelling.").
+        RUN ipStatus("  ASI DB connection failed.  Cancelling.").
         DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
             RUN ipStatus ("    " + ERROR-STATUS:GET-MESSAGE(iCtr)).
         END.
@@ -1310,23 +1457,25 @@ PROCEDURE ipProcess :
             "Unable to connect to the asi database.  Cannot continue." SKIP 
             "Please contact Advantzware Support for assistance."
             VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            lSuccess = FALSE.
         RETURN.
     END.
-    
-    IF cAudDb NE "" THEN 
-    DO:
-        RUN ipStatus("  Connecting Audit DB with statement...").
-        ASSIGN
-            cConnect = "-db " + ENTRY(iEnv,cAudDBList) + 
-                       " -H " + chostName +
-                       " -S " + ENTRY(iEnv,cAudPortList) +
-                       " -N tcp -ld Audit".
-        RUN ipStatus("    " + cConnect).
-        CONNECT VALUE(cConnect) NO-ERROR.
-    END.
+    ASSIGN 
+        iStatus = 24.
+        
+    RUN ipStatus("  Connecting Audit DB with statement...").
+    ASSIGN
+        cConnect = "-db " + cAudDbName + 
+                   " -H " + chostName +
+                   " -S " + STRING(iAudDbPort,"9999") +
+                   " -N tcp -ld Audit".
+    RUN ipStatus("    " + cConnect).
+    CONNECT VALUE(cConnect) NO-ERROR.
+    MTIME(3).
     IF NOT CONNECTED ("audit") THEN 
     DO:
-        RUN ipStatus("  DB connection failed.  Cancelling.").
+        RUN ipStatus("  Audit DB connection failed.  Cancelling.").
         DO iCtr = 1 TO ERROR-STATUS:NUM-MESSAGES:
             RUN ipStatus ("    " + ERROR-STATUS:GET-MESSAGE(iCtr)).
         END.
@@ -1334,6 +1483,8 @@ PROCEDURE ipProcess :
             "Unable to connect to the audit database.  Cannot continue." SKIP 
             "Please contact Advantzware Support for assistance."
             VIEW-AS ALERT-BOX ERROR.
+        ASSIGN 
+            lSuccess = FALSE.
         RETURN.
     END.
 
@@ -1344,27 +1495,43 @@ PROCEDURE ipProcess :
             cFileToRun = "N:\Repository\PatchTemplate\Deployment\Admin\EnvAdmin\asiUpdateENV.w".
 
     CREATE ALIAS "DICTDB" FOR DATABASE asi.
+    
+    ASSIGN iStatus = 25.
     RUN ipStatus("Initiating asiUpdateENV.w").
+
+    /* Give the OS time to close the log file so next pgm can re-open it */
+    mTime(2).
+
     ASSIGN
         c-Win:VISIBLE = FALSE. 
-
-    RUN VALUE(cFileToRun) (ttDatabases.cName,
-        ttDatabases.cPort,
-        ttDatabases.cDir,
-        ttDatabases.cVer,
+    RUN VALUE(cFileToRun) (
+        cAsiDbName,
+        iAsiDbPort,
+        cAsiDbDir,
+        cAsiDbVer,
+        cAudDbName,
+        iAudDbPort,
+        cAudDbDir,
+        cAudDbVer,
         slEnvList:{&SV},
         fiFromVersion:{&SV},
         fiToVersion:{&SV},
         iUserLevel,
-        lMakeBackup, /* Need backup? */
+        lPurgeAudit,
+        INTEGER(fiPurgeLimit:{&SV}),
         cLogFile,
         OUTPUT lSuccess,
         INPUT-OUTPUT iStatus).
         
+    /* Give the OS time to close the log file so this pgm can re-open it */
+    mTime(2).
+
     ASSIGN
+        THIS-PROCEDURE:CURRENT-WINDOW = c-Win
         c-Win:VISIBLE = TRUE
-        rStatusBar:WIDTH = MIN(75,(iStatus / 100) * 75). 
-         
+        iStatus = 95.
+    mTime(2).
+             
     RUN ipStatus("Return from asiUpdateENV.w").
     
 END PROCEDURE.
@@ -1446,6 +1613,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetKeepFlag C-Win 
+PROCEDURE ipSetKeepFlag :
+/*------------------------------------------------------------------------------
+ Purpose: This creates a file that the upgrade batch file will use to determine whether or not to remove 
+           upgrade files when complete
+ Notes:
+------------------------------------------------------------------------------*/
+    OUTPUT STREAM sKeep TO VALUE(cEnvAdmin + "\KeepFiles.txt").
+    PUT STREAM sKeep UNFORMATTED "keep".
+    OUTPUT STREAM sKeep CLOSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipStatus C-Win 
 PROCEDURE ipStatus :
 /*------------------------------------------------------------------------------
@@ -1454,6 +1637,7 @@ PROCEDURE ipStatus :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcStatus AS CHARACTER NO-UNDO.
+    DEF VAR cLogLine AS CHAR NO-UNDO.
                 
     ASSIGN
         cLogFile = cEnvAdmin + "\UpdateLog.txt".
@@ -1493,7 +1677,6 @@ PROCEDURE ipStatus :
             ttUpdateHist.applyDate = TODAY 
             ttUpdateHist.startTimeInt = INT(TIME)
             ttUpdateHist.startTime = STRING(TIME,"HH:MM:SS AM").
-        RETURN.
     END.
     ELSE 
     DO:
@@ -1522,9 +1705,13 @@ PROCEDURE ipStatus :
         END.
     END.
 
-    IF ipcStatus EQ "Upgrade Complete." THEN 
+    IF CONNECTED("asi") 
+    AND ipcStatus EQ "Upgrade Complete." THEN 
         RUN asiUpdateHist.p (cEnvDir + "\" + slEnvList:{&SV}).
-               
+
+    ASSIGN 
+        rStatusBar:WIDTH IN FRAME {&frame-name} = MIN(75,(iStatus / 100) * 75).
+                       
     PROCESS EVENTS.
 
 END PROCEDURE.
@@ -1674,6 +1861,28 @@ FUNCTION get64BitValue RETURNS DECIMAL
         THEN d1 = d1 + (d2 * {&BigInt}).
  
     RETURN d1.
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION mTime C-Win 
+FUNCTION mTime RETURNS LOGICAL
+  ( INPUT iNumSecs AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+    
+    ETIME(TRUE).
+    DO WHILE ETIME LE iNumSecs * 1000:
+        ASSIGN 
+            iCtr = iCtr.
+    END.
+    
+    RETURN lresult.
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

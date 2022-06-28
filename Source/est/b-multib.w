@@ -891,14 +891,32 @@ PROCEDURE local-assign-record :
 
     IF DEC(eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name})  NE v-form-no  OR
        DEC(eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE v-blank-no THEN DO:
-
-      {sys/inc/xeb-form.i "eb." "0" "DEC(eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name})" "0"}
+      RUN Estimate_UpdateEstDependencies(
+          INPUT eb.company,
+          INPUT eb.loc,
+          INPUT eb.est-no,
+          INPUT eb.form-no,
+          INPUT 0,
+          INPUT eb.eqty,
+          INPUT eb.est-type,
+          INPUT DECIMAL(eb.form-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
+          INPUT 0
+          ).
 
       eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name} =
             STRING((DEC(eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) * 1000) +
                    1 * (IF DEC(eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) LT v-blank-no THEN -1 ELSE 1)).
-
-      {sys/inc/xeb-form.i "eb." "v-blank-no" "DEC(eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name})" "DEC(eb.blank-no:SCREEN-VALUE IN BROWSE {&browse-name})"}
+      RUN Estimate_UpdateEstDependencies(
+          INPUT eb.company,
+          INPUT eb.loc,
+          INPUT eb.est-no,
+          INPUT eb.form-no,
+          INPUT v-blank-no,
+          INPUT eb.eqty,
+          INPUT eb.est-type,
+          INPUT DECIMAL(eb.form-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}),
+          INPUT DECIMAL(eb.blank-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+          ).
        
       FOR EACH xeb
           WHERE xeb.company EQ ef.company
@@ -906,8 +924,17 @@ PROCEDURE local-assign-record :
             AND xef.form-no EQ DEC(eb.form-no:SCREEN-VALUE IN BROWSE {&browse-name})
             AND ROWID(xeb)  NE ROWID(eb)
           BY xeb.blank-no:
-
-        {sys/inc/xeb-form.i "xeb." "xeb.blank-no" "xeb.form-no" "xeb.blank-no * 1000"}
+        RUN Estimate_UpdateEstDependencies(
+            INPUT xeb.company,
+            INPUT xeb.loc,
+            INPUT xeb.est-no,
+            INPUT xeb.form-no,
+            INPUT xeb.blank-no,
+            INPUT xeb.eqty,
+            INPUT xeb.est-type,
+            INPUT xeb.form-no,
+            INPUT xeb.blank-no * 1000
+            ).
 
         xeb.blank-no = xeb.blank-no * 1000.
       END.      

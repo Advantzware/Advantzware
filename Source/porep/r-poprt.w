@@ -41,6 +41,7 @@ DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
+{api/ttAPIOutboundEvent.i}
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -122,6 +123,7 @@ DEFINE VARIABLE cPoMailList      AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cPOLoadtagFormat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iPOLoadtagInt    AS INTEGER   NO-UNDO.
 
+DEFINE VARIABLE lcRequestData    AS LONGCHAR  NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
 RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
@@ -1920,6 +1922,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound C-Win
+PROCEDURE pCallAPIOutbound PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    system.SharedConfig:Instance:SetValue("PrintPurchaseOrder_PrintMetric", STRING(tb_metric:CHECKED)).
+        
+    RUN Outbound_PrepareAndExecuteForScopeAndClient IN hdOutboundProcs (
+        INPUT  cocode,                                         /* Company Code (Mandatory) */
+        INPUT  "",                                             /* Location Code (Mandatory) */
+        INPUT  "PrintPurchaseOrder",                           /* API ID (Mandatory) */
+        INPUT  ipcFormat,                                      /* Client ID */
+        INPUT  ipcScopeID,                                     /* Scope ID */
+        INPUT  ipcScopeType,                                   /* Scope Type */
+        INPUT  "PrintPurchaseOrder",                           /* Trigger ID (Mandatory) */
+        INPUT  "ReportTermID",                                 /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  v-term-id,                                      /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  STRING(v-start-po),                             /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "PO print",                                     /* Event's description (Optional) */
+        OUTPUT lSuccess,                                       /* Success/Failure flag */
+        OUTPUT cMessage                                        /* Status message */
+        ).
+
+    system.SharedConfig:Instance:DeleteValue("PrintPurchaseOrder_PrintMetric").
+
+    RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    
+    lcRequestData = "".
+    
+    FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        FIND FIRST apiOutboundEvent NO-LOCK
+             WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+             NO-ERROR.
+        IF AVAILABLE apiOutboundEvent THEN
+            lcRequestData = apiOutboundEvent.requestData.
+    END.    
+    
+    IF lcRequestData NE "" THEN
+        COPY-LOB FROM lcRequestData TO FILE list-name.
+        
+    RUN Outbound_ResetContext IN hdOutboundProcs. 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger C-Win 
 PROCEDURE pRunAPIOutboundTrigger PRIVATE :
     /*------------------------------------------------------------------------------
@@ -2126,6 +2193,8 @@ PROCEDURE run-report :
     DEFINE INPUT PARAMETER icVendNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
+    DEFINE VARIABLE lIsAPIActive AS LOGICAL NO-UNDO.
+    
     {sys/form/r-top.i}
 
     ASSIGN
@@ -2228,7 +2297,10 @@ PROCEDURE run-report :
 
     {sys/inc/print1.i}
 
-    {sys/inc/outprint.i VALUE(lines-per-page)}
+    RUN Outbound_IsApiClientAndScopeActive IN hdOutboundProcs (cocode, "", "PrintPurchaseOrder", v-print-fmt, "", "", "PrintPurchaseOrder", OUTPUT lIsAPIActive).
+    
+    IF NOT lIsAPIActive THEN
+        {sys/inc/outprint.i value(lines-per-page)}
 
     IF td-show-parm THEN RUN show-param.
 
@@ -2264,11 +2336,15 @@ PROCEDURE run-report :
         END CASE.
     END.
 
-    IF LOOKUP(v-print-fmt,"SOUTHPAK,SouthPak-xl,CENTBOX,Oracle,metro,ASIXprnt,Valley,CSC-GA,HPB,Indiana,XPRINT,poprint 1,poprint 10,Ruffino,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,ACPI,Sultana,CCC,SouleMed,Soule") > 0 THEN 
-        RUN VALUE(v-program) (lv-multi-faxout,lines-per-page). 
-    ELSE  
-        RUN VALUE(v-program).
- 
+    RUN pCallAPIOutbound(v-print-fmt, "", "").
+    
+    IF NOT lIsAPIActive THEN DO:
+        IF LOOKUP(v-print-fmt,"SOUTHPAK,SouthPak-xl,CENTBOX,Oracle,metro,ASIXprnt,Valley,CSC-GA,HPB,Indiana,XPRINT,poprint 1,poprint 10,Ruffino,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,ACPI,Sultana,CCC,SouleMed,Soule") > 0 THEN 
+            RUN VALUE(v-program) (lv-multi-faxout,lines-per-page). 
+        ELSE  
+            RUN VALUE(v-program).
+    END.
+    
     FOR EACH reftable WHERE reftable.reftable EQ "vend.poexport" TRANSACTION:
         FIND FIRST vend
             WHERE vend.company   EQ reftable.company

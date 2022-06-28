@@ -207,7 +207,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE FRAME F-Main
      vendItemCost.vendorUOM AT ROW 1.67 COL 79 COLON-ALIGNED
-          LABEL "Cost and Quantity UOM"
+          LABEL "Cost UOM"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 

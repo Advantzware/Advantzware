@@ -35,6 +35,12 @@ def var v-dim-fit like style.dim-fit.
 
 {sys/inc/f16to32.i}
 
+DEFINE VARIABLE lRound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+RUN sys/ref/nk1look.p (cocode, "ROUND", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+lRound = lFound AND cReturn EQ "YES".
 
 blok:
 do on error undo:

@@ -399,7 +399,8 @@
        v-tot-lab[1] = v-tot-lab[1] + v-costl 
        v-tot-fgsell[1] = v-tot-fgsell[1] + lv-sell-value-fg
        v-tot-ordsell[1] = v-tot-ordsell[1] + lv-sell-value-ord
-          .
+       dTotalPallet[1] = dTotalPallet[1] + v-qoh / fGetPalletCount(BUFFER itemfg)
+       .
 
       if zbal or v-qoh ne 0 then do:
         if tt-fg-bin.job-no ne "" then
@@ -566,6 +567,7 @@
                 WHEN "units" THEN cVarValue = STRING((tt-fg-bin.qty - tt-fg-bin.partial-count) / tt-fg-bin.case-count,"->>>>>>9").
 		        WHEN "unit-count" THEN cVarValue = STRING(tt-fg-bin.case-count,"->>>>>>>>9").	
 		        WHEN "partial" THEN cVarValue = STRING(tt-fg-bin.partial-count,"->>>>>9").	              
+		        WHEN "pallet" THEN cVarValue = STRING(v-bin-qoh / fGetPalletCount(BUFFER itemfg),"->>,>>>,>>9.99").	              
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -650,6 +652,7 @@
                 WHEN "units" THEN cVarValue = STRING((tt-fg-bin.qty - tt-fg-bin.partial-count) / tt-fg-bin.case-count,"->>>>>>9").
 		        WHEN "unit-count" THEN cVarValue = STRING(tt-fg-bin.case-count,"->>>>>>>>9").	
 		        WHEN "partial" THEN cVarValue = STRING(tt-fg-bin.partial-count,"->>>>>9").	
+		        WHEN "pallet" THEN cVarValue = STRING(tt-fg-bin.qty / fGetPalletCount(BUFFER itemfg),"->>,>>>,>>9.99").	              	
                    
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -822,6 +825,7 @@
                 WHEN "units" THEN cVarValue = "".
 		        WHEN "unit-count" THEN cVarValue = "" .
 		        WHEN "partial" THEN cVarValue = "". 
+		        WHEN "pallet" THEN cVarValue = STRING(dTotalPallet[2],"->>,>>>,>>9.99") .
                 
             END CASE.
             cExcelVarValue = cVarValue.  
@@ -849,6 +853,7 @@
        v-tot-lab[2] = v-tot-lab[2] + v-tot-lab[1]
        v-tot-fgsell[2] = v-tot-fgsell[2] + v-tot-fgsell[1]
        v-tot-ordsell[2] = v-tot-ordsell[2] + v-tot-ordsell[1]
+       dTotalPallet[2] = dTotalPallet[2] + dTotalPallet[1]
 
        v-tot-qty[1] = 0
        v-tot-cst[1] = 0
@@ -858,6 +863,7 @@
        v-tot-lab[1] = 0
        v-tot-ordsell[1] = 0
        v-tot-fgsell[1] = 0
+       dTotalPallet[1] = 0
        v-prnt[1]    = no.
     
     end.
@@ -926,6 +932,7 @@
                 WHEN "units" THEN cVarValue = "".
 		        WHEN "unit-count" THEN cVarValue = "" .
 		        WHEN "partial" THEN cVarValue = "". 
+		        WHEN "pallet" THEN cVarValue = STRING(dTotalPallet[2],"->>,>>>,>>9.99") .
             END CASE.
             cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
@@ -989,6 +996,7 @@
        v-tot-lab[3] = v-tot-lab[3] + v-tot-lab[2]
        v-tot-ordsell[3] = v-tot-ordsell[3] + v-tot-ordsell[2]
        v-tot-fgsell[3] = v-tot-fgsell[3] + v-tot-fgsell[2]
+       dTotalPallet[3] = dTotalPallet[3] + dTotalPallet[2]
        
        v-tot-qty[2] = 0
        v-tot-cst[2] = 0
@@ -998,6 +1006,7 @@
        v-tot-lab[2] = 0
        v-tot-fgsell[2] = 0
        v-tot-ordsell[2] = 0
+       dTotalPallet[2] = 0
        v-prnt[2]    = no.
     
       IF v-page THEN    /* Task 01021405  */

@@ -83,7 +83,7 @@ IF AVAILABLE bf-eb THEN
     ASSIGN
         cPrev-cust  = bf-eb.cust-no
         cPrev-ship  = bf-eb.ship-id
-        cPrev-style = eb.style.
+        cPrev-style = bf-eb.style.
 
 FIND LAST bf-eb NO-LOCK
     WHERE bf-eb.company EQ ef.company

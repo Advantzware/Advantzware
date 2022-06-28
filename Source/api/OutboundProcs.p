@@ -1122,17 +1122,28 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
     DEFINE VARIABLE cClientTransactionCounter AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCompany                  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUserID                   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStockNotes               AS CHARACTER FORMAT "x(80)" EXTENT 100 NO-UNDO.
+    DEFINE VARIABLE iArraySize                AS INTEGER   NO-UNDO.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
     RUN spGetSessionParam ("UserID", OUTPUT cUserID).
     
-    DEFINE BUFFER bf-cust FOR cust.
+    DEFINE BUFFER bf-cust               FOR cust.
+    DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
     
     ASSIGN
         cAPITransactionCounter    = STRING(fGetAPITransactionCounter(ipiAPIOutboundID))
         cClientTransactionCounter = STRING(fGetClientTransactionCounter(ipiAPIOutboundID))
         .
-        
+
+    RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
+    
+    FOR EACH bf-APIOutboundContent NO-LOCK
+        WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID
+          AND bf-APIOutboundContent.contentType   EQ "User":
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, bf-APIOutboundContent.contentKey, bf-APIOutboundContent.contentValue).
+    END.
+    
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APITransCounter", cAPITransactionCounter).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ClientTransCounter", cClientTransactionCounter).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CurrentDate", TODAY).
@@ -1164,7 +1175,15 @@ PROCEDURE Outbound_UpdateGlobalFieldValues:
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXEmail", bf-cust.email).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXAreaCode", bf-cust.area-code).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXPhone", bf-cust.phone).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXFax", bf-cust.fax).        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXFax", bf-cust.fax).  
+        
+        RUN Notes_GetNotesArrayForObject(INPUT bf-cust.rec_key, INPUT "G",INPUT "", INPUT "BN", INPUT 80, INPUT NO, INPUT 0, OUTPUT cStockNotes, OUTPUT iArraySize).  
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote1", cStockNotes[1]).     
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote2", cStockNotes[2]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote3", cStockNotes[3]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote4", cStockNotes[4]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote5", cStockNotes[5]).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerXNote6", cStockNotes[6]).
     END.
     
     RUN Format_UpdateLineCount (INPUT-OUTPUT ioplcRequestData).
@@ -2127,4 +2146,3 @@ PROCEDURE pCreateTTRequestData PRIVATE:
         ttRequestData.requestStatus        = cRequestStatusInitialized
         .
 END.
-

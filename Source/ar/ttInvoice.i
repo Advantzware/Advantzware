@@ -71,9 +71,18 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD fax                         AS CHARACTER FORMAT "X(12)"      LABEL "Fax"
     FIELD country                     AS CHARACTER FORMAT "X(12)"      LABEL "Country"
     FIELD termsDesc                   AS CHARACTER FORMAT "X(30)"      LABEL "Terms Description"
-    FIELD frtPay                      AS CHARACTER FORMAT "X(3)"      LABEL "Freight Pay Code"
+    FIELD frtPay                      AS CHARACTER FORMAT "X(3)"       LABEL "Freight Pay Code"
     FIELD countryName                 AS CHARACTER FORMAT "X(30)"      LABEL "Country Name"
     FIELD currency                    AS CHARACTER FORMAT "X(3)"       LABEL "Currency Code"
+    FIELD linkerID                    AS INTEGER   FORMAT ">>>>>>>9"   LABEL "Linker ID"                    
+    FIELD sourceTable                 AS CHARACTER FORMAT "X(8)"       LABEL "Invoice Source Table"
+    FIELD sourceRowID                 AS ROWID
+    FIELD isEDIOrder                  AS LOGICAL   FORMAT "yes/no"     LABEL "EDI Order"
+    FIELD bolDate                     AS DATE      FORMAT "99/99/9999" LABEL "BOL Date"
+    FIELD bolID                       AS INTEGER   FORMAT "->,>>>,>>9" LABEL "BOL ID"
+    FIELD totalPallets                AS INTEGER   FORMAT "->,>>>,>>9" LABEL "TotalPallets"
+    FIELD salesPerson                 AS CHARACTER FORMAT "X(30)"      LABEL "Sales Person" EXTENT 3
+    FIELD invoicePC                   AS CHARACTER FORMAT "X(2)"       LABEL "P/C"
     .
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
     FIELD invoiceID                AS INTEGER   FORMAT ">>>>>>>9"   LABEL "Invoice ID"
@@ -89,6 +98,8 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD pricePerEach             AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Price Per Each"
     FIELD priceUOM                 AS CHARACTER FORMAT "x(8)"       LABEL "Price UOM"
     FIELD priceTotal               AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Price Total"
+    FIELD ediPrice                 AS DECIMAL   FORMAT "->>,>>9.99" LABEL "EDI Price"
+    FIELD ediPriceUOM              AS CHARACTER FORMAT "x(8)"       LABEL "EDI Price UOM"
     FIELD customerPartID           AS CHARACTER FORMAT "x(15)"      LABEL "Customer Part ID"
     FIELD itemID                   AS CHARACTER FORMAT "x(15)"      LABEL "Item ID"
     FIELD itemName                 AS CHARACTER FORMAT "x(30)"      LABEL "Item Name"
@@ -116,6 +127,9 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD isMisc                   AS LOGICAL   FORMAT "Yes/No"     LABEL "Misc"
     FIELD charge                   AS CHARACTER FORMAT "x(20)"      LABEL "Charge"
     FIELD chargeDescription        AS CHARACTER FORMAT "x(20)"      LABEL "Charge Description"
+    FIELD linkerID                 AS INTEGER   FORMAT ">>>>>>>9"   LABEL "Linker ID"
+    FIELD sourceTable              AS CHARACTER FORMAT "X(8)"       LABEL "Invoice Line Source Table"
+    FIELD sourceRowID              AS ROWID
     .
 DEFINE TEMP-TABLE ttTaxDetail NO-UNDO
     FIELD company                AS CHARACTER FORMAT "x(3)"       LABEL "Company"

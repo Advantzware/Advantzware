@@ -201,25 +201,41 @@ if avail xest then do:
         v-lscore-c = trim(v-lscore-c).
 
         /*if xg-flag then*/ do x = 1 to length(v-lscore-c):
-          if substring(v-lscore-c,x,1) ne "" then
+          if substring(v-lscore-c,x,1) ne "" THEN 
+          do:
+             IF substring(v-lscore-c,x,1) EQ "[" THEN
+             LEAVE.
             assign
              v-len-score = v-len-score + trim(substr(v-lscore-c,x,1))
              v-space     = yes.
-
+          END.
           else
           if v-space then
             assign
              v-len-score = v-len-score + " "
              v-space     = no.
         end.
-      
+               
         for each box-design-line of box-design-hdr no-lock:
           find first w-box-design-line
               where w-box-design-line.line-no eq box-design-line.line-no
               no-error.
-          if avail w-box-design-line then do:
-            v-wid-score = trim(v-wid-score) + " " + 
-                          trim(w-box-design-line.wscore-c).
+          if avail w-box-design-line then do:             
+            do x = 1 to length(w-box-design-line.wscore-c):
+              IF substring(w-box-design-line.wscore-c,x,1) ne "" THEN 
+              do: 
+                 IF substring(w-box-design-line.wscore-c,x,1) EQ "[" THEN
+                 LEAVE.
+                assign
+                 v-wid-score = v-wid-score + trim(substr(w-box-design-line.wscore-c,x,1))
+                 v-space     = yes.
+              END.
+              else
+              if v-space then
+                assign
+                 v-wid-score = v-wid-score + " "
+                 v-space     = no.
+            END.     
             delete w-box-design-line.
           end.
         end.
