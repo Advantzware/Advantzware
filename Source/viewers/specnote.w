@@ -35,11 +35,14 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEF SHARED VAR v-prg-2 AS CHAR NO-UNDO.
 DEFINE SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEFINE VARIABLE saveNoteCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ip-rec_key AS CHARACTER NO-UNDO.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
+
+DEFINE BUFFER bjob-notes FOR notes.
 
 DEF TEMP-TABLE tt-notes LIKE notes.
 
@@ -550,8 +553,10 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  
   DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
-
+  DEF VAR lv-header-value AS cha NO-UNDO.
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   saveNoteCode = notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
   RUN valid-note_code NO-ERROR.
@@ -574,6 +579,38 @@ PROCEDURE local-update-record :
   BUFFER-COMPARE notes TO tt-notes SAVE RESULT IN ll.
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
   
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+    RUN get-header-value IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-header-value).
+
+    IF ENTRY(2,v-prg-2," ") EQ "oe/wOrderEntryMaster.w" THEN DO: 
+        FIND FIRST oe-ordl NO-LOCK WHERE 
+            oe-ordl.company EQ g_company AND 
+            oe-ordl.ord-no EQ INTEGER(ENTRY(1,lv-header-value,"-")) AND 
+            oe-ordl.line EQ INTEGER(ENTRY(2,lv-header-value,"-"))
+            NO-ERROR.
+             
+        IF AVAIL oe-ordl THEN DO:
+            FIND FIRST job NO-LOCK WHERE 
+                job.company EQ oe-ordl.company AND 
+                job.job-no EQ oe-ordl.job-no
+                NO-ERROR.
+            IF AVAIL job THEN DO:
+                FIND FIRST bjob-notes EXCLUSIVE WHERE 
+                    bjob-notes.rec_key EQ job.rec_key AND
+                    bjob-notes.note_code EQ notes.note_code AND 
+                    bjob-notes.note_form_no EQ notes.note_form_no AND 
+                    bjob-notes.note_title EQ notes.note_title
+                    NO-ERROR.
+                IF NOT AVAIL bjob-notes THEN DO:
+                    CREATE bjob-notes.
+                END.
+                BUFFER-COPY notes TO bjob-notes
+                ASSIGN 
+                    bjob-notes.rec_key = job.rec_key.
+            END.
+        END.
+    END.
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -698,29 +735,29 @@ PROCEDURE valid-note_form_no PRIVATE :
                           AND ef.est-no  EQ ls-header
                           AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
 
-        /* Check if ls-header is a job-no (not an est-no). */
-        FIND FIRST b1-job NO-LOCK
-            WHERE b1-job.company = g_company
-            AND b1-job.est-no EQ ls-header
-            NO-ERROR.
-        
-        /* If it is a job-no: */
-        IF AVAIL b1-job THEN DO:
-            /* Reformat the job's est-no to 8 chars. */
-            ASSIGN  ls-header1   = fill(" ",8 - LENGTH(TRIM(b1-job.est-no))) +
-                                                   TRIM(b1-job.est-no).
-            /* See if we can find it this time. If so, we're good. */
-            IF CAN-FIND (FIRST ef WHERE ef.company EQ g_company
-                                AND ef.est-no  EQ ls-header1
-                                AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
-                RETURN.
+            /* Check if ls-header is a job-no (not an est-no). */
+            FIND FIRST b1-job NO-LOCK
+                WHERE b1-job.company = g_company
+                AND b1-job.est-no EQ ls-header
+                NO-ERROR.
+            
+            /* If it is a job-no: */
+            IF AVAIL b1-job THEN DO:
+                /* Reformat the job's est-no to 8 chars. */
+                ASSIGN  ls-header1   = fill(" ",8 - LENGTH(TRIM(b1-job.est-no))) +
+                                                       TRIM(b1-job.est-no).
+                /* See if we can find it this time. If so, we're good. */
+                IF CAN-FIND (FIRST ef WHERE ef.company EQ g_company
+                                    AND ef.est-no  EQ ls-header1
+                                    AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
+                    {methods/lValidateError.i NO}
+                    RETURN.
+                END.
             END.
-        END.
-
-        MESSAGE 'Invalid Form.'
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.
-        APPLY "entry" TO notes.note_form_no.
-        RETURN ERROR.
+            MESSAGE 'Invalid Form.'
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            APPLY "entry" TO notes.note_form_no.
+            RETURN ERROR.
         END.
     END.
 
