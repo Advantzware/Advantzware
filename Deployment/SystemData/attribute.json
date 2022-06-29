@@ -5180,6 +5180,13 @@
     "rec_key": "202202186325308565769"
   },
   {
+    "dbFieldName": "po-no",
+    "dbFieldExtent": 0,
+    "attributeName": "POID",
+    "dbTableName": "oe-ord",
+    "rec_key": "202206204066009600393"
+  },
+  {
     "dbFieldName": "poReceivedDate",
     "dbFieldExtent": 0,
     "attributeName": "POReceivedDate",
