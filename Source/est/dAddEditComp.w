@@ -1247,8 +1247,7 @@ PROCEDURE display-item :
         iBlank      =  1 .  
         IF iplAutoPart AND ip-type EQ "Add" THEN 
         DO:
-            cCustPart = SUBSTRING(ipcPartNo,1,12) + "-" + string(j + 1 ,"99").  
-            cFGItem   = SUBSTRING(ipcFGItem,1,12) + "-" + string(j + 1 ,"99") .
+            cCustPart = SUBSTRING(ipcPartNo,1,12) + "-" + string(j + 1 ,"99").              
         END.
         IF ip-type EQ "Add" THEN
         fg-cat = ipcProCat.
@@ -1387,10 +1386,10 @@ PROCEDURE pGetEstDetail :
 
             FIND FIRST style NO-LOCK WHERE style.company = cocode
                 AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
-            IF NOT AVAILABLE style THEN 
-                FIND FIRST style NO-LOCK 
-                WHERE style.company EQ cocode
-                NO-ERROR.
+/*            IF NOT AVAILABLE style THEN      */
+/*                FIND FIRST style NO-LOCK     */
+/*                WHERE style.company EQ cocode*/
+/*                NO-ERROR.                    */
             IF AVAILABLE style THEN
                 ASSIGN 
                     style-cod:SCREEN-VALUE = style.style
@@ -1783,7 +1782,7 @@ PROCEDURE valid-style :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF NOT CAN-FIND(FIRST style
+        IF style-cod:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST style
             WHERE style.company  EQ cocode
             AND style.style    EQ style-cod:SCREEN-VALUE
             AND style.industry EQ "2")  THEN 
