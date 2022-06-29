@@ -450,6 +450,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteNote V-table-Win
+PROCEDURE deleteNote:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR lv-header-value AS CHAR NO-UNDO.
+
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+    RUN get-header-value IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-header-value).
+    
+    IF ENTRY(2,v-prg-2," ") EQ "oe/wOrderEntryMaster.w" THEN DO: 
+        FIND FIRST oe-ordl NO-LOCK WHERE 
+            oe-ordl.company EQ g_company AND 
+            oe-ordl.ord-no EQ INTEGER(ENTRY(1,lv-header-value,"-")) AND 
+            oe-ordl.line EQ INTEGER(ENTRY(2,lv-header-value,"-"))
+            NO-ERROR.
+             
+        IF AVAIL oe-ordl THEN DO:
+            FIND FIRST job NO-LOCK WHERE 
+                job.company EQ oe-ordl.company AND 
+                job.job-no EQ oe-ordl.job-no
+                NO-ERROR.
+            IF AVAIL job THEN DO:
+                FIND FIRST bjob-notes EXCLUSIVE WHERE 
+                    bjob-notes.rec_key EQ job.rec_key AND
+                    bjob-notes.note_code EQ notes.note_code AND 
+                    bjob-notes.note_form_no EQ notes.note_form_no AND 
+                    bjob-notes.note_title EQ notes.note_title
+                    NO-ERROR.
+                IF AVAIL bjob-notes THEN 
+                    DELETE bjob-notes.
+            END.
+        END.
+    END.
+    
+    IF ENTRY(2,v-prg-2," ") EQ "jc/w-jobcst.w" THEN DO: 
+        FIND FIRST job NO-LOCK WHERE 
+            job.company EQ g_company AND 
+            job.job-no EQ substring(lv-header-value,1,iJobLen)
+            NO-ERROR.
+        IF AVAIL job THEN DO:
+            FOR EACH oe-ordl NO-LOCK WHERE 
+                oe-ordl.company EQ job.company AND 
+                oe-ordl.job-no EQ job.job-no: 
+                FIND FIRST bjob-notes EXCLUSIVE WHERE 
+                    bjob-notes.rec_key EQ oe-ordl.rec_key AND
+                    bjob-notes.note_code EQ notes.note_code AND 
+                    bjob-notes.note_form_no EQ notes.note_form_no AND 
+                    bjob-notes.note_title EQ notes.note_title
+                    NO-ERROR.
+                IF AVAIL bjob-notes THEN 
+                    DELETE bjob-notes.
+            END.
+        END.    
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -508,14 +573,11 @@ PROCEDURE local-create-record :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN get-header-value IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-header-value).
   IF lv-header-value BEGINS "Estimate:" THEN DO:
-    /* RUN get-reckey2 IN Persistent-Handle (OUTPUT lv-reckey2).     */
      lv-reckey2 = SUBSTRING(lv-header-value,10,16).
      FIND FIRST eb WHERE eb.rec_key = lv-reckey2 NO-LOCK NO-ERROR.
-     IF AVAIL eb THEN ASSIGN notes.note_form_no = eb.form-no
-                              notes.note_form_no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(eb.form-no).     
-    /* MESSAGE lv-reckey2 SKIP
-         lv-header-value SKIP
-         eb.part-no VIEW-AS ALERT-BOX. */
+     IF AVAIL eb THEN ASSIGN 
+        notes.note_form_no = eb.form-no
+        notes.note_form_no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(eb.form-no).     
   END.
 
   {methods/run_link.i "CONTAINER-SOURCE" "pGetChargeCode" "(OUTPUT cChargeCode)"}
@@ -555,7 +617,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   
   DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
-  DEF VAR lv-header-value AS cha NO-UNDO.
+  DEF VAR lv-header-value AS CHAR NO-UNDO.
     
   /* Code placed here will execute PRIOR to standard behavior. */
   saveNoteCode = notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
@@ -610,7 +672,32 @@ PROCEDURE local-update-record :
             END.
         END.
     END.
-      
+    
+    IF ENTRY(2,v-prg-2," ") EQ "jc/w-jobcst.w" THEN DO: 
+        FIND FIRST job NO-LOCK WHERE 
+            job.company EQ g_company AND 
+            job.job-no EQ substring(lv-header-value,1,iJobLen)
+            NO-ERROR.
+        IF AVAIL job THEN DO:
+            FOR EACH oe-ordl NO-LOCK WHERE 
+                oe-ordl.company EQ job.company AND 
+                oe-ordl.job-no EQ job.job-no: 
+                FIND FIRST bjob-notes EXCLUSIVE WHERE 
+                    bjob-notes.rec_key EQ oe-ordl.rec_key AND
+                    bjob-notes.note_code EQ notes.note_code AND 
+                    bjob-notes.note_form_no EQ notes.note_form_no AND 
+                    bjob-notes.note_title EQ notes.note_title
+                    NO-ERROR.
+                IF NOT AVAIL bjob-notes THEN DO:
+                    CREATE bjob-notes.
+                END.
+                BUFFER-COPY notes TO bjob-notes
+                ASSIGN 
+                    bjob-notes.rec_key = job.rec_key.
+            END.
+        END.    
+    END.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
