@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
@@ -37,7 +37,7 @@ ASSIGN
   ip-header = {methods/headers/prgrms.i}.
 &ENDIF
 
-DEF VAR v-prg-2 AS CHAR NO-UNDO.
+DEF NEW SHARED VAR v-prg-2 AS CHAR NO-UNDO.
 
 v-prg-2 = PROGRAM-NAME(2).
 
@@ -538,6 +538,10 @@ PROCEDURE get-ip-header :
   IF op-header EQ "" THEN
   FIND FIRST job-hdr WHERE job-hdr.rec_key EQ ip-rec_key NO-LOCK NO-ERROR.
   IF AVAIL job-hdr THEN op-header = job-hdr.est-no.
+
+  IF op-header EQ "" THEN
+  FIND FIRST job WHERE job.rec_key EQ ip-rec_key NO-LOCK NO-ERROR.
+  IF AVAIL job THEN op-header = job.est-no.
 
   IF op-header EQ "" THEN op-header = ip-header.
   
