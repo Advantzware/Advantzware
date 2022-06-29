@@ -2084,49 +2084,47 @@ PROCEDURE pCallAPIOutbound PRIVATE:
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    IF v-print-fmt EQ "quoprint 11" THEN DO:
-        system.SharedConfig:Instance:SetValue("SendQuote_Print2ndItemDescription", STRING(tb_print-2nd-dscr:CHECKED)).
-        system.SharedConfig:Instance:SetValue("SendQuote_PrintBoxDesign", STRING(tb_prt-box:CHECKED)).
-        system.SharedConfig:Instance:SetValue("SendQuote_PrintSetComponents", STRING(tb_prt-comp:CHECKED)).
-        
-        RUN Outbound_PrepareAndExecuteForScopeAndClient IN hdOutboundProcs (
-            INPUT  cocode,                                         /* Company Code (Mandatory) */
-            INPUT  "",                                             /* Location Code (Mandatory) */
-            INPUT  "SendQuote",                                    /* API ID (Mandatory) */
-            INPUT  ipcFormat,                                      /* Client ID */
-            INPUT  ipcScopeID,                                     /* Scope ID */
-            INPUT  ipcScopeType,                                   /* Scope Type */
-            INPUT  "PrintQuote",                                   /* Trigger ID (Mandatory) */
-            INPUT  "TTQuote",                                      /* Comma separated list of table names for which data being sent (Mandatory) */
-            INPUT  STRING(TEMP-TABLE tt-quote:HANDLE),             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-            INPUT  "Quote Print",                                  /* Primary ID for which API is called for (Mandatory) */   
-            INPUT  "Quote print",                                  /* Event's description (Optional) */
-            OUTPUT lSuccess,                                       /* Success/Failure flag */
-            OUTPUT cMessage                                        /* Status message */
-            ).
+    system.SharedConfig:Instance:SetValue("SendQuote_Print2ndItemDescription", STRING(tb_print-2nd-dscr:CHECKED)).
+    system.SharedConfig:Instance:SetValue("SendQuote_PrintBoxDesign", STRING(tb_prt-box:CHECKED)).
+    system.SharedConfig:Instance:SetValue("SendQuote_PrintSetComponents", STRING(tb_prt-comp:CHECKED)).
+    
+    RUN Outbound_PrepareAndExecuteForScopeAndClient IN hdOutboundProcs (
+        INPUT  cocode,                                         /* Company Code (Mandatory) */
+        INPUT  "",                                             /* Location Code (Mandatory) */
+        INPUT  "SendQuote",                                    /* API ID (Mandatory) */
+        INPUT  ipcFormat,                                      /* Client ID */
+        INPUT  ipcScopeID,                                     /* Scope ID */
+        INPUT  ipcScopeType,                                   /* Scope Type */
+        INPUT  "PrintQuote",                                   /* Trigger ID (Mandatory) */
+        INPUT  "TTQuote",                                      /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(TEMP-TABLE tt-quote:HANDLE),             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  "Quote Print",                                  /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Quote print",                                  /* Event's description (Optional) */
+        OUTPUT lSuccess,                                       /* Success/Failure flag */
+        OUTPUT cMessage                                        /* Status message */
+        ).
 
-        system.SharedConfig:Instance:DeleteValue("SendQuote_Print2ndItemDescription").
-        system.SharedConfig:Instance:DeleteValue("SendQuote_PrintBoxDesign").
-        system.SharedConfig:Instance:DeleteValue("SendQuote_PrintSetComponents").
+    system.SharedConfig:Instance:DeleteValue("SendQuote_Print2ndItemDescription").
+    system.SharedConfig:Instance:DeleteValue("SendQuote_PrintBoxDesign").
+    system.SharedConfig:Instance:DeleteValue("SendQuote_PrintSetComponents").
 
-        RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    
+    lcRequestData = "".
+    
+    FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        FIND FIRST apiOutboundEvent NO-LOCK
+             WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+             NO-ERROR.
+        IF AVAILABLE apiOutboundEvent THEN
+            lcRequestData = apiOutboundEvent.requestData.
+    END.    
+    
+    IF lcRequestData NE "" THEN
+        COPY-LOB FROM lcRequestData TO FILE list-name.
         
-        lcRequestData = "".
-        
-        FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
-        IF AVAILABLE ttAPIOutboundEvent THEN DO:
-            FIND FIRST apiOutboundEvent NO-LOCK
-                 WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
-                 NO-ERROR.
-            IF AVAILABLE apiOutboundEvent THEN
-                lcRequestData = apiOutboundEvent.requestData.
-        END.    
-        
-        IF lcRequestData NE "" THEN
-            COPY-LOB FROM lcRequestData TO FILE list-name.
-            
-        RUN Outbound_ResetContext IN hdOutboundProcs. 
-    END.   
+    RUN Outbound_ResetContext IN hdOutboundProcs. 
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

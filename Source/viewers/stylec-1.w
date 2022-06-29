@@ -194,9 +194,9 @@ DEFINE FRAME F-Main
           SIZE 46.6 BY 1
           BGCOLOR 15 
      style.formula[20] AT ROW 11.48 COL 24.4 COLON-ALIGNED WIDGET-ID 6
-          LABEL "PO Scores Width" FORMAT "x(80)"
+          LABEL "PO Sheet Scores Formula" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 46.6 BY 1
+          SIZE 42.6 BY 1
           BGCOLOR 15 
      ld-box-fit AT ROW 12.71 COL 24.4 COLON-ALIGNED
      style.balecount AT ROW 12.71 COL 67.8 COLON-ALIGNED

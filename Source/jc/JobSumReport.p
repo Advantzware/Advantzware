@@ -64,8 +64,8 @@ PROCEDURE pBuildTempTables PRIVATE:
     DEFINE VARIABLE lOpenOnly AS LOGICAL NO-UNDO.
     
     ASSIGN
-        cJobNo[1] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', ipcFromJobNo, ipiFromJobNo2)) 
-        cJobNo[2] = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', ipcToJobNo, ipiToJobNo2)) 
+        cJobNo[1] = FILL(" ", iJobLen - length(trim(ipcFromJobNo))) + trim(ipcFromJobNo) + string(int(ipiFromJobNo2),"999") 
+        cJobNo[2] = FILL(" ", iJobLen - length(trim(ipcToJobNo))) + trim(ipcToJobNo) + string(int(ipiToJobNo2),"999")
         lClosedOnly = ipcStatus EQ "C"
         lOpenOnly = ipcStatus EQ "O"
         . 

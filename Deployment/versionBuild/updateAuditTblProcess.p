@@ -71,8 +71,8 @@ DO:
     FOR EACH _file WHERE _file._file-num GT 0 AND _file._file-num LT 32000 NO-LOCK:
         PUT UNFORMATTED 'GRANT SELECT ON PUB."' + _file._file-name + '" TO PUBLIC ~;' + CHR(10).
     END.
-    PUT UNFORMATTED 'GRANT ALL ON PUB.dmiTrans TO PUBLIC ~;' + CHR(10).
-    PUT UNFORMATTED 'GRANT ALL ON PUB.job-mch TO PUBLIC ~;' + CHR(10).
+    PUT UNFORMATTED 'GRANT ALL ON PUB.dmiTrans TO amsuser ~;' + CHR(10).
+    PUT UNFORMATTED 'GRANT ALL ON PUB.job-mch TO amsuser ~;' + CHR(10).
     PUT UNFORMATTED 'COMMIT;' + CHR(10).
     OUTPUT CLOSE.
 END.

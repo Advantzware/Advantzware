@@ -150,12 +150,15 @@ FOR EACH job-hdr NO-LOCK
         END.
     END.
     
-    FIND FIRST estCostHeader NO-LOCK
-         WHERE estCostHeader.company    = job-hdr.company
-           AND estCostHeader.estimateNo = job-hdr.est-no
-           AND estCostHeader.jobID      = job-hdr.job-no
-           AND estCostHeader.jobid2     = job-hdr.job-no2
-         NO-ERROR.
+    /* Need to be re-factored later */
+    FOR EACH estCostHeader NO-LOCK
+         WHERE estCostHeader.company    EQ job-hdr.company
+           AND estCostHeader.estimateNo EQ job-hdr.est-no
+           AND estCostHeader.jobID      EQ job-hdr.job-no
+           AND estCostHeader.jobid2     EQ job-hdr.job-no2
+         BY estCostHeader.calcDateTime DESCENDING:
+        LEAVE.
+    END.
     IF NOT AVAILABLE estCostHeader THEN
         NEXT.
     

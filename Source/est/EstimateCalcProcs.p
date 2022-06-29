@@ -2089,8 +2089,9 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
     DO:
         FIND FIRST bf-est-qty
             WHERE bf-est-qty.company EQ bf-est.company
-            AND bf-est-qty.est-no  EQ bf-est.est-no
-            NO-LOCK NO-ERROR.
+              AND bf-est-qty.est-no  EQ bf-est.est-no
+              AND bf-est-qty.qty[1]  NE 0
+             NO-LOCK NO-ERROR.
         IF AVAILABLE bf-est-qty THEN 
             DO iQtyCount = 1 TO 20:
 
@@ -2604,8 +2605,8 @@ PROCEDURE pCalcHeader PRIVATE:
             FIND CURRENT bf-ttEstCostHeader EXCLUSIVE-LOCK.
             bf-ttEstCostHeader.quantityMaster = dQtyMaster.
             FIND CURRENT bf-ttEstCostHeader NO-LOCK.
-        END.
-        
+        END.                            
+       
         IF glAutoRecostBoard = TRUE THEN
         DO:
             RUN RecostBoardEst_RecostBoard IN ghRecostBoardEst(INPUT TABLE ttEstCostHeaderToCalc,
@@ -4910,21 +4911,23 @@ PROCEDURE pProcessGlues PRIVATE:
         EACH ttGlue NO-LOCK
         WHERE ttGlue.estHeaderID EQ ttEstCostOperation.estCostHeaderID
         AND ttGlue.estFormID EQ ttEstCostOperation.estCostFormID
-        AND ttGlue.estBlankID EQ ttEstCostOperation.estCostBlankID
+        AND (ttGlue.estBlankID EQ ttEstCostOperation.estCostBlankID 
+        OR (ttEstCostOperation.estCostBlankID EQ ? 
+        AND ttEstCostOperation.FeedType EQ "S"))
         ,
         FIRST ttEstCostBlank NO-LOCK 
         WHERE ttEstCostBlank.estCostHeaderID EQ ttGlue.estHeaderID
         AND ttEstCostBlank.estCostFormID EQ ttGlue.estFormID 
         AND ttEstCostBlank.estCostBlankID EQ ttGlue.estBlankID 
-        BY ttEstCostOperation.sequenceOfOperation DESCENDING:
-        
+        BY ttEstCostOperation.sequenceOfOperation DESCENDING: 
+
         RUN pAddEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, ttGlue.cItemID, ttEstCostBlank.estCostBlankID, BUFFER bf-ttEstCostMaterial).
         
         ASSIGN    
             bf-ttEstCostMaterial.addToWeightNet             = YES
-            bf-ttEstCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank
-            bf-ttEstCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank
-            bf-ttEstCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank
+            bf-ttEstCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
+            bf-ttEstCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
+            bf-ttEstCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
             dQtyRequiredMinDiff                           = ttGlue.dMinLbsPerJob - 
                                                     (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
             bf-ttEstCostMaterial.quantityUOM                = ttGlue.cQtyUOM
@@ -5029,15 +5032,15 @@ PROCEDURE pProcessInk PRIVATE:
         
     ASSIGN    
         bf-ttEstCostMaterial.addToWeightNet             = YES
-        ipbf-ttInk.dQtyRequiredPerBlank               = ipbf-ttInk.dCoveragePercent * ipbf-ttEstCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
-        dQtyRequiredPerForm                           = ipbf-ttEstCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
+        ipbf-ttInk.dQtyRequiredPerBlank                 = ipbf-ttInk.dCoveragePercent * ipbf-ttEstCostBlank.blankAreaNetWindow / ipbf-ttInk.dCoverageRate
+        dQtyRequiredPerForm                             = ipbf-ttEstCostBlank.numOut * ipbf-ttInk.dQtyRequiredPerBlank
         bf-ttEstCostMaterial.quantityRequiredNoWaste    = ipbf-ttEstCostOperation.quantityInNoWaste * dQtyRequiredPerForm
-        bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostOperation.quantityInRunWaste * dQtyRequiredPerForm
+        bf-ttEstCostMaterial.quantityRequiredRunWaste   = ipbf-ttEstCostOperation.quantityInRunWaste * dQtyRequiredPerForm + (ipbf-ttEstCostOperation.quantityInkLbsWastedPerColor * (ipbf-ttInk.iCountInks + ipbf-ttInk.iCountCoatings))
         bf-ttEstCostMaterial.quantityRequiredSetupWaste = ipbf-ttEstCostOperation.quantityInSetupWaste * dQtyRequiredPerForm + ipbf-ttEstCostOperation.quantityInkLbsWastedPerSetup
-        dQtyRequiredMinDiff                           = ipbf-ttInk.dMinLbsPerJob - (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
+        dQtyRequiredMinDiff                             = ipbf-ttInk.dMinLbsPerJob - (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
         bf-ttEstCostMaterial.quantityUOM                = ipbf-ttInk.cQtyUOM
         bf-ttEstCostMaterial.noCharge                   = ipbf-ttInk.lNoCharge
-        .             
+        .            
     IF dQtyRequiredMinDiff GT 0 THEN 
         bf-ttEstCostMaterial.quantityRequiredMinDiff = dQtyRequiredMinDiff.
     
@@ -5774,6 +5777,7 @@ PROCEDURE pPurgeCalculation PRIVATE:
     DEFINE BUFFER bf-probe         FOR probe.
     DEFINE BUFFER bf-probeit       FOR probeit.
     DEFINE BUFFER bf-ttEstCostHeader FOR ttEstCostHeader.
+    DEFINE BUFFER bf-estCostHeader   FOR estCostHeader.
     
     IF ipcJobNo EQ "" THEN DO:
         FOR EACH bf-probe EXCLUSIVE-LOCK 
@@ -5795,6 +5799,19 @@ PROCEDURE pPurgeCalculation PRIVATE:
             
         DELETE bf-ttEstCostHeader.    
     END.
+    
+    FOR EACH estCostHeader NO-LOCK 
+        WHERE estCostHeader.company    EQ ipcCompany
+          AND estCostHeader.estimateNo EQ ipcEstimateNo
+          AND estCostHeader.jobID      EQ ipcJobNo
+          AND estCostHeader.jobID2     EQ ipiJobNo2:
+        FIND FIRST bf-estCostHeader EXCLUSIVE-LOCK
+             WHERE bf-estCostHeader.estCostHeaderID EQ estCostHeader.estCostHeaderID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostHeader THEN
+            DELETE bf-estCostHeader.
+    END.
+   
     RELEASE bf-probe.
     RELEASE bf-probeit.
     RELEASE bf-ttEstCostHeader.

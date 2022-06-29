@@ -82,6 +82,7 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD bolID                       AS INTEGER   FORMAT "->,>>>,>>9" LABEL "BOL ID"
     FIELD totalPallets                AS INTEGER   FORMAT "->,>>>,>>9" LABEL "TotalPallets"
     FIELD salesPerson                 AS CHARACTER FORMAT "X(30)"      LABEL "Sales Person" EXTENT 3
+    FIELD invoicePC                   AS CHARACTER FORMAT "X(2)"       LABEL "P/C"
     .
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
     FIELD invoiceID                AS INTEGER   FORMAT ">>>>>>>9"   LABEL "Invoice ID"
