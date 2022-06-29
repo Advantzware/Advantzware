@@ -333,7 +333,7 @@ PROCEDURE GetNextPriceBreak:
                 iIndex = iIndex + 1.
                 IF iIndex LE 20 AND ttEstimateQuantity.EstQuantity[iIndex] GT 0 THEN 
                 DO: 
-                    RUN sys/ref/convquom.p(cVendCostUOM, "EA", item.basis-w,
+                    RUN sys/ref/convquom.p(cVendCostUOM, "EA", (IF AVAILABLE ITEM THEN item.basis-w ELSE 0),
                         ipdformlength, ipdformwidth, ipdformdepth,
                         vendItemCostLevel.quantityBase, OUTPUT opdNextQuantity).
                     opdNextQuantity = opdNextQuantity * ipinumup * iN-out.                     

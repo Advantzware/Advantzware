@@ -34,6 +34,10 @@ DEFINE VARIABLE ld-msf AS DECIMAL NO-UNDO.
 DEFINE VARIABLE hdEstimateProcs AS HANDLE.
 
 RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+
+{system/VendorCostProcs.i}
+DEFINE TEMP-TABLE tt-report LIKE report.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -58,7 +62,8 @@ tg_RunShip-11 lv-qty12 lv-rel-12 tg_RunShip-12 lv-qty13 lv-rel-13 ~
 tg_RunShip-13 lv-qty14 lv-rel-14 tg_RunShip-14 lv-qty15 lv-rel-15 ~
 tg_RunShip-15 lv-qty16 lv-rel-16 tg_RunShip-16 lv-qty17 lv-rel-17 ~
 tg_RunShip-17 lv-qty18 lv-rel-18 tg_RunShip-18 lv-qty19 lv-rel-19 ~
-tg_RunShip-19 lv-qty20 lv-rel-20 tg_RunShip-20 Btn_OK Btn_Cancel RECT-6 
+tg_RunShip-19 lv-qty20 lv-rel-20 tg_RunShip-20 Btn_OK Btn_Cancel RECT-6 ~
+rd_vendor Btn_Add-Break Btn_Clear 
 &Scoped-Define DISPLAYED-OBJECTS lv-qty1 lv-rel-1 tg_RunShip-1 lv-msf-1 ~
 lv-qty2 lv-rel-2 tg_RunShip-2 lv-msf-2 lv-qty3 lv-rel-3 tg_RunShip-3 ~
 lv-msf-3 lv-qty4 lv-rel-4 tg_RunShip-4 lv-msf-4 lv-qty5 lv-rel-5 ~
@@ -75,7 +80,7 @@ lv-msf-20 lv-next-qty1 lv-next-qty2 lv-next-qty17 lv-next-qty16 ~
 lv-next-qty15 lv-next-qty14 lv-next-qty13 lv-next-qty12 lv-next-qty11 ~
 lv-next-qty10 lv-next-qty9 lv-next-qty8 lv-next-qty7 lv-next-qty6 ~
 lv-next-qty5 lv-next-qty4 lv-next-qty3 lv-next-qty18 lv-next-qty19 ~
-lv-next-qty20 
+lv-next-qty20 rd_vendor 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -83,22 +88,48 @@ lv-next-qty20
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fUseVendItemCost Dialog-Frame
+FUNCTION fUseVendItemCost RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn_Add-Break  
+     LABEL "Add Break Quantities" 
+     SIZE 23.6 BY 1.14
+     BGCOLOR 8 .
+
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Cancel" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_OK AUTO-GO 
+DEFINE BUTTON Btn_Clear  
+     LABEL "Clear Quantities" 
+     SIZE 23.6 BY 1.14
+     BGCOLOR 8 .
+
+DEFINE BUTTON Btn_OK  
      LABEL "OK" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
+
+DEFINE VARIABLE rd_vendor AS CHARACTER FORMAT "x(15)":U INITIAL "1" 
+     LABEL "Vendor" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     DROP-DOWN-LIST
+     SIZE 24 BY 1
+     BGCOLOR 15 FONT 6 NO-UNDO.
 
 DEFINE VARIABLE lv-msf-1 AS DECIMAL FORMAT "->>,>>>,>>9.9<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -422,7 +453,7 @@ DEFINE VARIABLE lv-rel-9 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 99 BY 23.1.
+     SIZE 124 BY 23.1.
 
 DEFINE VARIABLE tg_RunShip-1 AS LOGICAL INITIAL no 
      LABEL "" 
@@ -635,17 +666,14 @@ DEFINE FRAME Dialog-Frame
      lv-next-qty18 AT ROW 19 COL 71 COLON-ALIGNED NO-LABEL WIDGET-ID 82
      lv-next-qty19 AT ROW 20 COL 71 COLON-ALIGNED NO-LABEL WIDGET-ID 84
      lv-next-qty20 AT ROW 20.86 COL 71 COLON-ALIGNED NO-LABEL WIDGET-ID 86
+     rd_vendor AT ROW 1.29 COL 97 COLON-ALIGNED WIDGET-ID 258
+     Btn_Add-Break AT ROW 22.43 COL 68.6 WIDGET-ID 260
+     Btn_Clear AT ROW 22.43 COL 95.4 WIDGET-ID 262
      "Run Ship" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.48 COL 40 WIDGET-ID 2
           FONT 6
      "Releases" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 1.48 COL 25
-          FONT 6
-     "Qty MSF" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.48 COL 54
-          FONT 6
-     "Quantity" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.48 COL 6
           FONT 6
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -653,11 +681,17 @@ DEFINE FRAME Dialog-Frame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
+     "Qty MSF" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.48 COL 54
+          FONT 6
+     "Quantity" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.48 COL 6
+          FONT 6
      "Next Qty" VIEW-AS TEXT
           SIZE 10.6 BY .62 AT ROW 1.48 COL 73.8 WIDGET-ID 46
           FONT 6
      RECT-6 AT ROW 1 COL 2
-     SPACE(44.99) SKIP(0.00)
+     SPACE(19.99) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Quantity Detail Information"
@@ -795,6 +829,41 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_Add-Break
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add-Break Dialog-Frame
+ON CHOOSE OF Btn_Add-Break IN FRAME Dialog-Frame /* Add Break Quantities */
+DO:
+    oplError = NO.
+    IF rd_vendor:SCREEN-VALUE NE "" THEN
+    DO:  
+       ASSIGN lv-qty1:SCREEN-VALUE = lv-next-qty1:SCREEN-VALUE
+           lv-qty2:SCREEN-VALUE = lv-next-qty2:SCREEN-VALUE
+           lv-qty3:SCREEN-VALUE = lv-next-qty3:SCREEN-VALUE
+           lv-qty4:SCREEN-VALUE = lv-next-qty4:SCREEN-VALUE
+           lv-qty5:SCREEN-VALUE = lv-next-qty5:SCREEN-VALUE
+           lv-qty6:SCREEN-VALUE = lv-next-qty6:SCREEN-VALUE
+           lv-qty7:SCREEN-VALUE = lv-next-qty7:SCREEN-VALUE 
+           lv-qty8:SCREEN-VALUE = lv-next-qty8:SCREEN-VALUE
+           lv-qty9:SCREEN-VALUE = lv-next-qty9:SCREEN-VALUE
+           lv-qty10:SCREEN-VALUE = lv-next-qty10:SCREEN-VALUE         
+           lv-qty11:SCREEN-VALUE = lv-next-qty11:SCREEN-VALUE 
+           lv-qty12:SCREEN-VALUE = lv-next-qty12:SCREEN-VALUE
+           lv-qty13:SCREEN-VALUE = lv-next-qty13:SCREEN-VALUE 
+           lv-qty14:SCREEN-VALUE = lv-next-qty14:SCREEN-VALUE
+           lv-qty15:SCREEN-VALUE = lv-next-qty15:SCREEN-VALUE
+           lv-qty16:SCREEN-VALUE = lv-next-qty16:SCREEN-VALUE
+           lv-qty17:SCREEN-VALUE = lv-next-qty17:SCREEN-VALUE
+           lv-qty18:SCREEN-VALUE = lv-next-qty18:SCREEN-VALUE
+           lv-qty19:SCREEN-VALUE = lv-next-qty19:SCREEN-VALUE 
+           lv-qty20:SCREEN-VALUE = lv-next-qty20:SCREEN-VALUE
+           .
+    END.       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
@@ -807,11 +876,43 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME Btn_Clear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Clear Dialog-Frame
+ON CHOOSE OF Btn_Clear IN FRAME Dialog-Frame /* Clear Quantities */
+DO:
+    ASSIGN lv-qty1:SCREEN-VALUE = "0"
+           lv-qty2:SCREEN-VALUE = "0"
+           lv-qty3:SCREEN-VALUE = "0"
+           lv-qty4:SCREEN-VALUE = "0"
+           lv-qty5:SCREEN-VALUE = "0"
+           lv-qty6:SCREEN-VALUE = "0"
+           lv-qty7:SCREEN-VALUE = "0" 
+           lv-qty8:SCREEN-VALUE = "0"
+           lv-qty9:SCREEN-VALUE = "0" 
+           lv-qty10:SCREEN-VALUE = "0"           
+           lv-qty11:SCREEN-VALUE = "0" 
+           lv-qty12:SCREEN-VALUE = "0"
+           lv-qty13:SCREEN-VALUE = "0" 
+           lv-qty14:SCREEN-VALUE = "0"
+           lv-qty15:SCREEN-VALUE = "0" 
+           lv-qty16:SCREEN-VALUE = "0"
+           lv-qty17:SCREEN-VALUE = "0" 
+           lv-qty18:SCREEN-VALUE = "0"
+           lv-qty19:SCREEN-VALUE = "0" 
+           lv-qty20:SCREEN-VALUE = "0"
+           .      
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* OK */
 DO:
     oplError = NO.
+        
     ASSIGN lv-qty1 lv-qty2
            lv-qty3 lv-qty4
            lv-qty5 lv-qty6
@@ -832,6 +933,16 @@ DO:
            lv-rel-15 lv-rel-16
            lv-rel-17 lv-rel-18
            lv-rel-19 lv-rel-20.
+           
+    IF lv-qty1 EQ 0 AND lv-qty2 EQ 0 AND lv-qty3 EQ 0 AND lv-qty4 EQ 0 AND lv-qty5 EQ 0 AND lv-qty6 EQ 0 AND lv-qty7 EQ 0 AND lv-qty8 EQ 0 AND lv-qty9 EQ 0 AND lv-qty10 EQ 0 AND 
+       lv-qty11 EQ 0 AND lv-qty12 EQ 0 AND lv-qty13 EQ 0 AND lv-qty14 EQ 0 AND lv-qty15 EQ 0 AND lv-qty16 EQ 0 AND lv-qty17 EQ 0 AND lv-qty18 EQ 0 AND lv-qty19 EQ 0 AND lv-qty20 EQ 0 THEN
+    DO:
+        MESSAGE "Please enter at least one quantity ..." 
+                VIEW-AS ALERT-BOX INFO .
+        APPLY "entry" TO lv-qty1.         
+        RETURN.        
+    END.       
+           
     ASSIGN tg_RunShip-1 tg_RunShip-2
             tg_RunShip-3 tg_RunShip-4
             tg_RunShip-5 tg_RunShip-6
@@ -904,6 +1015,8 @@ DO:
                    ttEstimateQuantity.EstQuantity[20] = lv-qty20 
                    ttEstimateQuantity.EstRelease[20]  = lv-rel-20
                    ttEstimateQuantity.EstRunship[20]  = tg_runship-20.
+                   
+    APPLY "go" TO FRAME {&FRAME-NAME}.               
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1149,6 +1262,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rd_vendor
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_vendor Dialog-Frame
+ON VALUE-CHANGED OF rd_vendor IN FRAME Dialog-Frame
+DO:  
+    rd_vendor = rd_vendor:SCREEN-VALUE.
+    RUN pGetNextQty.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -1277,7 +1402,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  lv-next-qty18 = ttEstimateQuantity.EstNextQuantity[18]
                  lv-next-qty19 = ttEstimateQuantity.EstNextQuantity[19]
                  lv-next-qty20 = ttEstimateQuantity.EstNextQuantity[20]. 
-                                         
+          RUN pGetVendorList.                               
       END.
       
    RUN enable_UI. 
@@ -1336,7 +1461,7 @@ PROCEDURE enable_UI :
           lv-next-qty17 lv-next-qty16 lv-next-qty15 lv-next-qty14 lv-next-qty13 
           lv-next-qty12 lv-next-qty11 lv-next-qty10 lv-next-qty9 lv-next-qty8 
           lv-next-qty7 lv-next-qty6 lv-next-qty5 lv-next-qty4 lv-next-qty3 
-          lv-next-qty18 lv-next-qty19 lv-next-qty20 
+          lv-next-qty18 lv-next-qty19 lv-next-qty20 rd_vendor 
       WITH FRAME Dialog-Frame.
   ENABLE lv-qty1 lv-rel-1 tg_RunShip-1 lv-qty2 lv-rel-2 tg_RunShip-2 lv-qty3 
          lv-rel-3 tg_RunShip-3 lv-qty4 lv-rel-4 tg_RunShip-4 lv-qty5 lv-rel-5 
@@ -1348,7 +1473,7 @@ PROCEDURE enable_UI :
          tg_RunShip-15 lv-qty16 lv-rel-16 tg_RunShip-16 lv-qty17 lv-rel-17 
          tg_RunShip-17 lv-qty18 lv-rel-18 tg_RunShip-18 lv-qty19 lv-rel-19 
          tg_RunShip-19 lv-qty20 lv-rel-20 tg_RunShip-20 Btn_OK Btn_Cancel 
-         RECT-6 
+         RECT-6 rd_vendor Btn_Add-Break Btn_Clear 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -1357,3 +1482,214 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendorList Dialog-Frame 
+PROCEDURE pGetVendorList :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE v-forms  AS INTEGER   EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE li       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lUseVIC  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScope   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dQty     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lLogic   AS LOGICAL   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    rd_vendor:LIST-ITEMS IN FRAME {&frame-name} = "".
+    
+    cScope = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over").
+    
+    FIND FIRST est NO-LOCK
+        WHERE est.company EQ eb.company
+        AND est.est-no EQ eb.est-no NO-ERROR.
+       
+    IF AVAILABLE est THEN
+    DO:          
+        lUseVIC = fUseVendItemCost(est.company).
+    
+        FOR EACH ef
+            WHERE ef.company EQ est.company
+            AND ef.est-no  EQ est.est-no        
+            NO-LOCK:             
+                     
+            IF lUseVIC THEN 
+            DO:
+                FIND FIRST est-qty NO-LOCK 
+                    WHERE est-qty.company EQ est.company
+                    AND est-qty.est-no EQ est.est-no
+                    NO-ERROR.
+                IF AVAILABLE est-qty THEN dQty = est-qty.eqty.
+                RUN BuildVendItemCosts(est.company, ef.board, "RM", cScope, YES,
+                    ef.est-no,ef.form-no,0,
+                    dQty, "EA", 
+                    ef.gsh-len, ef.gsh-wid, ef.gsh-dep, "IN",
+                    ef.weight, "LBS/MSF", 
+                    OUTPUT TABLE ttVendItemCost,
+                    OUTPUT lError, OUTPUT cMessage).
+                FOR EACH ttVendItemCost, 
+                    FIRST vend NO-LOCK 
+                    WHERE vend.company EQ ttVendItemCost.company
+                    AND vend.vend-no EQ ttVendItemCost.vendorID:
+                    CREATE tt-report.
+                    ASSIGN 
+                        tt-report.key-01 = vend.vend-no
+                        tt-report.key-02 = vend.name
+                        tt-report.key-03 = ef.board
+                        .
+                END.
+                EMPTY TEMP-TABLE ttVendItemCost.
+            END.
+            ELSE 
+            DO: 
+                FOR EACH e-item-vend
+                    WHERE e-item-vend.company EQ ef.company
+                    AND e-item-vend.i-no    EQ ef.board
+                    AND e-item-vend.vend-no NE ""         
+                    AND ef.gsh-wid          GE e-item-vend.roll-w[27]
+                    AND ef.gsh-wid          LE e-item-vend.roll-w[28]
+                    AND ef.gsh-len          GE e-item-vend.roll-w[29]
+                    AND ef.gsh-len          LE e-item-vend.roll-w[30]
+                    NO-LOCK:
+    
+                    FIND FIRST vend
+                        WHERE vend.company EQ e-item-vend.company
+                        AND vend.vend-no EQ e-item-vend.vend-no
+                        NO-LOCK NO-ERROR.
+    
+                    CREATE tt-report.
+                    ASSIGN
+                        tt-report.key-01 = e-item-vend.vend-no
+                        tt-report.key-02 = IF AVAILABLE vend THEN vend.name ELSE ""
+                        tt-report.rec-id = RECID(e-item-vend)
+                        tt-report.key-03 = ef.board.
+                END.
+            END.
+        END.
+    
+    END.
+       
+    FOR EACH tt-report NO-LOCK:   
+        lLogic = rd_vendor:ADD-LAST (STRING(tt-report.key-01)) IN FRAME {&frame-name} NO-ERROR.
+    END.    
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetNextQty Dialog-Frame 
+PROCEDURE pGetNextQty :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cBaseQty AS INTEGER EXTENT 20 NO-UNDO.
+        
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+        
+    FIND FIRST est NO-LOCK
+        WHERE est.company EQ eb.company
+        AND est.est-no EQ eb.est-no NO-ERROR.
+       
+    IF AVAILABLE est THEN
+    DO:    
+        FIND FIRST tt-report NO-LOCK
+             WHERE tt-report.key-01 EQ rd_vendor:SCREEN-VALUE NO-ERROR.
+                     
+        FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.company  EQ est.company
+        AND vendItemCost.itemType EQ "RM"
+        AND vendItemCost.itemID EQ tt-report.key-03
+        AND vendItemCost.vendorID EQ tt-report.key-01         
+        AND vendItemCost.estimateNo EQ ""
+        AND vendItemCost.effectiveDate LE TODAY
+        AND (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate EQ ? OR vendItemCost.expirationDate EQ 01/01/0001)
+        BREAK BY vendItemCost.vendorID:  
+             FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
+                    BY vendItemCostLevel.quantityBase: 
+                    iCount = iCount + 1. 
+                   cBaseQty[iCount] = vendItemCostLevel.quantityBase.                                     
+             END.
+        END.
+    END.    
+    
+    DO WITH FRAME {&FRAME-NAME}:
+     DO iCount = 1 TO 20:
+        CASE iCount:
+        WHEN 1 THEN
+            lv-next-qty1:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 2 THEN
+            lv-next-qty2:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 3 THEN
+            lv-next-qty3:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 4 THEN
+            lv-next-qty4:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 5 THEN
+            lv-next-qty5:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 6 THEN
+            lv-next-qty6:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 7 THEN
+            lv-next-qty7:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 8 THEN
+            lv-next-qty8:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 9 THEN
+            lv-next-qty9:SCREEN-VALUE = STRING(cBaseQty[iCount]). 
+        WHEN 10 THEN
+            lv-next-qty10:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 11 THEN
+            lv-next-qty11:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 12 THEN
+            lv-next-qty12:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 13 THEN
+            lv-next-qty13:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 14 THEN
+            lv-next-qty14:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 15 THEN
+            lv-next-qty15:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 16 THEN
+            lv-next-qty16:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 17 THEN
+            lv-next-qty17:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 18 THEN
+            lv-next-qty18:SCREEN-VALUE = STRING(cBaseQty[iCount]). 
+        WHEN 19 THEN
+            lv-next-qty19:SCREEN-VALUE = STRING(cBaseQty[iCount]).
+        WHEN 20 THEN
+            lv-next-qty20:SCREEN-VALUE = STRING(cBaseQty[iCount]).    
+        END.           
+     END.    
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fUseVendItemCost Dialog-Frame
+FUNCTION fUseVendItemCost RETURNS LOGICAL PRIVATE
+  (ipcCompany AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns NK1 setting to activate VendItemCost as source of vendor costs
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+    
+    RETURN lFound AND cReturn EQ "Yes".	
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
