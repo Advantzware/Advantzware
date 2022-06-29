@@ -107,8 +107,13 @@ IF AVAIL est THEN DO:
               .
     END.
 
-    IF lv-blk EQ 0 THEN DELETE ef.
-
+    IF lv-blk EQ 0 THEN DO:
+        FIND FIRST bf-ef EXCLUSIVE-LOCK 
+             WHERE ROWID(bf-ef) EQ ROWID(ef)
+             NO-ERROR.
+        
+        DELETE bf-ef.
+    END.
     ELSE
     IF ef.form-no NE lv-frm THEN DO:
       RUN Estimate_UpdateEstDependencies(
