@@ -227,6 +227,10 @@ DEFINE VARIABLE tg-Freeze-weight AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     itemfg.part-no AT ROW 2.43 COL 15.4 COLON-ALIGNED
+          LABEL "Cust Part #" FORMAT "x(30)"
+          VIEW-AS FILL-IN 
+          SIZE 50 BY 1
      itemfg.receiveAsRMItemID AT ROW 18.14 COL 15.4 COLON-ALIGNED WIDGET-ID 22
           LABEL "RM Item#"
           VIEW-AS FILL-IN 
@@ -253,10 +257,6 @@ DEFINE FRAME F-Main
           LABEL "Set Header?"
           VIEW-AS TOGGLE-BOX
           SIZE 19 BY 1.19
-     itemfg.part-no AT ROW 2.43 COL 15.4 COLON-ALIGNED
-          LABEL "Cust Part #" FORMAT "x(30)"
-          VIEW-AS FILL-IN 
-          SIZE 50 BY 1
      itemfg.i-name AT ROW 3.38 COL 15.4 COLON-ALIGNED
           LABEL " Name"
           VIEW-AS FILL-IN 
