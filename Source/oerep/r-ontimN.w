@@ -1762,8 +1762,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "ord-date"  THEN cVarValue = STRING(oe-ord.ord-date,"99/99/99") .
                          WHEN "due-date"   THEN cVarValue = STRING(oe-rel.rel-date,"99/99/99") .
                          WHEN "bol-date"  THEN cVarValue = STRING(oe-bolh.bol-date,"99/99/99") .
-                         WHEN "ontime"   THEN cVarValue = STRING(oe-bolh.bol-date LE v-compare-dt,"Y/N") .
-                         WHEN "prom-dt"  THEN cVarValue = STRING(oe-ordl.prom-date,"99/99/9999") .
+                         WHEN "ontime"   THEN cVarValue = IF oe-bolh.bol-date NE ? AND v-compare-dt NE ? THEN STRING(oe-bolh.bol-date LE v-compare-dt,"Y/N") ELSE "N" .
+                         WHEN "prom-dt"  THEN cVarValue = IF oe-ordl.prom-date NE ? THEN STRING(oe-ordl.prom-date,"99/99/9999") ELSE "" .
                          WHEN "reason"  THEN cVarValue = STRING(oe-rel.spare-char-2) .
                          WHEN "msf"  THEN cVarValue = STRING(v-msf,"->>>,>>>,>>9.99") .
                          WHEN "wt"  THEN cVarValue = STRING(oe-boll.weight,"->>>>>") .
@@ -1775,8 +1775,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "dItemUnitPrice"  THEN cVarValue = STRING(oe-ordl.price,"->>,>>>,>>9.99<<<<").
                          WHEN "dItemPriceUOM"  THEN cVarValue = STRING(oe-ordl.pr-uom,"XXX").
                          WHEN "iPalletCount"  THEN cVarValue = STRING(oe-ordl.cases-unit,">>>>").
-                         WHEN "dtManufactureDate"  THEN cVarValue = STRING(oe-ordl.prom-date,"99/99/9999").
-                         WHEN "dtCompletionDate"  THEN cVarValue = STRING(oe-ordl.req-date,"99/99/9999").
+                         WHEN "dtManufactureDate"  THEN cVarValue = IF oe-ordl.prom-date NE ? THEN  STRING(oe-ordl.prom-date,"99/99/9999") ELSE "".
+                         WHEN "dtCompletionDate"  THEN cVarValue = IF oe-ordl.req-date NE ? THEN STRING(oe-ordl.req-date,"99/99/9999") ELSE "".
                          WHEN "cFGCategory"  THEN cVarValue = STRING(cFGCategory,"x(5)").
                          WHEN "iBOLNumber"  THEN cVarValue = STRING(oe-bolh.bol-no,">>>>>>>9").
                          WHEN "cBOLCarrier"  THEN cVarValue = STRING(oe-bolh.carrier,"x(5)").
@@ -1784,7 +1784,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "dShipmentValue"      THEN cVarValue = STRING(dShipmentValue,"->>,>>>,>>9.99").
                          WHEN "iReleaseQuantity"    THEN cVarValue = IF oe-ordl.t-rel-qty GT 0 THEN STRING(oe-ordl.t-rel-qty,">>,>>>,>>9") ELSE "0".
                          WHEN "dtReleaseDueDate"    THEN cVarValue = STRING(ENTRY(1, oe-rel.spare-char-4)).
-                         WHEN "dtReleaseDate"       THEN cVarValue = STRING(oe-rel.rel-date,"99/99/9999").
+                         WHEN "dtReleaseDate"       THEN cVarValue = IF oe-rel.rel-date NE ? THEN STRING(oe-rel.rel-date,"99/99/9999") ELSE "".
                          WHEN "iReleaseNumber"      THEN cVarValue = IF AVAILABLE oe-relh THEN STRING(oe-relh.release#,">>>>>>9") ELSE "".
 
                     END CASE.
