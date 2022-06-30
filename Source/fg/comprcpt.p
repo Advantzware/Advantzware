@@ -16,6 +16,8 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
 
+DEFINE TEMP-TABLE tt-bin 
+    FIELD tt-bin-row AS ROWID .
 
 DO TRANSACTION:
   {sys/inc/autopost.i}
@@ -73,8 +75,13 @@ IF AVAIL itemfg                     AND
                             AND fg-rcpts.i-no    EQ b-itemfg.i-no
                             AND fg-rcpts.linker  EQ "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999"))
        NO-LOCK:
-  
-
+       
+       /* If Assembled with part receipts and if the component has no receipt enabled or if a purchased item, create adjustments from bin */
+       IF itemfg.alloc EQ ? AND (tt-fg-set.noReceipt OR b-itemfg.pur-man) THEN DO:
+           RUN processComponent ("", TRUE /* Is an adjustment */).
+           NEXT.
+       END. 
+       
        IF fg-rctd.job-no NE "" THEN
        DO:
           FIND FIRST job WHERE
@@ -331,3 +338,4 @@ END.
 
 IF AVAIL fg-rctd THEN RUN fg/comprct1.p (ROWID(fg-rctd)).
 
+{fg/comprcpt.i}

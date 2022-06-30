@@ -20,7 +20,7 @@
            fg-rcpts.i-name     = b-itemfg.i-name
            fg-rcpts.trans-date = fg-rctd.rct-date
            fg-rcpts.linker     = "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")
-           fg-rcpts.rita-code  = "set".
+           fg-rcpts.rita-code  = {2}.
 
           RELEASE fg-rcpts.
         END.
@@ -45,8 +45,9 @@
          {1}w-fg-rctd.units-pallet = bf-fg-rctd.units-pallet
          {1}w-fg-rctd.cases-unit   = bf-fg-rctd.cases-unit
          {1}w-fg-rctd.cases        = bf-fg-rctd.cases
-         {1}w-fg-rctd.partial      = {1}w-fg-rctd.t-qty -
-                                     ({1}w-fg-rctd.cases * {1}w-fg-rctd.qty-case)
+         {1}w-fg-rctd.partial      = ({1}w-fg-rctd.t-qty -
+                                     ({1}w-fg-rctd.cases * {1}w-fg-rctd.qty-case)) * {3}
+         {1}w-fg-rctd.cases        = {1}w-fg-rctd.cases * {3}
         {1}w-fg-rctd.setHeaderRno  = bf-fg-rctd.r-no
         .
         
