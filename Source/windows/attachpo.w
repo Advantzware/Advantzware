@@ -325,7 +325,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_f-add ).
-       RUN set-position IN h_f-add ( 1.00 , 26.20 ) NO-ERROR.
+       RUN set-position IN h_f-add ( 1.00 , 130.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
     
        RUN init-object IN THIS-PROCEDURE (
