@@ -609,6 +609,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE
         iopiStatus = 26.
     RUN ipStatus ("Successfully initialized asiUpdateEnv").
     
+    /* Load any external procs/supers that may need to be accessed */
+    IF NOT VALID-HANDLE(hSession) THEN DO:
+        RUN system/session.p PERSISTENT SET hSession.
+        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    END. 
+    IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
+        RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
+        SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
+    END.
+
     RUN ip_ProcessAll.
 
 END.
@@ -7925,16 +7935,6 @@ PROCEDURE ip_ProcessAll :
     IF lSuccess EQ TRUE THEN ASSIGN 
         iopiStatus = 50.
     ELSE RETURN.
-
-    /* Load any external procs/supers that may need to be accessed */
-    IF NOT VALID-HANDLE(hSession) THEN DO:
-        RUN system/session.p PERSISTENT SET hSession.
-        SESSION:ADD-SUPER-PROCEDURE (hSession).
-    END. 
-    IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
-        RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
-        SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
-    END.
 
     RUN ipDataFix.
     IF lSuccess EQ TRUE THEN ASSIGN 

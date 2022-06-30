@@ -58,6 +58,7 @@ DEL /Q *2.txt > NUL
 DEL /Q *3.txt > NUL
 DEL /Q 7z.* > NUL
 DEL /Q convusr.* > NUL
+DEL /Q keepfiles.txt > NUL
 CLS
 
 :: Remove old structure files

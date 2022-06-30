@@ -31,7 +31,7 @@ DEFINE INPUT  PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
 {methods/defines/hndldefs.i}
 
 {methods/defines/globdefs.i}
-{sys/inc/var.i shared}
+/*{sys/inc/var.i shared}*/
 
 {est/ttEstSysConfig.i}
 

@@ -526,7 +526,7 @@ PROCEDURE new-forms :
 
         ASSIGN
          eb.form-no  = multbl.val[1]
-         eb.blank-no = multbl.val[2]*/ 
+         eb.blank-no = multbl.val[2] 
          ef.form-no  = multbl.val[1].
       END.
   END.
