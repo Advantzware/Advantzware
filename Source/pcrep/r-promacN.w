@@ -29,7 +29,8 @@ DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 DEFINE TEMP-TABLE tt-mch-srt NO-UNDO LIKE mch-srt 
     FIELD i-no       LIKE mch-srt.job-no
     FIELD start-time AS INTEGER
-    FIELD start-date AS DATE .
+    FIELD start-date AS DATE 
+    FIELD start-date-sort AS DATE.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -1663,10 +1664,11 @@ PROCEDURE run-report :
             (mch-srt.blank-no EQ mch-act.blank-no OR
             mach.p-type NE "B" OR
             mch-act.blank-no EQ 0) AND
-            mch-srt.pass EQ mch-act.pass
+            mch-srt.pass EQ mch-act.pass AND 
+            mch-srt.op-date EQ mch-act.op-date
             NO-ERROR.
         IF NOT AVAILABLE mch-srt THEN
-        DO:
+        DO:              
             CREATE mch-srt.
             ASSIGN 
                 mch-srt.dept     = mch-act.dept
@@ -1678,7 +1680,8 @@ PROCEDURE run-report :
                 mch-srt.blank-no = IF mach.p-type EQ "B"    AND
                                      mch-act.blank-no EQ 0 THEN 1
                                                            ELSE mch-act.blank-no
-                mch-srt.pass     = mch-act.pass.
+                mch-srt.pass     = mch-act.pass
+                mch-srt.op-date = mch-act.op-date.
         
         END.
         FIND job-code WHERE job-code.code EQ mch-act.code
@@ -1870,13 +1873,13 @@ PROCEDURE run-report :
         BUFFER-COPY mch-srt TO tt-mch-srt .
         ASSIGN
             tt-mch-srt.i-no = b
-            /*         tt-mch-srt.job-no = FILL(" ", iJobLen - LENGTH(TRIM(tt-mch-srt.job-no))) + TRIM(tt-mch-srt.job-no) */
-            .
+            tt-mch-srt.start-date = mch-srt.op-date
+            .  
         IF rd-job-timedt EQ "2" THEN 
         DO:  
             IF AVAILABLE job-mch THEN
                 ASSIGN
-                    tt-mch-srt.start-date = job-mch.start-date
+                    tt-mch-srt.start-date-sort = job-mch.start-date
                     tt-mch-srt.start-time = job-mch.start-time . 
         END. 
     END.
@@ -1894,6 +1897,7 @@ PROCEDURE run-report :
         BREAK BY tt-mch-srt.dept
         BY tt-mch-srt.m-code
         BY tt-mch-srt.start-date
+        BY tt-mch-srt.start-date-sort
         BY tt-mch-srt.start-time
         BY tt-mch-srt.job-no :
 
@@ -2010,7 +2014,8 @@ PROCEDURE run-report :
             (bf-mch-act.blank-no = tt-mch-srt.blank-no  OR
             mach.p-type NE "B" OR
             bf-mch-act.blank-no EQ 0) AND
-            bf-mch-act.pass EQ tt-mch-srt.pass  NO-LOCK:
+            bf-mch-act.pass EQ tt-mch-srt.pass AND 
+            bf-mch-act.op-date EQ tt-mch-srt.start-date  NO-LOCK:
 
             FIND job-code WHERE job-code.code EQ bf-mch-act.CODE NO-LOCK NO-ERROR.
 
@@ -2138,7 +2143,7 @@ PROCEDURE run-report :
                         WHEN "%wst"              THEN 
                             cVarValue =  IF v-wst NE ? THEN STRING(v-wst,"->,>>9.99") ELSE "".
                         WHEN "date"              THEN 
-                            cVarValue =  IF dt-date NE ? THEN STRING(dt-date) ELSE "".
+                            cVarValue =  IF tt-mch-srt.start-date NE ? THEN STRING(tt-mch-srt.start-date) ELSE "".
                         WHEN "user-id"           THEN 
                             cVarValue = IF cUserId NE "" THEN STRING(cUserId,"x(10)") ELSE "" .
                         WHEN "shift"             THEN 
@@ -2160,15 +2165,18 @@ PROCEDURE run-report :
                 END.
             END.
 
-            ASSIGN 
-                mch-mr-std     = mch-mr-std + job-mr-std
+            IF first-of(tt-mch-srt.m-code) THEN
+            ASSIGN
+              mch-mr-std     = mch-mr-std + job-mr-std
+              dpt-mr-std     = dpt-mr-std + job-mr-std.
+              
+            ASSIGN    
                 mch-run-std    = mch-run-std + job-run-std
                 mch-mr-act     = mch-mr-act + job-mr-act
                 mch-run-act    = mch-run-act + job-run-act
                 mch-dt-act     = mch-dt-act + job-dt-act
                 mch-qty-prod   = mch-qty-prod + job-qty-prod
-                mch-qty-expect = mch-qty-expect + job-qty-expect
-                dpt-mr-std     = dpt-mr-std + job-mr-std
+                mch-qty-expect = mch-qty-expect + job-qty-expect                  
                 dpt-run-std    = dpt-run-std + job-run-std
                 dpt-mr-act     = dpt-mr-act + job-mr-act
                 dpt-run-act    = dpt-run-act + job-run-act
