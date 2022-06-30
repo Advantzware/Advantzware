@@ -6876,12 +6876,12 @@ PROCEDURE ipSetAsiPwd :
         EXCLUSIVE-LOCK NO-ERROR.
 
     IF AVAIL (_User) THEN DO:
-        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
+        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO ttTempUser.
         ASSIGN 
-            tempUser._Password = ENCODE("ProdProc").
+            ttTempUser._Password = ENCODE("ProdProc").
         DELETE _User.
         CREATE _User.
-        BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
+        BUFFER-COPY ttTempUser EXCEPT _tenantid TO _User.
     END.
     ELSE DO:
         CREATE _User.
