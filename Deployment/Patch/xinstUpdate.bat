@@ -43,9 +43,12 @@ taskkill /im node.exe /F > NUL
 CD ..\Admin\Envadmin
 
 :: Remove deprecated files from Admin/EnvAdmin
+DEL /Q asiAuditTest.r > NUL
+DEL /Q asiDbMaint.r > NUL
 DEL /Q asiLogin.* > NUL
-DEL /Q asiUpdate.* > NUL
+DEL /Q asiUpdate*.* > NUL
 DEL /Q asiLogin*.* > NUL
+DEL /Q prerun*.r > NUL
 DEL /Q *.bak > NUL
 DEL /Q *.e > NUL
 DEL /Q *.out > NUL
@@ -55,6 +58,7 @@ DEL /Q *2.txt > NUL
 DEL /Q *3.txt > NUL
 DEL /Q 7z.* > NUL
 DEL /Q convusr.* > NUL
+DEL /Q keepfiles.txt > NUL
 CLS
 
 :: Remove old structure files
@@ -65,31 +69,32 @@ CD ..
 
 :: Build some directories that may or may not already exist
 CD ..\..
+MKDIR Admin > NUL
+MKDIR Admin\DbAdmin > NUL
+MKDIR Admin\EnvAdmin > NUL
 MKDIR Assemblies > NUL
-MKDIR Documentation > NUL
-CD Documentation
-MKDIR DBDict > NUL
-CD ..
-MKDIR Install > NUL
-CD Install
-MKDIR ReportWriter > NUL
-MKDIR LocalPrintInstall > NUL
-CD ..
 MKDIR Backups > NUL
-CD Backups
-MKDIR PatchFiles
-MKDIR Databases
-CD ..
-CD Updates
+MKDIR Backups\Databases > NUL
+MKDIR Backups\PatchFiles > NUL
+MKDIR Desktop > NUL
+MKDIR Desktop\RunOnServerOnly > NUL
+MKDIR Documentation > NUL
+MKDIR Documentation\DBDict > NUL
+MKDIR Documentation\UserManual > NUL
+MKDIR Install > NUL
+MKDIR Install\ReportWriter > NUL
+MKDIR Install\LocalPrintInstall > NUL
 
 :: Copy files/dirs from Patch to "regular" directories
+CD Updates
 XCOPY /Y .\*.zip ..\Backups\PatchFiles > NUL
 XCOPY /S /Y .\Admin\*.* ..\Admin > NUL
 XCOPY /S /Y .\Desktop\*.* ..\Desktop > NUL
 XCOPY /S /Y .\Documentation\*.* ..\Documentation > NUL
 XCOPY /S /Y .\Install\*.* ..\Install > NUL
 XCOPY /S /Y .\Assemblies\*.* ..\Assemblies > NUL
-XCOPY /S /Y .\Structure\*.* ..\Databases\Structure > NUL
+COPY /Y .\Structure\DFFiles\advantzware.df ..\Databases\Structure\DFFiles > NUL
+COPY /Y .\Structure\DFFiles\audit.df ..\Databases\Structure\DFFiles > NUL
 IF NOT EXIST ..\Admin\EnvAdmin\updateHist.txt (
     COPY /Y .\UpdateHist.txt ..\Admin\EnvAdmin\UpdateHist.txt > NUL
 )
@@ -134,6 +139,12 @@ IF EXIST "ASI Update" (
 )
 :QUIT
 CD ..\Admin\EnvAdmin
+IF EXIST "KeepFiles.txt" (
+    GOTO :EXIT
+    )
 EmptyFolder.bat
+
+:EXIT
 EXIT
+
 

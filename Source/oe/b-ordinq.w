@@ -249,7 +249,9 @@ DEFINE VARIABLE cQueryBuffers      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldBuffer       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
-
+DEFINE VARIABLE iJobOnhandQty      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iJobOnhandQtyNotAll AS INTEGER  NO-UNDO.
+DEFINE VARIABLE iOrdQtyOnHand      AS INTEGER   NO-UNDO. 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -284,7 +286,10 @@ pGetExtendedPrice() @ dExtendedPrice pGetPriceUom() @ cPriceUom ~
 pGetCostUom() @ cCostUom oe-ord.entered-id itemfg.q-onh ~
 fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance ~
 get-xfer-qty () @ ld-xfer-qty get-act-bol-qty() @ li-act-bol-qty ~
-fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc 
+fget-qty-nothand(get-act-rel-qty() ,INT(itemfg.q-onh)) @ iHandQtyNoalloc ~
+get-bal() @ iJobOnhandQty ~
+fGetJobOnhandQtyNotAll(get-bal(),get-act-bol-qty(),get-act-rel-qty()) @ iJobOnhandQtyNotAll ~
+fGetOrdQtyOnHand(INT(itemfg.q-onh),get-act-bol-qty(),get-act-rel-qty()) @ iOrdQtyOnHand
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table  
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-ordl ~
       WHERE oe-ordl.company EQ g_company ~
@@ -335,6 +340,20 @@ FUNCTION fget-qty-nothand RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetJobOnhandQtyNotAll B-table-Win 
+FUNCTION fGetJobOnhandQtyNotAll RETURNS INTEGER
+  (ipJobOnHand AS INTEGER, ipActBolQty AS INTEGER, ipActRelQty AS INTEGER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetOrdQtyOnHand B-table-Win 
+FUNCTION fGetOrdQtyOnHand RETURNS INTEGER
+  (ipOnHand AS INTEGER, ipActBolQty AS INTEGER, ipActRelQty AS INTEGER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnPrevOrder B-table-Win 
 FUNCTION fnPrevOrder RETURNS INTEGER
   ( ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER )  FORWARD.
@@ -365,7 +384,7 @@ FUNCTION get-act-rel-qty RETURNS INTEGER
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-bal B-table-Win 
 FUNCTION get-bal RETURNS INTEGER
-  (OUTPUT op-qoh AS INTEGER)  FORWARD.
+  (/* parameter-definitions */)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -590,7 +609,7 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -656,10 +675,10 @@ DEFINE BROWSE Browser-Table
             WIDTH 14.2 LABEL-BGCOLOR 14
       oe-ord.cust-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-ordl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
+      oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       oe-ord.po-no COLUMN-LABEL "Order PO#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      getitempo() @ cItemPo COLUMN-LABEL "Item PO#" WIDTH 30 LABEL-BGCOLOR 14
+      getitempo() @ cItemPo COLUMN-LABEL "Item PO#" FORMAT "x(15)" WIDTH 30 LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U WIDTH 12
@@ -693,7 +712,10 @@ DEFINE BROWSE Browser-Table
       fnProdBalance(oe-ordl.qty,get-prod()) @ dProdBalance COLUMN-LABEL "Prod. Balance" FORMAT "->>,>>>,>>9.9<<<":U
       get-xfer-qty () @ ld-xfer-qty COLUMN-LABEL "Transfer!Qty" FORMAT "->>,>>>,>>>":U
       get-act-bol-qty() @ li-act-bol-qty COLUMN-LABEL "Act. BOL!Qty" FORMAT "->>,>>>,>>>":U
-      fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
+      fget-qty-nothand(get-act-rel-qty() ,INT(itemfg.q-onh)) @ iHandQtyNoalloc COLUMN-LABEL "On Hand Qty not Allocated" FORMAT "->>>>>>>>":U
+      get-bal() @ iJobOnhandQty COLUMN-LABEL "Job On Hand Qty" FORMAT "->>,>>>,>>9":U
+      fGetJobOnhandQtyNotAll(get-bal(),get-act-bol-qty(),get-act-rel-qty()) @ iJobOnhandQtyNotAll COLUMN-LABEL "Job On Hand Qty Not Allocated" FORMAT "->>,>>>,>>9":U
+      fGetOrdQtyOnHand(INT(itemfg.q-onh),get-act-bol-qty(),get-act-rel-qty()) @ iOrdQtyOnHand COLUMN-LABEL "Order Quantity On Hand" FORMAT "->>,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 181 BY 16.52
@@ -730,6 +752,9 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 22
+     "Cust Part#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 50
+          FGCOLOR 9 FONT 22
      "Open" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 1.24 COL 154.6 WIDGET-ID 34
           FGCOLOR 9 FONT 22
@@ -753,9 +778,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 22
      "FG Item#/Name" VIEW-AS TEXT
           SIZE 19 BY .71 AT ROW 1.24 COL 30
-          FGCOLOR 9 FONT 22
-     "Cust Part#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 50
           FGCOLOR 9 FONT 22
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -821,7 +843,8 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
+       Browser-Table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2
+       Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
 
 ASSIGN 
        oe-ordl.line:VISIBLE IN BROWSE Browser-Table = FALSE
@@ -871,7 +894,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[11]   > ASI.oe-ord.po-no
 "oe-ord.po-no" "Order PO#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
-"getitempo() @ cItemPo" "Item PO#" ? "character" ? ? ? 14 ? ? yes ? no no "30" yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
+"getitempo() @ cItemPo" "Item PO#" "x(15)" "character" ? ? ? 14 ? ? yes ? no no "30" yes no no "U" "" "" "FILL-IN" "," ? ? 5 no 0 no no
      _FldNameList[13]   > ASI.oe-ordl.est-no
 "oe-ordl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-ordl.job-no
@@ -927,7 +950,13 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[39]   > "_<CALC>"
 "get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[40]   > "_<CALC>"
-"fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fget-qty-nothand(get-act-rel-qty() ,INT(itemfg.q-onh)) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[41]   > "_<CALC>"
+"get-bal() @ iJobOnhandQty" "Job On Hand Qty" "->>,>>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[42]   > "_<CALC>"
+"fGetJobOnhandQtyNotAll(get-bal(),get-act-bol-qty(),get-act-rel-qty()) @ iJobOnhandQtyNotAll" "Job On Hand Qty Not Allocated" "->>,>>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[43]   > "_<CALC>"
+"fGetOrdQtyOnHand(INT(itemfg.q-onh),get-act-bol-qty(),get-act-rel-qty()) @ iOrdQtyOnHand" "Order Quantity On Hand" "->>,>>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1113,6 +1142,7 @@ DO:
       fi_part-no
       fi_ord-no
       fi_po-no1
+      fiItemPo
       fi_est-no
       fi_job-no
       fi_job-no2
@@ -2832,6 +2862,42 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetJobOnhandQtyNotAll B-table-Win 
+FUNCTION fGetJobOnhandQtyNotAll RETURNS INTEGER
+  ( ipJobOnHand AS INTEGER, ipActBolQty AS INTEGER, ipActRelQty AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
+  
+  irtnValue = ipJobOnHand - (ipActBolQty + ipActRelQty). 
+
+  RETURN irtnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetOrdQtyOnHand B-table-Win 
+FUNCTION fGetOrdQtyOnHand RETURNS INTEGER
+  ( ipOnHand AS INTEGER, ipActBolQty AS INTEGER, ipActRelQty AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
+  
+  irtnValue = ipOnHand - (ipActBolQty + ipActRelQty). 
+
+  RETURN irtnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnPrevOrder B-table-Win 
 FUNCTION fnPrevOrder RETURNS INTEGER
   ( ipcEstNo AS CHARACTER, ipiOrdNo AS INTEGER ) :
@@ -2947,7 +3013,7 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-bal B-table-Win 
 FUNCTION get-bal RETURNS INTEGER
-  (OUTPUT op-qoh AS INTEGER) :
+  (/* parameter-definitions */) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
@@ -2975,7 +3041,7 @@ DEFINE VARIABLE iTotalJobOnHandQty AS INTEGER     NO-UNDO.
             END.
         END.
     END.
-    op-qoh = iTotalJobOnHandQty.
+    
 RETURN iTotalJobOnHandQty.    /* Function return value. */
 
 END FUNCTION.

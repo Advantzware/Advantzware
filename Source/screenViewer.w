@@ -52,9 +52,11 @@ ASSIGN
     iFont        = ipiFont
     cOrientation = ipcOrientation
     .
-DO TRANSACTION:
-   {sys/inc/notepad.i}
-END.
+
+DEFINE VARIABLE gcNotepad      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcNotepadValue AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("Notepad", OUTPUT gcNotepad).
+RUN spGetSettingByName ("NotepadValue", OUTPUT gcNotepadValue).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -316,8 +318,8 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   {&WINDOW-NAME}:TITLE = ipcTitle.
-  IF notepad-log THEN DO:
-      IF notepad-chr EQ "" THEN DO: /* task 02101509 */
+IF gcNotepad EQ "YES" THEN DO:
+    IF gcNotepadValue EQ "" THEN DO: /* task 02101509 */
 &IF DEFINED(FWD-VERSION) > 0 &THEN
           open-mime-resource "text/plain" STRING("file:///" + ipcListName) NOT-EMBEDDED.
 &ELSE
@@ -348,8 +350,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                       .
               END. /* if not avail */
           END.  /* not avail usergrps */
-      END. /* else do  notepad-chr = "" */
-  END.  /* if notepad-log */
+      END. /* else do  gcNotepadValue */
+  END.  /* if gcNotepad */
   RUN pGetSettings.
   RUN enable_UI.
   ed-scr-view:READ-FILE(ipcListName).

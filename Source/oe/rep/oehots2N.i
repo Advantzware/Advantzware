@@ -373,6 +373,9 @@ IF AVAIL itemfg THEN DO:
                         cTmpField = IF cTmpField <> "" THEN 
                                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rcpth.job-no2))) ELSE "".                  
                      IF cFieldName = "w-ord.rel-no" THEN cTmpField = STRING(INT(cTmpField),">>>>>>9").
+                     IF cFieldName = "w-ord.ord-no" THEN cTmpField = STRING(INT(cTmpField),">>>>>>>9").
+                     IF cFieldName = "w-ord.ord-qty" THEN cTmpField = STRING(INT(cTmpField),"->>>>>>>9").
+                     IF cFieldName = "w-ord.onh-qty" THEN cTmpField = STRING(INT(cTmpField),"->>>>>>>9").
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
@@ -398,7 +401,7 @@ IF AVAIL itemfg THEN DO:
                  WHEN "v-comp-qty" THEN cVarValue = string(v-comp-qty,"->>>>>9").
                  WHEN "v-ship-city" THEN cVarValue = string(v-ship-city).
                  WHEN "lv-text" THEN cVarValue = SUBSTRING(lv-text,1,26).                 
-                 WHEN "v-qtyAvail" THEN cVarValue = STRING(itemfg.q-onh + (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono) - itemfg.q-alloc).
+                 WHEN "v-qtyAvail" THEN cVarValue = STRING((itemfg.q-onh + (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono) - itemfg.q-alloc), "->>>>>>>9").
                  WHEN "skids" THEN cVarValue = STRING(w-ord.palls,"->>>,>>9").
                  WHEN "ship-zip" THEN cVarValue = string(cShipZip,"x(10)").
                  WHEN "lot-no"   THEN cVarValue = string(w-ord.lot-no,"x(15)").

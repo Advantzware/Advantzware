@@ -420,9 +420,14 @@ PROCEDURE pCheckTransDate :
                 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
-        IF MONTH(dtCheckDate) NE MONTH(DATE(dtDate:SCREEN-VALUE)) THEN
+        FIND FIRST period NO-LOCK 
+             WHERE period.company EQ ipcCompany 
+             AND period.pst   LE DATE(dtDate:SCREEN-VALUE) 
+             AND period.pend GE DATE(dtDate:SCREEN-VALUE)
+            NO-ERROR.
+        IF NOT AVAILABLE period THEN
         DO:
-            MESSAGE "Please enter date in transaction period .." 
+            MESSAGE "Please enter date within period .." 
                 VIEW-AS ALERT-BOX INFORMATION .
             oplReturnError = TRUE .
         END.               
@@ -442,9 +447,16 @@ PROCEDURE pCheckYear :
                 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
-        IF YEAR(dtCheckDate) NE INTEGER(iYear:SCREEN-VALUE) THEN
+        FIND FIRST period NO-LOCK 
+             WHERE period.company EQ ipcCompany 
+             AND period.pst  LE DATE(dtDate:SCREEN-VALUE) 
+             AND period.pend GE DATE(dtDate:SCREEN-VALUE)
+             AND period.yr   EQ INTEGER(iYear:SCREEN-VALUE)
+            NO-ERROR.
+            
+        IF NOT AVAILABLE period THEN
         DO:
-            MESSAGE "Please enter transaction year of date .." 
+             MESSAGE "Please enter transaction year of date .."  
                 VIEW-AS ALERT-BOX INFORMATION .
             oplReturnError = TRUE .
         END.               
@@ -465,7 +477,13 @@ PROCEDURE pCheckPeriod :
                 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
-        IF INTEGER(iPeriod:SCREEN-VALUE) NE MONTH(dtCheckDate) THEN
+        FIND FIRST period NO-LOCK 
+             WHERE period.company EQ ipcCompany 
+             AND period.pst  LE DATE(dtDate:SCREEN-VALUE) 
+             AND period.pend GE DATE(dtDate:SCREEN-VALUE)
+             AND period.pnum EQ INTEGER(iPeriod:SCREEN-VALUE)
+            NO-ERROR.
+        IF NOT AVAILABLE period THEN
         DO:
             MESSAGE "Please enter a vaild period of transaction date .." 
                 VIEW-AS ALERT-BOX INFORMATION .

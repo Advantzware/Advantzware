@@ -493,7 +493,7 @@ PROCEDURE load-list :
       BY job-hdr.i-no:
 
      v-list = v-list +
-              STRING(w-file.job-no,"x(9)")                             + "  " +
+              STRING(w-file.job-no,"x(13)")                             + " " +
               "ITEM: " + TRIM(job-hdr.i-no)
                  + " " + TRIM(itemfg.i-name)                           + "  " +
               "JOB QTY: " + TRIM(STRING(job-hdr.qty,"->>>>>>>>"))      + "  " +

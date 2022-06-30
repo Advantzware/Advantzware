@@ -98,11 +98,11 @@ RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
 
 ASSIGN 
     cTextListToSelect  = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
-                           "Order #,Sales,Rel Qty,Rel Date,Rel#,Order Line Prom Date,Style," +
+                           "Order #,Unit Price,Rel Qty,Rel Date,Rel#,Order Line Prom Date,Style," +
                            "Line Promise Date Change Reason,Last Machine,Job#,Job Promise Date,Order Promise Date," +
                            "Order LINE Promise Date Priority,LastActionOnJob,Full Job Number"
     cFieldListToSelect = "qty-hand,cust-name,item,desc,cat,po," +
-                            "order,sales,rel-qty,rel-date,rel,pro-date,style," +
+                            "order,unitPrice,rel-qty,rel-date,rel,pro-date,style," +
                             "pro-date-reason,last-mch,job-no,job-prom-date,ord-prom-date," + 
                             "prom-code,LastActionOnJob,full-job-no"
                             
@@ -113,7 +113,7 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 ASSIGN 
     cTextListToDefault = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
-                           "Order #,Sales,Rel Qty,Rel Date,Rel#" .
+                           "Order #,Unit Price,Rel Qty,Rel Date,Rel#" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

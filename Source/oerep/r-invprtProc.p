@@ -1724,8 +1724,9 @@ PROCEDURE SetInvForm:
                 is-xprint-form = YES.
         WHEN "Harwell" THEN
             ASSIGN
-                v-program      = "oe/rep/invharwl.p"
-                lines-per-page = 63.
+                v-program      = "oe/rep/invHarwell.p"
+                lines-per-page = 63
+                is-xprint-form = YES.
         WHEN "P&P" THEN
             ASSIGN
                 v-program      = "oe/rep/invpnp.p"
@@ -2282,8 +2283,9 @@ PROCEDURE SetInvPostForm:
                 is-xprint-form = YES.
         WHEN "Harwell" THEN
             ASSIGN
-                v-program      = "ar/rep/invharwl.p"
-                lines-per-page = 63.
+                v-program      = "ar/rep/invHarwell.p"
+                lines-per-page = 63
+                is-xprint-form = YES.
         WHEN "Chillic" THEN
             ASSIGN
                 v-program      = "ar/rep/invchill.p"

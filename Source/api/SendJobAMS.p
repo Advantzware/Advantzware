@@ -1521,7 +1521,9 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         lcJobMachineDataByItem     = iplcJobMachineData
         cRunMinutes                = STRING(ROUND(ipbf-job-mch.run-hr * 60, 0))
         cMRMinutes                 = STRING(ROUND(ipbf-job-mch.mr-hr * 60, 0))
-        . 
+        cMRComplete                = STRING(ipbf-job-mch.mr-complete)
+        cRunComplete               = STRING(ipbf-job-mch.run-complete)
+        .
     
     FOR EACH bf-mch-act NO-LOCK
         WHERE bf-mch-act.company  EQ ipbf-job-mch.company

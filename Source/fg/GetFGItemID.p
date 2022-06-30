@@ -29,6 +29,6 @@ RUN fg/FGItemIDProcs.p PERSISTENT SET hdFGItemIDProcs.
 
 RUN pGetFGItemID IN hdFGItemIDProcs (ipriEb, ipcFGItemIDSetHeader, OUTPUT opcFGItemID).
 
-
+DELETE PROCEDURE hdFGItemIDProcs.
 /* **********************  Internal Procedures  *********************** */
 
