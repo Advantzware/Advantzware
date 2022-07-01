@@ -7906,16 +7906,20 @@ PROCEDURE ip_ProcessAll :
     IF VALID-HANDLE(hSession) THEN DO:
         SESSION:REMOVE-SUPER-PROCEDURE(hSession).
         DELETE PROCEDURE hSession.
-        RUN system/session.p PERSISTENT SET hSession.
-        SESSION:ADD-SUPER-PROCEDURE (hSession).
     END.
     IF VALID-HANDLE(hFormulaProcs) THEN DO:
         SESSION:REMOVE-SUPER-PROCEDURE(hFormulaProcs). 
         DELETE PROCEDURE hFormulaProcs.    
+    END.
+    IF NOT VALID-HANDLE(hSession) THEN DO:
+        RUN system/session.p PERSISTENT SET hSession.
+        SESSION:ADD-SUPER-PROCEDURE (hSession).
+    END.
+    IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
         RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
         SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
     END.
-            
+                
     RUN ipUpdateUserControl.
     IF lSuccess EQ TRUE THEN ASSIGN 
         iopiStatus = iopiStatus + 47.
