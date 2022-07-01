@@ -7895,43 +7895,43 @@ PROCEDURE ip_ProcessAll :
                        cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," +
                        PROPATH
         PROPATH      = cNewPropath
-        .
-    ASSIGN
-        SELF:LABEL = IF SELF:SENSITIVE THEN "Processing..." ELSE SELF:LABEL 
-        SELF:SENSITIVE = FALSE
         lSuccess = TRUE.
 
-    /* Load any external procs/supers that may need to be accessed */
-    IF NOT VALID-HANDLE(hSession) THEN DO:
+    RUN ipExpandFiles.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 46.
+    ELSE RETURN.
+
+    /* Unload and reload external procs/supers that may need to be accessed */
+    IF VALID-HANDLE(hSession) THEN DO:
+        SESSION:REMOVE-SUPER-PROCEDURE(hSession).
+        DELETE PROCEDURE hSession.
         RUN system/session.p PERSISTENT SET hSession.
         SESSION:ADD-SUPER-PROCEDURE (hSession).
-    END. 
-    IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
+    END.
+    IF VALID-HANDLE(hFormulaProcs) THEN DO:
+        SESSION:REMOVE-SUPER-PROCEDURE(hFormulaProcs). 
+        DELETE PROCEDURE hFormulaProcs.    
         RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
         SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
     END.
-
+            
     RUN ipUpdateUserControl.
     IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = iopiStatus + 27.
+        iopiStatus = iopiStatus + 47.
     ELSE RETURN.
 
     RUN ipFixUsers.
     IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 28.
+        iopiStatus = 48.
     ELSE RETURN.
 
     RUN ipDelBadData.
     IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 29.
+        iopiStatus = 49.
     ELSE RETURN.
 
     RUN ipUpdateMaster.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 30.
-    ELSE RETURN.
-
-    RUN ipExpandFiles.
     IF lSuccess EQ TRUE THEN ASSIGN 
         iopiStatus = 50.
     ELSE RETURN.
