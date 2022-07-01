@@ -11,7 +11,7 @@
 "202009024138005624296" "001" "_ANY_" "_ANY_" "_default1" "SendInvoice" "_ANY_" no
 "202005285504005315497" "001" "_ANY_" "_ANY_" "_default" "SendJob" "_ANY_" no
 "202005285504005315498" "001" "_ANY_" "_ANY_" "_default" "SendOrderAck" "_ANY_" no
-"202005285504005315500" "001" "_ANY_" "_ANY_" "_default" "SendPurchaseOrder" "_ANY_" no
+"202005285504005315500" "001" "_ANY_" "_ANY_" "_default" "SendPurchaseOrder" "_ANY_" yes
 "202005285504005315499" "001" "_ANY_" "_ANY_" "_default1" "SendPurchaseOrder" "_ANY_" no
 "202007164717405478950" "001" "_ANY_" "Customer" "_default2" "SendPurchaseOrder" "_ANY_" no
 "202007164720405478953" "001" "_ANY_" "ShipTo" "_default2" "SendPurchaseOrder" "_ANY_" no

@@ -78,8 +78,9 @@
 8 yes 17 "CalcLoginDateTime" "Login Date Time" "x(22)" "machtran" 0 "Character" "ASI" 0 no no "" "" yes "calcStringDateTime" "machtran.start_date|machtran.start_time" "201902080000000000001" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 18 "CalcLogoutDateTime" "Logout Date Time" "x(22)" "machtran" 0 "Character" "ASI" 0 no no "" "" yes "calcStringDateTime" "machtran.end_date|machtran.end_time" "201902080000000000002" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 9 "CalcStartTime" "Start Time" "x(11)" "machtran" 0 "Character" "ASI" 0 no no "" "" yes "calcStringTime" "machtran.start_time" "201902070000000000001" no no no "" no "" "" 0 0 "" no no "" "" no
-8 no 19 "cust.cust-no" "Cust. #" "x(8)" "cust" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202202155477108565189" no no no "" no "" "" 0 0 "" no no "" "" no
-8 no 20 "cust.name" "Customer Name" "x(30)" "cust" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202202155477108565190" no no no "" no "" "" 0 0 "" no no "" "" no
+8 no 21 "cust.cust-no" "Cust. #" "x(8)" "cust" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202202155477108565189" no no no "" no "" "" 0 0 "" no no "" "" no
+8 no 22 "cust.name" "Customer Name" "x(30)" "cust" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202202155477108565190" no no no "" no "" "" 0 0 "" no no "" "" no
+8 yes 20 "eb.part-no" "Cust Part #" "x(15)" "eb" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202205198106909449858" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 5 "machtran.blank_number" "Blank Number" ">9" "machtran" 0 "Integer" "ASI" 0 no no "" "" no "" "" "201903123444702670498" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 7 "machtran.charge_code" "Charge Code" "X(5)" "machtran" 0 "Character" "ASI" 0 no no "" "" no "" "" "201903123444702670499" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 16 "machtran.completed" "Completed?" "yes/no" "machtran" 0 "Logical" "ASI" 0 no no "" "" no "" "" "201903123444702670500" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -89,10 +90,11 @@
 8 yes 3 "machtran.job_sub" "Job Sub Number" ">9" "machtran" 0 "Integer" "ASI" 0 no no "" "" no "" "" "201903123444702670504" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 1 "machtran.machine" "Machine" "x(6)" "machtran" 0 "Character" "ASI" 1 no yes "" "" no "" "" "201903123444602670497" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 6 "machtran.pass_sequence" "Pass Sequence" ">>9" "machtran" 0 "Integer" "ASI" 0 no no "" "" no "" "" "201903123444702670505" no no no "" no "" "" 0 0 "" no no "" "" no
+8 yes 19 "machtran.posted" "Posted" "yes/no" "machtran" 0 "logical" "ASI" 0 no no "" "" no "" "" "202205198106909449859" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 14 "machtran.run_qty" "Run Quantity" "->>,>>>,>>9" "machtran" 0 "Integer" "ASI" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" "201903123444702670506" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 12 "machtran.shift" "Shift" "X" "machtran" 0 "Character" "ASI" 0 no no "" "" no "" "" "201903123444702670507" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 8 "machtran.start_date" "Start Date" "99/99/9999" "machtran" 0 "Date" "ASI" 2 no no "" "" no "" "" "201903123444702670508" no no no "" no "" "" 0 0 "" no no "" "" no
-8 no 21 "machtran.start_time" "Start Time" ">>>>9" "machtran" 0 "Integer" "ASI" 3 no no "" "" no "" "" "201902180000000000001" no no no "" no "" "" 0 0 "" no no "" "" no
+8 no 23 "machtran.start_time" "Start Time" ">>>>9" "machtran" 0 "Integer" "ASI" 3 no no "" "" no "" "" "201902180000000000001" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 13 "machtran.total_time" "Total Time" "->,>>>,>>9" "machtran" 0 "Integer" "ASI" 0 no no "" "" no "" "" "201903123444702670509" no no no "" no "" "" 0 0 "" no no "" "" no
 8 yes 15 "machtran.waste_qty" "Waste Quantity" "->>>>9" "machtran" 0 "Integer" "ASI" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" "201903123444702670510" no no no "" no "" "" 0 0 "" no no "" "" no
 9 yes 6 "AuditDtl.AuditAfterValue" "After Value" "x(16)" "AuditDtl" 0 "STRING" "AUDIT" 0 no no "" "" no "" "" "201904237193303445856" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -153,12 +155,15 @@
 13 yes 5 "oe-ordl.ship-qty" "Shipped Quantity" "->>,>>>,>>9.99" "oe-ordl" 0 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356155" no no no "" no "" "" 0 0 "" no no "" "" no
 14 yes 9 "CalcRemainingQuantity" "Remaining Quantity" "->>>,>>>,>>9.9<<<<<" "" 0 "Decimal" "ASI" 0 no no "" "" yes "" ? "202007224205005465061" no no no "po-ordl.ord-qty|-|po-ordl.t-rec-qty" no "" "" 0 0 "" no no "" "" no
 14 yes 2 "po-ord.vend-no" "Vendor" "x(8)" "po-ord" 8 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565904356156" no no no "" no "" "" 0 0 "" no no "" "" no
+14 yes 10 "po-ordl.cons-uom" "Unit of Measure" "x(4)" "po-ordl" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202205261096209473237" no no no "" no "" "" 0 0 "" no no "" "" no
 14 yes 7 "po-ordl.cost" "Unit Cost" "->,>>>,>>9.99<<<<" "po-ordl" 14 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356157" no no no "" no "" "" 0 0 "" no no "" "" no
 14 yes 3 "po-ordl.due-date" "Due Date" "99/99/9999" "po-ordl" 11.2 "date" "ASI" 0 no no "" "" no "" "" "201911064565904356158" no no no "" no "" "" 0 0 "" no no "" "" no
 14 yes 4 "po-ordl.job-no" "Job Number" "x(6)" "po-ordl" 11.4 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565904356159" no no no "" no "" "" 0 0 "" no no "" "" no
 14 yes 8 "po-ordl.line" "Line" "99" "po-ordl" 3.8 "integer" "ASI" 0 no no "" "" no "" "" "201911064565904356160" no no no "" no "" "" 0 0 "" no no "" "" no
 14 yes 5 "po-ordl.ord-qty" "Quantity" "->>>,>>>,>>9.9<<<<<" "po-ordl" 15.2 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356161" no no no "" no "" "" 0 0 "" no no "" "" no
 14 yes 1 "po-ordl.po-no" "Purchase Order#" ">>>>>9" "po-ordl" 16.6 "integer" "ASI" 1 yes no "" "" no "" "" "201911064565904356162" no no no "" no "" "" 0 0 "" no no "" "" no
+14 yes 11 "po-ordl.pr-qty-uom" "Purchase Quantity Uom" "x(4)" "po-ordl" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202205261096209473238" no no no "" no "" "" 0 0 "" no no "" "" no
+14 yes 12 "po-ordl.pr-uom" "Purchased UOM" "x(4)" "po-ordl" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202205261096209473239" no no no "" no "" "" 0 0 "" no no "" "" no
 14 yes 6 "po-ordl.t-rec-qty" "Total Received" "->>>,>>>,>>9.9<<<<<" "po-ordl" 15.2 "decimal" "ASI" 0 no no "" "" no "" "" "201911064565904356163" no no no "" no "" "" 0 0 "" no no "" "" no
 15 yes 5 "job-hdr.cust-no" "Cust. #" "x(8)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565904356164" no no no "" no "" "" 0 0 "" no no "" "" no
 15 yes 3 "job-hdr.est-no" "Estimate #" "x(5)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "201911064565904356165" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -569,35 +574,32 @@
 55 yes 4 "dynParamSetDtl.paramID" "Parameter ID" ">,>>>,>>9" "dynParamSetDtl" 0 "integer" "ASI" 0 no no "" "" no "" "" "202001187832804586643" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 55 yes 6 "dynParamSetDtl.paramLabel" "Parameter Label" "x(40)" "dynParamSetDtl" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586645" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 55 yes 5 "dynParamSetDtl.paramName" "Parameter Name" "x(20)" "dynParamSetDtl" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586644" yes yes yes "" no "" "" 0 0 "" no no "" "" no
-56 yes 28 "loc.active" "Active" "yes/no" "loc" 0 "logical" "ASI" 0 no no "" "" no "" "" "202001187833004586889" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 21 "loc.division" "Division" "x(12)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586882" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 23 "loc.active" "Active" "yes/no" "loc" 0 "logical" "ASI" 0 no no "" "" no "" "" "202001187833004586889" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 16 "loc.division" "Division" "x(12)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586882" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 2 "loc.dscr" "Description" "x(30)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586647" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 22 "loc.glCode" "GL Code" "x(20)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586883" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 14 "loc.handlingCost" "Handling Cost" "->,>>>,>>9.99" "loc" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586875" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 29 "loc.isAPIEnabled" "API Enabled?" "yes/no" "loc" 0 "logical" "ASI" 0 no no "" "" no "" "" "202001187833004586890" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 27 "loc.floorPositions" "# Floor Positions" ">>>>>>9" "loc" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205185883609448204" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 17 "loc.glCode" "GL Code" "x(20)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586883" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 24 "loc.isAPIEnabled" "API Enabled?" "yes/no" "loc" 0 "logical" "ASI" 0 no no "" "" no "" "" "202001187833004586890" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 1 "loc.loc" "Location" "x(5)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586646" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 19 "loc.locationSquareFeet" "Location Gross" ">>>,>>>,>>9" "loc" 0 "integer" "ASI" 0 no no "" "" no "" "" "202001187833004586880" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 31 "loc.owner" "Owner" "x(12)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586892" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 20 "loc.palletCapacity" "Pallet Capacity" ">>>,>>>,>>9" "loc" 0 "integer" "ASI" 0 no no "" "" no "" "" "202001187833004586881" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 15 "loc.storageCost[1]" "Storage Cost1" "->>,>>9.99" "loc" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586876" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 16 "loc.storageCost[2]" "Storage Cost2" "->>,>>9.99" "loc" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586877" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 17 "loc.storageCost[3]" "Storage Cost3" "->>,>>9.99" "loc" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586878" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 18 "loc.storageCost[4]" "Storage Cost4" "->>,>>9.99" "loc" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586879" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 14 "loc.locationSquareFeet" "Location Gross" ">>>,>>>,>>9" "loc" 0 "integer" "ASI" 0 no no "" "" no "" "" "202001187833004586880" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 26 "loc.owner" "Owner" "x(12)" "loc" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586892" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 15 "loc.palletCapacity" "Pallet Capacity" ">>>,>>>,>>9" "loc" 0 "integer" "ASI" 0 no no "" "" no "" "" "202001187833004586881" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 28 "loc.rackPositions" "# Rack Positions" ">>>>>>9" "loc" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205185883609448205" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 13 "location.countryCode" "Country" "x(3)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586874" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 3 "location.defaultBin" "Def. Bin" "x(8)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586648" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 11 "location.email" "Email" "x(60)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586656" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 26 "location.externalID[1]" "Ext. Code" "x(24)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586887" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 21 "location.externalID[1]" "Ext. Code" "x(24)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586887" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 10 "location.fax" "FAX" "x(40)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586655" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 24 "location.geoLat" "Lat" "->>9.99999<<" "location" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586885" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 25 "location.geoLong" "Long" "->>9.99999<<" "location" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586886" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 30 "location.lActive" "Consignment" "yes/no" "location" 0 "logical" "ASI" 0 no no "" "" no "" "" "202001187833004586891" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 27 "location.notes" "Notes" "x(60)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586888" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 19 "location.geoLat" "Lat" "->>9.99999<<" "location" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586885" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 20 "location.geoLong" "Long" "->>9.99999<<" "location" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202001187833004586886" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 25 "location.lActive" "Consignment" "yes/no" "location" 0 "logical" "ASI" 0 no no "" "" no "" "" "202001187833004586891" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 22 "location.notes" "Notes" "x(60)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586888" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 9 "location.phone" "Phone" "x(40)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586654" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 4 "location.streetAddr[1]" "Address1" "x(60)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586649" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 5 "location.streetAddr[2]" "Address2" "x(60)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586650" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 6 "location.streetAddr[3]" "Address3" "x(60)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586651" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 8 "location.subCode1" "St/Prov" "x(24)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586653" no no no "" no "" "" 0 0 "" no no "" "" no
-56 yes 23 "location.subCode2" "County" "x(24)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586884" no no no "" no "" "" 0 0 "" no no "" "" no
+56 yes 18 "location.subCode2" "County" "x(24)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586884" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 7 "location.subCode3" "City" "x(24)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187832804586652" no no no "" no "" "" 0 0 "" no no "" "" no
 56 yes 12 "location.subCode4" "Zip/Post" "x(24)" "location" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586873" no no no "" no "" "" 0 0 "" no no "" "" no
 57 yes 4 "dynParamValue.paramTitle" "Parameter Value Title" "x(30)" "dynParamValue" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202001187833004586896" yes yes yes "" no "" "" 0 0 "" no no "" "" no
@@ -2986,3 +2988,139 @@
 202 yes 3 "ap-pay.check-act" "check-act" "x(25)" "ap-pay" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202204182565909261893" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 202 yes 4 "ap-pay.check-date" "Date" "99/99/9999" "ap-pay" 0 "date" "ASI" 0 no no "" "" no "" "" "202204182565909261894" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 202 yes 2 "ap-pay.check-no" "Check No" "99999999" "ap-pay" 0 "integer" "ASI" 0 no no "" "" no "" "" "202204182565909261895" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+203 yes 9 "ttDailyProdReport.cCSRCode" "CSR Code" "x(8)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390896" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 10 "ttDailyProdReport.cCSRName" "CSR Name" "x(30)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390897" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 3 "ttDailyProdReport.cCustName" "Customer Name" "x(30)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390898" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 2 "ttDailyProdReport.cCustNo" "Customer#" "x(8)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390899" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 5 "ttDailyProdReport.cItemName" "Item Description" "x(30)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390900" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 4 "ttDailyProdReport.cItemNo" "Item#" "x(15)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390901" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 1 "ttDailyProdReport.cJob" "Job#" "x(13)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390902" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 6 "ttDailyProdReport.cMachine" "Machine" "x(6)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390903" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 8 "ttDailyProdReport.cStat" "Status" "x(10)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390904" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 14 "ttDailyProdReport.dOverUnderPercentage" "O/U%" "->>,>>>,>>9.99" "ttDailyProdReport" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202205042515109390905" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 7 "ttDailyProdReport.dtOpDate" "Operation Date" "99/99/9999" "ttDailyProdReport" 0 "date" "ASI" 0 no no "" "" no "" "" "202205042515109390906" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 12 "ttDailyProdReport.iJobQty" "Job Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390907" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 11 "ttDailyProdReport.iOrdQty" "Ord Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390908" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 13 "ttDailyProdReport.iProdQty" "Prod.Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390909" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 24 "ttOnTimeDeliveries.cBolCarrier" "BOL Carrier" "x(20)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490529" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 13 "ttOnTimeDeliveries.cCustGroup" "Customer Group" "x(20)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490530" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 16 "ttOnTimeDeliveries.cCustName" "Customer Name" "X(30)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490531" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 22 "ttOnTimeDeliveries.cFGCat" "FG Category" "x(15)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490532" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 2 "ttOnTimeDeliveries.cFGItem" "FG Item#" "X(15)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202205312677809487049" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 7 "ttOnTimeDeliveries.cOnTime" "On-Time" "X(8)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490533" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 1 "ttOnTimeDeliveries.cPartNo" "Customer Part#" "x(15)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202205312677809487050" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 18 "ttOnTimeDeliveries.cPriceUom" "Item Price UOM" "x(3)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490534" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 9 "ttOnTimeDeliveries.cReason" "Reason" "X(30)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490535" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 14 "ttOnTimeDeliveries.cReceDate" "Last Receipt Date" "x(15)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490536" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 12 "ttOnTimeDeliveries.cTrailer" "Trailer" "x(25)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490537" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 10 "ttOnTimeDeliveries.dMsf" "MSF" "->>>,>>>,>>9.99" "ttOnTimeDeliveries" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206012471109490538" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 26 "ttOnTimeDeliveries.dShipmentValue" "Shipment Value" "->>,>>>,>>9.99" "ttOnTimeDeliveries" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206012471109490539" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 6 "ttOnTimeDeliveries.dtBolDate" "Bol Date" "99/99/9999" "ttOnTimeDeliveries" 0 "date" "ASI" 0 no no "" "" no "" "" "202206012471109490540" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 21 "ttOnTimeDeliveries.dtCompletionDate" "Completion Date" "99/99/9999" "ttOnTimeDeliveries" 0 "date" "ASI" 0 no no "" "" no "" "" "202206012471109490541" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 5 "ttOnTimeDeliveries.dtDueDate" "Due Date" "99/99/9999" "ttOnTimeDeliveries" 0 "date" "ASI" 0 no no "" "" no "" "" "202206012471109490542" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 20 "ttOnTimeDeliveries.dtManuDate" "Manufacture Date" "99/99/9999" "ttOnTimeDeliveries" 0 "date" "ASI" 0 no no "" "" no "" "" "202206012471109490543" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 4 "ttOnTimeDeliveries.dtOrdDate" "Ord Date" "99/99/9999" "ttOnTimeDeliveries" 0 "date" "ASI" 0 no no "" "" no "" "" "202206012471109490544" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 8 "ttOnTimeDeliveries.dtPromDate" "Prom Date" "99/99/9999" "ttOnTimeDeliveries" 0 "date" "ASI" 0 no no "" "" no "" "" "202206012471109490545" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 29 "ttOnTimeDeliveries.dtRelDate" "Release Date" "99/99/9999" "ttOnTimeDeliveries" 0 "date" "ASI" 0 no no "" "" no "" "" "202206012471109490546" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 28 "ttOnTimeDeliveries.dtRelDueDate" "Release Due Date" "99/99/9999" "ttOnTimeDeliveries" 0 "date" "ASI" 0 no no "" "" no "" "" "202206012471109490547" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 17 "ttOnTimeDeliveries.dUnitPrice" "Item Unit Price" "->,>>>,>>9.99" "ttOnTimeDeliveries" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206012471109490548" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 11 "ttOnTimeDeliveries.dWeight" "Weight" "->>>,>>>,>>9.99" "ttOnTimeDeliveries" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206012471109490549" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 23 "ttOnTimeDeliveries.iBolNo" "BOL Number" ">>>>>>>>9" "ttOnTimeDeliveries" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012471109490550" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 25 "ttOnTimeDeliveries.iBolShipQty" "BOL Shipped Quantity" "->>>,>>>,>>9" "ttOnTimeDeliveries" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012471109490551" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 3 "ttOnTimeDeliveries.iOrdNo" "Order#" ">>>>>>>9" "ttOnTimeDeliveries" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012471109490552" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 15 "ttOnTimeDeliveries.iOrdQty" "Order Quantity" "->>,>>>,>>9" "ttOnTimeDeliveries" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012471109490553" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 19 "ttOnTimeDeliveries.iPalletCount" "Pallet Count" ">>>>9" "ttOnTimeDeliveries" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012471109490554" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 30 "ttOnTimeDeliveries.iRelNumber" "Release Number" ">>>>>>>9" "ttOnTimeDeliveries" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012471109490555" no no no "" no "" "" 0 0 "" no no "" "" no
+204 yes 27 "ttOnTimeDeliveries.iRelQty" "Release Quantity" "->>,>>>,>>9" "ttOnTimeDeliveries" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012471109490556" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 18 "ttFGInventoryStatus.cCSR" "CSR" "x(8)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490650" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 15 "ttFGInventoryStatus.cCustLot" "Customer Lot #" "x(15)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490651" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 1 "ttFGInventoryStatus.cCustNo" "Customer" "x(8)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490652" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 14 "ttFGInventoryStatus.cFgLot" "FG Lot #" "x(20)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490653" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 6 "ttFGInventoryStatus.cItemName" "Description" "x(15)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490654" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 4 "ttFGInventoryStatus.cItemNo" "Item #" "x(15)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490655" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 17 "ttFGInventoryStatus.cJobDueDate" "Job Due Date" "99/99/9999" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490656" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 7 "ttFGInventoryStatus.cJobNo" "Job" "x(13)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490657" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 16 "ttFGInventoryStatus.cOrdDueDate" "Order Due Date" "99/99/9999" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490658" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 5 "ttFGInventoryStatus.cPartNo" "Cust Part #" "x(15)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490659" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 2 "ttFGInventoryStatus.cPo" "PO #" "x(15)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490660" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 9 "ttFGInventoryStatus.cRcptDate" "Rect. Date" "99/99/9999" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490661" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 3 "ttFGInventoryStatus.cSman" "Rep" "x(4)" "ttFGInventoryStatus" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012548209490662" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 10 "ttFGInventoryStatus.dSellPrice" "Sell Price" ">>,>>>,>>9.99" "ttFGInventoryStatus" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206012548209490663" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 11 "ttFGInventoryStatus.dTotalValue" "Total Value" "->>>,>>>,>>9.99" "ttFGInventoryStatus" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206012548209490664" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 12 "ttFGInventoryStatus.iCommitted" "Committed" "->>,>>>,>>9" "ttFGInventoryStatus" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012548209490665" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 13 "ttFGInventoryStatus.iQtyCase" "Qty/Case" "->>,>>9" "ttFGInventoryStatus" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012548209490666" no no no "" no "" "" 0 0 "" no no "" "" no
+205 yes 8 "ttFGInventoryStatus.iQtyOnHand" "Qty OnHand" "->>>>,>>>,>>9" "ttFGInventoryStatus" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206012548209490667" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 25 "ttSalesAnalysis.cBolDate" "BOL Date" "x(10)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495483" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 17 "ttSalesAnalysis.cBolWhse" "BOL Whse" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495484" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 3 "ttSalesAnalysis.cCity" "City" "x(15)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495485" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 1 "ttSalesAnalysis.cCustNo" "Customer" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495486" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 10 "ttSalesAnalysis.cFgItem" "Fg Item#" "x(15)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495487" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 9 "ttSalesAnalysis.cInvDate" "Inv Date" "99/99/9999" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495488" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 12 "ttSalesAnalysis.cOrderNo" "Order #" ">>>>>>>>" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495489" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 11 "ttSalesAnalysis.cProCode" "Pro Code" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495490" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 19 "ttSalesAnalysis.cShipAdd1" "Ship Address 1" "x(30)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495491" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 20 "ttSalesAnalysis.cShipAdd2" "Ship Address 2" "x(30)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495492" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 21 "ttSalesAnalysis.cShipAdd3" "Ship Address 3" "x(30)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495493" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 22 "ttSalesAnalysis.cShipCity" "Ship To City" "x(15)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495494" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 23 "ttSalesAnalysis.cShipState" "Ship To ST" "x(10)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495495" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 2 "ttSalesAnalysis.cShipTo" "Ship To" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495496" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 18 "ttSalesAnalysis.cShipToName" "Ship To Name" "x(30)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495497" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 24 "ttSalesAnalysis.cShipZip" "Ship To Zip" "x(12)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495498" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 5 "ttSalesAnalysis.cSname" "Rep" "x(15)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495499" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 4 "ttSalesAnalysis.cState" "State" "x(5)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495500" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 15 "ttSalesAnalysis.cUom" "UOM" "x(4)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206020002309495501" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 16 "ttSalesAnalysis.dInvAmt" "Invoice Amt" "->,>>>,>>>,>>9.99" "ttSalesAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206020002309495502" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 14 "ttSalesAnalysis.dUnitPrice" "Unit Price" "->>>,>>>,>>9.99" "ttSalesAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206020002309495503" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 6 "ttSalesAnalysis.iInvNo" "Inv#" ">>>>>>>>" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206020002309495504" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 7 "ttSalesAnalysis.iMonth" "Month" ">>>>>" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206020002309495505" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 13 "ttSalesAnalysis.iQtyShip" "Qty Shipped" "->>>,>>>,>>9" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206020002309495506" no no no "" no "" "" 0 0 "" no no "" "" no
+206 yes 8 "ttSalesAnalysis.iYear" "Year" "9999" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206020002309495507" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 4 "ttProductivityMachine.cCustNo" "Cust#" "x(8)" "ttProductivityMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206032220909509811" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 2 "ttProductivityMachine.cFgItem" "Fg Item" "x(15)" "ttProductivityMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206032220909509812" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 3 "ttProductivityMachine.cJobNo" "Job #" "x(13)" "ttProductivityMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206032220909509813" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 1 "ttProductivityMachine.cMCode" "M Code" "x(6)" "ttProductivityMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206032220909509814" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 18 "ttProductivityMachine.cMrComp" "MR-C" "x(4)" "ttProductivityMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206032220909509815" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 19 "ttProductivityMachine.cRunComp" "RUNC" "x(4)" "ttProductivityMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206032220909509816" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 33 "ttProductivityMachine.cUserId" "User ID" "x(10)" "ttProductivityMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206032220909509817" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 14 "ttProductivityMachine.dDtAcl" "D/T Acl" "->>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509818" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 15 "ttProductivityMachine.dDtEff" "D/T Eff%" "->>>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509819" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 26 "ttProductivityMachine.dKikPerHrs" "Kicks per Hour" "->>,>>>,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509820" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 6 "ttProductivityMachine.dMrAcl" "MR Acl" "->>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509821" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 7 "ttProductivityMachine.dMrEff" "MR Eff%" "->>>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509822" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 12 "ttProductivityMachine.dMrRunAcl" "MR&RUN Acl" "->>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509823" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 13 "ttProductivityMachine.dMrRunEff" "MR&RUN Eff%" "->>>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509824" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 11 "ttProductivityMachine.dMrRunStd" "MR&RUN Std" "->>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509825" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 5 "ttProductivityMachine.dMrStd" "MR Std" "->>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509826" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 28 "ttProductivityMachine.dMrWaste" "MR Waste" "->,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509827" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 23 "ttProductivityMachine.dMsf" "MSF" "->>>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509828" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 24 "ttProductivityMachine.dMsfPerHrs" "MSF per Hour" ">,>>>,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509829" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 31 "ttProductivityMachine.dPercentWaste" "% Waste" "->,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509830" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 22 "ttProductivityMachine.dPicPerHrs" "Pieces per Hour" "->>>,>>>,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509831" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 27 "ttProductivityMachine.dPicPerManHrs" "Pieces per Man Hour" "->>,>>>,>>>,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509832" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 9 "ttProductivityMachine.dRunAcl" "RUN Acl" "->>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509833" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 10 "ttProductivityMachine.dRunEff" "RUN Eff%" "->>>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509834" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 8 "ttProductivityMachine.dRunStd" "RUN Std" "->>>9.9" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509835" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 29 "ttProductivityMachine.dRunWaste" "Run Waste" "->,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509836" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 32 "ttProductivityMachine.dtDate" "Date" "99/99/9999" "ttProductivityMachine" 0 "date" "ASI" 0 no no "" "" no "" "" "202206032220909509837" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 30 "ttProductivityMachine.dTotalWaste" "Total Waste" "->,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509838" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 21 "ttProductivityMachine.dTtlLbrHrs" "Total Labor Hours" "->,>>>,>>>,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509839" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 20 "ttProductivityMachine.dTtlMchHrs" "Total Machine Hours" "->>,>>>,>>>,>>9.99" "ttProductivityMachine" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202206032220909509840" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 16 "ttProductivityMachine.iAclQty" "Acl Qty" "->>,>>>,>>9" "ttProductivityMachine" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206032220909509841" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 17 "ttProductivityMachine.iExptdQty" "Exptd Qty" "->>,>>>,>>9" "ttProductivityMachine" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206032220909509842" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 25 "ttProductivityMachine.iNumberOn" "Number On" ">>,>>>,>>9" "ttProductivityMachine" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206032220909509843" no no no "" no "" "" 0 0 "" no no "" "" no
+207 yes 34 "ttProductivityMachine.iShift" "Shift" ">9" "ttProductivityMachine" 0 "integer" "ASI" 0 no no "" "" no "" "" "202206032220909509844" no no no "" no "" "" 0 0 "" no no "" "" no
+208 yes 5 "ttDMIJobCodeAnalysis.cat" "Category" "x(3)" "ttDMIJobCodeAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206270212109212574" no no no "" no "" "" 0 0 "" no no "" "" no
+208 yes 4 "ttDMIJobCodeAnalysis.code" "Code" "x(5)" "ttDMIJobCodeAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206270212109212575" no no no "" no "" "" 0 0 "" no no "" "" no
+208 yes 1 "ttDMIJobCodeAnalysis.dmiID" "DMI ID" ">>9" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 1 no yes "" "" no "" "" "202206270212109212576" no no no "" no "" "" 0 0 "" no no "" "" no
+208 yes 6 "ttDMIJobCodeAnalysis.dscr" "Description" "x(45)" "ttDMIJobCodeAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206270212109212578" no no no "" no "" "" 0 0 "" no no "" "" no
+208 yes 3 "ttDMIJobCodeAnalysis.jobCodeDMIID" "Job Code DMI ID" ">>>9" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 2 no no "" "" no "" "" "202206270212109212579" no no no "" no "" "" 0 0 "" no no "" "" no
+208 yes 2 "ttDMIJobCodeAnalysis.totTime" "Total Time" ">,>>>,>>9.99" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 0 no no "" "Report,Sum,[Group] DMI ID,Sum" no "" "" "202206270474009641687" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 1 "ttCostByMachine.dmiID" "DMI ID" ">>9" "ttCostByMachine" 0 "integer" "ASI" 1 no no "" "" no "" "" "202206278539709658944" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 4 "ttCostByMachine.itemName" "Description" "x(30)" "ttCostByMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206278539709658945" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 3 "ttCostByMachine.itemNo" "Item" "x(15)" "ttCostByMachine" 0 "character" "ASI" 2 no yes "" "" no "" "" "202206278539709658946" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 2 "ttCostByMachine.m-code" "Machine" "x(6)" "ttCostByMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206278539709658947" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 8 "ttCostByMachine.matCost" "Mat Cost" "->>>,>>9.9<<<<" "ttCostByMachine" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" "202206278539709658948" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 9 "ttCostByMachine.prodCost" "Prod Cost" "->>>,>>9.9<<<<" "ttCostByMachine" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" "202206278539709658949" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 6 "ttCostByMachine.qtyInLbs" "Qty" "->>>,>>9.9<<<" "ttCostByMachine" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" "202206278539709658950" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 7 "ttCostByMachine.qtyInTons" "Tons" "->>>,>>9.9<<<" "ttCostByMachine" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" "202206278539709658951" no no no "" no "" "" 0 0 "" no no "" "" no
+209 yes 5 "ttCostByMachine.uom" "UOM" "x(5)" "ttCostByMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206278539709658952" no no no "" no "" "" 0 0 "" no no "" "" no
