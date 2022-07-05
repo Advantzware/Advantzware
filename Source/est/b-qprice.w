@@ -100,6 +100,7 @@ DEF VAR rCurTTRow AS ROWID NO-UNDO.
 DEF VAR rCurItemRow AS ROWID NO-UNDO.
 DEFINE VARIABLE rPrevItemRow AS ROWID       NO-UNDO.
 DEFINE VARIABLE rPrevTTRow  AS ROWID       NO-UNDO.
+DEFINE VARIABLE cCustX AS CHARACTER NO-UNDO.
 
 /*&SCOPED-DEFINE SORTBY-PHRASE  BY itemfg.last-count*/
 gcompany = g_company.
@@ -1150,6 +1151,7 @@ DEF BUFFER bfCust FOR Cust.
   END.
   FOR EACH bfCust WHERE bfCust.ACTIVE = "X"
      NO-LOCK:
+    cCustX = bfCust.cust-no.
     FOR EACH ASI.itemfg WHERE itemfg.company = cocode 
           AND itemfg.cust-no EQ ASI.bfCust.cust-no 
           AND itemfg.stat = "A" NO-LOCK
@@ -1176,8 +1178,9 @@ DEF BUFFER bfCust FOR Cust.
   END.
 
   FOR EACH cust-part NO-LOCK
-     WHERE cust-part.company = cocode
-       AND cust-part.cust-no = cust.cust-no
+     WHERE cust-part.company EQ cocode
+       AND (cust-part.cust-no EQ cust.cust-no
+        OR cust-part.cust-no EQ cCustX)
                       :
          FIND FIRST ASI.itemfg NO-LOCK
               WHERE itemfg.company = cocode 
