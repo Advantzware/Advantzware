@@ -659,7 +659,7 @@ PROCEDURE genOrderLinesLocal:
          ).
         
      IF NOT oplSuccess THEN DO:
-        opcReturnValue = "SupplierPartID does not exist".
+        opcReturnValue = "SupplierPartID '" + ttOrdLines.ttItemSupplierPartID + "' does not exist for Customer # '" + oe-ord.cust-no + "' and PO Line# '" + STRING(ttOrdLines.ttItemLineNumber) + "'".
 
         RETURN.
      END.
