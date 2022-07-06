@@ -90,9 +90,13 @@
     DEFINE VARIABLE iSECount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iHLCount AS INTEGER NO-UNDO INITIAL 2.
     
-    DEFINE BUFFER bf-carrier FOR carrier.
-    DEFINE BUFFER bf-itemfg  FOR itemfg.
-    DEFINE BUFFER bf-cust    FOR cust.
+    DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
+    
+    DEFINE BUFFER bf-carrier  FOR carrier.
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    DEFINE BUFFER bf-cust     FOR cust.
+    DEFINE BUFFER bf-loc      FOR loc.
+    DEFINE BUFFER bf-location FOR location.
     
     /* ************************  Function Prototypes ********************** */
     FUNCTION GetPayLoadID RETURNS CHARACTER
@@ -132,7 +136,9 @@
                 .
             RETURN.
         END.
-            
+        
+        oAttribute = NEW system.Attribute().
+                
         RUN GetCXMLIdentities (
             INPUT  oe-bolh.company,
             INPUT  oe-bolh.cust-no,
@@ -206,6 +212,7 @@
                 cCustomerZip     = bf-cust.zip
                 cCustomerCountry = bf-cust.country
                 .
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-cust:HANDLE).
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", GetPayLoadID("")).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NoticeDate", cNoticeDate).
@@ -326,6 +333,19 @@
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
         
+        FIND FIRST bf-loc NO-LOCK
+             WHERE bf-loc.company EQ oe-bolh.company
+               AND bf-loc.loc     EQ oe-bolh.loc
+             NO-ERROR.
+        IF AVAILABLE bf-loc THEN
+            FIND FIRST bf-location NO-LOCK 
+                 WHERE bf-location.company      EQ bf-loc.company
+                   AND bf-location.locationCode EQ bf-loc.loc
+                   AND bf-location.rec_key      EQ bf-loc.addrRecKey
+                 NO-ERROR.
+                 
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-location:HANDLE).
+         
         RUN pUpdateDelimiter (INPUT-OUTPUT lcItemConcatData, "").
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LocationID", cLocationID).
