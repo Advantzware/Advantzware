@@ -350,7 +350,8 @@
                    AND bf-location.locationCode EQ bf-loc.loc
                    AND bf-location.rec_key      EQ bf-loc.addrRecKey
                  NO-ERROR.
-                 
+        
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-loc:HANDLE).                 
         ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-location:HANDLE).
         ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-soldto:HANDLE).
          
