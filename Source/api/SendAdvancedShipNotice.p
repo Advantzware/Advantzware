@@ -97,6 +97,7 @@
     DEFINE BUFFER bf-cust     FOR cust.
     DEFINE BUFFER bf-loc      FOR loc.
     DEFINE BUFFER bf-location FOR location.
+    DEFINE BUFFER bf-soldto   FOR soldto.
     
     /* ************************  Function Prototypes ********************** */
     FUNCTION GetPayLoadID RETURNS CHARACTER
@@ -291,7 +292,13 @@
                     RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderPayloadID", oe-ord.spare-char-3).
                     RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderDate", cOrderDate).
                     
-                    lcOrderConcatData = lcOrderConcatData + lcOrderData.                
+                    lcOrderConcatData = lcOrderConcatData + lcOrderData.
+                    
+                    FIND FIRST bf-soldto NO-LOCK
+                         WHERE bf-soldto.company EQ oe-ord.company
+                           AND bf-soldto.cust-no EQ oe-ord.cust-no
+                           AND bf-soldto.sold-id EQ oe-ord.sold-id
+                         NO-ERROR.                
                 END.
             END.
                         
@@ -345,6 +352,7 @@
                  NO-ERROR.
                  
         ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-location:HANDLE).
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-soldto:HANDLE).
          
         RUN pUpdateDelimiter (INPUT-OUTPUT lcItemConcatData, "").
         
