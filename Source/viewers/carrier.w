@@ -64,11 +64,12 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR carrier.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS carrier.dscr carrier.loc 
+&Scoped-Define ENABLED-FIELDS carrier.dscr carrier.loc carrier.scac 
 &Scoped-define ENABLED-TABLES carrier
 &Scoped-define FIRST-ENABLED-TABLE carrier
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS carrier.carrier carrier.dscr carrier.loc
+&Scoped-Define DISPLAYED-FIELDS carrier.carrier carrier.dscr carrier.loc ~
+carrier.scac 
 &Scoped-define DISPLAYED-TABLES carrier
 &Scoped-define FIRST-DISPLAYED-TABLE carrier
 &Scoped-Define DISPLAYED-OBJECTS loc_dscr rd_chg-method tg_inactive F1 
@@ -78,7 +79,8 @@ DEFINE QUERY external_tables FOR carrier.
 &Scoped-define ADM-CREATE-FIELDS carrier.carrier 
 &Scoped-define ADM-ASSIGN-FIELDS rd_chg-method 
 &Scoped-define DISPLAY-FIELD carrier.loc 
-&Scoped-define F1 F1 tg_inactive
+&Scoped-define List-5 tg_inactive 
+&Scoped-define F1 F1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -128,14 +130,14 @@ DEFINE VARIABLE rd_chg-method AS CHARACTER
 "Weight", "W"
      SIZE 45 BY .95 NO-UNDO.
 
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 88 BY 4.76.
+
 DEFINE VARIABLE tg_inactive AS LOGICAL INITIAL no 
      LABEL "Inactive" 
      VIEW-AS TOGGLE-BOX
      SIZE 13.4 BY .81 NO-UNDO.
-
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 88 BY 3.81.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -154,11 +156,14 @@ DEFINE FRAME F-Main
           SIZE 10 BY 1
           BGCOLOR 15 FONT 4
      loc_dscr AT ROW 2.43 COL 36 COLON-ALIGNED NO-LABEL
-     rd_chg-method AT ROW 3.62 COL 25 NO-LABEL
-     tg_inactive AT ROW 3.67 COL 70 WIDGET-ID 8
+     carrier.scac AT ROW 3.52 COL 23 COLON-ALIGNED WIDGET-ID 10
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1 TOOLTIP "Standard Carrier Alpha Code"
+     rd_chg-method AT ROW 4.67 COL 25 NO-LABEL
+     tg_inactive AT ROW 4.71 COL 70 WIDGET-ID 8
      F1 AT ROW 2.43 COL 35 NO-LABEL
      "Charge Method:" VIEW-AS TEXT
-          SIZE 19 BY .95 AT ROW 3.62 COL 5
+          SIZE 19 BY .95 AT ROW 4.67 COL 5
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -193,7 +198,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 3.81
+         HEIGHT             = 4.86
          WIDTH              = 88.6.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -250,7 +255,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -423,7 +428,6 @@ ELSE DO:
 END.
 {&methods/lValidateError.i NO}
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
