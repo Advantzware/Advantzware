@@ -1400,8 +1400,9 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     DEFINE VARIABLE cLabelGross   AS CHARACTER INIT "Gross:" NO-UNDO  .
     DEFINE VARIABLE lWoodEstimate AS LOGICAL   NO-UNDO  .
     DEFINE VARIABLE opdConvertTo16th LIKE estCostBlank.blankWidth NO-UNDO.
+    DEFINE VARIABLE dGrossQtyRequiredTotalWeightInTons AS DECIMAL NO-UNDO.
    
-    DEFINE VARIABLE iColumn       AS INTEGER   EXTENT 10 INITIAL [12,22,32,45,58,72].
+    DEFINE VARIABLE iColumn       AS INTEGER   EXTENT 10 INITIAL [12,22,32,45,58,72,80].
     
     lWoodEstimate = fTypeIsWood(ipbf-estCostHeader.estType) .
     IF lWoodEstimate THEN
@@ -1411,6 +1412,8 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
             cLabelNet   = "Process Size:"
             cLabelGross = "Raw Wood Size" .
     END.
+    
+    ASSIGN dGrossQtyRequiredTotalWeightInTons = estCostForm.grossQtyRequiredTotalWeight / 2000 .
        
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -1530,7 +1533,9 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.grossQtyRequiredTotalAreaUOM , YES, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.grossQtyRequiredTotalWeight, 7, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.grossQtyRequiredTotalWeightUOM, NO, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.grossQtyRequiredTotalWeightUOM + "/", NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7] , ROUND(dGrossQtyRequiredTotalWeightInTons,2), 3, 2, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[7] + 0.5, "Tons", NO, NO, NO).
 END PROCEDURE.
 
 PROCEDURE pPrintMaterialInfoForForm PRIVATE:
