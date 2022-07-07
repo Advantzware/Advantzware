@@ -121,6 +121,7 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD orderLine                AS INTEGER   FORMAT "->,>>>,>>9" LABEL "Order Line"
     FIELD orderLineOverride        AS INTEGER   FORMAT "->,>>>,>>9" LABEL "Order Line Override"
     FIELD orderLineOverridden      AS INTEGER   FORMAT "->,>>>,>>9" LABEL "Order Line Overridden"
+    FIELD orderDate                AS DATE      FORMAT "99/99/9999" LABEL "Order Date"
     FIELD taxRateFreight           AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Tax Rate Freight"
     FIELD customerPONo             AS CHARACTER FORMAT "x(15)"      LABEL "Customer PO No"
     FIELD customerPONoNoBlank      AS CHARACTER FORMAT "x(15)"      LABEL "Customer PO No No Blank"
