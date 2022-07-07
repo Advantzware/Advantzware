@@ -58,6 +58,8 @@ DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'SAVE':U.
 DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
+{methods/prgsecdt.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -525,6 +527,11 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = YES.
 &ENDIF
+                  
+    IF NOT v-can-update THEN ASSIGN Btn-Save:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+                                    Btn-Cancel:SENSITIVE = NO                                                                           
+                                    .
+    IF NOT v-can-run THEN DISABLE ALL.
 
   END. /* panel-state = action-chosen */
 

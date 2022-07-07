@@ -451,7 +451,8 @@ PROCEDURE EnablePOScores:
  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        ENABLE btPOScores.
+       IF v-can-run THEN
+       ENABLE btPOScores.
     END.
 END PROCEDURE.
 	
