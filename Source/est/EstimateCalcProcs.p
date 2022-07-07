@@ -849,7 +849,7 @@ PROCEDURE pAddEstMaterial PRIVATE:
             opbf-ttEstCostMaterial.estimateNo       = ipbf-ttEstCostForm.estimateNo
             opbf-ttEstCostMaterial.formNo           = ipbf-ttEstCostForm.formNo
             opbf-ttEstCostMaterial.itemID           = bf-item.i-no 
-            opbf-ttEstCostMaterial.itemName         = IF bf-item.est-dscr NE "" THEN bf-item.est-dscr ELSE bf-item.i-name 
+            opbf-ttEstCostMaterial.itemName         = IF bf-item.i-name NE "" THEN bf-item.i-name ELSE bf-item.est-dscr 
             opbf-ttEstCostMaterial.quantityUOM      = CAPS(bf-item.cons-uom)
             opbf-ttEstCostMaterial.quantityUOMWaste = opbf-ttEstCostMaterial.quantityUOM
             opbf-ttEstCostMaterial.basisWeight      = bf-item.basis-w
