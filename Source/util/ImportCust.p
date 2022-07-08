@@ -92,7 +92,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD SwiftBIC      AS CHARACTER FORMAT "x(11)" COLUMN-LABEL "Swift Code" HELP "Optional - Validated - Size:11"
     FIELD BankRTN       AS INTEGER FORMAT "999999999" COLUMN-LABEL "Routing" HELP "Optional - Integer"
     
-    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split/Originated/Handed/None (None for no change)"
+    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting Required - Size:12 Split/Originated/Handed/None (None for no change)"
     FIELD splitType     AS INTEGER FORMAT "9" COLUMN-LABEL "Split Type" HELP "Split type used for sales reporting Optional - default 0"
     FIELD parentCust    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Parent Customer" HELP "Master customer account Optional - Size:12"
     FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
@@ -321,7 +321,7 @@ PROCEDURE pValidate PRIVATE:
         IF oplValid AND ipbf-ttImportCust.CustStatus NE "" THEN 
             RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
 
-        IF oplValid THEN 
+        IF oplValid AND ipbf-ttImportCust.CustSman NE ""  THEN 
             RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, YES, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.CustType NE "" THEN 
