@@ -1400,8 +1400,9 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     DEFINE VARIABLE cLabelGross   AS CHARACTER INIT "Gross:" NO-UNDO  .
     DEFINE VARIABLE lWoodEstimate AS LOGICAL   NO-UNDO  .
     DEFINE VARIABLE opdConvertTo16th LIKE estCostBlank.blankWidth NO-UNDO.
+    DEFINE VARIABLE dGrossQtyRequiredTotalWeightInTons AS DECIMAL NO-UNDO.
    
-    DEFINE VARIABLE iColumn       AS INTEGER   EXTENT 10 INITIAL [12,22,32,45,58,72].
+    DEFINE VARIABLE iColumn       AS INTEGER   EXTENT 10 INITIAL [12,22,32,45,58,72,80].
     
     lWoodEstimate = fTypeIsWood(ipbf-estCostHeader.estType) .
     IF lWoodEstimate THEN
@@ -1411,6 +1412,8 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
             cLabelNet   = "Process Size:"
             cLabelGross = "Raw Wood Size" .
     END.
+    
+    ASSIGN dGrossQtyRequiredTotalWeightInTons = estCostForm.grossQtyRequiredTotalWeight / 2000 .
        
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -1438,11 +1441,11 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         ASSIGN opdConvertTo16th = estCostBlank.blankArea.
         RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
         IF ttCEFormatConfig.showDimensionsIn16ths THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
-        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostBlank.blankArea, 4, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,4), 8, 4, NO, YES, NO, NO, YES).
+        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostBlank.blankArea, 8, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostBlank.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostBlank.numOut, 4, 0, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostBlank.weightPerBlank * 1000, 5, 4, NO, YES, NO, NO, YES). 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostBlank.weightPerBlank * 1000, 8, 4, NO, YES, NO, NO, YES). 
         RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostBlank.weightUOM + "/M", NO, NO, NO).
     END.
     IF NOT lWoodEstimate THEN
@@ -1466,7 +1469,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
         ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightDieSheet, 8, 4, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightDieUOM, NO, NO, NO).
     END.
     
@@ -1490,7 +1493,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.netArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostForm.numOutNet, 4, 0, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightNetSheet, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightNetSheet, 8, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightNetUOM, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelGross, NO, NO, YES).
@@ -1511,7 +1514,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.areaUOM , NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightGrossSheet, 5, 4, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.weightGrossSheet, 8, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.weightGrossUOM, NO, NO, NO).
     IF estCostForm.rollWidth NE 0 THEN 
     DO:
@@ -1524,13 +1527,14 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn[2],  "Sheets:", YES, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2] + 1, estCostForm.grossQtyRequiredTotal, 9, 0, YES, YES, YES, NO, NO).
     ASSIGN opdConvertTo16th = estCostForm.grossQtyRequiredTotalArea.
-    RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
     IF ttCEFormatConfig.showDimensionsIn16ths THEN
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, YES, NO, YES).
     ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostForm.grossQtyRequiredTotalArea, 4, 5, NO, YES, YES, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostForm.grossQtyRequiredTotalAreaUOM , YES, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostForm.grossQtyRequiredTotalWeight, 7, 4, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.grossQtyRequiredTotalWeightUOM, NO, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostForm.grossQtyRequiredTotalWeightUOM + "/", NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7] , ROUND(dGrossQtyRequiredTotalWeightInTons,2), 3, 2, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[7] + 0.5, "Tons", NO, NO, NO).
 END PROCEDURE.
 
 PROCEDURE pPrintMaterialInfoForForm PRIVATE:

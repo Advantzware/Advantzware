@@ -238,7 +238,10 @@ PROCEDURE pAssignCommonLineData PRIVATE:
            AND bf-oe-ord.ord-no EQ ipbf-ttInvLine.orderID
          NO-ERROR.
     IF AVAILABLE bf-oe-ord THEN DO:
-        ipbf-ttInv.isEDIOrder = bf-oe-ord.ediSubmitted EQ 1.
+        ASSIGN
+            ipbf-ttInv.isEDIOrder    = bf-oe-ord.ediSubmitted EQ 1
+            ipbf-ttInvLine.orderDate = bf-oe-ord.ord-date
+            .
         
         IF ipbf-ttInv.customerPONo EQ "" THEN 
             ipbf-ttInv.customerPONo = bf-oe-ord.po-no.

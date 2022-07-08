@@ -137,9 +137,10 @@
                 .
             RETURN.
         END.
-        
+
         oAttribute = NEW system.Attribute().
-                
+        oAttribute:RequestDataType = gcRequestDataType.
+            
         RUN GetCXMLIdentities (
             INPUT  oe-bolh.company,
             INPUT  oe-bolh.cust-no,
@@ -336,7 +337,16 @@
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemName", cItemName).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "BuyerPart", cBuyerPart).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "HLCount", iHLCount).
+
+            FIND FIRST oe-ordl NO-LOCK
+                 WHERE oe-ordl.company EQ oe-boll.company
+                   AND oe-ordl.ord-no  EQ oe-boll.ord-no
+                   AND oe-ordl.i-no    EQ oe-boll.i-no
+                   AND oe-ordl.line    EQ oe-boll.line
+                 NO-ERROR.                            
             
+            lcItemData = oAttribute:ReplaceAttributes(lcItemData, BUFFER oe-ordl:HANDLE).
+                        
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
         

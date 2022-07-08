@@ -7932,28 +7932,20 @@ PROCEDURE ip_ProcessAll :
                 
     RUN ipUpdateUserControl.
     IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = iopiStatus + 27.
         iopiStatus = iopiStatus + 47.
     ELSE RETURN.
 
     RUN ipFixUsers.
     IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 28.
         iopiStatus = 48.
     ELSE RETURN.
 
     RUN ipDelBadData.
     IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 29.
         iopiStatus = 49.
     ELSE RETURN.
 
     RUN ipUpdateMaster.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 30.
-    ELSE RETURN.
-
-    RUN ipExpandFiles.
     IF lSuccess EQ TRUE THEN ASSIGN 
         iopiStatus = 50.
     ELSE RETURN.
