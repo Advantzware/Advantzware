@@ -37,11 +37,7 @@ DEFINE TEMP-TABLE ttCustAging NO-UNDO
 
 {sys/inc/var.i NEW SHARED}
 
-/*DEFINE VARIABLE lOrderBalance     AS LOGICAL NO-UNDO.*/
-/*DEFINE VARIABLE lARBalance        AS LOGICAL NO-UNDO.*/
-/*DEFINE VARIABLE lPastGraceBalance AS LOGICAL NO-UNDO.*/
-/*DEFINE VARIABLE lCreditHold       AS LOGICAL NO-UNDO.*/
-/*DEFINE VARIABLE lCustomerNotAged  AS LOGICAL NO-UNDO.*/
+cocode = cCompany.
 
 cocode = cCompany.
 
