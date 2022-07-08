@@ -49,6 +49,8 @@ DEFINE TEMP-TABLE ttImportWarehouse
     FIELD isAPIEnabled          AS CHARACTER FORMAT "x" COLUMN-LABEL "API Enabled" HELP "Optional - Yes or No (blank=No)"
     FIELD lActive               AS CHARACTER FORMAT "x" COLUMN-LABEL "Consignment" HELP "Optional - Yes or No (blank=No)"
     FIELD lovOwner              AS CHARACTER FORMAT "x(8)" COLUMN-LABEL "Owner" HELP "Optional - Size:8"
+    FIELD floorPositions        AS INTEGER FORMAT ">>>>>>9" COLUMN-LABEL "# Floor Positions" HELP "Optional - Integer"
+    FIELD rackPositions         AS INTEGER FORMAT ">>>>>>9" COLUMN-LABEL "# Rack Positions" HELP "Optional - Integer"
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
  
@@ -136,6 +138,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportWarehouse.externalID1, iplIgnoreBlanks, INPUT-OUTPUT bf-location.externalID[1]).                                 
     RUN pAssignValueC (ipbf-ttImportWarehouse.notes, iplIgnoreBlanks, INPUT-OUTPUT bf-location.notes).                                   
     RUN pAssignValueC (ipbf-ttImportWarehouse.lActive, iplIgnoreBlanks, INPUT-OUTPUT bf-location.lActive).
+    RUN pAssignValueI (ipbf-ttImportWarehouse.floorPositions, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.floorPositions).
+    RUN pAssignValueI (ipbf-ttImportWarehouse.rackPositions, iplIgnoreBlanks, INPUT-OUTPUT bf-loc.rackPositions).
     
     RUN pUpdateStorageCost(BUFFER bf-loc).
                                       

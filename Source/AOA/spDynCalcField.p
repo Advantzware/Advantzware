@@ -309,7 +309,7 @@ PROCEDURE calcTimeSpan:
     DEFINE INPUT  PARAMETER ipiEndTime    AS INTEGER   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCalcValue  AS CHARACTER NO-UNDO.
 
-    opcCalcValue = STRING(fTimeSpan(ipdtStartDate, ipiStartTime, ipdtEndDate, ipiEndTime),">>>>>9").
+    opcCalcValue = STRING(fTimeSpan(ipdtStartDate, ipiStartTime, ipdtEndDate, ipiEndTime)).
 END PROCEDURE.
 
 PROCEDURE calcTimeSpanString:

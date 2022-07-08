@@ -53,7 +53,7 @@ DEF VAR ll-tab-out AS LOG NO-UNDO.
 &Scoped-define INTERNAL-TABLES w-ord
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.prod-notes w-ord.cust-po-no w-ord.ord-qty w-ord.rel-qty w-ord.rel-no w-ord.pcs w-ord.bundle w-ord.partial /*w-ord.total-unit */ w-ord.total-tags w-ord.l-code w-ord.case-wt w-ord.lot# w-ord.rel-lot# w-ord.draw#   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.prod-notes w-ord.cust-po-no w-ord.ord-qty w-ord.rel-qty w-ord.rel-no w-ord.pcs w-ord.bundle w-ord.partial /*w-ord.total-unit */ w-ord.total-tags w-ord.l-code w-ord.case-wt w-ord.lot# w-ord.rel-lot# w-ord.draw# w-ord.ordHeaderPo w-ord.ordLinePo w-ord.releasePo w-ord.miscItemPo w-ord.relCustLot 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 w-ord.prod-notes ~
  ~
 w-ord.pcs ~
@@ -133,6 +133,11 @@ DEFINE BROWSE BROWSE-1
       w-ord.lot# COLUMN-LABEL "FG Lot#"
       w-ord.rel-lot# COLUMN-LABEL "Rel. Lot#"
       w-ord.draw# COLUMN-LABEL "Drawing#"
+      w-ord.ordHeaderPo COLUMN-LABEL "Order Header PO#"         FORMAT "x(15)"
+      w-ord.ordLinePo   COLUMN-LABEL "Order Line PO#"           FORMAT "x(15)"
+      w-ord.releasePo   COLUMN-LABEL "Release PO#"              FORMAT "x(15)"
+      w-ord.miscItemPo  COLUMN-LABEL "Misc Item PO#"            FORMAT "x(30)"
+      w-ord.relCustLot  COLUMN-LABEL "Release Customer Lot#"    FORMAT "x(15)"
       ENABLE w-ord.prod-notes 
              w-ord.cust-po-no
              w-ord.pcs

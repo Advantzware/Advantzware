@@ -111,7 +111,7 @@ ASSIGN
  str-init[27] = "QOH>QEst,AllItems,QAvail>0"
  str-init[28] = "Penny,Dollar"
  str-init[29] = ",Brick,Xprint,Unipak-XL,PremierPkg,ACPI,PremierPkgU,PremierPkgM,PremierBroker,CCC,LoyLang,CCCWPP,Prystup," +
-                "bolcert 1,bolcert 2,BOLCERT10,CCC2,LancoYork,CCC3,CCC4,CCC5,BOLCERT-Mex,Soule,PackSlip,PrystupXLS,CCCEss,CCCRev"
+                "bolcert 1,bolcert 2,BOLCERT10,CCC2,LancoYork,CCC3,CCC4,CCC5,BOLCERT-Mex,Soule,PackSlip,PrystupXLS,CCCEss,CCCRev,Altex"
  str-init[30] = "ASI,Clevelnd,McLean,Suthrlnd,Brick,Fibre,Protagon,cerunc 1,cerunc 2,cerunc 3,Atlantic,Peachtre"
  str-init[31] = "ASI,McLean,HOP,Dee,Fibre,cerunf 1,cerunf 2"
  str-init[32] = "XPRINT,Pacific,RFC,Hughes,HPB,MWFIBRE,ARTIOS,P&,MWBox," +
@@ -303,7 +303,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:
      ASSIGN
-	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,quoprint10-CAN,QuoPrint-Excel-Mex,Onducorr"
+	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 11,quoprint 20,quoprint10-CAN,QuoPrint-Excel-Mex"
        str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20,invprint10-CAN,InvPrint-Mex,invprint 21"
        str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20,POPrint10-CAN,POPrint-Mex,POPrint-CAN2"
        str-init[9]  = "relprint 1,relprint 2,relprint 10"

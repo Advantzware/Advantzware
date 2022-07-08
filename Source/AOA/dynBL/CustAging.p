@@ -39,6 +39,8 @@ DEFINE TEMP-TABLE ttCustAging NO-UNDO
 
 cocode = cCompany.
 
+cocode = cCompany.
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:

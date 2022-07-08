@@ -72,7 +72,7 @@ def var v-inv-qty as int format "99999" no-undo.
 def var v-ship-qty as int format "99999" no-undo.
 def var v-i-no as char format "x(15)" no-undo.
 def var v-i-dscr as char format "x(18)" no-undo.
-def var v-price as dec format ">>>>9.9999" no-undo.
+def var v-price as dec format "->>>>>9.9999" no-undo.
 def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like inv-line.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
@@ -574,8 +574,8 @@ find first company where company.company eq cocode NO-LOCK.
                 v-ship-qty  format "->>>>>9" SPACE(1)
                 inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(1)
-                v-i-dscr  format "x(24)" SPACE(1)
-                v-price  format "->>,>>9.99<<" SPACE(1)
+                v-i-dscr  format "x(24)" SPACE(0)
+                v-price  format "->>>,>>9.99" SPACE(1)
                 v-price-head SPACE(1)
                 inv-line.t-price  format "->>>,>>9.99"                     
                 SKIP.

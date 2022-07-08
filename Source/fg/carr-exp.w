@@ -58,14 +58,14 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Carrier,Description,Location,Loc Description,Charge Method,Inactive"
+    cTextListToSelect  = "Carrier,Description,Location,Loc Description,Charge Method,Inactive,SCAC"
 
-    cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method,inactive"
+    cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method,inactive,scac"
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "Carrier,Description,Location,Loc Description,Charge Method,Inactive" .
+    cTextListToDefault = "Carrier,Description,Location,Loc Description,Charge Method,Inactive,SCAC" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -318,6 +318,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
+        
+  IF close_date GT TODAY AND ll-close THEN
+  DO:
+       MESSAGE "Close Date #" STRING(close_date) " is a future date,  Continue?" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+       IF NOT ll-ans THEN RETURN NO-APPLY.
+  END.
 
   MESSAGE "Are you sure you want to " +
           TRIM(STRING(ll-close,"close/reopen")) +

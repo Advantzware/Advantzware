@@ -21,7 +21,7 @@ FOR EACH w-ink:
   DELETE w-ink.
 END.
 
-FOR EACH bf-ef
+FOR EACH bf-ef EXCLUSIVE-LOCK
     WHERE bf-ef.company EQ xest.company
       AND bf-ef.est-no  EQ xest.est-no
     TRANSACTION:
@@ -41,6 +41,8 @@ FOR EACH bf-ef
     IF bf-eb.i-coat   GT bf-ef.f-coat   THEN bf-ef.f-coat   = bf-eb.i-coat.
     IF bf-eb.i-coat-p GT bf-ef.f-coat-p THEN bf-ef.f-coat-p = bf-eb.i-coat-p.
   END.
+  
+  RELEASE bf-ef.
 END.
 
 FOR EACH bf-ef NO-LOCK

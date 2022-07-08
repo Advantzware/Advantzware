@@ -89,5 +89,173 @@
     "contentType": "User",
     "contentKey": "NumberOfLinesInPage",
     "contentValue": "53"
+  },
+  {
+    "rec_key": "202204270705909193452",
+    "apiOutboundID": 60,
+    "contentType": "x-www-form-urlencoded",
+    "contentKey": "client_id",
+    "contentValue": "1000.DFAKL2NO2TOYFIGW0ITMTWLVWTACGK"
+  },
+  {
+    "rec_key": "202204270707209193453",
+    "apiOutboundID": 60,
+    "contentType": "x-www-form-urlencoded",
+    "contentKey": "client_secret",
+    "contentValue": "33eb3f3ac0e0ee324da906146f2c493e36353a6392"
+  },
+  {
+    "rec_key": "202204270710209193454",
+    "apiOutboundID": 60,
+    "contentType": "x-www-form-urlencoded",
+    "contentKey": "redirect_uri",
+    "contentValue": "https:\/\/dummyurladvantzware.com"
+  },
+  {
+    "rec_key": "202204270711409193455",
+    "apiOutboundID": 60,
+    "contentType": "x-www-form-urlencoded",
+    "contentKey": "grant_type",
+    "contentValue": "refresh_token"
+  },
+  {
+    "rec_key": "202204270712609193456",
+    "apiOutboundID": 60,
+    "contentType": "x-www-form-urlencoded",
+    "contentKey": "refresh_token",
+    "contentValue": "1000.cf4acec88cb284f6d8ce7dba8798540e.1f333430c46b71d8ba21b34c1ad6c692"
+  },
+  {
+    "rec_key": "202204274883209193514",
+    "apiOutboundID": 61,
+    "contentType": "Headers",
+    "contentKey": "orgID",
+    "contentValue": "61767974"
+  },
+  {
+    "rec_key": "202204274884909193515",
+    "apiOutboundID": 61,
+    "contentType": "Headers",
+    "contentKey": "Authorization",
+    "contentValue": "Bearer 1000.485685c098997a0c1a7eab819406ec22.6830db559df824d6e2eb4c3e002498de"
+  },
+  {
+    "rec_key": "202204294525309194549",
+    "apiOutboundID": 61,
+    "contentType": "User",
+    "contentKey": "AdvantzwareAccountID",
+    "contentValue": "111636000085303121"
+  },
+  {
+    "rec_key": "202204276104109193548",
+    "apiOutboundID": 62,
+    "contentType": "Headers",
+    "contentKey": "orgID",
+    "contentValue": "61767974"
+  },
+  {
+    "rec_key": "202204276104809193549",
+    "apiOutboundID": 62,
+    "contentType": "Headers",
+    "contentKey": "Authorization",
+    "contentValue": "Bearer 1000.485685c098997a0c1a7eab819406ec22.6830db559df824d6e2eb4c3e002498de"
+  },
+  {
+    "rec_key": "202204276106409193550",
+    "apiOutboundID": 62,
+    "contentType": "User",
+    "contentKey": "AdvantzwareAccountID",
+    "contentValue": "111636000085303121"
+  },
+  {
+    "rec_key": "202204274848909193511",
+    "apiOutboundID": 63,
+    "contentType": "Headers",
+    "contentKey": "orgID",
+    "contentValue": "61767974"
+  },
+  {
+    "rec_key": "202204274851109193512",
+    "apiOutboundID": 63,
+    "contentType": "Headers",
+    "contentKey": "Authorization",
+    "contentValue": "Bearer 1000.485685c098997a0c1a7eab819406ec22.6830db559df824d6e2eb4c3e002498de"
+  },
+  {
+    "rec_key": "202204275330209193526",
+    "apiOutboundID": 63,
+    "contentType": "User",
+    "contentKey": "AdvantzwareAccountID",
+    "contentValue": "111636000085303121"
+  },
+  {
+    "rec_key": "202204254310209318670",
+    "apiOutboundID": 64,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "53"
+  },
+  {
+    "rec_key": "202204254750509318723",
+    "apiOutboundID": 65,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "53"
+  },
+  {
+    "rec_key": "202205051175609395538",
+    "apiOutboundID": 66,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "53"
+  },
+  {
+    "rec_key": "202205052687309395675",
+    "apiOutboundID": 67,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "53"
+  },
+  {
+    "rec_key": "202205060704509401278",
+    "apiOutboundID": 68,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "53"
+  },
+  {
+    "rec_key": "202205106048809196318",
+    "apiOutboundID": 70,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "65"
+  },
+  {
+    "rec_key": "202205175082209198304",
+    "apiOutboundID": 70,
+    "contentType": "User",
+    "contentKey": "FileSavePath",
+    "contentValue": "C:\\tmp"
+  },
+  {
+    "rec_key": "202205175438909198429",
+    "apiOutboundID": 70,
+    "contentType": "User",
+    "contentKey": "ReportARMiscAsLine",
+    "contentValue": "yes"
+  },
+  {
+    "rec_key": "202206146168209515726",
+    "apiOutboundID": 71,
+    "contentType": "User",
+    "contentKey": "NumberOfLinesInPage",
+    "contentValue": "68"
+  },
+  {
+    "rec_key": "202206167691209516453",
+    "apiOutboundID": 71,
+    "contentType": "User",
+    "contentKey": "NotesLength",
+    "contentValue": "80"
   }
 ]

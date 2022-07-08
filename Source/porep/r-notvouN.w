@@ -2714,23 +2714,15 @@ PROCEDURE pPrintDetail :
             END.                 
         END.        
     END.
-  
-    FOR EACH reftable
-        {ap/ap-reftbW.i bf-po-ordl.po-no}
-        NO-LOCK,
-               each ap-inv WHERE
-                    ap-inv.company eq cocode AND
-                    ap-inv.i-no    eq int(reftable.code2) AND
-                    ap-inv.vend-no eq bf-po-ord.vend-no AND
-                    (ap-inv.po-no  eq bf-po-ordl.po-no or ap-inv.po-no eq 0) AND
-                    ap-inv.posted  eq yes
-                    use-index i-no no-lock,
-               each ap-invl WHERE
-                    ap-invl.i-no       eq ap-inv.i-no AND
-                    (ap-invl.po-no     eq bf-po-ordl.po-no or ap-inv.po-no ne 0) AND
-                    {ap/invlline.i -1} eq bf-po-ordl.LINE 
-                    use-index i-no no-lock:
-
+         
+    FOR EACH ap-invl NO-LOCK
+        WHERE ap-invl.company EQ cocode 
+          AND ap-invl.po-no EQ bf-po-ordl.po-no 
+          AND (ap-invl.line + (ap-invl.po-no * -1000)) eq bf-po-ordl.LINE,           
+        EACH ap-inv NO-LOCK
+        WHERE ap-inv.i-no eq ap-invl.i-no
+          AND ap-inv.company EQ cocode:
+                      
     ASSIGN 
         cDisplay       = ""
         cTmpField      = ""

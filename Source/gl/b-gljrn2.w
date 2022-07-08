@@ -41,6 +41,7 @@ DEF VAR v-debit AS DEC NO-UNDO.
 DEF VAR v-credit AS DEC NO-UNDO.
 DEF VAR lv-acct-dscr AS cha FORM "x(30)" LABEL "Account Name " NO-UNDO.
 DEFINE VARIABLE hGLProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE lLineEntry AS LOGICAL INIT YES NO-UNDO.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
@@ -408,6 +409,34 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME gl-jrnl.line
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-jrnl.line Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF gl-jrnl.line IN BROWSE Browser-Table /* Line */
+DO:   
+     IF NOT lLineEntry THEN 
+     do:          
+        APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
+        RETURN NO-APPLY. 
+     END.   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME gl-jrnl.line
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-jrnl.line Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF gl-jrnl.line IN BROWSE Browser-Table /* Line */
+DO:  
+     DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+    IF LASTKEY NE -1 THEN DO:         
+        RUN valid-line(OUTPUT lReturnError) NO-ERROR.                   
+        IF lReturnError THEN 
+            RETURN NO-APPLY.   
+    END.   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME gl-jrnl.actnum
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gl-jrnl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
@@ -497,8 +526,10 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
 
 RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
 IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
-  THEN RUN auto-add IN WIDGET-HANDLE(char-hdl).
-
+  THEN do: 
+     lLineEntry = NO.
+     RUN auto-add IN WIDGET-HANDLE(char-hdl).
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -560,7 +591,7 @@ PROCEDURE local-add-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .  
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -612,8 +643,7 @@ PROCEDURE local-create-record :
   ASSIGN gl-jrnl.j-no = gl-jrn.j-no
          gl-jrnl.line = x + 1
          gl-jrnl.dscr = v-dscr.
-
-
+         lLineEntry   = NO.       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -747,6 +777,10 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE lInactive    AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN new-actnum (1).
+  
+  RUN valid-line(OUTPUT lReturnError) NO-ERROR.
+  IF lReturnError THEN RETURN NO-APPLY.
+  
   RUN valid-actnum(OUTPUT lReturnError) NO-ERROR.
   IF lReturnError THEN RETURN NO-APPLY.
    
@@ -929,8 +963,9 @@ PROCEDURE valid-actnum :
   DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
   DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
   DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
-  
+        
   DO WITH FRAME {&FRAME-NAME}:
+      lLineEntry = YES.
       RUN GL_CheckGLAccount IN hGLProcs(
           INPUT  g_company,
           INPUT  gl-jrnl.actnum:SCREEN-VALUE IN BROWSE {&browse-name},            
@@ -957,6 +992,38 @@ PROCEDURE valid-actnum :
       END.      
       IF lActive EQ YES THEN 
           RUN presetColor NO-ERROR.                                        
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-line B-table-Win 
+PROCEDURE valid-line :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  
+  DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE lActive   AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+  DEFINE BUFFER bf-gl-jrnl FOR gl-jrnl.
+  
+  DO WITH FRAME {&FRAME-NAME}:
+      FIND FIRST bf-gl-jrnl NO-LOCK
+           WHERE bf-gl-jrnl.j-no EQ gl-jrn.j-no
+             AND bf-gl-jrnl.LINE EQ INTEGER(gl-jrnl.LINE:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+             AND ROWID(bf-gl-jrnl) NE ROWID(gl-jrnl) NO-ERROR.      
+      IF AVAILABLE bf-gl-jrnl THEN
+      DO:
+          MESSAGE "Please enter a valid Line." VIEW-AS ALERT-BOX ERROR.
+          APPLY "ENTRY" TO gl-jrnl.LINE IN BROWSE {&BROWSE-NAME}.       
+          oplReturnError = YES. 
+      END.
   END.
 
 END PROCEDURE.

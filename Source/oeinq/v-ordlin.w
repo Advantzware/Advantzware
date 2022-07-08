@@ -145,9 +145,9 @@ DEFINE FRAME F-Main
      oe-ordl.est-no AT ROW 1.24 COL 24 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
-     oe-ordl.part-no AT ROW 1.24 COL 81 COLON-ALIGNED
+     oe-ordl.part-no AT ROW 1.24 COL 81 COLON-ALIGNED FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 28 BY 1
+          SIZE 56 BY 1
      oe-ordl.i-no AT ROW 2.43 COL 24 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 27 BY 1

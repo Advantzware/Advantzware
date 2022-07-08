@@ -57,6 +57,8 @@ DEF VAR ll-sort-asc AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
 DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.
 
+DEFINE TEMP-TABLE tt-report LIKE report .
+
 &SCOPED-DEFINE key-phrase ar-invl.company EQ cocode AND ar-invl.posted EQ YES
 
 &SCOPED-DEFINE for-each1                            ~
@@ -83,7 +85,8 @@ DEFINE VARIABLE iPeriod AS INTEGER NO-UNDO.
       AND (ar-inv.inv-date GE fi_date OR fi_date = ?)  ~
       AND (ar-inv.due GE fi_due)  ~
       NO-LOCK,                                  ~
-    FIRST cust OF ar-inv NO-LOCK
+    FIRST cust OF ar-inv NO-LOCK, ~
+    FIRST tt-report WHERE tt-report.rec-id EQ RECID(ar-inv) NO-LOCK 
 
 &SCOPED-DEFINE sortby-log                                                                                                                                ~
     IF lv-sort-by EQ "ord-no"  THEN STRING(ar-invl.ord-no,"9999999999")                                                                             ELSE ~
@@ -133,7 +136,7 @@ DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 &Scoped-define BROWSE-NAME BROWSE-3
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ar-invl ar-inv cust
+&Scoped-define INTERNAL-TABLES ar-invl ar-inv cust tt-report
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -154,17 +157,20 @@ ar-invl.po-no ar-invl.est-no
 &Scoped-define QUERY-STRING-BROWSE-3 FOR EACH ar-invl WHERE ~{&KEY-PHRASE} NO-LOCK, ~
       EACH ar-inv WHERE ar-inv.x-no = ar-invl.x-no ~
       AND ar-inv.posted NO-LOCK, ~
-      EACH cust OF ar-invl NO-LOCK ~
+      EACH cust OF ar-invl NO-LOCK, ~
+      FIRST tt-report WHERE tt-report.rec-id EQ RECID(ar-inv) NO-LOCK ~
     ~{&SORTBY-PHRASE} INDEXED-REPOSITION
 &Scoped-define OPEN-QUERY-BROWSE-3 OPEN QUERY BROWSE-3 FOR EACH ar-invl WHERE ~{&KEY-PHRASE} NO-LOCK, ~
       EACH ar-inv WHERE ar-inv.x-no = ar-invl.x-no ~
       AND ar-inv.posted NO-LOCK, ~
-      EACH cust OF ar-invl NO-LOCK ~
+      EACH cust OF ar-invl NO-LOCK, ~
+      FIRST tt-report WHERE tt-report.rec-id EQ RECID(ar-inv) NO-LOCK ~
     ~{&SORTBY-PHRASE} INDEXED-REPOSITION.
-&Scoped-define TABLES-IN-QUERY-BROWSE-3 ar-invl ar-inv cust
+&Scoped-define TABLES-IN-QUERY-BROWSE-3 ar-invl ar-inv cust tt-report
 &Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-3 ar-invl
 &Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-3 ar-inv
 &Scoped-define THIRD-TABLE-IN-QUERY-BROWSE-3 cust
+&Scoped-define FORTH-TABLE-IN-QUERY-BROWSE-3 tt-report
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -299,31 +305,32 @@ DEFINE VARIABLE fi_sortBy AS CHARACTER FORMAT "X(256)":U
 DEFINE QUERY BROWSE-3 FOR 
       ar-invl, 
       ar-inv, 
-      cust SCROLLING.
+      cust ,
+      tt-report SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-3 Dialog-Frame _STRUCTURED
   QUERY BROWSE-3 NO-LOCK DISPLAY
-      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>9":U
-      ar-invl.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U
-      ar-invl.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U
-      ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U
-      ar-inv.net COLUMN-LABEL "Net" FORMAT "->>,>>>,>>9.99":U
-      ar-inv.paid FORMAT "->,>>>,>>9.99":U
-      ar-inv.due FORMAT "->>,>>>,>>9.99":U
-      ar-invl.actnum COLUMN-LABEL "GL Acct#" FORMAT "x(25)":U
-      ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
-      ar-invl.part-no FORMAT "x(30)":U
-      ar-invl.ord-no FORMAT ">>>>>>>9":U
-      ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U
-      ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U
-      ar-invl.i-name FORMAT "x(30)":U
-      ar-inv.runNumber FORMAT ">>>>>>>>9":U
-      ar-inv.postedDate FORMAT "99/99/99":U
-      ar-inv.glYear FORMAT "9999":U
-      getPeriod() @ iPeriod COLUMN-LABEL "Period" FORMAT ">>>":U
+      ar-invl.inv-no COLUMN-LABEL "Inv#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
+      ar-invl.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
+      ar-invl.cust-no COLUMN-LABEL "Cust#" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      ar-inv.inv-date COLUMN-LABEL "Inv Date" FORMAT "99/99/9999":U LABEL-BGCOLOR 14
+      ar-inv.net COLUMN-LABEL "Net" FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ar-inv.paid FORMAT "->,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ar-inv.due FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
+      ar-invl.actnum COLUMN-LABEL "GL Acct#" FORMAT "x(25)":U LABEL-BGCOLOR 14
+      ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
+      ar-invl.part-no FORMAT "x(30)":U LABEL-BGCOLOR 14
+      ar-invl.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
+      ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U LABEL-BGCOLOR 14
+      ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      ar-invl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
+      ar-inv.runNumber FORMAT ">>>>>>>>9":U LABEL-BGCOLOR 14
+      ar-inv.postedDate FORMAT "99/99/99":U LABEL-BGCOLOR 14
+      ar-inv.glYear FORMAT "9999":U LABEL-BGCOLOR 14
+      getPeriod() @ iPeriod COLUMN-LABEL "Period" FORMAT ">>>":U LABEL-BGCOLOR 14
   ENABLE
       ar-invl.inv-no
       ar-invl.bol-no
@@ -415,7 +422,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-3
 /* Query rebuild information for BROWSE BROWSE-3
-     _TblList          = "asi.ar-invl,asi.ar-inv WHERE asi.ar-invl ...,asi.cust OF asi.ar-invl"
+     _TblList          = "asi.ar-invl,asi.ar-inv WHERE asi.ar-invl ...,asi.cust OF asi.ar-invl, FIRST tt-report WHERE tt-report.rec-id EQ RECID(ar-inv)"
      _Options          = "NO-LOCK INDEXED-REPOSITION KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ",,"
      _JoinCode[2]      = "asi.ar-inv.x-no = asi.ar-invl.x-no"
@@ -831,7 +838,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   fi_cust-no = ip-cust-no.
-  
+  RUN pBuildTable. 
   RUN enable_UI.
     /* Ticket# : 92946
      Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
@@ -1145,6 +1152,39 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTable Dialog-Frame 
+PROCEDURE pBuildTable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  FOR EACH tt-report:
+    DELETE tt-report.
+  END.
+
+  FOR EACH ar-inv NO-LOCK
+      WHERE ar-inv.posted EQ yes 
+      AND ASI.ar-inv.company EQ ip-company 
+      AND ar-inv.cust-no EQ ip-cust-no 
+      AND NOT CAN-FIND (FIRST ar-cashl NO-LOCK 
+               WHERE ar-cashl.company EQ ar-inv.company 
+                 AND ar-cashl.cust-no EQ ar-inv.cust-no 
+                 AND ar-cashl.inv-no  EQ ar-inv.inv-no) :                  
+       CREATE tt-report.
+       ASSIGN
+       tt-report.rec-id = RECID(ar-inv)
+       tt-report.key-01 = string(ar-inv.inv-no)
+       .     
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

@@ -496,7 +496,7 @@ END.
 
 &Scoped-define SELF-NAME edRequestData
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL edRequestData V-table-Win
-ON ENTRY OF edRequestData IN FRAME F-Main
+ON MOUSE-SELECT-CLICK OF edRequestData IN FRAME F-MAIN
 DO:
     DEFINE VARIABLE lcRequestData AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE lSave         AS LOGICAL   NO-UNDO.
