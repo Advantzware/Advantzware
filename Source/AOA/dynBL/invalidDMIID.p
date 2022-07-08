@@ -80,7 +80,7 @@ PROCEDURE pBusinessLogic:
                         cCompany,
                         cEstimateID,
                         cTag,
-                        TODAY,
+                        dmiTrans.startDate,
                         cLocation, 
                         lExportOnly,
                         OUTPUT lError,
@@ -111,12 +111,13 @@ FUNCTION fGetLocation RETURNS CHARACTER PRIVATE
     
     FIND FIRST mach NO-LOCK 
         WHERE mach.company EQ ipcCompany
-        AND mach.m-code EQ ipcMachineID
+          AND mach.m-code  EQ ipcMachineID
         NO-ERROR.
-	IF AVAILABLE mach THEN 
-	   cLocation = mach.physicalLoc.
+	IF AVAILABLE mach THEN
+	cLocation = mach.physicalLoc.
         
     RETURN cLocation.        
+
 END FUNCTION.
 
 FUNCTION fGetTag RETURNS CHARACTER PRIVATE
