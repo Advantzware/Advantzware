@@ -166,6 +166,7 @@ DEFINE VARIABLE ghVendorCost AS HANDLE no-undo.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
 DEFINE VARIABLE hGLProcs  AS HANDLE NO-UNDO.
 DEFINE VARIABLE cPODateChangeRequiresReason AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorCostMatrixUseEstimate AS CHARACTER NO-UNDO.
 
 {windows/l-jobmt1.i}
 
@@ -188,6 +189,7 @@ RUN Po/POProcs.p PERSISTENT SET hdPOProcs.
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
 RUN spGetSettingByName ("PODateChangeRequiresReason", OUTPUT cPODateChangeRequiresReason).
+RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixUseEstimate).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1783,7 +1785,7 @@ DO:
                         AND vendItemCost.ItemID    EQ itemfg.i-no
                         AND vendItemCost.ItemType EQ "RM"    
                         AND vendItemCost.customerID EQ po-ordl.cust-no:screen-value
-                        AND vendItemCost.estimateNo EQ ""
+                        AND (vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
                         AND vendItemCost.effectiveDate LE TODAY
                         AND (venditemcost.expirationDate GE TODAY OR vendItemCost.expirationDate = ?)
                         NO-ERROR.
