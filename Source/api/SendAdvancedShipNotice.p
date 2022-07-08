@@ -91,10 +91,13 @@
     DEFINE VARIABLE iHLCount AS INTEGER NO-UNDO INITIAL 2.
     
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
-        
-    DEFINE BUFFER bf-carrier FOR carrier.
-    DEFINE BUFFER bf-itemfg  FOR itemfg.
-    DEFINE BUFFER bf-cust    FOR cust.
+    
+    DEFINE BUFFER bf-carrier  FOR carrier.
+    DEFINE BUFFER bf-itemfg   FOR itemfg.
+    DEFINE BUFFER bf-cust     FOR cust.
+    DEFINE BUFFER bf-loc      FOR loc.
+    DEFINE BUFFER bf-location FOR location.
+    DEFINE BUFFER bf-soldto   FOR soldto.
     
     /* ************************  Function Prototypes ********************** */
     FUNCTION GetPayLoadID RETURNS CHARACTER
@@ -211,6 +214,7 @@
                 cCustomerZip     = bf-cust.zip
                 cCustomerCountry = bf-cust.country
                 .
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-cust:HANDLE).
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PayloadID", GetPayLoadID("")).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "NoticeDate", cNoticeDate).
@@ -289,7 +293,13 @@
                     RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderPayloadID", oe-ord.spare-char-3).
                     RUN updateRequestData(INPUT-OUTPUT lcOrderData, "OrderDate", cOrderDate).
                     
-                    lcOrderConcatData = lcOrderConcatData + lcOrderData.                
+                    lcOrderConcatData = lcOrderConcatData + lcOrderData.
+                    
+                    FIND FIRST bf-soldto NO-LOCK
+                         WHERE bf-soldto.company EQ oe-ord.company
+                           AND bf-soldto.cust-no EQ oe-ord.cust-no
+                           AND bf-soldto.sold-id EQ oe-ord.sold-id
+                         NO-ERROR.                
                 END.
             END.
                         
@@ -340,6 +350,21 @@
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
         
+        FIND FIRST bf-loc NO-LOCK
+             WHERE bf-loc.company EQ oe-bolh.company
+               AND bf-loc.loc     EQ oe-bolh.loc
+             NO-ERROR.
+        IF AVAILABLE bf-loc THEN
+            FIND FIRST bf-location NO-LOCK 
+                 WHERE bf-location.company      EQ bf-loc.company
+                   AND bf-location.locationCode EQ bf-loc.loc
+                   AND bf-location.rec_key      EQ bf-loc.addrRecKey
+                 NO-ERROR.
+        
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-loc:HANDLE).                 
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-location:HANDLE).
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-soldto:HANDLE).
+         
         RUN pUpdateDelimiter (INPUT-OUTPUT lcItemConcatData, "").
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LocationID", cLocationID).
