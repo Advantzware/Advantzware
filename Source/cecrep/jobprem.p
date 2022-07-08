@@ -1109,12 +1109,12 @@ IF iplLength THEN DO:
         opcScoresType = "Type :  " + ttScoreLine.ScoreType.
 END.    
 ELSE DO:
-    opcScoresType = "Type :  ".
+    opcScoresType = "Type : ".
     FOR EACH ttScoreLine NO-LOCK
         WHERE ttScoreLine.PanelType = "W"
         AND TRIM(ttScoreLine.ScoreLine) NE "":   
         opcScores = opcScores + " " + ttScoreLine.ScoreLine.
-        opcScoresType = opcScoresType +  ttScoreLine.ScoreType + "   " .
+        opcScoresType = opcScoresType +  FILL(" ",LENGTH(ttScoreLine.ScoreLine)) + ttScoreLine.ScoreType.
     END.
 END.            
 
