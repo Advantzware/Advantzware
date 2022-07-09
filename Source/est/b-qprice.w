@@ -827,6 +827,21 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+ 
+&Scoped-define SELF-NAME lv-search
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-search B-table-Win
+ON VALUE-CHANGED OF lv-search IN FRAME F-Main /* Search */
+DO:
+
+  ASSIGN {&SELF-NAME}.
+  
+   ASSIGN fi_sortby
+          rsSearch.  
+   lv-search-by  = rsSearch:SCREEN-VALUE IN FRAME {&FRAME-NAME}.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-search B-table-Win
