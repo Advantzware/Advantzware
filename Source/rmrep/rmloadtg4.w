@@ -2959,6 +2959,12 @@ PROCEDURE pFillJobord :
     DEFINE VARIABLE iJob2         AS INTEGER   NO-UNDO.
     DEFINE VARIABLE li            AS INTEGER   NO-UNDO.
     
+    DEFINE VARIABLE lcForm        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iForm         AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE iBlank-no     AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE lCheckForm    AS LOGICAL   INIT YES NO-UNDO .
+    DEFINE VARIABLE lCheckBlank   AS LOGICAL   INIT YES NO-UNDO .
+    
     cJobFill = ENTRY(1,v-job-list:SCREEN-VALUE IN FRAME {&FRAME-NAME}).  
     
     DO li = 1 TO LENGTH(cJobFill):
@@ -2967,9 +2973,16 @@ PROCEDURE pFillJobord :
         ELSE 
         DO:
             IF ll EQ 1 THEN cJobNo = cJobNo + SUBSTR(cJobFill,li,1).
-            ELSE IF ll EQ 2 THEN cJobNo2 = cJobNo2 + SUBSTR(cJobFill,li,1).                
+            ELSE IF ll EQ 2 THEN cJobNo2 = cJobNo2 + SUBSTR(cJobFill,li,1).
+            ELSE IF ll EQ 3 THEN iForm = iForm + SUBSTR(cJobFill,li,1) NO-ERROR .
+                    ELSE IF ll EQ 4 THEN iBlank-no = iBlank-no + SUBSTR(cJobFill,li,1) NO-ERROR .
         END.
-    END.    
+    END. 
+    
+    IF iForm EQ "" THEN
+        lCheckForm = NO .
+    IF iBlank-no EQ "" THEN
+        lCheckBlank = NO .
 
     ASSIGN
         cJobNo = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo)) 
@@ -2980,8 +2993,26 @@ PROCEDURE pFillJobord :
          begin_job2:SCREEN-VALUE   = STRING(iJob2)
          end_job:SCREEN-VALUE      = cJobNo         
          end_job2:SCREEN-VALUE     = STRING(iJob2)
-         NO-ERROR.     
- 
+         NO-ERROR.
+         
+    FIND FIRST po-ordl NO-LOCK
+        WHERE po-ordl.company   EQ cocode                         
+          AND po-ordl.item-type EQ YES                 
+          AND po-ordl.job-no    EQ trim(cJobNo)
+          AND po-ordl.job-no2   EQ INT(iJob2) 
+        USE-INDEX po-no NO-ERROR.
+    IF AVAIL po-ordl THEN
+    DO:      
+          ASSIGN
+              begin_po-no:SCREEN-VALUE    = STRING(po-ordl.po-no)
+              end_po-no:SCREEN-VALUE      = STRING(po-ordl.po-no)
+              begin_rm-i-no:SCREEN-VALUE  = STRING(po-ordl.i-no)
+              end_rm-i-no:SCREEN-VALUE    = STRING(po-ordl.i-no)
+              .
+      IF lCheckForm THEN
+      APPLY "choose" TO btn-ok.        
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
