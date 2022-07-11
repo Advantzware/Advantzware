@@ -102,8 +102,15 @@ PROCEDURE pValidate PRIVATE:
     DEFINE BUFFER bf-ttImportPriceMatrix FOR ttImportPriceMatrix.
     DEFINE VARIABLE cUOMList AS CHARACTER INITIAL "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
     DEFINE VARIABLE dtEffDate AS DATE NO-UNDO.
+    DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
 
     RUN util/Validate.p PERSISTENT SET hdValidator.
+    
+    RUN sys/ref/nk1look.p (INPUT ipbf-ttImportPriceMatrix.Company, "QuotePriceMatrix", "L" , NO , INPUT YES , "" , "" , OUTPUT cRtnChar, OUTPUT lRecFound).
+    IF lRecFound THEN
+    lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
     
     oplValid = YES.
     IF oplValid THEN 
@@ -112,6 +119,45 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Company.".
+    END.
+    
+    /*duplicate entry*/
+    IF oplValid THEN 
+    DO:     
+        FIND FIRST bf-ttImportPriceMatrix NO-LOCK 
+            WHERE bf-ttImportPriceMatrix.company     EQ ipbf-ttImportPriceMatrix.Company
+            AND bf-ttImportPriceMatrix.CustomerID    EQ ipbf-ttImportPriceMatrix.CustomerID
+            AND bf-ttImportPriceMatrix.CustomerType  EQ ipbf-ttImportPriceMatrix.CustomerType
+            AND bf-ttImportPriceMatrix.Category      EQ ipbf-ttImportPriceMatrix.Category
+            AND bf-ttImportPriceMatrix.FGItemID      EQ ipbf-ttImportPriceMatrix.FGItemID
+            AND bf-ttImportPriceMatrix.ShipTo        EQ ipbf-ttImportPriceMatrix.ShipTo
+            AND bf-ttImportPriceMatrix.EffectiveDate EQ ipbf-ttImportPriceMatrix.EffectiveDate
+            AND ROWID(bf-ttImportPriceMatrix)        NE ROWID(ipbf-ttImportPriceMatrix)            
+            NO-ERROR.
+        IF AVAILABLE bf-ttImportPriceMatrix THEN 
+            ASSIGN 
+                oplValid = NO 
+                opcNote  = "Duplicate Record in Import File"
+                .                  
+    END.
+    
+    /*Check Earlier date */
+    IF oplValid AND lQuotePriceMatrix THEN 
+    DO:     
+        FIND FIRST oe-prmtx NO-LOCK 
+            WHERE oe-prmtx.company  EQ ipbf-ttImportPriceMatrix.Company
+            AND oe-prmtx.cust-no    EQ ipbf-ttImportPriceMatrix.CustomerID
+            AND oe-prmtx.custype    EQ ipbf-ttImportPriceMatrix.CustomerType
+            AND oe-prmtx.procat     EQ  ipbf-ttImportPriceMatrix.Category
+            AND oe-prmtx.i-no       EQ  ipbf-ttImportPriceMatrix.FGItemID
+            AND oe-prmtx.custShipID EQ  ipbf-ttImportPriceMatrix.ShipTo                                       
+            NO-ERROR.
+        IF AVAILABLE oe-prmtx AND oe-prmtx.eff-date LE TODAY AND 
+              DATE(ipbf-ttImportPriceMatrix.EffectiveDate) LT oe-prmtx.eff-date THEN 
+            ASSIGN 
+                oplValid = NO 
+                opcNote  = "Effective Date - Earlier Date Found"
+                .                  
     END.
     
      /*Determine if Add or Update*/
