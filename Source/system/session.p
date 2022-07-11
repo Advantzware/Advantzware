@@ -3934,15 +3934,8 @@ FUNCTION sfGetNextRecKey RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RETURN STRING(YEAR(TODAY),"9999")
-         + STRING(MONTH(TODAY),"99")
-         + STRING(DAY(TODAY),"99")
-         + "_"
-         + STRING(TIME,"HH:MM:SS")
-         + "_"
-         + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
-         .
-         
+    RETURN {methods/setRecKeyValue.i}.
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
