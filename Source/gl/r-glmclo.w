@@ -458,12 +458,7 @@ DO:
          .
 
   RUN run-report. 
-
-  CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-  END CASE. 
+    
   DO:
      choice = NO.
      MESSAGE " Close G/L Period" uperiod VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -1294,21 +1289,7 @@ PROCEDURE run-report :
         excelheader = "Account,Description,Reason" .
         PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
- 
-    FORM 
-        account.actnum LABEL "Account Number"
-        account.dscr   LABEL "Account Description"
-        glhist.jrnl   LABEL " Journal "
-        glhist.tr-amt FORMAT "(>>>,>>>,>>>,>>9.99)" LABEL "Transaction"
-        open-amt       LABEL "Account Balance"
-        WITH FRAME r-mclo DOWN WIDTH 132 NO-BOX COLUMN 10 STREAM-IO.
-
-    {sys/form/r-topw.f}
-    {sys/inc/print1.i}
-    {sys/inc/outprint.i VALUE(lines-per-page)}
-
-    IF td-show-parm THEN RUN show-param.
- 
+             
     SESSION:SET-WAIT-STATE("general").
     ASSIGN 
         uperiod = tran-period .
@@ -1318,23 +1299,7 @@ PROCEDURE run-report :
         period.yr   EQ tran-year AND 
         period.pnum EQ tran-period
         NO-ERROR.
-
-    ASSIGN 
-        str-tit  = coname + " - " + loname
-        str-tit2 = "MONTHLY SUMMARY & G/L CLOSING" 
-        str-tit3 = "Period " + string(uperiod,"99") + " - " + 
-                    string(period.pst) + " to " + string(period.pend)
-        x = (112 - length(str-tit)) / 2
-        str-tit  = FILL(" ",x) + str-tit 
-        x = (114 - length(str-tit2)) / 2
-        str-tit2 = FILL(" ",x) + str-tit2
-        x = (132 - length(str-tit3)) / 2
-        str-tit3 = FILL(" ",x) + str-tit3 .
-
-    DISPLAY 
-        str-tit3 FORMAT "x(130)" SKIP(1) 
-        WITH FRAME r-top.
-
+       
     SESSION:SET-WAIT-STATE ("general").
  
     IF tb_excel THEN DO:
@@ -1364,7 +1329,7 @@ PROCEDURE run-report :
  
     FOR EACH account NO-LOCK WHERE 
         account.company EQ cocode 
-        WITH FRAME r-mclo:
+        :
        
         IF tb_excel THEN DO:
             IF tb_invalid-period THEN DO:
@@ -1451,12 +1416,7 @@ PROCEDURE run-report :
         IF open-amt EQ 0 
         AND NOT AVAIL glhist THEN 
             NEXT.
-      
-        DISPLAY 
-            account.actnum
-            account.dscr
-            open-amt.
-        DOWN.
+                
         tot-all = tot-all + open-amt.
 
         FOR EACH glhist NO-LOCK WHERE 
@@ -1467,7 +1427,7 @@ PROCEDURE run-report :
             glhist.period  EQ uperiod AND 
             glhist.posted  EQ NO
             BREAK BY glhist.jrnl 
-            WITH FRAME r-mclo:
+            :
 
             IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
 
@@ -1477,37 +1437,15 @@ PROCEDURE run-report :
                 tot-jrnl = tot-jrnl + tr-amt
                 tot-act  = tot-act  + tr-amt.
 
-            IF LAST-OF(glhist.jrnl) THEN DO:
-                DISPLAY 
-                    "" @ account.actnum
-                    "" @ account.dscr
-                    glhist.jrnl
-                    tot-jrnl @ glhist.tr-amt
-                    "" @ open-amt.
-                tot-jrnl = 0.
-                DOWN.
+            IF LAST-OF(glhist.jrnl) THEN DO:                  
+                tot-jrnl = 0.                
             END.
         END. /* each glhist */
 
-        DISPLAY 
-            "" @ account.actnum
-            "" @ account.dscr
-            "" @ glhist.jrnl
-            tot-act @ glhist.tr-amt
-            (tot-act + open-amt) format "->>>,>>>,>>>,>>9.99" @ open-amt
-            "*" with frame r-mclo.
-        DOWN 2.
+        
         tot-act = 0.
     END. /* each account */
-
-    DISPLAY 
-        "" @ account.actnum
-        "" @ account.dscr
-        "TOTAL" @ glhist.jrnl
-        tot-tx  @ glhist.tr-amt
-        tot-all @ open-amt
-        WITH FRAME r-mclo.
-
+    
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN 
