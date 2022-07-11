@@ -432,7 +432,7 @@ PROCEDURE pValidate PRIVATE:
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
         
-    
+
    IF ipbf-ttImportCust.emailPreference EQ "Ask" THEN 
         ipbf-ttImportCust.emailPreference = "0".
     ELSE IF ipbf-ttImportCust.emailPreference EQ "Combined" THEN 
@@ -554,8 +554,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.accountant, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountant).
     RUN pAssignValueI (ipbf-ttImportCust.matrixPrecision, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.matrixPrecision).
     RUN pAssignValueC (ipbf-ttImportCust.tagStatus, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tagStatus).
-    RUN pAssignValueI (integer(ipbf-ttImportCust.emailPreference), iplIgnoreBlanks, INPUT-OUTPUT bf-cust.emailPreference).
-    
+    RUN pAssignValueIValidZero (integer(ipbf-ttImportCust.emailPreference), iplIgnoreBlanks, INPUT-OUTPUT bf-cust.emailPreference).
     /* Set to round up if write blank and zero is selected */
     IF NOT iplIgnoreBlanks AND ipbf-ttImportCust.matrixRounding EQ "" THEN
         bf-cust.matrixRounding = "U".
