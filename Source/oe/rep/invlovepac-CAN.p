@@ -114,37 +114,13 @@ DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-currency AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAddr4 AS CHARACTER FORM "x(30)" NO-UNDO .
 DEFINE VARIABLE cShipAddr4 AS CHARACTER FORM "x(30)" NO-UNDO .
-DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
+DEFINE VARIABLE opcBusinessFormLogo AS CHARACTER NO-UNDO .
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
@@ -181,6 +157,19 @@ find first company where company.company eq cocode NO-LOCK.
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
+                        
+      IF AVAIL cust THEN
+      ASSIGN
+        cCustomerNo         = cust.cust-no
+        cCustomerLocation   = cust.loc
+        .
+        
+      RUN GetBusinessFormLogo(INPUT  cocode ,
+                              INPUT  cCustomerNo ,
+                              INPUT  cCustomerLocation ,
+                              OUTPUT opcBusinessFormLogo
+                              ).
+      ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .                  
 
       assign  v-shipto-name = xinv-head.sold-name
               v-shipto-addr[1] = xinv-head.sold-addr[1]

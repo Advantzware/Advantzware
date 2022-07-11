@@ -1123,6 +1123,46 @@ PROCEDURE Format_UpdatePageCount:
     END.
 END PROCEDURE.
 
+PROCEDURE GetBusinessFormLogo:
+/*------------------------------------------------------------------------------
+ Purpose:  Get Value of BusinessFormLogo form NK6  
+ Notes:  
+------------------------------------------------------------------------------*/	
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomer         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBusinessFormLogo AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByNameAndLocation ("BusinessFormLogo", ipcCustomer, ipcLocation, OUTPUT cRtnChar). 
+   	
+IF cRtnChar NE "" THEN DO:
+    cRtnChar = DYNAMIC-FUNCTION (
+                   "fFormatFilePath",
+                   cRtnChar
+                   ).
+                   
+    /* Validate the N-K-6 BusinessFormLogo image file */
+    RUN FileSys_ValidateFile(
+        INPUT  cRtnChar,
+        OUTPUT lValid,
+        OUTPUT cMessage
+        ) NO-ERROR.
+
+    IF NOT lValid THEN DO:
+        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-6 setting for BusinessFormLogo"
+            VIEW-AS ALERT-BOX ERROR.
+    END.
+END.
+
+ASSIGN opcBusinessFormLogo = cRtnChar .
+		
+END PROCEDURE.
+
+
 
 /* ************************  Function Implementations ***************** */
 
