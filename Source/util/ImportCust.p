@@ -103,7 +103,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N/U/D (Default 'U' if 'write blank and zero' flag is selected)"
     FIELD industryID      AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Optional - Size:16"
     FIELD tagStatus      AS CHArACTER FORMAT "x(1)" COLUMN-LABEL "Tag Status"  HELP "Optional- H-Only on Hold tags/A-Any tag status/Leave Blank-Only tags that are not on hold"
-    FIELD emailPreference AS CHArACTER FORMAT "x(10)" COLUMN-LABEL "Email Preference"  HELP "Optional- Ask,Combined,Separate"
+    FIELD emailPreference AS CHArACTER FORMAT "x(10)" COLUMN-LABEL "Email Preference"  HELP "Optional- Ask/Combined/Separate"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
