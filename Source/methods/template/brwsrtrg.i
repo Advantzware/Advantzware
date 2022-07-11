@@ -54,25 +54,19 @@ DO:
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) EQ ? THEN DO:
     MESSAGE "Record not found beginning with '" + auto_find + "' !!!"
         VIEW-AS ALERT-BOX.
-    ENABLE Btn_Clear_Find WITH FRAME {&FRAME-NAME}.
-    ASSIGN 
-        auto_find:AUTO-ZAP = TRUE.
-    APPLY 'entry' TO auto_find.
-    RETURN.
-    
-/*    auto_find = SUBSTR(auto_find,1,LENGTH(auto_find) - 1).*/
-/*    RUN Find-Record (browse-order:SCREEN-VALUE).          */
+    auto_find = SUBSTR(auto_find,1,LENGTH(auto_find) - 1).
+    RUN Find-Record (browse-order:SCREEN-VALUE).
   END.
-/*  IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN DO:*/
-/*    auto_find:SCREEN-VALUE = "".                               */
-/*    RUN Find-Record (browse-order:SCREEN-VALUE).               */
-/*  END.                                                         */
+  IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN DO:
+    auto_find:SCREEN-VALUE = "".
+    RUN Find-Record (browse-order:SCREEN-VALUE).
+  END.
   ASSIGN
     auto_find:SCREEN-VALUE = auto_find
     save-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}).
   
   IF current-rowid NE save-rowid THEN
-    REPOSITION {&BROWSE-NAME} TO ROWID save-rowid.
+  REPOSITION {&BROWSE-NAME} TO ROWID save-rowid.
 
   IF auto_find = "" THEN
   DISABLE Btn_Clear_Find WITH FRAME {&FRAME-NAME}.
