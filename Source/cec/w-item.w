@@ -131,7 +131,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150 BY 24
+         SIZE 150 BY 26
          BGCOLOR 15 .
 
 DEFINE FRAME FRAME-C
@@ -175,7 +175,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Raw Materials (Corrugated)"
-         HEIGHT             = 23.95
+         HEIGHT             = 25.95
          WIDTH              = 150
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
@@ -458,7 +458,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_v-item ).
        RUN set-position IN h_v-item ( 4.81 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.14 , 142.00 ) */
+       /* Size in UIB:  ( 23.14 , 142.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -467,7 +467,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = NAV-ICON,
                      Right-to-Left = First-On-Left':U ,
              OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.19 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_p-navico ( 24.59 , 4.00 ) NO-ERROR.
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -477,7 +477,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-rmview ).
-       RUN set-position IN h_p-rmview ( 22.19 , 88.00 ) NO-ERROR.
+       RUN set-position IN h_p-rmview ( 24.59 , 88.00 ) NO-ERROR.
        RUN set-size IN h_p-rmview ( 2.14 , 58.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */

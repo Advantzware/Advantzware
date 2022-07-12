@@ -147,7 +147,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       ap-chk.vend-no COLUMN-LABEL "Vendor" FORMAT "x(8)":U
       ap-chk.bank-code COLUMN-LABEL "Bank" FORMAT "x(8)":U
-      ap-chk.check-no FORMAT "999999":U
+      ap-chk.check-no FORMAT "99999999":U
       ap-chk.check-date COLUMN-LABEL "Check Date" FORMAT "99/99/9999":U
       ap-chk.check-amt COLUMN-LABEL "Check Amount" FORMAT "->>>,>>9.99":U
 /* _UIB-CODE-BLOCK-END */
@@ -256,7 +256,8 @@ ap-chk.man-check"
 "ap-chk.vend-no" "Vendor" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.ap-chk.bank-code
 "ap-chk.bank-code" "Bank" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = ASI.ap-chk.check-no
+     _FldNameList[3]   > ASI.ap-chk.check-no
+"ap-chk.check-no" "Check Amount" "99999999" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no     
      _FldNameList[4]   > ASI.ap-chk.check-date
 "ap-chk.check-date" "Check Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.ap-chk.check-amt

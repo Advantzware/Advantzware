@@ -32,8 +32,8 @@ DEFINE TEMP-TABLE ttImportAP
     FIELD TaxGroup        AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Tax Group" HELP "Defaults to Vendor Tax Group - Size:5"
     FIELD Discount        AS DECIMAL   FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Discount" HELP "Optional - Decimal"
     FIELD DiscountDays    AS INTEGER   FORMAT ">>9" COLUMN-LABEL "Disc Days" HELP "Optional - Integer"
-    FIELD LinePONumber    AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "PO #" HELP "NOT YET SUPPORTED"
-    FIELD LinePOLine      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "PO Line" HELP "NOT YET SUPPORTED"
+    FIELD LinePONumber    AS INTEGER   FORMAT ">>>>>9" COLUMN-LABEL "PO #" HELP "Optional - Integer"
+    FIELD LinePOLine      AS INTEGER   FORMAT ">>9" COLUMN-LABEL "PO Line" HELP "Defaults to 1 if PO# column is BLANK, MUST be Populated if defining the PO# column"
     FIELD LineDescription AS CHARACTER FORMAT "x(35)" COLUMN-LABEL "Description" HELP "Optional - Size 35 "
     .
     
@@ -169,6 +169,14 @@ PROCEDURE pValidate PRIVATE:
                     opcNote  = "Invalid TaxGroup"
                     .
                     
+        END.
+        IF oplValid AND ipbf-ttImportAP.LinePONumber NE 0 THEN 
+        DO:
+           IF ipbf-ttImportAP.LinePOLine EQ 0 THEN
+            ASSIGN
+                oplValid = NO 
+                opcNote  = "Invalid PO# Line(required if defining the PO# column)"
+                .
         END.
     END.
 END PROCEDURE.
@@ -383,8 +391,8 @@ PROCEDURE pProcessRecord PRIVATE:
     DO:
         bf-ap-invl.po-no = ipbf-ttImportAP.LinePONumber.
         RUN pUpdateInvoiceLineFromPO(ROWID(bf-ap-inv)).
-    END.
-    IF ipbf-ttImportAP.LinePOLine NE 0 THEN
+    END.       
+    IF ipbf-ttImportAP.LinePOLine NE 0  THEN
         bf-ap-invl.po-line =  ipbf-ttImportAP.LinePOLine .  
         
      IF ipbf-ttImportAP.LinePONumber NE 0 AND ipbf-ttImportAP.LinePOLine NE 0 THEN   

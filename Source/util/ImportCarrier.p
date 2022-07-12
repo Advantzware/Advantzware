@@ -21,7 +21,7 @@ DEFINE TEMP-TABLE ttImportCarrier
     FIELD LocDscr       AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Loc Description" HELP "Optional - Size:30" 
     FIELD chg-method    AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Charge Method" HELP "Required - MSF Pallet Weight (Comma Separated)"
     FIELD Inactive      AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Inactive" HELP "Required - Yes or No"
-    
+    FIELD SCAC          AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "SCAC" HELP "Standard Carrier Alpha Code"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -153,11 +153,12 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCarrier.carrier, iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.carrier).
     RUN pAssignValueC (ipbf-ttImportCarrier.dscr, iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.dscr).
     RUN pAssignValueC (ipbf-ttImportCarrier.loc, iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.loc).
-    RUN pAssignValueC (substring(ipbf-ttImportCarrier.chg-method,1,1), iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.chg-method).
+    RUN pAssignValueC (ipbf-ttImportCarrier.scac, iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.scac).
+    RUN pAssignValueC (SUBSTRING(ipbf-ttImportCarrier.chg-method,1,1), iplIgnoreBlanks, INPUT-OUTPUT bf-carrier.chg-method).
     IF ipbf-ttImportCarrier.Inactive EQ "Yes" THEN DO:
         RUN AddTagInactive(bf-carrier.rec_key,"carrier"). 
     END.
-    ELSE if ipbf-ttImportCarrier.Inactive EQ "No" THEN DO: 
+    ELSE IF ipbf-ttImportCarrier.Inactive EQ "No" THEN DO: 
         RUN ClearTagsInactive(bf-carrier.rec_key).
     END.                                    
 
