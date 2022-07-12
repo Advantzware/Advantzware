@@ -128,6 +128,7 @@ END.
     IF lv-sort-by EQ "qty"       THEN STRING(oe-rell.qty,"9999999999")                                                                                  ELSE ~
     IF lv-sort-by EQ "q-onh"     THEN STRING(itemfg.q-onh,"9999999999")                                                                                 ELSE ~
     IF lv-sort-by EQ "v-shipto-zone"  THEN get-shipto-zone()                                                                                            ELSE ~
+    IF lv-sort-by EQ "loc"       THEN STRING(oe-rell.loc)                                                                                 ELSE ~
                                   STRING(oe-relh.printed, "Y/N")
 
 &SCOPED-DEFINE sortby BY oe-relh.release# BY oe-rell.i-no
@@ -168,7 +169,8 @@ END.
 oe-rell.ord-no getRS() @ lc-rs getMI() @ lc-mi get-bal(li-qoh) @ li-bal oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartno ~
 oe-relh.ship-id oe-rell.i-no oe-relh.rel-date oe-rell.job-no ~
 oe-rell.job-no2 oe-relh.printed oe-rell.qty get-act-rel-qty() @ iActualQty ~
-get-act-bol-qty() @ iBolQty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
+get-act-bol-qty() @ iBolQty itemfg.q-onh get-shipto-zone() @ v-shipto-zone ~
+oe-rell.loc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no oe-relh.ship-id oe-rell.i-no ~
 oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 oe-relh.printed 
@@ -293,7 +295,7 @@ DEFINE VARIABLE rdLocation AS CHARACTER FORMAT "X(256)":U INITIAL "All"
      VIEW-AS COMBO-BOX INNER-LINES 8
      LIST-ITEMS "All"
      DROP-DOWN-LIST
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
@@ -394,7 +396,9 @@ DEFINE BROWSE Browser-Table
       itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>>":U
       get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(8)":U
             WIDTH 10
-      get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U      
+      get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U 
+      oe-rell.loc COLUMN-LABEL "Ship From Whse" FORMAT "x(8)":U
+            WIDTH 22 LABEL-BGCOLOR 14
   ENABLE
       oe-relh.release#
       oe-rell.ord-no
@@ -418,11 +422,11 @@ DEFINE FRAME F-Main
      Browser-Table AT ROW 5.19 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      tb_posted AT ROW 2.19 COL 132.6 WIDGET-ID 2
-     fi_rel-no AT ROW 2.19 COL 15.6 COLON-ALIGNED NO-LABEL
-     fi_ord-no AT ROW 2.19 COL 34 NO-LABEL
-     fi_cust-no AT ROW 2.19 COL 48 COLON-ALIGNED NO-LABEL
-     fi_i-no AT ROW 2.19 COL 64 COLON-ALIGNED NO-LABEL
-     fi_po-no AT ROW 2.19 COL 86 COLON-ALIGNED NO-LABEL
+     fi_rel-no AT ROW 2.19 COL 20.6 COLON-ALIGNED NO-LABEL
+     fi_ord-no AT ROW 2.19 COL 38 NO-LABEL
+     fi_cust-no AT ROW 2.19 COL 51 COLON-ALIGNED NO-LABEL
+     fi_i-no AT ROW 2.19 COL 66 COLON-ALIGNED NO-LABEL
+     fi_po-no AT ROW 2.19 COL 87 COLON-ALIGNED NO-LABEL
      fi_job-no AT ROW 2.19 COL 108 COLON-ALIGNED NO-LABEL
      fi_job-no2 AT ROW 2.19 COL 122 COLON-ALIGNED
      btn_go AT ROW 3.62 COL 2
@@ -434,10 +438,10 @@ DEFINE FRAME F-Main
           SIZE 8 BY .71 AT ROW 1.24 COL 113
           FGCOLOR 9 FONT 22
      "Order#" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 37
+          SIZE 10 BY .71 AT ROW 1.24 COL 38
           FGCOLOR 9 FONT 22
      "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 51
+          SIZE 13 BY .71 AT ROW 1.24 COL 53
           FGCOLOR 9 FONT 22
      "FG Item#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 69
@@ -446,10 +450,10 @@ DEFINE FRAME F-Main
           SIZE 18 BY .71 AT ROW 1.24 COL 89
           FGCOLOR 9 FONT 22
      "Release#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 18.6
+          SIZE 12 BY .71 AT ROW 1.24 COL 23.6
           FGCOLOR 9 FONT 22
-     "Location" VIEW-AS TEXT
-          SIZE 9.4 BY .71 AT ROW 1.24 COL 4.4 WIDGET-ID 4
+     "Ship From Whse" VIEW-AS TEXT
+          SIZE 18.4 BY .71 AT ROW 1.24 COL 3.0 WIDGET-ID 4
           FGCOLOR 9 FONT 22
      RECT-1 AT ROW 1 COL 1.4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -579,6 +583,8 @@ use-index r-no"
 "itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
 "get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[19]   > ASI.oe-rell.loc
+"oe-rell.loc" "Ship From Whse" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1161,12 +1167,16 @@ PROCEDURE first-query :
             sys-ctrl.int-fld = 30.
   end.
   {&for-each1blank} 
-     USE-INDEX r-no NO-LOCK  
-     BY oe-relh.r-no DESC:
-     li = li + 1.
-     lv-rel-no = oe-relh.release#.
-     IF li GE sys-ctrl.int-fld THEN 
-        LEAVE.
+     USE-INDEX r-no NO-LOCK,
+     {&for-each2blank}
+     BREAK BY oe-relh.r-no DESC:
+     IF FIRST-OF(oe-relh.r-no) then
+     do: 
+         li = li + 1.
+         lv-rel-no = oe-relh.release#.
+         IF li GE sys-ctrl.int-fld THEN 
+            LEAVE.
+     END.   
   END.
 
   &SCOPED-DEFINE open-query                     ~
