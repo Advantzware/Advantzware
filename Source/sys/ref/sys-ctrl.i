@@ -48,7 +48,7 @@ ASSIGN
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
                 "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,Lovepac-CAN,invprint10-CAN,Shamrock,nStockLogo,LancoYork,InvPrint-Mex," +
-		        "invprint 21,CCCACH,Delta,NStockLogo1,NStockLogo2,Henry" 
+		        "invprint 21,CCCACH,Delta,NStockLogo1,NStockLogo2,Henry,Portugese" 
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
  str-init[5]  = "D Pallet,Z Trailr"
@@ -65,7 +65,7 @@ ASSIGN
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,PremTarget,CSC-GA,CardedX," +
                 "Protagon,Peachtree,ACPI,Soule,NStock,Multicell,Prystup,Metro,StClair," +
-                "Frank,Axis,Distributor,Accord,Lakeside,relprint 1,relprint 2,relprint 10,Midwest,RFC,CardedX2,Henry"
+                "Frank,Axis,Distributor,Accord,Lakeside,relprint 1,relprint 2,relprint 10,Midwest,RFC,CardedX2,Henry,Portugese"
  str-init[10] = "ASI,1/2 Page,Royal,ContSrvc,Superior,Premier,Warren,PAC 1/2," +
                 "Imperial,P&P,Triad,TriState,BlueRidg,BlueRidg2,Sonoco,HOP,CCC," +
                 "Boxtech,Empire,Brick,AllPkg,Fibre,Maxpak,Oracle,Harwell,Century," +
@@ -94,7 +94,7 @@ ASSIGN
                 "RUDDX,APC,Imperial,Indiana,Fibrex,PPI,HPB,Albert,ContSvc,Triad,Packrite,Dee," +
                 "Allwest,Simkins,HOPX,PremierCX,Accord,Soule,ACPI,Hughes,Carded,SouleUOM,Badger,Axis," +
                 "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN,Shamrock-Ack,AckHead-Mex," +
-                "AllPackaing,Henry" 
+                "AllPackaing,Henry,Portugese" 
  str-init[14] = "10 Pitch,17 Pitch,Boxtech,Phoenix,TriState,Triad,RFC,HOP," +
                 "Brick,Hartford"
  str-init[15] = "Inches,MM,Both"
