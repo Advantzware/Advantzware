@@ -290,7 +290,7 @@ DEFINE BUTTON btn_prev
      FONT 22.
 
 DEFINE VARIABLE rdLocation AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
+     VIEW-AS COMBO-BOX INNER-LINES 8
      LIST-ITEMS "All"
      DROP-DOWN-LIST
      SIZE 12 BY 1 NO-UNDO.
@@ -1856,20 +1856,29 @@ PROCEDURE pGetUserLocation :
 ------------------------------------------------------------------------------*/
    DEFINE OUTPUT PARAMETER opcUserLoc AS CHARACTER NO-UNDO.
    DEFINE OUTPUT PARAMETER opiUserLoc AS INTEGER NO-UNDO.
-   DEFINE VARIABLE cUserLoc AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cUserLoc  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
    
    cUserLoc = "All".  
       
    FIND FIRST users NO-LOCK
         WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
    IF AVAILABLE users THEN
-   FOR EACH usercomp OF users 
-       WHERE usercomp.company = cocode 
-         AND usercomp.loc NE "" NO-LOCK, 
-       EACH loc OF usercomp NO-LOCK BY usercomp.loc:      
-      cUserLoc = cUserLoc + "," + usercomp.loc . 
+   FOR EACH usrx NO-LOCK
+       WHERE usrx.uid EQ users.user_id
+         AND usrx.company EQ cocode 
+         AND usrx.loc NE "" , 
+       EACH loc OF usrx NO-LOCK :      
+      cUserLoc = cUserLoc + "," + usrx.loc . 
       opiUserLoc = opiUserLoc + 1.   
    END.
+   IF cUserLoc EQ "All" THEN
+   DO:
+        RUN spGetSessionParam("Location", OUTPUT cLocation).
+        cUserLoc = cUserLoc + "," + cLocation . 
+        opiUserLoc = opiUserLoc + 1.   
+   END.
+   
    opcUserLoc = cUserLoc.
 END PROCEDURE.
 
