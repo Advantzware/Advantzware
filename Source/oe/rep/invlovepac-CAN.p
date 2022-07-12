@@ -117,6 +117,8 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE lv-currency AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cAddr4 AS CHARACTER FORM "x(30)" NO-UNDO .
 DEFINE VARIABLE cShipAddr4 AS CHARACTER FORM "x(30)" NO-UNDO .
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 DEFINE VARIABLE opcBusinessFormLogo AS CHARACTER NO-UNDO .
@@ -163,12 +165,13 @@ find first company where company.company eq cocode NO-LOCK.
         cCustomerNo         = cust.cust-no
         cCustomerLocation   = cust.loc
         .
-        
-      RUN GetBusinessFormLogo(INPUT  cocode ,
-                              INPUT  cCustomerNo ,
-                              INPUT  cCustomerLocation ,
-                              OUTPUT opcBusinessFormLogo
-                              ).
+      RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT opcBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
+      
+      IF NOT lValid THEN
+      DO:
+         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      
       ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .                  
 
       assign  v-shipto-name = xinv-head.sold-name

@@ -70,6 +70,8 @@ DEF VAR lv-line-print AS INT INIT 44 NO-UNDO.
 DEF VAR lv-due-date AS DATE NO-UNDO.
 DEFINE VARIABLE dSetItemQty AS DECIMAL NO-UNDO .
 DEFINE BUFFER bf-shipto FOR shipto .
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iTotalQty      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE v-cas-cnt      AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-blank        AS INTEGER NO-UNDO.
@@ -181,12 +183,13 @@ find first company where company.company eq cocode no-lock no-error.
         cCustomerNo         = cust.cust-no
         cCustomerLocation   = cust.loc
         .
-        
-      RUN GetBusinessFormLogo(INPUT  cocode ,
-                              INPUT  cCustomerNo ,
-                              INPUT  cCustomerLocation ,
-                              OUTPUT opcBusinessFormLogo
-                              ).
+      RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT opcBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
+      
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      
       ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .
       
       FIND first oe-ordl where oe-ordl.company eq oe-ord.company

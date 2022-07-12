@@ -93,35 +93,6 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
-/*ASSIGN
-   
-   ls-image1 = "images\Peachtree_logo_2018.png"
-   FILE-INFO:FILE-NAME = ls-image1
-   ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -150,6 +121,14 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
+      
+      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      	      
+      	IF NOT lValid THEN
+      	DO:
+      	    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+        ASSIGN ls-full-img1 = cRtnChar + ">" .
       
       IF ar-inv.sold-name <> "" THEN
          assign  v-shipto-name = ar-inv.sold-name

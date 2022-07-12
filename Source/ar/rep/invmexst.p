@@ -129,40 +129,7 @@ IF company.company EQ '004' THEN
             cTaxCode = 'Sales Tax'
             cCompanyID = ''
             .
-  RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-            OUTPUT cRtnChar, OUTPUT lRecFound).
- IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.           
-END.
-IF cRtnChar NE "" THEN DO:
-    ASSIGN 
-        lChkImage = YES
-        ls-full-img1 = SEARCH(ls-full-img1)
-        ls-full-img1 = cRtnChar + ">".
-END.
-ELSE DO:
-    ASSIGN 
-        ls-image1 = SEARCH("images\premierinv.jpg")
-        FILE-INFO:FILE-NAME = ls-image1.
-    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-END.
-
+  
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
 
     for each report where report.term-id eq v-term-id no-lock,
@@ -172,6 +139,27 @@ END.
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
+      
+      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      	      
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      
+      IF cRtnChar NE "" THEN DO:
+          ASSIGN 
+              lChkImage = YES
+              ls-full-img1 = SEARCH(ls-full-img1)
+              ls-full-img1 = cRtnChar + ">".
+      END.
+      ELSE DO:
+          ASSIGN 
+              ls-image1 = SEARCH("images\premierinv.jpg")
+              FILE-INFO:FILE-NAME = ls-image1.
+          ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+      END.
+      
       IF ar-inv.sold-name <> "" THEN
          assign  v-shipto-name = ar-inv.sold-name
               v-shipto-addr[1] = ar-inv.sold-addr[1]

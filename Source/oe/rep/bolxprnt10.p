@@ -106,6 +106,8 @@ DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lBroker AS LOGICAL NO-UNDO .
 DEFINE VARIABLE opcBusinessFormLogo AS CHARACTER NO-UNDO .
 
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
 RUN GetPrintBarTag IN SOURCE-PROCEDURE (OUTPUT v-Print-BarTag) NO-ERROR.
 
@@ -164,12 +166,14 @@ for each xxreport where xxreport.term-id eq v-term-id,
     NO-LOCK
     break by oe-bolh.bol-no:
      
-      RUN GetBusinessFormLogo(INPUT  cocode ,
-                              INPUT  cust.cust-no ,
-                              INPUT  cust.loc ,
-                              OUTPUT opcBusinessFormLogo
-                              ).
-      ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .
+    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT opcBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
+      
+    IF NOT lValid THEN
+    DO:
+       MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    
+    ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .
   
     if first-of(oe-bolh.bol-no) then do:
     find first carrier

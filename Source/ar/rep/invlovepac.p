@@ -113,6 +113,8 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE lv-currency AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShipAddr4 AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cAddr4 AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE opcBusinessFormLogo AS CHARACTER NO-UNDO .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -158,12 +160,14 @@ ELSE lv-comp-color = "BLACK".
         break by (IF v-print-fmt EQ "ASIXprnt" THEN "" ELSE ar-inv.cust-no)
               by ar-inv.inv-no:
       
-      RUN GetBusinessFormLogo(INPUT  cocode ,
-                              INPUT  cust.cust-no ,
-                              INPUT  cust.loc ,
-                              OUTPUT opcBusinessFormLogo
-                              ).
-      ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .      
+        RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT opcBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
+      
+        IF NOT lValid THEN
+        DO:
+           MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.
+        
+        ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .      
      
         find first carrier where carrier.company eq cocode
              and carrier.carrier eq ar-inv.carrier no-lock no-error.
