@@ -1386,10 +1386,10 @@ PROCEDURE pGetEstDetail :
 
             FIND FIRST style NO-LOCK WHERE style.company = cocode
                 AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
-/*            IF NOT AVAILABLE style THEN      */
-/*                FIND FIRST style NO-LOCK     */
-/*                WHERE style.company EQ cocode*/
-/*                NO-ERROR.                    */
+            IF NOT AVAILABLE style THEN 
+                FIND FIRST style NO-LOCK 
+                WHERE style.company EQ cocode
+                NO-ERROR.
             IF AVAILABLE style THEN
                 ASSIGN 
                     style-cod:SCREEN-VALUE = style.style
@@ -1782,7 +1782,7 @@ PROCEDURE valid-style :
     DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF style-cod:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST style
+        IF NOT CAN-FIND(FIRST style
             WHERE style.company  EQ cocode
             AND style.style    EQ style-cod:SCREEN-VALUE
             AND style.industry EQ "2")  THEN 
