@@ -103,6 +103,7 @@ DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
 DEF VAR v-ship-i2 AS cha EXTENT 2 FORM "x(60)" NO-UNDO.
 DEF VAR v-tmp-lines AS DEC NO-UNDO.
 DEF VAR v-class-msg AS CHAR FORMAT "X(60)" NO-UNDO.
+DEF VAR lPrintPackingList AS LOGICAL NO-UNDO.
 
 ASSIGN tmpstore = fill("-",130).
 
@@ -359,8 +360,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
         ASSIGN v-ship-addr[2] = v-ship-addr3
                v-ship-addr3 = "".
      
+     ASSIGN lPrintPackingList = NO. /* not To print a Packing List */
+     
      {oe/rep/bolbadg1.i}             
-     {oe/rep/bolbadg2.i}
+     {oe/rep/bolbadg2.i}  /* used in oe/rep/bolbgrpl.p && oe/rep/bolbadgr.p */
 
     v-last-page = page-number.
 
