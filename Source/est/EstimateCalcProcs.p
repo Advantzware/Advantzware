@@ -312,7 +312,7 @@ PROCEDURE ChangeSellPrice:
                 
                 /*Calculate new Price for form and commisson*/
                 ASSIGN 
-                    dNewPrice   = MAXIMUM (ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 2),ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 0))
+                    dNewPrice   = ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 2)
                     dCommission = dNewPrice * ttEstCostItem.commissionPct / 100
                     .   
                 
