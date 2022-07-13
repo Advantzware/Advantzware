@@ -54,7 +54,6 @@ PROCEDURE createRelease:
         oe-rel.carrier   = IF sys-ctrl.char-fld = "Shipto" AND AVAILABLE shipto THEN shipto.carrier
                              ELSE oe-ord.carrier
         oe-rel.r-no      = iNextRelNo
-        oe-rel.frt-pay   = SUBSTRING(oe-ord.frt-pay,1,1)
         oe-rel.fob-code  = oe-ord.fob-code
         .
 
