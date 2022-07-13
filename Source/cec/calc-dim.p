@@ -28,6 +28,8 @@ def var lv-is-foam as log no-undo.
 def var lv-industry as cha no-undo.
 DEF VAR li AS INT NO-UNDO.
 
+DEFINE VARIABLE lBlanksStyleTypePartition AS LOGICAL NO-UNDO.
+
 DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
 
 {sys/inc/f16to32.i}
@@ -166,18 +168,14 @@ DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
       llen = min(llen, mach.max-wid)
       lwid = min(lwid, mach.max-len).
 
-  /*IF CAN-DO("P,R",style.type) THEN DO:
+  RUN pAreBlanksPartitionStyleType (BUFFER xef, OUTPUT lBlanksStyleTypePartition).
+
+  IF lBlanksStyleTypePartition THEN DO:
     ASSIGN
      num[1] = 0
      num[2] = xeb.t-wid * xeb.num-len.
-
-    FOR EACH eb FIELDS(t-len num-wid) NO-LOCK
-        WHERE eb.company EQ xeb.company
-          AND eb.est-no  EQ xeb.est-no
-          AND eb.eqty    EQ xeb.eqty
-          AND eb.form-no EQ xeb.form-no:
-      num[1] = num[1] + (eb.t-len * eb.num-wid).
-    END.
+    
+    RUN pCalculatePartitionStyleDieSize (BUFFER xef, OUTPUT num[2], OUTPUT num[1]). 
 
     IF xef.xgrain EQ "B" THEN
       ASSIGN
@@ -186,7 +184,7 @@ DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
        num[2] = zzz.
   END.
 
-  ELSE*/ 
+  ELSE 
   DO:
     if xef.lam-dscr eq "R" /*or (xef.lam-dscr ne "R" and xef.xgrain eq "S") */ then
        assign  zzz  = llen
@@ -427,3 +425,186 @@ DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
         zzz = xef.gsh-len
         xef.gsh-len =  xef.gsh-wid
         xef.gsh-wid = zzz.
+
+PROCEDURE pCalculatePartitionStyleDieSize PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE OUTPUT PARAMETER opdDieSizeWidth  AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDieSizeLength AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE dLongWidth           AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dLongLength          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iNumberOnLongWidth   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumberOnLongLength  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dShortWidth          AS DECIMAL NO-UNDO INITIAL 9999999.
+    DEFINE VARIABLE dShortLength         AS DECIMAL NO-UNDO INITIAL 9999999.
+    DEFINE VARIABLE iNumberOnShortWidth  AS INTEGER NO-UNDO INITIAL 9999999.
+    DEFINE VARIABLE iNumberOnShortLength AS INTEGER NO-UNDO INITIAL 9999999.
+    DEFINE VARIABLE lBlankAvailable      AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-eb  FOR eb.
+    DEFINE BUFFER bf-est FOR est.
+        
+    IF NOT AVAILABLE ipbf-ef THEN
+        RETURN.
+    
+    FIND FIRST bf-est NO-LOCK
+         WHERE bf-est.company EQ ipbf-ef.company
+           AND bf-est.est-no  EQ ipbf-ef.est-no
+         NO-ERROR.
+    IF NOT AVAILABLE bf-est THEN
+        RETURN.
+        
+    FOR EACH bf-eb NO-LOCK
+        WHERE bf-eb.company EQ ipbf-ef.company
+          AND bf-eb.est-no  EQ ipbf-ef.est-no
+          AND bf-eb.eqty    EQ ipbf-ef.eqty
+          AND bf-eb.form-no EQ ipbf-ef.form-no:
+        lBlankAvailable = TRUE.
+        
+        IF dLongLength LT bf-eb.t-len THEN
+            dLongLength = bf-eb.t-len.
+
+        IF dLongWidth LT bf-eb.t-wid THEN
+            dLongWidth = bf-eb.t-wid.
+
+        IF dShortLength GT bf-eb.t-len THEN
+            dShortLength = bf-eb.t-len.
+
+        IF dShortWidth GT bf-eb.t-wid THEN
+            dShortWidth = bf-eb.t-wid.
+
+        /* Field values num-wid and num-len are swapped if est-type is ge 5 */
+        IF bf-est.est-type GE 5 THEN DO:
+            IF iNumberOnLongLength LT bf-eb.num-wid THEN
+                iNumberOnLongLength = bf-eb.num-wid.
+    
+            IF iNumberOnLongWidth LT bf-eb.num-len THEN
+                iNumberOnLongWidth = bf-eb.num-len.
+
+            IF iNumberOnShortLength GT bf-eb.num-wid THEN
+                iNumberOnShortLength = bf-eb.num-wid.
+    
+            IF iNumberOnShortWidth GT bf-eb.num-len THEN
+                iNumberOnShortWidth = bf-eb.num-len.
+        END.
+        ELSE DO:
+            IF iNumberOnLongLength LT bf-eb.num-len THEN
+                iNumberOnLongLength = bf-eb.num-len.
+    
+            IF iNumberOnLongWidth LT bf-eb.num-wid THEN
+                iNumberOnLongWidth = bf-eb.num-wid.
+
+            IF iNumberOnShortLength GT bf-eb.num-len THEN
+                iNumberOnShortLength = bf-eb.num-len.
+    
+            IF iNumberOnShortWidth GT bf-eb.num-wid THEN
+                iNumberOnShortWidth = bf-eb.num-wid.
+        END.
+    END.
+    
+    IF lBlankAvailable THEN
+        RUN pGetPartitionStyleDieSize (
+            INPUT  dLongWidth,
+            INPUT  dLongLength,
+            INPUT  iNumberOnLongWidth,
+            INPUT  iNumberOnLongLength,
+            INPUT  dShortWidth,
+            INPUT  dShortLength,
+            INPUT  iNumberOnShortWidth,
+            INPUT  iNumberOnShortLength,
+            OUTPUT opdDieSizeWidth, 
+            OUTPUT opdDieSizeLength
+            ).    
+
+END PROCEDURE.
+
+PROCEDURE pGetPartitionStyleDieSize PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipdLongWidth           AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdLongLength          AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiNumberOnLongWidth   AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiNumberOnLongLength  AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdShortWidth          AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdShortLength         AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiNumberOnShortWidth  AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiNumberOnShortLength AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDieSizeWidth        AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdDieSizeLength       AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE iRows      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCols      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iRow       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCol       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dMaxWidth  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cLongShort AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        iRows     = MAX(ipiNumberOnLongWidth, ipiNumberOnShortWidth) 
+        iCols     = ipiNumberOnLongLength + ipiNumberOnShortLength
+        dMaxWidth = MAX(ipdLongWidth, ipdShortWidth)
+        .
+    
+    DO iRow = 1 TO iRows:
+        DO iCol = 1 TO iCols:
+            IF iCol NE 1 AND iRow NE 1 THEN
+                NEXT.
+
+            cLongShort = "".
+            
+            IF iCol LE iCols AND iRow LE iRows THEN DO:
+                IF iCol LE ipiNumberOnLongLength THEN 
+                    cLongShort = "Long".
+                ELSE
+                    cLongShort = "Short".
+            END.
+
+            IF cLongShort NE "" THEN DO:
+                IF iCol EQ 1 THEN
+                    opdDieSizeWidth = opdDieSizeWidth + dMaxWidth.
+                
+                IF iRow EQ 1 THEN            
+                    opdDieSizeLength = opdDieSizeLength 
+                                     + (IF iCol LE ipiNumberOnLongLength THEN ipdLongLength ELSE ipdShortLength). 
+            END.
+        END.
+    END.
+END PROCEDURE.        
+
+PROCEDURE pAreBlanksPartitionStyleType PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE OUTPUT PARAMETER oplStyleTypePartition AS LOGICAL NO-UNDO.
+    
+    DEFINE BUFFER bf-eb FOR eb.
+    
+    IF NOT AVAILABLE ipbf-ef THEN
+        RETURN.
+    
+    oplStyleTypePartition = TRUE.
+        
+    FOR EACH bf-eb NO-LOCK
+        WHERE bf-eb.company EQ ipbf-ef.company
+          AND bf-eb.est-no  EQ ipbf-ef.est-no
+          AND bf-eb.eqty    EQ ipbf-ef.eqty
+          AND bf-eb.form-no EQ ipbf-ef.form-no,
+        FIRST style NO-LOCK
+        WHERE style.company EQ bf-eb.company
+          AND style.style   EQ bf-eb.style:
+        IF style.type NE "P" THEN DO:
+            oplStyleTypePartition = FALSE.
+            LEAVE.
+        END.    
+    END.
+    
+    RELEASE bf-eb.
+END PROCEDURE.
