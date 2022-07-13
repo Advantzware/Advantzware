@@ -553,7 +553,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
-               if w-oe-rell.po-no ne "" then w-bin.w-par = "Nº do PO: " + w-oe-rell.po-no.
+               if w-oe-rell.po-no ne "" then w-bin.w-par = "N° do PO: " + w-oe-rell.po-no.
                leave.
            end.
           
@@ -803,7 +803,7 @@ IF v-ship-i[1] NE "" OR
 PUT "<R56><C1>"
     "<R57><C1><FROM><C80><LINE>" SKIP
     "<|10><C1><R58><#8><FROM><C80><R60><RECT> " 
-    "<FArial><P9><=8>   Paletes                                Preparado por                               Enviado por                            Nº do reboque                                  Nº da doca" SKIP
+    "<FArial><P9><=8>   Paletes                                Preparado por                               Enviado por                            N° do reboque                                  N° da doca" SKIP
     "<R58><C16><FROM><R60><C16><Line>" 
     "<R58><C32><FROM><R60><C32><Line>" 
     "<R58><C48><FROM><R60><C48><Line>"

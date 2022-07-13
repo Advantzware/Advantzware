@@ -55,7 +55,7 @@ PUT "<||3><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 "<R19><C65><FROM><R23><C65><LINE>" SKIP
 "<R19><C73><FROM><R23><C73><LINE>" SKIP
 .
-PUT "<FArial><=4><R+.1> <c66> Nº do <c74> Nº da " SKIP
+PUT "<FArial><=4><R+.1> <c66> N° do <c74> N° da " SKIP
 "<=4><R+1> Data Req.             FOB                     Enviar Via                              Termos                        vendedor              pedido         cotação" SKIP
 "<FCourier New><=4><R+3> " oe-ord.due-date FORM "99/99/9999" space(2)
 oe-ord.fob-code FORM "x(11)" SPACE(2)
@@ -72,6 +72,6 @@ PUT "<||3><R24><C1><#5><FROM><R26><C80><RECT>" SKIP
        "<R24><C72><FROM><R26><C72><LINE>" SKIP
        .
 
-PUT "<FArial><=5><R+1> Linha    Nº da peça do cliente                        Descrição                                               Pedido                       Preço             UOM" SKIP(1).
+PUT "<FArial><=5><R+1> Linha    N° da peça do cliente                        Descrição                                               Pedido                       Preço             UOM" SKIP(1).
 PUT "<FCourier New>"          .
 v-printline = v-printline + 6.

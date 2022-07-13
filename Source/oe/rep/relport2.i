@@ -29,7 +29,7 @@
       PUT
          "<R4><C46><#3>" SKIP
          "<FArial><P14><=#3><P12>" SKIP
-         "<=#3><B>Nº do ticket: " 
+         "<=#3><B>N° do ticket: " 
          "<UNITS=INCHES><AT=.54,6><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
           string(oe-relh.release#) + ">" FORM "x(100)" "</B><P10>" 
            "<AT=,6.5>" oe-relh.release#        SKIP(1)
@@ -52,10 +52,10 @@
          "<R24><C65><FROM><R28><C65><LINE>" SKIP   
          "<R24><C71><FROM><R28><C71><LINE>" SKIP
          "<FArial><=5><C65.2>Número<C71.5>Quant./UOM" SKIP
-         "<=5><R+1><C2>Nº do<C9>Nº do<C65.2>de<C71.5>do pedido" SKIP
+         "<=5><R+1><C2>N° do<C9>N° do<C65.2>de<C71.5>do pedido" SKIP
          "<=5><R+2>  pedido 
                <C8>  item/descrição/lote
-              <C29>  Nº da etiqueta/comporta/caixa/trabalho 
+              <C29>  N° da etiqueta/comporta/caixa/trabalho 
               <C58>  Unidades<C65.2>Unidades<C71.5>Quant./UOM" SKIP
          "<=5><R+3><C71.5> cada" SKIP(1)    
          "<FCourier New>".
