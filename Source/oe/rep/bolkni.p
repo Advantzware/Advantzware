@@ -120,31 +120,6 @@ DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
 {sa/sa-sls01.i}
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
-
 find first company where company.company eq cocode no-lock.
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock.
 ASSIGN v-comp-add1 = company.addr[1]
@@ -171,7 +146,15 @@ for each xxreport where xxreport.term-id eq v-term-id,
     no-lock
 
     break by oe-bolh.bol-no:
-      
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+    
     if first-of(oe-bolh.bol-no) then do:
     find first carrier
         where carrier.company eq oe-bolh.company

@@ -104,34 +104,6 @@ DEF TEMP-TABLE w-sman NO-UNDO
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 
-/*ASSIGN ls-image1 = "images\Peachtree_logo_2018.png"
-       FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
-
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
@@ -143,6 +115,14 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     FIND FIRST cust WHERE cust.company EQ xinv-head.company
                       AND cust.cust-no EQ xinv-head.cust-no NO-LOCK NO-ERROR.
+
+    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
 
     ASSIGN v-shipto-name    = xinv-head.sold-name
            v-shipto-addr[1] = xinv-head.sold-addr[1]

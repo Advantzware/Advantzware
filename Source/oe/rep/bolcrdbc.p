@@ -94,36 +94,6 @@ DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
 DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
 
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN
-    ls-full-img1 = cRtnChar + ">" 
-    ls-full-img2 = cRtnChar + ">" 
-    ls-full-img3 = cRtnChar + ">" 
-    .
-
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO .
@@ -253,7 +223,19 @@ for each xxreport where xxreport.term-id eq v-term-id,
       and cust.cust-no eq oe-bolh.cust-no
     NO-LOCK
     break by oe-bolh.bol-no:
-      
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN
+        ls-full-img1 = cRtnChar + ">" 
+        ls-full-img2 = cRtnChar + ">" 
+        ls-full-img3 = cRtnChar + ">" 
+        .
+    
     if first-of(oe-bolh.bol-no) then do:
 
         IF AVAIL sys-ctrl AND NOT v-printed THEN DO:

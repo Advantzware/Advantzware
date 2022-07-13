@@ -120,32 +120,6 @@ DEF VAR v-tx-rate LIKE stax.tax-rate NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath",
-        cRtnChar
-        ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN 
-    DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
-
 FIND FIRST sys-ctrl NO-LOCK WHERE 
     sys-ctrl.company EQ cocode AND 
     sys-ctrl.name    EQ "INVPRINT" 
@@ -199,6 +173,13 @@ FOR EACH report NO-LOCK WHERE
         cust.company = xinv-head.company AND 
         cust.cust-no = xinv-head.cust-no 
         NO-ERROR.
+
+      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      ASSIGN ls-full-img1 = cRtnChar + ">" .
 
     ASSIGN  
         v-shipto-name    = xinv-head.sold-name

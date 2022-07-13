@@ -153,12 +153,6 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cImageFooter = cRtnChar NO-ERROR. 
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
-
 RUN sys/ref/nk1look.p (INPUT cocode, "CaseUOMList", "C" /* Logical */, NO /* check by cust */, 
      INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
      OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -241,6 +235,13 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
     break by oe-bolh.bol-no:
 
+    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
  
     if first-of(oe-bolh.bol-no) then do:
     find first carrier

@@ -115,34 +115,6 @@ DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-frt-terms2   AS CHARACTER NO-UNDO.
 
-/*ASSIGN
-   ls-image1 = "images\Lovepac_logo.jpg"
-   FILE-INFO:FILE-NAME = ls-image1
-   ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-ASSIGN ls-full-img1 = cRtnChar + ">" .
-
 RUN GetPrintBarTag IN SOURCE-PROCEDURE (OUTPUT v-Print-BarTag) NO-ERROR.
 
 ASSIGN tmpstore = fill("-",130).
@@ -199,6 +171,14 @@ for each xxreport where xxreport.term-id eq v-term-id,
       and cust.cust-no eq oe-bolh.cust-no
     NO-LOCK
     break by oe-bolh.bol-no:
+  
+    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
   
     if first-of(oe-bolh.bol-no) then do:
     find first carrier

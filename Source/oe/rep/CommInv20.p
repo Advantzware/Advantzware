@@ -132,32 +132,8 @@ DEFINE VARIABLE cCurrCode    AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dTotalPrice    AS DECIMAL   NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.    
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
-
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 /* ************************  Function Prototypes ********************** */
 FUNCTION fnGetFOB RETURNS CHARACTER 
@@ -207,6 +183,19 @@ FIND FIRST cust WHERE cust.company = oe-bolh.company
     AND cust.cust-no = oe-bolh.cust-no NO-LOCK NO-ERROR.
 cCurrCode = IF AVAILABLE cust AND cust.curr-code NE "" THEN cust.curr-code ELSE "USD" .
 v-del-no = 0.
+
+IF AVAIL cust THEN 
+      ASSIGN cCustomerNo = cust.cust-no
+       cCustomerLocation = cust.loc .
+
+RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+
       
 IF AVAILABLE oe-bolh THEN 
 DO:

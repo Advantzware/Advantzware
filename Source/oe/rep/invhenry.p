@@ -143,30 +143,6 @@ ASSIGN
 /* v-print-fmt => ".\custfiles\Images\<FormatName>BackImage.pdf" */
 /* After which Page- Image will print  (First, All) */
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
-
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "INVPRINT" NO-LOCK NO-ERROR.
 IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN lv-display-comp = YES.
@@ -202,6 +178,13 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
+
+      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      ASSIGN ls-full-img1 = cRtnChar + ">" .
 
       ASSIGN  v-shipto-name = xinv-head.sold-name
               v-shipto-addr[1] = xinv-head.sold-addr[1]

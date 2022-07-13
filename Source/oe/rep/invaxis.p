@@ -114,31 +114,6 @@ DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 DEFINE BUFFER bf-cust FOR cust.
 DEFINE BUFFER bf-soldto FOR soldto.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">".
-
 /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &XMLOutput=XMLInvoice &Company=cocode}
 RUN XMLOutput (lXMLOutput,'','','Header').
@@ -165,6 +140,15 @@ RUN XMLOutput (lXMLOutput,'','','Header').
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
+          
+           RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+                       	      
+           IF NOT lValid THEN
+           DO:
+               MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+           END.
+           ASSIGN ls-full-img1 = cRtnChar + ">" .
+          
           /*get Remito*/
         FIND FIRST bf-cust 
             WHERE bf-cust.company EQ '001'
