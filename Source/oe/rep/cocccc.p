@@ -531,6 +531,11 @@ FOR EACH report
                 "Code Grade for UPC and 2D as 'C' or higher ".
 
          END.
+        IF cust.cust-no EQ "INT1010" AND cCertFormat EQ "CCC" THEN
+        do:
+             iNoteLine = iNoteLine + 1.
+             gchWorkSheet:Range("D" + TRIM(STRING(iNoteLine,">9"))):VALUE = "Lot #: " + oe-boll.lot-no.
+        END.
         
         IF NOT lChackNotes THEN
         FOR EACH notes 
