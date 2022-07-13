@@ -563,7 +563,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     ASSIGN 
         eInstructions:SCREEN-VALUE IN FRAME {&frame-name} = 
-            "This function will review GL transactions from the earliest record through the Year/Period specified above, and allows " +
+            "This function will review GL transactions in the Year/Period specified above, and allows " +
             "the user to created 'consolidated' records (one per year/period/account) for these transactions." + CHR(10) + CHR(10) +
             "When 'TEST' is selected, the program will generate a list of records to be consolidated, as well as the proposed " +
             "consolidated entries.  This list, as a .CSV file, can be found in the directory specified below." + CHR(10) + CHR(10) +
