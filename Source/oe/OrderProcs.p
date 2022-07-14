@@ -1079,7 +1079,6 @@ PROCEDURE pCreateRelease:
                               ELSE
                                   bf-oe-ord.carrier
         bf-oe-rel.r-no      = iNextRelNo
-        bf-oe-rel.frt-pay   = SUBSTRING(bf-oe-ord.frt-pay,1,1)
         bf-oe-rel.fob-code  = bf-oe-ord.fob-code
         .
 
