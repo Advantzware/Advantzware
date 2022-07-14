@@ -76,6 +76,7 @@ DEFINE VARIABLE riFGRctdMove     AS ROWID     NO-UNDO.
 DEFINE VARIABLE riRMRctdMove     AS ROWID     NO-UNDO.
 DEFINE VARIABLE cUserID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lItemType        AS LOGICAL   NO-UNDO. /* TRUE - RM Item, FALSE - FG Item */
+DEFINE VARIABLE iTagsScanned     AS INTEGER   NO-UNDO.
 
 /* This will an incremented sequence value to be assigned into ttBrowseInventory.inventoryStockID (unique index column)
    once the transaction is posted */
@@ -122,7 +123,7 @@ RUN spGetSessionParam ("UserID", OUTPUT cUserID).
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttBrowseInventory.primaryID ttBrowseInventory.itemType fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag ttBrowseInventory.quantity fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus ttBrowseInventory.emptyColumn   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttBrowseInventory.primaryID ttBrowseInventory.itemType fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag ttBrowseInventory.quantity ttBrowseInventory.quantityUOM fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus ttBrowseInventory.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING
@@ -140,7 +141,7 @@ RUN spGetSessionParam ("UserID", OUTPUT cUserID).
 btReset btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast ~
 btnNext btnPrevious btExit btnExitText btnClearText btnSettingsText 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation btnExitText btnClearText ~
-statusMessage btnSettingsText 
+fiPallets statusMessage btnSettingsText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -256,6 +257,11 @@ DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U
      SIZE 71 BY 1.38
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
+DEFINE VARIABLE fiPallets AS INTEGER FORMAT ">,>>>,>>9":U INITIAL 0 
+     LABEL "# PALLETS" 
+      VIEW-AS TEXT 
+     SIZE 18.4 BY 1.1 NO-UNDO.
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "TAG" 
      VIEW-AS FILL-IN 
@@ -307,7 +313,7 @@ DEFINE FRAME F-Main
      btReset AT ROW 2.52 COL 100 WIDGET-ID 32 NO-TAB-STOP 
      btnKeyboardlOCATION AT ROW 4.33 COL 93 WIDGET-ID 138 NO-TAB-STOP 
      btnKeyboardTAG AT ROW 2.67 COL 93 WIDGET-ID 144 NO-TAB-STOP 
-     btnNumPad AT ROW 2.86 COL 148 WIDGET-ID 120 NO-TAB-STOP 
+     btnNumPad AT ROW 2.14 COL 142 WIDGET-ID 120 NO-TAB-STOP 
      btnFirst AT ROW 8.38 COL 182 WIDGET-ID 44
      btnLast AT ROW 14.1 COL 182 WIDGET-ID 46
      btnNext AT ROW 12.19 COL 182 WIDGET-ID 42
@@ -315,9 +321,10 @@ DEFINE FRAME F-Main
      btExit AT ROW 1 COL 182 WIDGET-ID 26 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 174 NO-LABEL WIDGET-ID 36
      btnClearText AT ROW 3.38 COL 169 NO-LABEL WIDGET-ID 188
+     fiPallets AT ROW 4.57 COL 148.8 WIDGET-ID 190
      statusMessage AT ROW 28.86 COL 3 NO-LABEL WIDGET-ID 34
      btnSettingsText AT ROW 29.05 COL 163 NO-LABEL WIDGET-ID 146
-     RECT-2 AT ROW 2.67 COL 147 WIDGET-ID 130
+     RECT-2 AT ROW 1.95 COL 141 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -403,6 +410,8 @@ ASSIGN
 ASSIGN 
        btTransfer:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN fiPallets IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
@@ -490,6 +499,7 @@ DO:
     ASSIGN
         fiTag:SCREEN-VALUE      = ""
         fiLocation:SCREEN-VALUE = ""
+        fiPallets:SCREEN-VALUE  = "0"
         .
     
     APPLY "ENTRY" TO fiTag.
@@ -900,7 +910,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTag fiLocation btnExitText btnClearText statusMessage 
+  DISPLAY fiTag fiLocation btnExitText btnClearText fiPallets statusMessage 
           btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btClear fiTag fiLocation btPost BROWSE-1 btReset btnKeyboardlOCATION 
@@ -1844,7 +1854,8 @@ PROCEDURE pTagScanFG PRIVATE :
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
             ttBrowseInventory.lastTransTime    = NOW
-            .
+            iTagsScanned                       = iTagsScanned + 1
+            .        
         
         FIND FIRST bf-fg-rctd NO-LOCK
              WHERE ROWID(bf-fg-rctd) EQ riFGRctd
@@ -1869,6 +1880,8 @@ PROCEDURE pTagScanFG PRIVATE :
                     .            
             END.            
         END.
+
+        fiPallets:SCREEN-VALUE = STRING(iTagsScanned).
     
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END.    
@@ -2050,9 +2063,12 @@ PROCEDURE pTagScanRM PRIVATE :
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
             ttBrowseInventory.lastTransTime    = NOW
+            iTagsScanned                       = iTagsScanned + 1
             .        
         
         {&OPEN-QUERY-{&BROWSE-NAME}}
+        
+        fiPallets:SCREEN-VALUE = STRING(iTagsScanned).
     END.    
 END PROCEDURE.
 
