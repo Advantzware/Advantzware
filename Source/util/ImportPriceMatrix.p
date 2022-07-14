@@ -105,7 +105,10 @@ PROCEDURE pValidate PRIVATE:
     DEFINE VARIABLE lQuotePriceMatrix AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound         AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dtLastEffectiveDate AS DATE NO-UNDO.
 
+    DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx.
+    
     RUN util/Validate.p PERSISTENT SET hdValidator.
     
     RUN sys/ref/nk1look.p (INPUT ipbf-ttImportPriceMatrix.Company, "QuotePriceMatrix", "L" , NO , INPUT YES , "" , "" , OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -144,16 +147,29 @@ PROCEDURE pValidate PRIVATE:
     /*Check Earlier date */
     IF oplValid AND lQuotePriceMatrix THEN 
     DO:     
-        FIND FIRST oe-prmtx NO-LOCK 
+        FOR EACH oe-prmtx NO-LOCK 
             WHERE oe-prmtx.company  EQ ipbf-ttImportPriceMatrix.Company
             AND oe-prmtx.cust-no    EQ ipbf-ttImportPriceMatrix.CustomerID
             AND oe-prmtx.custype    EQ ipbf-ttImportPriceMatrix.CustomerType
             AND oe-prmtx.procat     EQ  ipbf-ttImportPriceMatrix.Category
             AND oe-prmtx.i-no       EQ  ipbf-ttImportPriceMatrix.FGItemID
-            AND oe-prmtx.custShipID EQ  ipbf-ttImportPriceMatrix.ShipTo                                       
-            NO-ERROR.
-        IF AVAILABLE oe-prmtx AND oe-prmtx.eff-date LE TODAY AND 
-              DATE(ipbf-ttImportPriceMatrix.EffectiveDate) LT oe-prmtx.eff-date THEN 
+            AND oe-prmtx.custShipID EQ  ipbf-ttImportPriceMatrix.ShipTo               
+          BREAK BY oe-prmtx.eff-date DESC: 
+            dtLastEffectiveDate = oe-prmtx.eff-date.
+            LEAVE.
+        END.
+        
+        dtEffDate = IF ipbf-ttImportPriceMatrix.EffectiveDate NE ? THEN ipbf-ttImportPriceMatrix.EffectiveDate ELSE TODAY.
+        FIND FIRST bf-oe-prmtx NO-LOCK
+             WHERE bf-oe-prmtx.company  EQ ipbf-ttImportPriceMatrix.Company
+               AND bf-oe-prmtx.cust-no EQ  ipbf-ttImportPriceMatrix.CustomerID
+               AND bf-oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
+               AND bf-oe-prmtx.procat  EQ  ipbf-ttImportPriceMatrix.Category
+               AND bf-oe-prmtx.i-no    EQ  ipbf-ttImportPriceMatrix.FGItemID
+               AND bf-oe-prmtx.custShipID  EQ  ipbf-ttImportPriceMatrix.shipto
+               AND bf-oe-prmtx.eff-date EQ dtEffDate
+             NO-ERROR.                
+        IF NOT AVAILABLE bf-oe-prmtx AND DATE(dtEffDate) LE  dtLastEffectiveDate THEN 
             ASSIGN 
                 oplValid = NO 
                 opcNote  = "Effective Date - Earlier Date Found"
@@ -164,7 +180,7 @@ PROCEDURE pValidate PRIVATE:
     IF oplValid THEN 
     DO:     
         dtEffDate = IF ipbf-ttImportPriceMatrix.EffectiveDate NE ? THEN ipbf-ttImportPriceMatrix.EffectiveDate ELSE TODAY.
-        FIND FIRST oe-prmtx EXCLUSIVE-LOCK
+        FIND FIRST oe-prmtx NO-LOCK
              WHERE oe-prmtx.company  EQ ipbf-ttImportPriceMatrix.Company
                 AND oe-prmtx.cust-no EQ  ipbf-ttImportPriceMatrix.CustomerID
                 AND oe-prmtx.custype EQ  ipbf-ttImportPriceMatrix.CustomerType
