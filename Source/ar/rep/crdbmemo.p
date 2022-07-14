@@ -66,6 +66,8 @@ DEF VAR v-memo-state AS CHAR FORMAT "x(2)"           NO-UNDO.
 DEF VAR v-memo-zip   AS CHAR FORMAT "x(10)"          NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 ASSIGN 
     v-comp-add1  = ""
@@ -79,31 +81,6 @@ ASSIGN
     v-memo-state = ""
     v-memo-zip   = ""
     .
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
@@ -150,7 +127,21 @@ FOR EACH ar-cash
     IF ar-cash.stat EQ "H" THEN
         NEXT.
 
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ cocode
+           AND cust.cust-no EQ ar-cash.cust-no NO-ERROR.
+    
+    IF AVAIL cust THEN ASSIGN cCustomerNo       = cust.cust-no
+                              cCustomerLocation = cust.loc .
 
+    RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+
+    IF NOT lValid THEN
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+    
     IF CAN-FIND(FIRST ar-cashl WHERE ar-cashl.company = cocode 
                                AND ar-cashl.c-no = ar-cash.c-no 
                                AND (ar-cashl.amt-paid + ar-cashl.amt-disc) < 0)

@@ -1721,32 +1721,13 @@ PROCEDURE run-asistmt :
     DEFINE VARIABLE ls-image1    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE ls-full-img1 AS cha       FORM "x(200)" NO-UNDO.
 
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "RFC" OR v-stmt-char EQ "Badger" THEN 
     DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
-        END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.   
     END.
 
     FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
@@ -2574,32 +2555,12 @@ PROCEDURE run-asistmt-mail :
             + v-inv-type-array[xx] + ' '.
     END.
 
-
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "RFC" OR v-stmt-char EQ "Badger" THEN 
     DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         END.
     END.
 
@@ -3452,31 +3413,12 @@ PROCEDURE run-protagonstmt :
 
     v-asi-excel = IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN TRUE ELSE FALSE.
 
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "StdStatement10" OR v-stmt-char EQ "StdStatement2" OR v-stmt-char EQ "ARStmt3C" THEN 
-    DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+    DO:                                 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         END.
     END.
 

@@ -61,33 +61,11 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
-/*ASSIGN ls-image1 = "images\pacific1.bmp"
-       ls-image2 = "images\pacific2.bmp"
-       FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">"
-       FILE-INFO:FILE-NAME = ls-image2
-       ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".*/
+RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
+IF NOT lValid THEN
+DO:
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
 END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
