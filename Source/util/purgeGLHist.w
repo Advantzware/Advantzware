@@ -681,7 +681,7 @@ PROCEDURE valid-year :
                 users.user_id EQ USERID("ASI")
                 NO-ERROR.       
             IF NOT AVAIL users 
-            OR users.securityLevel LT 1000 THEN DO:
+            OR users.securityLevel LT 900 THEN DO:
                 MESSAGE 
                     "Advantzware requires the last 7 years for prior period comparison purposes. Process not allowed.."
                     VIEW-AS ALERT-BOX .
