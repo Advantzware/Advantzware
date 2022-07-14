@@ -5453,6 +5453,8 @@ PROCEDURE run-report :
                 RUN oe/rep/cocprempkg.p (?).
             IF v-program = "oe/rep/cocloylang.p" THEN
                 RUN oe/rep/cocloylang.p (?).
+            ELSE IF v-program = "oe/rep/cocport.p" THEN
+                RUN oe/rep/cocport.p (?).
             ELSE IF v-program = "oe/rep/cocprempkgu.p" THEN
                     RUN oe/rep/cocprempkgu.p (?).
                 ELSE IF v-program = "oe/rep/cocprempkgm.p" THEN
@@ -5887,6 +5889,8 @@ PROCEDURE run-report-mail :
             DO:
                 IF v-program EQ "oe/rep/cocprempkg.p" THEN
                     RUN oe/rep/cocprempkg.p (?).
+                ELSE IF v-program EQ "oe/rep/cocport.p" THEN
+                        RUN oe/rep/cocport.p (?).
                 ELSE IF v-program EQ "oe/rep/cocloylang.p" THEN
                         RUN oe/rep/cocloylang.p (?).
                     ELSE IF v-program EQ "oe/rep/cocbcert10.p" THEN
@@ -6109,6 +6113,11 @@ PROCEDURE SetBOLForm :
                 ASSIGN
                     is-xprint-form = YES
                     v-program      = "oe/rep/cocprempkg.p".
+
+            WHEN "Portugese" THEN
+                ASSIGN
+                    is-xprint-form = YES
+                    v-program      = "oe/rep/cocport.p".
 
             WHEN "BOLCERT-Mex" THEN
                 ASSIGN
