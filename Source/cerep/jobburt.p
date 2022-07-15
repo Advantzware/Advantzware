@@ -83,7 +83,6 @@ FOR EACH job-hdr NO-LOCK
     FIRST est
     WHERE est.company  EQ job-hdr.company
     AND est.est-no   EQ job-hdr.est-no
-    AND est.est-type LE 4  
     NO-LOCK
 
     BREAK BY job-hdr.job

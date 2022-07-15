@@ -122,7 +122,11 @@
     DEFINE VARIABLE lPrintBoxDesign     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPrintFGItemImage   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValid              AS LOGICAL   NO-UNDO.
-
+    DEFINE VARIABLE lFirstForm          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lLastForm           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFirstBlank         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lLastBlank          AS LOGICAL   NO-UNDO.
+    
     DEFINE VARIABLE iNumLinesInPage     AS INTEGER   NO-UNDO INITIAL 62.
         
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
@@ -131,7 +135,8 @@
     DEFINE BUFFER bf-cust    FOR cust.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
-
+    RUN pGetNumLinesInPage(ipiAPIOutboundID, OUTPUT iNumLinesInPage).
+    
     /* ************************  Function Prototypes ********************** */
     FUNCTION fGetImageFile RETURNS CHARACTER 
         ( ipcImageFile AS CHARACTER ) FORWARD.
@@ -315,7 +320,7 @@
             
             FOR EACH estCostForm NO-LOCK
                 WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID
-                BY estCostForm.formNo:
+                BREAK BY estCostForm.formNo:
 
                 FIND FIRST ef NO-LOCK
                      WHERE ef.company  EQ estCostForm.company
@@ -327,6 +332,8 @@
                     lFormAvailable      = TRUE
                     lBlankAvailable     = FALSE
                     lOperationAvailable = FALSE
+                    lFirstForm          = FIRST(estCostForm.formNo)
+                    lLastForm           = LAST(estCostForm.formNo)
                     .
                 
                 ASSIGN
@@ -336,8 +343,13 @@
                 
                 FOR EACH estCostBlank NO-LOCK
                     WHERE estCostBlank.estCostHeaderID EQ estCostForm.estCostHeaderID
-                      AND estCostBlank.estCostFormID   EQ estCostForm.estCostFormID:
-                    lcConcatBlankImageFiles = "".
+                      AND estCostBlank.estCostFormID   EQ estCostForm.estCostFormID
+                    BREAK BY estCostBlank.blankNo:
+                    ASSIGN
+                        lcConcatBlankImageFiles = ""
+                        lFirstBlank             = FIRST(estCostBlank.blankNo)
+                        lLastBlank              = LAST(estCostBlank.blankNo)
+                        .
                           
                     FIND FIRST eb NO-LOCK
                          WHERE eb.company  EQ estCostBlank.company
@@ -518,6 +530,9 @@
                     lcBlank = REPLACE(lcBlank, "$CADImage$", lcCADImage).
                     lcBlank = REPLACE(lcBlank, "$PlateImage$", lcPlateImage).
                     lcBlank = REPLACE(lcBlank, "$BlankImages$", lcConcatBlankImageFiles).
+
+                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcBlank, "FirstBlank", STRING(lFirstBlank)).
+                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcBlank, "LastBlank", STRING(lLastBlank)).
                     
                     lcConcatBlankImageFiles = oAttribute:ReplaceAttributes(lcConcatBlankImageFiles, BUFFER eb:HANDLE).
 
@@ -609,6 +624,8 @@
                 lcForm = REPLACE(lcForm, "$FormImages$", lcConcatFormImageFiles).
                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "FormMaterialAvailable",STRING(lFormMaterialAvailable)).
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "FirstForm", STRING(lFirstForm)).
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "LastForm", STRING(lLastForm)).
 
                 lcForm = REPLACE(lcForm, "$FormMaterials$", lcConcatFormMaterial).
                 lcForm = REPLACE(lcForm, "$FormMaterialGroupHeader$", lcFormMaterialGroupHeader).
