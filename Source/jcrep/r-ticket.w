@@ -3408,7 +3408,7 @@ PROCEDURE pRunFormatValueChanged :
         ELSE
             revsn_no:HIDDEN IN FRAME FRAME-A = NO .
 
-        tb_prt-set-header:SENSITIVE = CAN-DO("Artios,Premier,Xprint,Valley,Fluted,jobcardc 1,jobcardc 2,Printers,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
+        tb_prt-set-header:SENSITIVE = CAN-DO("jobcardc 20,Artios,Premier,Xprint,Valley,Fluted,jobcardc 1,jobcardc 2,Printers,Lakeside,VINELAND,Suthrlnd,United,MulticellGA,MCPartitions,oklahoma,Hughes,Protagon,Spectrum,CapCity,Allwest,LoyLang,PQP,RFC2,PEACHTREE,Soule,BELL",lv-format-c).
         IF NOT tb_prt-set-header:SENSITIVE THEN
             tb_prt-set-header:SCREEN-VALUE = "no".
                    
@@ -3435,6 +3435,11 @@ PROCEDURE pRunFormatValueChanged :
                 tb_committed:HIDDEN      = NO 
                 tb_prompt-ship:HIDDEN    = NO 
                 tb_prt-set-header:HIDDEN = NO .
+                
+        IF tb_corr EQ YES AND lv-format-c EQ "jobcardc 20" THEN
+        ASSIGN
+           tb_prt-set-header:HIDDEN  = NO
+           tb_prt-set-header:SENSITIVE  = YES.
 
         IF lv-format-f EQ "McLean" AND tb_fold:SCREEN-VALUE EQ "Yes" THEN
             ASSIGN tb_ExportXML:HIDDEN       = YES
