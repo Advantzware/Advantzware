@@ -89,6 +89,7 @@ END.
         WHERE oe-rell.company   EQ oe-relh.company  ~
           AND oe-rell.r-no      EQ oe-relh.r-no     ~
           AND oe-rell.i-no      BEGINS fi_i-no      ~
+          AND (oe-rell.loc      EQ rdLocation OR rdLocation EQ "All") ~
           AND (oe-rell.ord-no   EQ fi_ord-no OR fi_ord-no EQ 0) ~
           AND oe-rell.po-no     BEGINS fi_po-no     ~
           AND FILL(" ", iJobLen - length(TRIM(oe-rell.job-no))) + trim(oe-rell.job-no) BEGINS fi_job-no    ~
@@ -107,7 +108,8 @@ END.
 &SCOPED-DEFINE for-each2blank                       ~
         EACH oe-rell USE-INDEX r-no NO-LOCK         ~
         WHERE oe-rell.company   EQ oe-relh.company  ~
-          AND oe-rell.r-no      EQ oe-relh.r-no,    ~
+          AND oe-rell.r-no      EQ oe-relh.r-no     ~
+          AND (oe-rell.loc      EQ rdLocation OR rdLocation EQ "All"), ~
        FIRST itemfg OF oe-rell NO-LOCK
 
 &SCOPED-DEFINE sortby-log ~
@@ -126,6 +128,7 @@ END.
     IF lv-sort-by EQ "qty"       THEN STRING(oe-rell.qty,"9999999999")                                                                                  ELSE ~
     IF lv-sort-by EQ "q-onh"     THEN STRING(itemfg.q-onh,"9999999999")                                                                                 ELSE ~
     IF lv-sort-by EQ "v-shipto-zone"  THEN get-shipto-zone()                                                                                            ELSE ~
+    IF lv-sort-by EQ "loc"       THEN STRING(oe-rell.loc)                                                                                 ELSE ~
                                   STRING(oe-relh.printed, "Y/N")
 
 &SCOPED-DEFINE sortby BY oe-relh.release# BY oe-rell.i-no
@@ -166,7 +169,8 @@ END.
 oe-rell.ord-no getRS() @ lc-rs getMI() @ lc-mi get-bal(li-qoh) @ li-bal oe-rell.po-no oe-relh.cust-no get-part-no() @ cPartno ~
 oe-relh.ship-id oe-rell.i-no oe-relh.rel-date oe-rell.job-no ~
 oe-rell.job-no2 oe-relh.printed oe-rell.qty get-act-rel-qty() @ iActualQty ~
-get-act-bol-qty() @ iBolQty itemfg.q-onh get-shipto-zone() @ v-shipto-zone 
+get-act-bol-qty() @ iBolQty itemfg.q-onh get-shipto-zone() @ v-shipto-zone ~
+oe-rell.loc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-relh.release# ~
 oe-rell.ord-no oe-rell.po-no oe-relh.cust-no oe-relh.ship-id oe-rell.i-no ~
 oe-relh.rel-date oe-rell.job-no oe-rell.job-no2 oe-relh.printed 
@@ -202,11 +206,11 @@ use-index r-no NO-LOCK, ~
     ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS tb_posted fi_rel-no fi_ord-no fi_cust-no ~
-fi_i-no fi_po-no fi_job-no fi_job-no2 btn_go Browser-Table btn_prev RECT-1 
+&Scoped-Define ENABLED-OBJECTS Browser-Table tb_posted fi_rel-no fi_ord-no ~
+fi_cust-no fi_i-no fi_po-no fi_job-no fi_job-no2 btn_go btn_prev RECT-1 ~
+rdLocation 
 &Scoped-Define DISPLAYED-OBJECTS tb_posted fi_rel-no fi_ord-no fi_cust-no ~
-fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by 
-//FI_moveCol 
+fi_i-no fi_po-no fi_job-no fi_job-no2 fi_sort-by rdLocation 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -287,6 +291,12 @@ DEFINE BUTTON btn_prev
      SIZE 20 BY 1
      FONT 22.
 
+DEFINE VARIABLE rdLocation AS CHARACTER FORMAT "X(256)":U INITIAL "All" 
+     VIEW-AS COMBO-BOX INNER-LINES 8
+     LIST-ITEMS "All"
+     DROP-DOWN-LIST
+     SIZE 16 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_cust-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -340,7 +350,7 @@ DEFINE RECTANGLE RECT-1
 DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
      LABEL "Posted?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 13.4 BY .81 NO-UNDO.
+     SIZE 12.2 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -386,7 +396,9 @@ DEFINE BROWSE Browser-Table
       itemfg.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->,>>>,>>>":U
       get-shipto-zone() @ v-shipto-zone COLUMN-LABEL "Ship To Zone" FORMAT "x(8)":U
             WIDTH 10
-      get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U      
+      get-bal(li-qoh) @ li-bal COLUMN-LABEL "Job Qty on hand" FORMAT "->>,>>>,>>>":U 
+      oe-rell.loc COLUMN-LABEL "Ship From Whse" FORMAT "x(8)":U
+            WIDTH 22 LABEL-BGCOLOR 14
   ENABLE
       oe-relh.release#
       oe-rell.ord-no
@@ -400,52 +412,50 @@ DEFINE BROWSE Browser-Table
       oe-relh.printed
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 141 BY 16.62
+    WITH NO-ASSIGN SEPARATORS SIZE 144 BY 17.82
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     tb_posted AT ROW 2.19 COL 120 WIDGET-ID 2
-     fi_rel-no AT ROW 2.19 COL 1 COLON-ALIGNED NO-LABEL
-     fi_ord-no AT ROW 2.19 COL 20 NO-LABEL
-     fi_cust-no AT ROW 2.19 COL 34 COLON-ALIGNED NO-LABEL
-     fi_i-no AT ROW 2.19 COL 50 COLON-ALIGNED NO-LABEL
-     fi_po-no AT ROW 2.19 COL 72 COLON-ALIGNED NO-LABEL
-     fi_job-no AT ROW 2.19 COL 94 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COL 108 COLON-ALIGNED
+     Browser-Table AT ROW 5.19 COL 1 HELP
+          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
+     tb_posted AT ROW 2.19 COL 132.6 WIDGET-ID 2
+     fi_rel-no AT ROW 2.19 COL 20.6 COLON-ALIGNED NO-LABEL
+     fi_ord-no AT ROW 2.19 COL 38 NO-LABEL
+     fi_cust-no AT ROW 2.19 COL 51 COLON-ALIGNED NO-LABEL
+     fi_i-no AT ROW 2.19 COL 66 COLON-ALIGNED NO-LABEL
+     fi_po-no AT ROW 2.19 COL 87 COLON-ALIGNED NO-LABEL
+     fi_job-no AT ROW 2.19 COL 108 COLON-ALIGNED NO-LABEL
+     fi_job-no2 AT ROW 2.19 COL 122 COLON-ALIGNED
      btn_go AT ROW 3.62 COL 2
      fi_sort-by AT ROW 3.62 COL 70 COLON-ALIGNED NO-LABEL
-   //  FI_moveCol AT ROW 3.62 COL 125 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     Browser-Table AT ROW 5.05 COL 1 HELP
-          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      btn_prev AT ROW 3.62 COL 17
      btn_next AT ROW 3.62 COL 38
+     rdLocation AT ROW 2.19 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 32
      "Job#" VIEW-AS TEXT
-          SIZE 8 BY .71 AT ROW 1.24 COL 99
+          SIZE 8 BY .71 AT ROW 1.24 COL 113
           FGCOLOR 9 FONT 22
-    /* "Sorted By:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.62 COL 59
-          FONT 6 */
      "Order#" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 23
+          SIZE 10 BY .71 AT ROW 1.24 COL 38
           FGCOLOR 9 FONT 22
      "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 37
+          SIZE 13 BY .71 AT ROW 1.24 COL 53
           FGCOLOR 9 FONT 22
      "FG Item#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 55
+          SIZE 13 BY .71 AT ROW 1.24 COL 69
           FGCOLOR 9 FONT 22
      "Customer PO#" VIEW-AS TEXT
-          SIZE 18 BY .71 AT ROW 1.24 COL 75
+          SIZE 18 BY .71 AT ROW 1.24 COL 89
           FGCOLOR 9 FONT 22
      "Release#" VIEW-AS TEXT
-          SIZE 12 BY .71 AT ROW 1.24 COL 4
+          SIZE 12 BY .71 AT ROW 1.24 COL 23.6
           FGCOLOR 9 FONT 22
-   /*  "BrwsrColMode:" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 3.62 COL 112*/
-     RECT-1 AT ROW 1 COL 1
+     "Ship From Whse" VIEW-AS TEXT
+          SIZE 18.4 BY .71 AT ROW 1.24 COL 3.0 WIDGET-ID 4
+          FGCOLOR 9 FONT 22
+     RECT-1 AT ROW 1 COL 1.4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -479,8 +489,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 20.1
-         WIDTH              = 144.4.
+         HEIGHT             = 20.81
+         WIDTH              = 145.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -573,6 +583,8 @@ use-index r-no"
 "itemfg.q-onh" "Qty On Hand" "->,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
 "get-shipto-zone() @ v-shipto-zone" "Ship To Zone" "x(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[19]   > ASI.oe-rell.loc
+"oe-rell.loc" "Ship From Whse" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -860,6 +872,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rdLocation
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rdLocation B-table-Win
+ON VALUE-CHANGED OF rdLocation IN FRAME F-Main
+DO:
+    ASSIGN {&SELF-NAME}.
+        
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON HELP OF fi_cust-no IN FRAME F-Main
@@ -960,6 +984,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             OUTPUT lActive).
 {sys/inc/chblankcust.i ""OT1""}
 
+RUN pSetLocation.  
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1142,12 +1167,16 @@ PROCEDURE first-query :
             sys-ctrl.int-fld = 30.
   end.
   {&for-each1blank} 
-     USE-INDEX r-no NO-LOCK  
-     BY oe-relh.r-no DESC:
-     li = li + 1.
-     lv-rel-no = oe-relh.release#.
-     IF li GE sys-ctrl.int-fld THEN 
-        LEAVE.
+     USE-INDEX r-no NO-LOCK,
+     {&for-each2blank}
+     BREAK BY oe-relh.r-no DESC:
+     IF FIRST-OF(oe-relh.r-no) then
+     do: 
+         li = li + 1.
+         lv-rel-no = oe-relh.release#.
+         IF li GE sys-ctrl.int-fld THEN 
+            LEAVE.
+     END.   
   END.
 
   &SCOPED-DEFINE open-query                     ~
@@ -1510,7 +1539,8 @@ PROCEDURE record-added :
      fi_po-no
      fi_rel-no
      fi_job-no
-     fi_job-no2.
+     fi_job-no2
+     rdLocation.
 
 
 END PROCEDURE.
@@ -1794,6 +1824,72 @@ PROCEDURE xlocal-destroy :
 
   IF VALID-HANDLE(lr-rel-lib) THEN
      DELETE OBJECT lr-rel-lib.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLocation B-table-Win 
+PROCEDURE pSetLocation :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cUserLocation AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE iUserLocation AS INTEGER   NO-UNDO.
+        
+  RUN pGetUserLocation(Output cUserLocation, OUTPUT iUserLocation).
+  rdLocation:LIST-ITEMs IN FRAME {&FRAME-NAME}  = cUserLocation.
+  IF iUserLocation EQ 1 THEN
+  ASSIGN
+  rdLocation:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(2,cUserLocation)
+  rdLocation  = ENTRY(2,cUserLocation)
+  .
+  ELSE
+  ASSIGN
+  rdLocation:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ENTRY(1,cUserLocation)
+  rdLocation = ENTRY(1,cUserLocation)
+  .
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUserLocation B-table-Win 
+PROCEDURE pGetUserLocation :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER opcUserLoc AS CHARACTER NO-UNDO.
+   DEFINE OUTPUT PARAMETER opiUserLoc AS INTEGER NO-UNDO.
+   DEFINE VARIABLE cUserLoc  AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+   
+   cUserLoc = "All".  
+      
+   FIND FIRST users NO-LOCK
+        WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+   IF AVAILABLE users THEN
+   FOR EACH usrx NO-LOCK
+       WHERE usrx.uid EQ users.user_id
+         AND usrx.company EQ cocode 
+         AND usrx.loc NE "" , 
+       EACH loc OF usrx NO-LOCK :      
+      cUserLoc = cUserLoc + "," + usrx.loc . 
+      opiUserLoc = opiUserLoc + 1.   
+   END.
+   IF cUserLoc EQ "All" THEN
+   DO:
+        RUN spGetSessionParam("Location", OUTPUT cLocation).
+        cUserLoc = cUserLoc + "," + cLocation . 
+        opiUserLoc = opiUserLoc + 1.   
+   END.
+   
+   opcUserLoc = cUserLoc.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
