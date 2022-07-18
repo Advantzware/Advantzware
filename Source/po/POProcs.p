@@ -266,7 +266,7 @@ PROCEDURE PO_CalLineTotalandTax:
     DEFINE VARIABLE deTaxAmount    AS DECIMAL NO-UNDO.
     DEFINE VARIABLE deFrtTaxAmount AS DECIMAL NO-UNDO.   
 
-    FIND po-ord WHERE ROWID(po-ord) EQ iproPoOrd NO-ERROR.
+    FIND po-ord WHERE EXCLUSIVE-LOCK ROWID(po-ord) EQ iproPoOrd NO-ERROR.
 
     IF AVAILABLE po-ord THEN 
     DO:
