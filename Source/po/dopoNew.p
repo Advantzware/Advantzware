@@ -270,7 +270,7 @@ PROCEDURE pAutoRm PRIVATE:
             NO-LOCK NO-ERROR.
             
         IF AVAILABLE b-item THEN bf-po-ordl.i-no = chNewItemNo.
-        FIND FIRST xjob-mat WHERE RowID(xjob-mat) EQ RowID(job-mat) NO-ERROR.
+        FIND FIRST xjob-mat NO-LOCK WHERE RowID(xjob-mat) EQ RowID(job-mat) NO-ERROR.
         IF AVAILABLE xjob-mat THEN ttJobMaterial.rm-i-no = chNewItemNo.
 
     END. /* choeAutoPoNK1 eq "AutoRM" ... */ 
