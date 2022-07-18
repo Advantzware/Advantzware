@@ -52,6 +52,8 @@ DEFINE VARIABLE dCheckAmount                     AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iLineCount                       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cFillZero                        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cProcessingCentre                AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lcLineItemsDetailData            AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE lcConcatLineDetailItemsData      AS LONGCHAR  NO-UNDO.
 
 DEFINE TEMP-TABLE ttPaymentData NO-UNDO
     FIELD paymentID   AS INTEGER
@@ -73,6 +75,7 @@ DEFINE TEMP-TABLE ttPaymentData NO-UNDO
 
 DEFINE BUFFER bf-APIOutbound                FOR APIOutbound.
 DEFINE BUFFER bf-line-APIOutboundDetail     FOR APIOutboundDetail.
+DEFINE BUFFER bf-line-detail-APIOutboundDetail FOR APIOutboundDetail.
 
 IF ipcRequestHandler NE "" THEN DO:
     RUN VALUE(ipcRequestHandler) (
@@ -123,7 +126,13 @@ FIND FIRST bf-line-APIOutboundDetail NO-LOCK
        AND bf-line-APIOutboundDetail.detailID      EQ "Detail"
        AND bf-line-APIOutboundDetail.parentID      EQ bf-APIOutbound.apiID
      NO-ERROR.
-
+ 
+FIND FIRST bf-line-detail-APIOutboundDetail NO-LOCK
+     WHERE bf-line-detail-APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
+       AND bf-line-detail-APIOutboundDetail.detailID      EQ "CheckDetail"
+       AND bf-line-detail-APIOutboundDetail.parentID      EQ bf-APIOutbound.apiID
+     NO-ERROR. 
+ 
 cRequestDataType = bf-APIOutbound.requestDataType. 
 
 FOR EACH ap-sel NO-LOCK
@@ -206,6 +215,18 @@ FOR EACH ttPaymentData
     dCheckAmount = dCheckAmount + ttPaymentData.amt.
     cFillZero = FILL("0",1500).
     
+    IF FIRST-OF(ttPaymentData.checkNo) THEN
+    DO:
+          lcConcatLineDetailItemsData = "".
+    END.
+        
+    lcLineItemsDetailData = STRING(bf-line-detail-APIOutboundDetail.data).  
+    RUN updateRequestData(INPUT-OUTPUT lcLineItemsDetailData, "CheckDetailInvoice", STRING(ttPaymentData.invNo)).
+    RUN updateRequestData(INPUT-OUTPUT lcLineItemsDetailData, "CheckDetailAmount", STRING(ttPaymentData.amt)).         
+    RUN updateRequestData(INPUT-OUTPUT lcLineItemsDetailData, "CheckDetailDiscount", STRING(ttPaymentData.adjAmt)).
+    RUN updateRequestData(INPUT-OUTPUT lcLineItemsDetailData, "CheckDetailNetAmount", STRING(ttPaymentData.netAmt)). 
+    lcConcatLineDetailItemsData = lcConcatLineDetailItemsData + lcLineItemsDetailData.       
+                   
     IF LAST-OF(ttPaymentData.checkNo) THEN DO:
         FIND FIRST vend NO-LOCK
              WHERE vend.company EQ ttPaymentData.company
@@ -272,9 +293,12 @@ FOR EACH ttPaymentData
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "BankAccount",cBankAccount).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "SPACE", " ").          
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "FillZero", cFillZero).
-        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "DeliveryMethod", ttPaymentData.delMethod). 
-        lcConcatLineItemsData = lcConcatLineItemsData + lcLineItemsData.        
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "DeliveryMethod", ttPaymentData.delMethod).
         
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "CheckDetail", lcConcatLineDetailItemsData).
+        
+        lcConcatLineItemsData = lcConcatLineItemsData + lcLineItemsData. 
+                
     END.
     IF LAST(ttPaymentData.checkNo) THEN DO:  
     
