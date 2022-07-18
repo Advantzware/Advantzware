@@ -2,6 +2,10 @@
 
 RUN XMLOutput (lXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05181205 */
 RUN cXMLOutput (clXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05291402 */
+
+RUN Format_Date(v-inv-date,"DD/MM/YYYY", OUTPUT opcDateStringInvDate).
+RUN Format_Date(v-date-ship,"DD/MM/YYYY", OUTPUT opcDateStringShipDate).
+
 PUT "<FTimes New Roman>".
         IF lChkImage THEN
          PUT  "<C3><R2><#1><R+7><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(200)" SKIP(1) .
@@ -73,7 +77,7 @@ ELSE
         
 PUT "<FArial><P12><=#3><R-2> <P10>" ip-copy-title FORM "x(20)" SKIP
     "<=#3>  N° DA FATURA                    " inv-head.inv-no FORMAT ">>>>>>>9"
-    "<=#3><R+1>              DATA               " v-inv-date "<FCourier New>"    
+    "<=#3><R+1>              DATA               " opcDateStringInvDate FORMAT "x(10)" "<FCourier New>"    
     SKIP(1)
     .
 
@@ -95,7 +99,7 @@ v-salesname = IF AVAIL sman THEN sman.sname ELSE "".
 
 PUT "<FArial><=4> DATA DE ENVIO        FOB              ENVIAR VIA                    TERMOS                    NOME DO VENDEDOR              N° CONHEC. " SKIP
      "<=4><R+1><C72> EMBARQUE " SKIP
-     "<FCourier New><=4><R+2><B> " v-date-ship FORM "99/99/9999" SPACE(4)
+     "<FCourier New><=4><R+2><B> " opcDateStringShipDate FORMAT "x(10)" SPACE(4)
      v-fob FORM "x(11)" SPACE(1)
      v-shipvia FORM "x(20)" SPACE(1)
      xinv-head.terms-d FORM "x(15)" SPACE(1) 

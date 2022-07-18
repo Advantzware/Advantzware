@@ -1,5 +1,8 @@
 /* oe/rep/ackPort.i */
 
+RUN Format_Date(oe-ord.ord-date,"DD/MM/YYYY", OUTPUT opcDateStringOrdDate).
+RUN Format_Date(oe-ord.due-date,"DD/MM/YYYY", OUTPUT opcDateStringDueDate).
+
 PUT "<FArial>".
      PUT "<C1><#1><R+10><C+47><IMAGE#1=" ls-full-img1 SKIP. /* pacific package */ 
            
@@ -44,7 +47,7 @@ PUT "<FArial><P12><=#3><R-2> <B>Reconhecimento</B> " "<P10>" SKIP
     "<=#3><R+4> PO do cliente                       Data do pedido <FCourier New>"
     "<=3><R+1> " oe-ord.cust-no  space(9) cust.contact
     "<=3><R+3> " v-cust-phone  space(7) cust.fax
-    "<=3><R+5> " oe-ord.po-no space(5) oe-ord.ord-date .
+    "<=3><R+5> " oe-ord.po-no space(5) opcDateStringOrdDate FORMAT "x(10)" .
 
 PUT "<||3><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 "<R21><C1><FROM><R21><C80><LINE>" SKIP    
@@ -57,7 +60,7 @@ PUT "<||3><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 .
 PUT "<FArial><=4><R+.1> <c66> N° do <c74> N° da " SKIP
 "<=4><R+1> Data Req.             FOB                     Enviar Via                              Termos                        vendedor              pedido         cotação" SKIP
-"<FCourier New><=4><R+3> " oe-ord.due-date FORM "99/99/9999" space(2)
+"<FCourier New><=4><R+3> " opcDateStringDueDate FORMAT "x(10)" space(2)
 oe-ord.fob-code FORM "x(11)" SPACE(2)
 v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(1)
 oe-ord.terms-d /*terms.dscr*/ FORM "x(15)" space(5) v-salesman "<C65.5>" oe-ord.ord-no space(2) v-q-no SKIP.

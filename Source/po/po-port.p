@@ -116,6 +116,10 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPrintPrice AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cShiptoCustomer AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShiptoNotes AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcDateStringPoOrdlDueDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcDateStringPoDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcDateStringPoChangeDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcDateStringDueDate AS CHARACTER NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
@@ -423,11 +427,14 @@ v-printline = 0.
            {po/po-port.i}
         END.
        
+        RUN Format_Date(po-ordl.due-date,"DD/MM/YYYY", OUTPUT opcDateStringPoOrdlDueDate).
+       
+       
         PUT "<C1>" po-ordl.LINE FORM ">>9" 
             "<C5>" po-ordl.ord-qty FORM ">>,>>>,>>9"
             "<C16>" po-ordl.pr-qty-uom 
             "<C21>" po-ordl.i-no FORM "x(30)"
-            "<C53>" po-ordl.due-date.
+            "<C53>" opcDateStringPoOrdlDueDate FORMAT "x(10)".
         IF lPrintPrice THEN DO:
             IF po-ordl.cost LE 9999.9999 THEN
                 PUT "<C61.5>" po-ordl.cost FORM "->>>9.99<<"

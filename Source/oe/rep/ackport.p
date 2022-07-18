@@ -83,6 +83,9 @@ DEF SHARED VAR v-Shpnot AS LOG NO-UNDO.
 DEF SHARED VAR v-print-tot AS LOG NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcDateStringRelDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcDateStringOrdDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcDateStringDueDate AS CHARACTER NO-UNDO.
 DEFINE BUFFER bf-shipto FOR shipto.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
@@ -511,10 +514,13 @@ for each oe-ordl
           IF AVAIL oe-rell THEN
           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
           ld-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
+          
+          RUN Format_Date(ld-date,"DD/MM/YYYY", OUTPUT opcDateStringRelDate).
+          
           if oe-rel.link-no eq 0 then
-              put lcnt AT 10 space(1) oe-rel.tot-qty space(5) ld-date  SKIP.
+              put lcnt AT 10 space(1) oe-rel.tot-qty space(5) opcDateStringRelDate FORMAT "x(10)"  SKIP.
           ELSE
-              put lcnt AT 10 space(1) oe-rel.qty space(5) ld-date  SKIP.
+              put lcnt AT 10 space(1) oe-rel.qty space(5) opcDateStringRelDate FORMAT "x(10)"  SKIP.
           /*down with frame sched-rel. */
           assign
            v-printline = v-printline + 1

@@ -1,6 +1,7 @@
  /* oe/rep/cocport.i  */  
-PUT UNFORMATTED "<FArial>"  SKIP
-    "<C65><P12>Data: " STRING(TODAY,"99/99/9999")
+ RUN Format_Date(TODAY,"DD/MM/YYYY", OUTPUT opcDateString).
+ PUT UNFORMATTED "<FArial>"  SKIP
+    "<C65><P12>Data: " opcDateString
     "<C1><#1><R+5><C+30><IMAGE#1=" ls-full-img1  SKIP           
     "<=1><R+6><P10>" SKIP
      "      Cliente: " cust.name        SKIP

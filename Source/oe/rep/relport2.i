@@ -1,5 +1,8 @@
 /* oe/rep/relPort2.i */   
 
+RUN Format_Date(v-ticket-date,"DD/MM/YYYY", OUTPUT opcDateStringTicketDate).
+RUN Format_Date(oe-relh.rel-date,"DD/MM/YYYY", OUTPUT opcDateStringRelDate).
+
    PUT "<FArial>" SKIP
        "<P14><C+31><B>Lista de produtos a recolher</B> " SKIP
         "<C1><LEFT=9mm><#1><R+5><C+25>" SKIP
@@ -33,8 +36,8 @@
          "<UNITS=INCHES><AT=.54,6><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
           string(oe-relh.release#) + ">" FORM "x(100)" "</B><P10>" 
            "<AT=,6.5>" oe-relh.release#        SKIP(1)
-         "<=#3><R+5>Data de impressão:" v-ticket-date   FORM "99/99/9999" " "   STRING(oe-relh.upd-time,"hh:mm am") SKIP
-         "<=#3><R+6>Data de envio:" oe-relh.rel-date        SKIP
+         "<=#3><R+5>Data de impressão: " opcDateStringTicketDate   FORMAT "x(10)" " "   STRING(oe-relh.upd-time,"hh:mm am") SKIP
+         "<=#3><R+6>Data de envio: " opcDateStringRelDate FORMAT "x(10)"        SKIP
          "<=#3><R+7>CSR: " v-csr SKIP
           SKIP     
          "<|10><R19><C1><#4><FROM><R23><C80><RECT>" SKIP

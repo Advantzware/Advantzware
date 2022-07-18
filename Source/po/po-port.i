@@ -1,4 +1,7 @@
 /* po/po-port.i */
+RUN Format_Date(po-ord.po-date,"DD/MM/YYYY", OUTPUT opcDateStringPoDate).
+RUN Format_Date(po-ord.po-change-date,"DD/MM/YYYY", OUTPUT opcDateStringPoChangeDate).
+RUN Format_Date(po-ord.due-date,"DD/MM/YYYY", OUTPUT opcDateStringDueDate).
 
 PUT 
          "<C1><#1><FArial>"  
@@ -26,9 +29,9 @@ PUT
        "<R4><C50><#3>" SKIP
        "<FArial><P14><=#3>" /*<C-20><R-2> <B>Purchase Order</B>*/  "<P10>" SKIP
           "<=#3><R+1.5><B><P12>N° do PO::     " po-ord.po-no "</B><P10>" SKIP(1)
-          "<=#3><R+4.5>Data: " po-ord.po-date        SKIP
-          "<=#3><R+5.5>Data alterada: " po-ord.po-change-date SKIP
-          "<=3><R+6.5>Data requerida: " po-ord.due-date SKIP
+          "<=#3><R+4.5>Data: " opcDateStringPoDate FORMAT "x(10)"        SKIP
+          "<=#3><R+5.5>Data alterada: " opcDateStringPoChangeDate FORMAT "x(10)" SKIP
+          "<=3><R+6.5>Data requerida: " opcDateStringDueDate FORMAT "x(10)" SKIP
        .
     /*IF lv-display-comp THEN 
         PUT "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"

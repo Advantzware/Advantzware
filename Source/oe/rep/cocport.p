@@ -18,6 +18,9 @@ DEF VAR v-type AS CHAR NO-UNDO.
 DEF VAR v-rel-date AS DATE INIT 12/31/2999 NO-UNDO.
 DEF VAR v-part-desc AS CHAR FORMAT "X(30)" NO-UNDO.
 DEF VAR v-cad LIKE eb.cad-no NO-UNDO.
+DEF VAR opcDateStringRelDate AS CHARACTER NO-UNDO.
+DEF VAR opcDateStringManufDate AS CHARACTER NO-UNDO.
+DEF VAR opcDateString AS CHARACTER NO-UNDO.
 
 ASSIGN
    ls-image1 = "images\Premiercx.jpg"
@@ -156,6 +159,9 @@ for each report where report.term-id eq v-term-id NO-LOCK,
        ELSE
           v-cad = itemfg.cad-no.
       
+       RUN Format_Date(v-rel-date,"DD/MM/YYYY", OUTPUT opcDateStringRelDate).
+       RUN Format_Date(v-manuf-date,"DD/MM/YYYY", OUTPUT opcDateStringManufDate).
+      
        PUT UNFORMATTED
            "Nome do cliente:                                              " cust.NAME SKIP(1)
            "Número do pedido do cliente:                          "  oe-boll.po-no SKIP(1)
@@ -169,10 +175,10 @@ for each report where report.term-id eq v-term-id NO-LOCK,
            "Número do lote de fabricação do fornecedor:" SKIP(1)
            "Quantidade enviada:                                   "  STRING(v-bol-qty,"ZZ,ZZZ,ZZ9") SKIP(1)
            "Data de fabricação:                                          " (IF v-manuf-date NE 12/31/2999 THEN
-                                                                           STRING(v-manuf-date,"99/99/9999")
+                                                                           opcDateStringManufDate
                                                                            ELSE "") SKIP(1)
            "Data de liberação:                                            " (IF v-rel-date NE 12/31/2999 THEN
-                                                                            STRING(v-rel-date,"99/99/9999")
+                                                                            opcDateStringRelDate
                                                                             ELSE "") SKIP(1).
 
        ASSIGN

@@ -109,6 +109,8 @@ DEFINE        VARIABLE cCurCode         AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cCompanyID       AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE lValid           AS LOGICAL   NO-UNDO.
 DEFINE        VARIABLE cMessage         AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE opcDateStringInvDate  AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE opcDateStringShipDate AS CHARACTER NO-UNDO.
 
 IF ip-copy-title  EQ "Customer Copy" THEN
     ip-copy-title = "Cópia do cliente".

@@ -1,6 +1,7 @@
 /* oe/rep/bolport.i */  
 
 RUN XMLOutput (lXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05181205 */
+RUN Format_Date(oe-bolh.bol-date,"DD/MM/YYYY", OUTPUT opcDateStringBolDate).
 
 PUT
   "<FArial>"  
@@ -25,7 +26,7 @@ PUT
   
   SKIP              
   /*"<=#3><R+3>Page #:             " PAGE-NUM SKIP*/
-  "<=#3><R+4>Data  :                     " oe-bolh.bol-date        SKIP
+  "<=#3><R+4>Data  :                     " opcDateStringBolDate FORMAT "x(10)"        SKIP
   "<=#3><R+5>Horário de chegada do cliente________________" SKIP
   /*SKIP*/
   SKIP(1).
@@ -39,7 +40,7 @@ PUT
   "<R17><C46><FROM><R21><C46><LINE>" SKIP
   "<R17><C66><FROM><R21><C66><LINE>" SKIP
   "<FArial><=4><R+1><P10><ADJUST=LPI>          Data                           FOB                             N° do reboque                          Transportadora                     Termos de frete" SKIP 
-  "<FCourier New><=4><R+3> " oe-bolh.bol-date SPACE(3) v-fob space(7) v-trailer SPACE(3) carrier.dscr v-frt-terms SKIP
+  "<FCourier New><=4><R+3> " opcDateStringBolDate FORMAT "x(10)" SPACE(3) v-fob space(7) v-trailer SPACE(3) carrier.dscr v-frt-terms SKIP
   "<|{&incl2}><R22><C1><#5><FROM><R24><C81><RECT>" SKIP    
   "<R22><C13><FROM><R24><C13><LINE>" SKIP
   "<R22><C28><FROM><R24><C28><LINE>" SKIP
