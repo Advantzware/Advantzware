@@ -220,7 +220,7 @@
 "001" "Reports" "Selectable Report Columns" 0 0 "DR8" ? yes "" "0729201509761297" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR5" ? yes "" "0729201509761313" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "JR4" ? yes "" "0729201509763558" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "Reports" "Selectable Report Columns" 0 0 "DR1" ? no "" "0730201509764409" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "Reports" "Selectable Report Columns" 0 0 "DR1" ? yes "" "0730201509764409" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR2" ? yes "" "0730201509764838" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "JR5" ? yes "" "0805201509770750" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR3" ? yes "" "0730201509765269" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -409,7 +409,6 @@
 "001" "CINVOICE" "" 0 0 "FIBREMEXICO" ? no "" "1005200905020091" yes "iggle01" "iggle01" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "QUOIMAGE" "" 0 1 "P:\ASI\Environments\EnvFiles\images\Lagunitas\Advaned Box Company Logo v2.png" ? no "" "0614201700587529" yes "Lag10001" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "ApplyInvoiceApprovals" "" 0 0 "" ? yes "" "202012095760205908616" yes "LTen10" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "BOLFMT" "" 0 0 "bolfmt 20" ? yes "OS3" "202110225144408172915" yes "Lten10" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CustomerPO" "" 0 0 "INFO" ? yes "VAL" "202201315585108526679" yes "Lten10" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "STMTPRINT" "" 0 0 "souleexcel" ? yes "AR4" "202006038340205334918" yes "Matt12" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "BOLPOST" "" 0 0 "AutoSelectShipFrom" ? yes "OS5" "1020201610193650" yes "Matt21" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -439,4 +438,5 @@
 "001" "cXMLShipToPrefix" "" 0 0 "DICKS:" ? no "" "1111201409488089" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "LoadTagSSCC" "" 0 0 "" ? yes "OU7" "0111201609886898" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "BOLPOST" "" 0 0 "AutoSelectShipFrom" ? yes "OS5" "0916201610173875" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "INVPRINT" "" 0 0 "invprint 1" ? no "" "202206163283109592521" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CINVOICE" "" 0 0 "FibreMexico" ? yes "" "201903264705203421834" yes "ZOV100" "ZOVBRK" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no

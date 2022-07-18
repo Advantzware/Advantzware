@@ -334,7 +334,7 @@ DO:
         WHEN "m-code" THEN DO:
             IF li-help-job = 0 THEN DO:
                FIND FIRST job WHERE job.company = g_company
-                                AND trim(job.job-no) = trim(pc-misc.job-no:SCREEN-VALUE)
+                                AND job.job-no = pc-misc.job-no:SCREEN-VALUE
                                 AND job.job-no2 = INT(pc-misc.job-no2:SCREEN-VALUE)
                                 NO-LOCK NO-ERROR.
                IF AVAIL job THEN li-help-job = job.job.
@@ -766,7 +766,7 @@ PROCEDURE validate-blank :
    v-ml = IF pc-misc.ml:SCREEN-VALUE = "M" THEN YES ELSE NO.
 
    FIND FIRST job WHERE job.company = g_company AND
-                        trim(job.job-no) = trim(v-tmp-job) AND
+                        job.job-no = v-tmp-job AND
                         job.job-no2 = int(pc-misc.job-no2:SCREEN-VALUE )
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF AVAIL job THEN DO:
@@ -803,7 +803,7 @@ PROCEDURE validate-frm :
    v-ml = IF pc-misc.ml:SCREEN-VALUE = "M" THEN YES ELSE NO.
 
    FIND FIRST job WHERE job.company = g_company AND
-                        trim(job.job-no) = trim(v-tmp-job) AND
+                        job.job-no  = v-tmp-job AND
                         job.job-no2 = int(pc-misc.job-no2:SCREEN-VALUE )
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF AVAIL job THEN DO:
@@ -838,7 +838,7 @@ PROCEDURE validate-job :
     pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = v-tmp-job.
 
    FIND FIRST job WHERE job.company = g_company AND
-                        trim(job.job-no) = trim(v-tmp-job)
+                        job.job-no  = v-tmp-job
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF NOT AVAIL job THEN DO:
       MESSAGE "Invalid Job. Try help. " VIEW-AS ALERT-BOX ERROR.
@@ -865,7 +865,7 @@ PROCEDURE validate-job2 :
    v-tmp-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-misc.job-no:SCREEN-VALUE IN BROWSE {&browse-name})) .
 
    FIND FIRST job WHERE job.company = g_company AND
-                        trim(job.job-no) = trim(v-tmp-job) AND
+                        job.job-no  = v-tmp-job AND
                         job.job-no2 = int(pc-misc.job-no2:SCREEN-VALUE )
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF NOT AVAIL job THEN DO:
@@ -904,7 +904,7 @@ PROCEDURE validate-prep :
    v-ml = IF pc-misc.ml:SCREEN-VALUE = "M" THEN YES ELSE NO.
 
    FIND FIRST job WHERE job.company = g_company AND
-                        trim(job.job-no) = trim(v-tmp-job) AND
+                        job.job-no  = v-tmp-job AND
                         job.job-no2 = int(pc-misc.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} )
                       USE-INDEX job-no NO-LOCK NO-ERROR.
    IF AVAIL job THEN DO:
@@ -929,7 +929,7 @@ PROCEDURE validate-prep :
        ELSE DO:
            IF li-help-job = 0 THEN DO:
                FIND FIRST job WHERE job.company = g_company
-                                AND trim(job.job-no) = trim(pc-misc.job-no:SCREEN-VALUE)
+                                AND job.job-no  = pc-misc.job-no:SCREEN-VALUE
                                 AND job.job-no2 = INT(pc-misc.job-no2:SCREEN-VALUE)
                                 NO-LOCK NO-ERROR.
                IF AVAIL job THEN li-help-job = job.job.

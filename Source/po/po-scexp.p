@@ -164,7 +164,7 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
     
     FIND FIRST job NO-LOCK
         WHERE job.company EQ cocode
-          AND trim(job.job-no)  EQ TRIM(po-ordl.job-no)
+          AND job.job-no  EQ po-ordl.job-no
           AND job.job-no2 EQ po-ordl.job-no2
         NO-ERROR.
         

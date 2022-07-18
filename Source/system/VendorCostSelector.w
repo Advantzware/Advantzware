@@ -65,8 +65,11 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cAdderValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iIndex      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cVendorCostMatrixUseEstimate AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-item FOR ITEM.
+
+RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixUseEstimate).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -91,7 +94,7 @@ DEFINE BUFFER bf-item FOR ITEM.
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) AND (ttVendItemCost.estimateNo = ipcEstimateNo OR ttVendItemCost.estimateNo = "") by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) AND (ttVendItemCost.estimateNo = ipcEstimateNo OR ttVendItemCost.estimateNo = "" OR cVendorCostMatrixUseEstimate EQ "No") by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
@@ -570,6 +573,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      OUTPUT  oplError,
      OUTPUT  opcMessage).
      
+     FOR EACH ttVendItemCost:
+       ASSIGN ttVendItemCost.isSelected = NO.
+     END.
      
     RUN enable_UI.
 

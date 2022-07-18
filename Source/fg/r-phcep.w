@@ -920,7 +920,7 @@ form fg-rctd.rct-date     column-label "Trans.!Date"
      fg-rctd.i-name         format "x(20)" label "Description"
      itemfg.part-no         format "x(15)" label "Customer Part#"
      fg-rctd.job-no         label "   Job" space(0) "-" space(0)
-     fg-rctd.job-no2        label "# " format "99"
+     fg-rctd.job-no2        label "# " format "999"
      fg-rctd.loc             label "Whse" FORMAT "X(5)"
      fg-rctd.loc-bin         label "Bin"
      fg-rctd.tag             label "Tag" FORM "x(8)"
@@ -1075,7 +1075,7 @@ time_stamp = string(time,"hh:mmam").
 
     v-adj-qty = (if avail fg-bin then fg-bin.qty else 0) - fg-rctd.t-qty.
     
-    cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
+    cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rctd.job-no, fg-rctd.job-no2)))
                    ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "" NO-ERROR.
 
     /*Invoicing  - Post Invoicing Transactions - Job Costing*/
@@ -1155,7 +1155,7 @@ form tt-fg-bin.rct-date FORMAT "99/99/99" column-label "Trans.!Date"
      tt-fg-bin.i-name   format "x(20)" label "Description"
      tt-fg-bin.part-no  format "x(15)" label "Customer Part#"
      tt-fg-bin.job-no   label "   Job" space(0) "-" space(0)
-     tt-fg-bin.job-no2  label "# " format "99"
+     tt-fg-bin.job-no2  label "# " format "999"
      tt-fg-bin.loc      label "Whse" FORMAT "X(5)"
      tt-fg-bin.loc-bin  label "Bin"
      tt-fg-bin.tag      label "Tag" FORM "x(8)"
@@ -1382,7 +1382,7 @@ time_stamp = string(time,"hh:mmam").
           v-cum-qty = v-cum-qty + tt-fg-bin.counted-qty
           v-item-tot = v-item-tot + tt-fg-bin.tot-value.
           
-          cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + fg-rctd.job-no + "-" + STRING(fg-rctd.job-no2,"99") 
+          cDescription = IF fg-rctd.job-no NE "" THEN "Job: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rctd.job-no, fg-rctd.job-no2)))
                          ELSE IF fg-rctd.po-no NE "" THEN "PO: " + string(fg-rctd.po-no,"999999") + "-" + STRING(fg-rctd.po-line,"999") ELSE "" NO-ERROR.
 
        /*Invoicing  - Post Invoicing Transactions - Job Costing*/

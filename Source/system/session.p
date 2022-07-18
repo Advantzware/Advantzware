@@ -64,8 +64,9 @@ DEFINE VARIABLE sessionInstance     AS system.SessionConfig NO-UNDO.
 DEFINE VARIABLE oSetting            AS system.Setting       NO-UNDO.
 DEFINE VARIABLE hdBrokerHandle      AS HANDLE               NO-UNDO.
  
-DEFINE VARIABLE cProgramName  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCategoryTags AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCategoryTags          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramHotKeyOverride AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
     FIELD superProcedure AS CHARACTER 
@@ -76,6 +77,7 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 DEFINE TEMP-TABLE ttProgramTag NO-UNDO
     FIELD programName     AS CHARACTER 
     FIELD categoryTags    AS CHARACTER
+    FIELD programHotKey   AS CHARACTER
     INDEX programName IS PRIMARY UNIQUE programName
     .
 
@@ -93,7 +95,16 @@ DEFINE TEMP-TABLE ttProgramHandle NO-UNDO
     FIELD childProgramName   AS CHARACTER
     INDEX programHandle IS PRIMARY programHandle childProgramHandle 
     .
-                
+
+DEFINE TEMP-TABLE ttAuditFld NO-UNDO 
+    LIKE AuditFld.
+
+DEFINE TEMP-TABLE ttPrimaryIndex NO-UNDO
+    FIELD tableName   AS CHARACTER
+    FIELD indexFields AS CHARACTER
+    INDEX tableName IS PRIMARY tableName
+    .
+                         
 {system/ttSessionParam.i}
 {system/ttPermissions.i}
 {system/ttSetting.i}
@@ -183,6 +194,19 @@ FUNCTION pReplaceContext RETURNS CHARACTER PRIVATE
 &ENDIF
 
 
+&IF DEFINED(EXCLUDE-sfAuditField) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfAuditField Procedure
+FUNCTION sfAuditField RETURNS LOGICAL 
+  ( ipcTable AS CHARACTER, ipcField AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfDynLookupValue Procedure
@@ -208,6 +232,19 @@ FUNCTION sfGetBeginSearch RETURNS CHARACTER
 
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetPrimaryIndexFields) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfGetPrimaryIndexFields Procedure
+FUNCTION sfGetPrimaryIndexFields RETURNS CHARACTER 
+  ( ipcTableName AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
 
@@ -477,16 +514,48 @@ END. /* each ttSuperProcedure */
 INPUT FROM VALUE(SEARCH("ProgramTagsList.dat")) NO-ECHO.
 IMPORT ^.
 REPEAT:
-    IMPORT cProgramName cCategoryTags.
+    ASSIGN
+        cProgramName           = ""
+        cCategoryTags          = ""
+        cProgramHotKeyOverride = ""
+        .
+        
+    IMPORT cProgramName cCategoryTags cProgramHotKeyOverride.
     IF cProgramName NE "" AND cCategoryTags NE "" THEN DO:
         CREATE ttProgramTag.
         ASSIGN
-            ttProgramTag.programName  = cProgramName
-            ttProgramTag.categoryTags = cCategoryTags
+            ttProgramTag.programName   = cProgramName
+            ttProgramTag.categoryTags  = cCategoryTags
+            ttProgramTag.programHotKey = cProgramHotKeyOverride
             .
     END.
 END. /* repeat */
 
+/* Creating ttAuditFld from AuditFld for improving performance in Auditing record updates */
+FOR EACH Audit.AuditFld NO-LOCK
+    WHERE Audit.AuditFld.Audit EQ YES:
+    CREATE ttAuditFld.
+    BUFFER-COPY Audit.AuditFld TO ttAuditFld.
+END.
+
+/* Creating a temp-table with table's primary index fields */
+FOR EACH ASI._file NO-LOCK:
+    CREATE ttPrimaryIndex.
+    ttPrimaryIndex.tableName = ASI._file._file-name.
+
+    FIND FIRST ASI._index NO-LOCK
+         WHERE RECID(ASI._index) EQ ASI._file._prime-index
+         NO-ERROR.
+    IF AVAILABLE ASI._index THEN DO:
+        FOR EACH ASI._index-field OF ASI._index NO-LOCK:
+            FIND FIRST ASI._field NO-LOCK
+                 WHERE RECID(ASI._field) EQ ASI._index-field._field-recid
+                 NO-ERROR.
+            ttPrimaryIndex.indexFields = ttPrimaryIndex.indexFields + ASI._field._field-name + ",".  
+        END.
+    END.
+    ttPrimaryIndex.indexFields = TRIM(ttPrimaryIndex.indexFields,",").
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2193,10 +2262,12 @@ PROCEDURE spGetSettingObject:
     IF NOT VALID-HANDLE (hdBrokerHandle) THEN DO:
         ASSIGN hdObject = SESSION:FIRST-PROCEDURE.
         DO WHILE hdObject <> ?:
-            ASSIGN hdBrokerHandle   = hdObject
-                   hdObject = hdObject:NEXT-SIBLING.
-            IF hdBrokerHandle:NAME EQ "adm/objects/broker.p" THEN
+            IF hdObject:NAME EQ "adm/objects/broker.p" THEN DO:
+                hdBrokerHandle = hdObject.
                 LEAVE.
+            END.
+            
+            hdObject = hdObject:NEXT-SIBLING.
         END.
     END.
 
@@ -2468,6 +2539,9 @@ PROCEDURE spSetSettingContext:
     
     oSetting = NEW system.Setting(cProgramName, cCategoryTags).
     
+    IF AVAILABLE ttProgramTag AND ttProgramTag.programHotKey NE "" THEN
+        oSetting:CurrentProgramHotKey = ttProgramTag.programHotKey.
+        
     ttSettingObject.settingObject = oSetting.
 
 END PROCEDURE.
@@ -3528,6 +3602,28 @@ END FUNCTION.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-sfAuditField) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfAuditField Procedure
+FUNCTION sfAuditField RETURNS LOGICAL 
+  ( ipcTable AS CHARACTER, ipcField AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN CAN-FIND(FIRST ttAuditFld 
+	            WHERE ttAuditFld.AuditTable EQ ipcTable
+                     AND ttAuditFld.AuditField EQ ipcField).
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-sfDynLookupValue) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfDynLookupValue Procedure
@@ -3576,6 +3672,31 @@ END FUNCTION.
 &ANALYZE-RESUME
 
 &ENDIF
+
+&IF DEFINED(EXCLUDE-sfGetPrimaryIndexFields) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION sfGetPrimaryIndexFields Procedure
+FUNCTION sfGetPrimaryIndexFields RETURNS CHARACTER 
+  ( ipcTableName AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    FIND FIRST ttPrimaryIndex
+         WHERE ttPrimaryIndex.tableName EQ ipcTableName
+         NO-ERROR.
+    IF AVAILABLE ttPrimaryIndex THEN
+        RETURN ttPrimaryIndex.indexFields.
+    ELSE
+        RETURN "".
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-sfGetRecKeyPrefix) = 0 &THEN
 
@@ -3813,15 +3934,8 @@ FUNCTION sfGetNextRecKey RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RETURN STRING(YEAR(TODAY),"9999")
-         + STRING(MONTH(TODAY),"99")
-         + STRING(DAY(TODAY),"99")
-         + "_"
-         + STRING(TIME,"HH:MM:SS")
-         + "_"
-         + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
-         .
-         
+    RETURN {methods/setRecKeyValue.i}.
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

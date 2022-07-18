@@ -55,7 +55,7 @@ PROCEDURE pBusinessLogic:
             ttBOLPackingList.itemNo      = oe-boll.i-no
             ttBOLPackingList.relNo       = oe-bolh.release#
             ttBOLPackingList.orderNo     = oe-boll.ord-no
-            ttBOLPackingList.jobNo       = oe-boll.job-no + STRING(oe-boll.job-no2,"99")
+            ttBOLPackingList.jobNo       = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', oe-boll.job-no, oe-boll.job-no2)))
             ttBOLPackingList.prntr       = cPrinterID
             ttBOLPackingList.xxSort      = ""
             .

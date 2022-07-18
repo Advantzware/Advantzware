@@ -44,6 +44,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i new shared}
+
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle             AS HANDLE    NO-UNDO.
@@ -1117,7 +1119,7 @@ PROCEDURE pGetPrevoiusJob :
    
    FIND FIRST bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-        AND TRIM(bf-job.job-no) EQ TRIM(ipcJobNo) 
+        AND bf-job.job-no  EQ ipcJobNo 
         AND bf-job.job-no2 EQ (ipiJobNo2 - 1) NO-ERROR.
         
    IF NOT AVAIL bf-job THEN

@@ -1368,7 +1368,7 @@ FOR EACH tt-wiptag NO-LOCK
     IF tgl-WIPBin THEN PUT UNFORMATTED v-wip-rm-bin FORMAT "x(9)".  
 
     IF tgl-job    THEN PUT UNFORMATTED v-job-no + " " + 
-                                       STRING(v-job-no2,"99") FORMAT "x(10)".
+                                       STRING(v-job-no2,"999") FORMAT "x(13)".
 
     IF tgl-RMItem THEN PUT UNFORMATTED v-rm-i-no FORMAT "x(16)".
 

@@ -61,6 +61,7 @@ DEF VAR lv-disc-calced AS LOG NO-UNDO.
 DEF VAR ll-inquiry AS LOG NO-UNDO.
 DEF VAR ll-from-memo AS LOG NO-UNDO.
 DEFINE VARIABLE hGLProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE cArCashEntryDiscount AS CHARACTER NO-UNDO.
 
 RUN system/GLProcs.p PERSISTENT SET hGLProcs.
 
@@ -85,6 +86,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "ARCashEntry", "C" /* Logical */, NO /* che
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     cARCashEntry = cRtnChar NO-ERROR.
+    
+RUN spGetSettingByName ("ArCashEntryDiscount", OUTPUT cArCashEntryDiscount).    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -554,8 +557,8 @@ END.
 &Scoped-define SELF-NAME ar-cashl.amt-disc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-cashl.amt-disc Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF ar-cashl.amt-disc IN BROWSE Browser-Table /* Discount */
-DO:
-  IF ll-from-memo THEN DO:
+DO:       
+  IF ll-from-memo OR cArCashEntryDiscount NE "Allow Override" THEN DO:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
   END.
@@ -656,8 +659,9 @@ END.
 &Scoped-define SELF-NAME ar-cashl.actnum
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-cashl.actnum Browser-Table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF ar-cashl.actnum IN BROWSE Browser-Table /* Account Number */
-DO:
-  IF ll-from-memo THEN DO:
+DO:                  
+  IF LASTKEY = -1 THEN RETURN. 
+  IF ll-from-memo OR integer(ar-cashl.inv-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE 0 THEN DO:     
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
   END.
@@ -1312,11 +1316,12 @@ PROCEDURE printInv :
   
    IF AVAILABLE b-ar-inv THEN DO:
      RUN custom/setUserPrint.p (b-ar-inv.company,'ar-inv_.',
-                                'begin_inv,end_inv,begin_cust,end_cust,tb_reprint,tb_posted',
+                                'begin_inv,end_inv,begin_cust,end_cust,tb_reprint,tb_posted,begin_inv-id,end_inv-id',
                                 STRING(b-ar-inv.inv-no) + ',' + STRING(b-ar-inv.inv-no) + ',' +
                                 b-ar-inv.cust-no + ',' + b-ar-inv.cust-no + ',' +
-                                STRING(b-ar-inv.printed) + ',' + STRING(b-ar-inv.posted)).
-
+                                STRING(b-ar-inv.printed) + ',' + STRING(b-ar-inv.posted) + ',' +
+                                STRING(b-ar-inv.x-no) + ',' + STRING(b-ar-inv.x-no))
+                                .
      RUN listobjs/ar-inv_.w.
    END.
 END PROCEDURE.
@@ -1586,6 +1591,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLastRecordFocus B-table-Win 
+PROCEDURE pSetLastRecordFocus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+         
+  DO WITH FRAME {&FRAME-NAME}:
+    GET LAST {&BROWSE-NAME}.
+    IF AVAILABLE ar-cashl THEN
+    REPOSITION {&browse-name} TO ROWID ROWID(ar-cashl) NO-ERROR.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION calc-inv-bal B-table-Win 

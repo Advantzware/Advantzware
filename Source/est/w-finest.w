@@ -126,100 +126,100 @@ ls-die-no ls-cad-no ld-len
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE W-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON BUTTON-3 
-    LABEL "&Get Estimate" 
-    SIZE 23.1 BY 1.75.
+     LABEL "&Get Estimate" 
+     SIZE 23.2 BY 1.76.
 
-DEFINE VARIABLE ld-dep     AS DECIMAL   FORMAT ">>9.999":U INITIAL 0 
-    LABEL "Depth" 
-    VIEW-AS FILL-IN 
-    SIZE 10 BY 1 NO-UNDO.
+DEFINE VARIABLE ld-dep AS DECIMAL FORMAT ">>9.999":U INITIAL 0 
+     LABEL "Depth" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ld-len     AS DECIMAL   FORMAT ">>9.999":U INITIAL 0 
-    LABEL "Length" 
-    VIEW-AS FILL-IN 
-    SIZE 10 BY 1 NO-UNDO.
+DEFINE VARIABLE ld-len AS DECIMAL FORMAT ">>9.999":U INITIAL 0 
+     LABEL "Length" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ld-wid     AS DECIMAL   FORMAT ">>9.999":U INITIAL 0 
-    LABEL "Width" 
-    VIEW-AS FILL-IN 
-    SIZE 10 BY 1 NO-UNDO.
+DEFINE VARIABLE ld-wid AS DECIMAL FORMAT ">>9.999":U INITIAL 0 
+     LABEL "Width" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-cad-no  AS CHARACTER FORMAT "X(15)":U 
-    LABEL "CAD Number" 
-    VIEW-AS FILL-IN 
-    SIZE 28.8 BY 1 NO-UNDO.
+DEFINE VARIABLE ls-cad-no AS CHARACTER FORMAT "X(15)":U 
+     LABEL "CAD Number" 
+     VIEW-AS FILL-IN 
+     SIZE 28.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE ls-cust-no AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 20 BY 1 NO-UNDO.
+     LABEL "Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-die-no  AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Die Number" 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 NO-UNDO.
+DEFINE VARIABLE ls-die-no AS CHARACTER FORMAT "X(15)":U 
+     LABEL "Die Number" 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-est-no  AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Estimate" 
-    VIEW-AS FILL-IN 
-    SIZE 14 BY 1 NO-UNDO.
+DEFINE VARIABLE ls-est-no AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Estimate" 
+     VIEW-AS FILL-IN 
+     SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-i-name  AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Item Name" 
-    VIEW-AS FILL-IN 
-    SIZE 50 BY 1 NO-UNDO.
+DEFINE VARIABLE ls-i-name AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Item Name" 
+     VIEW-AS FILL-IN 
+     SIZE 50 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-i-no    AS CHARACTER FORMAT "X(15)":U 
-    LABEL "FG Item#" 
-    VIEW-AS FILL-IN 
-    SIZE 29 BY 1 NO-UNDO.
+DEFINE VARIABLE ls-i-no AS CHARACTER FORMAT "X(15)":U 
+     LABEL "FG Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-part-no AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Cust Part" 
-    VIEW-AS FILL-IN 
-    SIZE 39 BY 1 NO-UNDO.
+DEFINE VARIABLE ls-part-no AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Cust Part" 
+     VIEW-AS FILL-IN 
+     SIZE 50 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 76 BY 10.48.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 76 BY 10.48.
 
-DEFINE VARIABLE chk-box-1 AS LOGICAL INITIAL NO 
-    LABEL "&Set Item Only" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 25 BY 1.62.
+DEFINE VARIABLE chk-box-1 AS LOGICAL INITIAL no 
+     LABEL "&Set Item Only" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY 1.62.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY F-Main FOR 
-    est SCROLLING.
+      est SCROLLING.
 &ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-    ls-est-no AT ROW 1.71 COL 20 COLON-ALIGNED
-    ls-cust-no AT ROW 2.91 COL 20 COLON-ALIGNED
-    ls-part-no AT ROW 4.1 COL 20 COLON-ALIGNED
-    ls-i-name AT ROW 5.29 COL 20 COLON-ALIGNED
-    ls-i-no AT ROW 6.48 COL 20 COLON-ALIGNED
-    ls-die-no AT ROW 7.67 COL 20 COLON-ALIGNED
-    ls-cad-no AT ROW 8.86 COL 20 COLON-ALIGNED
-    ld-len AT ROW 10.05 COL 20 COLON-ALIGNED
-    ld-wid AT ROW 10.05 COL 42 COLON-ALIGNED
-    ld-dep AT ROW 10.05 COL 63 COLON-ALIGNED
-    chk-box-1 AT ROW 12.43 COL 15
-    BUTTON-3 AT ROW 12.43 COL 45
-    RECT-1 AT ROW 1.24 COL 3
+     ls-est-no AT ROW 1.71 COL 20 COLON-ALIGNED
+     ls-cust-no AT ROW 2.91 COL 20 COLON-ALIGNED
+     ls-part-no AT ROW 4.1 COL 20 COLON-ALIGNED
+     ls-i-name AT ROW 5.29 COL 20 COLON-ALIGNED
+     ls-i-no AT ROW 6.48 COL 20 COLON-ALIGNED
+     ls-die-no AT ROW 7.67 COL 20 COLON-ALIGNED
+     ls-cad-no AT ROW 8.86 COL 20 COLON-ALIGNED
+     ld-len AT ROW 10.05 COL 20 COLON-ALIGNED
+     ld-wid AT ROW 10.05 COL 42 COLON-ALIGNED
+     ld-dep AT ROW 10.05 COL 63 COLON-ALIGNED
+     chk-box-1 AT ROW 12.43 COL 15
+     BUTTON-3 AT ROW 12.43 COL 45
+     RECT-1 AT ROW 1.24 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 79.8 BY 13.91
-    BGCOLOR 15 FONT 6
-    DEFAULT-BUTTON BUTTON-3.
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 79.8 BY 13.91
+         BGCOLOR 15 FONT 6
+         DEFAULT-BUTTON BUTTON-3.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -236,23 +236,23 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW W-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Estimate Query"
-        HEIGHT             = 13.91
-        WIDTH              = 79.8
-        MAX-HEIGHT         = 17
-        MAX-WIDTH          = 80.2
-        VIRTUAL-HEIGHT     = 17
-        VIRTUAL-WIDTH      = 80.2
-        RESIZE             = NO
-        SCROLL-BARS        = NO
-        STATUS-AREA        = NO
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW W-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Estimate Query"
+         HEIGHT             = 13.91
+         WIDTH              = 79.8
+         MAX-HEIGHT         = 17
+         MAX-WIDTH          = 80.2
+         VIRTUAL-HEIGHT     = 17
+         VIRTUAL-WIDTH      = 80.2
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -292,7 +292,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN ls-part-no IN FRAME F-Main
    1                                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-    THEN W-Win:HIDDEN = YES.
+THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -316,7 +316,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON END-ERROR OF W-Win /* Estimate Query */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -330,7 +330,7 @@ ON END-ERROR OF W-Win /* Estimate Query */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Estimate Query */
-    DO:
+DO:
         /* This ADM code must be left here in order for the SmartWindow
            and its descendents to terminate properly on exit. */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -344,7 +344,7 @@ ON WINDOW-CLOSE OF W-Win /* Estimate Query */
 &Scoped-define SELF-NAME F-Main
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main W-Win
 ON HELP OF FRAME F-Main
-    DO:
+DO:
         DEFINE VARIABLE lv-handle  AS WIDGET-HANDLE NO-UNDO.
         DEFINE VARIABLE ls-cur-val AS cha           NO-UNDO.
         DEFINE VARIABLE ls-int-val AS INTEGER       NO-UNDO.
@@ -458,7 +458,7 @@ ON HELP OF FRAME F-Main
 &Scoped-define SELF-NAME BUTTON-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BUTTON-3 W-Win
 ON CHOOSE OF BUTTON-3 IN FRAME F-Main /* Get Estimate */
-    DO:
+DO:
         ls-est-no:SCREEN-VALUE = FILL(" ",8 - LENGTH(TRIM(ls-est-no:SCREEN-VALUE))) +
             TRIM(ls-est-no:SCREEN-VALUE).
 
@@ -594,7 +594,7 @@ ON CHOOSE OF BUTTON-3 IN FRAME F-Main /* Get Estimate */
 &Scoped-define SELF-NAME chk-box-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL chk-box-1 W-Win
 ON LEAVE OF chk-box-1 IN FRAME F-Main /* Set Item Only */
-    DO:
+DO:
         ASSIGN ls-est-no.
 
     END.
@@ -605,7 +605,7 @@ ON LEAVE OF chk-box-1 IN FRAME F-Main /* Set Item Only */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL chk-box-1 W-Win
 ON VALUE-CHANGED OF chk-box-1 IN FRAME F-Main /* Set Item Only */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -616,7 +616,7 @@ ON VALUE-CHANGED OF chk-box-1 IN FRAME F-Main /* Set Item Only */
 &Scoped-define SELF-NAME ld-dep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ld-dep W-Win
 ON LEAVE OF ld-dep IN FRAME F-Main /* Depth */
-    DO:
+DO:
         ASSIGN ls-est-no.
 
     END.
@@ -628,7 +628,7 @@ ON LEAVE OF ld-dep IN FRAME F-Main /* Depth */
 &Scoped-define SELF-NAME ld-len
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ld-len W-Win
 ON LEAVE OF ld-len IN FRAME F-Main /* Length */
-    DO:
+DO:
         ASSIGN ls-est-no.
 
     END.
@@ -640,7 +640,7 @@ ON LEAVE OF ld-len IN FRAME F-Main /* Length */
 &Scoped-define SELF-NAME ld-wid
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ld-wid W-Win
 ON LEAVE OF ld-wid IN FRAME F-Main /* Width */
-    DO:
+DO:
         ASSIGN ls-est-no.
 
     END.
@@ -652,7 +652,7 @@ ON LEAVE OF ld-wid IN FRAME F-Main /* Width */
 &Scoped-define SELF-NAME ls-cad-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-cad-no W-Win
 ON LEAVE OF ls-cad-no IN FRAME F-Main /* CAD Number */
-    DO:
+DO:
         ASSIGN ls-est-no.
 
     END.
@@ -664,7 +664,7 @@ ON LEAVE OF ls-cad-no IN FRAME F-Main /* CAD Number */
 &Scoped-define SELF-NAME ls-cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-cust-no W-Win
 ON LEAVE OF ls-cust-no IN FRAME F-Main /* Customer# */
-    DO:
+DO:
         ASSIGN ls-est-no.
 
     END.
@@ -676,7 +676,7 @@ ON LEAVE OF ls-cust-no IN FRAME F-Main /* Customer# */
 &Scoped-define SELF-NAME ls-die-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-die-no W-Win
 ON LEAVE OF ls-die-no IN FRAME F-Main /* Die Number */
-    DO:
+DO:
         ASSIGN ls-est-no.
     END.
 
@@ -687,7 +687,7 @@ ON LEAVE OF ls-die-no IN FRAME F-Main /* Die Number */
 &Scoped-define SELF-NAME ls-i-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-i-name W-Win
 ON LEAVE OF ls-i-name IN FRAME F-Main /* Item Name */
-    DO:
+DO:
         ASSIGN ls-est-no.
     END.
 
@@ -698,7 +698,7 @@ ON LEAVE OF ls-i-name IN FRAME F-Main /* Item Name */
 &Scoped-define SELF-NAME ls-i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-i-no W-Win
 ON LEAVE OF ls-i-no IN FRAME F-Main /* FG Item# */
-    DO:
+DO:
         ASSIGN ls-est-no.
 
     END.
@@ -710,7 +710,7 @@ ON LEAVE OF ls-i-no IN FRAME F-Main /* FG Item# */
 &Scoped-define SELF-NAME ls-part-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ls-part-no W-Win
 ON LEAVE OF ls-part-no IN FRAME F-Main /* Cust Part */
-    DO:
+DO:
         ASSIGN ls-est-no.
 
     END.
@@ -738,8 +738,8 @@ IF v-cecscrn-char EQ "Decimal" THEN
         ld-dep:FORMAT = ">>9.999999"
         ld-dep:WIDTH  = 14.2 .
 
-BUTTON-3:LOAD-IMAGE("Graphics/32x32/get_estimate.png").     
-        
+BUTTON-3:LOAD-IMAGE("Graphics/32x32/get_estimate.png").
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -748,20 +748,19 @@ BUTTON-3:LOAD-IMAGE("Graphics/32x32/get_estimate.png").
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects W-Win  _ADM-CREATE-OBJECTS
 PROCEDURE adm-create-objects :
-    /*------------------------------------------------------------------------------
-      Purpose:     Create handles for all SmartObjects used in this procedure.
-                   After SmartObjects are initialized, then SmartLinks are added.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE adm-current-page AS INTEGER NO-UNDO.
+/*------------------------------------------------------------------------------
+  Purpose:     Create handles for all SmartObjects used in this procedure.
+               After SmartObjects are initialized, then SmartLinks are added.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE adm-current-page  AS INTEGER NO-UNDO.
 
-    RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
-    ASSIGN 
-        adm-current-page = INTEGER(RETURN-VALUE).
+  RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
+  ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
 
-    /* Select a Startup page. */
-    IF adm-current-page EQ 0 
-        THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
+  /* Select a Startup page. */
+  IF adm-current-page eq 0 
+  THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
 
@@ -770,20 +769,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available W-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
-    /*------------------------------------------------------------------------------
-      Purpose:     Dispatched to this procedure when the Record-
-                   Source has a new row available.  This procedure
-                   tries to get the new row (or foriegn keys) from
-                   the Record-Source and process it.
-      Parameters:  <none>
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Dispatched to this procedure when the Record-
+               Source has a new row available.  This procedure
+               tries to get the new row (or foriegn keys) from
+               the Record-Source and process it.
+  Parameters:  <none>
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.             */
-    {src/adm/template/row-head.i}
+  /* Define variables needed by this internal procedure.             */
+  {src/adm/template/row-head.i}
 
-    /* Process the newly available records (i.e. display fields,
-       open queries, and/or pass records on to any RECORD-TARGETS).    */
-    {src/adm/template/row-end.i}
+  /* Process the newly available records (i.e. display fields,
+     open queries, and/or pass records on to any RECORD-TARGETS).    */
+  {src/adm/template/row-end.i}
 
 END PROCEDURE.
 
@@ -792,18 +791,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-        THEN DELETE WIDGET W-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
+  THEN DELETE WIDGET W-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -811,23 +810,23 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY ls-est-no ls-cust-no ls-part-no ls-i-name ls-i-no ls-die-no ls-cad-no 
-        ld-len ld-wid ld-dep chk-box-1 
-        WITH FRAME F-Main IN WINDOW W-Win.
-    ENABLE RECT-1 ls-est-no ls-cust-no ls-part-no ls-i-name ls-i-no ls-die-no 
-        ls-cad-no ld-len ld-wid ld-dep chk-box-1 BUTTON-3 
-        WITH FRAME F-Main IN WINDOW W-Win.
-    {&OPEN-BROWSERS-IN-QUERY-F-Main}
-    VIEW W-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY ls-est-no ls-cust-no ls-part-no ls-i-name ls-i-no ls-die-no ls-cad-no 
+          ld-len ld-wid ld-dep chk-box-1 
+      WITH FRAME F-Main IN WINDOW W-Win.
+  ENABLE RECT-1 ls-est-no ls-cust-no ls-part-no ls-i-name ls-i-no ls-die-no 
+         ls-cad-no ld-len ld-wid ld-dep chk-box-1 BUTTON-3 
+      WITH FRAME F-Main IN WINDOW W-Win.
+  {&OPEN-BROWSERS-IN-QUERY-F-Main}
+  VIEW W-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -835,7 +834,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
-    /* -----------------------------------------------------------
+/* -----------------------------------------------------------
       Purpose:  Starts an "exit" by APPLYing CLOSE event, which starts "destroy".
       Parameters:  <none>
       Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
@@ -851,7 +850,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize W-Win 
 PROCEDURE local-initialize :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     Override standard ADM method
       Notes:       
     ------------------------------------------------------------------------------*/
@@ -871,7 +870,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE open-estimate W-Win 
 PROCEDURE open-estimate :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -906,20 +905,20 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
-    /*------------------------------------------------------------------------------
-      Purpose:     Send record ROWID's for all tables used by
-                   this file.
-      Parameters:  see template/snd-head.i
-    ------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Purpose:     Send record ROWID's for all tables used by
+               this file.
+  Parameters:  see template/snd-head.i
+------------------------------------------------------------------------------*/
 
-    /* Define variables needed by this internal procedure.               */
-    {src/adm/template/snd-head.i}
+  /* Define variables needed by this internal procedure.               */
+  {src/adm/template/snd-head.i}
 
-    /* For each requested table, put it's ROWID in the output list.      */
-    {src/adm/template/snd-list.i "est"}
+  /* For each requested table, put it's ROWID in the output list.      */
+  {src/adm/template/snd-list.i "est"}
 
-    /* Deal with any unexpected table requests before closing.           */
-    {src/adm/template/snd-end.i}
+  /* Deal with any unexpected table requests before closing.           */
+  {src/adm/template/snd-end.i}
 
 END PROCEDURE.
 
@@ -928,7 +927,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
-    /* -----------------------------------------------------------
+/* -----------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

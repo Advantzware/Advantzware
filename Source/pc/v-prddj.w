@@ -264,7 +264,7 @@ DO:
         pc-prdd.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no:SCREEN-VALUE)) .
 
     FIND FIRST job WHERE job.company = g_company AND
-                         trim(job.job-no) = trim(pc-prdd.job-no:SCREEN-VALUE)
+                         job.job-no = pc-prdd.job-no:SCREEN-VALUE
                          NO-LOCK NO-ERROR.
     
     IF NOT AVAIL job THEN DO:
@@ -285,7 +285,7 @@ DO:
    IF LASTKEY = -1 THEN RETURN.
 
     FIND FIRST job WHERE job.company = g_company AND
-    trim(job.job-no) = trim(pc-prdd.job-no:SCREEN-VALUE) AND 
+    job.job-no = pc-prdd.job-no:SCREEN-VALUE AND 
         job.job-no2 = INTEGER(pc-prdd.job-no2:SCREEN-VALUE) 
         NO-LOCK NO-ERROR.
     
@@ -302,7 +302,7 @@ DO:
         ELSE li-help-job = job.job.
 
     FIND FIRST job-hdr WHERE job-hdr.company = g_company 
-                   AND trim(job-hdr.job-no) = trim(pc-prdd.job-no:SCREEN-VALUE)
+                   AND job-hdr.job-no = pc-prdd.job-no:SCREEN-VALUE
                    AND job-hdr.job-no2 = int(pc-prdd.job-no2:SCREEN-VALUE)
                NO-LOCK NO-ERROR.
    IF NOT AVAIL job-hdr THEN DO:
@@ -424,7 +424,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
-   old-job-no  = pc-prdd.job-no
+   old-job-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no))
    old-job-no2 = pc-prdd.job-no2
    old-op-date = pc-prdd.op-date
    old-shift   = pc-prdd.shift.
@@ -435,28 +435,29 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   pc-prdd.job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no)) .
 
-  ll-new-record = trim(pc-prdd.job-no)  NE trim(old-job-no)  OR
+  ll-new-record = pc-prdd.job-no  NE old-job-no  OR
                   pc-prdd.job-no2 NE old-job-no2 OR
                   pc-prdd.op-date NE old-op-date OR
                   pc-prdd.shift   NE old-shift.
 
   FIND FIRST job WHERE job.company = pc-prdd.company
-                   AND trim(job.job-no) = trim(pc-prdd.job-no)
+                   AND job.job-no  = pc-prdd.job-no
                    AND job.job-no2 = pc-prdd.job-no2
                  NO-LOCK NO-ERROR.
   IF AVAIL job THEN pc-prdd.job = job.job.
                            
   IF ll-new-record THEN DO:
       FIND FIRST job WHERE job.company = pc-prdd.company
-                       AND trim(job.job-no) = trim(pc-prdd.job-no)
+                       AND job.job-no  = pc-prdd.job-no
                        AND job.job-no2 = pc-prdd.job-no2
                        NO-LOCK NO-ERROR.
-      IF AVAIL job THEN pc-prdd.rec_key = job.rec_key.
+      IF AVAIL job THEN 
+        RUN Notes_CopyNotes(job.rec_key, pc-prdd.rec_key, "", "").
   END.
  
   FOR EACH bf-prdd
       WHERE (bf-prdd.company EQ pc-prdd.company AND
-             trim(bf-prdd.job-no)  EQ trim(old-job-no)      AND
+             bf-prdd.job-no  EQ old-job-no      AND
              bf-prdd.job-no2 EQ old-job-no2     AND
              bf-prdd.op-date EQ old-op-date     AND
              bf-prdd.shift   EQ old-shift)
@@ -536,7 +537,7 @@ PROCEDURE local-update-record :
  ll-new-record = adm-new-record.
  DO WITH FRAME {&FRAME-NAME} :
  FIND FIRST job WHERE job.company = pc-prdd.company
-                   AND trim(job.job-no) = trim(pc-prdd.job-no:SCREEN-VALUE)
+                   AND job.job-no  = pc-prdd.job-no:SCREEN-VALUE
                    AND job.job-no2 = INT(pc-prdd.job-no2:SCREEN-VALUE)
                  NO-LOCK NO-ERROR.
   if avail job and job.stat = "H" then do:

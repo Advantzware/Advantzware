@@ -13,7 +13,7 @@ DEF VAR ld-save-qty AS DEC NO-UNDO.
 
 FIND FIRST job
     WHERE job.company EQ cocode
-      AND trim(job.job-no)  EQ trim(ip-job-no)
+      AND job.job-no  EQ ip-job-no
       AND job.job-no2 EQ ip-job-no2
     NO-LOCK NO-ERROR.
 

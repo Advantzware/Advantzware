@@ -195,8 +195,8 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
           WHEN "B" THEN v-rel-type = "BILL AND SHIP".
           WHEN "T" THEN v-rel-type = "  TRANSFER".
         END CASE.
-
-        CASE oe-ord.frt-pay:
+        v-frt-pay-dscr = IF oe-rell.frt-pay NE "" THEN oe-rell.frt-pay ELSE oe-ord.frt-pay.
+        CASE v-frt-pay-dscr:
           WHEN "P" THEN v-frt-pay-dscr = "Prepaid".
           WHEN "C" THEN v-frt-pay-dscr = "Collect".
           WHEN "B" THEN v-frt-pay-dscr = "Bill".

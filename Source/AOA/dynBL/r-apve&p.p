@@ -52,7 +52,6 @@ DEFINE VARIABLE cTmpFile   AS CHARACTER       NO-UNDO.
 DEFINE VARIABLE cUserID    AS CHARACTER       NO-UNDO.
 DEFINE VARIABLE iBatch     AS INTEGER         NO-UNDO.
 DEFINE VARIABLE iTransNum  AS INTEGER         NO-UNDO.
-DEFINE VARIABLE lFGPostDir AS LOGICAL         NO-UNDO.
 DEFINE VARIABLE lFGPostGL  AS LOGICAL         NO-UNDO.
 DEFINE VARIABLE lPostOK    AS LOGICAL         NO-UNDO.
 
@@ -106,22 +105,7 @@ PROCEDURE pBusinessLogic:
         END. /* not avail sys-ctrl */
         cAuditDir = sys-ctrl.char-fld.
         IF LOOKUP(SUBSTR(cAuditDir,LENGTH(cAuditDir),1),"/,\") GT 0 THEN
-        cAuditDir = SUBSTR(cAuditDir,1,LENGTH(cAuditDir) - 1).
-        FIND FIRST sys-ctrl NO-LOCK
-             WHERE sys-ctrl.company EQ cCompany
-               AND sys-ctrl.name    EQ "GLPOST"
-             NO-ERROR.
-        IF NOT AVAILABLE sys-ctrl THEN DO:
-            CREATE sys-ctrl.
-            ASSIGN
-                sys-ctrl.company  = cCompany
-                sys-ctrl.name     = "GLPOST"
-                sys-ctrl.descrip  = "Post AP Invoices within current period only? Default to NO "
-                sys-ctrl.char-fld = "User Defined Password to be entered when Logical Value = YES "
-                sys-ctrl.log-fld  = NO
-                .
-        END. /* not avail sys-ctrl */
-        lFGPostDir = sys-ctrl.log-fld.
+        cAuditDir = SUBSTR(cAuditDir,1,LENGTH(cAuditDir) - 1).        
     END. /* do trans */
 
     FIND FIRST ap-ctrl NO-LOCK
@@ -165,14 +149,14 @@ PROCEDURE pBusinessLogic:
         RUN spProgressBar (cProgressBar, 5, 100). 
     RUN pCheckDate (dtPostDate, OUTPUT iPeriod, OUTPUT lInvalid).
     IF lInvalid THEN RETURN.
-    IF lFGPostDir THEN DO:
-        IF lProgressBar THEN
-            RUN spProgressBar (cProgressBar, 10, 100). 
-        RUN pCheckInvDate (dtStartInvoiceDate, OUTPUT lInvalid).
-        IF lInvalid THEN RETURN.
-        RUN pCheckInvDate (dtEndInvoiceDate, OUTPUT lInvalid).
-        IF lInvalid THEN RETURN.
-    END. /* if lfgpostdir */
+    
+    IF lProgressBar THEN
+        RUN spProgressBar (cProgressBar, 10, 100). 
+    RUN pCheckInvDate (dtStartInvoiceDate, OUTPUT lInvalid).
+    IF lInvalid THEN RETURN.
+    RUN pCheckInvDate (dtEndInvoiceDate, OUTPUT lInvalid).
+    IF lInvalid THEN RETURN.
+   
     IF lProgressBar THEN
         RUN spProgressBar (cProgressBar, 15, 100). 
     RUN pGetTransNum.
@@ -942,6 +926,7 @@ PROCEDURE pPostGL:
             ap-inv.postedDate = dtPostDate
             ap-inv.runNumber  = iTransNum
             ap-inv.glYear     = YEAR(dtPostDate)
+            ap-inv.glPostDate = dtPostDate
             .
             FIND FIRST vend NO-LOCK
                 WHERE vend.company EQ cCompany

@@ -113,15 +113,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
@@ -133,15 +133,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
@@ -218,11 +218,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Machine"
      begin_job-no AT ROW 4.33 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.33 COL 38 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.33 COL 40 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.33 COL 64 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.33 COL 76 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.33 COL 78 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 5.29 COL 26 COLON-ALIGNED
      end_date AT ROW 5.29 COL 64 COLON-ALIGNED HELP
@@ -893,9 +893,9 @@ DEF VAR v-tmch   LIKE v-fmch                             INIT "zzzzzz".
 DEF VAR v-fdat   LIKE job.start-date FORMAT "99/99/9999" INIT 01/01/0001.
 DEF VAR v-tdat   LIKE v-fdat                             INIT 12/31/9999.
 DEF VAR v-fjob   LIKE job.job-no.
-DEF VAR v-tjob   LIKE v-fjob                             INIT "zzzzzz".
+DEF VAR v-tjob   LIKE v-fjob                             INIT "zzzzzzzzz".
 DEF VAR v-fjob2  LIKE job.job-no2.
-DEF VAR v-tjob2  LIKE v-fjob2                            INIT 99.
+DEF VAR v-tjob2  LIKE v-fjob2                            INIT 999.
 DEF VAR v-export AS   LOG FORMAT "Yes/No"                INIT NO.
 
 DEF VAR ld-cost AS DEC NO-UNDO.
@@ -928,7 +928,7 @@ FORM HEADER SKIP(1)
             ENTRY(04,v-hdr)     FORMAT "x(10)"
             ENTRY(05,v-hdr)     FORMAT "x(10)"
             ENTRY(06,v-hdr)     FORMAT "x(10)"
-            ENTRY(07,v-hdr)     FORMAT "x(9)"
+            ENTRY(07,v-hdr)     FORMAT "x(13)"
             ENTRY(08,v-hdr)     FORMAT "x(11)"
             ENTRY(09,v-hdr)     FORMAT "x(11)"
             ENTRY(10,v-hdr)     FORMAT "x(5)"
@@ -941,7 +941,7 @@ FORM HEADER SKIP(1)
             "----------"
             "----------"
             "----------"
-            "---------"
+            "-------------"
             "-----------"
             "-----------"
             "-----"
@@ -963,9 +963,9 @@ ASSIGN
  v-exp-name = cFileName
 
  v-fjob     = FILL(" ", iJobLen - LENGTH(TRIM(begin_job-no))) +
-              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
+              TRIM(begin_job-no) + STRING(INT(begin_job-no2),"999")
  v-tjob     = FILL(" ", iJobLen - LENGTH(TRIM(end_job-no)))   +
-              TRIM(end_job-no)   + STRING(INT(end_job-no2),"99"). 
+              TRIM(end_job-no)   + STRING(INT(end_job-no2),"999"). 
 
 {sys/inc/print1.i}
 
@@ -992,13 +992,13 @@ IF td-show-parm THEN RUN show-param.
         AND mch-act.m-code  LE v-tmch
         AND mch-act.op-date GE v-fdat
         AND mch-act.op-date LE v-tdat
-        AND mch-act.job-no  GE SUBSTR(v-fjob,1,6)
-        AND mch-act.job-no  LE SUBSTR(v-tjob,1,6)
+        AND mch-act.job-no  GE SUBSTR(v-fjob,1,iJobLen)
+        AND mch-act.job-no  LE SUBSTR(v-tjob,1,iJobLen)
         AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
-            TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"99")
+            TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"999")
                             GE v-fjob
         AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
-            TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"99")
+            TRIM(mch-act.job-no) + STRING(mch-act.job-no2,"999")
                             LE v-tjob
       USE-INDEX operation,
 
@@ -1151,7 +1151,7 @@ IF td-show-parm THEN RUN show-param.
      ld-time = (mch-act.stopp - mch-act.start) / 3600 *
                mch-act.crew * (tt-report.pct / 100)
      lv-job# = FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
-               TRIM(mch-act.job-no) + "-" + STRING(INT(mch-act.job-no2),"99")
+               TRIM(mch-act.job-no) + "-" + STRING(INT(mch-act.job-no2),"999")
      ld-sqft = tt-report.qty * tt-report.sqft.
 
     IF ld-time EQ ? THEN ld-time = 0.
@@ -1161,7 +1161,7 @@ IF td-show-parm THEN RUN show-param.
             mch-act.code                  FORMAT "x(6)"
             lv-date                       FORMAT "x(21)"
             ld-time                       FORMAT "->>,>>9.99"
-            lv-job#                       FORMAT "x(9)"
+            lv-job#                       FORMAT "x(13)"
             tt-report.qty                 FORMAT "->>,>>>,>>9"
             tt-report.waste               FORMAT "->>,>>>,>>9"
             mch-act.shift                 FORMAT ">>>>>"

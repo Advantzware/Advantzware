@@ -1,0 +1,41 @@
+<FArial>
+<P14><C+48><B>Purchase Order</B> <P10>$POStatus||||IF["U","(CHANGED ORDER ONLY)",""]|$
+<C1><#1><C+25>
+$DisplayCompanyAddress||||IF["yes","<=1><R+2><FGCOLOR=RED><P10><=1>
+<C3><P20><B>$CustomerXName$<R+2></B>
+<P10><C3>$CustomerXAddress1$
+<C3>$CustomerXAddress2$
+<C3>$CustomerXCity$ $CustomerXState$  $CustomerXPostalCode$
+<C3>Phone:  $CustomerXAreaCode|(999)|$$CustomerXPhone|999-9999|$
+<C3>Fax     :  $CustomerXFax|(999)999-9999|$
+<FGCOLOR=BLACK><C3>Email:  $CustomerXEmail$",""]|$
+<R4><C50><#3>
+<FArial><P14><=#3>
+<=#3><R+1><B><P12>PO #: $POID|>>>>>>>9|INT|$ </B><P10>
+<=#3><R+2>Date: $PODate$
+<=#3><R+3>Changed Date: $POChangeDate$
+<=3><R+4>Date Required: $PODueDate$<R+6>
+<FCourier New><C3>Purchase Order To:<C54>Ship To:
+<C3>$VendorName$<C54>$POShipName$
+<C3>$VendorAddress1$<C54>$POShipAddress1$
+<C3>$VendorAddress2$<C54>$POShipAddress2$
+<C3>$VendorCity$ $VendorState$ $VendorZip$<C54>$POShipCity$ $POShipState$ $POShipZip$
+<|10><R20><C1><#4><FROM><R24><C80><RECT>
+<R22><C1><FROM><R22><C80><LINE>
+<R20><C10><FROM><R24><C10><LINE>
+<R20><C29><FROM><R24><C29><LINE>
+<R20><C49><FROM><R24><C49><LINE>
+<R20><C55><FROM><R24><C55><LINE>
+<R20><C72><FROM><R24><C72><LINE>
+<FArial><=4><R+1><C3>Buyer<C16>Contact<C37>Terms<C51>FOB<C61>Ship Via<C74>Freight
+<FCourier New><=4><R+3><C2>$POBuyer$<C11>$POContact|X(25)|$<C30>$TermsDescription|X(23)|$<C50>$POFOBCode$<C56>$CarrierDescription|X(20)|$<C73>$POFreightPay||||IF["P","Prepaid",""]|$$POFreightPay||||IF["C","Collect",""]|$$POFreightPay||||IF["B","Bill",""]|$
+<|10><R25><C1><#5><FROM><R27><C80><RECT>
+<R25><C5><FROM><R27><C5><LINE>
+<R25><C15><FROM><R27><C15><LINE>
+<R25><C20><FROM><R27><C20><LINE> 
+<R25><C42><FROM><R27><C42><LINE>
+<R25><C49><FROM><R27><C49><LINE>
+<R25><C60><FROM><R27><C60><LINE>
+<R25><C68><FROM><R27><C68><LINE>
+<R25><C72><FROM><R27><C72><LINE>
+<FArial><=5><R+1> Line<C7>Quantity<C16> UOM<C21> Our Item/Description/Vendor ID<C43> Adder<C50> Job#/Fm#<C62> Cost<C68> UOM<C73> Ext Cost

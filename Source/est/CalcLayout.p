@@ -39,8 +39,9 @@ DEFINE SHARED BUFFER xest FOR est.
 
 
 /* ***************************  Main Block  *************************** */
-FIND ef WHERE ROWID(ef) EQ ipriEf NO-ERROR.
-FIND eb WHERE ROWID(eb) EQ ipriEb NO-ERROR.
+
+FIND ef EXCLUSIVE-LOCK WHERE ROWID(ef) EQ ipriEf NO-ERROR.
+FIND eb EXCLUSIVE-LOCK WHERE ROWID(eb) EQ ipriEb NO-ERROR.
 
 RUN sys/ref/nk1look.p (INPUT eb.company, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN

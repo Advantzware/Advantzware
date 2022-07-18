@@ -78,7 +78,7 @@ DEF VAR ll-sort-asc AS LOG NO-UNDO.
     IF lv-sort-by EQ "cust-no" THEN rowobject.cust-no                                                                                                  ELSE ~
     IF lv-sort-by EQ "i-no"    THEN rowobject.i-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "est-no"  THEN rowobject.est-no                                                                                                   ELSE ~
-    IF lv-sort-by EQ "job-no"  THEN STRING(rowobject.job-no,"x(6)") + STRING(rowobject.job-no2,"99")                                                     ELSE ~
+    IF lv-sort-by EQ "job-no"  THEN STRING(rowobject.job-no,"x(9)") + STRING(rowobject.job-no2,"999")                                                     ELSE ~
                                     STRING(YEAR(rowobject.start-date),"9999") + STRING(MONTH(rowobject.start-date),"99") + STRING(DAY(rowobject.start-date),"99")
 
 &SCOPED-DEFINE sortby BY rowobject.job-no BY rowobject.job-no2 BY rowobject.i-no
@@ -155,8 +155,8 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table bTableWin _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      rowObject.job-no FORMAT "x(6)":U
-      rowObject.job-no2 FORMAT ">9":U
+      rowObject.job-no FORMAT "x(9)":U
+      rowObject.job-no2 FORMAT ">>9":U
       rowObject.i-no FORMAT "x(15)":U
       rowObject.est-no FORMAT "x(5)":U
       rowObject.ord-no FORMAT ">>>>>9":U

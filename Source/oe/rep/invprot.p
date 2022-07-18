@@ -759,7 +759,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 "<C67>" tt-inv-line.total-price  FORMAT "->,>>>,>>9.99"
                 "<C79>" tt-inv-line.taxable        FORMAT "X"
                 SKIP
-                "<C2>"  trim(string(tt-inv-line.ord-no), ">>>>>>>9")
+                "<C2>"  trim(string(tt-inv-line.ord-no, ">>>>>>>9"))
                 "<C18>" tt-inv-line.dscr1 FORMAT "x(30)"
                 "<C51>" tt-inv-line.ship-qty        FORMAT "->>>>>9"              
                 "<C63>" tt-inv-line.price-head 

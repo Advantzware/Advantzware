@@ -384,7 +384,7 @@ v-printline = 0.
         end. /* avail item and item.mat-type eq "B" */
 
         find first job where job.company eq cocode 
-                             and trim(job.job-no) eq trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then

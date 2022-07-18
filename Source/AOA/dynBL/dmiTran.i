@@ -241,6 +241,19 @@ PROCEDURE prodAceDetail :
       &ENDIF
     END. /* first-of job */
     IF NOT AVAILABLE job-mch THEN NEXT.
+    IF CAN-FIND(FIRST machtran
+                WHERE machtran.company       EQ job-mch.company
+                  AND machtran.machine       EQ ttblProdAce.prodAceResource
+                  AND machtran.job_number    EQ job-mch.job-no
+                  AND machtran.job_sub       EQ job-mch.job-no2
+                  AND machtran.form_number   EQ job-mch.frm
+                  AND machtran.blank_number  EQ job-mch.blank-no
+                  AND machtran.pass_sequence EQ job-mch.pass
+                  AND machtran.start_date    EQ ttblProdAce.prodAceStartDate
+                  AND machtran.start_time    EQ ttblProdAce.prodAceStartTime
+                  AND machtran.jobseq        EQ 0
+                  AND machtran.charge_code   EQ ttblProdAce.prodAceState) THEN
+    NEXT.
     CREATE machtran.
     ASSIGN
       machtran.company       = job-mch.company

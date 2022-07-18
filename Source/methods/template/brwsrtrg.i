@@ -58,7 +58,7 @@ DO:
     RUN Find-Record (browse-order:SCREEN-VALUE).
   END.
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN DO:
-    auto_find = "".
+    auto_find:SCREEN-VALUE = "".
     RUN Find-Record (browse-order:SCREEN-VALUE).
   END.
   ASSIGN

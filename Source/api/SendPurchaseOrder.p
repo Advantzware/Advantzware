@@ -727,7 +727,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"99999999")
                                               + "-" + STRING(po-ordl.LINE,"99") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
-                                              TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
+                                              DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",po-ordl.job-no,po-ordl.job-no2) 
                                               + "-" + STRING(po-ordl.s-num,"99")
                 cGLAccountNumber            = po-ordl.actnum                                
                 cScoreSizeDecimal           = ""
@@ -1036,7 +1036,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                     ).
            
                 cJobConcatSmurfit = (IF SUBSTRING(cOperationID,1,1) NE "" THEN SUBSTRING(cOperationID,1,1) + "-" ELSE "") +
-                                     TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99").
+                                     DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",po-ordl.job-no,po-ordl.job-no2).
             END.
             /* Fetch purchase order notes from notes table */    
             FOR EACH notes NO-LOCK
@@ -1049,10 +1049,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
                 cPoLineNotes  = REPLACE(cPoLineNotes, CHR(10)," ")
                 cPoLineNotes  = REPLACE(cPoLineNotes, CHR(13)," ")
-                cPoNotesHRMS  = IF cPoNotesHRMS EQ "" THEN
-                                    cPoLineNotes
-                                ELSE
-                                    cPoNotesHRMS + " " + cPoLineNotes
+                cPoNotesHRMS  = cPoNotes + " " + cPoLineNotes
                 .      
             cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN
@@ -1529,9 +1526,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cScoreSizeDecimalCorrTrim   = REPLACE(cScoreSizeDecimalCorrTrim,".","")
                 .
 
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-len, OUTPUT dItemScoreLength16ths).
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-wid, OUTPUT dItemScoreWidth16ths).
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-dep, OUTPUT dItemScoreDepth16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-len ELSE 0, OUTPUT dItemScoreLength16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-wid ELSE 0, OUTPUT dItemScoreWidth16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-dep ELSE 0, OUTPUT dItemScoreDepth16ths).
             
             IF cFormattedScoresLiberty EQ "" THEN DO:
                 IF AVAILABLE item THEN DO:

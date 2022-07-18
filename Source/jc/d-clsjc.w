@@ -318,6 +318,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
+        
+  IF close_date GT TODAY AND ll-close THEN
+  DO:
+       MESSAGE "Close Date #" STRING(close_date) " is a future date,  Continue?" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+       IF NOT ll-ans THEN RETURN NO-APPLY.
+  END.
 
   MESSAGE "Are you sure you want to " +
           TRIM(STRING(ll-close,"close/reopen")) +
@@ -327,9 +334,11 @@ DO:
   IF v-process THEN DO WITH FRAME {&FRAME-NAME}:
     SESSION:SET-WAIT-STATE("general").
     ASSIGN
-     begin_job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2))  
-     end_job   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
-     .
+     begin_job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job))  
+     end_job   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job)) 
+     begin_job = begin_job + STRING(begin_job2,"999")
+     end_job   = end_job + STRING(end_job2,"999")
+     .    
     IF ll-close THEN
     FOR EACH job EXCLUSIVE-LOCK
         WHERE job.company                     EQ cocode
@@ -365,7 +374,7 @@ DO:
         {jc/jc-close.i}
         FOR EACH rm-rctd EXCLUSIVE-LOCK
             WHERE rm-rctd.company = job.company
-              AND trim(rm-rctd.job-no) = TRIM(job.job-no)  
+              AND rm-rctd.job-no  = job.job-no  
               AND rm-rctd.job-no2 = job.job-no2
               AND rm-rctd.rita-code = "I"
             :

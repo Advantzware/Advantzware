@@ -62,7 +62,7 @@ def var v-fg like po-ordl.i-no.
 
 def var v-cust-vend as char format "x(26)" init "--------- VENDOR ---------".
 
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 
 def TEMP-TABLE wk-sh-ord NO-UNDO
     field due-date like po-ordl.due-date
@@ -915,7 +915,7 @@ PROCEDURE run-report :
 
 def var v-cust-vend as char format "x(26)" init "--------- VENDOR ---------".
 
-def var v-job-no as char format "x(9)".
+def var v-job-no as char format "x(13)".
 DEF VAR v-overpcs AS INT NO-UNDO.
 DEF VAR v-schedule AS cha FORM "X(9)" NO-UNDO.
 DEF VAR v-over-allow AS dec NO-UNDO.
@@ -977,7 +977,7 @@ form header
      v-vend
      skip(1)
      "Job#"                     at 1
-     "Qty Ord"  AT 12
+     "Qty Ord"  AT 15
      "Received"
      "Units "
      "  Sht W"
@@ -991,7 +991,7 @@ form header
      "Customer Name       "
      " Pieces Over"
      "       Overrun"
-     "----------"
+     "-------------"
      "-------"
      "--------"
      "------"
@@ -1007,7 +1007,7 @@ form header
      "------------"
      "--------------"
     /* fill("-",168) format "x(168)"    */
-    with frame r-top WIDTH 168.
+    with frame r-top WIDTH 174.
 
 form v-job-no                   at 1     
      v-char-ord-qty
@@ -1024,7 +1024,7 @@ form v-job-no                   at 1
      v-cust-name FORM "x(20)"
      v-overpcs     FORM ">>,>>>,>>9.99"
      v-over-allow  FORM ">>,>>>,>>9.99"
-     with down STREAM-IO WIDTH 168 no-labels no-box no-underline frame sh-ord.
+     with down STREAM-IO WIDTH 174 no-labels no-box no-underline frame sh-ord.
 
 form skip(1) tot-msf-rem-str at 1
     with frame grand-total STREAM-IO WIDTH 132 no-box no-labels.
@@ -1089,12 +1089,12 @@ DISP WITH frame sh-head.
       release oe-ordl.
 
       assign
-       v-job-no    = trim(po-ordl.job-no) + "-" + string(po-ordl.job-no2,"99")
+       v-job-no    = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2)))
        v-raw       = ""
        v-fg        = ""
        v-cust-name = "".
 
-      if trim(v-job-no) eq "-00" then v-job-no = "".
+      if trim(v-job-no) eq "-000" then v-job-no = "".
 
       if po-ordl.item-type then do:
         v-raw = po-ordl.i-no.

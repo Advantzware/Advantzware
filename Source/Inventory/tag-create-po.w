@@ -1978,8 +1978,7 @@ PROCEDURE pUpdatePODetails :
             fiVendor:SCREEN-VALUE       = STRING(ttPOOrderLineDetails.vend-no)
             fiQtyPurchased:SCREEN-VALUE = STRING(ttPOOrderLineDetails.ord-qty) + " " + STRING(ttPOOrderLineDetails.pr-uom)
             fiJobNo:SCREEN-VALUE        = IF ttPOOrderLineDetails.job-no NE "" THEN
-                                              STRING(ttPOOrderLineDetails.job-no) + "-" +
-                                              STRING(ttPOOrderLineDetails.job-no2,"99") + "." +
+                                          TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ttPOOrderLineDetails.job-no, ttPOOrderLineDetails.job-no2))) + "." +
                                               STRING(ttPOOrderLineDetails.s-num,"99") + "." +
                                               STRING(ttPOOrderLineDetails.b-num,"99")
                                           ELSE

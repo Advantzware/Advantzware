@@ -1,0 +1,11 @@
+{
+    "subject": "$Subject$",
+    "departmentId": "111636000000077839",
+    "description": "$Description$",
+    "contact": {
+         "lastName": "Vigrass",
+         "email": "Help@Advantzware.com"
+    },
+    "email": "Help@Advantzware.com",
+    "status": "Open"
+}

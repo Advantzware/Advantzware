@@ -14,8 +14,8 @@ end.
 
 def new shared var save_id as recid.
 def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
+def new shared var v-job as char format "x(9)" extent 2 init [" ","zzzzzzzzz"].
+def new shared var v-job2 as int format "999" extent 2 init [000,999].
 def new shared var v-stypart like style.dscr.
 def new shared var v-dsc like oe-ordl.part-dscr1 extent 2.
 def new shared var v-size as char format "x(26)" extent 2.
@@ -121,7 +121,7 @@ format header
   "[  ] JACKET" at 5 space(10) "[  ] PRODUCTION" space(10) "[  ] PLATE ROOM"
   space(10) "[  ] DIE ROOM" space(10) "[  ] PURCHASING" skip
   "JOB NUMBER:" v-job-no space(0) "-" space(0)
-  v-job-no2 format "99"
+  v-job-no2 format "999"
   space(10) "COMPLETION DATE:" space(10)
   "BOARD P.O. #:" space(10)  "VENDOR #:"
   "DUE DATE:" at 113 v-due-date skip
@@ -146,11 +146,11 @@ repeat on error undo outers, leave outers with frame head:
   do j = 1 to 2:
     update v-job[j] v-job2[j] with frame selec.
      v-bld-job = "".
-    do i = 1 to 6:       /** REMOVE BLANKS IN JOB NUMBER **/
+    do i = 1 to iJobLen:       /** REMOVE BLANKS IN JOB NUMBER **/
       if substr(input v-job[j],i,1) ne " " then
        v-bld-job  = trim(v-bld-job +
         substr(input v-job[j],i,1)).
-    end. /* 1 - 6 */
+    end. /* 1 - iJobLen */
      v-job[j] =
       string(FILL(" ", iJobLen - length(v-bld-job))) + (trim(v-bld-job)).
     display v-job[j] with frame selec.

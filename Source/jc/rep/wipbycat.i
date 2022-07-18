@@ -46,7 +46,7 @@
    tt-report.key-03  = job-hdr.i-no
    tt-report.key-04  = itemfg.part-no
    tt-report.key-05  = FILL(" ", iJobLen - length(trim(job.job-no))) +
-                       trim(job.job-no) + "-" + string(job.job-no2,"99")
+                       trim(job.job-no) + "-" + string(job.job-no2,"999")
    tt-report.key-06  = if avail est                                and
                           (est.est-type eq 2 or est.est-type eq 6) then
                          "SET" else ""

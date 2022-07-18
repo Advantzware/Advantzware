@@ -1655,12 +1655,12 @@ ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch E-Mail */
 DO:
         ASSIGN {&self-name}.
         /*   tb_Override-email:SCREEN-VALUE = IF tb_BatchMail THEN "Yes" ELSE "No". */
-        IF tb_BatchMail THEN
-            ASSIGN 
-                tb_splitPDF:HIDDEN    = NO
-                tb_splitPDF:SENSITIVE = YES
-                .
-        ELSE
+        //IF tb_BatchMail THEN
+          //  ASSIGN 
+         //       tb_splitPDF:HIDDEN    = NO
+         //       tb_splitPDF:SENSITIVE = YES
+        //        .
+        //ELSE
             ASSIGN 
                 tb_splitPDF:HIDDEN    = YES
                 tb_splitPDF:SENSITIVE = NO
@@ -2078,21 +2078,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
                 fiEndDateLabel:SCREEN-VALUE   = "Ending Inv Date:"
                 .
-
-
-        IF tb_BatchMail:SCREEN-VALUE = "YES" THEN
-            ASSIGN 
-                tb_splitPDF:HIDDEN    = NO
-                tb_splitPDF:SENSITIVE = YES
-                .
-        ELSE
-            ASSIGN 
-                tb_splitPDF:HIDDEN    = YES
-                tb_splitPDF:SENSITIVE = NO.        
-
+                
         /*IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
                ASSIGN tb_qty-all:HIDDEN = NO .
            ELSE tb_qty-all:HIDDEN = YES .*/
+               
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = YES
+                tb_splitPDF:SENSITIVE = NO.           
 
         lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
         IF glPaperless THEN 
@@ -2402,7 +2395,7 @@ PROCEDURE pRunFormatValueChanged :
         IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
         ELSE lv-prt-bypass = YES.
 
-        IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Pacific" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "Lovepac-CAN" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
+        IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Pacific" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "Lovepac-CAN" OR v-print-fmt EQ "invprint10-CAN" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" OR v-print-fmt EQ "Harwell" THEN
             ASSIGN tb_print-dept:HIDDEN    = NO
                 tb_print-dept:SENSITIVE = YES
                 fi_depts:HIDDEN         = NO

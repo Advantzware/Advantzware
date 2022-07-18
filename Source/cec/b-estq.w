@@ -474,7 +474,7 @@ DEFINE VARIABLE vi_part-dscr1 AS CHARACTER FORMAT "X(30)":U
      SIZE 36 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -2538,17 +2538,18 @@ PROCEDURE pReOpenQuery :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-    
-  RUN local-open-query.
-  
-  DO WITH FRAME {&frame-name}:
-    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
-    RUN dispatch ('row-changed').
-    APPLY "value-changed" TO {&browse-name}.
-    RETURN NO-APPLY.  
-  END.
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
+    DO WITH FRAME {&FRAME-NAME}:
+        {&BROWSE-NAME}:REFRESH().
+        
+        REPOSITION {&BROWSE-NAME} TO ROWID ip-rowid NO-ERROR.
+        RUN dispatch ('row-changed').
+
+        APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
+
+        RETURN NO-APPLY.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

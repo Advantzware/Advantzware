@@ -18,9 +18,9 @@
         EACH oe-ordl OF oe-ord
         WHERE 
            FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") GE v-job[1]
+              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") GE v-job[1]
           AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
-              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"99") LE v-job[2]
+              TRIM(oe-ordl.job-no) + STRING(oe-ordl.job-no2,"999") LE v-job[2]
           AND oe-ordl.s-man[1]  GE begin_slsmn
           AND oe-ordl.s-man[1]  LE end_slsmn
           AND (v-ostat EQ "A"                           OR
@@ -157,7 +157,7 @@
               oe-ordl.part-no
               tt-report.routing form "x(20)"
               tt-report.rm-no form "x(20)"
-              trim(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99") WHEN oe-ordl.job-no <> "" @ v-job# FORM "x(10)" 
+              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))) WHEN oe-ordl.job-no <> "" @ v-job# FORM "x(13)" 
               
               tt-report.ship-to
               oe-ordl.qty        FORMAT "->,>>>,>>9"
@@ -183,7 +183,7 @@
              oe-ordl.part-no FORMAT "X(15)" v-comma
              REPLACE(tt-report.routing,","," ") FORMAT "X(20)" v-comma
              tt-report.rm-no form "x(20)" v-comma
-             oe-ordl.job-no + "-" + STRING(oe-ordl.job-no2,"99") v-comma
+             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))) v-comma
              tt-report.ship-to    v-comma
              oe-ordl.qty        FORMAT "->>>>>>9" v-comma
              tt-report.q-rel    FORMAT "->>>>>>9" v-comma
@@ -211,14 +211,14 @@
         IF FIRST(tt-fg-bin.job-no2) THEN
           PUT SKIP(1)
               SPACE(34)
-              "Bins: Job "
+              "Bins: Job    "
               "Whs   "
               "Bin      "
               "Tag      "
               "        Qty"
               SKIP
               SPACE(34)
-              "--------- "
+              "------------- "
               "----- "
               "-------- "
               "-------- "
@@ -229,8 +229,8 @@
             FILL(" ", iJobLen - LENGTH(TRIM(tt-fg-bin.job-no))) +
             TRIM(tt-fg-bin.job-no) + 
                  (IF tt-fg-bin.job-no NE ""
-                  THEN ("-" + STRING(tt-fg-bin.job-no2,"99"))
-                  ELSE "")              FORMAT "x(9)"
+                  THEN ("-" + STRING(tt-fg-bin.job-no2,"999"))
+                  ELSE "")              FORMAT "x(13)"
             SPACE(1)
             tt-fg-bin.loc
             SPACE(1)

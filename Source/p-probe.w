@@ -871,7 +871,12 @@ DO WITH FRAME Panel-Frame:
                                     btn-whatif:SENSITIVE = NO
                                     btn-item:SENSITIVE = NO.
     IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.
-    /*IF NOT v-can-run THEN DISABLE ALL. */
+    
+    IF NOT v-can-run THEN  
+           ASSIGN
+           btn-view:SENSITIVE = NO
+           btn-print:SENSITIVE = NO
+           . 
   END.
   
 END. /* DO WITH FRAME */

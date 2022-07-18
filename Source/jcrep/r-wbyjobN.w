@@ -1309,8 +1309,8 @@ PROCEDURE run-report :
 
 /*{sys/form/r-topw.f}*/
 
-def var v-job as char format "x(6)" extent 2 init ["","zzzzzz"] no-undo.
-def var v-job2 as int format "99" extent 2 init [00,99] no-undo.
+def var v-job as char format "x(9)" extent 2 init ["","zzzzzzzzz"] no-undo.
+def var v-job2 as int format "999" extent 2 init [000,999] no-undo.
 def var v-date as date extent 2 format "99/99/9999" no-undo.
 def var v-mach like mch-act.m-code extent 2 init ["","zzzzzz"] no-undo.
 def var v-dept like mch-act.dept extent 2 init ["","zz"] no-undo.

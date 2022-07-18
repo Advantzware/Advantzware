@@ -58,7 +58,7 @@ DEFINE VARIABLE v-stat         AS CHARACTER FORMAT "!" INIT "O".
 
 DEFINE VARIABLE v-out          AS CHARACTER FORMAT "x(40)" NO-UNDO.
 DEFINE VARIABLE v-init-dir     AS CHARACTER FORMAT "x(40)" NO-UNDO.
-DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job          AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-frm-no       AS CHARACTER FORMAT "x(3)" NO-UNDO.
 DEFINE VARIABLE v-blnk-no      AS CHARACTER FORMAT "x(3)" NO-UNDO.
 DEFINE VARIABLE num-rec        AS INTEGER   INIT 0 NO-UNDO.
@@ -213,7 +213,7 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE begin_job      AS CHARACTER FORMAT "X(12)":U 
     LABEL "Job#" 
     VIEW-AS FILL-IN 
-    SIZE 13 BY 1 NO-UNDO.
+    SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job2     AS INTEGER   FORMAT "999":U INITIAL 0 
     LABEL "-" 
@@ -684,7 +684,7 @@ ON LEAVE OF begin_i-no IN FRAME FRAME-A /* Item# */
 
             FIND FIRST job-hdr WHERE
                 job-hdr.company EQ cocode AND
-                trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE) AND
+                job-hdr.job-no  EQ begin_job:SCREEN-VALUE AND
                 job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE) AND
                 begin_job:SCREEN-VALUE NE ""
                 NO-LOCK NO-ERROR.
@@ -1113,7 +1113,7 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
          
                 FIND FIRST job-hdr 
                     WHERE job-hdr.company  EQ cocode 
-                    AND trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE)
+                    AND job-hdr.job-no     EQ begin_job:SCREEN-VALUE
                     AND job-hdr.job-no2  EQ INT(begin_job2:SCREEN-VALUE) 
                     AND job-hdr.frm      EQ INT(iForm)
                     AND job-hdr.blank-no EQ INT(iBlank-no)
@@ -1130,7 +1130,7 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
             DO:
                 FIND FIRST job-hdr WHERE
                     job-hdr.company EQ cocode AND
-                    trim(job-hdr.job-no) EQ trim(begin_job:SCREEN-VALUE) AND
+                    job-hdr.job-no  EQ begin_job:SCREEN-VALUE AND
                     job-hdr.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
                     NO-LOCK NO-ERROR.
 
@@ -1709,7 +1709,7 @@ PROCEDURE dispJobInfo :
             ASSIGN
                 begin_ord-no:SCREEN-VALUE = STRING(v-first-order)
                 begin_job:SCREEN-VALUE    = ipcJobNo         
-                begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"99")
+                begin_job2:SCREEN-VALUE   = STRING(ipiJobNo2,"999")
                 begin_i-no:SCREEN-VALUE   = v-lastitem.           
 
             APPLY "LEAVE" TO begin_i-no.
@@ -1842,9 +1842,20 @@ PROCEDURE from-job :
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#).
                
+                    FIND FIRST oe-ordm NO-LOCK
+                       WHERE oe-ordm.company  EQ oe-ord.company
+                         AND oe-ordm.ord-no   EQ oe-ord.ord-no
+                       NO-ERROR.
+               
                     ASSIGN
-                        w-ord.po-no       = oe-ordl.po-no-po
-                        w-ord.customField = oe-ordl.customField.
+                        w-ord.po-no        = oe-ordl.po-no-po
+                        w-ord.customField  = oe-ordl.customField
+                        w-ord.ordHeaderPo  = oe-ord.po-no 
+                        w-ord.ordLinePo    = oe-ordl.po-no 
+                        w-ord.releasePo    = IF AVAILABLE oe-rel  THEN oe-rel.po-no ELSE ""
+                        w-ord.miscItemPo   = IF AVAILABLE oe-ordm THEN oe-ordm.po-no ELSE ""
+                        w-ord.relCustLot   = IF AVAILABLE oe-rel THEN oe-rel.lot-no  ELSE ""
+                        .
                 
 
                     FIND FIRST oe-relh NO-LOCK
@@ -2146,7 +2157,20 @@ PROCEDURE from-ord :
                     RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#). 
-
+                    
+                    FIND FIRST oe-ordm NO-LOCK
+                       WHERE oe-ordm.company  EQ oe-ord.company
+                         AND oe-ordm.ord-no   EQ oe-ord.ord-no
+                       NO-ERROR.
+                    
+                    ASSIGN
+                        w-ord.ordHeaderPo  = oe-ord.po-no 
+                        w-ord.ordLinePo    = oe-ordl.po-no 
+                        w-ord.releasePo    = IF AVAILABLE oe-rel  THEN oe-rel.po-no ELSE ""
+                        w-ord.miscItemPo   = IF AVAILABLE oe-ordm THEN oe-ordm.po-no ELSE ""
+                        w-ord.relCustLot   = IF AVAILABLE oe-rel THEN oe-rel.lot-no ELSE ""
+                        .                        
+                        
                     IF AVAILABLE itemfg THEN
                         ASSIGN
                             w-ord.upc-no     = itemfg.upc-no
@@ -2238,6 +2262,11 @@ PROCEDURE from-ord :
                         AND shipto.cust-no EQ oe-ord.cust-no
                         AND shipto.ship-id EQ oe-rel.ship-id
                         NO-LOCK NO-ERROR.
+                    
+                    FIND FIRST oe-ordm NO-LOCK
+                        WHERE oe-ordm.company  EQ oe-ord.company
+                          AND oe-ordm.ord-no   EQ oe-ord.ord-no
+                        NO-ERROR.
 
                     CREATE w-ord.
                     ASSIGN
@@ -2282,6 +2311,11 @@ PROCEDURE from-ord :
                                  cust.int-field[1] ELSE v-mult
                         w-ord.linenum      = oe-ordl.e-num
                         w-ord.customField  = oe-ordl.customField
+                        w-ord.ordHeaderPo  = oe-ord.po-no 
+                        w-ord.ordLinePo    = oe-ordl.po-no 
+                        w-ord.releasePo    = IF AVAILABLE oe-rel  THEN oe-rel.po-no ELSE ""
+                        w-ord.miscItemPo   = IF AVAILABLE oe-ordm THEN oe-ordm.po-no ELSE ""
+                        w-ord.relCustLot   = IF AVAILABLE oe-rel THEN oe-rel.lot-no  ELSE ""
                         num-rec            = num-rec + 1.
 
                     ASSIGN
@@ -2557,7 +2591,7 @@ PROCEDURE new-job :
             IF TRIM(begin_job:SCREEN-VALUE) NE "" THEN
                 FIND FIRST job NO-LOCK
                     WHERE job.company  EQ cocode
-                    AND trim(job.job-no) EQ TRIM(begin_job:SCREEN-VALUE)
+                    AND job.job-no  EQ begin_job:SCREEN-VALUE
                     AND job.job-no2 EQ INT(begin_job2:SCREEN-VALUE)
                     NO-ERROR.
 
@@ -3002,7 +3036,7 @@ PROCEDURE run-report :
     IF begin_job NE "" THEN
         FOR EACH job
             WHERE job.company EQ cocode
-            AND trim(job.job-no)  EQ TRIM(begin_job)
+            AND job.job-no  EQ begin_job
             AND job.job-no2 EQ INT(begin_job2)            
             NO-LOCK:
                
@@ -3237,7 +3271,9 @@ PROCEDURE run-report :
                 "SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPZIP,SHIPCOUNTRY," +
                 "DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
                 "TAREWGT,NETWGT,SHEETWGT,UOM,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO," +
-                "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,CURRENTDATE,CURRENTTIME,CUSTOM1".
+                "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,CURRENTDATE,CURRENTTIME,CUSTOM1," +
+                "Order Header PO#,Order Line PO#,Release PO#,Misc Item PO#,Release Customer Lot#"
+                .
             PUT SKIP.
         END.
 
@@ -3280,10 +3316,10 @@ PROCEDURE run-report :
             END. 
 
             ASSIGN
-                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
+                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
                 lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                           "%MX" +
-                          FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
+                          FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                           TRIM(lv-middlesex-job)
                 lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
                 lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -3407,6 +3443,11 @@ PROCEDURE run-report :
                         "~""  TODAY  "~","
                         "~""  STRING(TIME,'hh:mm am')  "~","
                         "~""  removeChars(w-ord.customField)  "~","
+                        "~""  removeChars(w-ord.ordHeaderPo)  "~","
+                        "~""  removeChars(w-ord.ordLinePo)  "~","
+                        "~""  removeChars(w-ord.releasePo)  "~","
+                        "~""  removeChars(w-ord.miscItemPo)  "~","
+                        "~""  removeChars(w-ord.relCustLot)  "~","
                         .
                     PUT SKIP.
                 END.
@@ -3549,8 +3590,8 @@ PROCEDURE temp-job :
          
     FOR EACH job
         WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(SUBSTR(ip-job-no,1,9))
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,10,3))
+        AND job.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
         NO-LOCK:
         RUN temp-create (ROWID(job)).
     END.

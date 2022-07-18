@@ -479,10 +479,10 @@ PROCEDURE add-rebuild :
   DO:
     ASSIGN
      ll-canceled = NO
-     lv-job      = oe-ord.job-no + "-" + STRING(oe-ord.job-no2,"99").
+     lv-job      = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ord.job-no, oe-ord.job-no2))).
    
     IF AVAIL oe-ordl THEN
-      lv-job = oe-ordl.job-no + "-" + STRING(oe-ordl.job-no2,"99").
+      lv-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
    
     RELEASE est.
    

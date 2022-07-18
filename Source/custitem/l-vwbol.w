@@ -148,8 +148,8 @@ DEFINE BROWSE BROWSE-1
       tt-bol.bol-no COLUMN-LABEL "BOL" FORMAT ">>>>>>>9":U
       tt-bol.i-no FORMAT "x(15)":U
       tt-bol.cust-no FORMAT "x(8)":U WIDTH 12
-      tt-bol.job-no FORMAT "x(6)":U WIDTH 14.2
-      tt-bol.job-no2 COLUMN-LABEL "" FORMAT "99":U WIDTH 5.2
+      tt-bol.job-no FORMAT "x(9)":U WIDTH 15
+      tt-bol.job-no2 COLUMN-LABEL "" FORMAT "999":U WIDTH 5.4
       tt-bol.ord-no FORMAT ">>>>>9":U WIDTH 10.2
       tt-bol.line FORMAT "99":U WIDTH 7.2
       tt-bol.po-no FORMAT "x(15)":U WIDTH 16.2

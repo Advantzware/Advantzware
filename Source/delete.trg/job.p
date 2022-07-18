@@ -15,6 +15,7 @@ IF NOT AVAIL est THEN DO:
 END.
 
 {util/ttPurge.i NEW}
+
 {sys/inc/var.i NEW SHARED}
 ASSIGN
  cocode = {&TABLENAME}.company

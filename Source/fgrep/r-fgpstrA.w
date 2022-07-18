@@ -2147,8 +2147,8 @@ RUN create-tt-report.
                ELSE "")                                                '",'.
         ELSE            
             PUT STREAM excel UNFORMATTED
-               '"' (IF fg-rcpth.job-no <> "" THEN fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99")
-               ELSE "")                                                '",'.
+               '"' (IF fg-rcpth.job-no <> "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2)))
+               ELSE "") FORM "x(13)"                                   '",'.
 
         PUT STREAM excel UNFORMATTED
           '"' STRING(v-tran-type,"X(1)")                               '",'

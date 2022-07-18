@@ -88,25 +88,25 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lbl_bolcert AS CHARACTER FORMAT "X(256)":U INITIAL "Which Tickets?" 
      VIEW-AS FILL-IN 
@@ -187,11 +187,11 @@ DEFINE FRAME FRAME-A
      rd_ticket AT ROW 3.14 COL 44 NO-LABEL
      begin_job-no AT ROW 4.81 COL 24 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 4.81 COL 37 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 4.81 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 4.81 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 4.81 COL 79 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 4.81 COL 81 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      tb_reprint AT ROW 6.71 COL 45
      tb_laser AT ROW 7.67 COL 63 RIGHT-ALIGNED

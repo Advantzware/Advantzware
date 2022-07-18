@@ -341,9 +341,9 @@ DO:
                 DO TRANSACTION:
                     ASSIGN
                         job.est-no  = xest.est-no
-                        job.rec_key = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key.  /* for notes */
+                        .                        
                 END.
-
+                IF nufile THEN RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "","").  /*Copy all notes from Estimate to Job*/
                 FOR EACH job-hdr WHERE job-hdr.company EQ cocode
                     AND job-hdr.job     EQ job.job
                     AND job-hdr.job-no  EQ job.job-no
@@ -422,12 +422,11 @@ DO:
         ASSIGN
             job.est-no      = xest.est-no
             job.create-date = IF job.create-date EQ ? THEN TODAY ELSE job.create-date
-            job.rec_key     = IF job.rec_key = "" THEN xest.rec_key ELSE job.rec_key
             job.stat        = "R"
             job.create-time = IF job.create-time EQ 0 THEN TIME ELSE job.create-time
             . 
     END.  
-  
+    IF nufile THEN RUN Notes_CopyNotes(xest.rec_key, job.rec_key, "", "").
   
     FIND CURRENT job NO-LOCK.
 
@@ -1109,8 +1108,7 @@ DO:
                             ll-all-warn = YES.
                         END.
         
-                    job-mat.post = CAN-DO("J",type-mat) OR 
-                                   CAN-FIND(FIRST materialType 
+                    job-mat.post = CAN-FIND(FIRST materialType 
                                             WHERE materialType.company      EQ job-mat.company 
                                               AND materialType.materialType EQ type-mat
                                               AND materialType.autoIssue    EQ TRUE).
@@ -1971,6 +1969,8 @@ PROCEDURE pUpdateJobQty PRIVATE:
     END.
     
     opriJobHdr = ROWID(job-hdr).
+    
+    RUN fg/chkfgloc.p (INPUT job-hdr.i-no, INPUT job-hdr.loc).
     
     IF job-hdr.frm EQ 0 THEN 
         job-hdr.frm = 1.

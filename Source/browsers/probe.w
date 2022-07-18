@@ -2839,7 +2839,10 @@ PROCEDURE local-update-record :
   IF vmclean THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
 
   IF probe.spare-char-2 NE "" THEN
+  DO: 
     RUN pCalculatePricing(BUFFER probe). 
+    RUN dispatch ("open-query").
+  END.   
 
     IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
     QUERY br_table:GET-NEXT().

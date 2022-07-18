@@ -36,8 +36,7 @@ FOR EACH mch-act WHERE mch-act.company EQ cocode,
           BY mch-act.m-code:
 
   DISPLAY "Processing Job#/Machine: " +
-          TRIM(mch-act.job-no) + "-" +
-          STRING(mch-act.job-no2,"99") + "/" +
+          TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', mch-act.job-no, mch-act.job-no2))) + "/" +
           TRIM(mch-act.m-code)  FORMAT "x(50)" WITH 1 DOWN.
 
   v-parts = 0.

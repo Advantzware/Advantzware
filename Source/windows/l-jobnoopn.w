@@ -28,7 +28,8 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
-{sys/inc/var.i}
+
+{sys/inc/var.i new shared}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -319,7 +320,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK,
               FIRST job OF job-hdr WHERE
                     job.opened EQ YES
@@ -384,7 +385,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK,
               FIRST job OF job-hdr WHERE
                     job.opened EQ YES
@@ -424,7 +425,7 @@ DO:
           FOR EACH ASI.job-hdr
               WHERE {&key-phrase}
                 AND job-hdr.company EQ ip-company
-                AND TRIM(job-hdr.job-no) BEGINS lv-search
+                AND job-hdr.job-no BEGINS lv-search
               NO-LOCK,
               FIRST job OF job-hdr WHERE
                     job.opened EQ YES
@@ -479,7 +480,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       
     FOR first job-hdr WHERE
          job-hdr.company = ip-company AND
-         TRIM(job-hdr.job-no) BEGINS ip-cur-val AND
+         job-hdr.job-no BEGINS ip-cur-val AND
          job-hdr.opened = YES 
         NO-LOCK,
         FIRST ASI.job OF ASI.job-hdr WHERE

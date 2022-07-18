@@ -13,13 +13,14 @@
 
 /* ***************************  Definitions  ************************** */
 {util/ttImport.i SHARED}
+{sys/inc/var.i NEW SHARED}
 
 DEFINE TEMP-TABLE ttImportJobSchedule NO-UNDO
     FIELD company    AS CHARACTER 
     FIELD location   AS CHARACTER 
     FIELD line       AS INTEGER   FORMAT ">>9"         COLUMN-LABEL "Order"            HELP "Required - Integer"
     FIELD m-code     AS CHARACTER FORMAT "x(6)"        COLUMN-LABEL "Machine"          HELP "Required - Size:6"
-    FIELD job-no     AS CHARACTER FORMAT "x(6)"        COLUMN-LABEL "Job No"           HELP "Required - Size:6" 
+    FIELD job-no     AS CHARACTER FORMAT "x(9)"        COLUMN-LABEL "Job No"           HELP "Required - SizeUpto:9" 
     FIELD job-no2    AS INTEGER   FORMAT ">>9"         COLUMN-LABEL "Run#"             HELP "Required - Integer"
     FIELD frm        AS INTEGER   FORMAT ">9"          COLUMN-LABEL "Form"             HELP "Required - Integer"
     FIELD blank-no   AS INTEGER   FORMAT ">9"          COLUMN-LABEL "Blank"            HELP "Required - Integer"
@@ -95,6 +96,8 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE BUFFER bf-job     FOR job.
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bf-job-mch FOR job-mch.      
+    
+    ASSIGN ipbf-ttImportJobSchedule.job-no = SUBSTRING(ipbf-ttImportJobSchedule.job-no,1,iJobLen) NO-ERROR.
 
     FIND FIRST bf-job EXCLUSIVE-LOCK
          WHERE bf-job.company EQ ipbf-ttImportJobSchedule.company

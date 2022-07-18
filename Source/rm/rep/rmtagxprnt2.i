@@ -8,14 +8,14 @@ cCustName = "".
 RELEASE cust.
 FIND FIRST job-hdr NO-LOCK
      WHERE job-hdr.company EQ cocode
-     AND trim(job-hdr.job-no)  EQ trim(tt-po-print.job-no)
+     AND job-hdr.job-no  EQ tt-po-print.job-no
      AND job-hdr.job-no2 EQ tt-po-print.job-no2     
      AND job-hdr.i-no    EQ tt-po-print.i-no
      NO-ERROR.
 IF NOT AVAILABLE job-hdr THEN
 FIND FIRST job-hdr NO-LOCK
      WHERE job-hdr.company EQ cocode
-     AND trim(job-hdr.job-no)  EQ trim(tt-po-print.job-no)
+     AND job-hdr.job-no  EQ tt-po-print.job-no
      AND job-hdr.job-no2 EQ tt-po-print.job-no2     
      NO-ERROR.
 IF AVAIL job-hdr THEN 
@@ -94,14 +94,24 @@ PUT "<R34><C59><#11><FROM><R34><C83><RECT><||3>" SKIP
     "<R34><C83><FROM><R38><C83><LINE><||3>" SKIP.
 
 PUT "<FArial><R35><C66><P16><B>" tt-po-print.tag-date  "</B>" SKIP.
-PUT "<FArial><R39><C36><P16><B>" "Vendor"  "</B>" SKIP.
+PUT "<FArial><R39><C17><P16><B>" "Vendor"  "</B>" SKIP.
 
-PUT "<R41><C3><#12><FROM><R41><C83><RECT><||3>" SKIP
-    "<R45><C3><FROM><R45><C83><LINE><||3>" SKIP  
+PUT "<R41><C3><#12><FROM><R41><C40><RECT><||3>" SKIP
+    "<R45><C3><FROM><R45><C40><LINE><||3>" SKIP  
     "<R41><C3><FROM><R45><C3><LINE><||3>" SKIP
+    "<R41><C40><FROM><R45><C40><LINE><||3>" SKIP.
+
+PUT "<FArial><R42><C16><P16><B>" tt-po-print.vend-no FORMAT "x(12)"  "</B>" .
+
+PUT "<FArial><R39><C59><P16><B>" "Job#"  "</B>" SKIP.
+
+PUT "<R41><C43><#12><FROM><R41><C83><RECT><||3>" SKIP
+    "<R45><C43><FROM><R45><C83><LINE><||3>" SKIP  
+    "<R41><C43><FROM><R45><C43><LINE><||3>" SKIP
     "<R41><C83><FROM><R45><C83><LINE><||3>" SKIP.
 
-PUT "<FArial><R42><C10><P16><B>" tt-po-print.vend-no FORMAT "x(12)"  "</B>" .
+IF TRIM(tt-po-print.job-no) NE "" THEN
+PUT "<FArial><R42><C56><P16><B>" STRING(TRIM(tt-po-print.job-no) + "-" + STRING(tt-po-print.job-no2,"999")) FORMAT "x(13)"  "</B>" .
 
 PUT "<R48><C3><#13><FROM><R48><C83><RECT><||3>" SKIP
     "<R53.5><C3><FROM><R53.5><C83><LINE><||3>" SKIP  

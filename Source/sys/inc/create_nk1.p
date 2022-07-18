@@ -52,9 +52,10 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "OutputCSV,JobQueueURL,SSLocationScan,EstimateLocDefault,POPriceHold,SearchLimits,SSIssueDefaultRM,PlateFile,APInvoiceLength,DeleteBinsAllowed,InvoiceApprovalOrderlineChange,QuotePriceMatrix,"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
-           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CENewLayoutCalc,OEUseMatrixForNonstock,CEShipWeight,JobNoLength,"
-           + "OEAUTOPREP"
+           + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CEInksWithUnits,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength,CEShowErrorsAndWarnings,"
+           + "CECostSource,CEStyleF,ROUND,OEAUTOPREP"
            .
+                      
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
 CASE ip-nk1-value:
     WHEN "FGItemUOM" THEN
@@ -1631,6 +1632,18 @@ CASE ip-nk1-value:
             INPUT NO,                                   /* Logical value */ 
             INPUT 0                                     /* Dec value*/
             ).
+    WHEN "CEAutoRecostBoard" THEN
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Auto recost the board across all forms on estimate", /* Description */
+            INPUT "",                                   /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).
+          
     WHEN "BOLHideBillableFreight" THEN     
         RUN sys/inc/addnk1.p (
             INPUT cocode, 
@@ -1664,6 +1677,18 @@ CASE ip-nk1-value:
             INPUT NO,                                                               /* Logical value */ 
             INPUT 0                                                                 /* Dec value*/
             ).           
+ 
+    WHEN "CEInksWithUnits" THEN     
+    RUN sys/inc/addnk1.p (
+        INPUT cocode, 
+        INPUT ip-nk1-value, 
+        INPUT NO,
+        INPUT "Use Unit Numbers for Ink calculation",  /* Description */
+        INPUT "",                                     /* Char Value */
+        INPUT 0,                                     /* Int value */
+        INPUT NO,                                    /* Logical value */ 
+        INPUT 0                                     /* Dec value*/
+        ). 
     WHEN "CENewLayoutCalc" THEN     
     RUN sys/inc/addnk1.p (
         INPUT cocode, 
@@ -1686,6 +1711,17 @@ CASE ip-nk1-value:
         INPUT NO,                                   /* Logical value */ 
         INPUT 0                                     /* Dec value*/
         ).    
+    WHEN "CEOpStandards" THEN     
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Calc source for Machine Standards",     /* Description */
+            INPUT "Estimate",                     /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).  
     WHEN "CEShipWeight" THEN     
     RUN sys/inc/addnk1.p (
             INPUT cocode, 
@@ -1708,7 +1744,6 @@ CASE ip-nk1-value:
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
             ).
-                             
     WHEN "OEAUTOPREP" THEN     
     RUN sys/inc/addnk1.p (
         INPUT cocode, 
@@ -1720,6 +1755,50 @@ CASE ip-nk1-value:
         INPUT NO,                             /* Logical value */ 
         INPUT 0                               /* Dec value*/
         ).
+    WHEN "CECostSource" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Calculation Source for vendor cost", /* Description */
+            INPUT "VendorCostOnly",                     /* Char Value */
+            INPUT 0,                                    /* Int value */
+            INPUT NO,                                   /* Logical value */ 
+            INPUT 0                                     /* Dec value*/
+            ).            
+    WHEN "CEShowErrorsAndWarnings" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Present List of Error and Warnings at end of Estimate Calculation",     /* Description */
+            INPUT "", /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).
+    WHEN "CEStyleF" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "When changing Style, Prompt to Update Box Design for Folding Estimates",     /* Description */
+            INPUT "", /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT YES,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).                                            
+    WHEN "ROUND" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,           
+            INPUT "Round Up Scoring Allowances?", /* Description */
+            INPUT "",                             /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).                      
 END CASE.
 ELSE
 CASE ip-nk1-value:

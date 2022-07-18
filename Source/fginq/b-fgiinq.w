@@ -709,7 +709,7 @@ DO:
      IF fi_job-no NE "" THEN 
         fi_job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no)).
      FOR EACH job-hdr WHERE job-hdr.company = cocode 
-                        AND TRIM(job-hdr.job-no) = TRIM(fi_job-no)
+                        AND job-hdr.job-no  = fi_job-no
                         AND job-hdr.job-no2 = fi_job-no2 NO-LOCK: 
          lv-item-list = lv-item-list + job-hdr.i-no + ",".
      END.
@@ -1238,7 +1238,7 @@ IF ou-log THEN
 
           FIND FIRST job-hdr no-lock
               WHERE job-hdr.company = cocode
-              AND TRIM(job-hdr.job-no) = TRIM(fi_job-no)
+              AND job-hdr.job-no    = fi_job-no
               AND job-hdr.job-no  NE "" 
               AND job-hdr.job-no2 = fi_job-no2 NO-ERROR.
           
@@ -1313,7 +1313,7 @@ IF ip-what = 1 THEN DO:
           lv-i-no = "".
 
    FOR EACH job-hdr WHERE job-hdr.company = g_company
-                      AND trim(job-hdr.job-no) = trim(fi_job-no)
+                      AND job-hdr.job-no  = fi_job-no
                       AND job-hdr.job-no2 = fi_job-no2 NO-LOCK:
        lv-cnt = lv-cnt + 1.
        lv-i-no = job-hdr.i-no.
@@ -1331,7 +1331,7 @@ ELSE IF ip-what = 2 THEN DO:
           lv-i-no = "".
 
    FOR EACH job-hdr WHERE job-hdr.company = g_company
-                      AND trim(job-hdr.job-no) = trim(fi_job-no)
+                      AND job-hdr.job-no  = fi_job-no
                       AND job-hdr.job-no2 = fi_job-no2 NO-LOCK:
        lv-cnt = lv-cnt + 1.
        lv-i-no = job-hdr.i-no.
@@ -1363,7 +1363,7 @@ FUNCTION get-pallet-info RETURNS INTEGER
 find first fg-bin
     where fg-bin.company eq cocode
       and fg-bin.i-no    eq fg-rcpth.i-no
-      and TRIM(fg-bin.job-no) eq TRIM(fg-rcpth.job-no)
+      and fg-bin.job-no  eq fg-rcpth.job-no
       and fg-bin.job-no2 eq fg-rcpth.job-no2
       and fg-bin.loc     eq fg-rdtlh.loc
       and fg-bin.loc-bin eq fg-rdtlh.loc-bin

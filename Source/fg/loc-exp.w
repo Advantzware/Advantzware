@@ -70,18 +70,20 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 ASSIGN 
     cTextListToSelect  = "Warehouse,Name,Default Bin,Address1,Address2,Address3,City,St/Prov,Phone,Fax,Email,Zip/Post," +   /*12*/
                          "Country,Handling,Storage 1,Storage 2,Storage 3,Storage 4,Location Gross,Pallets,Division,GL Code," +  /*10*/
-    "County,Lat,long,Ext. Code,Notes,Active,API Enabled,Consignment,Owner,Address4,Address5,Address6"  /*12*/
+    "County,Lat,long,Ext. Code,Notes,Active,API Enabled,Consignment,Owner,Address4,Address5,Address6," + /*12*/
+    "# Floor Positions,# Rack Positions" 
 
     cFieldListToSelect = "loc,dscr,def-bin,addr[1],addr[2],addr[3],subCode3,subCode1,Phone,fax,email,subCode4," +  /*12*/
                          "countryCode,handlingCost,storageCost1,storageCost2,storageCost3,storageCost4,locationSquareFeet,palletCapacity,division,GlCode," + /*10*/
-                         "subCode2,geoLat,geoLong,externalID1,notes,Active,isAPIEnabled,lActive,Owner,addr[4],addr[5],addr[6]"  .  /*12*/
+                         "subCode2,geoLat,geoLong,externalID1,notes,Active,isAPIEnabled,lActive,Owner,addr[4],addr[5],addr[6]," +  /*12*/
+                          "floorPositions,rackPositions".  
         
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
     cTextListToDefault = "Warehouse,Name,Default Bin,Address1,Address2,Address3,City,St/Prov,Phone,Fax,Email,Zip/Post," + 
                          "Country,Handling,Storage 1,Storage 2,Storage 3,Storage 4,Location Gross,Pallets,Division,GL Code," +
-                         "County,Lat,long,Ext. Code,Notes,Active,API Enabled,Consignment,Owner" .
+                         "County,Lat,long,Ext. Code,Notes,Active,API Enabled,Consignment,Owner,# Floor Positions,# Rack Positions" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

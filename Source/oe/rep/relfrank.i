@@ -158,7 +158,7 @@
 
             display {1}
                     w-oe-rell.ord-no    when first(w-qty[2])
-                    w-job-no + "-" + string(w-job-no2,"99")  WHEN w-job-no <> "" @ w-job-no
+                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-job-no, w-job-no2))) WHEN w-job-no <> "" @ w-job-no
                     w-par
                     v-bin
                     w-x

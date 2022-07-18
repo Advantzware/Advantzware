@@ -884,7 +884,7 @@ PROCEDURE add-rel-for-qty :
             oe-rel.ship-i[3]    = bf-orig-oe-rel.ship-i[3]
             oe-rel.ship-i[4]    = bf-orig-oe-rel.ship-i[4].
 
-        RUN CopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
+        RUN pCopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
     
                        
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
@@ -1184,22 +1184,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote C-Win 
-PROCEDURE CopyShipNote PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote C-Win 
+PROCEDURE pCopyShipNote PRIVATE :
     /*------------------------------------------------------------------------------
      Purpose: Copies Ship Note from rec_key to rec_key
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+  
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -1360,7 +1354,7 @@ PROCEDURE create-text-file :
     DEFINE VARIABLE v-fgdsc2         LIKE itemfg.part-dscr2 NO-UNDO.
     DEFINE VARIABLE v-fgdsc3         LIKE itemfg.part-dscr3 NO-UNDO.
     DEFINE VARIABLE cRFIDTag         AS cha       NO-UNDO.
-    DEFINE VARIABLE v-job            AS CHARACTER FORMAT "x(9)" NO-UNDO.
+    DEFINE VARIABLE v-job            AS CHARACTER FORMAT "x(13)" NO-UNDO.
     DEFINE VARIABLE v-count          AS INTEGER   NO-UNDO.
 
     FIND FIRST w-ord NO-ERROR.
@@ -1402,7 +1396,7 @@ PROCEDURE create-text-file :
         END.
 
         FOR EACH w-ord:
-            v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+            v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
             IF v-job BEGINS "-" OR v-job = ? /* 9901 CAH */
                 THEN v-job = STRING(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
             FIND FIRST itemfg WHERE itemfg.company = cocode
@@ -1570,13 +1564,13 @@ PROCEDURE create-text-file :
           */
             ASSIGN
                 w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
-                v-job          = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+                v-job          = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
             IF v-job BEGINS "-" THEN v-job = "".
             ASSIGN
-                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+                lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,9)
                 lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",9 - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
                 lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
                 lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -4421,7 +4415,7 @@ PROCEDURE send-fgemail :
 
         PUT STREAM st-email UNFORMATTED
             tt-email.qty FORM "->>>,>>>,>>9" " " 
-            tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-email.job-no, tt-email.job-no2))) FORM "x(13)"
             " " tt-email.i-no FORM "X(15)"
             " " (IF AVAILABLE bf-oe-ordl THEN bf-oe-ordl.part-no ELSE IF AVAILABLE bf-itemfg THEN bf-itemfg.part-no ELSE "") FORM "x(15)"
             " " (IF AVAILABLE bf-oe-ordl THEN bf-oe-ordl.po-no ELSE IF AVAILABLE bf-job-hdr THEN bf-job-hdr.po-no ELSE "") FORM "x(15)" 

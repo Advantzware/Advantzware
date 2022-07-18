@@ -509,7 +509,7 @@ PROCEDURE InventoryReceipt_PostRMItems:
                 IF NOT AVAILABLE job-mat THEN DO:
                     ASSIGN
                         ioplSuccess = NO
-                        opcMessage  = "Job Mat Record not found for " + STRING(job.job-no) + "-" + STRING(job.job-no2,"99") + "  " + rm-rctd.i-no
+                        opcMessage  = "Job Mat Record not found for Job " + DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",job.job-no,job.job-no2) + ", Item " + rm-rctd.i-no
                         .
   
                     RETURN.

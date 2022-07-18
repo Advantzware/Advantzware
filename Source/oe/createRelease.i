@@ -54,7 +54,6 @@ PROCEDURE createRelease:
         oe-rel.carrier   = IF sys-ctrl.char-fld = "Shipto" AND AVAILABLE shipto THEN shipto.carrier
                              ELSE oe-ord.carrier
         oe-rel.r-no      = iNextRelNo
-        oe-rel.frt-pay   = SUBSTRING(oe-ord.frt-pay,1,1)
         oe-rel.fob-code  = oe-ord.fob-code
         .
 
@@ -100,7 +99,7 @@ PROCEDURE createRelease:
             oe-rel.spare-char-1 = IF ipcShipFrom NE "" THEN ipcShipFrom
                                   ELSE shipto.loc
             .
-        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+        RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
     END.
     ELSE
     ASSIGN
@@ -118,7 +117,7 @@ PROCEDURE createRelease:
 
 END PROCEDURE.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -130,8 +129,8 @@ PROCEDURE CopyShipNote PRIVATE:
 
     RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+    RUN Notes_CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
 
     DELETE OBJECT hNotesProcs.   
-
+    
 END PROCEDURE.

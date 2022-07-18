@@ -122,7 +122,9 @@
     DEFINE VARIABLE lPrintBoxDesign     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPrintFGItemImage   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValid              AS LOGICAL   NO-UNDO.
-    
+
+    DEFINE VARIABLE iNumLinesInPage     AS INTEGER   NO-UNDO INITIAL 62.
+        
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
@@ -680,7 +682,7 @@
 
             RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
             
-            RUN pInsertPageHeaderFooter (INPUT-OUTPUT lcJob, INPUT lcJobHeader, INPUT lcPageFooter).
+            RUN pInsertPageHeaderFooter (INPUT iNumLinesInPage, INPUT-OUTPUT lcJob, INPUT lcJobHeader, INPUT lcPageFooter).
 
             lcJob = oAttribute:ReplaceAttributes(lcJob, BUFFER job-hdr:HANDLE).
             lcJob = oAttribute:ReplaceAttributes(lcJob, BUFFER cust:HANDLE).
@@ -690,8 +692,8 @@
         
         RUN pGetRequestData(INPUT "JobGroupHeader", OUTPUT lcJobGroupHeader).
         RUN pGetRequestData(INPUT "JobGroupFooter", OUTPUT lcJobGroupFooter).
-        RUN pGetRequestData(INPUT "ReportGroupHeader", OUTPUT lcReportHeader).
-        RUN pGetRequestData(INPUT "ReportGroupFooter", OUTPUT lcReportFooter).
+        RUN pGetRequestData(INPUT "ReportHeader", OUTPUT lcReportHeader).
+        RUN pGetRequestData(INPUT "ReportFooter", OUTPUT lcReportFooter).
         
         ioplcRequestData = REPLACE(ioplcRequestData, "$Jobs$", lcConcatJob).
         ioplcRequestData = REPLACE(ioplcRequestData, "$JobGroupHeader$", lcJobGroupHeader).
@@ -758,48 +760,6 @@ PROCEDURE pGetRequestData:
         lcFooter = bf-APIOutboundDetail.data.
         oplcRequestData = REPLACE(oplcRequestData, "$" + ipcDetailID + "Footer" + "$", lcFooter).
     END.    
-END PROCEDURE.
-
-PROCEDURE pInsertPageHeaderFooter:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT-OUTPUT  PARAMETER ioplcRequestData AS LONGCHAR NO-UNDO.
-    DEFINE INPUT         PARAMETER iplcHeader       AS LONGCHAR NO-UNDO.
-    DEFINE INPUT         PARAMETER iplcFooter       AS LONGCHAR NO-UNDO.
-    
-    DEFINE VARIABLE iLineCount     AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE iIndex         AS INTEGER  NO-UNDO.
-    DEFINE VARIABLE lcData         AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE iLastIndex     AS INTEGER  NO-UNDO INITIAL 1.
-    DEFINE VARIABLE lcRequestData1 AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcRequestData2 AS LONGCHAR NO-UNDO.
-    
-    DO WHILE ioplcRequestData MATCHES "*" + "$PageSeparator$" + "*":
-        iIndex = INDEX (ioplcRequestData, "$PageSeparator$").
-        IF iIndex LE 0 THEN
-            LEAVE.
-            
-        lcData = SUBSTRING(ioplcRequestData, iLastIndex, iIndex - iLastIndex - 1).
-        
-        lcData = ENTRY(NUM-ENTRIES(lcData, CHR(12)), lcData, CHR(12)).
-        
-        iLineCount = NUM-ENTRIES (lcData, CHR(10)).
-
-        lcRequestData1 = SUBSTRING(ioplcRequestData, 1, iIndex - 1).
-        lcRequestData2 = SUBSTRING(ioplcRequestData, iIndex + LENGTH("$PageSeparator$")).
-        
-        IF iLineCount GT 62 THEN
-            ASSIGN
-                ioplcRequestData = lcRequestData1 + iplcFooter + iplcHeader + lcRequestData2
-                iLastIndex       = iIndex + LENGTH("$PageSeparator$")
-                .
-        ELSE
-            ioplcRequestData = lcRequestData1 + lcRequestData2.
-        
-        RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
-    END. 
 END PROCEDURE.
 
 PROCEDURE pReplaceNotesText:

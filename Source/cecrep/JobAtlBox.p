@@ -741,7 +741,7 @@ DO v-local-loop = 1 TO v-local-copies:
       
          /* dept notes */
         ASSIGN
-           v-note-length   = 100
+           v-note-length   = 76
            v-tmp-lines     = 0
            j               = 0
            K               = 0
@@ -792,15 +792,18 @@ DO v-local-loop = 1 TO v-local-copies:
 
         FOR EACH notes WHERE notes.rec_key = bf-itemfg.rec_key 
                         AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
-         
+            IF v-prev-note-rec <> ? AND
+               v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.
+            
             DO i = 1 TO LENGTH(notes.note_text) :        
                IF i - j >= v-note-length THEN ASSIGN j             = i
                                               lv-got-return = lv-got-return + 1.
                    
                v-tmp-lines = ( i - j ) / v-note-length.
                {SYS/INC/ROUNDUP.I v-tmp-lines}
-
-               k = v-tmp-lines + lv-got-return.
+                            
+               k = v-tmp-lines + lv-got-return + 
+                   IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
                IF k < 9 THEN v-spec-note[k] = v-spec-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
                                   ELSE "" .              
            
@@ -810,6 +813,9 @@ DO v-local-loop = 1 TO v-local-copies:
                   j = i.
                END.         
             END.
+            ASSIGN v-prev-note-rec = RECID(notes)
+                   j               = 0
+                   lv-got-return   = 0.
          END.
     
 
@@ -891,11 +897,11 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SpecNotes1>" v-spec-note[1] FORMAT "x(100)" SKIP
               "<=SpecNotes2>" v-spec-note[2] FORMAT "x(100)" SKIP
               "<=SpecNotes3>" v-spec-note[3] FORMAT "x(100)"  SKIP
-              "<=SpecNotes1>" v-spec-note[4] FORMAT "x(100)" SKIP
-              "<=SpecNotes2>" v-spec-note[5] FORMAT "x(100)" SKIP
-              "<=SpecNotes3>" v-spec-note[6] FORMAT "x(100)"  SKIP
+              "<=SpecNotes4>" v-spec-note[4] FORMAT "x(100)" SKIP
+              "<=SpecNotes5>" v-spec-note[5] FORMAT "x(100)" SKIP
+              "<=SpecNotes6>" v-spec-note[6] FORMAT "x(100)"  SKIP
               .
-       
+                 
         v-shipto = IF AVAILABLE xoe-rel THEN xoe-rel.ship-id 
                         ELSE IF AVAILABLE xeb THEN xeb.ship-id
                         ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
@@ -1166,7 +1172,7 @@ DO v-local-loop = 1 TO v-local-copies:
             ELSE IF AVAILABLE xeb THEN xeb.ship-id
             ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
             ELSE "".
-            FIND FIRST tt-prem WHERE TRIM(tt-prem.tt-job-no)  EQ TRIM(job-hdr.job-no)
+            FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
                 AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE tt-prem THEN CREATE tt-prem.
         

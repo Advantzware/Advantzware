@@ -1213,7 +1213,7 @@ display "" with frame r-top.
 
      a = FILL(" ", iJobLen - length(trim(mch-srt.job-no))) +
          trim(mch-srt.job-no) + "-" +
-         string(mch-srt.job-no2,"99").
+         string(mch-srt.job-no2,"999").
 
 
      if not v-prt-job AND NOT v-prt-both then

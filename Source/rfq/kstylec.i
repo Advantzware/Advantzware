@@ -1,23 +1,6 @@
 /* ---------------------------------------------------- cec/kstyle.i 12/93 cd */
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
-
-find first sys-ctrl
-    where sys-ctrl.company eq xrfq.company
-      and sys-ctrl.name    eq "ROUND"
-    no-lock no-error.
-if not avail sys-ctrl then do:
-  create sys-ctrl.
-  assign
-   sys-ctrl.company = xrfq.company
-   sys-ctrl.name    = "ROUND"
-   sys-ctrl.descrip = "Round Up Scoring Allowances".
-  message "Sys Ctrl NOT found. "
-          "Would you like scoring allowances to round up?"
-          update sys-ctrl.log-fld.
-end.
-
-
 /* get rid of any blank/space or invalid character */
 do i = 1 to length(tmpstore):
    if keycode(substring(tmpstore,i,1)) = 32 or
@@ -81,7 +64,7 @@ end.
 
 do i = 1 to 12:
   num[i] = num[i] * li-16-32.
-  if sys-ctrl.log-fld then do:
+  if lRound then do:
     {sys/inc/roundup.i num[i]}
   end.
   ELSE IF v-cecscrn-char NE "Decimal" THEN

@@ -425,6 +425,10 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         lCalcLayoutDim /*Recalc dimensions - Refactor - should be no if Style is foam*/).       
     
     RUN pCalcPacking(ROWID(eb)).
+    
+    FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+    FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+      
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
         ASSIGN  
             est.estimateTypeID = "MISC" 
@@ -444,10 +448,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
             eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
             .
-             
-      FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
-      FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
-      
+                  
       IF eb.sourceEstimate NE "" THEN
       DO:
            FIND FIRST xeb EXCLUSIVE-LOCK

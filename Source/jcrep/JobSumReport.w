@@ -107,7 +107,7 @@ DEFINE VARIABLE begin_job-closeDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -122,7 +122,7 @@ DEFINE VARIABLE end_close-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -145,13 +145,13 @@ DEFINE RECTANGLE RECT-7
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_job-no AT ROW 2.67 COL 24 COLON-ALIGNED HELP
+     begin_job-no AT ROW 2.67 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 2.67 COL 36 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.67 COL 63 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.67 COL 74 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.67 COL 79 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd_jobstat AT ROW 4.48 COL 26 NO-LABEL WIDGET-ID 2
      begin_job-closeDate AT ROW 6 COL 23.8 COLON-ALIGNED HELP
@@ -558,7 +558,7 @@ PROCEDURE pFillData :
 
         IF FIRST-OF(ttJob.iJobNo2) THEN
         DO:           
-            RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iRowCount), STRING(TRIM(ttJob.cJobNo) + "-" + STRING(ttJob.iJobNo2,"99"))).
+            RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iRowCount), STRING(TRIM(ttJob.cJobNo) + "-" + STRING(ttJob.iJobNo2,"999"))).
             RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iRowCount), (IF ttJob.dtCloseDate EQ ? THEN " " ELSE STRING(ttJob.dtCloseDate,"99/99/9999"))).
             
             iRowCount = iRowCount + 1. 
@@ -792,8 +792,8 @@ PROCEDURE run-report :
     EMPTY TEMP-TABLE ttItem.    
     
     
-    DO WITH FRAME {&FRAME-NAME}:    
-        RUN jc/jobSumReport.p(cocode, begin_job-no:SCREEN-VALUE, STRING(begin_job-no2:SCREEN-VALUE,"999"), end_job-no:SCREEN-VALUE, STRING(begin_job-no2,"999"),
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN jc/jobSumReport.p(cocode, begin_job-no:SCREEN-VALUE, STRING(begin_job-no2,"999"), end_job-no:SCREEN-VALUE, STRING(end_job-no2,"999"),
             rd_jobstat:SCREEN-VALUE, begin_job-closeDate:SCREEN-VALUE, end_close-date:SCREEN-VALUE, 
             OUTPUT table ttJob,
             OUTPUT table ttDepartment,

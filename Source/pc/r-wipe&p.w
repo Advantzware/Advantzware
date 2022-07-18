@@ -1269,8 +1269,8 @@ PROCEDURE run-report :
 {sys/form/r-topw.f}
 
 def var v-date like pc-prdd.op-date extent 2 format "99/99/9999" init TODAY no-undo.
-def var v-job-no like job.job-no extent 2 init ["","zzzzzz"] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 format "99" init [0,99] no-undo.
+def var v-job-no like job.job-no extent 2 init ["","zzzzzzzzz"] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 format "999" init [0,999] no-undo.
 def var v-m-code like mach.m-code extent 2 init ["","zzzzzz"] no-undo.
 def var v-shift like pc-prdd.shift extent 2 no-undo.
 
@@ -1312,7 +1312,7 @@ form
     space(0)
     pc-prdd.shift column-label "SH" format ">>"
     pc-prdd.job-no column-label "  JOB #" space(0) "-" space(0)
-    pc-prdd.job-no2 no-label format "99"
+    pc-prdd.job-no2 no-label format "999"
     pc-prdd.frm column-label " S" space(0) "/" space(0)
     pc-prdd.blank-no column-label "/B"
     job-hdr.i-no column-label "ITEM #"

@@ -126,8 +126,7 @@
                                    else "","xxx") +
                             cust.cust-no
            tt-report.key-02  = if v-sumdet then job-hdr.i-no
-                            else (trim(job.job-no) + "-" +
-                                  string(job.job-no2,"99"))
+                            else TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
            tt-report.key-03  = job-hdr.i-no
            tt-report.key-04  = string(v-qty[1] - v-qty[2],"9999999999")
            tt-report.key-05  = job-hdr.cust-no
@@ -267,8 +266,8 @@
           v-uom    = "/" + if w-ord.uom ne "" then caps(w-ord.uom) else "EA"
           v-job-no = if v-ord-job 
                      then string(w-ord.ord-no) 
-                     else (w-ord.job-no + "-" + string(w-ord.job-no2,"99"))
-          v-job-no = if v-job-no eq "-00" then "" else trim(v-job-no).
+                     ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
+          v-job-no = if v-job-no eq "-000" then "" else trim(v-job-no).
 
         if v-sumdet then do:
             if first-of(tt-report.key-01) then do:

@@ -100,30 +100,30 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-brdpordA.csv" 
      LABEL "If Yes, File Name" 
@@ -234,11 +234,11 @@ DEFINE FRAME FRAME-A
      tb_corr AT ROW 4.33 COL 46
      begin_job-no AT ROW 5.29 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 5.29 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 5.29 COL 42 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 5.29 COL 63 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 5.29 COL 75 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 5.29 COL 77 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_date AT ROW 6.24 COL 28 COLON-ALIGNED
      end_date AT ROW 6.24 COL 63 COLON-ALIGNED HELP
@@ -877,7 +877,7 @@ DEF VAR v-act-qty AS INTE NO-UNDO.
 DEF VAR v-qty     AS DECI NO-UNDO.
 DEF VAR v-lbs     AS DECI NO-UNDO.
 DEF VAR v-lf      AS DECI NO-UNDO.
-DEF VAR v-job     AS CHAR NO-UNDO FORM "x(12)".
+DEF VAR v-job     AS CHAR NO-UNDO FORM "x(13)".
 DEF VAR v-sheet   AS CHAR NO-UNDO.
 DEF VAR v-width   LIKE job-mat.wid NO-UNDO. 
 DEF VAR v-length  LIKE job-mat.len NO-UNDO. 
@@ -902,9 +902,9 @@ assign
                   ELSE
                     IF tb_corr THEN "C" ELSE ""
   v-job-no[1]   = FILL(" ", iJobLen - length(trim(begin_job-no))) +
-                  trim(begin_job-no) + string(int(begin_job-no2),"99")
+                  trim(begin_job-no) + string(int(begin_job-no2),"999")
   v-job-no[2]   = FILL(" ", iJobLen - length(trim(end_job-no)))   +
-                  trim(end_job-no)   + string(int(end_job-no2),"99") 
+                  trim(end_job-no)   + string(int(end_job-no2),"999") 
 
   v-date[1]     = begin_date
   v-date[2]     = END_date

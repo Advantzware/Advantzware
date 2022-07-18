@@ -173,8 +173,8 @@ IF v-zone-p THEN v-zone-hdr = "Route No.:".
           FIRST oe-ord NO-LOCK
           WHERE oe-ord.company EQ xoe-rell.company
             AND oe-ord.ord-no  EQ xoe-rell.ord-no:
-
-        CASE oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        CASE v-frt-terms:
              WHEN "P" THEN v-frt-terms = "Prepaid".
              WHEN "C" THEN v-frt-terms = "Collect".
              WHEN "B" THEN v-frt-terms = "Bill".

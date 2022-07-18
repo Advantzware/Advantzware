@@ -451,7 +451,8 @@ PROCEDURE EnablePOScores:
  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        ENABLE btPOScores.
+       IF v-can-update THEN
+       ENABLE btPOScores.
     END.
 END PROCEDURE.
 	
@@ -689,7 +690,8 @@ DO WITH FRAME Panel-Frame:
 
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT v-can-update THEN ASSIGN btn-save:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-                                    btn-auto-calc:SENSITIVE = NO.
+                                    btn-auto-calc:SENSITIVE = NO
+                                    btPOScores:SENSITIVE = NO.
     IF NOT v-can-run THEN DISABLE ALL.
   END.
 
