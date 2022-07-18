@@ -363,6 +363,71 @@ CLASS API.APIHandler:
 		RETURN lcResponseData.
 	END METHOD.
 
+    /*------------------------------------------------------------------------------
+     Purpose: Method for PATCH request type
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC LONGCHAR Patch( ipcURL AS CHARACTER, iplcRequestData AS LONGCHAR ):
+        RETURN pPatch(ipcURL, iplcRequestData).
+    END METHOD.
+
+    /*------------------------------------------------------------------------------
+     Purpose: Private method for PATCH request type
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PRIVATE LONGCHAR pPatch( ipcURL AS CHARACTER, iplcRequestData AS LONGCHAR ):
+        DEFINE VARIABLE oContent            AS HttpContent        NO-UNDO.
+        DEFINE VARIABLE oHttpMethod         AS HttpMethod         NO-UNDO.
+        DEFINE VARIABLE oHttpRequestMessage AS HttpRequestMessage NO-UNDO.
+        
+        DEFINE VARIABLE oBytes  AS "System.Byte[]":U NO-UNDO.
+        
+        DEFINE VARIABLE lcResponseData       AS LONGCHAR  NO-UNDO.  
+        DEFINE VARIABLE cResponseContentType AS CHARACTER NO-UNDO.
+        
+        ipcURL = pReplaceExceptionalCharacters(ipcURL).
+        
+        oClient:BaseAddress = NEW System.Uri(ipcURL).
+        
+        oClient:DefaultRequestHeaders:Accept:Add(NEW System.Net.Http.Headers.MediaTypeWithQualityHeaderValue(ContentType)).       
+        
+        oHttpMethod = NEW HttpMethod("PATCH").
+        
+        oHttpRequestMessage = NEW HttpRequestMessage(oHttpMethod, ipcURL).
+        
+        IF ContentType EQ "application/x-www-form-urlencoded" AND iplcRequestData EQ "" THEN DO:
+            oContent = NEW FormUrlEncodedContent(oURLEncodedData).
+        END.
+        ELSE DO: 
+            oContent = NEW StringContent(iplcRequestData, System.Text.UTF8Encoding:UTF8, ContentType).            
+        END.
+
+        oContent:Headers:ContentType:CharSet = "".
+
+        oHttpRequestMessage:Content = oContent.
+        
+        ResponseMessage = oClient:SendAsync(oHttpRequestMessage):RESULT NO-ERROR.          
+        
+        FIX-CODEPAGE(lcResponseData) = 'utf-8'.
+        
+        IF VALID-OBJECT(ResponseMessage) THEN DO:
+            /* Looks like ReadAsStringAsync returns data in UTF-8 encoded format and replaces right/left double quotations with normal double quotation.
+               As these are not escaped by server JSON parsing throws an error. Reading as byte array and later converting to ISO8859-1 fixed the issue */
+            /* The current encoding for INPUT/OUTPUT files is ISO8859-1, hence we didn't have this error when API request went through cURL */
+            oBytes = ResponseMessage:Content:ReadAsByteArrayAsync():RESULT.
+             
+            cResponseContentType = ResponseMessage:Content:Headers:ContentType:ToString() NO-ERROR.
+
+            lcResponseData = Encoding:GetEncoding("iso8859-1"):GetString(oBytes).
+        END.
+        
+        lcResponseData = ConvertUTF8ToISO8859-1(lcResponseData, cResponseContentType).
+        
+        RETURN lcResponseData.
+    END METHOD.
+    
 	/*------------------------------------------------------------------------------
 	 Purpose: cURL fails when there are & in URL. Escaping with ^ can fix this issue. But fails with HttpClient method. 
 	          Removing carats in URL should fix this. 
