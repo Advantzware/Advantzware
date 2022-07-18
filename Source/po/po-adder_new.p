@@ -195,7 +195,7 @@ DO WITH FRAME po-ordlf:
                                                    OUTPUT loError,
                                                    OUTPUT chMessage).
         END.
-        FIND FIRST po-ordl-add NO-LOCK 
+        FIND FIRST po-ordl-add EXCLUSIVE-LOCK 
             WHERE po-ordl-add.company    EQ po-ordl.company
             AND po-ordl-add.po-no      EQ po-ordl.po-no  
             AND po-ordl-add.line       EQ po-ordl.line   
