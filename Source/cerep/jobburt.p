@@ -30,6 +30,7 @@ DEFINE VARIABLE v-reprint       AS LOG.
 DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lIsAPIActive    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE li              AS INTEGER   NO-UNDO.
 
 DEFINE BUFFER bf-job-hdr FOR job-hdr.
@@ -43,9 +44,18 @@ ASSIGN
     .
 
 DEFINE TEMP-TABLE ttEstCostHeaderID NO-UNDO
-    FIELD estCostHeaderID AS int64
+    FIELD estCostHeaderID AS INT64
     FIELD riJobHeader     AS ROWID
     .
+
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
+RUN Outbound_IsApiClientAndScopeActive IN hdOutboundProcs (cocode, "", "JobTicket", v-format, "", "", "PrintJob", OUTPUT lIsAPIActive).
+IF NOT lIsAPIActive THEN DO:
+    MESSAGE "'JobTicket' API is not configured for '" + v-format + "' format"  
+        VIEW-AS ALERT-BOX ERROR.
+    RETURN ERROR.
+END.
 
 /* build tt-reftable */
 FOR EACH job-hdr NO-LOCK
@@ -150,12 +160,15 @@ FOR EACH job-hdr NO-LOCK
         END.
     END.
     
-    FIND FIRST estCostHeader NO-LOCK
-         WHERE estCostHeader.company    = job-hdr.company
-           AND estCostHeader.estimateNo = job-hdr.est-no
-           AND estCostHeader.jobID      = job-hdr.job-no
-           AND estCostHeader.jobid2     = job-hdr.job-no2
-         NO-ERROR.
+    /* Need to be re-factored later */
+    FOR EACH estCostHeader NO-LOCK
+         WHERE estCostHeader.company    EQ job-hdr.company
+           AND estCostHeader.estimateNo EQ job-hdr.est-no
+           AND estCostHeader.jobID      EQ job-hdr.job-no
+           AND estCostHeader.jobid2     EQ job-hdr.job-no2
+         BY estCostHeader.calcDateTime DESCENDING:
+        LEAVE.
+    END.
     IF NOT AVAILABLE estCostHeader THEN
         NEXT.
     
@@ -171,8 +184,6 @@ FOR EACH job-hdr NO-LOCK
     END.
 END.
 /* end of building tt-reftable */
-
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
     INPUT  cocode,                             /* Company Code (Mandatory) */
@@ -199,8 +210,10 @@ IF AVAILABLE ttAPIOutboundEvent THEN DO:
     IF AVAILABLE apiOutboundEvent THEN
         oplcRequestData = apiOutboundEvent.requestData.
 END.    
-                                
-DELETE PROCEDURE hdOutboundProcs.
+
+FINALLY:
+    DELETE PROCEDURE hdOutboundProcs.
+END FINALLY.                                
 
 
 /* **********************  Internal Procedures  *********************** */

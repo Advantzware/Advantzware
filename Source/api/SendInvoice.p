@@ -266,6 +266,7 @@ FOR EACH ttInv:
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumber",STRING(ttInvLine.orderLine)). 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumberOverride",STRING(ttInvLine.orderLineOverride)). 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumberOverridden",STRING(ttInvLine.orderLineOverridden)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderDate", STRING(ttInvLine.orderDate)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPriceUOM",ttInvLine.priceUOM).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPrice", STRING(ttInvLine.pricePerUOM)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemID",ttInvLine.itemID).
@@ -440,7 +441,7 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FobCodeDescription", ttInv.fob).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDiscountDue", ttInv.amountTotal - ttInv.termDiscountAmount ).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IsEDIOrder", STRING(ttInv.isEDIOrder)).
-    
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLDate", STRING(ttInv.bolDate)).
         
     ASSIGN 
         iSECount = NUM-ENTRIES(ioplcRequestData, "~n") - 1   

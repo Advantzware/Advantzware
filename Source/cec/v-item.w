@@ -104,7 +104,7 @@ item.box-case item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
 item.speed%[5] item.speed%[6] item.speed%[7] item.speed%[8] item.speed%[9] ~
 item.speed%[10] item.case-pall item.stat item.sqin-lb item.linin-lb  ~
 item.ink-type item.press-type item.yield item.min-lbs item.spare-char-1 ~
-item.wastePercent
+item.wastePercent item.itemNotes
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-20 RECT-3 RECT-4 RECT-5 ~
@@ -121,7 +121,7 @@ item.dept-name[9] item.dept-name[10] item.box-case item.speed%[1] ~
 item.speed%[2] item.speed%[3] item.speed%[4] item.speed%[5] item.speed%[6] ~
 item.speed%[7] item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall ~
 item.stat item.sqin-lb item.linin-lb item.ink-type item.press-type item.yield ~
-item.min-lbs item.spare-char-1 item.wastePercent
+item.min-lbs item.spare-char-1 item.wastePercent item.itemNotes
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS fi_mat-type mat_dscr u-ptd costtype_descr ~
@@ -618,6 +618,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      fi_reg-no AT ROW 16.95 COL 99 COLON-ALIGNED
+     item.itemNotes AT ROW 18.19 COL 18 NO-LABEL WIDGET-ID 10
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 106 BY 2.33
      F1 AT ROW 2.67 COL 73 NO-LABEL
      F-2 AT ROW 3.86 COL 73 NO-LABEL
      F-3 AT ROW 5.05 COL 73 NO-LABEL
@@ -643,6 +646,9 @@ DEFINE FRAME F-Main
           FONT 4
      "Consumption Qty" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 6.24 COL 116
+     "Item Notes:" VIEW-AS TEXT
+          SIZE 14 BY .71 AT ROW 18.19 COL 3
+          FONT 6
      RECT-1 AT ROW 6.95 COL 1
      RECT-2 AT ROW 14.81 COL 2
      RECT-20 AT ROW 8.62 COL 32.4

@@ -869,7 +869,7 @@ DO WITH FRAME Panel-Frame:
                                     btn-bom:SENSITIVE = NO
                                     btn-flm:SENSITIVE = NO
                                     btn-goto:SENSITIVE = NO
-                                    /*btn-stds:SENSITIVE = NO*/.
+                                    btn-sht-calc:SENSITIVE = NO.
     IF NOT v-can-create THEN btn-copy:SENSITIVE = NO.
     IF NOT v-can-run THEN DISABLE ALL.
 

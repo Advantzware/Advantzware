@@ -849,7 +849,7 @@ PROCEDURE pAddEstMaterial PRIVATE:
             opbf-ttEstCostMaterial.estimateNo       = ipbf-ttEstCostForm.estimateNo
             opbf-ttEstCostMaterial.formNo           = ipbf-ttEstCostForm.formNo
             opbf-ttEstCostMaterial.itemID           = bf-item.i-no 
-            opbf-ttEstCostMaterial.itemName         = IF bf-item.est-dscr NE "" THEN bf-item.est-dscr ELSE bf-item.i-name 
+            opbf-ttEstCostMaterial.itemName         = IF bf-item.i-name NE "" THEN bf-item.i-name ELSE bf-item.est-dscr 
             opbf-ttEstCostMaterial.quantityUOM      = CAPS(bf-item.cons-uom)
             opbf-ttEstCostMaterial.quantityUOMWaste = opbf-ttEstCostMaterial.quantityUOM
             opbf-ttEstCostMaterial.basisWeight      = bf-item.basis-w
@@ -4902,8 +4902,10 @@ PROCEDURE pProcessGlues PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
 
     DEFINE           BUFFER bf-ttEstCostMaterial FOR ttEstCostMaterial.
-    DEFINE VARIABLE dQtyRequiredMinDiff AS DECIMAL NO-UNDO.
     
+    DEFINE VARIABLE dQtyRequiredMinDiff AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iNumOut             AS INTEGER NO-UNDO.
+        
     FOR EACH ttEstCostOperation NO-LOCK 
         WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
         AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
@@ -4913,7 +4915,7 @@ PROCEDURE pProcessGlues PRIVATE:
         AND ttGlue.estFormID EQ ttEstCostOperation.estCostFormID
         AND (ttGlue.estBlankID EQ ttEstCostOperation.estCostBlankID 
         OR (ttEstCostOperation.estCostBlankID EQ ? 
-        AND ttEstCostOperation.FeedType EQ "S"))
+        AND (ttEstCostOperation.FeedType EQ "S" OR ttEstCostOperation.FeedType EQ "R")))
         ,
         FIRST ttEstCostBlank NO-LOCK 
         WHERE ttEstCostBlank.estCostHeaderID EQ ttGlue.estHeaderID
@@ -4923,11 +4925,15 @@ PROCEDURE pProcessGlues PRIVATE:
 
         RUN pAddEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, ttGlue.cItemID, ttEstCostBlank.estCostBlankID, BUFFER bf-ttEstCostMaterial).
         
+        iNumOut = IF ttEstCostOperation.FeedType EQ "R" THEN ipbf-ttEstCostForm.numOutNet * ttEstCostBlank.numOut 
+                  ELSE IF ttEstCostOperation.FeedType EQ "S" THEN ttEstCostBlank.numOut
+                  ELSE 1.
+
         ASSIGN    
             bf-ttEstCostMaterial.addToWeightNet             = YES
-            bf-ttEstCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
-            bf-ttEstCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
-            bf-ttEstCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
+            bf-ttEstCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank * iNumOut
+            bf-ttEstCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank * iNumOut
+            bf-ttEstCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank * iNumOut
             dQtyRequiredMinDiff                           = ttGlue.dMinLbsPerJob - 
                                                     (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
             bf-ttEstCostMaterial.quantityUOM                = ttGlue.cQtyUOM
@@ -5777,6 +5783,7 @@ PROCEDURE pPurgeCalculation PRIVATE:
     DEFINE BUFFER bf-probe         FOR probe.
     DEFINE BUFFER bf-probeit       FOR probeit.
     DEFINE BUFFER bf-ttEstCostHeader FOR ttEstCostHeader.
+    DEFINE BUFFER bf-estCostHeader   FOR estCostHeader.
     
     IF ipcJobNo EQ "" THEN DO:
         FOR EACH bf-probe EXCLUSIVE-LOCK 
@@ -5798,6 +5805,19 @@ PROCEDURE pPurgeCalculation PRIVATE:
             
         DELETE bf-ttEstCostHeader.    
     END.
+    
+    FOR EACH estCostHeader NO-LOCK 
+        WHERE estCostHeader.company    EQ ipcCompany
+          AND estCostHeader.estimateNo EQ ipcEstimateNo
+          AND estCostHeader.jobID      EQ ipcJobNo
+          AND estCostHeader.jobID2     EQ ipiJobNo2:
+        FIND FIRST bf-estCostHeader EXCLUSIVE-LOCK
+             WHERE bf-estCostHeader.estCostHeaderID EQ estCostHeader.estCostHeaderID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostHeader THEN
+            DELETE bf-estCostHeader.
+    END.
+   
     RELEASE bf-probe.
     RELEASE bf-probeit.
     RELEASE bf-ttEstCostHeader.

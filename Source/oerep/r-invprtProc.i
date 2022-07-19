@@ -512,7 +512,18 @@ PROCEDURE BatchMail :
             
             IF FIRST-OF (b2-cust.cust-no) THEN 
             DO:
-
+                IF b2-cust.emailPreference EQ 0 THEN
+                DO:
+                    MESSAGE "Would you like print combined(yes) or Sparate(No) pdf for customer:" + b2-cust.cust-no
+                              VIEW-AS ALERT-BOX QUESTION 
+                              BUTTONS YES-NO UPDATE lcheckflg as logical .
+                    IF lcheckflg THEN  tb_splitPDF = NO. 
+                    ELSE tb_splitPDF = YES.
+                END.
+                ELSE IF b2-cust.emailPreference EQ 1 THEN
+                tb_splitPDF = NO.
+                ELSE   tb_splitPDF = YES.
+                
                 ASSIGN  
                     vlSkipRec   = YES
                     vcBegCustNo = b1-{&head}2.cust-no
@@ -838,6 +849,7 @@ PROCEDURE pCallAPIOutbound PRIVATE:
     system.SharedConfig:Instance:SetValue("PrintInvoice_PrintInstructions", STRING(tb_prt-inst)).
     system.SharedConfig:Instance:SetValue("PrintInvoice_PrintSetComponents", STRING(tb_setcomp)).
     system.SharedConfig:Instance:SetValue("PrintInvoice_BatchEmail", STRING(tb_BatchMail)).
+    system.SharedConfig:Instance:SetValue("PrintInvoice_PrintQtyAll", STRING(tb_qty-all)).
 
     RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
     
@@ -865,6 +877,7 @@ PROCEDURE pCallAPIOutbound PRIVATE:
     system.SharedConfig:Instance:DeleteValue("PrintInvoice_PrintInstructions").
     system.SharedConfig:Instance:DeleteValue("PrintInvoice_PrintSetComponents").
     system.SharedConfig:Instance:DeleteValue("PrintInvoice_BatchEmail").
+    system.SharedConfig:Instance:DeleteValue("PrintInvoice_PrintQtyAll").
     
     RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
     
@@ -1851,7 +1864,10 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
                 IF NOT tb_cust-copy AND NOT tb_office-copy AND NOT tb_sman-copy THEN RUN value(v-program) ("").
             END.
             ELSE IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis") > 0 THEN 
-DO: 
+DO:                 
+                    IF lIsAPIActive AND v-print-fmt EQ "InvPrint-Mex" THEN
+                    RUN pCallAPIOutbound(v-print-fmt, cAPIScopeType, cAPIScopeID, rCurrentInvoice).
+                    ELSE     
                     RUN value(v-program) ("",NO). 
                     v-reprint = YES.
                     IF tb_cust-copy THEN RUN value(v-program) ("Customer Copy",NO).

@@ -71,6 +71,7 @@ DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lxPrint AS LOGICAL NO-UNDO.
 
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -512,54 +513,59 @@ DO:
   run run-report. 
 
   SESSION:SET-WAIT-STATE ("").
-
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-       when 4 then do:
-           IF is-xprint-form THEN DO:
-              RUN output-to-fax-prt. /* create tif file */              
-              {custom/asifaxm2.i &TYPE="Customer"
-                            &begin_cust=begin_cust
-                            &END_cust=END_cust
-                            &fax-subject="Signed BOL"
-                            &fax-body="Signed BOL"
-                            &fax-file=ls-fax-file }      
-           END.
-           ELSE DO:
-               /*run output-to-fax.*/
-               {custom/asifax.i &type="Customer"
-                             &begin_cust=begin_cust
-                            &END_cust= begin_cust
-                            &fax-subject="BOL"
-                            &fax-body="BOL"
-                            &fax-file=list-name }
-           END.
-       END. 
-       when 5 then do:
-           IF is-xprint-form THEN DO:
-              RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").                            
-              {custom/asimail6.i &TYPE = "Customer"
-                             &group-title='r-bolprt.' /* v-prgmname */
-                             &begin_cust= begin_cust
-                             &END_cust=end_cust
-                             &mail-subject="BOL"
-                             &mail-body="BOL"
-                             &mail-file=ls-pdf-image }
-           END.
-           ELSE DO:
-               {custom/asimailr2.i &TYPE = "Customer"
-                                  &group-title='r-bolprt.' /* v-prgmname */
-                                  &begin_cust= begin_cust
-                                  &END_cust=end_cust
-                                  &mail-subject=current-window:title
-                                  &mail-body=CURRENT-WINDOW:TITLE
-                                  &mail-file=list-name }
-           END.
-       END. 
-       WHEN 6 THEN RUN output-to-port.
-  end case. 
+  
+  IF lxPrint OR rd-dest EQ 5 THEN do:
+      case rd-dest:
+           when 1 then run output-to-printer.
+           when 2 then run output-to-screen.
+           when 3 then run output-to-file.
+           when 4 then do:
+               IF is-xprint-form THEN DO:
+                  RUN output-to-fax-prt. /* create tif file */              
+                  {custom/asifaxm2.i &TYPE="Customer"
+                                &begin_cust=begin_cust
+                                &END_cust=END_cust
+                                &fax-subject="Signed BOL"
+                                &fax-body="Signed BOL"
+                                &fax-file=ls-fax-file }      
+               END.
+               ELSE DO:
+                   /*run output-to-fax.*/
+                   {custom/asifax.i &type="Customer"
+                                 &begin_cust=begin_cust
+                                &END_cust= begin_cust
+                                &fax-subject="BOL"
+                                &fax-body="BOL"
+                                &fax-file=list-name }
+               END.
+           END. 
+           when 5 then do:
+               IF is-xprint-form THEN DO:
+                  IF lxPrint THEN
+                  RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").                            
+                  {custom/asimail6.i &TYPE = "Customer"
+                                 &group-title='r-bolprt.' /* v-prgmname */
+                                 &begin_cust= begin_cust
+                                 &END_cust=end_cust
+                                 &mail-subject="BOL"
+                                 &mail-body="BOL"
+                                 &mail-file=ls-pdf-image }
+               END.
+               ELSE DO:
+                   {custom/asimailr2.i &TYPE = "Customer"
+                                      &group-title='r-bolprt.' /* v-prgmname */
+                                      &begin_cust= begin_cust
+                                      &END_cust=end_cust
+                                      &mail-subject=current-window:title
+                                      &mail-body=CURRENT-WINDOW:TITLE
+                                      &mail-file=list-name }
+               END.
+           END. 
+           WHEN 6 THEN RUN output-to-port.
+      end case. 
+      lxPrint = NO .
+  END.
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1046,7 +1052,7 @@ IF IS-xprint-form THEN DO:
     END CASE.
 END.
 
-RUN value(v-program).
+RUN  oe/rep/bolsign.p (OUTPUT lxPrint). //value(v-program).
 
 for each report where report.term-id eq v-term-id:
     delete report.

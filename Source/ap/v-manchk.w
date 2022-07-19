@@ -136,7 +136,7 @@ DEFINE FRAME F-Main
           SIZE 15 BY 1
      bank_name AT ROW 2.91 COL 35 COLON-ALIGNED NO-LABEL
      ap-chk.check-no AT ROW 4.57 COL 19 COLON-ALIGNED
-          LABEL "Check No"
+          LABEL "Check No"  FORMAT "99999999"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      ap-chk.check-date AT ROW 4.57 COL 52 COLON-ALIGNED
@@ -218,7 +218,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ap-chk.check-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ap-chk.check-no IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN vend_name IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */

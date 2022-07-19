@@ -1954,7 +1954,7 @@ PROCEDURE valid-mach :
                     IF lv-dept EQ "RC" THEN STRING(xef.n-out) ELSE STRING(xef.n-out-l).  */            
 
 
-        IF AVAILABLE xef AND (adm-adding-record OR INTEGER(est-op.n-out:SCREEN-VALUE ) EQ 0) THEN
+        IF AVAILABLE xef THEN
         DO:
             RUN Operations_GetNumout IN hdOpProcs ( INPUT xef.company,
                 INPUT xef.est-no,

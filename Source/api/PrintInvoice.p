@@ -74,6 +74,7 @@ DEFINE VARIABLE riInvoice               AS ROWID     NO-UNDO.
 DEFINE VARIABLE iInvoiceID              AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cReportARMiscAsLine     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lReportARMiscAsLine     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPrintAllQty            AS LOGICAL   NO-UNDO.
 
 DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
 
@@ -184,6 +185,7 @@ FOR EACH ttInvoice
         lPrintInstructions  = LOGICAL(system.SharedConfig:Instance:GetValue("PrintInvoice_PrintInstructions"))
         lPrintSetComponents = LOGICAL(system.SharedConfig:Instance:GetValue("PrintInvoice_PrintSetComponents"))
         lBatchEmail         = LOGICAL(system.SharedConfig:Instance:GetValue("PrintInvoice_BatchEmail"))
+        lPrintAllQty        = LOGICAL(system.SharedConfig:Instance:GetValue("PrintInvoice_PrintQtyAll"))
         NO-ERROR.
     
     RUN pGetRequestData ("PrintInvoice", "Invoice", OUTPUT lcInvoiceData).
@@ -376,6 +378,7 @@ ioplcRequestData = REPLACE(ioplcRequestData, "$ReportFooter$", lcReportFooter).
 oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceID", STRING(iInvoiceID)).
 oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DisplayCompanyAddress", cDisplayCompanyAddress).
 oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BatchEmail", STRING(lBatchEmail)).
+oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "PrintAllQty", STRING(lPrintAllQty)).
 
 ASSIGN
     opcMessage = ""
@@ -422,6 +425,14 @@ PROCEDURE pAssignCommonData PRIVATE:
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceShiptoCity", ttInv.shiptoCity).
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceShiptoState", ttInv.shiptoState).
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoiceShiptoZip", ttInv.shiptoPostalCode).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "InvoicePC", ttInv.invoicePC).
+    
+    FIND FIRST sman NO-LOCK 
+         WHERE sman.company EQ ttInv.company
+         AND sman.sman      EQ ttInv.salesPerson[1]
+         NO-ERROR.     
+    ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER sman:HANDLE).
+   
 END PROCEDURE.
 
 PROCEDURE pGetRequestData:

@@ -82,6 +82,7 @@ DEFINE TEMP-TABLE ttInv NO-UNDO
     FIELD bolID                       AS INTEGER   FORMAT "->,>>>,>>9" LABEL "BOL ID"
     FIELD totalPallets                AS INTEGER   FORMAT "->,>>>,>>9" LABEL "TotalPallets"
     FIELD salesPerson                 AS CHARACTER FORMAT "X(30)"      LABEL "Sales Person" EXTENT 3
+    FIELD invoicePC                   AS CHARACTER FORMAT "X(2)"       LABEL "P/C"
     .
 DEFINE TEMP-TABLE ttInvLine NO-UNDO     
     FIELD invoiceID                AS INTEGER   FORMAT ">>>>>>>9"   LABEL "Invoice ID"
@@ -120,6 +121,7 @@ DEFINE TEMP-TABLE ttInvLine NO-UNDO
     FIELD orderLine                AS INTEGER   FORMAT "->,>>>,>>9" LABEL "Order Line"
     FIELD orderLineOverride        AS INTEGER   FORMAT "->,>>>,>>9" LABEL "Order Line Override"
     FIELD orderLineOverridden      AS INTEGER   FORMAT "->,>>>,>>9" LABEL "Order Line Overridden"
+    FIELD orderDate                AS DATE      FORMAT "99/99/9999" LABEL "Order Date"
     FIELD taxRateFreight           AS DECIMAL   FORMAT "->>,>>9.99" LABEL "Tax Rate Freight"
     FIELD customerPONo             AS CHARACTER FORMAT "x(15)"      LABEL "Customer PO No"
     FIELD customerPONoNoBlank      AS CHARACTER FORMAT "x(15)"      LABEL "Customer PO No No Blank"

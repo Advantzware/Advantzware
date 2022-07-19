@@ -1049,6 +1049,25 @@ PROCEDURE CreateOrder :
                 .
             RUN GetCostForFGItem IN hdCostProcs(oe-ordl.company,oe-ordl.i-no, OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
                 OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
+
+            IF cCostUOM NE "M" THEN DO:                 
+                RUN Conv_ValueFromUOMtoUOM (
+                        INPUT  oe-ordl.company, 
+                        INPUT  oe-ordl.i-no, 
+                        INPUT  "FG", 
+                        INPUT  dCostPerUOMTotal, 
+                        INPUT  cCostUOM, 
+                        INPUT  "M", 
+                        INPUT  0, 
+                        INPUT  0,
+                        INPUT  0,
+                        INPUT  0, 0, 
+                        OUTPUT dCostPerUOMTotal, 
+                        OUTPUT lError, 
+                        OUTPUT cMessage
+                        ).    
+            END.
+      
             oe-ordl.cost = dCostPerUOMTotal .
             oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .          
 

@@ -925,8 +925,12 @@ PROCEDURE pBuildUOMsForItemRM PRIVATE:
     IF AVAILABLE ipbf-item THEN 
     DO:   
         /*Add UOMs from item Master*/
-        RUN pAddUOMsFromDimensions(ipbf-item.s-len, ipbf-item.s-wid, ipbf-item.s-dep, "IN", cSourceItemMaster, 3).
-        
+        /* If item.r-wid is not 0, then item is a ROLL and length is in feets */
+        IF ipbf-item.r-wid NE 0 THEN
+            RUN pAddUOMsFromDimensions(ipbf-item.s-len * 12, ipbf-item.r-wid, ipbf-item.s-dep, "IN", cSourceItemMaster, 3).
+        ELSE
+            RUN pAddUOMsFromDimensions(ipbf-item.s-len, ipbf-item.s-wid, ipbf-item.s-dep, "IN", cSourceItemMaster, 3).
+            
         IF ipbf-item.cons-uom EQ "LB" THEN 
         DO:
             dLbsPerEA = 1.

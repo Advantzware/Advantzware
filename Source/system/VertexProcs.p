@@ -130,7 +130,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
 
-    RUN spGetSettingByName ("VertexAccessTokenDateTime", OUTPUT cSettingValue).
+    cSettingValue = system.SharedConfig:Instance:GetValue ("VertexAccessTokenDateTime").
     dtVertexAccessTokenDateTimeTZ = DATETIME-TZ(cSettingValue) NO-ERROR.
     
     RUN spGetSettingByName ("VertexAccessTokenRefreshInterval", OUTPUT cSettingValue).
@@ -236,7 +236,8 @@ PROCEDURE pUpdateAccessToken PRIVATE:
         OUTPUT dttzCurrentGMTDateTimeTZ
         ).        
     
-    RUN spSetSettingByName ("VertexAccessToken", cAccessToken).
+    system.SharedConfig:Instance:SetValue ("VertexAccessToken", cAccessToken).
+    system.SharedConfig:Instance:SetValue (bf-APIOutbound.apiID + "_" + bf-APIOutbound.clientID + "_BearerToken", cAccessToken).
     
     opcMessage = RETURN-VALUE.
     IF opcMessage NE "" THEN DO:
@@ -246,7 +247,7 @@ PROCEDURE pUpdateAccessToken PRIVATE:
             .
     END.
     
-    RUN spSetSettingByName ("VertexAccessTokenDateTime", STRING(dttzCurrentGMTDateTimeTZ)).
+    system.SharedConfig:Instance:SetValue ("VertexAccessTokenDateTime", STRING(dttzCurrentGMTDateTimeTZ)).
     
     opcMessage = RETURN-VALUE.
     
@@ -256,11 +257,6 @@ PROCEDURE pUpdateAccessToken PRIVATE:
             oplSuccess = FALSE
             .
     END.      
-        
-    FIND CURRENT bf-APIOutbound EXCLUSIVE-LOCK NO-ERROR.
-    IF AVAILABLE bf-APIOutbound THEN
-        bf-APIOutbound.password = cAccessToken.
-
 END PROCEDURE.
 
 PROCEDURE pGetTaxAmounts PRIVATE:

@@ -329,6 +329,7 @@ PROCEDURE pLastExecuted:
         END. /* if can-find */
         RELEASE emailConfig.
     END. /* do trans */
+    IF lUpdated THEN
     RUN pHTMLTasks.
 
 END PROCEDURE.
@@ -537,7 +538,8 @@ PROCEDURE pTasks :
                     ASSIGN
                         bTask.isRunning = YES
                         bTask.taskStart = NOW
-                        bTask.expired   = NO                        
+                        bTask.expired   = NO
+                        lUpdated        = YES
                         .
                     RELEASE bTask.
                 END. /* do trans */
@@ -578,7 +580,10 @@ PROCEDURE pTasks :
                 ).
             FIND FIRST bTask EXCLUSIVE-LOCK
                  WHERE ROWID(bTask) EQ ROWID(Task).
-            bTask.expired = YES.
+            ASSIGN
+                bTask.expired = YES
+                lUpdated      = YES
+                .
             RELEASE bTask.
         END. /* do trans */
         GET NEXT TaskBrowse.

@@ -54,26 +54,28 @@ find first cust  where cust.company eq cocode
 
 create itemfg.
 assign
- itemfg.company    = cocode
- itemfg.loc        = locode
- itemfg.i-no       = v-item
- itemfg.i-name     = xeb.part-dscr1
- itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.part-no    = xeb.part-no
- itemfg.cust-no    = xeb.cust-no
- itemfg.cust-name  = if avail cust then cust.name else ""
- itemfg.die-no     = xeb.die-no
- itemfg.plate-no   = xeb.plate-no
- itemfg.style      = xeb.style
- itemfg.procat     = xeb.procat
- itemfg.cad-no     = xeb.cad-no
- itemfg.upc-no     = xeb.upc-no
- itemfg.spc-no     = xeb.spc-no
- itemfg.isaset     = (xest.est-type eq 2 or xest.est-type eq 6) and
-                     xeb.form-no eq 0 
- itemfg.pur-man    = xeb.pur-man     
- itemfg.alloc      = NOT xeb.set-is-assembled
- itemfg.setupDate  = TODAY.
+ itemfg.company           = cocode
+ itemfg.loc               = locode
+ itemfg.i-no              = v-item
+ itemfg.i-name            = xeb.part-dscr1
+ itemfg.part-dscr1        = xeb.part-dscr2
+ itemfg.part-no           = xeb.part-no
+ itemfg.cust-no           = xeb.cust-no
+ itemfg.cust-name         = if avail cust then cust.name else ""
+ itemfg.die-no            = xeb.die-no
+ itemfg.plate-no          = xeb.plate-no
+ itemfg.style             = xeb.style
+ itemfg.procat            = xeb.procat
+ itemfg.cad-no            = xeb.cad-no
+ itemfg.upc-no            = xeb.upc-no
+ itemfg.spc-no            = xeb.spc-no
+ itemfg.isaset            = (xest.est-type eq 2 or xest.est-type eq 6) and
+                            xeb.form-no eq 0 
+ itemfg.pur-man           = xeb.pur-man     
+ itemfg.alloc             = NOT xeb.set-is-assembled
+ itemfg.setupDate         = TODAY
+ itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+ .
   
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 
