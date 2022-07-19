@@ -3734,7 +3734,7 @@ PROCEDURE ipDataFix220205 PRIVATE:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 220250...").
+    RUN ipStatus ("  Data Fix 220205...").
 
     RUN ipFixMaterialTypeGroup.
 END PROCEDURE.
