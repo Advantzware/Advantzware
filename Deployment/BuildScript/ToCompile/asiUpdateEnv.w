@@ -2877,6 +2877,8 @@ PROCEDURE ipDataFix :
     IF iCurrentVersion LT 22010500 THEN 
         RUN ipDataFix220105.
     iopiStatus = 68.
+    IF iCurrentVersion LT 22020500 THEN
+        RUN ipDataFix220205   
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
     iopiStatus = 80.
@@ -3725,6 +3727,23 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220205-Win
+PROCEDURE ipDataFix220205 PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220205...").
+
+    RUN ipFixMaterialTypeGroup.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
 /*------------------------------------------------------------------------------
@@ -4495,6 +4514,34 @@ PROCEDURE ipFixLocationStorageCost :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixMaterialTypeGroup C-Win
+PROCEDURE ipFixMaterialTypeGroup PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMaterialTypeList      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMaterialTypeGroupList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex                 AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        cMaterialTypeList      = "1,2,3,4,5,6,7,8,9,@,A,B,C,D,F,G,I,J,L,M,O,P,R,S,T,V,W,X,Y,Z"
+        cMaterialTypeGroupList = "Foam,Foam,Foam,Foam,Packing,Packing,Plates,Die,Wood,Misc,Adders,Board,Packing,Packing,Window,Glue,Ink/Coat,Packing,Glue,Misc,Wood,Board,Board,Glue,Glue,Ink/Coat,Window,Die,Die,Misc"
+        .
+    
+    RUN ipStatus("   Fix material type group").
+    
+    DO iIndex = 1 TO NUM-ENTRIES(cMaterialTypeList):
+        FOR EACH materialType EXCLUSIVE-LOCK
+            WHERE materialType.materialType EQ ENTRY(iIndex, cMaterialTypeList):
+            materialType.materialTypeGroup = ENTRY(iIndex, cMaterialTypeGroupList).
+        END.
+    END.
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
