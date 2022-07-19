@@ -4,6 +4,8 @@
   
   /* Quote# */
   
+  RUN Format_Date(xquo.quo-date,"DD/MM/YYYY", OUTPUT opcDateStringQuoDate).
+  
   ASSIGN v-cell = "R1C5".
   chExcelApplication:Goto(v-cell) NO-ERROR.
   ASSIGN chExcelApplication:ActiveCell:Value = v-first-q-no .
@@ -72,7 +74,7 @@
   
   ASSIGN v-cell = "R15C1".
   chExcelApplication:Goto(v-cell) NO-ERROR.
-  ASSIGN chExcelApplication:ActiveCell:Value =  xquo.quo-date.
+  ASSIGN chExcelApplication:ActiveCell:Value =  opcDateStringQuoDate.
 
   /* SalesPerson */
   
