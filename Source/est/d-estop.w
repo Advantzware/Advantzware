@@ -1402,7 +1402,7 @@ PROCEDURE display-item :
     IF AVAILABLE est-op  THEN 
     DO:
         
-        DISPLAY est-op.s-num est-op.b-num 
+        DISPLAY est-op.s-num est-op.b-num est-op.isLocked
             est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr 
             est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] 
             est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.plates 
