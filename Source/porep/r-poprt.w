@@ -2092,7 +2092,7 @@ PROCEDURE pRunFormatValueChanged :
         IF NOT CAN-DO('Brick,CSC,Southpak,Xprint,poprint 1,poprint 10,Ruffino,Altex,McLean,LancoYork,StClair,Boss,PeachTree,Asixprnt,PPI,CSC-GA,Indiana,Packrite,Allwest,Bell,ACPI,Sultana,CCC,Protagon,SouleMed,Soule,Hughes',v-print-fmt) THEN DISABLE tb_spec.
         ELSE ENABLE tb_spec .
 
-        IF NOT CAN-DO('Xprint,poprint 1,poprint 10,Ruffino,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,CapCity',v-print-fmt) THEN 
+        IF NOT CAN-DO('Xprint,poprint 1,poprint 10,Ruffino,Altex,McLean,LancoYork,StClair,Boss,Hughes,PeachTree,Protagon,PPI,Packrite,Sultana,PremierX,PremierCX,Portugese,PremierXFGItems,POPrint-Mex,CapCity',v-print-fmt) THEN 
         DO:
             IF v-print-fmt NE "CentBox" THEN
                 ASSIGN
@@ -2126,7 +2126,7 @@ PROCEDURE pRunFormatValueChanged :
             DISABLE tb_metric.
         ELSE ENABLE tb_metric.
 
-        IF LOOKUP(v-print-fmt,"Indiana,Premierx,PremierCX,PremierXFGItems,POPrint-Mex") = 0 THEN
+        IF LOOKUP(v-print-fmt,"Indiana,Premierx,PremierCX,Portugese,PremierXFGItems,POPrint-Mex") = 0 THEN
             ASSIGN tb_print-prices:SCREEN-VALUE                     = "NO"
                 tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
         ELSE ASSIGN tb_print-prices:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
@@ -2467,7 +2467,7 @@ PROCEDURE SetGlobalVariables :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-po-ord-no AS INTEGER NO-UNDO.
 
-    IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,Ruffino,Altex,McLean,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule,CapCity") > 0 
+    IF LOOKUP(v-print-fmt,"Pacific,Xprint,poprint 1,poprint 10,Ruffino,Altex,McLean,LancoYork,StClair,Boss,PeachTree,Xprint2,poprint 2,poprint 20,Southpak,Hughes,CENTbox,Oracle,metro,PremierX,PremierCX,Portugese,PremierXFGItems,POPrint-Mex,Protagon,Protagon2,Coburn,CSC,Elite,ottpkg,APC,consbox,FibreX,Lovepac,POPrint10-CAN,POPrint-CAN2,ASIXprnt,Valley,PPI,CSC-GA,HPB,Indiana,MWFibre,Packrite,Allwest,Bell,ACPI,Sultana,Badger,CCC,SouleMed,Soule,CapCity") > 0 
         THEN is-xprint-form = YES.
     ELSE is-xprint-form = NO.
 
@@ -2665,6 +2665,10 @@ PROCEDURE SetPOPrintForm :
         WHEN "PremierCX"    THEN 
             ASSIGN 
                 v-program      = "po/po-cxprem.p"     
+                li-lineperpage = 80.  
+        WHEN "Portugese"    THEN 
+            ASSIGN 
+                v-program      = "po/po-port.p"     
                 li-lineperpage = 80.
         WHEN "Protagon"     THEN 
             ASSIGN 
