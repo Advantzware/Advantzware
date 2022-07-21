@@ -581,3 +581,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetRecord B-table-Win 
+PROCEDURE pResetRecord :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    MESSAGE "This will remove any custom label names and cost configurations for estimating. " 
+            "Are you sure you want to reset to Advantzware defaults?"
+            VIEW-AS ALERT-BOX QUESTION 
+            BUTTONS OK-CANCEL UPDATE lcheckflg as logical .
+    IF lcheckflg THEN DO:      
+        RUN Estimate_DeleteEstCostCatGroupLevel .
+        
+        RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+        {methods/run_link.i "container-source" "pReOpenQuery" }
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
