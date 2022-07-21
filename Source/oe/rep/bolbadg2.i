@@ -84,11 +84,7 @@ for each report where report.term-id eq v-term-id,
        and oe-ordl.i-no    eq report.key-01
        no-lock no-error.
 
-  IF v-printline >= 36 THEN DO:
-     v-printline = 0.
-     PAGE {1}.
-     {oe/rep/bolxprn2.i}
-  END.
+  RUN pPrintHeader(36).
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
@@ -114,12 +110,8 @@ for each report where report.term-id eq v-term-id,
         if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
         ELSE
         if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.
-             
-        IF v-printline >= 38 THEN DO:
-          v-printline = 0.
-          PAGE {1}.
-          {oe/rep/bolxprn2.i}
-        END.
+        
+        RUN pPrintHeader(38).
 
         IF FIRST(w2.cases * w2.cas-cnt) THEN 
           PUT {1} oe-ordl.part-no
@@ -170,11 +162,7 @@ for each report where report.term-id eq v-term-id,
                  IF notes.note_text <> "" THEN
                     DO i = 1 TO v-tmp-lines:
 
-                       IF v-printline >= 38 THEN DO:
-                          v-printline = 0.
-                          PAGE {1}.
-                          {oe/rep/bolxprn2.i}
-                       END.
+                       RUN pPrintHeader(38).
 
                        PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
                        v-printline = v-printline + 1.
@@ -227,11 +215,8 @@ for each report where report.term-id eq v-term-id,
             {SYS/INC/ROUNDUP.I v-tmp-lines}
             IF notes.note_text <> "" THEN
                DO i = 1 TO v-tmp-lines:
-                  IF v-printline >= 38 THEN DO:
-                     v-printline = 0.
-                     PAGE {1}.
-                     {oe/rep/bolxprn2.i}
-                  END.
+                  
+                  RUN pPrintHeader(38).
 
                   PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.              
                   v-printline = v-printline + 1.
@@ -275,5 +260,24 @@ for each report where report.term-id eq v-term-id,
   if oe-boll.weight eq 0 then
     v-tot-wt = v-tot-wt + (oe-boll.qty / 100 * itemfg.weight-100).
 end. /* for each report */
+
+PROCEDURE pPrintHeader:
+
+DEFINE INPUT PARAMETER ipiPrintLine AS INTEGER NO-UNDO.
+
+IF v-printline >= ipiPrintLine THEN DO:
+    v-printline = 0.
+    PAGE {1}.
+    IF lPrintPackingList THEN 
+    DO:
+        {oe/rep/bolbgrpl.i}
+    END.
+    ELSE DO:
+        {oe/rep/bolbadg1.i}
+    END. 
+END.
+
+END PROCEDURE.
+
 
 /* end ---------------------------------- copr. 1998  Advanced Software, Inc. */
