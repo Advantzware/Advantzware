@@ -28,7 +28,7 @@ FOR EACH ap-pay NO-LOCK WHERE
         ttBank.bank-code EQ ap-pay.bank-code) THEN NEXT.    
     
     ASSIGN 
-        v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
+        v-refnum = "AC" + STRING(ap-pay.check-no, "99999999").
 
     FIND FIRST ap-ledger NO-LOCK WHERE 
         ap-ledger.company  EQ ap-pay.company AND 
@@ -37,6 +37,18 @@ FOR EACH ap-pay NO-LOCK WHERE
         ap-ledger.ref-date EQ ap-pay.check-date
         NO-ERROR.
 
+    /* This acccounts for the old DB format for check number */
+    IF NOT AVAIL ap-ledger THEN DO:
+        ASSIGN 
+            v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
+        FIND FIRST ap-ledger NO-LOCK WHERE 
+            ap-ledger.company  EQ ap-pay.company AND 
+            ap-ledger.vend-no  EQ ap-pay.vend-no AND 
+            ap-ledger.refnum   EQ v-refnum AND 
+            ap-ledger.ref-date EQ ap-pay.check-date
+            NO-ERROR.
+    END.
+    
     IF NOT AVAIL ap-ledger THEN DO:
         ASSIGN 
             v-refnum = "CHK# " + string(ap-pay.check-no) + " CD#" + ap-pay.bank-code.
@@ -65,7 +77,7 @@ FOR EACH ap-pay NO-LOCK WHERE
         ASSIGN
             reconcile.tt-type    = 1
             reconcile.tt-rowid   = ROWID(ap-pay)
-            reconcile.tt-number  = STRING(ap-pay.check-no,"999999")
+            reconcile.tt-number  = STRING(ap-pay.check-no)
             reconcile.tt-date    = ap-ledger.tr-date
             reconcile.tt-amt     = ap-pay.check-amt
             reconcile.tt-bank    = ap-pay.bank-code
@@ -86,7 +98,7 @@ FOR EACH ap-pay NO-LOCK WHERE
         ttBank.bank-code EQ ap-pay.bank-code) THEN NEXT.    
     
     ASSIGN 
-        v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
+        v-refnum = "AC" + STRING(ap-pay.check-no, "99999999").
 
     FIND FIRST ap-ledger NO-LOCK WHERE 
         ap-ledger.company  EQ ap-pay.company AND 
@@ -95,6 +107,18 @@ FOR EACH ap-pay NO-LOCK WHERE
         ap-ledger.ref-date EQ ap-pay.check-date
         NO-ERROR.
 
+    /* This acccounts for the old DB format for check number */
+    IF NOT AVAIL ap-ledger THEN DO:
+        ASSIGN 
+            v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
+        FIND FIRST ap-ledger NO-LOCK WHERE 
+            ap-ledger.company  EQ ap-pay.company AND 
+            ap-ledger.vend-no  EQ ap-pay.vend-no AND 
+            ap-ledger.refnum   EQ v-refnum AND 
+            ap-ledger.ref-date EQ ap-pay.check-date
+            NO-ERROR.
+    END.        
+    
     IF NOT AVAIL ap-ledger THEN DO:
         ASSIGN 
             v-refnum = "CHK# " + string(ap-pay.check-no) + " CD#" + ap-pay.bank-code.
