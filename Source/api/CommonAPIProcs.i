@@ -143,10 +143,12 @@ PROCEDURE pUpdateDelimiterAndTrim PRIVATE:
         ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")    /* Replaces $linefeed$ with carriage return character */
         ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12)) /* Replaces $formfeed$ with Form Feed character (PAGE keyword) */
         .
-
+    
+    IF ipcRequestDataType EQ "JSON" THEN
+        ioplcRequestData = TRIM(ioplcRequestData, ",").
+    
     IF iplTrim THEN
         ASSIGN
-            ioplcRequestData = TRIM(ioplcRequestData, ",")
             ioplcRequestData = TRIM(ioplcRequestData, "~n")
             ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
             .

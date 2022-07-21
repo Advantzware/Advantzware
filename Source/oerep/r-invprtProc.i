@@ -1731,7 +1731,7 @@ DO:
                         PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Portugese" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
                         PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
@@ -1781,7 +1781,7 @@ DO:
                         PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Portugese" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
                     DO:
                         PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
@@ -1852,7 +1852,7 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
                 IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy").
                 IF NOT tb_cust-copy AND NOT tb_office-copy AND NOT tb_sman-copy THEN RUN value(v-program) ("").
             END.
-            ELSE IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis") > 0 THEN 
+            ELSE IF LOOKUP(v-print-fmt,"PremierX,Portugese,InvPrint-Mex,Coburn,Axis") > 0 THEN 
 DO:                 
                     IF lIsAPIActive AND v-print-fmt EQ "InvPrint-Mex" THEN
                     RUN pCallAPIOutbound(v-print-fmt, cAPIScopeType, cAPIScopeID, rCurrentInvoice).
@@ -2327,6 +2327,11 @@ PROCEDURE SetInvForm:
         WHEN "PremierX" THEN
             ASSIGN
                 v-program      = "oe/rep/invpremx.p"
+                lines-per-page = 66
+                is-xprint-form = YES. 
+        WHEN "Portugese" THEN
+            ASSIGN
+                v-program      = "oe/rep/invport.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "InvPrint-Mex" THEN
@@ -2953,6 +2958,11 @@ PROCEDURE SetInvPostForm:
         WHEN "PremierX" THEN
             ASSIGN
                 v-program      = "ar/rep/invpremx.p"
+                lines-per-page = 66
+                is-xprint-form = YES. 
+        WHEN "Portugese" THEN
+            ASSIGN
+                v-program      = "ar/rep/invport.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "InvPrint-Mex" THEN

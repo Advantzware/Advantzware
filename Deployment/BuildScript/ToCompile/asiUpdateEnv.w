@@ -210,7 +210,13 @@ DEF TEMP-TABLE ttPayableFix
     FIELD glhistRowid AS ROWID
     FIELD rec_key AS CHAR LABEL "RecKey" 
     .
-        
+
+DEFINE TEMP-TABLE ttAccount NO-UNDO
+    FIELD accountID   AS CHARACTER
+    FIELD accountName AS CHARACTER
+    INDEX accountName IS PRIMARY accountName
+    .
+             
 DEF BUFFER bnotes FOR notes.
 DEF BUFFER bf-usercomp FOR usercomp.
 DEF BUFFER bf-module FOR MODULE.
@@ -2868,6 +2874,11 @@ PROCEDURE ipDataFix :
     IF iCurrentVersion LT 22010000 THEN 
         RUN ipDataFix220100.
     iopiStatus = 67.
+    IF iCurrentVersion LT 22010500 THEN 
+        RUN ipDataFix220105.
+    iopiStatus = 68.
+    IF iCurrentVersion LT 22020500 THEN
+        RUN ipDataFix220205   
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
     iopiStatus = 80.
@@ -3700,6 +3711,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220105 C-Win
+PROCEDURE ipDataFix220105:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220105...").
+    
+    RUN ipUpdateAdwantzwareAccountID.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220205-Win
+PROCEDURE ipDataFix220205 PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220205...").
+
+    RUN ipFixMaterialTypeGroup.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
 /*------------------------------------------------------------------------------
@@ -4470,6 +4514,34 @@ PROCEDURE ipFixLocationStorageCost :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixMaterialTypeGroup C-Win
+PROCEDURE ipFixMaterialTypeGroup PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cMaterialTypeList      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMaterialTypeGroupList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIndex                 AS INTEGER   NO-UNDO.
+    
+    ASSIGN
+        cMaterialTypeList      = "1,2,3,4,5,6,7,8,9,@,A,B,C,D,F,G,I,J,L,M,O,P,R,S,T,V,W,X,Y,Z"
+        cMaterialTypeGroupList = "Foam,Foam,Foam,Foam,Packing,Packing,Plates,Die,Wood,Misc,Adders,Board,Packing,Packing,Window,Glue,Ink/Coat,Packing,Glue,Misc,Wood,Board,Board,Glue,Glue,Ink/Coat,Window,Die,Die,Misc"
+        .
+    
+    RUN ipStatus("   Fix material type group").
+    
+    DO iIndex = 1 TO NUM-ENTRIES(cMaterialTypeList):
+        FOR EACH materialType EXCLUSIVE-LOCK
+            WHERE materialType.materialType EQ ENTRY(iIndex, cMaterialTypeList):
+            materialType.materialTypeGroup = ENTRY(iIndex, cMaterialTypeGroupList).
+        END.
+    END.
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -6876,12 +6948,12 @@ PROCEDURE ipSetAsiPwd :
         EXCLUSIVE-LOCK NO-ERROR.
 
     IF AVAIL (_User) THEN DO:
-        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
+        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO ttTempUser.
         ASSIGN 
-            tempUser._Password = ENCODE("ProdProc").
+            ttTempUser._Password = ENCODE("ProdProc").
         DELETE _User.
         CREATE _User.
-        BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
+        BUFFER-COPY ttTempUser EXCEPT _tenantid TO _User.
     END.
     ELSE DO:
         CREATE _User.
@@ -7363,6 +7435,62 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdwantzwareAccountID C-Win
+PROCEDURE ipUpdateAdwantzwareAccountID PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lcAccountData     AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE hdEncryptionProcs AS HANDLE   NO-UNDO.
+    
+    DEFINE BUFFER bf-company FOR company.
+    
+    RUN ipStatus ("Updating Advantzware Account ID").
+    
+    COPY-LOB FROM FILE cUpdDataDir + "\CustomerAccountList" TO lcAccountData NO-ERROR.
+    
+    IF lcAccountData EQ "" THEN DO:
+        RUN ipStatus ("Error: CustomerAccountList file contains no data").
+        
+        RETURN.
+    END.
+    
+    RUN system/EncryptionProcs.p PERSISTENT SET hdEncryptionProcs.  
+    
+    /* File DataFiles/CustomerAccountList is encrypted and needs to be decrypted before reading into temp-table. File is encrypted with password "Advantzware" */
+    RUN DecryptString IN hdEncryptionProcs (lcAccountData, "Advantzware" /* Password to decrypt */, OUTPUT lcAccountData).
+    
+    TEMP-TABLE ttAccount:READ-JSON("LONGCHAR", lcAccountData) NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+        RUN ipStatus ("Error: Failed parsing decrypted data. " + ERROR-STATUS:GET-MESSAGE(1)).
+        
+        RETURN.
+    END.
+    
+    FIND FIRST bf-company NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE bf-company THEN
+        RETURN.
+    
+    FIND FIRST ttAccount
+         WHERE ttAccount.accountName EQ bf-company.name
+         NO-ERROR.
+    IF AVAILABLE ttAccount THEN
+        RUN spSetSettingByName ("AdvantzwareAccountID", ttAccount.accountID).
+        
+    FINALLY:
+        IF VALID-HANDLE(hdEncryptionProcs) THEN
+            DELETE PROCEDURE hdEncryptionProcs.		
+    END FINALLY.        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :
@@ -7895,46 +8023,50 @@ PROCEDURE ip_ProcessAll :
                        cEnvDir + "\" + fiEnvironment:{&SV} + "\Resources," +
                        PROPATH
         PROPATH      = cNewPropath
-        .
-    ASSIGN
-        SELF:LABEL = IF SELF:SENSITIVE THEN "Processing..." ELSE SELF:LABEL 
-        SELF:SENSITIVE = FALSE
         lSuccess = TRUE.
-
-    RUN ipUpdateUserControl.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = iopiStatus + 27.
-    ELSE RETURN.
-
-    RUN ipFixUsers.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 28.
-    ELSE RETURN.
-
-    RUN ipDelBadData.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 29.
-    ELSE RETURN.
-
-    RUN ipUpdateMaster.
-    IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 30.
-    ELSE RETURN.
 
     RUN ipExpandFiles.
     IF lSuccess EQ TRUE THEN ASSIGN 
-        iopiStatus = 50.
+        iopiStatus = 46.
     ELSE RETURN.
 
-    /* Load any external procs/supers that may need to be accessed */
+    /* Unload and reload external procs/supers that may need to be accessed */
+    IF VALID-HANDLE(hSession) THEN DO:
+        SESSION:REMOVE-SUPER-PROCEDURE(hSession).
+        DELETE PROCEDURE hSession.
+    END.
+    IF VALID-HANDLE(hFormulaProcs) THEN DO:
+        SESSION:REMOVE-SUPER-PROCEDURE(hFormulaProcs). 
+        DELETE PROCEDURE hFormulaProcs.    
+    END.
     IF NOT VALID-HANDLE(hSession) THEN DO:
         RUN system/session.p PERSISTENT SET hSession.
         SESSION:ADD-SUPER-PROCEDURE (hSession).
-    END. 
+    END.
     IF NOT VALID-HANDLE(hFormulaProcs) THEN DO:
         RUN system/FormulaProcs.p PERSISTENT SET hFormulaProcs.
         SESSION:ADD-SUPER-PROCEDURE (hFormulaProcs).
     END.
+                
+    RUN ipUpdateUserControl.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = iopiStatus + 47.
+    ELSE RETURN.
+
+    RUN ipFixUsers.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 48.
+    ELSE RETURN.
+
+    RUN ipDelBadData.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 49.
+    ELSE RETURN.
+
+    RUN ipUpdateMaster.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 50.
+    ELSE RETURN.
 
     RUN ipDataFix.
     IF lSuccess EQ TRUE THEN ASSIGN 

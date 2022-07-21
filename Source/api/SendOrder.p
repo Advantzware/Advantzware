@@ -44,7 +44,10 @@
     DEFINE VARIABLE iOrderMiscCount       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotalLineCount       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cNote                 AS CHARACTER NO-UNDO.
-        
+    
+    DEFINE BUFFER bf-carrier FOR carrier.
+    DEFINE BUFFER bf-shipto  FOR shipto.
+      
     RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
         
     IF ipcRequestHandler NE "" THEN
@@ -157,7 +160,20 @@
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderLineCount", STRING(iOrderLineCount)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderMiscCount", STRING(iOrderMiscCount)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalLineCount", STRING(iTotalLineCount)).
-                                
+
+       FIND FIRST bf-shipto NO-LOCK 
+            WHERE bf-shipto.company EQ oe-ord.company
+              AND bf-shipto.cust-no EQ oe-ord.cust-no
+              AND bf-shipto.ship-id EQ oe-ord.ship-id
+            NO-ERROR.
+
+        FIND FIRST bf-carrier NO-LOCK
+             WHERE bf-carrier.company EQ oe-ord.company
+               AND bf-carrier.carrier EQ oe-ord.carrier
+               AND bf-carrier.loc     EQ (IF AVAILABLE bf-shipto THEN bf-shipto.loc ELSE "")
+             NO-ERROR.
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-carrier:HANDLE).
+                                                
         ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER oe-ord:HANDLE).
 
         FIND FIRST cust NO-LOCK 

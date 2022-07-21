@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR eb.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 btn_del btn_set btn_goto 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btn_del btn_set btn_goto btShare 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -110,9 +110,13 @@ DEFINE BUTTON btn_set
      LABEL "Se&t" 
      SIZE 10 BY 1.43.
 
+DEFINE BUTTON btShare 
+     LABEL "Share Est." 
+     SIZE 12.8 BY 1.43.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 35 BY 1.91.
+     SIZE 48 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -121,6 +125,7 @@ DEFINE FRAME F-Main
      btn_del AT ROW 1.24 COL 2
      btn_set AT ROW 1.24 COL 15
      btn_goto AT ROW 1.24 COL 25
+     btShare AT ROW 1.24 COL 35.2 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -252,6 +257,20 @@ DO:
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
    RUN update-set IN WIDGET-HANDLE(char-hdl).
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btShare
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btShare V-table-Win
+ON CHOOSE OF btShare IN FRAME F-Main /* Share Est. */
+DO:
+     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+     RUN ShareEstimate IN WIDGET-HANDLE(char-hdl).  
 END.
 
 /* _UIB-CODE-BLOCK-END */

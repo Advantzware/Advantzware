@@ -29,9 +29,7 @@ DEFINE INPUT  PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-
 {methods/defines/globdefs.i}
-
 {est/ttEstSysConfig.i}
 
 /* _UIB-CODE-BLOCK-END */

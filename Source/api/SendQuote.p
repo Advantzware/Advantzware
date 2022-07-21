@@ -110,12 +110,15 @@ DEFINE VARIABLE cAdders                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBoxDesignImage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidthScoreMetric           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidthCumulativeScoreMetric AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogoColor                  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDisplayCompanyAddress      AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-quotehd  FOR quotehd.
 DEFINE BUFFER bf-quoteitm FOR quoteitm.
 DEFINE BUFFER bf-quoteqty FOR quoteqty.
 DEFINE BUFFER bf-quotechg FOR quotechg.
 DEFINE BUFFER bf-eb       FOR eb.
+DEFINE BUFFER bf-cust     FOR cust.
 
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -168,6 +171,9 @@ ELSE DO:
     oAttribute:RequestDataType = gcRequestDataType.
 
     RUN sys/ref/nk1look.p (cCompany, "BusinessFormLogo", "C", NO, YES, "", "", OUTPUT cBuisnessFormLogo, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (cCompany, "LOGOCOLR", "C", NO, YES, "", "", OUTPUT cLogoColor, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (cCompany, "QUOPRINT", "L" , YES, YES, "" , "", OUTPUT cDisplayCompanyAddress, OUTPUT lRecFound).
+    IF cLogoColor EQ "" THEN "BLACK".
     
     /* Code to send data from dynamic temp-table handle to static temp-table */
     hdTTHandle:WRITE-XML("MEMPTR", mptrTTQuote).
@@ -591,7 +597,9 @@ ELSE DO:
     RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
     
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BusinessFormLogo", cBuisnessFormLogo).
-    
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "LogoColor", cLogoColor).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DisplayCompanyAddress", cDisplayCompanyAddress).
+
     ASSIGN   
         opcMessage       = ""
         oplSuccess       = TRUE

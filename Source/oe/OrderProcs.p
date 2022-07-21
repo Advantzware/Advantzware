@@ -1079,7 +1079,6 @@ PROCEDURE pCreateRelease:
                               ELSE
                                   bf-oe-ord.carrier
         bf-oe-rel.r-no      = iNextRelNo
-        bf-oe-rel.frt-pay   = SUBSTRING(bf-oe-ord.frt-pay,1,1)
         bf-oe-rel.fob-code  = bf-oe-ord.fob-code
         .
 
@@ -4409,6 +4408,8 @@ PROCEDURE pProcessImportedOrderLine:
     DEFINE VARIABLE cCostUOM         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE hdCostProcs      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
@@ -4605,7 +4606,25 @@ PROCEDURE pProcessImportedOrderLine:
         OUTPUT cCostUOM,
         OUTPUT lFound
         ) .
-     
+
+    IF cCostUOM NE "M" THEN DO:                 
+        RUN Conv_ValueFromUOMtoUOM (
+                INPUT  bf-oe-ordl.company, 
+                INPUT  bf-oe-ordl.i-no, 
+                INPUT  "FG", 
+                INPUT  dCostPerUOMTotal, 
+                INPUT  cCostUOM, 
+                INPUT  "M", 
+                INPUT  0, 
+                INPUT  0,
+                INPUT  0,
+                INPUT  0, 0, 
+                OUTPUT dCostPerUOMTotal, 
+                OUTPUT lError, 
+                OUTPUT cMessage
+                ).    
+    END.
+           
     ASSIGN
         bf-oe-ordl.cost   = dCostPerUOMTotal
         bf-oe-ordl.t-cost = bf-oe-ordl.cost * bf-oe-ordl.qty / 1000

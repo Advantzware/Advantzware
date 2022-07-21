@@ -189,3 +189,7 @@
 198 1 "EACH" "ttExchangeRate" "" "" "ASI" "202112110937408312798"
 200 1 "EACH" "ttProductionAnalysis" "" "" "ASI" "202202148307408530919"
 202 1 "EACH" "ap-pay" "A/P Payment Headers" "" "ASI" "202204182565909261887"
+204 1 "EACH" "ttOnTimeDeliveries" "" "" "ASI" "202205312677809487048"
+207 1 "EACH" "ttProductivityMachine" "" "" "ASI" "202206032220909509810"
+208 1 "EACH" "ttDMIJobCodeAnalysis" "" "" "ASI" "202206270212109212573"
+209 1 "EACH" "ttCostByMachine" "" "" "ASI" "202206278539709658943"

@@ -160,6 +160,7 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 
 {cec/tt-eb-set-part.i "new"}
 {est/ttInputEst.i NEW}
+{api/ttAPIOutboundEvent.i}
 
 DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
@@ -1721,6 +1722,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+{est/ShareEstimate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

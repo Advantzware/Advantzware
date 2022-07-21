@@ -127,7 +127,9 @@ btnClearPendingEmails EmailBrowse AuditBrowse
 &Scoped-Define DISPLAYED-OBJECTS showLogging 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* taskObjects,List-2,List-3,List-4,List-5,List-6                       */
+&Scoped-define taskObjects showLogging btnClearIsRunning ~
+btnClearPendingEmails 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -298,6 +300,12 @@ IF NOT C-Win:LOAD-ICON("Graphics/32x32/jss_icon_32.ico":U) THEN
 /* BROWSE-TAB TaskBrowse showLogging DEFAULT-FRAME */
 /* BROWSE-TAB EmailBrowse btnClearPendingEmails DEFAULT-FRAME */
 /* BROWSE-TAB AuditBrowse EmailBrowse DEFAULT-FRAME */
+/* SETTINGS FOR BUTTON btnClearIsRunning IN FRAME DEFAULT-FRAME
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnClearPendingEmails IN FRAME DEFAULT-FRAME
+   1                                                                    */
+/* SETTINGS FOR RADIO-SET showLogging IN FRAME DEFAULT-FRAME
+   1                                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -456,13 +464,22 @@ PROCEDURE CtrlFrame.PSTimer.Tick .
   Parameters:  None required for OCX.
   Notes:       
 ------------------------------------------------------------------------------*/
+    DISABLE {&taskObjects} WITH FRAME {&FRAME-NAME}.
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Scanning Tasks".
     RUN pTasks.
     {&WINDOW-NAME}:TITLE = "AOA Tasker - Scanning Emails".
     RUN pTaskEmails.
-    {&WINDOW-NAME}:TITLE = "AOA Tasker - Idle".
-    {&OPEN-QUERY-AuditBrowse}
+    IF showLogging THEN DO:
+        {&WINDOW-NAME}:TITLE = "AOA Tasker - Refresh".
+        {&OPEN-QUERY-AuditBrowse}
+    END.
+    {&WINDOW-NAME}:TITLE = "AOA Tasker - Update Last Executed".
     RUN pLastExecuted.
+    ASSIGN
+        {&WINDOW-NAME}:TITLE = "AOA Tasker - Idle"
+        lUpdated             = NO
+        .
+    ENABLE {&taskObjects} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -476,6 +493,7 @@ ON VALUE-CHANGED OF showLogging IN FRAME DEFAULT-FRAME
 DO:
     ASSIGN {&SELF-NAME}.
     RUN pWinReSize.
+    {&OPEN-QUERY-AuditBrowse}
 END.
 
 /* _UIB-CODE-BLOCK-END */

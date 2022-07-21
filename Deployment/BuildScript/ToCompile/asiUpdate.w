@@ -798,6 +798,8 @@ DO:
         WHEN "slDbList" THEN DO:
             ASSIGN 
                 iIndex = LOOKUP(slDbList:{&SV},cDbList)
+                iCurrDbVer = fIntVer(ENTRY(iIndex,cDBVerList))
+                iCurrAudVer = fIntVer(ENTRY(iIndex,cAudVerList))
                 cAsiDbName = ENTRY(iIndex,cDBList)
                 cAsiDbLongName = cDbDir + "\" + ENTRY(iIndex,cDbDirList) + "\" + cAsiDbName + ".db"
                 iAsiDbPort = INTEGER(ENTRY(iIndex,cDBPortList))
