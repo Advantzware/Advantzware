@@ -349,12 +349,16 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        chExcelApplication:Goto(v-cell) NO-ERROR.
 
        ASSIGN
-          chExcelApplication:ActiveCell:Value = "$" + TRIM(STRING(xqqty.price,">>>,>>9.999999"))
+          chExcelApplication:ActiveCell:Value = "US$" + TRIM(STRING(xqqty.price,">>>,>>9.999999"))
           v-cell = "R" + string(inrowcount) + "C6".
 
        chExcelApplication:Goto(v-cell) NO-ERROR.
-       ASSIGN chExcelApplication:ActiveCell:Value = lv-uom . 
+       ASSIGN chExcelApplication:ActiveCell:Value = lv-uom .
+       v-cell = "R" + string(inrowcount) + "C7".
 
+       chExcelApplication:Goto(v-cell) NO-ERROR.
+       ASSIGN chExcelApplication:ActiveCell:Value = STRING(xqqty.price / (xqqty.tot-lbs / 1000)) .
+        
       v-line-total = v-line-total + xqqty.price.
                  
     END.
@@ -545,7 +549,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
             
       ASSIGN v-cell = "R" + string(inrowcount) + "C5".
       chExcelApplication:Goto(v-cell) NO-ERROR.
-      ASSIGN chExcelApplication:ActiveCell:Value = "$" + trim(string(lv-chg-amt,">>>,>>9")) .   /*Task# 11111308*/
+      ASSIGN chExcelApplication:ActiveCell:Value = "US$" + trim(string(lv-chg-amt,">>>,>>9")) .
+       
+      ASSIGN v-cell = "R" + string(inrowcount) + "C7".
+      chExcelApplication:Goto(v-cell) NO-ERROR.
+      ASSIGN chExcelApplication:ActiveCell:Value = STRING(lv-chg-amt / (xqqty.tot-lbs / 1000)) .   /*Task# 11111308*/
       PUT SKIP(1).
       ASSIGN inrowcount = inrowcount + 1.
     end.
@@ -672,11 +680,15 @@ FOR EACH xqchg OF xquo NO-LOCK
                v-cell = "R" + string(inrowcount) + "C5".
 
         chExcelApplication:Goto(v-cell) NO-ERROR.
-        ASSIGN chExcelApplication:ActiveCell:Value = "$" + trim(string(lv-chg-amt,">>>,>>9"))     /*Task# 11111308*/
+        ASSIGN chExcelApplication:ActiveCell:Value = "US$" + trim(string(lv-chg-amt,">>>,>>9"))     /*Task# 11111308*/
                v-cell = "R" + string(inrowcount) + "C6".
 
         chExcelApplication:Goto(v-cell) NO-ERROR.
         ASSIGN chExcelApplication:ActiveCell:Value = "EA".
+               v-cell = "R" + string(inrowcount) + "C7".
+        
+        chExcelApplication:Goto(v-cell) NO-ERROR.
+        ASSIGN chExcelApplication:ActiveCell:Value = STRING(lv-chg-amt / (xqqty.tot-lbs / 1000)).
 
         PUT SKIP(1).                                /*Task# 11111308*/
         ASSIGN inrowcount = inrowcount + 1.

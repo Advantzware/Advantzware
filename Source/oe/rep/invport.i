@@ -122,12 +122,12 @@ PUT
     "<R25><C71><FROM><R29><C71><LINE>" SKIP 
     .   
 /*puT "<FArial><=5><R+1>   Ordered     Shipped       B.O.      Item#                        Description                                              Price     UOM                 Amount" SKIP(1). */
-PUT "<FArial><=5>  N° DO PO DO        N° DE PEÇA DO                                                                            <C62> P       PREÇO                  " SKIP.
+PUT "<FArial><=5>  N° DO PO DO        N° DE PEÇA DO                                                                            <C62>P       PREÇO                  " SKIP.
 IF ip-print-s THEN do:
-    PUT "<FArial>  CLIENTE                CLIENTE                                DESCRIÇÃO                                  ENVIADO       C       (UOM)        VALOR" SKIP.
+    PUT "<FArial>  CLIENTE                CLIENTE                                DESCRIÇÃO                                  ENVIADO       <C62>C        (UOM)        VALOR" SKIP.
 END.    
 ELSE do: 
-    PUT "<FArial>  CLIENTE                CLIENTE                                 DESCRIÇÃO                                 ENVIADO        C       (UOM)        VALOR" SKIP.
+    PUT "<FArial>  CLIENTE                CLIENTE                                 DESCRIÇÃO                                 ENVIADO        <C62>C       (UOM)        VALOR" SKIP.
 END.
  
    PUT "<FArial>  N° DO NOSSO       N° DO ITEM" SKIP. 

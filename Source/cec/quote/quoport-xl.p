@@ -205,7 +205,7 @@ if not ch-multi then do:
    ASSIGN v-cell = "R" + string(inrowcount) + "C2".
    chExcelApplication:Goto(v-cell) NO-ERROR.
    ASSIGN
-      chExcelApplication:ActiveCell:Value = "Sinceramente,"
+      chExcelApplication:ActiveCell:Value = "Atenciosamente,"
       chExcelApplication:Selection:Font:Bold = TRUE
       inrowcount = inrowcount + 3
       v-cell = "R" + string(inrowcount) + "C1".
@@ -345,7 +345,7 @@ else do: /* ch-multi is yes*/
            v-cell = "R" + string(inrowcount) + "C2".
 
   		chExcelApplication:Goto(v-cell) NO-ERROR.
-  	    ASSIGN chExcelApplication:ActiveCell:Value = "Sinceramente," 
+  	    ASSIGN chExcelApplication:ActiveCell:Value = "Atenciosamente," 
                chExcelApplication:Selection:Font:Bold = TRUE
                inrowcount = inrowcount + 3 .
         

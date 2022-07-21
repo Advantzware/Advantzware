@@ -449,8 +449,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
   
   PUT "<R57><C10><P10>TODAS AS RECLAMAÇÕES RELATIVAS AO ENVIO DEVEM SER FEITAS DENTRO DE 10 DIAS</B>"
       "<SAVE=LPI><ADJUST=LPI><P7>" 
-      "<R58><C26><From><R+10><C26><LINE><||3>"
-      "<R58><C43.7><From><R+10><C43.7><LINE><||3>"
+      "<R58><C26><From><R+10.5><C26><LINE><||3>"
+      "<R58><C43.7><From><R+10.5><C43.7><LINE><||3>"
   
       "<R59.8><C26.5><From><C43><LINE><||3>"
       "<R60><C26.5><From><C43><LINE><||3>"
@@ -460,7 +460,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<R65><C54><From><C78><LINE><||3>"
       "<R66><C27.5><From><C43><LINE><||3>"
       "<R66.5><C50><From><C78><LINE><||3>"
-      "<R67.8><C33><From><C43><LINE><||3><C50><From><C78><LINE><||3>"
+      "<R67.8><C50><From><C78><LINE><||3>"
+      "<R68.3><C29><From><C43><LINE><||3>"
   
       "<R58><C1><P7>Sujeito à Seção 7 das Condições do conhecimento de <C26.1>Se os encargos forem pré-pagos,escreva    <C44>Se a carga transitar entre dois portos por um transportador por via marítima, a lei exige"
       "<R59><C1>embarque aplicável, esta remessa deve ser entregue   <C26.3>ou carimbe aqui ""A ser pré-pago.""          <C44>que o conhecimento de embarque indique se é peso do transportador ou do expedidor."
@@ -478,7 +479,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<R65.2><C26.5><P4>(A assinatura aqui reconhece apenas o valor proposto.)<P7>"
       "<R66><C26.5><From><C43><LINE><||3>"
       "<R66> <C26.5>Encargos"
-      "<R67><C26.5><P6>adiantamento:US$ <P7><C44>  POR"
+      "<R67><C26.5><P6>adiantamento:<P7><C44>  POR"
+      "<R67.7><C26.5><P6>US$"
       "<RESTORE=LPI>".
  
 

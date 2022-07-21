@@ -48,7 +48,7 @@ PUT
   "<R22><C64><FROM><R24><C64><LINE>" SKIP
   "<R22><C71><FROM><R24><C71><LINE>" SKIP
   "<FArial><=5><C2>N° do item            N° do pedido de compra          Nome do item/N° de peça do cliente                                Por"
-  "<FArial><=5><R+1><C2>N° do pedido              N° do trabalho                               Descrição do produto                        unidade    unidade           Total         " SKIP(1)
+  "<FArial><=5><R+1><C2>N° do pedido              N° do trabalho                               Descrição do produto  <C58.5>Unidade     Unidade           Total         " SKIP(1)
   "<FCourier New>"                                  
   .
 
