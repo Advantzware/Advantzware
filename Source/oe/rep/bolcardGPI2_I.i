@@ -97,8 +97,8 @@ PROCEDURE pDisplayTagsHeadings:
                 "<C29.5>Cases"
                 "<C35>Cartons/Case"
                 "<C46>Quantity"
-                "<C53.5>Weight Of Pallet(Lbs)"
-                "<C68>Weight Of Pallet(Kg)" SKIP
+                "<C53.5>Pallet Weight(Lbs)"
+                "<C68>Pallet Weight(Kg)" SKIP
                 .
       
 END PROCEDURE.
