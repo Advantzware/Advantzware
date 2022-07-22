@@ -1762,8 +1762,8 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
             IF ipcSortBy EQ 'bol-no'    THEN "STRING(ar-invl.bol-no,'9999999999')"        ELSE ~
             IF ipcSortBy EQ 'po-no'     THEN "ar-invl.po-no"                              ELSE ~
             IF ipcSortBy EQ 'i-name'    THEN "ar-invl.i-name"                             ELSE ~
-            IF ipcSortBy EQ 'gross'     THEN "STRING(ar-inv.gross,'99999999999.99')"                      ELSE ~
-            IF ipcSortBy EQ 'due'       THEN "STRING(ar-inv.due,'99999999999.99')"                        ELSE ~
+            IF ipcSortBy EQ 'gross'     THEN "ar-inv.gross"                               ELSE ~
+            IF ipcSortBy EQ 'due'       THEN "ar-inv.due"                                 ELSE ~
             IF ipcSortBy EQ 'part-no'   THEN "ar-invl.part-no"                            ELSE ~                      
                                              "STRING(YEAR(ar-inv.inv-date),'9999')
                                              + STRING(MONTH(ar-inv.inv-date),'99')
