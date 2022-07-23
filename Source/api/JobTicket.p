@@ -121,6 +121,7 @@
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPrintBoxDesign     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPrintFGItemImage   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPageBreakByForm    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValid              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFirstForm          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lLastForm           AS LOGICAL   NO-UNDO.
@@ -146,6 +147,7 @@
         cSpecList         = system.SharedConfig:Instance:GetValue("JobTicket_SpecList")
         lPrintBoxDesign   = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintBoxDesign")) 
         lPrintFGItemImage = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintFGItemImage"))
+        lPageBreakByForm  = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PageBreakByForm"))
         NO-ERROR.
     
     RUN sys/ref/nk1look.p (
@@ -626,6 +628,11 @@
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "FormMaterialAvailable",STRING(lFormMaterialAvailable)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "FirstForm", STRING(lFirstForm)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "LastForm", STRING(lLastForm)).
+                
+                IF lPageBreakByForm AND lLastForm THEN
+                    lPageBreakByForm = FALSE.
+                    
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "PageBreakByForm", STRING(lPageBreakByForm)).
 
                 lcForm = REPLACE(lcForm, "$FormMaterials$", lcConcatFormMaterial).
                 lcForm = REPLACE(lcForm, "$FormMaterialGroupHeader$", lcFormMaterialGroupHeader).
