@@ -441,7 +441,7 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
           ef.adder[7]        = ttInputEst.cAddersDscr1
           ef.adder[8]        = ttInputEst.cAddersDscr2
           ef.adder[9]        = ttInputEst.cAddersDscr3
-          ef.nc              = YES
+          ef.nc              = IF ttInputEst.cEstType EQ "SetSubAssembly" THEN NOT ttInputEst.lPurchased ELSE YES
           eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
           eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
           .         

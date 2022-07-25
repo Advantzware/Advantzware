@@ -2178,7 +2178,7 @@ PROCEDURE pProcessSections PRIVATE:
             WHEN "Form" THEN 
             RUN pPrintForm(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
             WHEN "Consolidated" THEN 
-            RUN pPrintConsolidated(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
+            RUN pPrintConsolidated(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, NO, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).
             WHEN "Summary" THEN 
             RUN pPrintSummary(ttSection.rec_keyParent, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iPageCount, INPUT-OUTPUT iRowCount).      
             WHEN "Notes" THEN 

@@ -787,13 +787,13 @@ DO:
             NO-LOCK NO-ERROR.
 
         RELEASE xeb.
-        IF AVAILABLE xef THEN
-            FIND FIRST xeb
-                WHERE xeb.company   EQ xef.company
-                AND xeb.est-no    EQ xef.est-no
-                AND xeb.form-no   EQ xef.form-no
-                AND (xeb.blank-no EQ est-op.b-num OR est-op.b-num EQ 0)
-                NO-LOCK NO-ERROR.
+        
+        FIND FIRST xeb NO-LOCK
+            WHERE xeb.company   EQ est-op.company
+            AND xeb.est-no    EQ est-op.est-no
+            AND xeb.form-no   EQ est-op.s-num
+            AND (xeb.blank-no EQ est-op.b-num OR est-op.b-num EQ 0)
+            NO-ERROR.  
 
         ASSIGN
             est-op.d-seq  = mach.d-seq
@@ -897,7 +897,7 @@ DO:
 
         END.
 
-        IF NOT xef.op-lock AND NOT ll-foam THEN 
+        IF AVAILABLE xef AND NOT xef.op-lock AND NOT ll-foam THEN 
         DO:
             v-outw = xef.n-out.    
             IF v-outw GT 1 THEN
@@ -952,7 +952,8 @@ DO:
             NO-LOCK:
             RUN set-lock (ef.form-no, NOT ll-import-selected).
         END.
-
+        
+        IF AVAILABLE xef THEN
         RUN cec/mach-rek.p (IF ll-import-all THEN ? ELSE ROWID(est-op)).
 
         FOR EACH ef 
@@ -1942,7 +1943,7 @@ PROCEDURE valid-mach :
         FIND FIRST xeb
             WHERE xeb.company EQ est.company
             AND xeb.est-no  EQ est.est-no
-            AND xeb.form-no EQ xef.form-no
+            AND xeb.form-no EQ int(est-op.s-num:screen-value )
             AND (xeb.blank-no EQ int(est-op.b-num:screen-value ) OR
             int(est-op.b-num:screen-value ) EQ 0)
             NO-LOCK NO-ERROR.
@@ -1979,7 +1980,7 @@ PROCEDURE valid-mach :
 
         v-on-f = int(est-op.n-out:screen-value ).
 
-        IF v-on-f NE 0 OR NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
+        IF AVAILABLE xef AND (v-on-f NE 0 OR NOT CAN-DO(lv-n-out-depts,lv-dept)) THEN 
         DO:
             IF xef.lam-dscr EQ "R"                         /*or
          (xef.lam-dscr ne "R" and xef.xgrain eq "S")*/ THEN
@@ -2312,18 +2313,20 @@ PROCEDURE valid-s-num :
       Notes:       
     ------------------------------------------------------------------------------*/
   
-/*    DO WITH FRAME {&frame-name}:                                       */
-/*        IF NOT CAN-FIND(FIRST ef                                       */
-/*            WHERE ef.company EQ est.company                            */
-/*            AND ef.est-no  EQ est.est-no                               */
-/*            AND ef.form-no EQ int(est-op.s-num:screen-value ))         */
-/*            THEN                                                       */
-/*        DO:                                                            */
-/*            MESSAGE "Must enter a valid Form#" VIEW-AS ALERT-BOX ERROR.*/
-/*            APPLY "entry" TO est-op.s-num .                            */
-/*            RETURN ERROR.                                              */
-/*        END.                                                           */
-/*    END.                                                               */
+    DO WITH FRAME {&frame-name}:                                       
+        IF NOT CAN-FIND(FIRST ef                                       
+            WHERE ef.company EQ est.company                            
+            AND ef.est-no  EQ est.est-no                               
+            AND (ef.form-no EQ int(est-op.s-num:SCREEN-VALUE)
+                OR (est.est-type EQ 6 AND INT(est-op.s-num:screen-value) EQ 0)
+                ))         
+            THEN                                                       
+        DO:                                                            
+            MESSAGE "Must enter a valid Form#" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO est-op.s-num .                            
+            RETURN ERROR.                                              
+        END.                                                           
+    END.                                                               
   
 END PROCEDURE.
 

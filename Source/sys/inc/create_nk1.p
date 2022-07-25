@@ -1770,7 +1770,8 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (
             INPUT cocode, 
             INPUT ip-nk1-value, 
-            INPUT NO,           
+            INPUT NO, 
+            INPUT "Separate Form 0", /*Description */
             INPUT "Existing Form 1", /* Char Value */
             INPUT 0,                              /* Int value */
             INPUT NO,                             /* Logical value */ 
