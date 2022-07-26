@@ -139,11 +139,11 @@ PROCEDURE pBuildTempTable PRIVATE:
                    
         IF ipbf-eb.pur-man THEN 
         DO:
-        RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE, ipbf-eb.company, "FG", ipbf-eb.stock-no, ipbf-eb.est-no, ipbf-eb.form-no, ipbf-eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), ipbf-eb.num-up, OUTPUT opdCostNextPriceBreak).                                .
+        RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE, ipbf-eb.company, "FG", ipbf-eb.stock-no, ipbf-eb.est-no, ipbf-eb.form-no, ipbf-eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), ipbf-eb.num-up, "", OUTPUT opdCostNextPriceBreak).                                .
         END.
         ELSE 
         DO:
-        RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE,  ipbf-eb.company, "RM", ef.board, ipbf-eb.est-no, ipbf-eb.form-no, ipbf-eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), ipbf-eb.num-up, OUTPUT opdCostNextPriceBreak).
+        RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE,  ipbf-eb.company, "RM", ef.board, ipbf-eb.est-no, ipbf-eb.form-no, ipbf-eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), ipbf-eb.num-up, "", OUTPUT opdCostNextPriceBreak).
         END.
 
         RUN pCallUIToUpdate(BUFFER est-qty, BUFFER est).

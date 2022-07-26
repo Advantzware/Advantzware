@@ -32,11 +32,17 @@ DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstimateQuantity.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE ld-msf AS DECIMAL NO-UNDO.
 DEFINE VARIABLE hdEstimateProcs AS HANDLE.
+DEFINE VARIABLE hdVendorCostProcs AS HANDLE NO-UNDO.
 
 RUN est/EstimateProcs.p PERSISTENT SET hdEstimateProcs.
+RUN system/VendorCostProcs.p PERSISTENT SET hdVendorCostProcs.
 
 {system/VendorCostProcs.i}
 DEFINE TEMP-TABLE tt-report LIKE report.
+
+DEFINE TEMP-TABLE tt-count 
+        FIELD iIndex AS INTEGER 
+        FIELD iQuantity AS INTEGER .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -822,6 +828,10 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Quantity Detail Information */
 DO:
   oplError = YES.  
+   IF VALID-HANDLE(hdEstimateProcs) THEN
+   DELETE OBJECT hdEstimateProcs.
+   IF VALID-HANDLE(hdVendorCostProcs) THEN
+   DELETE OBJECT hdVendorCostProcs.
   APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -834,30 +844,9 @@ END.
 ON CHOOSE OF Btn_Add-Break IN FRAME Dialog-Frame /* Add Break Quantities */
 DO:
     oplError = NO.
-    IF rd_vendor:SCREEN-VALUE NE "" THEN
-    DO:  
-       ASSIGN lv-qty1:SCREEN-VALUE = lv-next-qty1:SCREEN-VALUE
-           lv-qty2:SCREEN-VALUE = lv-next-qty2:SCREEN-VALUE
-           lv-qty3:SCREEN-VALUE = lv-next-qty3:SCREEN-VALUE
-           lv-qty4:SCREEN-VALUE = lv-next-qty4:SCREEN-VALUE
-           lv-qty5:SCREEN-VALUE = lv-next-qty5:SCREEN-VALUE
-           lv-qty6:SCREEN-VALUE = lv-next-qty6:SCREEN-VALUE
-           lv-qty7:SCREEN-VALUE = lv-next-qty7:SCREEN-VALUE 
-           lv-qty8:SCREEN-VALUE = lv-next-qty8:SCREEN-VALUE
-           lv-qty9:SCREEN-VALUE = lv-next-qty9:SCREEN-VALUE
-           lv-qty10:SCREEN-VALUE = lv-next-qty10:SCREEN-VALUE         
-           lv-qty11:SCREEN-VALUE = lv-next-qty11:SCREEN-VALUE 
-           lv-qty12:SCREEN-VALUE = lv-next-qty12:SCREEN-VALUE
-           lv-qty13:SCREEN-VALUE = lv-next-qty13:SCREEN-VALUE 
-           lv-qty14:SCREEN-VALUE = lv-next-qty14:SCREEN-VALUE
-           lv-qty15:SCREEN-VALUE = lv-next-qty15:SCREEN-VALUE
-           lv-qty16:SCREEN-VALUE = lv-next-qty16:SCREEN-VALUE
-           lv-qty17:SCREEN-VALUE = lv-next-qty17:SCREEN-VALUE
-           lv-qty18:SCREEN-VALUE = lv-next-qty18:SCREEN-VALUE
-           lv-qty19:SCREEN-VALUE = lv-next-qty19:SCREEN-VALUE 
-           lv-qty20:SCREEN-VALUE = lv-next-qty20:SCREEN-VALUE
-           .
-    END.       
+    
+    RUN pAddBreak.      
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -869,6 +858,10 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
    oplError = YES.
+   IF VALID-HANDLE(hdEstimateProcs) THEN
+   DELETE OBJECT hdEstimateProcs.
+   IF VALID-HANDLE(hdVendorCostProcs) THEN
+   DELETE OBJECT hdVendorCostProcs.
    APPLY "CLOSE":U TO SELF.
 END.
 
@@ -1482,6 +1475,121 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAddBreak Dialog-Frame 
+PROCEDURE pAddBreak :
+    /*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE i AS INTEGER NO-UNDO.
+    DEFINE VARIABLE j AS INTEGER NO-UNDO.
+    DEFINE VARIABLE dListQty AS DECIMAL EXTENT 40 NO-UNDO.
+    DEFINE VARIABLE dQuantity AS DECIMAL EXTENT 40 NO-UNDO.   
+    
+    EMPTY TEMP-TABLE tt-count.
+        
+    DO WITH FRAME {&FRAME-NAME}:  
+       ASSIGN dQuantity[1] =  integer(ttEstimateQuantity.EstQuantity[1])
+           dQuantity[2] =  integer(ttEstimateQuantity.EstQuantity[2])
+           dQuantity[3] =  integer(ttEstimateQuantity.EstQuantity[3])
+           dQuantity[4] =  integer(ttEstimateQuantity.EstQuantity[4])
+           dQuantity[5] =  integer(ttEstimateQuantity.EstQuantity[5])
+           dQuantity[6] =  integer(ttEstimateQuantity.EstQuantity[6])
+           dQuantity[7] =  integer(ttEstimateQuantity.EstQuantity[7])
+           dQuantity[8] =  integer(ttEstimateQuantity.EstQuantity[8])
+           dQuantity[9] =  integer(ttEstimateQuantity.EstQuantity[9])
+           dQuantity[10] =  integer(ttEstimateQuantity.EstQuantity[10])
+           dQuantity[11] =  integer(ttEstimateQuantity.EstQuantity[11])
+           dQuantity[12] =  integer(ttEstimateQuantity.EstQuantity[12])
+           dQuantity[13] =  integer(ttEstimateQuantity.EstQuantity[13])
+           dQuantity[14] =  integer(ttEstimateQuantity.EstQuantity[14])
+           dQuantity[15] =  integer(ttEstimateQuantity.EstQuantity[15])
+           dQuantity[16] =  integer(ttEstimateQuantity.EstQuantity[16])
+           dQuantity[17] =  integer(ttEstimateQuantity.EstQuantity[17])
+           dQuantity[18] =  integer(ttEstimateQuantity.EstQuantity[18])
+           dQuantity[19] =  integer(ttEstimateQuantity.EstQuantity[19])
+           dQuantity[20] =  integer(ttEstimateQuantity.EstQuantity[20])
+           . 
+    END.   
+    
+    iCount = 1.
+    j = 1.
+    DO i = 1 TO 20:
+     IF dQuantity[i] NE ttEstimateQuantity.EstNextQuantity[j] AND ttEstimateQuantity.EstNextQuantity[j] NE 0 THEN
+      DO:           
+         CREATE tt-count.
+         ASSIGN
+            tt-count.iIndex = iCount 
+            tt-count.iQuantity = dQuantity[i].
+         CREATE tt-count.
+         ASSIGN
+            tt-count.iIndex = iCount + 1
+            tt-count.iQuantity = ttEstimateQuantity.EstNextQuantity[j].   
+            
+        ASSIGN
+         iCount = iCount + 2
+         j = j + 1 .
+     END.    
+     ELSE IF dQuantity[i] EQ ttEstimateQuantity.EstNextQuantity[j] AND dQuantity[i] NE 0 THEN
+     DO:
+        CREATE tt-count.
+         ASSIGN
+            tt-count.iIndex = iCount 
+            tt-count.iQuantity = dQuantity[i].
+        ASSIGN                   
+         j = j + 1
+         iCount = iCount + 1. 
+     END.
+     ELSE IF dQuantity[i] NE 0 THEN
+     DO:  
+        CREATE tt-count.
+         ASSIGN
+            tt-count.iIndex = iCount 
+            tt-count.iQuantity = dQuantity[i].
+        ASSIGN                 
+         iCount = iCount + 1.  
+     END.       
+    END.
+    RELEASE tt-count.
+    
+    i = 1.
+    FOR EACH tt-count NO-LOCK
+          BY tt-count.iQuantity:
+       dListQty[i] = tt-count.iQuantity. 
+       i = i + 1.
+    END.
+      
+    DO WITH FRAME {&FRAME-NAME}:  
+       ASSIGN 
+         lv-qty1:SCREEN-VALUE = string(dListQty[1])
+         lv-qty2:SCREEN-VALUE = string(dListQty[2])
+         lv-qty3:SCREEN-VALUE = string(dListQty[3])
+         lv-qty4:SCREEN-VALUE = string(dListQty[4])
+         lv-qty5:SCREEN-VALUE = string(dListQty[5])
+         lv-qty6:SCREEN-VALUE = string(dListQty[6])
+         lv-qty7:SCREEN-VALUE = string(dListQty[7])
+         lv-qty8:SCREEN-VALUE = string(dListQty[8])
+         lv-qty9:SCREEN-VALUE = string(dListQty[9])
+         lv-qty10:SCREEN-VALUE = string(dListQty[10])
+         lv-qty11:SCREEN-VALUE = string(dListQty[11])
+         lv-qty12:SCREEN-VALUE = string(dListQty[12])
+         lv-qty13:SCREEN-VALUE = string(dListQty[13])
+         lv-qty14:SCREEN-VALUE = string(dListQty[14])
+         lv-qty15:SCREEN-VALUE = string(dListQty[15])
+         lv-qty16:SCREEN-VALUE = string(dListQty[16])
+         lv-qty17:SCREEN-VALUE = string(dListQty[17])
+         lv-qty18:SCREEN-VALUE = string(dListQty[18])
+         lv-qty19:SCREEN-VALUE = string(dListQty[19])
+         lv-qty20:SCREEN-VALUE = string(dListQty[20]).
+    END.  
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendorList Dialog-Frame 
 PROCEDURE pGetVendorList :
     /*------------------------------------------------------------------------------
@@ -1572,7 +1680,8 @@ PROCEDURE pGetVendorList :
         END.
     
     END.
-       
+   
+    lLogic = rd_vendor:ADD-LAST ("") IN FRAME {&frame-name} NO-ERROR.
     FOR EACH tt-report NO-LOCK:   
         lLogic = rd_vendor:ADD-LAST (STRING(tt-report.key-01)) IN FRAME {&frame-name} NO-ERROR.
     END.    
@@ -1591,81 +1700,56 @@ PROCEDURE pGetNextQty :
         ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
     DEFINE VARIABLE cBaseQty AS INTEGER EXTENT 20 NO-UNDO.
+    DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cVendorID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE opdCostNextPriceBreak AS DECIMAL NO-UNDO.
+    
         
     DO WITH FRAME {&FRAME-NAME}:
-    END.
-        
+      cVendorID = rd_vendor:SCREEN-VALUE.
+      IF cVendorID EQ ? THEN
+      cVendorID = "".
+    END.                  
+     
     FIND FIRST est NO-LOCK
         WHERE est.company EQ eb.company
         AND est.est-no EQ eb.est-no NO-ERROR.
-       
-    IF AVAILABLE est THEN
-    DO:    
-        FIND FIRST tt-report NO-LOCK
-             WHERE tt-report.key-01 EQ rd_vendor:SCREEN-VALUE NO-ERROR.
-                     
-        FOR EACH vendItemCost NO-LOCK
-        WHERE vendItemCost.company  EQ est.company
-        AND vendItemCost.itemType EQ "RM"
-        AND vendItemCost.itemID EQ tt-report.key-03
-        AND vendItemCost.vendorID EQ tt-report.key-01         
-        AND vendItemCost.estimateNo EQ ""
-        AND vendItemCost.effectiveDate LE TODAY
-        AND (vendItemCost.expirationDate GE TODAY OR vendItemCost.expirationDate EQ ? OR vendItemCost.expirationDate EQ 01/01/0001)
-        BREAK BY vendItemCost.vendorID:  
-             FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
-                    BY vendItemCostLevel.quantityBase: 
-                    iCount = iCount + 1. 
-                   cBaseQty[iCount] = vendItemCostLevel.quantityBase.                                     
-             END.
-        END.
-    END.    
-    
-    DO WITH FRAME {&FRAME-NAME}:
-     DO iCount = 1 TO 20:
-        CASE iCount:
-        WHEN 1 THEN
-            lv-next-qty1:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 2 THEN
-            lv-next-qty2:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 3 THEN
-            lv-next-qty3:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 4 THEN
-            lv-next-qty4:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 5 THEN
-            lv-next-qty5:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 6 THEN
-            lv-next-qty6:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 7 THEN
-            lv-next-qty7:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 8 THEN
-            lv-next-qty8:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 9 THEN
-            lv-next-qty9:SCREEN-VALUE = STRING(cBaseQty[iCount]). 
-        WHEN 10 THEN
-            lv-next-qty10:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 11 THEN
-            lv-next-qty11:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 12 THEN
-            lv-next-qty12:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 13 THEN
-            lv-next-qty13:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 14 THEN
-            lv-next-qty14:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 15 THEN
-            lv-next-qty15:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 16 THEN
-            lv-next-qty16:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 17 THEN
-            lv-next-qty17:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 18 THEN
-            lv-next-qty18:SCREEN-VALUE = STRING(cBaseQty[iCount]). 
-        WHEN 19 THEN
-            lv-next-qty19:SCREEN-VALUE = STRING(cBaseQty[iCount]).
-        WHEN 20 THEN
-            lv-next-qty20:SCREEN-VALUE = STRING(cBaseQty[iCount]).    
-        END.           
-     END.    
+        
+    FIND FIRST ef NO-LOCK 
+            WHERE ef.company EQ eb.company 
+            AND ef.est-no EQ eb.est-no
+            AND ef.form-no EQ eb.form-no NO-ERROR. 
+                
+    IF eb.pur-man THEN 
+    DO:
+    RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE, eb.company, "FG", eb.stock-no, eb.est-no, eb.form-no, eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), eb.num-up, cVendorID, OUTPUT opdCostNextPriceBreak).                                .
+    END.
+    ELSE 
+    DO:
+    RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE,  eb.company, "RM", ef.board, eb.est-no, eb.form-no, eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), eb.num-up, cVendorID, OUTPUT opdCostNextPriceBreak).
+    END.        
+              
+    DO WITH FRAME {&FRAME-NAME}:                         
+     ASSIGN lv-next-qty1:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[1]) 
+         lv-next-qty2:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[2]) 
+         lv-next-qty3:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[3])
+         lv-next-qty4:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[4])
+         lv-next-qty5:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[5])
+         lv-next-qty6:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[6])
+         lv-next-qty7:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[7])
+         lv-next-qty8:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[8])
+         lv-next-qty9:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[9])
+         lv-next-qty10:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[10])
+         lv-next-qty11:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[11])
+         lv-next-qty12:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[12])
+         lv-next-qty13:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[13])
+         lv-next-qty14:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[14])
+         lv-next-qty15:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[15])
+         lv-next-qty16:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[16])
+         lv-next-qty17:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[17])
+         lv-next-qty18:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[18])
+         lv-next-qty19:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[19])
+         lv-next-qty20:SCREEN-VALUE = STRING(ttEstimateQuantity.EstNextQuantity[20]).          
     END.
 
 END PROCEDURE.

@@ -303,6 +303,7 @@ PROCEDURE GetNextPriceBreak:
     DEFINE INPUT PARAMETER ipdformdepth  AS DECIMAL NO-UNDO.
     DEFINE INPUT PARAMETER iprowidEF     AS ROWID NO-UNDO.
     DEFINE INPUT PARAMETER ipinumup      AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID   AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdNextQuantity AS DECIMAL NO-UNDO.
     
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
@@ -318,7 +319,7 @@ PROCEDURE GetNextPriceBreak:
         WHERE vendItemCost.company  EQ ipcCompany
         AND vendItemCost.itemType EQ ipcItemType
         AND vendItemCost.itemID EQ ipcItemID
-        AND vendItemCost.vendorID EQ ""
+        AND (vendItemCost.vendorID EQ ipcVendorID OR ipcVendorID EQ "")
         AND (ipcItemType EQ "FG" AND (vendItemCost.estimateNo   EQ ipcEstNo
         AND vendItemCost.formNo  EQ ipiFormNo
         AND vendItemCost.blankNo EQ ipiBlankNo)
