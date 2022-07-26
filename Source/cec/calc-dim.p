@@ -439,10 +439,10 @@ PROCEDURE pCalculatePartitionStyleDieSize PRIVATE:
     DEFINE VARIABLE dLongLength          AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iNumberOnLongWidth   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iNumberOnLongLength  AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dShortWidth          AS DECIMAL NO-UNDO INITIAL 9999999.
-    DEFINE VARIABLE dShortLength         AS DECIMAL NO-UNDO INITIAL 9999999.
-    DEFINE VARIABLE iNumberOnShortWidth  AS INTEGER NO-UNDO INITIAL 9999999.
-    DEFINE VARIABLE iNumberOnShortLength AS INTEGER NO-UNDO INITIAL 9999999.
+    DEFINE VARIABLE dShortWidth          AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dShortLength         AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iNumberOnShortWidth  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumberOnShortLength AS INTEGER NO-UNDO.
     DEFINE VARIABLE lBlankAvailable      AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-eb  FOR eb.
@@ -462,47 +462,44 @@ PROCEDURE pCalculatePartitionStyleDieSize PRIVATE:
         WHERE bf-eb.company EQ ipbf-ef.company
           AND bf-eb.est-no  EQ ipbf-ef.est-no
           AND bf-eb.eqty    EQ ipbf-ef.eqty
-          AND bf-eb.form-no EQ ipbf-ef.form-no:
+          AND bf-eb.form-no EQ ipbf-ef.form-no
+        BREAK BY bf-eb.est-no:
         lBlankAvailable = TRUE.
         
-        IF dLongLength LT bf-eb.t-len THEN
-            dLongLength = bf-eb.t-len.
+        IF FIRST-OF(bf-eb.est-no) THEN DO:
+            ASSIGN
+                dLongLength = bf-eb.t-len
+                dLongWidth  = bf-eb.t-wid
+                .
 
-        IF dLongWidth LT bf-eb.t-wid THEN
-            dLongWidth = bf-eb.t-wid.
-
-        IF dShortLength GT bf-eb.t-len THEN
-            dShortLength = bf-eb.t-len.
-
-        IF dShortWidth GT bf-eb.t-wid THEN
-            dShortWidth = bf-eb.t-wid.
-
-        /* Field values num-wid and num-len are swapped if est-type is ge 5 */
-        IF bf-est.est-type GE 5 THEN DO:
-            IF iNumberOnLongLength LT bf-eb.num-wid THEN
-                iNumberOnLongLength = bf-eb.num-wid.
-    
-            IF iNumberOnLongWidth LT bf-eb.num-len THEN
-                iNumberOnLongWidth = bf-eb.num-len.
-
-            IF iNumberOnShortLength GT bf-eb.num-wid THEN
-                iNumberOnShortLength = bf-eb.num-wid.
-    
-            IF iNumberOnShortWidth GT bf-eb.num-len THEN
-                iNumberOnShortWidth = bf-eb.num-len.
+            /* Field values num-wid and num-len are swapped if est-type is ge 5 */
+            IF bf-est.est-type GE 5 THEN
+                ASSIGN
+                    iNumberOnLongLength = bf-eb.num-wid
+                    iNumberOnLongWidth  = bf-eb.num-len
+                    .
+            ELSE
+                ASSIGN
+                    iNumberOnLongLength = bf-eb.num-len
+                    iNumberOnLongWidth  = bf-eb.num-wid
+                    .
         END.
-        ELSE DO:
-            IF iNumberOnLongLength LT bf-eb.num-len THEN
-                iNumberOnLongLength = bf-eb.num-len.
-    
-            IF iNumberOnLongWidth LT bf-eb.num-wid THEN
-                iNumberOnLongWidth = bf-eb.num-wid.
+        ELSE IF LAST-OF(bf-eb.est-no) THEN DO:
+            ASSIGN
+                dShortLength = bf-eb.t-len
+                dShortWidth  = bf-eb.t-wid
+                .
 
-            IF iNumberOnShortLength GT bf-eb.num-len THEN
-                iNumberOnShortLength = bf-eb.num-len.
-    
-            IF iNumberOnShortWidth GT bf-eb.num-wid THEN
-                iNumberOnShortWidth = bf-eb.num-wid.
+            IF bf-est.est-type GE 5 THEN
+                ASSIGN
+                    iNumberOnShortLength = bf-eb.num-wid
+                    iNumberOnShortWidth  = bf-eb.num-len
+                    .
+            ELSE
+                ASSIGN
+                    iNumberOnShortLength = bf-eb.num-len
+                    iNumberOnShortWidth  = bf-eb.num-wid
+                    .
         END.
     END.
     
