@@ -417,6 +417,28 @@ do v-local-loop = 1 to v-local-copies:
                 xeb.plate-no when avail xeb
                 "<=#7> DIE CUTTING, SLIT, & SAW"                
             with no-box no-labels frame m2 width 145 NO-ATTR-SPACE STREAM-IO.
+            
+        /* PREMIER logic to show each ink on estimate - start */
+        FOR EACH w-i:
+          DELETE w-i.
+        END.
+
+        DO i = 1 TO EXTENT(xeb.i-code):
+          IF xeb.i-code[i] NE "" THEN DO:
+            CREATE w-i.
+            ASSIGN
+             w-i.i-code = xeb.i-code[i]
+             w-i.i-dscr = xeb.i-dscr[i]
+             .
+             FOR EACH job-mat NO-LOCK
+                 WHERE job-mat.company EQ cocode
+                   AND job-mat.job     EQ job-hdr.job
+                   AND job-mat.frm     EQ xeb.form-no
+                   AND job-mat.i-no    EQ xeb.i-code[i]:
+                 w-i.i-qty  = job-mat.qty.    
+             END.      
+          END.
+        END.     
 
         i = 0.
         for each w-i:
