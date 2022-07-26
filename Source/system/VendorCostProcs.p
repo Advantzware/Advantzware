@@ -338,8 +338,8 @@ PROCEDURE GetNextPriceBreak:
                         ipdformlength, ipdformwidth, ipdformdepth,
                         vendItemCostLevel.quantityBase, OUTPUT opdNextQuantity).
                     opdNextQuantity = opdNextQuantity * ipinumup * iN-out.                     
-                    opdNextQuantity = IF opdNextQuantity - INTEGER (opdNextQuantity) GT 0 THEN (INTEGER (opdNextQuantity) + 1)
-                                      ELSE INTEGER (opdNextQuantity).         
+                    opdNextQuantity = IF opdNextQuantity - INT64(opdNextQuantity) GT 0 THEN (INT64 (opdNextQuantity) + 1)
+                                      ELSE INT64 (opdNextQuantity).         
                     IF opdNextQuantity GT ttEstimateQuantity.EstQuantity[iIndex] THEN  
                         ASSIGN ttEstimateQuantity.EstNextQuantity[iIndex] = opdNextQuantity. 
                 END.                  

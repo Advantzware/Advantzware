@@ -31,6 +31,9 @@ DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstimateQuantity.
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE ld-msf AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE glCorrware AS LOGICAL NO-UNDO INITIAL NO.
 DEFINE VARIABLE hdEstimateProcs AS HANDLE.
 DEFINE VARIABLE hdVendorCostProcs AS HANDLE NO-UNDO.
 
@@ -217,85 +220,85 @@ DEFINE VARIABLE lv-msf-9 AS DECIMAL FORMAT "->>,>>>,>>9.9<<<":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-next-qty1 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty1 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty10 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty10 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty11 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty11 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty12 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty12 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty13 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty13 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty14 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty14 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty15 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty15 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty16 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty16 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty17 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty17 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty18 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty18 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty19 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty19 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty2 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty2 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty20 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty20 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty3 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty3 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty4 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty4 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty5 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty5 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty6 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty6 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty7 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty7 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty8 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty8 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
-DEFINE VARIABLE lv-next-qty9 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
+DEFINE VARIABLE lv-next-qty9 AS INT64 FORMAT ">>>,>>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
+     SIZE 20 BY 1.
 
 DEFINE VARIABLE lv-qty1 AS INTEGER FORMAT ">>>,>>>,>>9" INITIAL 0 
      VIEW-AS FILL-IN 
@@ -1398,6 +1401,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           RUN pGetVendorList.                               
       END.
       
+      IF AVAIL eb THEN
+      DO:
+          RUN sys/ref/nk1look.p (eb.company, "MSFCALC", "C", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
+          glCorrware = NOT lFound OR cReturn EQ "Corrware".
+      END.
+      
    RUN enable_UI. 
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
@@ -1485,7 +1494,9 @@ PROCEDURE pAddBreak :
     DEFINE VARIABLE i AS INTEGER NO-UNDO.
     DEFINE VARIABLE j AS INTEGER NO-UNDO.
     DEFINE VARIABLE dListQty AS DECIMAL EXTENT 40 NO-UNDO.
-    DEFINE VARIABLE dQuantity AS DECIMAL EXTENT 40 NO-UNDO.   
+    DEFINE VARIABLE dQuantity AS DECIMAL EXTENT 40 NO-UNDO. 
+    DEFINE VARIABLE dEstMSF AS DECIMAL EXTENT 40 NO-UNDO. 
+    DEFINE VARIABLE dQuantityPerSet AS DECIMAL NO-UNDO.
     
     EMPTY TEMP-TABLE tt-count.
         
@@ -1555,10 +1566,38 @@ PROCEDURE pAddBreak :
     
     i = 1.
     FOR EACH tt-count NO-LOCK
-          BY tt-count.iQuantity:
-       dListQty[i] = tt-count.iQuantity. 
-       i = i + 1.
+          BREAK BY tt-count.iQuantity:
+       IF first-of(tt-count.iQuantity) THEN
+       do:
+           dListQty[i] = tt-count.iQuantity. 
+           i = i + 1.
+       END.
     END.
+    
+    
+    ASSIGN dQuantityPerSet  = IF NOT glCorrware THEN 1
+                             ELSE (IF eb.quantityPerSet < 0 THEN -1 / eb.quantityPerSet ELSE eb.quantityPerSet).
+                             
+     IF dListQty[1] > 0 THEN 
+       dEstMSF[1] = IF glCorrware THEN 
+                    ((dListQty[1] * eb.t-len * eb.t-wid * .007)
+                    * dQuantityPerSet
+                    / 1000 )
+                    ELSE 
+                    ((dListQty[1] * eb.t-len * eb.t-wid / 144)
+                    * dQuantityPerSet
+                    / 1000 ).  
+                    
+     DO iCount = 2 TO 20:
+         IF dListQty[iCount] > 0 THEN
+          dEstMSF[iCount] = IF glCorrware THEN
+                            ( (dListQty[iCount] * eb.t-len * eb.t-wid * .007)
+                            * dQuantityPerSet
+                            / 1000 )
+                            ELSE  ( (dListQty[iCount] * eb.t-len * eb.t-wid / 144)
+                            * dQuantityPerSet
+                            / 1000 ).
+     END.               
       
     DO WITH FRAME {&FRAME-NAME}:  
        ASSIGN 
@@ -1581,7 +1620,27 @@ PROCEDURE pAddBreak :
          lv-qty17:SCREEN-VALUE = string(dListQty[17])
          lv-qty18:SCREEN-VALUE = string(dListQty[18])
          lv-qty19:SCREEN-VALUE = string(dListQty[19])
-         lv-qty20:SCREEN-VALUE = string(dListQty[20]).
+         lv-qty20:SCREEN-VALUE = string(dListQty[20])           
+         lv-msf-1:SCREEN-VALUE = string(dEstMSF[1])
+         lv-msf-2:SCREEN-VALUE = string(dEstMSF[2])
+         lv-msf-3:SCREEN-VALUE = string(dEstMSF[3])
+         lv-msf-4:SCREEN-VALUE = string(dEstMSF[4])
+         lv-msf-5:SCREEN-VALUE = string(dEstMSF[5])
+         lv-msf-6:SCREEN-VALUE = string(dEstMSF[6])
+         lv-msf-7:SCREEN-VALUE = string(dEstMSF[7])
+         lv-msf-8:SCREEN-VALUE = string(dEstMSF[8])
+         lv-msf-9:SCREEN-VALUE = string(dEstMSF[9])
+         lv-msf-10:SCREEN-VALUE = string(dEstMSF[10])
+         lv-msf-11:SCREEN-VALUE = string(dEstMSF[11])
+         lv-msf-12:SCREEN-VALUE = string(dEstMSF[12])
+         lv-msf-13:SCREEN-VALUE = string(dEstMSF[13])
+         lv-msf-14:SCREEN-VALUE = string(dEstMSF[14])
+         lv-msf-15:SCREEN-VALUE = string(dEstMSF[15])
+         lv-msf-16:SCREEN-VALUE = string(dEstMSF[16])
+         lv-msf-17:SCREEN-VALUE = string(dEstMSF[17])
+         lv-msf-18:SCREEN-VALUE = string(dEstMSF[18])
+         lv-msf-19:SCREEN-VALUE = string(dEstMSF[19])
+         lv-msf-20:SCREEN-VALUE = string(dEstMSF[20]).
     END.  
     
 END PROCEDURE.
@@ -1719,7 +1778,8 @@ PROCEDURE pGetNextQty :
             WHERE ef.company EQ eb.company 
             AND ef.est-no EQ eb.est-no
             AND ef.form-no EQ eb.form-no NO-ERROR. 
-                
+         
+    ttEstimateQuantity.EstNextQuantity = 0.     
     IF eb.pur-man THEN 
     DO:
     RUN GetNextPriceBreak IN hdVendorCostProcs (INPUT-OUTPUT TABLE ttEstimateQuantity BY-REFERENCE, eb.company, "FG", eb.stock-no, eb.est-no, eb.form-no, eb.blank-no, ef.gsh-len, ef.gsh-wid, ef.gsh-dep, ROWID(ef), eb.num-up, cVendorID, OUTPUT opdCostNextPriceBreak).                                .
