@@ -493,6 +493,8 @@ ON END-ERROR OF C-Win /* Productivity By Machine */
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
            application would exit. */
+        IF VALID-HANDLE(hdOutputProcs) THEN  
+        DELETE PROCEDURE hdOutputProcs.   
         IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
     END.
 
