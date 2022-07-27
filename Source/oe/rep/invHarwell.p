@@ -22,6 +22,7 @@ DEF SHARED VAR v-fr-tax AS LOGICAL INITIAL NO NO-UNDO.
 DEF VAR cAddr4 AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEF VAR cBillNotes LIKE inv-head.bill-i NO-UNDO.
 DEF VAR cMessage AS CHARACTER NO-UNDO.
+DEF VAR cLocation AS CHARACTER NO-UNDO.
 DEF VAR cnt AS INT NO-UNDO.
 DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR cShipAddr4 AS CHARACTER FORMAT "x(30)" NO-UNDO.
@@ -174,13 +175,6 @@ FOR EACH report NO-LOCK WHERE
         cust.cust-no = xinv-head.cust-no 
         NO-ERROR.
 
-      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-      IF NOT lValid THEN
-      DO:
-          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-      END.
-      ASSIGN ls-full-img1 = cRtnChar + ">" .
-
     ASSIGN  
         v-shipto-name    = xinv-head.sold-name
         v-shipto-addr[1] = xinv-head.sold-addr[1]
@@ -325,7 +319,8 @@ FOR EACH report NO-LOCK WHERE
 
                     /** Bill Of Lading TOTAL CASES **/
                     ASSIGN 
-                        v-bol-cases = v-bol-cases + oe-boll.cases.
+                        v-bol-cases = v-bol-cases + oe-boll.cases
+                        cLocation   = oe-boll.loc.
                     RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                     v-tot-pallets = v-tot-pallets + v-int.
                 END. /* each oe-boll */
@@ -443,6 +438,13 @@ FOR EACH report NO-LOCK WHERE
             ELSE ASSIGN 
                 v-po-no = "".
         END.
+
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              IF NOT lValid THEN
+              DO:
+                  MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              ASSIGN ls-full-img1 = cRtnChar + ">" .
 
         {oe/rep/invHarwell.i}
 

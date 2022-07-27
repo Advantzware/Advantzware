@@ -132,8 +132,6 @@ DEFINE VARIABLE cCurrCode    AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dTotalPrice    AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
-DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 /* ************************  Function Prototypes ********************** */
 FUNCTION fnGetFOB RETURNS CHARACTER 
@@ -184,11 +182,7 @@ FIND FIRST cust WHERE cust.company = oe-bolh.company
 cCurrCode = IF AVAILABLE cust AND cust.curr-code NE "" THEN cust.curr-code ELSE "USD" .
 v-del-no = 0.
 
-IF AVAIL cust THEN 
-      ASSIGN cCustomerNo = cust.cust-no
-       cCustomerLocation = cust.loc .
-
-RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-bolh.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
         	      
     IF NOT lValid THEN
     DO:

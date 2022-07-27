@@ -106,6 +106,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cls-image1     AS CHAR NO-UNDO.
          
 
@@ -120,28 +121,6 @@ DEFINE VARIABLE cls-image1     AS CHAR NO-UNDO.
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
-
-        IF opcFormat EQ "nStockLogo" THEN DO:
-            RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-            IF NOT lValid THEN
-            DO:
-                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-            END.
-            ASSIGN ls-full-img1 = cRtnChar + ">" .
-        END.
-        ELSE IF opcFormat EQ "NStockLogo1" THEN DO:   
-           ASSIGN 
-            cls-image1 = "images\ArgrovLogo.png"
-            FILE-INFO:FILE-NAME = cls-image1
-            ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
-        END.
-        ELSE IF opcFormat EQ "NStockLogo2" THEN DO:
-          ASSIGN 
-            cls-image1 = "images\CheepCheepLogo.png"
-            FILE-INFO:FILE-NAME = cls-image1
-            ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
-
-        END.
                         
       if avail cust and cust.show-set then
          v-show-parts = YES.
@@ -249,7 +228,8 @@ DEFINE VARIABLE cls-image1     AS CHAR NO-UNDO.
               oe-boll.ord-no = xinv-line.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-              ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+              ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                     cLocation   = oe-boll.loc .
 /*                     v-tot-pallets = v-tot-pallets + oe-boll.cases +
                                      (if oe-boll.partial gt 0 then 1 else 0). */
            END. /* each oe-boll */
@@ -367,6 +347,28 @@ DEFINE VARIABLE cls-image1     AS CHAR NO-UNDO.
               and inv-line.po-no ne ""
             no-lock no-error.
         if avail inv-line then v-rel-po-no = inv-line.po-no.
+
+        IF opcFormat EQ "nStockLogo" THEN DO:
+            RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            IF NOT lValid THEN
+            DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            END.
+            ASSIGN ls-full-img1 = cRtnChar + ">" .
+        END.
+        ELSE IF opcFormat EQ "NStockLogo1" THEN DO:   
+           ASSIGN 
+            cls-image1 = "images\ArgrovLogo.png"
+            FILE-INFO:FILE-NAME = cls-image1
+            ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
+        END.
+        ELSE IF opcFormat EQ "NStockLogo2" THEN DO:
+          ASSIGN 
+            cls-image1 = "images\CheepCheepLogo.png"
+            FILE-INFO:FILE-NAME = cls-image1
+            ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
+
+        END.
 
         {oe/rep/invnstok.i}
      

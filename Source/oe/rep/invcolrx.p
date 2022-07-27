@@ -95,6 +95,7 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE clocation    AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
 DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
 
@@ -127,13 +128,6 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
-
-      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-      IF NOT lValid THEN
-      DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-      END.
-      ASSIGN ls-full-img1 = cRtnChar + ">" .
 
       assign  v-shipto-code = xinv-head.sold-no
               v-shipto-name = xinv-head.sold-name
@@ -234,7 +228,8 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                                       /** Bill Of Lading TOTAL CASES **/
               ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
                      v-tot-pallets = v-tot-pallets + oe-boll.cases +
-                                     (if oe-boll.partial gt 0 then 1 else 0).
+                                     (if oe-boll.partial gt 0 then 1 else 0)
+                         clocation = oe-boll.loc.
               IF oe-boll.p-c THEN v-pc = "C". /*complete*/
               
            END. /* each oe-boll */
@@ -345,6 +340,13 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
                 */
+
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, clocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              IF NOT lValid THEN
+              DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              ASSIGN ls-full-img1 = cRtnChar + ">" .
  {oe/rep/invcolrx.i}  /* xprint form */
 
         v-subtot-lines = 0.

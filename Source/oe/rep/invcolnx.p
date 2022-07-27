@@ -109,6 +109,7 @@ DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 DEF VAR v-tel           AS CHARACTER FORM "x(30)" NO-UNDO.
 DEF VAR v-fax           AS CHARACTER FORM "x(30)" NO-UNDO.
@@ -149,13 +150,6 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
       
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
-      
-      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-      IF NOT lValid THEN
-      DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-      END.
-      ASSIGN ls-full-img1 = cRtnChar + ">" .
       
       assign  v-shipto-name = xinv-head.sold-name
                     v-shipto-addr[1] = xinv-head.sold-addr[1]
@@ -282,7 +276,8 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
                                       /** Bill Of Lading TOTAL CASES **/
               ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
                      v-tot-pallets = v-tot-pallets + oe-boll.cases +
-                                     (if oe-boll.partial gt 0 then 1 else 0).
+                                     (if oe-boll.partial gt 0 then 1 else 0)
+                         cLocation = oe-boll.loc.
               IF oe-boll.p-c THEN v-pc = "C". /*complete*/
               
            END. /* each oe-boll */
@@ -399,6 +394,13 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
                 v-billto-id = soldto.sold-id.
         v-billto-addr3 = v-billto-city + ", " + v-billto-state +
               "  " + v-billto-zip.
+      
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              IF NOT lValid THEN
+              DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              ASSIGN ls-full-img1 = cRtnChar + ">" .
  {oe/rep/invcolnx.i}  /* xprint form */
 
         ASSIGN

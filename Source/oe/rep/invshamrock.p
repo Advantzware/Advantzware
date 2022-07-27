@@ -115,6 +115,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
@@ -162,14 +163,6 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
-
-    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-            	      
-    IF NOT lValid THEN
-    DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-    END.
-    ASSIGN ls-full-img1 = cRtnChar + ">" .
 
       assign  v-shipto-name = xinv-head.sold-name
               v-shipto-addr[1] = xinv-head.sold-addr[1]
@@ -298,7 +291,8 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
                                           oe-boll.ord-no = xinv-line.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                       cLocation   = oe-boll.loc .
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
@@ -415,6 +409,14 @@ DEFINE INPUT PARAMETER iplPrntDupl AS LOGICAL NO-UNDO.
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
                 */
+
+    RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
         {oe/rep/invshamrock.i}
 
         v-subtot-lines = 0.

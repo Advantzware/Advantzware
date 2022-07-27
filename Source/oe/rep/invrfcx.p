@@ -134,6 +134,7 @@ DEF VAR ld-bsf LIKE eb.t-sqin INIT 1 NO-UNDO. /* store bsf for price/bsf calcula
 DEF VAR ld-price-per-m AS DEC INIT 1 NO-UNDO. /*for calculating BSF*/
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 FIND FIRST sys-ctrl where sys-ctrl.company = cocode
                       and sys-ctrl.NAME = "INVPRINT" NO-LOCK NO-ERROR.
@@ -176,14 +177,6 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     FIND FIRST cust WHERE cust.company = xinv-head.company
                       AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
-
-    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-            	      
-    IF NOT lValid THEN
-    DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-    END.
-    ASSIGN ls-full-img1 = cRtnChar + ">" .
 
     ASSIGN  
       v-custno      = cust.cust-no
@@ -308,7 +301,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                       v-bol-cases = v-bol-cases + oe-boll.cases
                      v-tot-pallets = v-tot-pallets + oe-boll.cases +
                                      (IF oe-boll.partial GT 0 
-                                        THEN 1 ELSE 0).
+                                        THEN 1 ELSE 0)
+                     cLocation = oe-boll.loc .
 
                     IF oe-boll.p-c THEN v-pc = "C". /*complete*/
                 END.  /* each oe-boll */
@@ -505,6 +499,14 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                  v-addr3          = inv-head.city + ", " + 
                                     inv-head.state + "  " + inv-head.zip.
         END.
+
+        RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+                          
+            IF NOT lValid THEN
+            DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            END.
+            ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 
         {oe/rep/invrfcx.i}  /* xprint form */

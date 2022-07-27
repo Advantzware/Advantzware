@@ -120,7 +120,7 @@ DEFINE VARIABLE cShipAddr4 AS CHARACTER FORM "x(30)" NO-UNDO .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
-DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cLocation   AS CHARACTER NO-UNDO .
 DEFINE VARIABLE opcBusinessFormLogo AS CHARACTER NO-UNDO .
 
 
@@ -158,21 +158,7 @@ find first company where company.company eq cocode NO-LOCK.
               by report.key-02:
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
-                        AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
-                        
-      IF AVAIL cust THEN
-      ASSIGN
-        cCustomerNo         = cust.cust-no
-        cCustomerLocation   = cust.loc
-        .
-      RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT opcBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
-      
-      IF NOT lValid THEN
-      DO:
-         MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-      END.
-      
-      ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .                  
+                        AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.                  
 
       assign  v-shipto-name = xinv-head.sold-name
               v-shipto-addr[1] = xinv-head.sold-addr[1]
@@ -307,7 +293,8 @@ find first company where company.company eq cocode NO-LOCK.
                                           oe-boll.ord-no = xinv-line.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                       cLocation   = oe-boll.loc .
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
@@ -424,6 +411,15 @@ find first company where company.company eq cocode NO-LOCK.
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
                 */
+      
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT opcBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
+          
+              IF NOT lValid THEN
+              DO:
+                 MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              
+              ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .
         {oe/rep/invlovepac-CAN.i}
 
         v-subtot-lines = 0.

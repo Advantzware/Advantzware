@@ -98,6 +98,7 @@ DEF VAR v-qty2 AS CHAR  NO-UNDO.
 DEF VAR v-rel  AS CHAR FORMAT "x(1)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 DEF TEMP-TABLE w-sman NO-UNDO
   FIELD sman AS CHAR FORMAT "x(4)".
@@ -115,14 +116,6 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     FIND FIRST cust WHERE cust.company EQ xinv-head.company
                       AND cust.cust-no EQ xinv-head.cust-no NO-LOCK NO-ERROR.
-
-    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-            	      
-    IF NOT lValid THEN
-    DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-    END.
-    ASSIGN ls-full-img1 = cRtnChar + ">" .
 
     ASSIGN v-shipto-name    = xinv-head.sold-name
            v-shipto-addr[1] = xinv-head.sold-addr[1]
@@ -231,7 +224,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
                    v-tot-pallets = v-tot-pallets + oe-boll.cases +
                                    (IF oe-boll.partial GT 0 THEN 1 ELSE 0)
-                   v-rel = oe-boll.s-code.
+                   v-rel = oe-boll.s-code
+                   cLocation     = oe-boll.loc.
              
             IF oe-boll.p-c THEN v-pc = "C". /*complete*/
           END. /* each oe-boll */
@@ -439,6 +433,14 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                  v-salesman = inv-misc.s-man[1].
           END.
       END.
+
+    RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
       
       {oe/rep/invptreelot.i}  /* xprint form */
 

@@ -116,6 +116,7 @@ DEF VAR ls-image2 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEF VAR cStockNotes AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
 DEF BUFFER bf-cust FOR cust .
@@ -161,14 +162,6 @@ find first company where company.company eq cocode NO-LOCK.
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
       IF AVAIL cust THEN cCurCode = cust.curr-code .
         ELSE cCurCode = "" .
-
-      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-                  	      
-      IF NOT lValid THEN
-      DO:
-          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-      END.
-      ASSIGN ls-full-img1 = cRtnChar + ">" .
 
       assign  v-shipto-name = xinv-head.sold-name
               v-shipto-addr[1] = xinv-head.sold-addr[1]
@@ -297,7 +290,8 @@ find first company where company.company eq cocode NO-LOCK.
                                           oe-boll.ord-no = xinv-line.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                       cLocation   = oe-boll.loc.
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
@@ -414,6 +408,16 @@ find first company where company.company eq cocode NO-LOCK.
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
                 */
+         
+
+        RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, clocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+                  	      
+          IF NOT lValid THEN
+          DO:
+              MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+          END.
+          ASSIGN ls-full-img1 = cRtnChar + ">" .       
+                
         {oe/rep/inv10can.i}
 
         v-subtot-lines = 0.

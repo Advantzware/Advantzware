@@ -122,6 +122,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dExchangeRate  AS DECIMAL EXTENT 3 NO-UNDO.
 DEFINE VARIABLE cCurrency      AS CHARACTER NO-UNDO.
 
@@ -178,13 +179,6 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
-
-      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-      IF NOT lValid THEN
-      DO:
-          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-      END.
-      ASSIGN ls-full-img1 = cRtnChar + ">" .
 
       ASSIGN  v-shipto-name = xinv-head.sold-name
               v-shipto-addr[1] = xinv-head.sold-addr[1]
@@ -318,7 +312,8 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                                           oe-boll.ord-no = xinv-line.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                         cLocation = oe-boll.loc.
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
@@ -440,7 +435,14 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
                 */
-        {oe/rep/invhenry.i}
+
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              IF NOT lValid THEN
+              DO:
+                  MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              ASSIGN ls-full-img1 = cRtnChar + ">" .
+            {oe/rep/invhenry.i}
 
         v-subtot-lines = 0.
         v-t-tax = 0.
