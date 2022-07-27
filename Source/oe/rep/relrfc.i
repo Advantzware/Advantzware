@@ -104,6 +104,7 @@ DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 find first sys-ctrl where sys-ctrl.company eq cocode
     and sys-ctrl.name    eq "RELPRINT" no-lock no-error.
@@ -192,14 +193,6 @@ and cust.cust-no eq oe-relh.cust-no
 no-lock
 
 break by {1} by oe-relh.release#:
-
-    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-            	      
-    IF NOT lValid THEN
-    DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-    END.
-    ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 RUN oe/custxship.p (oe-relh.company,
     oe-relh.cust-no,
@@ -353,6 +346,8 @@ for each oe-rell
 
     first itemfg of oe-rell no-lock:
           
+    ASSIGN cLocation = oe-rell.loc .
+    
     create w-oe-rell.
     buffer-copy oe-rell to w-oe-rell.
         
@@ -387,6 +382,14 @@ for each oe-rell
 
     v-weight = v-weight + (oe-rell.qty * itemfg.weight-100 / 100).
 end.
+
+RUN FileSys_GetBusinessFormLogo(cocode, oe-relh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+IF NOT lValid THEN
+DO:
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+END.
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 {oe/rep/relrfc2.i}
 

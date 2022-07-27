@@ -158,7 +158,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
 
     BREAK BY oe-bolh.bol-no:
     
-    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-bolh.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
             	      
     IF NOT lValid THEN
     DO:

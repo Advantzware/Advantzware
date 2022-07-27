@@ -204,7 +204,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
     break by oe-bolh.bol-no:
 
-    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-bolh.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
             	      
     IF NOT lValid THEN
     DO:

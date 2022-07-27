@@ -676,6 +676,31 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiSettingValue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSettingValue V-table-Win
+ON HELP OF fiSettingValue IN FRAME F-Main /* Value */
+DO:    
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ll-ok     AS LOGICAL   NO-UNDO.
+
+    IF fiSettingName:SCREEN-VALUE EQ "BusinessFormLogo" OR fiSettingName EQ "BusinessFormLogo" THEN
+    DO:    
+        SYSTEM-DIALOG GET-FILE cFileName 
+            TITLE "Select File to Save "
+            FILTERS "All Files    (*.*) " "*.*"
+            INITIAL-DIR "*"
+            MUST-EXIST
+            USE-FILENAME
+            UPDATE ll-ok.
+
+        IF ll-ok THEN SELF:SCREEN-VALUE = cFileName.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tbCurrentProgram
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbCurrentProgram V-table-Win
 ON VALUE-CHANGED OF tbCurrentProgram IN FRAME F-Main /* Apply for this program */

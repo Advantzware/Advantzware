@@ -993,6 +993,8 @@ PROCEDURE pGetBusinessFormLogo PRIVATE:
     
     RUN spGetSettingByNameAndLocation ("BusinessFormLogo", ipcCustomer, ipcLocation, OUTPUT cRtnChar).
 
+    ASSIGN oplValid = YES.
+    
     IF cRtnChar NE "" THEN DO:
         cRtnChar = DYNAMIC-FUNCTION (
                        "fFormatFilePath",
