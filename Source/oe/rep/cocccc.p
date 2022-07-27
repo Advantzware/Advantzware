@@ -37,6 +37,7 @@ DEF VAR lv-print-img AS LOG NO-UNDO.
 DEFINE VARIABLE cCertFormat AS CHARACTER NO-UNDO .
 DEF VAR cBolcert-char AS CHAR FORMAT "X(200)" NO-UNDO.
 DEFINE VARIABLE lChackNotes AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lPrintLot AS LOGICAL NO-UNDO.
 
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
     FIELD tt-FileCtr         AS INT
@@ -531,7 +532,7 @@ FOR EACH report
                 "Code Grade for UPC and 2D as 'C' or higher ".
 
          END.
-        IF cust.cust-no EQ "INT1010" AND cCertFormat EQ "CCC" THEN
+        IF lPrintLot AND cCertFormat EQ "CCC" THEN
         do:
              iNoteLine = iNoteLine + 1.
              gchWorkSheet:Range("D" + TRIM(STRING(iNoteLine,">9"))):VALUE = "Lot #: " + oe-boll.lot-no.
@@ -612,6 +613,7 @@ FOR EACH report
             AND sys-ctrl-shipto.NAME EQ "BOLCERT"
             AND sys-ctrl-shipto.cust-vend-no = oe-bolh.cust-no NO-ERROR.
         IF AVAIL sys-ctrl-shipto THEN do:
+            lPrintLot = sys-ctrl-shipto.int-fld EQ 1.
             cBolcert-char = sys-ctrl-shipto.char-fld .
             IF sys-ctrl-shipto.char-fld = "CCCWPP" THEN
                 lv-print-img = YES.
