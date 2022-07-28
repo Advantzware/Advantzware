@@ -88,39 +88,39 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD summColSellPriceShow        AS LOGICAL INITIAL YES
     FIELD summColSellPriceCol         AS DECIMAL INITIAL 76
     FIELD summColSellPriceWidth       AS INTEGER INITIAL 6
-    FIELD analysisColQuantityShow     AS LOGICAL INITIAL NO
+    FIELD analysisColQuantityShow     AS LOGICAL INITIAL YES
     FIELD analysisColQuantityLabel    AS CHARACTER INITIAL "Quantity"
     FIELD analysisColQuantityCol      AS DECIMAL INITIAL 2
     FIELD analysisColQuantityWidth    AS INTEGER INITIAL 9
-    FIELD analysisColFactCostShow     AS LOGICAL INITIAL NO
+    FIELD analysisColFactCostShow     AS LOGICAL INITIAL YES
     FIELD analysisColFactCostLabel    AS CHARACTER INITIAL "FactCost"
     FIELD analysisColFactCostCol      AS DECIMAL INITIAL 16
     FIELD analysisColFactCostWidth    AS INTEGER INITIAL 8
-    FIELD analysisColFullCostShow     AS LOGICAL INITIAL NO
+    FIELD analysisColFullCostShow     AS LOGICAL INITIAL YES
     FIELD analysisColFullCostLabel    AS CHARACTER INITIAL "FullCost"
     FIELD analysisColFullCostCol      AS DECIMAL INITIAL 26
     FIELD analysisColFullCostWidth    AS INTEGER INITIAL 8
-    FIELD analysisColGrossMarginShow  AS LOGICAL INITIAL NO
+    FIELD analysisColGrossMarginShow  AS LOGICAL INITIAL YES
     FIELD analysisColGrossMarginLabel AS CHARACTER INITIAL "GrossMargin%"
     FIELD analysisColGrossMarginCol   AS DECIMAL INITIAL 36
     FIELD analysisColGrossMarginWidth AS INTEGER INITIAL 12
-    FIELD analysisColNetMarginShow    AS LOGICAL INITIAL NO
+    FIELD analysisColNetMarginShow    AS LOGICAL INITIAL YES
     FIELD analysisColNetMarginLabel   AS CHARACTER INITIAL "NetMargin%"
     FIELD analysisColNetMarginCol     AS DECIMAL INITIAL 50
     FIELD analysisColNetMarginWidth   AS INTEGER INITIAL 10
-    FIELD analysisColSellPriceShow    AS LOGICAL INITIAL NO
+    FIELD analysisColSellPriceShow    AS LOGICAL INITIAL YES
     FIELD analysisColSellPriceLabel   AS CHARACTER INITIAL "SellPrice"
     FIELD analysisColSellPriceCol     AS DECIMAL INITIAL 66
     FIELD analysisColSellPriceWidth   AS INTEGER INITIAL 9
-    FIELD analysisColPriceMSFShow     AS LOGICAL INITIAL NO
+    FIELD analysisColPriceMSFShow     AS LOGICAL INITIAL YES
     FIELD analysisColPriceMSFLabel    AS CHARACTER INITIAL "Price/MSF"
     FIELD analysisColPriceMSFCol      AS DECIMAL INITIAL 76
     FIELD analysisColPriceMSFWidth    AS INTEGER INITIAL 9
-    FIELD analysisColSheetsShow       AS LOGICAL INITIAL NO
+    FIELD analysisColSheetsShow       AS LOGICAL INITIAL YES
     FIELD analysisColSheetsLabel      AS CHARACTER INITIAL "Sheets"
     FIELD analysisColSheetsCol        AS DECIMAL INITIAL 86
     FIELD analysisColSheetsWidth      AS INTEGER INITIAL 6
-    FIELD analysisColTotalShtMSFShow  AS LOGICAL INITIAL NO
+    FIELD analysisColTotalShtMSFShow  AS LOGICAL INITIAL YES
     FIELD analysisColTotalShtMSFLabel AS CHARACTER INITIAL "TotalSht MSF"
     FIELD analysisColTotalShtMSFCol   AS DECIMAL INITIAL 96
     FIELD analysisColTotalShtMSFWidth AS INTEGER INITIAL 12
