@@ -101,6 +101,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -165,14 +166,6 @@ ELSE lv-comp-color = "BLACK".
 
         break by ar-inv.cust-no
               by ar-inv.inv-no:
-        
-        RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-		      
-		IF NOT lValid THEN
-		DO:
-		    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-	        END.
-        ASSIGN ls-full-img1 = cRtnChar + ">" .
         
         IF ip-multi-faxout AND FIRST-OF(ar-inv.cust-no) THEN DO:
            OUTPUT CLOSE.
@@ -257,7 +250,8 @@ ELSE lv-comp-color = "BLACK".
                                       /** Bill Of Lading TOTAL CASES **/
               ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
                      v-tot-pallets = v-tot-pallets + oe-boll.cases +
-                                     (if oe-boll.partial gt 0 then 1 else 0).
+                                     (if oe-boll.partial gt 0 then 1 else 0)
+                     cLocation     = oe-boll.loc .
            END. /* each oe-boll */
            assign v-date-ship = oe-bolh.bol-date.
 
@@ -352,6 +346,14 @@ ELSE lv-comp-color = "BLACK".
         ASSIGN
            v-inv-date = ar-inv.inv-date
            v-date-ship   = v-inv-date.
+        
+        RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+		      
+            IF NOT lValid THEN
+            DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            END.
+                ASSIGN ls-full-img1 = cRtnChar + ">" .
 
         {ar/rep/invBadger.i}
 

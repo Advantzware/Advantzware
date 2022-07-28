@@ -63,6 +63,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
@@ -81,14 +82,6 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
-      
-      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-      	      
-      	IF NOT lValid THEN
-      	DO:
-      	    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-              END.
-        ASSIGN ls-full-img1 = cRtnChar + ">" .
       
       IF ar-inv.sold-name <> "" THEN
          assign  v-shipto-name = ar-inv.sold-name
@@ -188,12 +181,31 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
          END.
       END. */
       
+      FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
+           FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
+              oe-boll.b-no = oe-bolh.b-no AND
+              oe-boll.i-no = ar-invl.i-no AND
+              oe-boll.ord-no = ar-invl.ord-no:
+
+                                      
+              ASSIGN cLocation     = oe-boll.loc .
+           END. /* each oe-boll */   
+      END. /* each oe-bolh */
+      
       find first ar-invl where ar-invl.x-no = ar-inv.x-no no-lock no-error.
       if avail ar-invl then
          assign v-price-head = ar-invl.pr-uom
                 v-po-no = ar-invl.po-no                  
                 v-ord-no = ar-invl.ord-no
                 lv-bol-no = ar-invl.bol-no.
+      
+      RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      	      
+      	IF NOT lValid THEN
+      	DO:
+      	    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+        ASSIGN ls-full-img1 = cRtnChar + ">" .
 
       {ar/rep/invcentral.i}  /* xprint form */
 

@@ -97,6 +97,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
 DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
@@ -145,14 +146,6 @@ ASSIGN
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
-      
-      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-      	      
-      	IF NOT lValid THEN
-      	DO:
-      	    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-              END.
-        ASSIGN ls-full-img1 = cRtnChar + ">" .
       
       IF ar-inv.sold-name <> "" THEN
          assign  v-shipto-name = ar-inv.sold-name
@@ -351,6 +344,25 @@ ASSIGN
              lv-bol-no = ar-invl.bol-no.
              .
    END.
+   
+   FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
+           FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
+              oe-boll.b-no = oe-bolh.b-no AND
+              oe-boll.i-no = ar-invl.i-no AND
+              oe-boll.ord-no = ar-invl.ord-no:
+
+                                      
+              ASSIGN cLocation     = oe-boll.loc .
+           END. /* each oe-boll */   
+   END. /* each oe-bolh */
+      
+   RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+          
+        IF NOT lValid THEN
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.
+        ASSIGN ls-full-img1 = cRtnChar + ">" .
 
  {ar/rep/invcolnx.i}  /* xprint form */
 

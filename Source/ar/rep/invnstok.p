@@ -102,6 +102,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cls-image1     AS CHAR NO-UNDO.
 
 {fg/fullset.i NEW}
@@ -117,29 +118,6 @@ for each report where report.term-id eq v-term-id no-lock,
   
   break by ar-inv.cust-no
   by ar-inv.inv-no:
- 
- IF opcFormat EQ "nStockLogo" THEN do:
-    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
- 	      
-    IF NOT lValid THEN
-    DO:
-        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-    END.    
-    ASSIGN ls-full-img1 = cRtnChar + ">" .
- END.
- ELSE IF opcFormat EQ "NStockLogo1" THEN DO:   
-    ASSIGN 
-     cls-image1 = "images\ArgrovLogo.png"
-     FILE-INFO:FILE-NAME = cls-image1
-     ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
- END.
- ELSE IF opcFormat EQ "NStockLogo2" THEN DO:
-   ASSIGN 
-     cls-image1 = "images\CheepCheepLogo.png"
-     FILE-INFO:FILE-NAME = cls-image1
-     ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
- 
-END.
   
   IF cust.show-set THEN
   v-show-parts = YES.
@@ -290,6 +268,40 @@ END.
   if avail ar-invl then v-rel-po-no = ar-invl.po-no.
   
   IF v-salesman = "" THEN v-salesman = cust.sman.
+  
+  FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
+       FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
+          oe-boll.b-no = oe-bolh.b-no AND
+          oe-boll.i-no = ar-invl.i-no AND
+          oe-boll.ord-no = ar-invl.ord-no:
+
+                                  
+          ASSIGN cLocation     = oe-boll.loc .
+       END. /* each oe-boll */   
+  END. /* each oe-bolh */
+ 
+  IF opcFormat EQ "nStockLogo" THEN do:
+    RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+          
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.    
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+  END.
+  ELSE IF opcFormat EQ "NStockLogo1" THEN DO:   
+    ASSIGN 
+     cls-image1 = "images\ArgrovLogo.png"
+     FILE-INFO:FILE-NAME = cls-image1
+     ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
+  END.
+  ELSE IF opcFormat EQ "NStockLogo2" THEN DO:
+   ASSIGN 
+     cls-image1 = "images\CheepCheepLogo.png"
+     FILE-INFO:FILE-NAME = cls-image1
+     ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
+ 
+  END.
   {ar/rep/invnstok.i}
   
   v-subtot-lines = 0.

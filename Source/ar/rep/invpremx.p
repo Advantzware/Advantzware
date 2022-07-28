@@ -109,6 +109,7 @@ DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
     
     find first company where company.company = cocode no-lock no-error.
 IF company.company EQ '004' THEN 
@@ -139,26 +140,6 @@ IF company.company EQ '004' THEN
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
-      
-      RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
-      	      
-      	IF NOT lValid THEN
-      	DO:
-      	    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
-        END.
-      
-      IF cRtnChar NE "" THEN DO:
-          ASSIGN 
-              lChkImage = YES
-              ls-full-img1 = SEARCH(ls-full-img1)
-              ls-full-img1 = cRtnChar + ">".
-      END.
-      ELSE DO:
-          ASSIGN 
-              ls-image1 = SEARCH("images\premierinv.jpg")
-              FILE-INFO:FILE-NAME = ls-image1.
-          ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-      END.
       
       IF ar-inv.sold-name <> "" THEN
          assign  v-shipto-name = ar-inv.sold-name
@@ -343,6 +324,37 @@ IF company.company EQ '004' THEN
                   v-ord-no = ar-invl.ord-no
                   lv-bol-no = ar-invl.bol-no.
                   .
+        END.
+        
+        FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
+           FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
+              oe-boll.b-no = oe-bolh.b-no AND
+              oe-boll.i-no = ar-invl.i-no AND
+              oe-boll.ord-no = ar-invl.ord-no:
+
+                                      
+              ASSIGN cLocation     = oe-boll.loc .
+           END. /* each oe-boll */   
+        END. /* each oe-bolh */
+      
+        RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              
+        IF NOT lValid THEN
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.
+
+        IF cRtnChar NE "" THEN DO:
+          ASSIGN 
+              lChkImage = YES
+              ls-full-img1 = SEARCH(ls-full-img1)
+              ls-full-img1 = cRtnChar + ">".
+        END.
+        ELSE DO:
+          ASSIGN 
+              ls-image1 = SEARCH("images\premierinv.jpg")
+              FILE-INFO:FILE-NAME = ls-image1.
+          ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
         END.
 
  {ar/rep/invpremx.i}  /* xprint form */
