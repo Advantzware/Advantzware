@@ -85,7 +85,7 @@ def TEMP-TABLE w-ord
   field t-price like oe-ordl.t-price format "->>,>>>,>>9"
   field rel-qty like oe-rel.qty
   field rel-date as char format "x(9)"
-  field job as char format "x(9)"
+  field job as char format "x(13)"
   field job-no like oe-ordl.job-no
   field job-no2 like oe-ordl.job-no2
   field rel-no like oe-rel.rel-no
@@ -1493,8 +1493,7 @@ DEF BUFFER b-oe-ordl FOR oe-ordl.
      w-ord.job-no    = oe-ordl.job-no
      w-ord.job-no2   = oe-ordl.job-no2
      w-ord.job       = IF w-ord.job-no eq "" then "" ELSE
-                       (trim(w-ord.job-no) + "-" +
-                        STRING(w-ord.job-no2,"99"))
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
      w-ord.po-num    = oe-rell.po-no
      w-ord.ord-qty   = oe-ordl.qty
      w-ord.shp-qty   = oe-ordl.ship-qty

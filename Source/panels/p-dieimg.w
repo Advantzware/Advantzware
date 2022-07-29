@@ -58,6 +58,8 @@ DEFINE VARIABLE trans-commit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE panel-type   AS CHARACTER NO-UNDO INIT 'Update':U.
 DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
+{methods/prgsecdt.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -462,7 +464,9 @@ DO WITH FRAME Panel-Frame:
              Btn-Cancel:SENSITIVE = YES.
 &ENDIF
 
-  END. /* panel-state = action-chosen */
+  END. /* panel-state = action-chosen */   
+  
+  IF NOT v-can-run THEN DISABLE ALL.
 
 END. /* DO WITH FRAME */
 

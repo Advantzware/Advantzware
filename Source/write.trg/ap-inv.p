@@ -33,7 +33,7 @@ FOR EACH ap-payl
     USE-INDEX c-no NO-LOCK:
   ap-payl.due-date = {&TABLENAME}.due-date.
 END.
-
+RELEASE ap-payl.
 IF {&TABLENAME}.inv-date NE old-{&TABLENAME}.inv-date THEN
 FOR EACH ap-ledger
     WHERE ap-ledger.company  EQ {&TABLENAME}.company
@@ -44,6 +44,7 @@ FOR EACH ap-ledger
 END.
 
 RELEASE vend.
+RELEASE ap-ledger.
 FIND FIRST vend NO-LOCK
     WHERE vend.company EQ {&TABLENAME}.company
       AND vend.vend-no EQ {&TABLENAME}.vend-no

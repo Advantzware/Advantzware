@@ -1195,7 +1195,7 @@ DO:
         END.
       
   
-        IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
+        IF glFGPOTag# AND fg-rctd.tag:SCREEN-VALUE EQ "" THEN 
         DO:
             RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).
             RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
@@ -2167,7 +2167,7 @@ PROCEDURE create-from-po :
                 fg-rctd.qty-case
                 fg-rctd.cases-unit                 
                     WITH FRAME {&FRAME-NAME}.
-            IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
+            IF glFGPOTag# AND fg-rctd.tag:SCREEN-VALUE EQ "" THEN 
             DO:
                 RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).
                 RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
@@ -2633,13 +2633,15 @@ PROCEDURE get-def-values :
             ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF adm-new-record THEN
+        IF adm-new-record THEN do:
             ASSIGN
                 fg-rctd.loc:SCREEN-VALUE      = ""
                 fg-rctd.loc-bin:SCREEN-VALUE  = ""
-                fg-rctd.std-cost:SCREEN-VALUE = ""
-                fg-rctd.qty-case:SCREEN-VALUE = ""
+                fg-rctd.std-cost:SCREEN-VALUE = ""                  
                 fg-rctd.cost-uom:SCREEN-VALUE = "".
+            IF fg-rctd.tag:SCREEN-VALUE EQ "" THEN
+            fg-rctd.qty-case:SCREEN-VALUE = "".           
+        END.        
 
         RUN get-values.
     END.
@@ -2771,7 +2773,7 @@ PROCEDURE get-job-no :
     ELSE
         lcRitaCode = "R".
     DO WITH FRAME {&frame-name}:
-        fg-rctd.job-no:SCREEN-VALUE  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no))
+        fg-rctd.job-no:SCREEN-VALUE  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE))
         .
         IF TRIM(fg-rctd.job-no:SCREEN-VALUE ) NE TRIM(lv-job-no)  OR
             DEC(fg-rctd.job-no2:SCREEN-VALUE ) NE DEC(lv-job-no2) THEN
@@ -3279,7 +3281,7 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
                       RUN  pGetUnassembledItem(cocode , bf-job-hdr.i-no) .
 
                     RUN get-def-values.
-                    IF NOT lUpdateRecords THEN
+                    IF NOT lUpdateRecords AND fg-rctd.tag:screen-value EQ "" THEN
                         RUN pGetUnitCountFromJob(bf-job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE,bf-job-hdr.job-no,bf-job-hdr.job-no2) .
                       
                     LEAVE.
@@ -3495,7 +3497,7 @@ PROCEDURE pDisplayFG PRIVATE :
         ASSIGN
             fg-rctd.std-cost:SCREEN-VALUE = IF glAverageCost THEN STRING(ipbf-itemfg.avg-cost) ELSE STRING(ipbf-itemfg.last-cost)
             fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  .
-        IF NOT lUpdateRecords THEN
+        IF NOT lUpdateRecords AND INTEGER(fg-rctd.qty-case:SCREEN-VALUE) EQ 0 THEN
             fg-rctd.qty-case:SCREEN-VALUE = STRING(ipbf-itemfg.case-count) .  
     END.
     

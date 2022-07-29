@@ -61,6 +61,7 @@ DEFINE TEMP-TABLE ttWIPStandards NO-UNDO
     FIELD user-id     AS CHARACTER FORMAT "x(10)"                LABEL "User ID"
     FIELD cuts        AS INTEGER   FORMAT ">>>,>>9"              LABEL "Cuts"
     .
+{sys/inc/var.i NEW SHARED}
 {ce/mach-ink.i NEW}
 
 DEFINE NEW SHARED BUFFER xest FOR est.
@@ -248,7 +249,7 @@ PROCEDURE pBusinessLogic:
             ttWIPStandards.code        = mch-act.code
             ttWIPStandards.job-code    = IF AVAILABLE job-code THEN job-code.cat ELSE ""
             ttWIPStandards.op-date     = mch-act.op-date
-            ttWIPStandards.job-no      = job.job-no + "-" + STRING(job.job-no2,"99")
+            ttWIPStandards.job-no      = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2)))
             ttWIPStandards.shift       = mch-act.shift
             ttWIPStandards.hours       = mch-act.hours
             ttWIPStandards.start       = IF AVAILABLE mch-act THEN cvt-time-to-string('',mch-act.start,0.00) ELSE ""

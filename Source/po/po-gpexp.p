@@ -337,7 +337,7 @@ IF gp-log AND gp-dir NE "" THEN
                                     v-sstate + " " + v-szip
                 detailline.customerponbr = STRING(po-ord.po-no)
                 detailline.customerpolineseqnbr = STRING(po-ordl.line)
-                detailline.internalprodno = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2) + "-" + STRING(po-ordl.s-num,"99")))
+                detailline.internalprodno = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") + "-" + STRING(po-ordl.s-num,"99")
                 detailline.custitemname = po-ordl.i-name
                 detailline.custitemdscr1 = po-ordl.dscr[1]
                 detailline.custitemdscr2 = po-ordl.dscr[2] .

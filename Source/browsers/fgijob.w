@@ -802,7 +802,7 @@ PROCEDURE build-table :
         ASSIGN 
             w-job.job-no               = w-jobs.job-no
             w-job.job-no2              = w-jobs.job-no2
-            w-job.job-no-disp          = TRIM(w-job.job-no) + "-" + STRING(w-job.job-no2,"999")
+            w-job.job-no-disp          = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-job.job-no, w-job.job-no2)))
             w-job.po-no                = w-jobs.po-no
             w-job.i-no                 = w-jobs.i-no
             w-job.j-no                 = w-jobs.j-no
@@ -830,7 +830,7 @@ PROCEDURE build-table :
             w-job.rRowID               = w-jobs.rRowID
             .
 
-        IF trim(w-job.job-no-disp) BEGINS "-00" THEN w-job.job-no-disp = "".
+        IF trim(w-job.job-no-disp) BEGINS "-000" THEN w-job.job-no-disp = "".
        
         DELETE w-jobs.
 

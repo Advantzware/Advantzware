@@ -1,0 +1,41 @@
+<InvoiceDetailItem invoiceLineNumber="$LineNumber$" quantity="$ItemQuantity$">
+   <UnitOfMeasure>$ItemPriceUOM$</UnitOfMeasure>
+   <UnitPrice>
+      <Money currency="USD">$ItemPrice$ or $ItemPriceEach$</Money>
+   </UnitPrice>
+   <InvoiceDetailItemReference lineNumber="$LineNumber$">
+      <ItemID>
+         <SupplierPartID>$BuyerPart$</SupplierPartID>
+      </ItemID>
+      <Description xml:lang="en-US">$ItemName$</Description>
+   </InvoiceDetailItemReference>
+   <SubtotalAmount>
+      <Money currency="USD">$LineSubTotalAmount$</Money>
+   </SubtotalAmount>
+   <InvoiceDetailLineShipping>
+      <InvoiceDetailShipping>
+         <Contact addressID="$ShiptoID$" role="shipTo">
+            <Name xml:lang="en-US">$ShiptoName$</Name>
+            <PostalAddress>
+              <Street>$ShiptoStreetAddress1$</Street>
+              <Street>$ShiptoStreetAddress2$</Street>
+               <City>$ShiptoCity$</City>
+               <State>$ShiptoState$</State>
+               <PostalCode>$ShiptoPostalCode$</PostalCode>
+               <Country isoCountryCode="US">US</Country>
+            </PostalAddress>
+         </Contact>
+         <Contact role="shipFrom">
+            <Name xml:lang="en-US">Premier Packaging</Name>
+            <PostalAddress>
+               <Street>3900 Produce Road</Street>
+               <City>Louisville</City>
+               <State>KY</State>
+               <PostalCode>40218</PostalCode>
+               <Country isoCountryCode="US">US</Country>
+            </PostalAddress>
+         </Contact>
+      </InvoiceDetailShipping>
+      <Money currency="USD">$FirstLineItem|$TotalShippingAmount$/0|LOG|$</Money>
+   </InvoiceDetailLineShipping>
+</InvoiceDetailItem>

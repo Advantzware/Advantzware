@@ -134,9 +134,9 @@ REPEAT:
                     setting.settingName   = settingType.settingName
                     setting.description   = settingType.description
                     setting.scopeID       = iScopeID
+                    setting.settingValue  = cSettingValue
                     .
             END. // not avail
-            setting.settingValue = cSettingValue.
         END. // if companycontext
     END. // each sys-ctrl
 END. // repeat

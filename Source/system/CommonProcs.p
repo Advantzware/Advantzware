@@ -40,6 +40,7 @@ DEFINE VARIABLE lUserAMPM           AS LOGICAL   NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
+
 &IF DEFINED(EXCLUDE-fGetNK1Cecscrn) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetNK1Cecscrn Procedure 
@@ -240,6 +241,20 @@ FUNCTION sfCommon_SetDateOptions RETURNS LOGICAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD sfCommon_TimeDisplay Procedure 
 FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER
   (ipiTime AS INTEGER, iplClockTime AS LOGICAL, iplSeconds AS LOGICAL) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCommon_TimeSpan) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCommon_TimeSpan Procedure
+FUNCTION sfCommon_TimeSpan RETURNS INTEGER 
+  (ipdtStartDate AS DATE,
+   ipiStartTime AS INTEGER,
+   ipdtEndDate AS DATE,
+   ipiEndTime AS INTEGER) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1687,6 +1702,24 @@ FUNCTION sfCommon_TimeDisplay RETURNS CHARACTER
 
     RETURN opcTimeDisplay.
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fCommon_TimeSpan) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCommon_TimeSpan Procedure
+FUNCTION sfCommon_TimeSpan RETURNS INTEGER 
+    (ipdtStartDate AS DATE, ipiStartTime AS INTEGER, ipdtEndDate AS DATE, ipiEndTime AS INTEGER):
+/*------------------------------------------------------------------------------
+  Purpose:  calculate time span between 2 dates & times in seconds
+ Notes:
+------------------------------------------------------------------------------*/
+    RETURN IF ipdtStartDate EQ ipdtEndDate THEN ipiEndTime - ipiStartTime
+           ELSE (86400 - ipiStartTime) + (ipdtEndDate - ipdtStartDate - 1) * 86400 + ipiEndTime.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

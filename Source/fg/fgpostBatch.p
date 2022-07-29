@@ -388,7 +388,7 @@ PROCEDURE add-rel-for-qty:
             oe-rel.ship-i[4]    = bf-orig-oe-rel.ship-i[4]
             oe-rel.lot-no       = bf-orig-oe-rel.lot-no.
 
-        RUN CopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
+        RUN pCopyShipNote (bf-orig-oe-rel.rec_key, oe-rel.rec_key).
         
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
          
@@ -406,7 +406,41 @@ PROCEDURE add-rel-for-qty:
 
 END PROCEDURE.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pConvertFGToRM PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-itemfg FOR itemfg.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE.
+
+    IF NOT AVAILABLE ipbf-itemfg THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid itemfg buffer"
+            .
+        
+        RETURN.
+    END.
+    
+    RUN inventory/inventoryprocs.p PERSISTENT SET hdInventoryProcs.
+
+    RUN Inventory_ConvertFGToRM IN hdInventoryProcs (
+        INPUT  ipbf-itemfg.company,
+        INPUT  ipbf-itemfg.i-no,
+        INPUT  ipbf-itemfg.receiveAsRMItemID,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+    
+    DELETE PROCEDURE hdInventoryProcs.
+
+END PROCEDURE.
+
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -414,13 +448,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -553,6 +581,8 @@ PROCEDURE fg-post:
     DEFINE VARIABLE cJob           LIKE oe-ordl.job-no NO-UNDO.
     DEFINE VARIABLE iJobNo2        LIKE oe-ordl.job-no2 NO-UNDO.
     DEFINE VARIABLE iRNo           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
     /*##PN - variable for FGSetAssembly setting*/
 
     DEFINE VARIABLE lFound         AS LOGICAL   NO-UNDO.
@@ -738,6 +768,9 @@ PROCEDURE fg-post:
         IF w-fg-rctd.rita-code = "R" THEN DO: /* Creates tt-email records */
             {fg/fgemails.i}
         END.             
+
+        IF w-fg-rctd.rita-code EQ "R" AND itemfg.receiveAsRMItemID NE "" THEN
+            RUN pConvertFGToRM(BUFFER itemfg, OUTPUT lError, OUTPUT cMessage).
     END.  /* for each w-fg-rctd */
 
         

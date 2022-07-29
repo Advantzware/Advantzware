@@ -801,9 +801,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         {custom/usrprint.i}
 RUN DisplaySelectionList2.
 IF end_job-no:SCREEN-VALUE = "" THEN
-    end_job-no:SCREEN-VALUE = "zzzzzz".
+    end_job-no:SCREEN-VALUE = "zzzzzzzzz".
 IF end_job-no2:SCREEN-VALUE = "" THEN
-    end_job-no2:SCREEN-VALUE = "99".
+    end_job-no2:SCREEN-VALUE = "999".
 APPLY "entry" TO begin_job-no .
 
 END.
@@ -1248,8 +1248,8 @@ PROCEDURE run-report :
 
     /*{sys/form/r-topw.f}*/
 
-    DEFINE VARIABLE v-job-no       LIKE job.job-no EXTENT 2 INITIAL [" ", "ZZZZZZ"] NO-UNDO.
-    DEFINE VARIABLE v-job-no2      LIKE job.job-no2 EXTENT 2 INITIAL [00, 99] NO-UNDO.
+    DEFINE VARIABLE v-job-no       LIKE job.job-no EXTENT 2 INITIAL [" ", "ZZZZZZZZZ"] NO-UNDO.
+    DEFINE VARIABLE v-job-no2      LIKE job.job-no2 EXTENT 2 INITIAL [000, 999] NO-UNDO.
     DEFINE VARIABLE v-date         AS DATE      EXTENT 2 NO-UNDO.
     DEFINE VARIABLE v-brd-job      AS INTEGER   FORMAT ">>>>>>>>>9" NO-UNDO.
     DEFINE VARIABLE v-brd-tot      AS INTEGER   FORMAT ">>>>>>>>>9" NO-UNDO.

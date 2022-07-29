@@ -43,7 +43,7 @@ oerep/LoadtagProcs.p no
 oerep/r-invprtARSuper.p no
 oerep/r-invprtOESuper.p no
 rm/materialProcs.p yes
-sys/NotesProcs.p no
+sys/NotesProcs.p yes
 system/ConversionProcs.p yes
 system/CostProcs.p no
 system/CreditProcs.p yes

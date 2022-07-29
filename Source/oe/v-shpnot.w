@@ -233,13 +233,10 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ship_note V-table-Win
 ON LEAVE OF ship_note IN FRAME F-Main
 DO:
-  Define Variable hNotesProcs as Handle NO-UNDO. 
-  RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-  RUN ConvertToArray IN hNotesProcs (INPUT ship_note:SCREEN-VALUE, 
+  RUN Notes_ConvertToArray (INPUT ship_note:SCREEN-VALUE, 
               INPUT 60,
               OUTPUT opcParsedText,
               OUTPUT opiFilledArraySize).               
-    DELETE OBJECT hNotesProcs.
   IF opiFilledArraySize GT 4 THEN DO:
     MESSAGE "Autoparsed lines exceed 4 lines of text. Only first 4 lines will be used." view-as alert-box error.       
   END.  
@@ -409,7 +406,6 @@ PROCEDURE local-display-fields :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-  Define Variable hNotesProcs as Handle NO-UNDO.
   IF AVAILABLE oe-rel THEN DO:
     RUN pSetShipToExpanded(oe-rel.company).
   END.
@@ -425,9 +421,7 @@ PROCEDURE local-display-fields :
   IF glShipNotesExpanded THEN DO:
       DISABLE ship_note WITH FRAME {&FRAME-NAME}.
       IF AVAILABLE oe-rel THEN DO:
-          RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.
-          RUN GetNoteOfType IN hNotesProcs (oe-rel.rec_key, "ES", OUTPUT ship_note).
-          DELETE OBJECT hNotesProcs.
+          RUN Notes_GetNoteOfType (oe-rel.rec_key, "ES", OUTPUT ship_note).          
       END. /*IF AVAILABLE oe-rel THEN DO:*/
       DISPLAY ship_note WITH FRAME {&FRAME-NAME}.    
   END.  /*IF glShipNotesExpanded THEN DO:*/ 
@@ -473,7 +467,6 @@ PROCEDURE local-update-record:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-   Define Variable hNotesProcs as Handle NO-UNDO.   
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -483,8 +476,7 @@ PROCEDURE local-update-record:
   IF glShipNotesExpanded EQ YES THEN DO:
         ASSIGN ship_note = ship_note:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
         
-        RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-        RUN ConvertToArray IN hNotesProcs (INPUT ship_note, 
+        RUN Notes_ConvertToArray (INPUT ship_note, 
               INPUT 60,
               OUTPUT opcParsedText,
               OUTPUT opiFilledArraySize). 
@@ -497,10 +489,7 @@ PROCEDURE local-update-record:
                oe-rel.ship-i[3] =  opcParsedText[3]
                oe-rel.ship-i[4] =  opcParsedText[4]
                .               
-            RUN UpdateShipNote IN hNotesProcs (oe-rel.rec_key,
-                                                    ship_note).
-
-            DELETE OBJECT hNotesProcs.        
+            RUN Notes_UpdateShipNote (oe-rel.rec_key, ship_note).
         END.
         FIND CURRENT oe-rel NO-LOCK NO-ERROR.
         DISABLE ship_note WITH FRAME {&FRAME-NAME}.

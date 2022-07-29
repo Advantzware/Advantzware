@@ -12,7 +12,7 @@ FOR EACH {1} EXCLUSIVE-LOCK:
                             OUTPUT lvJobLocked,OUTPUT lvJobCompleted,
                             OUTPUT lvMRCompleted,OUTPUT lvRunCompleted).
   IF NOT lvJobLocked THEN NEXT.
-  IF {1}.jobLocked AND NOT lvJobCompleted THEN NEXT.
+  IF {1}.jobLocked AND NOT lvJobCompleted AND NOT moveLockedJob THEN NEXT.
   lvTimeSpan = IF '{1}' EQ 'pendingJob' THEN {1}.origStartTime ELSE {1}.timeSpan.
   IF lvEndDate EQ ? AND lvEndTime EQ ? THEN DO:
     RUN newEnd (lvTimeSpan,lvStartDate,lvStartTime,OUTPUT lvEndDate,OUTPUT lvEndTime).

@@ -43,7 +43,12 @@ DEFINE VARIABLE ll-casetag   AS LOG NO-UNDO.
 
 DEFINE TEMP-TABLE tt-rel-order LIKE oe-rel
     FIELD release#     AS INTEGER FORMAT ">>>>>>9" 
-    FIELD ord-rel-date AS DATE  .
+    FIELD ord-rel-date AS DATE  
+    FIELD ordHeaderPo  AS CHARACTER 
+    FIELD ordLinePo    AS CHARACTER
+    FIELD releasePo    AS CHARACTER 
+    FIELD miscItemPo   AS CHARACTER
+    .
 
 &scoped-define fld-name-1 string(tt-rel-order.release#)
 &scoped-define fld-name-2 tt-rel-order.po-no
@@ -102,7 +107,8 @@ ELSE
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 tt-rel-order.ord-no tt-rel-order.release# ~
 tt-rel-order.s-code tt-rel-order.ord-rel-date tt-rel-order.spare-char-1 tt-rel-order.ship-id tt-rel-order.po-no ~
-tt-rel-order.tot-qty tt-rel-order.qty 
+tt-rel-order.tot-qty tt-rel-order.qty tt-rel-order.ordHeaderPo tt-rel-order.ordLinePo tt-rel-order.releasePo ~
+tt-rel-order.miscItemPo tt-rel-order.lot-no
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-rel-order WHERE ~{&KEY-PHRASE} ~
       AND tt-rel-order.company = ip-company NO-LOCK ~
@@ -188,8 +194,13 @@ DEFINE BROWSE BROWSE-1
     tt-rel-order.spare-char-1 COLUMN-LABEL "From" FORMAT "x(8)":U
     tt-rel-order.ship-id COLUMN-LABEL "To" FORMAT "x(10)":U
     tt-rel-order.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U
-    tt-rel-order.tot-qty COLUMN-LABEL "Schedueld Qty" FORMAT "->>>>>9":U
+    tt-rel-order.tot-qty COLUMN-LABEL "Scheduled Qty" FORMAT "->>>>>9":U
     tt-rel-order.qty COLUMN-LABEL "Actual Qty" FORMAT "->>>>>>9":U
+    tt-rel-order.ordHeaderPo COLUMN-LABEL "Order Header PO#"   FORMAT "x(15)":U
+    tt-rel-order.ordLinePo   COLUMN-LABEL "Order Line PO#"     FORMAT "x(15)":U
+    tt-rel-order.releasePo   COLUMN-LABEL "Release PO#"        FORMAT "x(15)":U
+    tt-rel-order.miscItemPo  COLUMN-LABEL "Misc Item PO#"      FORMAT "x(30)":U
+    tt-rel-order.lot-no      COLUMN-LABEL "Release Customer Lot#"      FORMAT "x(15)":U
       
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -266,6 +277,16 @@ ASSIGN
      _FldNameList[8]   = ASI.tt-rel-order.tot-qty
      _FldNameList[9]   > ASI.tt-rel-order.qty
 "qty" "Actual Qty" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[10]   > ASI.tt-rel-order.ordHeaderPo
+"ordHeaderPo" "Order Header PO#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[11]   > ASI.tt-rel-order.ordLinePo
+"ordLinePo" "Order Line PO#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[11]   > ASI.tt-rel-order.releasePo
+"releasePo" "Release PO#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[11]   > ASI.tt-rel-order.miscItemPo
+"miscItemPo" "Misc Item PO#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+     _FldNameList[11]   > ASI.tt-rel-order.lot-no
+"lot-no" "Release Customer Lot#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
@@ -574,12 +595,32 @@ PROCEDURE pBuildSearch :
 
                 IF AVAILABLE oe-relh THEN 
                 DO: 
+                    FIND FIRST oe-ord NO-LOCK
+                       WHERE oe-ord.company EQ oe-rel.company
+                         AND oe-ord.ord-no  EQ oe-rel.ord-no
+                       NO-ERROR.
+                    
+                    
+                    FIND FIRST oe-ordl NO-LOCK
+                       WHERE oe-ordl.company  EQ oe-rel.company
+                         AND oe-ordl.ord-no   EQ oe-rel.ord-no
+                         AND oe-ordl.i-no     EQ oe-rel.i-no
+                       NO-ERROR.
+                    FIND FIRST oe-ordm NO-LOCK
+                       WHERE oe-ordm.company  EQ oe-rel.company
+                         AND oe-ordm.ord-no   EQ oe-rel.ord-no
+                       NO-ERROR.  
+                    
                     CREATE tt-rel-order .
                     BUFFER-COPY oe-rel TO tt-rel-order .  
                     ASSIGN
                         tt-rel-order.release#     = IF AVAILABLE oe-relh THEN oe-relh.release# ELSE 0
-                        tt-rel-order.ord-rel-date = IF AVAILABLE oe-relh THEN oe-relh.rel-date
-                          ELSE oe-rel.rel-date .
+                        tt-rel-order.ord-rel-date = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date 
+                        tt-rel-order.ordHeaderPo  = IF AVAILABLE oe-ord  THEN oe-ord.po-no ELSE "" 
+                        tt-rel-order.ordLinePo    = IF AVAILABLE oe-ordl THEN oe-ordl.po-no ELSE "" 
+                        tt-rel-order.releasePo    = IF AVAILABLE oe-rel  THEN oe-rel.po-no ELSE "" 
+                        tt-rel-order.miscItemPo   = IF AVAILABLE oe-ordm THEN oe-ordm.po-no ELSE "" 
+                        .
                 END.
             END.
         END.

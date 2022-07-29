@@ -66,7 +66,7 @@ DEFINE VARIABLE v-cust-name-extent AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-ship1-extent AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-ship2-extent AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-ship4-extent AS CHARACTER EXTENT 10 NO-UNDO.
-DEFINE VARIABLE cBarCode AS CHARACTER FORMAT "X(11)"  NO-UNDO.
+DEFINE VARIABLE cBarCode AS CHARACTER FORMAT "X(13)"  NO-UNDO.
 DEFINE VARIABLE v-unit-per-dec AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-unit-per-int LIKE eb.cas-cnt NO-UNDO.
 DEFINE VARIABLE v-job-qty-unit-per-int AS INTEGER FORMAT ">>>>>9" NO-UNDO.
@@ -220,6 +220,7 @@ DEFINE VARIABLE v-lbs AS DECIMAL FORMAT ">>,>>>,>>9" NO-UNDO.
 DEFINE VARIABLE v-dept-title AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-dept-note-printed AS LOGICAL.
 DEFINE VARIABLE v-cust-lot# AS CHARACTER NO-UNDO.
+DEFINE VARIABLE vPrintJobNo AS CHAR NO-UNDO.
 
 DEFINE VARIABLE v-case-size-ext AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE v-case-qty-ext AS DECIMAL EXTENT 10 NO-UNDO.
@@ -258,9 +259,9 @@ cDraftImageFull = IF lDraft
 
 FORMAT HEADER
         cDraftImageFull FORMAT "x(200)" SKIP 
-       "<C1><R2>JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "</B>" SPACE(1)
+       "<C1><R2>JOB NUMBER:<B>" vPrintJobNo FORMAT "x(13)" "</B>" SPACE(1)
        "CSR:" v-pricnt-id
-       "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 54  "JOB START DATE:" AT 124 v-start-date SKIP
+       "<B><P12>F A C T O R Y  T I C K E T</B><P10>" AT 60  "JOB START DATE:" AT 127 v-start-date SKIP
        v-fill
     WITH NO-BOX FRAME head NO-LABELS STREAM-IO WIDTH 200.
 
@@ -440,15 +441,15 @@ FOR EACH job-hdr NO-LOCK
            v-job-no2 = job-hdr.job-no2
            /*v-due-date = if avail oe-ord then oe-ord.due-date else ?*/
            v-start-date = job-hdr.start-date
-           v-shipto = "" .
+           v-shipto = "" 
+           vPrintJobNo = TRIM(v-job-no) + "-" + TRIM(STRING(v-job-no2,">99")).
             
-
         IF AVAILABLE job AND job.stat EQ "H" THEN DO:
             ASSIGN cDraftImage = "images\on-hold.jpg"
                 FILE-INFO:FILE-NAME = cDraftImage.
             cDraftImageFull = "<C25><#1><R+80><C+50><IMAGE#1=" + FILE-INFO:FULL-PATHNAME + ">"  .
         END.
-
+    
         IF NOT FIRST(job-hdr.job-no) THEN PAGE.
         VIEW FRAME head.
        
@@ -556,8 +557,8 @@ FOR EACH job-hdr NO-LOCK
                v-job-qty = v-job-qty + xjob-hdr.qty.
            END.
 
-        cBarCode = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
-        PUT "<AT=-.5,6.3><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(11)" ">"
+        cBarCode = vPrintJobNo.
+        PUT "<AT=-.5,6.5><FROM><AT=+.3,+1.7><BARCODE,TYPE=39,CHECKSUM=NONE,BarHeightPixels=2,VALUE=" cBarCode FORMAT "X(13)" ">"
             "<C1><R4><B>Customer Name:</B>" v-cust-name  "Code: " job-hdr.cust-no
             "   <B>    REL.DATE:    QTY DUE:     PO#:           Print Date:" SKIP                       
             "Shipto:</B>" v-shipto[1] SPACE(6) "Prev.Ord#:" v-per-ord v-ship-date[1] AT 70 v-due-qty[1] AT 80 v-po-no[1] FORMAT "x(15)" AT 93
@@ -921,11 +922,11 @@ FOR EACH job-hdr NO-LOCK
 
             
            DISPLAY  TRIM(v-job-no) + "-" + TRIM(STRING(eb.form-no,">>9")) + 
-                    trim(STRING(eb.blank-no,">>9")) FORMAT "x(16)" 
+                    trim(STRING(eb.blank-no,">>9")) FORMAT "x(11)" 
                     eb.stock-no @ job-hdr.i-no 
                     (IF AVAILABLE oe-ordl  THEN oe-ordl.part-no ELSE IF AVAILABLE itemfg THEN itemfg.part-no ELSE "") FORMAT "x(15)"   
                     (IF eb.plate-no NE "" THEN eb.plate-no  ELSE IF AVAILABLE itemfg THEN itemfg.plate-no ELSE "" ) FORMAT "x(15)"
-                    (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORMAT "x(15)"
+                    (IF AVAIL oe-ordl  THEN oe-ordl.po-no ELSE "") FORMAT "x(13)"
                     v-cust-lot#  FORMAT "x(17)"
                     v-dsc[1] FORMAT "x(27)" SPACE(1)
                     eb.cad-no FORMAT "x(15)" /*v-stypart */

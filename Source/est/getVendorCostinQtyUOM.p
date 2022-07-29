@@ -34,7 +34,7 @@ DEFINE INPUT  PARAMETER ipdWidth            AS DECIMAL NO-UNDO.
 DEFINE INPUT  PARAMETER ipdDepth            AS DECIMAL NO-UNDO.
 DEFINE INPUT  PARAMETER ipdBasisWeight      AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdCostQtyUOM       AS DECIMAL NO-UNDO.
-DEFINE OUTPUT PARAMETER opdSetupCostQtyUOM  AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER opdSetupCost        AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opdCostTotal        AS DECIMAL NO-UNDO.
 
 
@@ -133,17 +133,13 @@ DO:
     RUN pConvertCostFromUOMToUOM(ipcCompanyCode, ipcItemCode, ipcItemType, cCostUOM, ipcQtyUOM, 
         ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, 
         dCostPerUOM, OUTPUT opdCostQtyUOM).
-        
-    RUN pConvertCostFromUOMToUOM(ipcCompanyCode, ipcItemCode, ipcItemType, cCostUOM, ipcQtyUOM, 
-        ipdBasisWeight, ipdLength, ipdWidth, ipdDepth, 
-        dCostSetup, OUTPUT opdSetupCostQtyUOM).
-        
+    opdSetupCost = dCostSetup.      
         
 END.
 ELSE
     ASSIGN
         opdCostQtyUOM      = dCostPerUOM
-        opdSetupCostQtyUOM = dCostSetup. 
+        opdSetupCost       = dCostSetup. 
         
 
 

@@ -17,7 +17,7 @@ IF {&TABLENAME}.check-date NE old-{&TABLENAME}.check-date THEN DO:
 
     ap-ledger.ref-date = {&TABLENAME}.check-date.
   END.
-
+  RELEASE ap-ledger.
   FOR EACH ap-ledger
     WHERE ap-ledger.company  EQ {&TABLENAME}.company
       AND ap-ledger.vend-no  EQ {&TABLENAME}.vend-no
@@ -26,7 +26,7 @@ IF {&TABLENAME}.check-date NE old-{&TABLENAME}.check-date THEN DO:
 
     ap-ledger.ref-date = {&TABLENAME}.check-date.
   END.
-
+  RELEASE ap-ledger.
   FOR EACH ap-payl
       WHERE ap-payl.c-no EQ {&TABLENAME}.c-no
       BREAK BY ap-payl.inv-no
@@ -49,3 +49,5 @@ IF {&TABLENAME}.check-date NE old-{&TABLENAME}.check-date THEN DO:
     END.
   END.
 END.
+RELEASE ap-payl.
+RELEASE ap-ledger.

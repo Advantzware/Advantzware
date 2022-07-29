@@ -945,7 +945,7 @@ PROCEDURE dump-orderH :
            v-quote oe-ord.company v-quote v-delimiter
            v-quote oe-ord.ord-no v-quote v-delimiter
            v-quote oe-ord.est-no v-quote v-delimiter
-           v-quote oe-ord.job-no + "-" + STRING(oe-ord.job-no2,"99") v-quote v-delimiter
+           v-quote oe-ord.job-no + "-" + STRING(oe-ord.job-no2,"999") v-quote v-delimiter
            v-quote oe-ord.user-id v-quote v-delimiter
            v-quote oe-ord.stat v-quote v-delimiter
            v-quote oe-ord.cust-no v-quote v-delimiter
@@ -1024,7 +1024,7 @@ PROCEDURE dump-orderL :
           v-quote oe-ordl.ord-no v-quote v-delimiter
           v-quote oe-ordl.LINE v-quote v-delimiter
           v-quote oe-ordl.est-no v-quote v-delimiter
-          v-quote oe-ordl.job-no + "-" string(oe-ordl.job-no2,"99") v-quote v-delimiter
+          v-quote oe-ordl.job-no + "-" string(oe-ordl.job-no2,"999") v-quote v-delimiter
           v-quote oe-ordl.qty v-quote v-delimiter
           v-quote oe-ordl.i-no v-quote v-delimiter
           v-quote oe-ordl.part-no v-quote v-delimiter

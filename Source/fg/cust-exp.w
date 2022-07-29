@@ -85,7 +85,7 @@ ASSIGN
                            "High Balance,On,Last Payment,On Date,Total# of Inv Paid,Avg# Days to Pay,Open Orders Balance,Account Balance,On Account,Title,CPhone,Ext,CSR," +
                            "Note 1,Note 2,Note 3,Note 4,ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip,Paperless Invoice?,Contract Pricing," +
                            "Bank Account,Swift Code,Routing,Account Type,Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant,Matrix Precision,Matrix Rounding," +
-                           "Industry,Tag Status,Internal"
+                           "Industry,Tag Status,Internal,Email Preference"
 
     cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
@@ -97,7 +97,7 @@ ASSIGN
                            "hibal,hibal-date,lpay,lpay-date,num-inv,avg-pay,ord-bal,acc-bal,on-account,title,cphone,ext,csrUser_id," +
                            "note1,note2,note3,note4,ship-name,ship-addr1,ship-addr2,ship-city,ship-state,ship-zip,log-field[1],cnt-price," +
                            "bank-acct,SwiftBIC,Bank-RTN,accountType,splitType,parentCust,marketSegment,naicsCode,classId,accountant,matrixPrecision,matrixRounding," +
-                           "industryID,tag-status,Internal" .
+                           "industryID,tag-status,Internal,emailPreference" .
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
@@ -110,7 +110,7 @@ ASSIGN
                                  "PO# Mandatory,Show Set Parts,Paperless Invoice?,Partial Ship,Taxable,Tax Prep Code,Tax Group,Tax Resale#,Exp," +
                                  "Email,Group,Broker Comm%,Flat Comm%,Prefix,Contract Pricing,Bank Account,Swift Code,Routing,Account Type," + 
                                  "Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant,Matrix Precision,Matrix Rounding," +
-                                 "Industry,Tag Status,Internal" .
+                                 "Industry,Tag Status,Email Preference" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1484,9 +1484,9 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     WHEN "" THEN
                         lc-return = "Only tags that are not on hold".
                     WHEN "H" THEN
-                        lc-return = "Only on Hold tags".
+                        lc-return = "H-Only on Hold tags".
                     WHEN "A" THEN
-                        lc-return = "Any tag status".     
+                        lc-return = "A-Any tag status".     
                 END CASE.
             END.
         
@@ -1518,6 +1518,17 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                         lc-return = "3rd Party".
                 END CASE.
             END.
+        WHEN "emailPreference" THEN 
+            DO:
+                CASE ipb-itemfg.emailPreference :
+                    WHEN 0 THEN
+                        lc-return = "Ask".
+                    WHEN 1 THEN
+                        lc-return = "Combined".
+                    WHEN 2 THEN
+                        lc-return = "Separate".                     
+                END CASE.
+            END.    
         WHEN "title"  THEN 
             DO:
                 lc-return = "" .

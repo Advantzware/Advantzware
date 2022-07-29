@@ -164,7 +164,7 @@ display tt-fg-bin.rct-date when first-of(tt-fg-bin.i-no)
          fg-rctd.i-name         format "x(20)" label "DESCRIPTION"
          itemfg.part-no         format "x(15)" label "Customer Part#"
          fg-rctd.job-no         label "   JOB" space(0) "-" space(0)
-         fg-rctd.job-no2        label "# " format "99"
+         fg-rctd.job-no2        label "# " format "999"
          fg-rctd.loc             label "WHSE"
          fg-rctd.loc-bin         label "BIN"
          fg-rctd.tag             label "TAG" FORM "x(23)"
@@ -1598,7 +1598,7 @@ DEFINE VARIABLE cDisplay      AS CHARACTER NO-UNDO.
          fg-rctd.i-name         format "x(20)" label "DESCRIPTION"
          itemfg.part-no         format "x(15)" label "Customer Part#"
          fg-rctd.job-no         label "   JOB" space(0) "-" space(0)
-         fg-rctd.job-no2        label "# " format "99"
+         fg-rctd.job-no2        label "# " format "999"
          fg-rctd.loc             label "WHSE"
          fg-rctd.loc-bin         label "BIN"
          fg-rctd.tag             label "TAG" FORM "x(23)"

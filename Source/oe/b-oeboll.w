@@ -309,7 +309,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 20
       get-cost() @ li-cost COLUMN-LABEL "Cost/M" FORMAT "->>>,>>>,>>9.99":U
             WIDTH 12
-      display-cust-item(0) @ lv-part-no FORMAT "x(15)":U
+      display-cust-item(0) @ lv-part-no FORMAT "x(30)":U
       get-release() @ lv-relase COLUMN-LABEL "Release" FORMAT "x(8)":U
   ENABLE
       oe-boll.ord-no
@@ -2434,6 +2434,8 @@ PROCEDURE local-update-record :
 /*      oe-boll.weight:READ-ONLY IN BROWSE {&browse-name} = yes */
 
   /* RUN calc-all-freight. */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
 
 END PROCEDURE.
 

@@ -1732,7 +1732,7 @@ DISPLAY "" WITH FRAME r-top.
 
         assign
           v-i-no  = job-hdr.i-no
-          job-num = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
+          job-num = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"999").
 
         /*IF tb_cust-name EQ "#" THEN
            v-cust = job-hdr.cust-no.

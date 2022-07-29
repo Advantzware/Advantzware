@@ -266,6 +266,7 @@ FOR EACH ttInv:
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumber",STRING(ttInvLine.orderLine)). 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumberOverride",STRING(ttInvLine.orderLineOverride)). 
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderLineNumberOverridden",STRING(ttInvLine.orderLineOverridden)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "OrderDate", STRING(ttInvLine.orderDate)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPriceUOM",ttInvLine.priceUOM).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemPrice", STRING(ttInvLine.pricePerUOM)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemID",ttInvLine.itemID).
@@ -276,7 +277,9 @@ FOR EACH ttInv:
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "TotalShippingAmount", STRING(ttInv.amountTotalFreight)).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "PartQualifier", cPartQualifier).
         RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "BOLID", STRING(ttInvLine.bolID)).
-                            
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "EDIPrice", STRING(ttInvLine.ediPrice)).
+        RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "EDIPriceUOM", ttInvLine.ediPriceUOM).
+                                            
         IF ttInvLine.isMisc THEN
             RUN updateRequestData(INPUT-OUTPUT lcLineItemsData, "ItemDescription", STRING(ttInvLine.chargeDescription)).
         ELSE
@@ -425,11 +428,11 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalLineCount", iTotalLineCount).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "MiscLineCount", iMiscLineCount).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LineCount", iLineCount). 
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PurchaseOrder", string(iPurchaseOrder)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "PurchaseOrder", STRING(iPurchaseOrder)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "AreaCode", ttInv.areaCode).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Phone", ttInv.phone).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FaxAreaCode", substring(ttInv.fax,1,3)).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Fax", substring(ttInv.fax,4)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FaxAreaCode", SUBSTRING(ttInv.fax,1,3)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Fax", SUBSTRING(ttInv.fax,4)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "Country", ttInv.country).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CountryName", ttInv.countryName).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDescription", ttInv.termsDesc).
@@ -437,8 +440,8 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FobCode", ttInv.fob).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FobCodeDescription", ttInv.fob).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDiscountDue", ttInv.amountTotal - ttInv.termDiscountAmount ).
-    
-    
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IsEDIOrder", STRING(ttInv.isEDIOrder)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLDate", STRING(ttInv.bolDate)).
         
     ASSIGN 
         iSECount = NUM-ENTRIES(ioplcRequestData, "~n") - 1   

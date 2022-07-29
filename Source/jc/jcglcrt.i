@@ -13,7 +13,7 @@ if {2} ne 0 or {3} ne 0 then do:
      work-gl.job-no   = job-hdr.job-no
      work-gl.job-no2  = job-hdr.job-no2
      work-gl.actnum   = {1}      
-     work-gl.cDesc    = "Job: " + job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99").
+     work-gl.cDesc    = "Job: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
      IF {4} NE 0 THEN
      ASSIGN
      work-gl.cDesc = work-gl.cDesc + " Cost $" + string({4}) + " / " + {5} .

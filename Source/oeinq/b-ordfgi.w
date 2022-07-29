@@ -1433,8 +1433,6 @@ PROCEDURE display-itemfg :
 
   IF AVAIL fg-rcpth THEN
   DO WITH FRAME {&FRAME-NAME}:
-    /*ASSIGN fi_job-no:SCREEN-VALUE = fg-rcpth.job-no
-           fi_job-no2:SCREEN-VALUE = STRING(fg-rcpth.job-no2,"99"). */
     FIND FIRST b-itemfg
         WHERE b-itemfg.company EQ cocode
           AND b-itemfg.i-no    EQ fg-rcpth.i-no
@@ -1592,6 +1590,14 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF AVAIL itemfg THEN fi_i-no = itemfg.i-no.
+ 
+  ASSIGN 
+    fi_tag#      = ""
+    fi_rita-code = ""
+    fi_job-no    = ""
+    fi_job-no2   = 0
+    fi_po-no     = 0
+    .
  
   IF lFirst THEN DO:
       lFirst = NO.

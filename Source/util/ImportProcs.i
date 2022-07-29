@@ -84,6 +84,20 @@ PROCEDURE pAssignValueI:
 
 END PROCEDURE.
 
+PROCEDURE pAssignValueIValidZero:
+/*------------------------------------------------------------------------------
+ Purpose: Centralizes all calls to test for ignore blanks - integer fields
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiValueToAssign AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopiValueAssigned AS INTEGER NO-UNDO.
+    
+    ASSIGN  
+        iopiValueAssigned = ipiValueToAssign. 
+
+END PROCEDURE.
+
 PROCEDURE pAssignValueCToL:
 /*------------------------------------------------------------------------------
  Purpose: Centralizes all calls to test for ignore blanks - integer fields

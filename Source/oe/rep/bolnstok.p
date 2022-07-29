@@ -353,6 +353,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
     ELSE DO:
       CREATE tt-boll.
       BUFFER-COPY oe-boll EXCEPT rec_key TO tt-boll.
+      ASSIGN 
+      v-tot-palls = v-tot-palls + tt-boll.cases.
+      IF oe-boll.qty - (oe-boll.qty-case * oe-boll.cases) NE 0 THEN
+       v-tot-palls = v-tot-palls + 1.
     END.
 
     oe-boll.printed = YES.
@@ -402,7 +406,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
     v-last-page = page-number.
 
-  IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.
+  /*IF oe-bolh.tot-pallets NE 0 THEN v-tot-palls = oe-bolh.tot-pallets.*/
 
   PUT "<FArial><R53><C50><#8><FROM><R+4><C+30><RECT> " 
     "<=8><R+1> Total Units       :" v-tot-palls 
@@ -477,7 +481,8 @@ PROCEDURE create-tt-boll.
    tt-boll.cases  = tt-boll.cases + ip-cases
    tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
    tt-boll.weight = tt-boll.weight + 
-                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight).
+                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight)
+   v-tot-palls    = v-tot-palls + ip-cases                 .
 
   IF oe-boll.p-c THEN tt-boll.p-c = YES.
 

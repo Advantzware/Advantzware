@@ -192,7 +192,7 @@ DO:       /* production mode */
                 DISPLAY /*SKIP*/
                     "<P10><R2><b>"company.NAME
                     "<c55>Check Number   <c70></b>" 
-                    TRIM(STRING(ap-chk.check-no,">>>>>>"))  FORMAT "x(6)"   SKIP(1)
+                    TRIM(STRING(ap-chk.check-no,">>>>>>>>"))  FORMAT "x(8)"   SKIP(1)
                     "To:" AT 1
                     v-vend-no
                     "<c55><b>Date   </b><c70>" 
@@ -216,7 +216,7 @@ DO:       /* production mode */
                 cgrossl           = cgrossl + ap-sel.amt-paid /*+ ap-sel.disc-amt) */
                 cgross            = cgross + cgrossl
                 cInvAmt           = cInvAmt + IF ap-inv.gross GT 0 THEN ap-inv.gross ELSE ap-inv.net.
-                cBankCode = "C" + STRING(ap-chk.check-no,">>>>>>") + "C" + "   A" + STRING(bank.RTN,"999999999") + "A   " + STRING(bank.bk-act + "C","x(15)") .
+                cBankCode = "C" + STRING(ap-chk.check-no,">>>>>>>>") + "C" + "   A" + STRING(bank.RTN,"999999999") + "A   " + STRING(bank.bk-act + "C","x(15)") .
             CREATE wrk-chk.
             ASSIGN
                 wrk-chk.inv-no   = ap-sel.inv-no
@@ -262,7 +262,7 @@ DO:       /* production mode */
 
                     DISPLAY CAPS(dol)         @ dol
                         TRIM(bank.SwiftBIC)    @ bank.SwiftBIC
-                        TRIM(STRING(ap-chk.check-no,">>>>>>")) FORMAT "x(6)" @ ap-chk.check-no
+                        TRIM(STRING(ap-chk.check-no,">>>>>>>>")) FORMAT "x(8)" @ ap-chk.check-no
                         ap-chk.check-date
                         ctot 
                         (COMPANY.NAME) @ COMPANY.NAME
@@ -303,7 +303,7 @@ DO:       /* production mode */
                 DISPLAY SKIP(3)
                     "<b>" company.NAME
                     "<c55>Check Number   <c70></b>" 
-                    TRIM(STRING(ap-chk.check-no,">>>>>>"))  FORMAT "x(6)"   SKIP(1)
+                    TRIM(STRING(ap-chk.check-no,">>>>>>>>"))  FORMAT "x(8)"   SKIP(1)
                     "To:" AT 1
                     v-vend-no
                     "<c55><b>Date  </b><c70>" 

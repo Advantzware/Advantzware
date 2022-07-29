@@ -86,6 +86,7 @@ Select Machine,Seleccione la Maquina,Sélectionner la machine
 Sequence,Secuencia,Séquence
 Session Information,Información de la sesión,Informations sur la session
 Set Time,Fije la Hora,Régler l'heure
+Sharp Shooter,Tirador Agudo,Tireur Pointu
 Shift,Turno,Maj
 Sort,Clase,Sorte
 Sort / Job,Trabajo de la Clase,Trier/travail

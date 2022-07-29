@@ -31,6 +31,10 @@ DEFINE VARIABLE gTypeShipNote AS CHARACTER NO-UNDO INIT "ES".
 /* ************************  Function Prototypes ********************** */
 
 
+FUNCTION fNotes_IsDuplicateNote RETURNS LOGICAL 
+	(ipriNote AS ROWID,
+	 ipcRecKey AS CHARACTER) FORWARD.
+
 FUNCTION fIsLineEnd RETURNS LOGICAL PRIVATE
     (ipcChar AS CHARACTER) FORWARD.
 
@@ -46,7 +50,7 @@ FUNCTION hasNotes RETURNS LOGICAL
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE ConvertToArray:
+PROCEDURE Notes_ConvertToArray:
     /*------------------------------------------------------------------------------
      Purpose: Converts a given blob of text into a 100 extent array based on 
                 the character count per line.
@@ -94,7 +98,7 @@ PROCEDURE ConvertToArray:
 
 END PROCEDURE.
 
-PROCEDURE CopyNoteOfType:
+PROCEDURE Notes_CopyNoteOfType:
     /*------------------------------------------------------------------------------
      Purpose: Propagates a single note from one rec_key to another
      Notes:
@@ -105,13 +109,13 @@ PROCEDURE CopyNoteOfType:
 
     DEFINE VARIABLE cNoteText AS CHARACTER NO-UNDO.
 
-    RUN GetNoteOfType (ipcRecKeyFrom, ipcType, OUTPUT cNoteText).
+    RUN Notes_GetNoteOfType (ipcRecKeyFrom, ipcType, OUTPUT cNoteText).
     IF cNoteText NE "" THEN 
-        RUN UpdateNoteOfType (ipcRecKeyTo, ipcType, cNoteText).
+        RUN Notes_UpdateNoteOfType (ipcRecKeyTo, ipcType, cNoteText).
 
 END PROCEDURE.
 
-PROCEDURE CopyNotes:
+PROCEDURE Notes_CopyNotes:
     /*------------------------------------------------------------------------------
      Purpose: Copies all notes from one source record (rec_key) to another 
      Notes:  Filter the scope of notes by type or code (commas separated or left blank for all)
@@ -121,33 +125,42 @@ PROCEDURE CopyNotes:
     DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
 
-    DEFINE BUFFER b-notes FOR notes.
-
+    DEFINE BUFFER bf-notes FOR notes.
+    DEFINE BUFFER bfDup-notes FOR notes.
+    
     FOR EACH notes NO-LOCK 
         WHERE notes.rec_key EQ ipcRecKeyFrom
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
-        AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
+        AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)        
         :
-        CREATE b-notes.
-        BUFFER-COPY notes EXCEPT rec_key TO b-notes.
-        ASSIGN 
-            b-notes.rec_key = ipcRecKeyTo.
+        /*Prevent duplication of notes*/
+        IF NOT fNotes_IsDuplicateNote(ROWID(notes), ipcRecKeyTo) THEN DO:
+    
+            CREATE bf-notes.
+            BUFFER-COPY notes EXCEPT rec_key TO bf-notes.
+            ASSIGN 
+                bf-notes.rec_key = ipcRecKeyTo
+                bf-notes.note_date = TODAY
+                bf-notes.note_time = TIME
+                .
+        END. /*No duplicate*/
     END.
+    
 END PROCEDURE.
 
-PROCEDURE CopyShipNote:
+PROCEDURE Notes_CopyShipNote:
     /*------------------------------------------------------------------------------
-     Purpose: Wrapper of CopyNoteOfType for Ship Note Type
+     Purpose: Wrapper of Notes_CopyNoteOfType for Ship Note Type
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
  
-    RUN CopyNoteOfType (ipcRecKeyFrom, ipcRecKeyTo, gTypeShipNote).
+    RUN Notes_CopyNoteOfType (ipcRecKeyFrom, ipcRecKeyTo, gTypeShipNote).
 
 END PROCEDURE.
 
-PROCEDURE GetNoteOfType:
+PROCEDURE Notes_GetNoteOfType:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key and type, will return the notes content of first note
      of given type
@@ -166,7 +179,7 @@ PROCEDURE GetNoteOfType:
     
 END PROCEDURE.
 
-PROCEDURE GetNotesArrayForObject:
+PROCEDURE Notes_GetNotesArrayForObject:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key for an object, a set of type and codes, return an array of a max char length 
      Notes:  Types and Codes should be comma separated or left blank for all
@@ -174,6 +187,7 @@ PROCEDURE GetNotesArrayForObject:
     DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiMaxCharCount AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iplIncludeTitles AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipiNotesForm AS INTEGER NO-UNDO.
@@ -186,6 +200,7 @@ PROCEDURE GetNotesArrayForObject:
         WHERE notes.rec_key EQ ipcObjectRecKey
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
         AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
+        AND (ipcGroup EQ "" OR LOOKUP(notes.note_group,ipcGroup) GT 0)
         AND (notes.note_form_no EQ ipiNotesForm OR notes.note_form_no EQ 0)
         :
         IF iplIncludeTitles THEN 
@@ -196,11 +211,11 @@ PROCEDURE GetNotesArrayForObject:
     IF cFullText NE "" THEN 
     DO:
         cFullText = TRIM(cFullText,CHR(13)). 
-        RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
+        RUN Notes_ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT opcParsedText, OUTPUT opiArraySize).
     END. 
 END PROCEDURE.
 
-PROCEDURE GetNotesTempTableForObject:
+PROCEDURE Notes_GetNotesTempTableForObject:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key for an object, a set of type and codes, return 
      ttNotesFormatted temp-table 
@@ -237,7 +252,7 @@ PROCEDURE GetNotesTempTableForObject:
                 ttNotesFormatted.noteText = cFullText
                 ttNotesFormatted.noteTextArray = ""
                 . 
-            RUN ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT ttNotesFormatted.noteTextArray, OUTPUT ttNotesFormatted.noteTextArraySize).
+            RUN Notes_ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT ttNotesFormatted.noteTextArray, OUTPUT ttNotesFormatted.noteTextArraySize).
         END. 
     END.
 
@@ -301,7 +316,7 @@ PROCEDURE pParseText PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE UpdateNoteOfType:
+PROCEDURE Notes_UpdateNoteOfType:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key and type, this proce will update the first note of that type
         or add it if it doesn't exist.
@@ -329,19 +344,45 @@ PROCEDURE UpdateNoteOfType:
     
 END PROCEDURE.
 
-PROCEDURE UpdateShipNote:
+PROCEDURE Notes_UpdateShipNote:
     /*------------------------------------------------------------------------------
-     Purpose: Wrapper for UpdateNoteofType specifically for Ship Notes
+     Purpose: Wrapper for Notes_UpdateNoteOfType specifically for Ship Notes
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcNoteText AS CHARACTER NO-UNDO.
 
-    RUN UpdateNoteOfType (ipcObjectRecKey, gTypeShipNote, ipcNoteText).
+    RUN Notes_UpdateNoteOfType (ipcObjectRecKey, gTypeShipNote, ipcNoteText).
 
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION fNotes_IsDuplicateNote RETURNS LOGICAL 
+	(ipriNote AS ROWID, ipcRecKey AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:  If a given note has a duplicate on provided rec_key, return yes
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE BUFFER bfDup-notes FOR notes.
+    DEFINE BUFFER bfTarget-notes FOR notes.
+    DEFINE VARIABLE lIsDuplicate AS LOGICAL NO-UNDO.
+    
+    FIND bfTarget-notes NO-LOCK 
+        WHERE ROWID(bfTarget-notes) EQ ipriNote
+        NO-ERROR.
+    
+    IF AVAILABLE bfTarget-notes THEN DO:
+        lIsDuplicate = CAN-FIND(FIRST bfDup-notes WHERE bfDup-notes.rec_key EQ ipcRecKey
+            AND bfDup-notes.note_type EQ bfTarget-notes.note_type
+            AND bfDup-notes.note_code EQ bfTarget-notes.note_code
+            AND bfDup-notes.note_title EQ bfTarget-notes.note_title
+            AND bfDup-notes.note_text EQ bfTarget-notes.note_text).
+            
+    END.
+	RETURN lIsDuplicate.	
+	
+END FUNCTION.
 
 FUNCTION fIsLineEnd RETURNS LOGICAL PRIVATE
     ( ipcChar AS CHARACTER):

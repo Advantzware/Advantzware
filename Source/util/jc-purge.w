@@ -463,7 +463,7 @@ PROCEDURE run-process :
 /******************************************************************************/
 
 def var v-job-no like job.job-no extent 2 initial [" ", " "] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 initial [000, 999] no-undo.
 def var v-status like job.stat initial "*" no-undo.
 def var stat-list as char initial "P,L,C,W,Z,*" no-undo.
 
@@ -488,7 +488,7 @@ assign
                 (if tb_closed   then "CZ"  else "").
 
 do x = 1 to 2:
-  v-job-no[x] = fill(" ", 6 - integer(length(trim(v-job-no[x])))) +
+  v-job-no[x] = fill(" ", iJobLen - integer(length(trim(v-job-no[x])))) +
                 trim(v-job-no[x]).
 end.
 

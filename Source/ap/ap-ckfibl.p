@@ -18,7 +18,7 @@ DEFINE TEMP-TABLE wrk-chk
   field reference   as   CHARACTER format "x(15)".
 
 form "-----------"      to 79    skip
-     "Check#" AT 35 stnum FORM ">>>>>9" "Net Check Amount" to 67
+     "Check#" AT 35 stnum FORM ">>>>>>>9" "Net Check Amount" to 67
      ctot               to 79
     with frame b3 no-box no-labels stream-io no-attr-space.
 

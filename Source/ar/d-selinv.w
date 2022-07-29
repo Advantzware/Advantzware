@@ -46,6 +46,13 @@ DEF TEMP-TABLE tt-inv FIELD selekt AS LOG LABEL "Selected"
                       FIELD seq-no AS INT
                       FIELD check-no AS INT
                       FIELD row-id2 AS ROWID.
+DEFINE VARIABLE lv-sort-by AS CHARACTER INIT "inv-no" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab AS CHARACTER INIT "Inv# " NO-UNDO.
+DEFINE VARIABLE ll-sort-asc AS LOGICAL INIT YES NO-UNDO.
+{methods/template/brwcustomdef.i}  
+
+DEFINE VARIABLE cArCashEntryDiscount AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("ArCashEntryDiscount", OUTPUT cArCashEntryDiscount).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -126,11 +133,11 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      tt-inv.inv-no     LABEL "Invoice#" FORMAT ">>>>>>>9"
-      tt-inv.inv-date   LABEL "Inv Date"
-      tt-inv.net        LABEL "Net"
-      tt-inv.paid       LABEL "Amt Paid"
-      tt-inv.due        LABEL "Balance Due"
+      tt-inv.inv-no     LABEL "Invoice#" FORMAT ">>>>>>>9" LABEL-BGCOLOR 14
+      tt-inv.inv-date   LABEL "Inv Date" LABEL-BGCOLOR 14
+      tt-inv.net        LABEL "Net" LABEL-BGCOLOR 14
+      tt-inv.paid       LABEL "Amt Paid" LABEL-BGCOLOR 14
+      tt-inv.due        LABEL "Balance Due" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 76 BY 12.38
@@ -182,6 +189,9 @@ DEFINE FRAME D-Dialog
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
+       
+ASSIGN 
+       BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME D-Dialog = TRUE.       
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -217,6 +227,68 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* AR Invoice Selection */
 DO:  
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define SELF-NAME BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
+ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
+DO:
+  {methods/template/sortindicator.i} 
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+  
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+  
+  ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab.
+  
+  CLOSE QUERY {&self-name}.
+  
+  IF ll-sort-asc THEN
+  CASE lv-column-nam:
+      WHEN "inv-no" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.inv-no .
+      WHEN "inv-date" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.inv-date.
+      WHEN "net" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.net .      
+      WHEN "paid" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.paid.
+      WHEN "due" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.due.      
+  END CASE.
+  
+  ELSE   /*descending*/
+      CASE lv-column-nam:
+      WHEN "inv-no" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.inv-no DESC.
+      WHEN "inv-date" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.inv-date DESCENDING.
+      WHEN "net" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.net DESCENDING.
+      WHEN "due" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.due DESC.
+      WHEN "paid" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.paid DESC.      
+  END CASE.
+    
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+  {methods/template/sortindicatorend.i}
+  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -286,7 +358,7 @@ DO:
         END.
 
         FOR EACH tt-inv WHERE tt-inv.selekt,
-            FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
+            FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK             
             BY ar-inv.due:
 
            ASSIGN
@@ -312,7 +384,7 @@ DO:
                       (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0) - 
                       ar-inv.tax-amt) * (IF ld-net1 = 0 OR ld-net2 = 0 THEN 1 ELSE ld-net2 / ld-net1).
                                                  
-             IF ld-due NE 0 THEN
+             IF ld-due NE 0 AND cArCashEntryDiscount NE "None" THEN
                tt-inv.amt-disc = IF ar-inv.disc-% = 0 THEN 0 ELSE ROUND(ld-due * (ar-inv.disc-% / 100),2).
            END.
 
@@ -341,7 +413,7 @@ DO:
            END.
         END.
 
-        FOR EACH tt-inv WHERE tt-inv.selekt:
+        FOR EACH tt-inv WHERE tt-inv.selekt BY tt-inv.inv-no DESC:
          
            FOR EACH ar-cashl OF ar-cash NO-LOCK BY ar-cashl.line DESCENDING:
               li-next-line = ar-cashl.LINE.
@@ -516,7 +588,7 @@ PROCEDURE build-table :
            AND ar-inv.due     NE 0
            AND NOT CAN-FIND(FIRST b-cashl
                             WHERE b-cashl.c-no   EQ ar-cash.c-no
-                              AND b-cashl.inv-no EQ ar-inv.inv-no):
+                              AND b-cashl.inv-no EQ ar-inv.inv-no) BY ar-inv.inv-no DESC:
        CREATE tt-inv.
        ASSIGN
         tt-inv.row-id   = ROWID(ar-inv)

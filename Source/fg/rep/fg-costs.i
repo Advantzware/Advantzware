@@ -257,7 +257,7 @@ PURPOSE:
 
       if last-of(tt-rdtlh.tag) and (zbal or v-qoh ne 0) then do:
         if tt-fg-bin.job-no ne "" then
-          v-job-no = trim(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"99").
+          v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-fg-bin.job-no, tt-fg-bin.job-no2))).
         else
           v-job-no = "".
 
@@ -336,7 +336,7 @@ PURPOSE:
 
           display itemfg.cust-no when v-first[2]
                   itemfg.i-no    when v-first[1]
-                  itemfg.part-no when v-first[1] format "x(15)"  
+                  itemfg.part-no when v-first[1] format "x(30)"  
                   itemfg.i-name  when v-first[1] format "x(25)"
                   tt-fg-bin.loc
                   tt-fg-bin.loc-bin

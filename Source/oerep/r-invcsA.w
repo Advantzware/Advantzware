@@ -40,7 +40,7 @@ def TEMP-TABLE w-data NO-UNDO
   field sorter    as   char
   field i-no      like ar-invl.i-no column-label "FG Item#"
   field inv-no    like ar-invl.inv-no column-label "Invoice#"
-  field job-no    like ar-invl.job-no FORMAT "x(9)" column-label "Job#"
+  field job-no    like ar-invl.job-no FORMAT "x(13)" column-label "Job#"
   field rec-id    as   recid.
 
 {salrep/ttreport.i NEW}

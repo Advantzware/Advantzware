@@ -356,13 +356,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        ASSIGN chExcelApplication:ActiveCell:Value = lv-uom . 
 
       v-line-total = v-line-total + xqqty.price.
-      
-      
-      ASSIGN v-cell = "R" + string(inrowcount) + "C7".
-
-       chExcelApplication:Goto(v-cell) NO-ERROR.
-       ASSIGN chExcelApplication:ActiveCell:Value = IF AVAIL est and est.estimateTypeID EQ "Misc" THEN "" ELSE (IF AVAIL probe THEN STRING(ROUND( probe.sell-price / probe.bsf,2)) ELSE ""). 
-           
+                 
     END.
 
     ASSIGN inrowcount = inrowcount + 1 . 

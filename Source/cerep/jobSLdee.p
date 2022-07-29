@@ -44,7 +44,7 @@ DEF TEMP-TABLE wrk-op NO-UNDO
     FIELD num-sh   AS INT FORMAT ">>>,>>9"  EXTENT 100
     FIELD spoil    LIKE job-mch.wst-prct EXTENT 100
     FIELD mr-waste LIKE job-mch.mr-waste EXTENT 100
-    FIELD t-jobno  AS CHAR FORMAT "x(6)"
+    FIELD t-jobno  AS CHAR FORMAT "x(9)"
     FIELD t-custnm AS CHAR FORMAT "x(30)"
     FIELD t-machcd AS CHAR FORMAT "x(6)" 
     FIELD t-machnm AS CHAR FORMAT "x(20)"

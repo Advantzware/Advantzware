@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{sys/inc/var.i}
+{sys/inc/var.i NEW SHARED}
 DEFINE VARIABLE list-name AS CHARACTER NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tmp-dir   AS CHARACTER NO-UNDO.
@@ -2121,14 +2121,16 @@ PROCEDURE run-report :
 
     IF td-show-parm THEN RUN show-param.
 
-    IF tb_excel THEN 
+    IF rd-dest:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "3" THEN 
     DO:
+        tb_excel = YES.
         OUTPUT STREAM excel TO VALUE(cFileName).
         ASSIGN 
             excelheader = "Mach,Description,DP,Date,Sh,Job No,Form,Blank,"
                        + "Item,Description,Code,Hours,Crew,Start,Stop,Run Qty,Waste,C,EmpID,Rate".
         PUT STREAM excel UNFORMATTED excelheader SKIP.
     END.
+    ELSE tb_excel = NO.
 
     VIEW FRAME r-top.
     selected-company = g_company.
@@ -2137,7 +2139,7 @@ PROCEDURE run-report :
 
     OUTPUT close.
 
-    IF tb_excel THEN 
+    IF rd-dest:SCREEN-VALUE EQ "3" THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
 

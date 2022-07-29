@@ -131,9 +131,6 @@ DEFINE VARIABLE iOrdQtyCust AS INTEGER NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl .
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
-DEFINE VARIABLE hNotesProc as Handle NO-UNDO.
-
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 ASSIGN tmpstore = fill("-",130).
 
@@ -208,8 +205,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-pay-dscr = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-pay-dscr:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -308,8 +305,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            EMPTY TEMP-TABLE w-bin.
           
            i = 0.
-
-           /*v-reljob = (w-oe-rell.job-no + "-" + string(w-oe-rell.job-no2,"99"))   .*/
 
            for each fg-bin
                where fg-bin.company  eq cocode
@@ -743,7 +738,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                     v-cq = YES.
               END.
               IF AVAIL itemfg THEN DO:
-                  RUN GetNotesArrayForObject IN hNotesProc (INPUT itemfg.rec_key, "S", "PT", 80, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
+                  RUN Notes_GetNotesArrayForObject (INPUT itemfg.rec_key, "S", "PT", "", 80, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
                    DO i = 1 TO opiArraySize: 
                        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(13), "").
                        ASSIGN opcParsedText[i] = REPLACE(opcParsedText[i], CHR(10), ""). 

@@ -39,7 +39,7 @@ DEFINE VARIABLE cRowidList     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE li             AS INTEGER   NO-UNDO.
 DEFINE VARIABLE ll             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lBinTag        AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE cJobNo         AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE cJobNo         AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE cSelectedValue AS character NO-UNDO. /*all,one,notag*/.
 DEFINE VARIABLE cSCode            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lrOeRell          AS ROWID     NO-UNDO.
@@ -794,10 +794,10 @@ PROCEDURE rel-bin-process :
 
     ASSIGN
         ll        = NO
-        cJobNo = TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")
+        cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2)))
         .
 
-    IF cJobNo EQ "-00" THEN cJobNo = "".
+    IF cJobNo EQ "-000" THEN cJobNo = "".
 
   
     cSCode  = IF oe-rel.s-code <> "" THEN oe-rel.s-code ELSE

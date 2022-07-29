@@ -1171,7 +1171,7 @@ PROCEDURE CreateRelease :
               oe-rel.ship-i[3]    = shipto.notes[3]
               oe-rel.ship-i[4]    = shipto.notes[4]
               oe-rel.spare-char-1 = shipto.loc.
-        RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+        RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
     END.
     else assign oe-rel.ship-no   = oe-ord.sold-no
                 oe-rel.ship-id   = oe-ord.sold-id
@@ -1635,8 +1635,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -1645,11 +1645,12 @@ DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
-RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
 
-DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+
+    DELETE OBJECT hNotesProcs.   
 
 END PROCEDURE.
     

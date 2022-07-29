@@ -18,6 +18,8 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 {est/ttCalcLayoutSize.i}
 
+{est/CalcLayoutSize.i}
+
 DEFINE INPUT PARAMETER ipriEf       AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER ipriEb       AS ROWID NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE       FOR ttLayoutSize.
@@ -55,7 +57,7 @@ DEFINE VARIABLE dConversionFactor AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iStyleFormulaOnLen LIKE style.use-l   NO-UNDO.
 DEFINE VARIABLE iStyleFormulaOnWid LIKE style.use-w   NO-UNDO.
 
-
+DEFINE VARIABLE lBlanksStyleTypePartition AS LOGICAL NO-UNDO.
 
 DEFINE VARIABLE ceroute-dec AS DECIMAL NO-UNDO. // ASk  BRAD
 
@@ -102,7 +104,34 @@ IF AVAILABLE bf-style THEN
 
 /* Create Temp-table record and populate the fields later */    
 CREATE ttLayoutSize.    
-    
+ASSIGN
+    ttLayoutSize.dLayoutSheetLength    = bf-ef.lsh-len     
+    ttLayoutSize.dLayoutSheetWidth     = bf-ef.lsh-wid 
+    ttLayoutSize.dNetSheetLength       = bf-ef.nsh-len 
+    ttLayoutSize.dNetSheetWidth        = bf-ef.nsh-wid 
+    ttLayoutSize.dNetSheetDepth        = bf-ef.nsh-dep 
+    ttLayoutSize.dGrossSheetLength     = bf-ef.gsh-len 
+    ttLayoutSize.dGrossSheetWidth      = bf-ef.gsh-wid 
+    ttLayoutSize.dGrossSheetDepth      = bf-ef.gsh-dep 
+    ttLayoutSize.dDieSizeLength        = bf-ef.trim-l  
+    ttLayoutSize.dDieSizeWidth         = bf-ef.trim-w  
+    ttLayoutSize.dDieSizeDepth         = bf-ef.trim-d  
+    ttLayoutSize.dRollWidth            = bf-ef.roll-wid
+    ttLayoutSize.dDieInchesRequired    = bf-ef.die-in  
+    ttLayoutSize.cBoardItemCode        = bf-ef.i-code  
+    ttLayoutSize.cBoardItemBasisWeight = bf-ef.weight  
+    ttLayoutSize.dBoardItemCaliper     = bf-ef.cal     
+    ttLayoutSize.IsRollMaterial        = bf-ef.roll    
+    ttLayoutSize.iNumOutWidth          = bf-ef.n-out   
+    ttLayoutSize.iNumOutLength         = bf-ef.n-out-l 
+    ttLayoutSize.iNumOutDepth          = bf-ef.n-out-d 
+    ttLayoutSize.iNumberCuts           = bf-ef.n-cuts  
+    ttLayoutSize.iBlankNumUp           = bf-eb.num-up  
+    ttLayoutSize.iBlankNumOnWidth      = bf-eb.num-wid 
+    ttLayoutSize.iBlankNumOnLength     = bf-eb.num-len 
+    ttLayoutSize.iBlankNumOnDepth      = bf-eb.num-dep
+    . 
+                 
 IF bf-ef.m-code NE "" THEN
 DO:
     FIND FIRST bf-mach 
@@ -216,173 +245,194 @@ IF avail(bf-item) AND bf-item.i-code EQ "E" AND bf-ef.xgrain = "N" AND AVAILABLE
         dTempLength = min(dTempLength, bf-mach.max-wid)
         dTempWidth  = min(dTempWidth, bf-mach.max-len).
 
+RUN pAreBlanksPartitionStyleType (BUFFER bf-ef, OUTPUT lBlanksStyleTypePartition).
 
-IF bf-ef.lam-dscr EQ "R" THEN
-    ASSIGN  
-        dSwapDim    = dTempLength
-        dTempLength = dTempWidth
-        dTempWidth  = dSwapDim.
-        
-IF bf-eb.sty-lock OR ceroute-dec EQ 1 THEN 
-DO:
-    CREATE formule.
+RUN pGetDecimalSettings(
+    INPUT  bf-eb.company,  /*Get NK1 CECSCRN settings*/
+    OUTPUT lDecimal,
+    OUTPUT dDecimalFactor,
+    OUTPUT dDecimalMax, 
+    OUTPUT dConversionFactor
+    ).
+            
+IF lBlanksStyleTypePartition THEN DO:
     ASSIGN
-        formule.formule[1]  = bf-eb.t-wid
-        formule.formule[3]  = bf-eb.t-wid
-        formule.formule[5]  = bf-eb.t-wid
-        formule.formule[7]  = bf-eb.t-wid
-        formule.formule[9]  = bf-eb.t-wid
-        formule.formule[2]  = bf-eb.t-len
-        formule.formule[4]  = bf-eb.t-len
-        formule.formule[6]  = bf-eb.t-len
-        formule.formule[8]  = bf-eb.t-len
-        formule.formule[10] = bf-eb.t-len
-        formule.formule[12] = bf-eb.die-in.
-END.
-          
-ELSE 
-DO:
-    /*Get Rounding Settings*/
-    lRound = fRound( bf-eb.company ).  /*Get NK1 Round logical*/
-    RUN pGetDecimalSettings(bf-eb.company,  /*Get NK1 CECSCRN settings*/
-        OUTPUT lDecimal,
-        OUTPUT dDecimalFactor,
-        OUTPUT dDecimalMax, 
-        OUTPUT dConversionFactor).
+        dCalcTotalLength = 0
+        dCalcTotalWidth  = bf-eb.t-wid * bf-eb.num-len
+        .
+  
+    RUN pCalculatePartitionStyleDieSize (BUFFER bf-ef, OUTPUT dCalcTotalWidth, OUTPUT dCalcTotalLength). 
 
-    /*Calculate Style formulas and scoring*/        
-    RUN est/CalcStyleFormulae.p (ROWID(bf-eb),
-        lRound,
-        lDecimal,
-        dDecimalFactor,
-        dConversionFactor,
-        OUTPUT TABLE formule).
-END.
-
-/*formule is populated by CalcStyleFormulae*/
-FIND FIRST formule NO-LOCK NO-ERROR.
-
-
-IF ceroute-dec EQ 1 THEN 
-DO:
-    ASSIGN
-        iCalcNumOnWidth            = 1
-        iCalcNumOnLength           = 1
-        ttLayoutSize.iNumOutWidth  = 1
-        ttLayoutSize.iNumOutLength = 1.
-      
     IF bf-ef.xgrain EQ "B" THEN
         ASSIGN
-            dCalcTotalLength = formule.formule[1]
-            dCalcTotalWidth  = formule.formule[2].
-    ELSE
-        ASSIGN
-            dCalcTotalWidth  = formule.formule[1]
-            dCalcTotalLength = formule.formule[2].
+            dSwapDim         = dCalcTotalLength
+            dCalcTotalLength = dCalcTotalWidth
+            dCalcTotalWidth  = dSwapDim
+            .
 END.
-ELSE 
-DO:
-    IF bf-ef.xgrain = "B" THEN
-        ASSIGN 
-            dLengthtoUse = dTempWidth - dTrimWidth
-            dWidtoUse    = dTempLength - dTrimLength.
-    ELSE
-        ASSIGN
-            dLengthtoUse = dTempLength - dTrimLength
-            dWidtoUse    = dTempWidth - dTrimWidth.
-        
-    /* Calculate Width Size using Panel dimension */    
-    DO iCnt = 1 TO 50:
-        iExt = iCnt.        
-        IF iCnt > 13 THEN 
-            iExt = 13.
-        
-        IF bf-ef.xgrain = "B" THEN
-        DO: 
-            IF iCnt = 1 OR dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
-                ASSIGN 
-                    iCalcNumOnWidth = iCnt
-                    dCalcTotalWidth = dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2].
-                    
-            ELSE 
-                LEAVE.
-        END.
-        ELSE
-        DO:
-            IF dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)] <= dWidtoUse
-                OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
-                ASSIGN
-                    iCalcNumOnWidth = iCnt
-                    dCalcTotalWidth = dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)].
-        
-            ELSE 
-                LEAVE.
-        END.
-    END. // DO iCnt = 1 TO 50:
-     
-    /* Calculate Length Size using Panel dimension */    
-    DO iCnt = 1 TO 50:
-        iExt = iCnt.        
-        IF iCnt > 13 THEN 
-            iExt = 13.
+ELSE DO:
+    IF bf-ef.lam-dscr EQ "R" THEN
+        ASSIGN  
+            dSwapDim    = dTempLength
+            dTempLength = dTempWidth
+            dTempWidth  = dSwapDim.
             
-        IF bf-ef.xgrain = "B" THEN
-        DO:
-            IF iCnt = 1 OR dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN
-                ASSIGN 
-                    iCalcNumOnLength = iCnt
-                    dCalcTotalLength = dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
-            
-            ELSE 
-                LEAVE.
-        END.
-        ELSe
-        DO:
-            IF dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2] <= dLengthtoUse
-                OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
-                ASSIGN 
-                    iCalcNumOnLength = iCnt
-                    dCalcTotalLength = dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2].
-                    
-            ELSE 
-                LEAVE.
-        END.
-         
-    END. // DO iCnt = 1 TO 50:
-    
-END. /* ELSE*/
-
-
-IF NOT bf-ef.lsh-lock THEN /* autocalc */
-DO:
-    IF bf-ef.xgrain = "B" THEN 
+    IF bf-eb.sty-lock OR ceroute-dec EQ 1 THEN 
     DO:
-        ASSIGN 
-            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
-            ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth.
-            
-        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
-            dCalcTotalWidth = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
-        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
-            dCalcTotalLength = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.  
+        CREATE formule.
+        ASSIGN
+            formule.formule[1]  = bf-eb.t-wid
+            formule.formule[3]  = bf-eb.t-wid
+            formule.formule[5]  = bf-eb.t-wid
+            formule.formule[7]  = bf-eb.t-wid
+            formule.formule[9]  = bf-eb.t-wid
+            formule.formule[2]  = bf-eb.t-len
+            formule.formule[4]  = bf-eb.t-len
+            formule.formule[6]  = bf-eb.t-len
+            formule.formule[8]  = bf-eb.t-len
+            formule.formule[10] = bf-eb.t-len
+            formule.formule[12] = bf-eb.die-in.
+    END.
+              
+    ELSE 
+    DO:
+        /*Get Rounding Settings*/
+        lRound = fRound( bf-eb.company ).  /*Get NK1 Round logical*/
+    
+        /*Calculate Style formulas and scoring*/        
+        RUN est/CalcStyleFormulae.p (ROWID(bf-eb),
+            lRound,
+            lDecimal,
+            dDecimalFactor,
+            dConversionFactor,
+            OUTPUT TABLE formule).
+    END.
+    
+    /*formule is populated by CalcStyleFormulae*/
+    FIND FIRST formule NO-LOCK NO-ERROR.
+    
+    
+    IF ceroute-dec EQ 1 THEN 
+    DO:
+        ASSIGN
+            iCalcNumOnWidth            = 1
+            iCalcNumOnLength           = 1
+            ttLayoutSize.iNumOutWidth  = 1
+            ttLayoutSize.iNumOutLength = 1.
+          
+        IF bf-ef.xgrain EQ "B" THEN
+            ASSIGN
+                dCalcTotalLength = formule.formule[1]
+                dCalcTotalWidth  = formule.formule[2].
+        ELSE
+            ASSIGN
+                dCalcTotalWidth  = formule.formule[1]
+                dCalcTotalLength = formule.formule[2].
     END.
     ELSE 
     DO:
-        ASSIGN 
-            ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth
-            ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.   
+        IF bf-ef.xgrain = "B" THEN
+            ASSIGN 
+                dLengthtoUse = dTempWidth - dTrimWidth
+                dWidtoUse    = dTempLength - dTrimLength.
+        ELSE
+            ASSIGN
+                dLengthtoUse = dTempLength - dTrimLength
+                dWidtoUse    = dTempWidth - dTrimWidth.
+            
+        /* Calculate Width Size using Panel dimension */    
+        DO iCnt = 1 TO 50:
+            iExt = iCnt.        
+            IF iCnt > 13 THEN 
+                iExt = 13.
+            
+            IF bf-ef.xgrain = "B" THEN
+            DO: 
+                IF iCnt = 1 OR dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
+                    ASSIGN 
+                        iCalcNumOnWidth = iCnt
+                        dCalcTotalWidth = dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2].
+                        
+                ELSE 
+                    LEAVE.
+            END.
+            ELSE
+            DO:
+                IF dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)] <= dWidtoUse
+                    OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
+                    ASSIGN
+                        iCalcNumOnWidth = iCnt
+                        dCalcTotalWidth = dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)].
+            
+                ELSE 
+                    LEAVE.
+            END.
+        END. // DO iCnt = 1 TO 50:
+         
+        /* Calculate Length Size using Panel dimension */    
+        DO iCnt = 1 TO 50:
+            iExt = iCnt.        
+            IF iCnt > 13 THEN 
+                iExt = 13.
+                
+            IF bf-ef.xgrain = "B" THEN
+            DO:
+                IF iCnt = 1 OR dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN
+                    ASSIGN 
+                        iCalcNumOnLength = iCnt
+                        dCalcTotalLength = dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
+                
+                ELSE 
+                    LEAVE.
+            END.
+            ELSe
+            DO:
+                IF dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2] <= dLengthtoUse
+                    OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
+                    ASSIGN 
+                        iCalcNumOnLength = iCnt
+                        dCalcTotalLength = dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2].
+                        
+                ELSE 
+                    LEAVE.
+            END.
+             
+        END. // DO iCnt = 1 TO 50:
         
-              
-        IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalLength THEN  
-            dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
-        IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalWidth THEN  
-            dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.
-    END.  
+    END. /* ELSE*/
+    
+    
+    IF NOT bf-ef.lsh-lock THEN /* autocalc */
+    DO:
+        IF bf-ef.xgrain = "B" THEN 
+        DO:
+            ASSIGN 
+                ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
+                ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth.
+                
+            IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
+                dCalcTotalWidth = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
+            IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
+                dCalcTotalLength = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.  
+        END.
+        ELSE 
+        DO:
+            ASSIGN 
+                ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth
+                ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.   
+            
+                  
+            IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalLength THEN  
+                dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
+            IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalWidth THEN  
+                dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.
+        END.  
+    END.
+    
+    ASSIGN 
+        ttLayoutSize.iBlankNumUp        = ttLayoutSize.iBlankNumOnWidth * ttLayoutSize.iBlankNumOnLength
+        ttLayoutSize.dDieInchesRequired = formule.formule[12] * ttLayoutSize.iBlankNumUp  .
 END.
-
-ASSIGN 
-    ttLayoutSize.iBlankNumUp        = ttLayoutSize.iBlankNumOnWidth * ttLayoutSize.iBlankNumOnLength
-    ttLayoutSize.dDieInchesRequired = formule.formule[12] * ttLayoutSize.iBlankNumUp  .
 
 ASSIGN   
     ttLayoutSize.dNetSheetWidth  = dCalcTotalWidth + dTrimWidth
@@ -390,7 +440,6 @@ ASSIGN
     ttLayoutSize.dDieSizeWidth   = dCalcTotalWidth
     ttLayoutSize.dDieSizeLength  = dCalcTotalLength.
     
-
 IF ttLayoutSize.dLayoutSheetWidth LT ttLayoutSize.dNetSheetWidth THEN 
     ttLayoutSize.dLayoutSheetWidth = ttLayoutSize.dNetSheetWidth.
     

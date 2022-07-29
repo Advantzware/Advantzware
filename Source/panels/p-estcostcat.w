@@ -78,7 +78,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-update 
+&Scoped-Define ENABLED-OBJECTS btn-update btn-reset 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -95,17 +95,22 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-update 
      LABEL "Update" 
-     SIZE 10 BY 1.29.
+     SIZE 22 BY 1.29.
+     
+DEFINE BUTTON btn-reset 
+     LABEL "Reset to Defaults" 
+     SIZE 22 BY 1.29.     
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 120 BY 1.76.
+     SIZE 45 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
      btn-update AT ROW 1.24 COL 2
+     btn-reset AT ROW 1.24 COL 23.5
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -170,6 +175,10 @@ ASSIGN
 ASSIGN 
        btn-update:PRIVATE-DATA IN FRAME Panel-Frame     = 
                 "panel-image".
+                
+ASSIGN 
+       btn-reset:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".                
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
@@ -208,6 +217,29 @@ DO:
              with frame {&frame-name}.
     */
      run Update-Record in widget-handle(source-str). 
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btn-reset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-reset C-WIn
+ON CHOOSE OF btn-reset IN FRAME Panel-Frame /* Reset to Defaults */
+DO:
+  DO WITH FRAME Panel-Frame:
+     def var source-str as cha no-undo.
+          
+     RUN get-link-handle IN adm-broker-hdl 
+       (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
+  /*
+     enable btn-cancel with frame {&frame-name}.
+     btn-save:label = "&Save" .
+     disable btn-DELETE btn-view btn-item btn-print btn-quote btn-imp-price
+             with frame {&frame-name}.
+    */
+     RUN pResetRecord in widget-handle(source-str). 
   END.
 
 END.
@@ -438,8 +470,18 @@ PROCEDURE set-buttons :
         DO WITH FRAME {&FRAME-NAME}:
             IF NOT v-can-update THEN 
                 ASSIGN 
-                    btn-update:SENSITIVE                     = NO.
+                    btn-update:SENSITIVE                     = NO
+                    btn-reset:SENSITIVE                      = NO.
+                      
+            RUN get-link-handle IN adm-broker-hdl 
+                (THIS-PROCEDURE, 'ButtonEnable-Target':U, OUTPUT char-hdl).
             
+            IF valid-handle(widget-handle(char-hdl)) THEN
+            btn-reset:HIDDEN = NO.
+            ELSE 
+            ASSIGN btn-reset:HIDDEN = YES
+                   RECT-1:WIDTH = 24
+                   .
         
         END.
       

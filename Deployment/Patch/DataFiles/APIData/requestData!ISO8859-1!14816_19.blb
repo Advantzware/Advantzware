@@ -1,0 +1,15 @@
+{"Requester":"[STRING-REQ]",
+"Tags": [
+{"Company":"[STRING-REQ]",
+"PONo":[INTEGER-REQ],
+"POLine":[INTEGER-REQ],
+"PrimaryID":"[STRING-REQ]",
+"ItemType":"[STRING-OPT]",
+"Quantity":[INTEGER-OPT],
+"QuantityPerSubUnit":[INTEGER-OPT],
+"StockIDAlias":"[STRING-OPT]",
+"WarehouseID":"[STRING-OPT]",
+"LocationID":"[STRING-OPT]",
+"CreateReceipt":"[STRING-REQ]",
+"RequesterNotes":"[STRING-OPT]"
+}]}

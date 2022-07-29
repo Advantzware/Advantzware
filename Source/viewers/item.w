@@ -90,8 +90,8 @@ item.dept-name[6] item.dept-name[7] item.dept-name[8] item.dept-name[9] ~
 item.dept-name[10] item.box-case item.speed%[1] item.speed%[2] ~
 item.speed%[3] item.speed%[4] item.speed%[5] item.speed%[6] item.speed%[7] ~
 item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall item.stat ~
-item.sqin-lb item.ink-type item.flute item.press-type item.yield ~
-item.min-lbs item.linin-lb item.wastePercent
+item.wastePercent item.sqin-lb item.ink-type item.flute item.press-type ~
+item.linin-lb item.yield item.min-lbs item.itemNotes 
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-3 RECT-4 RECT-5 RECT-6 ~
@@ -105,9 +105,9 @@ item.dept-name[3] item.dept-name[4] item.dept-name[5] item.dept-name[6] ~
 item.dept-name[7] item.dept-name[8] item.dept-name[9] item.dept-name[10] ~
 item.box-case item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
 item.speed%[5] item.speed%[6] item.speed%[7] item.speed%[8] item.speed%[9] ~
-item.speed%[10] item.case-pall item.stat item.sqin-lb item.ink-type ~
-item.flute item.press-type item.yield item.min-lbs item.linin-lb ~
-item.wastePercent
+item.speed%[10] item.case-pall item.stat item.wastePercent item.sqin-lb ~
+item.ink-type item.flute item.press-type item.linin-lb item.yield ~
+item.min-lbs item.itemNotes 
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS fi_mat-type mat_dscr u-ptd costtype_descr ~
@@ -246,7 +246,7 @@ DEFINE RECTANGLE RECT-2
 
 DEFINE RECTANGLE RECT-3
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 34 BY 5.52.
+     SIZE 34 BY 3.33.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -491,6 +491,11 @@ DEFINE FRAME F-Main
           SIZE 27 BY .81
      fi_cas-pal-w AT ROW 14.1 COL 95 COLON-ALIGNED HELP
           "Enter weight of this RM in Lbs."
+     item.wastePercent AT ROW 14.71 COL 127 COLON-ALIGNED HELP
+          "This value will be used to calculate additional waste on top of the calculated required quantity in estimating.  This applies to material added as an additional miscellaneous material." WIDGET-ID 2
+          LABEL "Est. Waste %"
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
      item.sqin-lb AT ROW 15.05 COL 15 COLON-ALIGNED FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
@@ -517,6 +522,11 @@ DEFINE FRAME F-Main
 "Offset", "O":U,
 "Silkscreen", "S":U
           SIZE 76 BY .62
+     item.linin-lb AT ROW 16.24 COL 15 COLON-ALIGNED
+          LABEL "Lin In/UOM"
+          VIEW-AS FILL-IN 
+          SIZE 10.4 BY 1
+          BGCOLOR 15 FONT 4
      item.yield AT ROW 16.48 COL 43 COLON-ALIGNED
           LABEL "SI/Lb" FORMAT ">,>>>,>>9"
           VIEW-AS FILL-IN 
@@ -528,16 +538,9 @@ DEFINE FRAME F-Main
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
      fi_reg-no AT ROW 16.48 COL 95 COLON-ALIGNED
-     item.linin-lb AT ROW 17.24 COL 17 COLON-ALIGNED
-          LABEL "Lin In/UOM"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 FONT 4
-     item.wastePercent AT ROW 14.71 COL 127 COLON-ALIGNED HELP
-          "This value will be used to calculate additional waste on top of the calculated required quantity in estimating.  This applies to material added as an additional miscellaneous material." WIDGET-ID 2
-          LABEL "Est. Waste %"
-          VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1      
+     item.itemNotes AT ROW 17.70 COL 18 NO-LABEL
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 106 BY 2.33
      group1-text AT ROW 6.24 COL 2 COLON-ALIGNED NO-LABEL
      group4-text AT ROW 6.24 COL 81 COLON-ALIGNED NO-LABEL
      group3-text AT ROW 14.1 COL 1 COLON-ALIGNED NO-LABEL
@@ -550,6 +553,9 @@ DEFINE FRAME F-Main
           SIZE 20 BY .62 AT ROW 6.24 COL 116
      "Totals" VIEW-AS TEXT
           SIZE 9 BY .71 AT ROW 1 COL 117
+          FONT 6
+     "Item Notes:" VIEW-AS TEXT
+          SIZE 14 BY .71 AT ROW 17.76 COL 3
           FONT 6
      RECT-1 AT ROW 6.48 COL 1
      RECT-2 AT ROW 14.33 COL 29
@@ -598,8 +604,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 16.67
-         WIDTH              = 139.
+         HEIGHT             = 23.75
+         WIDTH              = 140.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME

@@ -251,7 +251,7 @@ DEFINE BROWSE br_table
             WIDTH 7 LABEL-BGCOLOR 14
       reftable.val[2] COLUMN-LABEL "Blank#" FORMAT ">>>>>>>>>>":U
             WIDTH 7 LABEL-BGCOLOR 14
-      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
+      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(30)":U
             WIDTH 20 LABEL-BGCOLOR 14
       display-bl-qty () @ eb.bl-qty
       eb.bl-qty COLUMN-LABEL "Request Qty" FORMAT "->>>,>>>,>>>":U

@@ -1024,7 +1024,7 @@ display "" with frame r-top.
                    '"' item.procat                             '",'
                    '"' mat-act.mat-date                        '",'
                    '"' work-dly.job-no + "-" +
-                       STRING(work-dly.job-no2,"99")           '",'
+                       STRING(work-dly.job-no2,">99")           '",'
                    '"' mat-act.s-num                           '",'
                    '"' mat-act.b-num                           '",'
                    '"' mat-act.i-no                            '",'
@@ -1073,7 +1073,7 @@ display "" with frame r-top.
                    '"' "HRS"                             '",'
                    '"' mch-act.op-date                   '",'
                    '"' work-dly.job-no + "-" +
-                       STRING(work-dly.job-no2,"99")     '",'
+                       STRING(work-dly.job-no2,">99")     '",'
                    '"' mch-act.frm                       '",'
                    '"' mch-act.blank-no                  '",'
                    '"' ""                                '",'
@@ -1116,7 +1116,7 @@ display "" with frame r-top.
                    '"' "F.G."                            '",'
                    '"' fg-act.fg-date                    '",'
                    '"' work-dly.job-no + "-" +
-                       STRING(work-dly.job-no2,"99")     '",'
+                       STRING(work-dly.job-no2,">99")     '",'
                    '"' fg-act.s-num                      '",'
                    '"' fg-act.b-num                      '",'
                    '"' fg-act.i-no                       '",'
@@ -1153,7 +1153,7 @@ display "" with frame r-top.
                       '"' "MSC-M"                             '",'
                       '"' misc-act.misc-date                  '",'
                       '"' work-dly.job-no + "-" +
-                          STRING(work-dly.job-no2,"99")       '",'
+                          STRING(work-dly.job-no2,">99")       '",'
                       '"' misc-act.frm                        '",'
                       '"' misc-act.blank-no                   '",'
                       '"' misc-act.i-no                       '",'
@@ -1184,7 +1184,7 @@ display "" with frame r-top.
                       '"' "MSC-H"                             '",'
                       '"' misc-act.misc-date                  '",'
                       '"' misc-act.job-no + "-" +
-                          STRING(misc-act.job-no2,"99")       '",'
+                          STRING(misc-act.job-no2,">99")       '",'
                       '"' misc-act.frm                        '",'
                       '"' misc-act.blank-no                   '",'
                       '"' ""                                  '",'
@@ -1215,8 +1215,7 @@ display "" with frame r-top.
              "OTHER MATERIAL TOTALS: " at 56 v-oth-job skip(2).
 
           IF tb_excel THEN
-             RUN excel-job-totals-proc(INPUT "JOB TOTALS - " + work-dly.job-no +
-                                       "-" + STRING(work-dly.job-no2,"99"),
+             RUN excel-job-totals-proc(INPUT "JOB TOTALS - " + DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",work-dly.job-no,work-dly.job-no2),
                                        INPUT v-brd-job, INPUT v-mch-job,
                                        INPUT v-wst-job, INPUT v-hrs-job,
                                        INPUT v-fg-job, INPUT v-oth-job).

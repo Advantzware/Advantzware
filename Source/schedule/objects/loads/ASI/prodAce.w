@@ -105,8 +105,7 @@ selectedShift selectedStartDate btnCalendar-1 selectedStartDateOption ~
 selectedEndDate btnCalendar-2 selectedEndDateOption selectedStartDueDate ~
 btnCalendar-3 selectedStartDueDateOption selectedEndDueDate btnCalendar-4 ~
 selectedEndDueDateOption svAllJobNo svStartJobNo svStartJobNo2 svEndJobNo ~
-svEndJobNo2 lvProdAceDir lvImportDir lvProdAceType lvProdAceBlankEmployee ~
-lvResourceList 
+svEndJobNo2 lvProdAceDir lvImportDir lvProdAceBlankEmployee lvResourceList 
 &Scoped-Define DISPLAYED-OBJECTS setAllResources selectedShift ~
 selectedStartDate selectedStartDateOption selectedEndDate ~
 selectedEndDateOption selectedStartDueDate selectedStartDueDateOption ~
@@ -406,15 +405,14 @@ DEFINE FRAME DEFAULT-FRAME
      lvResourceList AT ROW 21.48 COL 21 COLON-ALIGNED
      "Type:" VIEW-AS TEXT
           SIZE 6 BY .81 AT ROW 17.91 COL 16
-     " Export" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 7.91 COL 4 WIDGET-ID 40
-          FONT 6
      "Select Shift to Post ... Enter Date Range" VIEW-AS TEXT
           SIZE 49 BY .62 AT ROW 2.19 COL 3
           FONT 6
      " Import" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.24 COL 4 WIDGET-ID 36
           FONT 6
+     "Employee Login:" VIEW-AS TEXT
+          SIZE 16 BY .81 AT ROW 19.1 COL 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -422,13 +420,14 @@ DEFINE FRAME DEFAULT-FRAME
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
-     "Employee Login:" VIEW-AS TEXT
-          SIZE 16 BY .81 AT ROW 19.1 COL 6
      " Configuration" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 14.57 COL 4 WIDGET-ID 38
           FONT 6
      " Select to Set Current (1st) Job Per Resource" VIEW-AS TEXT
           SIZE 52 BY .62 AT ROW 1.24 COL 85 WIDGET-ID 190
+          FONT 6
+     " Export" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 7.91 COL 4 WIDGET-ID 40
           FONT 6
      RECT-1 AT ROW 14.81 COL 2
      RECT-2 AT ROW 8.14 COL 2 WIDGET-ID 2
@@ -513,7 +512,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN lvProdAceDir IN FRAME DEFAULT-FRAME
    1                                                                    */
 /* SETTINGS FOR RADIO-SET lvProdAceType IN FRAME DEFAULT-FRAME
-   1                                                                    */
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN lvResourceList IN FRAME DEFAULT-FRAME
    1                                                                    */
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
@@ -1182,7 +1181,7 @@ PROCEDURE enable_UI :
          selectedStartDueDate btnCalendar-3 selectedStartDueDateOption 
          selectedEndDueDate btnCalendar-4 selectedEndDueDateOption svAllJobNo 
          svStartJobNo svStartJobNo2 svEndJobNo svEndJobNo2 lvProdAceDir 
-         lvImportDir lvProdAceType lvProdAceBlankEmployee lvResourceList 
+         lvImportDir lvProdAceBlankEmployee lvResourceList 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

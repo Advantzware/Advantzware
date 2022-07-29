@@ -16,8 +16,7 @@ FOR EACH company NO-LOCK,
     DISPLAY "Processing Company/Machine/Job#: " +
             TRIM(job-mch.company) + "/"         +
             TRIM(job-mch.m-code)  + "/"         +
-            TRIM(job-mch.job-no)  + "-"         +
-            TRIM(STRING(job-mch.job-no2,"99")) FORMAT "x(70)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-mch.job-no, job-mch.job-no2))) FORMAT "x(70)"
         WITH FRAME f1 1 DOWN.
 
     IF job-mch.run-rate  EQ 0 AND
@@ -41,8 +40,7 @@ FOR EACH company NO-LOCK,
     DISPLAY "Processing Company/Machine/Job#: " +
             TRIM(mch-act.company) + "/"         +
             TRIM(mch-act.m-code)  + "/"         +
-            TRIM(mch-act.job-no)  + "-"         +
-            TRIM(STRING(mch-act.job-no2,"99")) FORMAT "x(70)"
+            TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', mch-act.job-no, mch-act.job-no2))) FORMAT "x(70)"
         WITH FRAME f2 1 DOWN.
 
     IF mch-act.crew EQ 0 OR mch-act.crew GT EXTENT(mch-act.crew) THEN
