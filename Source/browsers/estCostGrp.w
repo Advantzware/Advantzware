@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany AS CHARACTER      NO-UNDO.
-
+RUN spGetSessionParam ("Company" ,OUTPUT cCompany).
 
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
@@ -326,6 +326,25 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Add-Record B-table-Win
+PROCEDURE Add-Record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    
+    RUN est/destcostgrp.w ("Add", INPUT ttEstCostGroup.estCostGroupID).
+        
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
@@ -347,6 +366,60 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Delete-Record B-table-Win
+PROCEDURE Delete-Record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-estCostGroup       FOR estCostGroup. 
+    DEFINE BUFFER bf-estCostGroupSystem FOR estCostGroupSystem.
+    
+    IF NOT AVAILABLE ttEstCostGroup THEN
+        RETURN.
+        
+    FIND FIRST bf-estCostGroupSystem NO-LOCK
+         WHERE bf-estCostGroupSystem.estCostGroupID EQ ttEstCostGroup.estCostGroupID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-estCostGroupSystem THEN DO:
+        {custom/askdel.i}.
+        
+        FIND FIRST bf-estCostGroup EXCLUSIVE-LOCK
+             WHERE bf-estCostGroup.company        EQ ttEstCostGroup.company 
+               AND bf-estCostGroup.estCostGroupID EQ ttEstCostGroup.estCostGroupID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostGroup THEN
+            DELETE bf-estCostGroup.
+    END.
+    ELSE DO:
+        FIND FIRST bf-estCostGroup NO-LOCK
+             WHERE bf-estCostGroup.company        EQ ttEstCostGroup.company 
+               AND bf-estCostGroup.estCostGroupID EQ ttEstCostGroup.estCostGroupID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostGroup THEN DO:
+            MESSAGE "Do you want to reset the Group to system default?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+            IF lChoice THEN DO:
+                FIND CURRENT bf-estCostGroup EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE bf-estCostGroup THEN
+                    DELETE bf-estCostGroup.
+            END.                
+        END.    
+        ELSE DO:
+            MESSAGE "Cannot delete system record"
+            VIEW-AS ALERT-BOX ERROR.
+        END.
+    END.
+    
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'OPEN-QUERY':U ) .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableBrowse B-table-Win 
 PROCEDURE DisableBrowse :
@@ -380,6 +453,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAdd B-table-Win
+PROCEDURE EnableAdd:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableAdd AS LOGICAL NO-UNDO.
+    
+    oplEnableAdd = TRUE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableBrowse B-table-Win 
 PROCEDURE EnableBrowse :
 /*------------------------------------------------------------------------------
@@ -393,6 +483,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableDelete B-table-Win
+PROCEDURE EnableDelete:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableDelete AS LOGICAL NO-UNDO.
+    
+    oplEnableDelete = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableRestore B-table-Win
+PROCEDURE EnableRestore:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableRestore AS LOGICAL NO-UNDO.
+    
+    oplEnableRestore = FALSE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableUpdate B-table-Win
+PROCEDURE EnableUpdate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableUpdate AS LOGICAL NO-UNDO.
+    
+    oplEnableUpdate = TRUE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
 PROCEDURE local-destroy :
@@ -487,7 +629,8 @@ PROCEDURE pInit :
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
       
-    RUN Estimate_GetSystemDataForEstimate(INPUT "",
+    RUN Estimate_GetSystemDataForEstimate(
+        INPUT  cCompany,
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
         OUTPUT TABLE ttEstCostGroupLevel). 
@@ -574,7 +717,7 @@ PROCEDURE Update-Record :
     DEFINE VARIABLE cCharHdl AS CHARACTER NO-UNDO.
     
     IF ttEstCostGroup.estCostGroupID NE "" THEN 
-        RUN est/destcostgrp.w (INPUT ttEstCostGroup.estCostGroupID).
+        RUN est/destcostgrp.w ("Update", INPUT ttEstCostGroup.estCostGroupID).
         
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 END PROCEDURE.

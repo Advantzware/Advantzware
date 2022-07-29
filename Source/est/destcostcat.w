@@ -24,6 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT  PARAMETER ipcAction            AS CHARACTER NO-UNDO. /* View, Add, Update */
 DEFINE INPUT  PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
 
 
@@ -31,6 +32,10 @@ DEFINE INPUT  PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
 {methods/defines/hndldefs.i}
 {methods/defines/globdefs.i}
 {est/ttEstSysConfig.i}
+
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -49,10 +54,10 @@ DEFINE INPUT  PARAMETER ipcEstCostCategoryID AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fil-estCostCategoryLabel ~
-fil-estCostCategoryDesc lst-Group tg-includeInBoardCost ~
-tg-IncludeInFactoryCost tg-IncludeInMaterialCost tg-IncludeInLaborCost ~
-tg-IncludeInNonFactoryCost tg-IncludeInNetProfit ~
+&Scoped-Define ENABLED-OBJECTS fil-EstCostCategoryID ~
+fil-estCostCategoryLabel fil-estCostCategoryDesc lst-Group ~
+tg-includeInBoardCost tg-IncludeInFactoryCost tg-IncludeInMaterialCost ~
+tg-IncludeInLaborCost tg-IncludeInNonFactoryCost tg-IncludeInNetProfit ~
 tg-IncludeInVariableOverheadCost tg-IncludeInFixedOverheadCost btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS fil-EstCostCategoryID ~
 fil-estCostCategoryLabel fil-estCostCategoryDesc lst-Group fil-grouplevel ~
@@ -113,27 +118,27 @@ DEFINE VARIABLE tg-IncludeInFactoryCost LIKE estCostCategory.includeInFactoryCos
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInFixedOverheadCost LIKE estCostCategory.IncludeInFixedOverheadCost
+DEFINE VARIABLE tg-IncludeInFixedOverheadCost LIKE estCostCategory.includeInFactoryCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInLaborCost LIKE estCostCategory.includeInLaborCost
+DEFINE VARIABLE tg-IncludeInLaborCost LIKE estCostCategory.includeInFactoryCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInMaterialCost LIKE estCostCategory.includeInMaterialCost
+DEFINE VARIABLE tg-IncludeInMaterialCost LIKE estCostCategory.includeInFactoryCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInNetProfit LIKE estCostCategory.includeInNetProfit
+DEFINE VARIABLE tg-IncludeInNetProfit LIKE estCostCategory.includeInFactoryCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInNonFactoryCost LIKE estCostCategory.includeInNonFactoryCost
+DEFINE VARIABLE tg-IncludeInNonFactoryCost LIKE estCostCategory.includeInFactoryCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInVariableOverheadCost LIKE estCostCategory.includeInVariableOverheadCost
+DEFINE VARIABLE tg-IncludeInVariableOverheadCost LIKE estCostCategory.includeInFactoryCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
@@ -208,8 +213,6 @@ ASSIGN
        FRAME D-Dialog:HIDDEN           = TRUE.
 
 /* SETTINGS FOR BUTTON btnSave IN FRAME D-Dialog
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fil-EstCostCategoryID IN FRAME D-Dialog
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fil-estCostCategoryLabel IN FRAME D-Dialog
    1 LIKE = ASI.estCostCategory.costCategoryLabel EXP-FORMAT            */
@@ -361,7 +364,7 @@ END.
 
 &Scoped-define SELF-NAME tg-IncludeInFixedOverheadCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg-IncludeInFixedOverheadCost D-Dialog
-ON VALUE-CHANGED OF tg-IncludeInFixedOverheadCost IN FRAME D-Dialog /* In Factory Cost */
+ON VALUE-CHANGED OF tg-IncludeInFixedOverheadCost IN FRAME D-Dialog /* In FO Cost */
 DO:
   RUN pTrackChngs.
 END.
@@ -372,7 +375,7 @@ END.
 
 &Scoped-define SELF-NAME tg-IncludeInLaborCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg-IncludeInLaborCost D-Dialog
-ON VALUE-CHANGED OF tg-IncludeInLaborCost IN FRAME D-Dialog /* In Factory Cost */
+ON VALUE-CHANGED OF tg-IncludeInLaborCost IN FRAME D-Dialog /* In Labor Cost */
 DO:
   RUN pTrackChngs.
 END.
@@ -383,7 +386,7 @@ END.
 
 &Scoped-define SELF-NAME tg-IncludeInMaterialCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg-IncludeInMaterialCost D-Dialog
-ON VALUE-CHANGED OF tg-IncludeInMaterialCost IN FRAME D-Dialog /* In Factory Cost */
+ON VALUE-CHANGED OF tg-IncludeInMaterialCost IN FRAME D-Dialog /* In Material Cost */
 DO:
   RUN pTrackChngs.
 END.
@@ -394,7 +397,7 @@ END.
 
 &Scoped-define SELF-NAME tg-IncludeInNetProfit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg-IncludeInNetProfit D-Dialog
-ON VALUE-CHANGED OF tg-IncludeInNetProfit IN FRAME D-Dialog /* In Factory Cost */
+ON VALUE-CHANGED OF tg-IncludeInNetProfit IN FRAME D-Dialog /* In Profit */
 DO:
   RUN pTrackChngs.
 END.
@@ -405,7 +408,7 @@ END.
 
 &Scoped-define SELF-NAME tg-IncludeInNonFactoryCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg-IncludeInNonFactoryCost D-Dialog
-ON VALUE-CHANGED OF tg-IncludeInNonFactoryCost IN FRAME D-Dialog /* In Factory Cost */
+ON VALUE-CHANGED OF tg-IncludeInNonFactoryCost IN FRAME D-Dialog /* In Non Factory Cost */
 DO:
   RUN pTrackChngs.
 END.
@@ -416,7 +419,7 @@ END.
 
 &Scoped-define SELF-NAME tg-IncludeInVariableOverheadCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tg-IncludeInVariableOverheadCost D-Dialog
-ON VALUE-CHANGED OF tg-IncludeInVariableOverheadCost IN FRAME D-Dialog /* In Factory Cost */
+ON VALUE-CHANGED OF tg-IncludeInVariableOverheadCost IN FRAME D-Dialog /* In VO Cost */
 DO:
   RUN pTrackChngs.
 END.
@@ -526,9 +529,10 @@ PROCEDURE enable_UI :
           tg-IncludeInNonFactoryCost tg-IncludeInNetProfit 
           tg-IncludeInVariableOverheadCost tg-IncludeInFixedOverheadCost 
       WITH FRAME D-Dialog.
-  ENABLE fil-estCostCategoryLabel fil-estCostCategoryDesc lst-Group 
-         tg-includeInBoardCost tg-IncludeInFactoryCost tg-IncludeInMaterialCost 
-         tg-IncludeInLaborCost tg-IncludeInNonFactoryCost tg-IncludeInNetProfit 
+  ENABLE fil-EstCostCategoryID fil-estCostCategoryLabel fil-estCostCategoryDesc 
+         lst-Group tg-includeInBoardCost tg-IncludeInFactoryCost 
+         tg-IncludeInMaterialCost tg-IncludeInLaborCost 
+         tg-IncludeInNonFactoryCost tg-IncludeInNetProfit 
          tg-IncludeInVariableOverheadCost tg-IncludeInFixedOverheadCost 
          btnCancel 
       WITH FRAME D-Dialog.
@@ -567,16 +571,22 @@ PROCEDURE pDisplayRecord PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    FIND FIRST ttEstCostCategory NO-lOCK
-        WHERE ttEstCostCategory.estCostCategoryID = ipcEstCatId NO-ERROR.
+    IF ipcAction EQ "Update" THEN DO:
+        FIND FIRST ttEstCostCategory NO-lOCK
+            WHERE ttEstCostCategory.estCostCategoryID = ipcEstCatId NO-ERROR.
+            
+        IF NOT AVAILABLE ttEstCostCategory THEN
+        DO:
+            MESSAGE "Invalid EstCostCategoryID: " ipcEstCatId
+            VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
         
-    IF NOT AVAILABLE ttEstCostCategory THEN
-    DO:
-        MESSAGE "Invalid EstCostCategoryID: " ipcEstCatId
-        VIEW-AS ALERT-BOX.
-        RETURN.
+        fil-EstCostCategoryID:SENSITIVE = FALSE.
     END.
-    
+    ELSE IF ipcAction EQ "Add" THEN
+        CREATE ttEstCostCategory.
+        
     ASSIGN
         fil-EstCostCategoryID:SCREEN-VALUE       = ttEstCostCategory.estCostCategoryID
         fil-estCostCategoryDesc:SCREEN-VALUE     = ttEstCostCategory.estCostCategoryDesc
@@ -589,6 +599,7 @@ PROCEDURE pDisplayRecord PRIVATE :
         tg-includeInVariableOverheadCost:Checked = ttEstCostCategory.includeInVariableOverheadCost
         tg-includeInFixedOverheadCost:Checked    = ttEstCostCategory.includeInFixedOverheadCost
         lst-group:SCREEN-VALUE                   = ttEstCostCategory.estCostGroupID
+        
         .
        FOR FIRST ttEstCostGroup NO-lOCK
            WHERE ttEstCostGroup.estCostGroupID = ttEstCostCategory.estCostGroupID,
@@ -616,15 +627,45 @@ PROCEDURE pSaveRecord PRIVATE:
        
     DO WITH FRAME {&frame-name}:
     END.
-    
-    FIND FIRST ttEstCostCategory NO-lOCK
-        WHERE ttEstCostCategory.estCostCategoryID = fil-EstCostCategoryID:SCREEN-VALUE NO-ERROR.
-        
-    IF NOT AVAILABLE ttEstCostCategory THEN
-    DO:
-        MESSAGE "Invalid EstCostCategoryID: " fil-EstCostCategoryID:SCREEN-VALUE
-        VIEW-AS ALERT-BOX.
+
+    IF lst-group:SCREEN-VALUE EQ ? OR lst-group:SCREEN-VALUE EQ "" THEN DO:
+        MESSAGE "Group cannot be empty"
+        VIEW-AS ALERT-BOX ERROR.
         RETURN.
+    END.
+        
+    IF ipcAction EQ "Update" THEN DO:
+        FIND FIRST ttEstCostCategory NO-lOCK
+            WHERE ttEstCostCategory.estCostCategoryID = fil-EstCostCategoryID:SCREEN-VALUE NO-ERROR.
+            
+        IF NOT AVAILABLE ttEstCostCategory THEN
+        DO:
+            MESSAGE "Invalid EstCostCategoryID: " fil-EstCostCategoryID:SCREEN-VALUE
+            VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+    END.
+    ELSE IF ipcAction EQ "Add" THEN DO:   
+        FIND FIRST bf-EstCostCategory NO-LOCK
+             WHERE bf-EstCostCategory.company           EQ cCompany
+               AND bf-EstCostCategory.estCostCategoryID EQ fil-EstCostCategoryID:SCREEN-VALUE 
+             NO-ERROR.
+        IF AVAILABLE bf-EstCostCategory THEN DO:
+            MESSAGE "Category '" + fil-EstCostCategoryID:SCREEN-VALUE + "' already exists. Please enter a different name"
+            VIEW-AS ALERT-BOX ERROR.
+            
+            RETURN.
+        END.
+
+        FIND FIRST bf-EstCostCategorySystem NO-LOCK
+             WHERE bf-EstCostCategorySystem.estCostCategoryID EQ fil-EstCostCategoryID:SCREEN-VALUE 
+             NO-ERROR.
+        IF AVAILABLE bf-EstCostCategorySystem THEN DO:
+            MESSAGE "Category '" + fil-EstCostCategoryID:SCREEN-VALUE + "' already exists. Do you want to overwrite the existing category?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+            IF NOT lChoice THEN 
+                RETURN.
+        END.
     END.
     
     DO TRANSACTION:
@@ -636,7 +677,9 @@ PROCEDURE pSaveRecord PRIVATE:
         DO:
             CREATE bf-EstCostCategory.
             ASSIGN
-                bf-EstCostCategory.estCostCategoryID = fil-EstCostCategoryID:SCREEN-VALUE. 
+                bf-EstCostCategory.estCostCategoryID = fil-EstCostCategoryID:SCREEN-VALUE
+                bf-EstCostCategory.company           = cCompany 
+                . 
         END.
            
         ASSIGN
