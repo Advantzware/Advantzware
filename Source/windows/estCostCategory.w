@@ -576,8 +576,11 @@ PROCEDURE pReOpenQuery :
      Notes:
     ------------------------------------------------------------------------------*/
      
-     RUN dispatch IN h_b-estgrp ( INPUT 'open-query':U ) .
-     RUN local-open-query IN h_b-estgrplvl.
+     IF VALID-HANDLE (h_b-estgrp) THEN
+        RUN dispatch IN h_b-estgrp ( INPUT 'open-query':U ) .
+    
+     IF VALID-HANDLE (h_b-estgrplvl) THEN
+        RUN local-open-query IN h_b-estgrplvl.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
