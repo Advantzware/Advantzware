@@ -118,27 +118,27 @@ DEFINE VARIABLE tg-IncludeInFactoryCost LIKE estCostCategory.includeInFactoryCos
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInFixedOverheadCost LIKE estCostCategory.includeInFactoryCost
+DEFINE VARIABLE tg-IncludeInFixedOverheadCost LIKE estCostCategory.includeInFixedOverheadCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInLaborCost LIKE estCostCategory.includeInFactoryCost
+DEFINE VARIABLE tg-IncludeInLaborCost LIKE estCostCategory.includeInLaborCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInMaterialCost LIKE estCostCategory.includeInFactoryCost
+DEFINE VARIABLE tg-IncludeInMaterialCost LIKE estCostCategory.includeInMaterialCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInNetProfit LIKE estCostCategory.includeInFactoryCost
+DEFINE VARIABLE tg-IncludeInNetProfit LIKE estCostCategory.includeInNetProfit
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInNonFactoryCost LIKE estCostCategory.includeInFactoryCost
+DEFINE VARIABLE tg-IncludeInNonFactoryCost LIKE estCostCategory.includeInNonFactoryCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tg-IncludeInVariableOverheadCost LIKE estCostCategory.includeInFactoryCost
+DEFINE VARIABLE tg-IncludeInVariableOverheadCost LIKE estCostCategory.includeInVariableOverheadCost
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
