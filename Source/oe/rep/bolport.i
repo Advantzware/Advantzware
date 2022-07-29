@@ -428,9 +428,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
   PUT "<FArial>"
       "<R48><C3><#9><FROM><R+3><C+25><RECT> "
       "<=9> ESTRADOS:"
-      "<=9><R+1> ConteÃºdo declarado:"
+      "<=9><R+1> Conteúdo declarado:"
       "<=9><R+2> LB:"  "<C30><B>NÂ° do item NMFC  29250 - CLASS 125</B>" 
-      " <R51><C2><P12><B>     InstruÃ§Ãµes de envio: <P10> "
+      " <R51><C2><P12><B>     Instruções de envio: <P10> "
       "<R52.5><C3.5>" oe-bolh.ship-i[1] 
       "<R53.5><C3.5>" oe-bolh.ship-i[2] 
       "<R54.5><C3.5>" oe-bolh.ship-i[3] 
@@ -449,7 +449,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
   /* rstark 05181205 */
   
   /* Separator Lines and Title for conditions section */
-  PUT "<R56.6><C10><P10>TODAS AS RECLAMAÃ‡Ã•ES RELATIVAS AO ENVIO DEVEM SER FEITAS DENTRO DE 10 DIAS</B>"
+  PUT "<R56.6><C10><P10>TODAS AS RECLAMAÇÕES RELATIVAS AO ENVIO DEVEM SER FEITAS DENTRO DE 10 DIAS</B>"
       "<SAVE=LPI><ADJUST=LPI><P7>" 
       "<R58><C26><From><R67><C26><LINE><||3>"
       "<R58><C50><From><R67><C50><LINE><||3>"
@@ -457,30 +457,30 @@ for each xxreport where xxreport.term-id eq v-term-id,
   
   /* Text for left side block of conditions section */
   PUT
-      "<R58.0><C3><P7>Sujeito Ã  SeÃ§Ã£o 7 das CondiÃ§Ãµes do"
-      "<R58.6><C3>conhecimento de embarque aplicÃ¡vel, esta" 
-      "<R59.2><C3>remessa deve ser entregue ao destinatÃ¡rio sem"
+      "<R58.0><C3><P7>Sujeito ã Seção 7 das Condições do"
+      "<R58.6><C3>conhecimento de embarque aplicãvel, esta" 
+      "<R59.2><C3>remessa deve ser entregue ao destinatãrio sem"
       "<R59.8><C3>recurso ao consignador. O consignador deve"
-      "<R60.4><C3>assinar a seguinte declaraÃ§Ã£o."
-      "<R61.0><C3>O transportador nÃ£o farÃ¡ a entrega desta"
-      "<R61.6><C3>declaraÃ§Ã£o sem o pagamento do frete e demais"
+      "<R60.4><C3>assinar a seguinte declaração."
+      "<R61.0><C3>O transportador não farã a entrega desta"
+      "<R61.6><C3>declaração sem o pagamento do frete e demais"
       "<R62.2><C3>encargos legais."
       "<R65.2><C3><From><C25><LINE><||3>"
       "<R65.8><C9>(Assinatura do consignador)"
       .
   /* Text for middle block of conditions section */
   PUT
-      "<R58.0><C27><P7>Se os encargos forem prÃ©-pagos,escreva ou"
-      '<R58.6><C27>carimbe aqui "A ser prÃ©-pago".'
+      "<R58.0><C27><P7>Se os encargos forem pré-pagos,escreva ou"
+      '<R58.6><C27>carimbe aqui "A ser pré-pago".'
       "<R59.78><C27><From><C48><LINE><||3>"
-      "<R59.8><C27>Recebe US$"
+      "<R59.8><C27>Recebie US$"
       "<R60.98><C27><From><C48><LINE><||3>"
-      "<R61.0><C27>para aplicar ao prÃ©-pagamento dos encargos sobre"
+      "<R61.0><C27>para aplicar ao pré-pagamento dos encargos sobre"
       "<R61.6><C27>o bem aqui descrito."
       "<R62.78><C27><From><C48><LINE><||3>"
       "<R62.8><C32>Agente ou caixa"
       "<R63.4><C27>Por"
-      "<R64.0><C27><P5>(A assinatura aqui reconhece apenas o valor proposto.)"
+      "<R64.0><C27><P5>(A assinatura ãqui reconhece apenas o valor proposto.)"
       "<R64.6><C27><P7>Encargoes"
       "<R65.2><C27>adiantamento:"
       "<R65.8><C27>US$ ______________________________________"
@@ -490,13 +490,13 @@ for each xxreport where xxreport.term-id eq v-term-id,
   PUT
       "<R58.0><C51><P7>Se a carga transitar entre dois portos por um"
       "<R58.6><C51>transportador por via marÃ­tima, a lei exige que o" 
-      "<R59.2><C51>conhecimento de embarque indique se Ã© peso do"
+      "<R59.2><C51>conhecimento de embarque indique se é peso do"
       "<R59.8><C51>transportador ou do expedidor."
       "<R60.4><C51>NOTA: quando a tarifa depende do valor, os"
-      "<R61.0><C51>expedidores sÃ£o obrigados a indicar especificamente"
+      "<R61.0><C51>expédidores são obrigados a indicar especificamente"
       "<R61.6><C51>por escrito o valor acordado ou declarado do bem. O"
-      "<R62.2><C51>valor acordado ou declarado do bem Ã©"
-      "<R62.8><C51>especificamente declarado pelo expedidor como nÃ£o"
+      "<R62.2><C51>valor acordado ou declarado do bem é"
+      "<R62.8><C51>especificamente declarado pelo expedidor como não"
       "<R63.4><C51>excedendo."
       "<R64.6><C51><P7>EXPEDIDOR POR: ________________________"
       "<R65.2><C51>AGENTE: ___________________________________"
