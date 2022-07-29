@@ -438,11 +438,15 @@ PROCEDURE GetFreightForEstimate:
     DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdFreightTotal AS DECIMAL NO-UNDO.
 
-    DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError                    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dFreightCostTotalInternal AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dFreightCostTotalExternal AS DECIMAL   NO-UNDO.
     
     RUN pGetFreightForEstReleases(ipcCompany, ipcEstimateNo, ipdQuantity, giAllFormsIndicator, giAllBlanksIndicator, 
         OUTPUT opdFreightTotal,
+        OUTPUT dFreightCostTotalInternal,
+        OUTPUT dFreightCostTotalExternal,
         OUTPUT lError, OUTPUT cMessage ).
 
 END PROCEDURE.
@@ -452,12 +456,14 @@ PROCEDURE GetFreightForEstimateBlank:
      Purpose: Given a rowid for estBlank (eb) quantity return the freight cost
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdFreightTotal AS DECIMAL NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany                  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateNo               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity                 AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo                   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo                  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightTotal             AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightCostTotalInternal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightCostTotalExternal AS DECIMAL   NO-UNDO.
 
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
@@ -465,6 +471,8 @@ PROCEDURE GetFreightForEstimateBlank:
     
     RUN pGetFreightForEstReleases(ipcCompany, ipcEstimateNo, ipdQuantity, ipiFormNo, ipiBlankNo, 
         OUTPUT opdFreightTotal,
+        OUTPUT opdFreightCostTotalInternal,
+        OUTPUT opdFreightCostTotalExternal,
         OUTPUT lError, OUTPUT cMessage ).
 
 END PROCEDURE.
@@ -1030,17 +1038,20 @@ PROCEDURE pGetFreightForEstReleases PRIVATE:
     costs
     Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipdQuantity AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdFreightCostTotal AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCompany                  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateNo               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdQuantity                 AS DECIMAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo                   AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo                  AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightCostTotal         AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightCostTotalInternal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdFreightCostTotalExternal AS DECIMAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError                    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage                  AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-estRelease FOR estRelease.
-        
+    DEFINE BUFFER bf-cust       FOR cust.
+            
     DEFINE VARIABLE dQuantityEffective       AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dFreightEach             AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityReleaseProRated AS DECIMAL NO-UNDO.
@@ -1057,16 +1068,33 @@ PROCEDURE pGetFreightForEstReleases PRIVATE:
             
         IF NOT oplError THEN 
         DO:
-            IF ipdQuantity EQ dQuantityEffective THEN 
+            FIND FIRST bf-cust NO-LOCK
+                 WHERE bf-cust.company EQ bf-estRelease.company
+                   AND bf-cust.cust-no EQ bf-estRelease.customerID
+                 NO-ERROR.
+                 
+            IF ipdQuantity EQ dQuantityEffective THEN DO: 
                 ASSIGN 
                     opdFreightCostTotal = opdFreightCostTotal + bf-estRelease.freightCost
                     .
-            ELSE /*Prorate the Freight based on the relative release to master quantity*/
+                
+                IF AVAILABLE bf-cust AND bf-cust.internal THEN
+                    opdFreightCostTotalInternal = opdFreightCostTotalInternal + bf-estRelease.freightCost.
+                ELSE
+                    opdFreightCostTotalExternal = opdFreightCostTotalExternal + bf-estRelease.freightCost.
+            END.
+            ELSE DO: /*Prorate the Freight based on the relative release to master quantity*/
                 ASSIGN 
                     dFreightEach             = bf-estRelease.freightCost / bf-estRelease.quantityRelease
                     dQuantityReleaseProRated = ipdQuantity * bf-estRelease.quantityRelease / bf-estRelease.quantity
                     opdFreightCostTotal      = opdFreightCostTotal + dFreightEach * dQuantityReleaseProRated
-                    . 
+                    .
+
+                IF AVAILABLE bf-cust AND bf-cust.internal THEN
+                    opdFreightCostTotalInternal = opdFreightCostTotalInternal + dFreightEach * dQuantityReleaseProRated.
+                ELSE
+                    opdFreightCostTotalExternal = opdFreightCostTotalExternal + dFreightEach * dQuantityReleaseProRated.
+            END. 
         END. /*No error*/
     END. /*Each estRelease for blank*/
     
