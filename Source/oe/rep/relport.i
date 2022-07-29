@@ -805,7 +805,7 @@ IF v-ship-i[1] NE "" OR
 PUT "<R56><C1>"
     "<R57><C1><FROM><C80><LINE>" SKIP
     "<|10><C1><R58><#8><FROM><C80><R60><RECT> " 
-    "<FArial><P9><=8>   Paletes                                Preparado por                               Enviado por                            N° do reboque                                  N° da doca" SKIP
+    "<FArial><P9><=8>   Paletes                                Preparado por                               Enviado por                         N° do reboque                           N° da doca" SKIP
     "<R58><C16><FROM><R60><C16><Line>" 
     "<R58><C32><FROM><R60><C32><Line>" 
     "<R58><C48><FROM><R60><C48><Line>"

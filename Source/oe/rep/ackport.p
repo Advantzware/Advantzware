@@ -783,7 +783,7 @@ for each oe-ordl
 */      
       IF v-hide-price THEN
           v-totord = 0.
-      PUT "<FArial><R55><C1><#10><P12><B> comentários </B>   <P10><C60> Valor total do pedido:" v-totord "<P8>" 
+      PUT "<FArial><R55><C1><#10><P12><B> Comentários </B>   <P10><C60> Valor total do pedido:" v-totord "<P8>" 
         "<R56><C1>" v-billinst[1] 
         "<R57><C1>" v-billinst[2] 
         "<R58><C1>" v-billinst[3] 
