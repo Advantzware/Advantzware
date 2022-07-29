@@ -362,6 +362,7 @@ PROCEDURE Delete-Record:
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel. 
     DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
+    DEFINE BUFFER bf-estCostGroup            FOR estCostGroup.
     
     IF NOT AVAILABLE ttEstCostGroupLevel THEN
         RETURN.
@@ -370,8 +371,19 @@ PROCEDURE Delete-Record:
          WHERE bf-estCostGroupLevelSystem.estCostGroupLevelID EQ ttEstCostGroupLevel.estCostGroupLevelID
          NO-ERROR.
     IF NOT AVAILABLE bf-estCostGroupLevelSystem THEN DO:
-        {custom/askdel.i}.
+        FIND FIRST bf-estCostGroup NO-LOCK
+             WHERE bf-estCostGroup.company             EQ ttEstCostGroupLevel.company 
+               AND bf-estCostGroup.estCostGroupLevelID EQ ttEstCostGroupLevel.estCostGroupLevelID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostGroup THEN DO:
+            MESSAGE "Cost Group(s) exists for '" + STRING(ttEstCostGroupLevel.estCostGroupLevelID) + "'. Please delete all cost groups linked before deleting" 
+            VIEW-AS ALERT-BOX ERROR.
+            
+            RETURN.
+        END.
         
+        {custom/askdel.i}.
+
         FIND FIRST bf-estCostGroupLevel EXCLUSIVE-LOCK
              WHERE bf-estCostGroupLevel.company             EQ ttEstCostGroupLevel.company 
                AND bf-estCostGroupLevel.estCostGroupLevelID EQ ttEstCostGroupLevel.estCostGroupLevelID

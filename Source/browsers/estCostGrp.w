@@ -376,7 +376,8 @@ PROCEDURE Delete-Record:
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-estCostGroup       FOR estCostGroup. 
     DEFINE BUFFER bf-estCostGroupSystem FOR estCostGroupSystem.
-    
+    DEFINE BUFFER bf-estCostCategory    FOR estCostCategory.
+        
     IF NOT AVAILABLE ttEstCostGroup THEN
         RETURN.
         
@@ -384,6 +385,17 @@ PROCEDURE Delete-Record:
          WHERE bf-estCostGroupSystem.estCostGroupID EQ ttEstCostGroup.estCostGroupID
          NO-ERROR.
     IF NOT AVAILABLE bf-estCostGroupSystem THEN DO:
+        FIND FIRST bf-estCostCategory NO-LOCK
+             WHERE bf-estCostCategory.company        EQ ttEstCostGroup.company 
+               AND bf-estCostCategory.estCostGroupID EQ ttEstCostGroup.estCostGroupID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostCategory THEN DO:
+            MESSAGE "Cost Categories exists for '" + ttEstCostGroup.estCostGroupID + "'. Please delete all cost categories linked before deleting" 
+            VIEW-AS ALERT-BOX ERROR.
+            
+            RETURN.
+        END.
+        
         {custom/askdel.i}.
         
         FIND FIRST bf-estCostGroup EXCLUSIVE-LOCK

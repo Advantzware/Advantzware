@@ -722,7 +722,8 @@ PROCEDURE pInit :
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
       
-    RUN Estimate_GetSystemDataForEstimate(INPUT "",
+    RUN Estimate_GetSystemDataForEstimate(
+        INPUT  cCompany,
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
         OUTPUT TABLE ttEstCostGroupLevel).

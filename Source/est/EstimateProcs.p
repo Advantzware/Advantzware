@@ -214,7 +214,19 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         ELSE 
             BUFFER-COPY bf-estCostCategorySystem TO ttEstCostCategory.
     END.
-    
+
+    /* Load the estCostCategory data. User created categories */
+    FOR EACH bf-estCostCategory NO-LOCK
+        WHERE bf-estCostCategory.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostCategory WHERE ttEstCostCategory.estCostCategoryID = bf-estCostCategory.estCostCategoryID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostCategory.
+        
+        BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
+    END.
+        
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupSystem NO-LOCK:
         
@@ -232,7 +244,19 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         ELSE 
             BUFFER-COPY bf-estCostGroupSystem TO ttEstCostGroup.
     END.
-   
+
+    /* Load the estCostGroup data. User created groups */
+    FOR EACH bf-estCostGroup NO-LOCK
+        WHERE bf-estCostGroup.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = bf-estCostGroup.estCostGroupID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostGroup.
+        
+        BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
+    END.
+       
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
         
@@ -251,6 +275,17 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
             BUFFER-COPY bf-estCostGroupLevelSystem TO ttEstCostGroupLevel.
     END.
 
+    /* Load the estCostGroupLevel data. User created levels */
+    FOR EACH bf-estCostGroupLevel NO-LOCK
+        WHERE bf-estCostGroupLevel.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevel.estCostGroupLevelID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostGroupLevel.
+        
+        BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
+    END.
 END PROCEDURE.
 
 PROCEDURE Estimate_GetVersionSettings:

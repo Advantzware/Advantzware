@@ -501,7 +501,9 @@ PROCEDURE pSaveRecord PRIVATE:
         DO:
             CREATE bf-estCostGroup.
             ASSIGN
-                bf-estCostGroup.estCostGroupID = fil-estCostGroupID:SCREEN-VALUE. 
+                bf-estCostGroup.estCostGroupID = fil-estCostGroupID:SCREEN-VALUE
+                bf-estCostGroup.company        = cCompany
+                . 
         END.
            
         ASSIGN
@@ -537,7 +539,8 @@ PROCEDURE pInit :
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
       
-    RUN Estimate_GetSystemDataForEstimate(INPUT "",
+    RUN Estimate_GetSystemDataForEstimate(
+        INPUT  cCompany,
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
         OUTPUT TABLE ttEstCostGroupLevel).
