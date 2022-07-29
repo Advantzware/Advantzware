@@ -429,7 +429,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<=9> ESTRADOS:"
       "<=9><R+1> Conteúdo declarado:"
       "<=9><R+2> LB:"  "<C30><B>N° do item NMFC  29250 - CLASS 125</B>" 
-      " <R51><C1><P12><B>     Instruções de envio: <P10> "
+      " <R51><C2><P12><B>     Instruções de envio: <P10> "
       "<R52.5><C3.5>" oe-bolh.ship-i[1] 
       "<R53.5><C3.5>" oe-bolh.ship-i[2] 
       "<R54.5><C3.5>" oe-bolh.ship-i[3] 
@@ -448,10 +448,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
   /* rstark 05181205 */
   
   /* Separator Lines and Title for conditions section */
-  PUT "<R57><C10><P10>TODAS AS RECLAMAÇÕES RELATIVAS AO ENVIO DEVEM SER FEITAS DENTRO DE 10 DIAS</B>"
+  PUT "<R56.6><C10><P10>TODAS AS RECLAMAÇÕES RELATIVAS AO ENVIO DEVEM SER FEITAS DENTRO DE 10 DIAS</B>"
       "<SAVE=LPI><ADJUST=LPI><P7>" 
-      "<R58><C26><From><R66><C26><LINE><||3>"
-      "<R58><C49.7><From><R66><C49.7><LINE><||3>"
+      "<R58><C26><From><R67><C26><LINE><||3>"
+      "<R58><C50><From><R67><C50><LINE><||3>"
       .
   
   /* Text for left side block of conditions section */
@@ -471,12 +471,12 @@ for each xxreport where xxreport.term-id eq v-term-id,
   PUT
       "<R58.0><C27><P7>Se os encargos forem pré-pagos,escreva ou"
       '<R58.6><C27>carimbe aqui "A ser pré-pago".'
-      "<R59.7><C27><From><C43><LINE><||3>"
+      "<R59.78><C27><From><C48><LINE><||3>"
       "<R59.8><C27>Recebe US$"
-      "<R60.9><C27><From><C43><LINE><||3>"
+      "<R60.98><C27><From><C48><LINE><||3>"
       "<R61.0><C27>para aplicar ao pré-pagamento dos encargos sobre"
       "<R61.6><C27>o bem aqui descrito."
-      "<R62.7><C27><C26><From><C43><LINE><||3>"
+      "<R62.78><C27><From><C48><LINE><||3>"
       "<R62.8><C32>Agente ou caixa"
       "<R63.4><C27>Por"
       "<R64.0><C27><P5>(A assinatura aqui reconhece apenas o valor proposto.)"
@@ -503,7 +503,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       .
       
   IF cSignatureFile NE "" THEN 
-      PUT "<C1><R64.2><#3><R+4><C+20><IMAGE#3=" cSignatureFile.
+      PUT "<C3><R64.2><#3><R+4><C+20><IMAGE#3=" cSignatureFile.
       
   PUT
       "<RESTORE=LPI>".
