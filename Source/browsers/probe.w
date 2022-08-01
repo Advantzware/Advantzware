@@ -3077,7 +3077,10 @@ PROCEDURE print-box :
      ls-outfile = lv-cebrowse-dir + TRIM(est.est-no) + '.x' + STRING(probe.line,'999').
 
   OUTPUT TO VALUE(ls-outfile).
-  PUT '</PROGRESS><PREVIEW><P11>'.
+  IF NOT lBussFormModle THEN
+  PUT '</PROGRESS><PREVIEW><MODAL=NO><P11>'.
+  ELSE
+  PUT '</PROGRESS><PREVIEW><P11>'.  
   OUTPUT CLOSE.
 
   RUN printBoxImage.
