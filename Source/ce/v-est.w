@@ -3179,6 +3179,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE UpdatePOScores V-table-Win 
+PROCEDURE UpdatePOScores :
+/*------------------------------------------------------------------------------
+  Purpose: Procedure to open dialog box to view/create/update po scores for 
+           estimate
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF AVAILABLE eb THEN
+        RUN est/d-panelDetails.w (
+            INPUT ROWID(eb),
+            INPUT "eb",
+            INPUT "",
+            INPUT ""
+            ).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-adhesive V-table-Win 
 PROCEDURE valid-adhesive :
 /*------------------------------------------------------------------------------
