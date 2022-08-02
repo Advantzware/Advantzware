@@ -176,7 +176,7 @@ PROCEDURE pProcessUpdatedQuantity PRIVATE:
     DEFINE VARIABLE iEQtyBeforeEdit LIKE est-qty.eqty NO-UNDO.
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     
-    FIND CURRENT ipbf-est NO-ERROR.
+    FIND CURRENT ipbf-est EXCLUSIVE-LOCK NO-ERROR.
     ASSIGN ipbf-est.est-qty[1] = INTEGER (ttEstimateQuantity.EstQuantity [1])
            ipbf-est.est-qty[2] = INTEGER (ttEstimateQuantity.EstQuantity [2])
            ipbf-est.est-qty[3] = INTEGER (ttEstimateQuantity.EstQuantity [3])
@@ -185,7 +185,7 @@ PROCEDURE pProcessUpdatedQuantity PRIVATE:
     FIND CURRENT ipbf-est NO-LOCK NO-ERROR.
 
     ASSIGN iEQtyBeforeEdit = ipbf-est-qty.eqty.
-    FIND CURRENT ipbf-est-qty NO-ERROR.
+    FIND CURRENT ipbf-est-qty EXCLUSIVE-LOCK NO-ERROR.
     ipbf-est-qty.eqty = INTEGER (ttEstimateQuantity.EstQuantity [1]).
     DO iCount = 1 TO 20:
         ASSIGN est-qty.qty[iCount] = ttEstimateQuantity.EstQuantity[iCount] 
@@ -195,31 +195,29 @@ PROCEDURE pProcessUpdatedQuantity PRIVATE:
     
     FIND CURRENT ipbf-est-qty NO-LOCK NO-ERROR.
     
-    FOR EACH buf-eb
+    FOR EACH buf-eb EXCLUSIVE-LOCK
        WHERE buf-eb.company EQ ipbf-est.company
          AND buf-eb.est-no  EQ ipbf-est.est-no
          AND buf-eb.eqty    EQ iEQtyBeforeEdit
-         AND buf-eb.form-no NE 0:  
-                       
+         AND buf-eb.form-no NE 0:                       
         buf-eb.eqty = INTEGER (ttEstimateQuantity.EstQuantity [1]).
     END.
      
-    FOR EACH buf-ef
+    FOR EACH buf-ef EXCLUSIVE-LOCK
        WHERE buf-ef.company EQ ipbf-est.company
          AND buf-ef.est-no  EQ ipbf-est.est-no
-         AND buf-ef.eqty    EQ iEQtyBeforeEdit:  
-                
+         AND buf-ef.eqty    EQ iEQtyBeforeEdit:                
         buf-ef.eqty = INTEGER (ttEstimateQuantity.EstQuantity [1]).
     END.
     
-    FOR EACH est-op
+    FOR EACH est-op EXCLUSIVE-LOCK
          WHERE est-op.company EQ ipbf-est.company
            AND est-op.est-no  EQ ipbf-est.est-no
            AND est-op.qty     EQ iEQtyBeforeEdit:
        est-op.qty = ipbf-est-qty.eqty.
      END.
     
-     FOR EACH est-op
+     FOR EACH est-op EXCLUSIVE-LOCK
          WHERE est-op.company EQ ipbf-est.company
            AND est-op.est-no  EQ ipbf-est.est-no
            AND est-op.qty     EQ ipbf-est-qty.eqty
