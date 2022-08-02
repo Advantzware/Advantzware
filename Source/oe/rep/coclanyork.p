@@ -76,7 +76,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     BY report.key-04
     BY report.key-06 DESCENDING:
 
-    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-bolh.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-boll.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
             	      
     IF NOT lValid THEN
     DO:

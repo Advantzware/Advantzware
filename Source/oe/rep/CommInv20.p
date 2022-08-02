@@ -182,7 +182,7 @@ FIND FIRST cust WHERE cust.company = oe-bolh.company
 cCurrCode = IF AVAILABLE cust AND cust.curr-code NE "" THEN cust.curr-code ELSE "USD" .
 v-del-no = 0.
 
-RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-bolh.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-boll.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
         	      
     IF NOT lValid THEN
     DO:

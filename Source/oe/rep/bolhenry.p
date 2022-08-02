@@ -111,6 +111,7 @@ DEFINE VARIABLE lBroker AS LOGICAL NO-UNDO .
 
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iPallet        AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE NO-UNDO.
@@ -173,7 +174,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
     NO-LOCK
     break by oe-bolh.bol-no:
   
-    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-bolh.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN ASSIGN cLocation = oe-boll.loc .
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
             	      
     IF NOT lValid THEN
     DO:

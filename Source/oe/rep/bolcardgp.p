@@ -77,6 +77,7 @@ DEFINE VARIABLE ls-full-img2 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-full-img3 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cLocation    AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
 DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
 
@@ -212,7 +213,10 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     NO-LOCK
     BREAK BY oe-bolh.bol-no:
     
-    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-bolh.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN ASSIGN cLocation = oe-boll.loc .
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
             	      
     IF NOT lValid THEN
     DO:

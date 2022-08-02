@@ -79,7 +79,7 @@ for each report where report.term-id eq v-term-id NO-LOCK,
           BY oe-boll.job-no
           BY oe-boll.job-no2:
 
-    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-bolh.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-boll.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
             	      
     IF NOT lValid THEN
     DO:
