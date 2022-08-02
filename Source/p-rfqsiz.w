@@ -479,6 +479,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE phidePOScores C-WIn 
+PROCEDURE phidePOScores :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+        btPOScores:HIDDEN = YES
+        Btn-Save:COL = 5
+        Btn-Cancel:COL = 24
+        btn-auto-calc:COL = 44
+        .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable C-WIn 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
