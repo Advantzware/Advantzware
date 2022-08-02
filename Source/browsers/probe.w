@@ -2177,6 +2177,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+PROCEDURE edit-quantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+RUN est/estEditQuantity.p (RECID(eb)).
+
+END PROCEDURE.
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE est-summ B-table-Win 
 PROCEDURE est-summ :
 /*------------------------------------------------------------------------------

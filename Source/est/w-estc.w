@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object08 h_p-probe
 &SCOPED-DEFINE h_Object09 h_vp-box
 &SCOPED-DEFINE h_Object07 h_vp-spec
+&SCOPED-DEFINE h_Object10 h_vp-editquantityc
 &SCOPED-DEFINE h_Object05 h_p-estop
 &SCOPED-DEFINE h_Object06 h_p-estprp
 &SCOPED-DEFINE moveRight {&h_Object05},{&h_Object06}
@@ -170,6 +171,7 @@ DEFINE VARIABLE h_p-cadimg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_btn-add-mat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_pv-AltDesign AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vp-editquantityc AS HANDLE NO-UNDO.
 
 
 /* Definitions of the field level widgets                               */
@@ -1014,7 +1016,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-spec ).
-       RUN set-position IN h_vp-spec ( 21.95 , 134.00 ) NO-ERROR.
+       RUN set-position IN h_vp-spec ( 21.95 , 144.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.33 , 14.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1026,13 +1028,20 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-probe ).
        RUN set-position IN h_p-probe ( 21.95 , 3.00 ) NO-ERROR.
        RUN set-size IN h_p-probe ( 2.38 , 116.00 ) NO-ERROR.
+       
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/vp-editquantityc.w':U ,
+             INPUT  FRAME est:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vp-editquantityc ).
+       RUN set-position IN h_vp-editquantityc ( 21.95 , 108.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'cec/vp-box.w':U ,
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-box ).
-       RUN set-position IN h_vp-box ( 21.95 , 114.00 ) NO-ERROR.
+       RUN set-position IN h_vp-box ( 21.95 , 128.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.33 , 14.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -1061,6 +1070,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-probe , 'TableIO':U , h_probe ).
        RUN add-link IN adm-broker-hdl ( h_vp-box , 'boxprt':U , h_probe ).
        RUN add-link IN adm-broker-hdl ( h_vp-spec , 'specprt':U , h_probe ).
+       RUN add-link IN adm-broker-hdl ( h_vp-editquantityc , 'editquant':U , h_probe ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'initbtn':U , h_p-probe ).
 
        /* Links to SmartViewer h_vi-est-5. */
