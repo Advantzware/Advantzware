@@ -150,6 +150,7 @@ DEFINE VARIABLE iRelCase       AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCartonsCase   AS INTEGER NO-UNDO.
 DEFINE VARIABLE dTotalWeight   AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-qty    LIKE oe-boll.qty NO-UNDO.
+DEFINE VARIABLE iPageNum    AS INT NO-UNDO.
 
 FORM w2.i-no                         FORMAT "x(15)"
     w2.job-po                       AT 17 FORMAT "x(15)"
@@ -365,7 +366,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                     substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
 
             v-fob = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
-            IF ipcFormName EQ "GPI2_I" THEN ASSIGN v-fob = "EXW".
+            
             LEAVE.
         END.
 
@@ -476,6 +477,18 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                     END.
             END.
         END.
+        
+        FIND FIRST po-ordl NO-LOCK
+             WHERE po-ordl.company        EQ oe-ordl.company
+               AND po-ordl.po-no          EQ oe-ordl.po-no-po
+               AND ((po-ordl.item-type    EQ YES 
+               AND TRIM(oe-ordl.job-no) NE "" 
+               AND po-ordl.job-no       EQ oe-ordl.job-no 
+               AND po-ordl.job-no2      EQ oe-ordl.job-no2)      
+               OR (po-ordl.item-type    EQ NO 
+               AND po-ordl.i-no         EQ oe-ordl.i-no))
+                   NO-ERROR.
+               
         /* end of dup loop */
         lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 27,0) .  /* 23->47 25 po detail lines */
         /*  end of getting total page per po */
@@ -520,21 +533,26 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
         v-printline = v-printline + 14.
         IF LAST-OF(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUMBER .
 
-        PAGE.
-        
+        iPageNum = PAGE-NUMBER.
         IF ipcFormName EQ "GPI2_I" THEN
         DO:
-           
-           FOR EACH tt-boll NO-LOCK
-            BREAK BY tt-boll.i-no:
-               v-printline = 0.
-               PAGE.
-                    {oe/rep/bolcardGPI2_I.i}
-               PAGE.
+           PUT "[@startPage" + TRIM(STRING(iPageNum)) + "]" FORMAT "X(50)".
+           FOR EACH tt-boll,
+               FIRST itemfg NO-LOCK
+               WHERE itemfg.company EQ tt-boll.company
+                 AND itemfg.i-no    EQ tt-boll.i-no
+               BREAK BY tt-boll.i-no:
+               IF LAST-OF(tt-boll.i-no) THEN
+               DO:
+                   v-printline = 0.
+                   PAGE.
+                        {oe/rep/bolcardGPI2_I.i}
+               END.
            END.
+           PUT "[@endPage" + TRIM(STRING(iPageNum)) + "]" FORMAT "X(50)".
            
         END.
-        
+        PAGE.
         v-printline = 0.
 
         FOR EACH report WHERE report.term-id EQ v-term-id,

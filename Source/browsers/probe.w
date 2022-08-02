@@ -2849,7 +2849,10 @@ PROCEDURE local-update-record :
   IF vmclean THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
 
   IF probe.spare-char-2 NE "" THEN
+  DO: 
     RUN pCalculatePricing(BUFFER probe). 
+    RUN dispatch ("open-query").
+  END.   
 
     IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
     QUERY br_table:GET-NEXT().
@@ -3084,7 +3087,10 @@ PROCEDURE print-box :
      ls-outfile = lv-cebrowse-dir + TRIM(est.est-no) + '.x' + STRING(probe.line,'999').
 
   OUTPUT TO VALUE(ls-outfile).
-  PUT '</PROGRESS><PREVIEW><P11>'.
+  IF NOT lBussFormModle THEN
+  PUT '</PROGRESS><PREVIEW><MODAL=NO><P11>'.
+  ELSE
+  PUT '</PROGRESS><PREVIEW><P11>'.  
   OUTPUT CLOSE.
 
   RUN printBoxImage.

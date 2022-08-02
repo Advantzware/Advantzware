@@ -45,9 +45,10 @@ DEF VAR gcompany AS CHAR NO-UNDO.
 {methods/defines/hndldefs.i}
 {custom/getcmpny.i}
 
-DO TRANSACTION:
-   {sys/inc/notepad.i}
-END.
+DEFINE VARIABLE gcNotepad      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcNotepadValue AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("Notepad", OUTPUT gcNotepad).
+RUN spGetSettingByName ("NotepadValue", OUTPUT gcNotepadValue).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -287,9 +288,8 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-IF notepad-log THEN
-DO:
-    IF notepad-chr = "" THEN do: /* task 02101509 */
+IF gcNotepad EQ "YES" THEN DO:
+    IF gcNotepadValue EQ "" THEN DO: /* task 02101509 */
 &IF DEFINED(FWD-VERSION) > 0 &THEN
         open-mime-resource "text/plain" string("file:///" + list-name) false.
 &ELSE
@@ -316,8 +316,8 @@ DO:
                     usergrps.dscr = "NOTEPAD USERS" .
             END.
         END.  /* not avail usergrps */
-    END. /* else do  notepad-chr = "" */
-END.  /* if notepad-log */
+    END. /* else do  gcNotepadValue */
+END.  /* if gcNotepad */
 
 ll-log = ed-scr-view:read-file(list-name).
 

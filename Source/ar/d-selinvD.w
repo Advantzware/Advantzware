@@ -55,6 +55,10 @@ DEF VAR lv-sort-by AS CHAR INIT "inv-no" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Inv# " NO-UNDO.
 DEF VAR ll-sort-asc AS LOG INIT YES NO-UNDO.
 {methods/template/brwcustomdef.i}
+
+DEFINE VARIABLE cArCashEntryDiscount AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("ArCashEntryDiscount", OUTPUT cArCashEntryDiscount).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -143,19 +147,19 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      tt-inv.inv-no     LABEL "Invoice#"  FORMAT ">>>>>>>9"
-      tt-inv.inv-date   LABEL "Inv Date"
-      tt-inv.net        LABEL "Net"
-      tt-inv.paid       LABEL "Amt Paid"
-      tt-inv.due        LABEL "Balance Due"
-      tt-invl.bol-no LABEL "BOL#"
-      tt-invl.actnum LABEL "GL Acct#"
-      tt-invl.i-no LABEL "FG Item#"
-      tt-invl.part-no LABEL "Cust Part#"
-      tt-invl.ord-no LABEL "Order#"
-      tt-invl.po-no LABEL "Cust PO#"
-      tt-invl.est-no LABEL "Est#"
-      tt-invl.i-name LABEL "Name"
+      tt-inv.inv-no     LABEL "Invoice#"  FORMAT ">>>>>>>9" LABEL-BGCOLOR 14
+      tt-inv.inv-date   LABEL "Inv Date" LABEL-BGCOLOR 14
+      tt-inv.net        LABEL "Net" LABEL-BGCOLOR 14
+      tt-inv.paid       LABEL "Amt Paid" LABEL-BGCOLOR 14
+      tt-inv.due        LABEL "Balance Due" LABEL-BGCOLOR 14
+      tt-invl.bol-no LABEL "BOL#" LABEL-BGCOLOR 14
+      tt-invl.actnum LABEL "GL Acct#" LABEL-BGCOLOR 14
+      tt-invl.i-no LABEL "FG Item#" LABEL-BGCOLOR 14
+      tt-invl.part-no LABEL "Cust Part#" LABEL-BGCOLOR 14
+      tt-invl.ord-no LABEL "Order#" 
+      tt-invl.po-no LABEL "Cust PO#" LABEL-BGCOLOR 14
+      tt-invl.est-no LABEL "Est#" LABEL-BGCOLOR 14
+      tt-invl.i-name LABEL "Name" LABEL-BGCOLOR 14
 
       ENABLE
       tt-inv.inv-no tt-inv.inv-date tt-inv.due
@@ -300,6 +304,12 @@ DO:
           OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.po-no.
       WHEN "est-no" THEN
           OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.est-no.
+      WHEN "net" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.net.
+      WHEN "paid" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.paid.
+      WHEN "actnum" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.actnum.     
   END CASE.
   
   ELSE   /*descending*/
@@ -322,6 +332,12 @@ DO:
           OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.po-no DESC.
       WHEN "est-no" THEN
           OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.est-no DESC.
+      WHEN "net" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.net DESC.
+      WHEN "paid" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-inv.paid DESC.
+      WHEN "actnum" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.actnum DESC.         
   END CASE.
     
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
@@ -422,7 +438,7 @@ DO:
                       (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0) - 
                       ar-inv.tax-amt) * (IF ld-net1 = 0 OR ld-net2 = 0 THEN 1 ELSE ld-net2 / ld-net1).
                                                  
-             IF ld-due NE 0 THEN
+             IF ld-due NE 0 AND cArCashEntryDiscount NE "None" THEN
                btt-inv.amt-disc = IF ar-inv.disc-% = 0 THEN 0 ELSE ROUND(ld-due * (ar-inv.disc-% / 100),2).
            END.
 
@@ -451,7 +467,7 @@ DO:
            END.
         END.
 
-        FOR EACH btt-inv WHERE btt-inv.selekt:
+        FOR EACH btt-inv WHERE btt-inv.selekt BY btt-inv.inv-no DESC:
            FOR EACH ar-cashl OF ar-cash NO-LOCK BY ar-cashl.line DESCENDING:
               li-next-line = ar-cashl.LINE.
               LEAVE.
@@ -644,7 +660,7 @@ PROCEDURE build-table :
            AND ar-inv.due     NE 0
            AND NOT CAN-FIND(FIRST b-cashl
                             WHERE b-cashl.c-no   EQ ar-cash.c-no
-                              AND b-cashl.inv-no EQ ar-inv.inv-no):
+                              AND b-cashl.inv-no EQ ar-inv.inv-no) BY ar-inv.inv-no DESC :
        CREATE tt-inv.
        ASSIGN
         tt-inv.row-id   = ROWID(ar-inv)

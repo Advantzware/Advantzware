@@ -201,6 +201,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dOeAutoFg AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE hdPOProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE scInstance AS CLASS system.SharedConfig NO-UNDO.
+DEFINE VARIABLE cOEAutoPOSend AS CHARACTER NO-UNDO.
 
 DEFINE NEW SHARED WORKFILE work-vend NO-UNDO
     FIELD cost AS DECIMAL FORMAT ">>,>>9.9999"
@@ -261,10 +262,10 @@ DEFINE TEMP-TABLE tt-eiv NO-UNDO
     INDEX vend-no company i-no      vend-no.
 
 DEF VAR cScope AS CHAR NO-UNDO.
-DEF VAR lIncludeBlankVendor AS LOG NO-UNDO INITIAL TRUE.
+DEF VAR lIncludeBlankVendor AS LOG NO-UNDO INITIAL FALSE.
 DEF VAR cMessage AS CHAR NO-UNDO.
 {system/VendorCostProcs.i}
-   
+    
     
 IF INDEX(PROGRAM-NAME(2),"add-po-best") GT 0 THEN
     v-po-best = YES.
@@ -273,17 +274,7 @@ IF INDEX(PROGRAM-NAME(2),"w-purord") GT 0
     OR INDEX(PROGRAM-NAME(3),"w-purord") GT 0
     OR INDEX(PROGRAM-NAME(4),"w-purord") GT 0 THEN
     ASSIGN v-from-po-entry     = TRUE.
-    
-    
-IF INDEX(PROGRAM-NAME(2),"b-po-inq.w") GT 0
-    OR INDEX(PROGRAM-NAME(3),"b-po-inq.w") GT 0
-    OR INDEX(PROGRAM-NAME(4),"b-po-inq.w") GT 0
-    OR INDEX(PROGRAM-NAME(2),"ordfrest.p") GT 0
-    OR INDEX(PROGRAM-NAME(3),"ordfrest.p") GT 0
-    OR INDEX(PROGRAM-NAME(4),"ordfrest.p") GT 0
-     THEN
-     ASSIGN lIncludeBlankVendor = FALSE. //Blank Vendor is not a valid vendor for PO
-            
+                
 {fg/fullset.i NEW}
 
 {sys/ref/pocost.i}
@@ -538,6 +529,24 @@ RUN processJobMat.
 
 IF gvlDebug THEN
     OUTPUT STREAM sDebug CLOSE.
+
+IF NOT AVAIL po-ord THEN    
+FIND FIRST po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrpoOrd NO-ERROR.    
+        
+IF AVAIL po-ord THEN
+DO:
+     RUN spGetSettingByName ("OEAutoPOSend", OUTPUT cOEAutoPOSend).
+     IF cOEAutoPOSend EQ "Yes" then
+     do:
+         RUN custom/setUserPrint.p (po-ord.company,'po-ordl_.',
+                                   'begin_po-no,end_po-no,begin_vend-no,end_vend-no,tb_reprint,tb_reprint-closed',
+                                    STRING(po-ord.po-no) + ',' + STRING(po-ord.po-no) + ',' +
+                                    po-ord.vend-no + ',' + po-ord.vend-no + ',' + STRING(po-ord.printed) + ',' +
+                                    (IF po-ord.stat EQ "C" AND po-ord.printed THEN "YES" ELSE "NO")).
+                                    
+         RUN listobjs/po-ordl_.w. 
+     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -851,7 +860,7 @@ PROCEDURE buildJobMat :
         RUN wJobFromBJobMat (INPUT ROWID(bf-job)).
 
     END.
-   
+
 
 END PROCEDURE.
 
@@ -1159,12 +1168,18 @@ PROCEDURE vendorSelector:
         WHERE ROWID(bf-job-mat) = ipRiJobMat NO-ERROR.
     
     IF AVAILABLE bf-job-mat THEN 
-        FOR FIRST job NO-LOCK 
-            WHERE job.company = bf-job-mat.company
-              AND job.job   = bf-job-mat.job:
-                  ASSIGN 
+    DO:
+        IF w-job-mat.est-no NE "" THEN 
+            ASSIGN cEstimateNo = w-job-mat.est-no.
+        ELSE 
+            FOR FIRST job NO-LOCK 
+                WHERE job.company = bf-job-mat.company
+                AND job.job   = bf-job-mat.job:
+                ASSIGN 
                     cEstimateNo = job.est-no.
-        END.
+            END.
+    END.
+        
     IF AVAILABLE bf-job-mat AND cEstimateNo <> "" THEN
     FOR EACH bf-ef NO-LOCK
         WHERE bf-ef.company EQ bf-job-mat.company
@@ -1174,8 +1189,8 @@ PROCEDURE vendorSelector:
                 cAdderList[iCount] = bf-ef.adder[iCount].
         END.
     END.
-              
-    IF AVAIL bf-job-mat THEN 
+                  
+    IF AVAIL bf-job-mat THEN
         RUN system/vendorcostSelector.w(
             INPUT  bf-job-mat.company, //ipcCompany ,
             INPUT  bf-job-mat.i-no ,
@@ -1297,7 +1312,7 @@ PROCEDURE calcCostSetup :
   
         ASSIGN
             bf-po-ordl.cost      = v-item-cost
-            bf-po-ordl.setup     = v-setup     
+            bf-po-ordl.setup     = v-setup-cost     
             bf-po-ordl.vend-i-no = v-vend-item.
         /* Uncomment below to implement vendor UOM per matrix */
         /* IF v-vendor-chosen-report EQ ? THEN */

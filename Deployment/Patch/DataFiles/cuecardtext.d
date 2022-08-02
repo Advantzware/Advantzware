@@ -68,6 +68,30 @@ File: TaskResults/2022.02/BOLPackingList.04.37198.pdf" 9 1 5.33 116.2 32 7 15 1 
 0 "Message" yes 23 0 "Submitted Run Now Request is Available
 
 File: TaskResults/2022.04/AgedReceivables.20.54220.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 04/20/22 54233 "paul" "202204205423309286613"
+0 "Message" yes 24 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.05/DailyProductionReport.04.43552.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 05/04/22 43559 "Mike" "202205044355909392014"
+0 "Message" yes 25 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.05/DailyProductionReport.17.09529.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72532 "asi" "202206167253209599432"
+0 "Message" yes 26 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.05/WIPStandardsDetail.17.09531.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72532 "_default" "202206167253209599433"
+0 "Message" yes 27 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.05/DailyProductionReport.17.09531.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72532 "asi" "202206167253209599434"
+0 "Message" yes 28 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.05/DailyProductionReport.17.09533.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72532 "asi" "202206167253209599435"
+0 "Message" yes 29 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.06/MachineTransactionQuery.16.72508.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72533 "_default" "202206167253309599438"
+0 "Message" yes 30 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.06/Locations.16.72512.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72533 "dan3" "202206167253309599439"
+0 "Message" yes 31 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.06/MachineTransactionQuery.16.72567.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72579 "_default" "202206167257909599446"
 1 "System" yes 1 1 "Welcome to Version 16.8.0 of Advantzware!
 
 This is our new Cue Card feature.  Cue Cards appear to guide and explain new features and functionality added to Advantzware.

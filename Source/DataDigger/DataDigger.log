@@ -1,0 +1,139 @@
+DataDigger recompile as of 05-31-2022 16:30:20
+
+DataDigger Buildnr   : 
+
+ENVIRONMENT
+  Progress version   : 11.6 Full 4GLCLIENT
+  Version info file  : OpenEdge Release 11.6.4 as of Mon Oct 23 11:21:43 EDT 2017
+  Progress path      : C:\Progress\OE116\bin\prowin.exe
+  Drive type         : Fixed
+  ProPath            : C:/asigui/Repositories/Advantzware/Source/datadigger/,N:\Environments\Devel\,N:\Environments\Devel\asiObjects.pl,N:\Environments\Devel\asigraphics.pl,N:\Environments\Devel\Customer,N:\Environments\Devel\Override,N:\Environments\Devel\Programs,N:\Environments\Devel\Programs\Addon,N:\Environments\Devel\CustFiles,N:\Environments\Devel\Resources,N:\Admin\EnvAdmin,C:\asigui\Admin\EnvAdmin,C:\asigui\Admin,C:\asigui\Repositories\Advantzware\Source,C:\asigui\Repositories\Advantzware\Resources,C:\asigui\Studio\.sharedavm,C:\Progress\OE116\gui\,C:\Progress\OE116\gui\adecomm.pl,C:\Progress\OE116\gui\adecomp.pl,C:\Progress\OE116\gui\adedict.pl,C:\Progress\OE116\gui\adeedit.pl,C:\Progress\OE116\gui\adeicon.pl,C:\Progress\OE116\gui\adeshar.pl,C:\Progress\OE116\gui\adeuib.pl,C:\Progress\OE116\gui\adeweb.pl,C:\Progress\OE116\gui\adexml.pl,C:\Progress\OE116\gui\dataadmin.pl,C:\Progress\OE116\gui\prodict.pl,C:\Progress\OE116\gui\protools.pl,C:\Progress\OE116\gui\OpenEdge.Core.pl,C:\Progress\OE116\gui\OpenEdge.BusinessLogic.pl,C:\Progress\OE116\gui\netlib\OpenEdge.Net.pl,C:\Progress\OE116,C:\Progress\OE116\bin,C:\Progress\OE116\tty,C:\asigui\Repositories\Advantzware\Deployment\BuildScript\ToCompile,C:\Progress\OE116\gui,C:\Progress\OE116\gui\ablunit.pl,C:\Progress\OE116\gui\adedesk.pl,C:\Progress\OE116\gui\aderes.pl,C:\Progress\OE116\gui\OpenEdge.ServerAdmin.pl
+  Windows version    : MS-WINXP Windows 10 (10.0) on x64, 64bit
+  System memory      : Phys. memory: 33,480,584K with 17,899,284K free
+  Display size       : 1920 x 1040
+  Logged in as       : tyndm
+
+SESSION INFO
+  Program dir        : C:/asigui/Repositories/Advantzware/Source/datadigger/
+  Work folder        : C:/asigui/Repositories/Advantzware/Source/datadigger/
+  Drive type         : Fixed
+  Codepage           : ISO8859-1
+  Character size     : 5 x 21
+  Startup parameters : -pf C:\Progress\OE116\startup.pf,-cpinternal ISO8859-1,-cpstream ISO8859-1,-cpcoll Basic,-cpcase Basic,-d mdy,-numsep 44,-numdec 46,(end .pf),-ininame C:\asiGUI\Admin\EnvAdmin\dbms.ini,-s 200,-mmax 65534,-T C:/Progress/OE116_64WRK,-db TESTDEVELd.db,-H localhost,-S 2826,-ld asi,-db TESTDEVELa.db,-H localhost,-S 2836,-ld audit,-debugalert,-rereadnolock,-inp 16000,-tok 4000,-nosplash,-pf c:\asigui\admin\envadmin\advantzware.pf,-B 250000,-hash 75000,-ipver IPv4,-Mf 10,-sw,-assemblies ..\..\Assemblies,-Bt 20000,-D 1000,-fc 10000,-l 40000,-Mm 8192,-mmax 65534,-rereadnolock,-s 2048,-stsh 5,-T c:\tmp,-TB 31,-TM 32,-tmpbsize 8,-h 20,-nb 255,-noincrwarn,-rand 2,-strictEntityResolution 0,-d mdy,-yy 1950,-debugalert,-numsep 44,-numdec 46,(end .pf),-p C:\Progress\OE116\oeide\eclipse\plugins\com.openedge.pdt.debug.core_11.6.4.00\abl\_debuglauncher.p
+  Temp directory     : c:\tmp\
+  System alert boxes : yes
+  Three-D            : yes
+  V6Display          : no
+
+CURRENT FILES
+  File name                            Size  File date            Expected             Status
+  ------------------------------ ----------- -------------------- -------------------- --------------------
+  build.i                                 8  12-03-2020 04:58:09  ?                    Status unknown
+  checkVersion.p                      3,092  12-03-2020 04:58:09  ?                    File has no .r
+  convertSettings.p                  12,751  12-03-2020 04:58:09  ?                    File has no .r
+  DataDigger.i                       19,487  12-03-2020 04:58:09  ?                    Status unknown
+  DataDigger.p                        1,052  12-03-2020 04:58:09  ?                    File has no .r
+  DataDigger2.p                      31,771  12-03-2020 04:58:09  ?                    File has no .r
+  DataDiggerLib.p                   159,988  12-03-2020 04:58:09  ?                    File has no .r
+  DataReader.p                          705  12-03-2020 04:58:09  ?                    File has no .r
+  DatePicker.w                       31,134  12-03-2020 04:58:09  ?                    File has no .r
+  dCloneDatabase.w                   15,350  12-03-2020 04:58:09  ?                    File has no .r
+  dDumpDf.w                          11,151  12-03-2020 04:58:09  ?                    File has no .r
+  dEditGroup.w                       19,684  12-03-2020 04:58:09  ?                    File has no .r
+  dFilter.w                          18,061  12-03-2020 04:58:09  ?                    File has no .r
+  dNewGroup.w                         7,289  12-03-2020 04:58:09  ?                    File has no .r
+  dQueries.w                         22,318  12-03-2020 04:58:09  ?                    File has no .r
+  dQuestion.w                        14,922  12-03-2020 04:58:09  ?                    File has no .r
+  dSorting.w                         19,575  12-03-2020 04:58:09  ?                    File has no .r
+  frameLib.i                          4,807  12-03-2020 04:58:09  ?                    Status unknown
+  generate-Active-Record-Class.w     28,484  12-03-2020 04:58:09  ?                    File has no .r
+  generate-Assign-Statement.w        20,546  12-03-2020 04:58:09  ?                    File has no .r
+  generate-Bulk-Delete.w             24,425  12-03-2020 04:58:09  ?                    File has no .r
+  generate-DumpLoad-Procedure.w      24,977  12-03-2020 04:58:09  ?                    File has no .r
+  generate-TempTable-Include.w       36,221  12-03-2020 04:58:09  ?                    File has no .r
+  generate-Your-Own-Code.w           10,379  12-03-2020 04:58:09  ?                    File has no .r
+  getDataserver.p                     9,091  12-03-2020 04:58:09  ?                    File has no .r
+  getDummyScheme.p                    1,672  12-03-2020 04:58:09  ?                    File has no .r
+  getRemoteFile.p                     1,028  12-03-2020 04:58:09  ?                    File has no .r
+  getSchema.p                         2,946  12-03-2020 04:58:09  ?                    File has no .r
+  getVersionInfo.p                      574  12-03-2020 04:58:09  ?                    File has no .r
+  myDataDigger.p                     16,304  12-22-2021 01:27:23  ?                    File has no .r
+  preCompile.p                          804  12-03-2020 04:58:09  ?                    File has no .r
+  query-data.w                       10,764  12-03-2020 04:58:09  ?                    File has no .r
+  query-tester.w                     36,472  12-03-2020 04:58:09  ?                    File has no .r
+  resizable_dict.i                    9,033  12-03-2020 04:58:09  ?                    Status unknown
+  showMessage.p                       2,861  12-03-2020 04:58:09  ?                    File has no .r
+  sokodigger.w                       40,163  12-03-2020 04:58:09  ?                    File has no .r
+  startDiggerLib.p                      888  12-03-2020 04:58:09  ?                    File has no .r
+  timerStart.i                          192  12-03-2020 04:58:09  ?                    Status unknown
+  timerStop.i                           219  12-03-2020 04:58:09  ?                    Status unknown
+  version.i                               3  12-03-2020 04:58:09  ?                    Status unknown
+  wAbout.w                           17,906  12-03-2020 04:58:09  ?                    File has no .r
+  wConnections.w                     42,429  12-03-2020 04:58:09  ?                    File has no .r
+  wDataDigger.w                     447,259  12-03-2020 04:58:09  ?                    File has no .r
+  wDebugger.w                        31,078  12-03-2020 04:58:09  ?                    File has no .r
+  wDump.w                            92,444  12-03-2020 04:58:09  ?                    File has no .r
+  wEdit.w                            59,730  12-03-2020 04:58:09  ?                    File has no .r
+  wImportCheck.w                     26,104  12-03-2020 04:58:09  ?                    File has no .r
+  wImportLoad.w                      27,569  12-03-2020 04:58:09  ?                    File has no .r
+  wImportSel.w                       16,444  12-03-2020 04:58:09  ?                    File has no .r
+  wLister.w                          22,650  12-03-2020 04:58:09  ?                    File has no .r
+  wSettings.w                        29,561  12-03-2020 04:58:09  ?                    File has no .r
+  wSettingsTab1.w                    34,817  12-03-2020 04:58:09  ?                    File has no .r
+  wSettingsTab2.w                    33,432  12-03-2020 04:58:09  ?                    File has no .r
+  wSettingsTab3.w                    23,028  12-03-2020 04:58:09  ?                    File has no .r
+  wViewAsEditor.w                    12,215  12-03-2020 04:58:09  ?                    File has no .r
+
+Deleting old .r files
+
+RECOMPILING
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\checkVersion.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\convertSettings.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\DataDigger.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\DataDigger2.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\DataDiggerLib.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\DataReader.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\getDataserver.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\getDummyScheme.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\getRemoteFile.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\getSchema.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\getVersionInfo.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\myDataDigger.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\preCompile.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\showMessage.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\startDiggerLib.p
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\DatePicker.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\dCloneDatabase.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\dDumpDf.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\dEditGroup.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\dFilter.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\dNewGroup.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\dQueries.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\dQuestion.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\dSorting.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\generate-Active-Record-Class.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\generate-Assign-Statement.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\generate-Bulk-Delete.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\generate-DumpLoad-Procedure.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\generate-TempTable-Include.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\generate-Your-Own-Code.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\query-data.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\query-tester.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\sokodigger.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wAbout.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wConnections.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wDataDigger.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wDebugger.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wDump.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wEdit.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wImportCheck.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wImportLoad.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wImportSel.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wLister.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wSettings.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wSettingsTab1.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wSettingsTab2.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wSettingsTab3.w
+  Compiling: C:\asigui\Repositories\Advantzware\Source\datadigger\wViewAsEditor.w
+
+All files successfully compiled.

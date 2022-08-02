@@ -217,6 +217,8 @@ PROCEDURE Output_InitializeXprint:
     DEFINE VARIABLE cInitTag AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lModal AS LOGICAL NO-UNDO INITIAL YES.
     
+    RUN pGetNK1BusinessFormModal(OUTPUT lModal).
+    
     RUN Output_Initialize(ipcOutputFile).
   
     IF ipcFont EQ "" THEN ipcFont = "Tahoma".
@@ -240,6 +242,36 @@ PROCEDURE Output_Initialize:
     DEFINE INPUT PARAMETER ipcOutputFile AS CHARACTER NO-UNDO.
  
     OUTPUT STREAM sOutput TO  VALUE(ipcOutputFile) PAGED.
+
+END PROCEDURE.
+
+PROCEDURE pGetNK1BusinessFormModal PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose: To get the character value of NK1 "BusinessFormModal"
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER op1BusinessFormModal  AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cBusinessFormModal AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO. 
+    
+    RUN spGetSessionParam ("Company", OUTPUT cCompany).
+    
+    RUN sys/ref/nk1look.p(
+        INPUT cCompany,
+        INPUT "BusinessFormModal",
+        INPUT "L",
+        INPUT NO,
+        INPUT YES,
+        INPUT "",
+        INPUT "",
+        OUTPUT cBusinessFormModal,
+        OUTPUT lRecFound
+        ).         
+  
+    IF lRecFound AND cBusinessFormModal NE "" THEN
+        op1BusinessFormModal = LOGICAL(cBusinessFormModal) NO-ERROR.                  
 
 END PROCEDURE.
 
@@ -762,11 +794,11 @@ FUNCTION FormatForCSV RETURNS CHARACTER
     DEFINE VARIABLE iZeroCode AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iNineCode AS INTEGER   NO-UNDO.
     DEFINE VARIABLE chChar    AS CHARACTER NO-UNDO.                    
-    
+             
     /* Add escape character (double quote) to exceptional characters */
-    ipcValue = REPLACE(ipcValue,'"','""').
-        
-    ASSIGN 
+    ASSIGN
+        ipcValue  = REPLACE(ipcValue,'"','""')
+        ipcValue  = REPLACE(ipcValue,',',' ')
         iZeroCode = ASC("0")
         iNineCode = ASC("9")
         chChar    = SUBSTRING(ipcValue,1,1)

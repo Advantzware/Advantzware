@@ -72,6 +72,8 @@ ASSIGN
 
 {oe/rep/invoice.i "new"}
 {oe/ttSaveLine.i "NEW SHARED"}
+{api/ttInvoice.i}
+{api/ttAPIOutboundEvent.i}
 
 DEFINE VARIABLE v-program      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOG       NO-UNDO.
@@ -128,6 +130,11 @@ DEFINE VARIABLE lBussFormModle AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAsiUser AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hPgmSecurity AS HANDLE NO-UNDO.
 DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+DEFINE VARIABLE lcRequestData        AS LONGCHAR  NO-UNDO.
+DEFINE VARIABLE hdOutboundProcs      AS HANDLE    NO-UNDO.
+
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
 RUN epCanAccess IN hPgmSecurity ("oerep/r-invprtoe.w","", OUTPUT lResult).
@@ -425,7 +432,7 @@ PROCEDURE assignScreenValues:
         
         .
     EMPTY TEMP-TABLE tt-list.
-
+    EMPTY TEMP-TABLE ttInvoice.
 END PROCEDURE.
 
 PROCEDURE BatchMail :
@@ -810,6 +817,78 @@ lInRange = TRUE.
 
 END PROCEDURE.
 
+PROCEDURE pCallAPIOutbound PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFormat          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipriCurrentInvoice AS ROWID     NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE cValueList      AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    system.SharedConfig:Instance:SetValue("PrintInvoice_PrintInstructions", STRING(tb_prt-inst)).
+    system.SharedConfig:Instance:SetValue("PrintInvoice_PrintSetComponents", STRING(tb_setcomp)).
+    system.SharedConfig:Instance:SetValue("PrintInvoice_BatchEmail", STRING(tb_BatchMail)).
+    system.SharedConfig:Instance:SetValue("PrintInvoice_PrintQtyAll", STRING(tb_qty-all)).
+
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    ASSIGN
+        cValueList = STRING(TEMP-TABLE ttInvoice:HANDLE).
+        cValueList = cValueList + (IF ipriCurrentInvoice EQ ? THEN "," ELSE "," + STRING(ipriCurrentInvoice))
+        .
+        
+    RUN Outbound_PrepareAndExecuteForScopeAndClient IN hdOutboundProcs (
+        INPUT  cocode,                                         /* Company Code (Mandatory) */
+        INPUT  "",                                             /* Location Code (Mandatory) */
+        INPUT  "PrintInvoice",                                 /* API ID (Mandatory) */
+        INPUT  ipcFormat,                                      /* Client ID */
+        INPUT  ipcScopeID,                                     /* Scope ID */
+        INPUT  ipcScopeType,                                   /* Scope Type */
+        INPUT  "PrintInvoice",                                 /* Trigger ID (Mandatory) */
+        INPUT  "TTInvoiceHandle,CurrentInvoiceRowID",          /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  cValueList,                                     /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  "Invoice Print",                                /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Invoice Print",                                /* Event's description (Optional) */
+        OUTPUT lSuccess,                                       /* Success/Failure flag */
+        OUTPUT cMessage                                        /* Status message */
+        ).
+
+    system.SharedConfig:Instance:DeleteValue("PrintInvoice_PrintInstructions").
+    system.SharedConfig:Instance:DeleteValue("PrintInvoice_PrintSetComponents").
+    system.SharedConfig:Instance:DeleteValue("PrintInvoice_BatchEmail").
+    system.SharedConfig:Instance:DeleteValue("PrintInvoice_PrintQtyAll").
+    
+    RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    
+    lcRequestData = "".
+    
+    FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        FIND FIRST apiOutboundEvent NO-LOCK
+             WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+             NO-ERROR.
+        IF AVAILABLE apiOutboundEvent THEN
+            lcRequestData = apiOutboundEvent.requestData.
+    END.    
+    
+    IF lcRequestData NE "" THEN
+        COPY-LOB FROM lcRequestData TO FILE list-name.
+        
+    RUN Outbound_ResetContext IN hdOutboundProcs.
+    
+    DELETE PROCEDURE hdOutboundProcs. 
+END PROCEDURE.
+
 PROCEDURE runReport5:
     DEFINE INPUT PARAMETER lv-fax-type AS CHARACTER.
 
@@ -912,6 +991,7 @@ PROCEDURE runReport5:
         
         /* Make sure this is cleared  before run-report runs again */
        EMPTY TEMP-TABLE tt-list.
+       EMPTY TEMP-TABLE ttInvoice.
        
         RUN run-report("","", FALSE).
         IF lReportRecCreated THEN
@@ -1219,7 +1299,8 @@ PROCEDURE build-list1:
     DEFINE VARIABLE dtl-ctr        AS INTEGER NO-UNDO.
     DEFINE VARIABLE lValidRecord AS LOGICAL NO-UNDO.
     EMPTY TEMP-TABLE tt-list.
-
+    EMPTY TEMP-TABLE ttInvoice.
+    
     ASSIGN                   
         finv           = begin_inv
         tinv           = end_inv
@@ -1321,7 +1402,14 @@ PROCEDURE build-list1:
         
         CREATE tt-list.
         tt-list.rec-row = ROWID({&head}).
-
+        
+        CREATE ttInvoice.
+        ASSIGN
+            ttInvoice.company     = {&head}.company
+            ttInvoice.invoiceID   = {&head}.inv-no
+            ttInvoice.sourceRowID = ROWID({&head})
+            .
+                    
         DEFINE VARIABLE ti AS INTEGER.
 
     END. /* for each */
@@ -1343,6 +1431,11 @@ PROCEDURE run-report :
     DEFINE VARIABLE dtl-ctr        AS INTEGER NO-UNDO.
     DEFINE VARIABLE iBol           AS INTEGER NO-UNDO.
     DEFINE VARIABLE dAmount        AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE lIsAPIActive   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAPIScopeType  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAPIScopeID    AS CHARACTER NO-UNDO.
+    
     {sys/form/r-top.i}
 
     ASSIGN                   
@@ -1394,8 +1487,16 @@ PROCEDURE run-report :
     iFileCount = iFileCount + 1. 
     {sys/inc/print1.i "+ string(iFileCount)"}
 
-    {sys/inc/outprint.i value(lines-per-page)}
-
+    ASSIGN
+        cAPIScopeID   = IF ip-cust-no EQ "" THEN "" ELSE IF ip-sold-no EQ "" THEN ip-cust-no ELSE ip-cust-no + "," + ip-sold-no
+        cAPIScopeType = IF ip-cust-no EQ "" THEN "" ELSE IF ip-sold-no EQ "" THEN "Customer" ELSE "ShipTo"
+        .
+        
+    RUN Outbound_IsApiClientAndScopeActive IN hdOutboundProcs (cocode, "", "PrintInvoice", v-print-fmt, cAPIScopeID, cAPIScopeType, "PrintInvoice", OUTPUT lIsAPIActive).
+    
+    IF NOT lIsAPIActive THEN
+        {sys/inc/outprint.i value(lines-per-page)}
+    
     IF td-show-parm THEN RUN show-param.
 
     {sa/sa-sls01.i}
@@ -1630,7 +1731,7 @@ DO:
                         PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Portugese" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  DO:
                         PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
@@ -1680,7 +1781,7 @@ DO:
                         PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(0.5 + dPrintFmtDec)) + "mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                     END.
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Portugese" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt = "PremierS" OR v-print-fmt = "Axis" THEN  
                     DO:
                         PUT "<PDF=DIRECT><PRINT=NO><FORMAT=LETTER><PDF-LEFT=" + trim(STRING(5 + dPrintFmtDec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                         cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
@@ -1751,8 +1852,11 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
                 IF tb_sman-copy  THEN RUN value(v-program) ("Salesman Copy").
                 IF NOT tb_cust-copy AND NOT tb_office-copy AND NOT tb_sman-copy THEN RUN value(v-program) ("").
             END.
-            ELSE IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis") > 0 THEN 
-DO: 
+            ELSE IF LOOKUP(v-print-fmt,"PremierX,Portugese,InvPrint-Mex,Coburn,Axis") > 0 THEN 
+DO:                 
+                    IF lIsAPIActive AND v-print-fmt EQ "InvPrint-Mex" THEN
+                    RUN pCallAPIOutbound(v-print-fmt, cAPIScopeType, cAPIScopeID, rCurrentInvoice).
+                    ELSE     
                     RUN value(v-program) ("",NO). 
                     v-reprint = YES.
                     IF tb_cust-copy THEN RUN value(v-program) ("Customer Copy",NO).
@@ -1771,7 +1875,12 @@ DO:
                     DO:    
                         RUN value(v-program) (v-print-fmt). 
                     END.
-                    ELSE RUN value(v-program). 
+                    ELSE DO:
+                        IF lIsAPIActive THEN
+                            RUN pCallAPIOutbound(v-print-fmt, cAPIScopeType, cAPIScopeID, rCurrentInvoice).
+                        ELSE                        
+                            RUN VALUE(v-program).
+                    END. 
 
 vcInvNums = "".
 FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,        
@@ -1805,8 +1914,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id:
 END.
 
 /* If it's split pdf, the tt-list is in use in 'output-to-mail' */
-IF NOT tb_splitPDF THEN
-EMPTY TEMP-TABLE tt-list.
+IF NOT tb_splitPDF THEN DO:
+    EMPTY TEMP-TABLE tt-list.
+    EMPTY TEMP-TABLE ttInvoice.
+END.
 
 RUN custom/usrprint.p (v-prgmname, hFrame-Handle).
 
@@ -2217,6 +2328,11 @@ PROCEDURE SetInvForm:
             ASSIGN
                 v-program      = "oe/rep/invpremx.p"
                 lines-per-page = 66
+                is-xprint-form = YES. 
+        WHEN "Portugese" THEN
+            ASSIGN
+                v-program      = "oe/rep/invport.p"
+                lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "InvPrint-Mex" THEN
             ASSIGN
@@ -2326,8 +2442,9 @@ PROCEDURE SetInvForm:
                 is-xprint-form = YES.
         WHEN "Harwell" THEN
             ASSIGN
-                v-program      = "oe/rep/invharwl.p"
-                lines-per-page = 63.
+                v-program      = "oe/rep/invHarwell.p"
+                lines-per-page = 63
+                is-xprint-form = YES.
         WHEN "P&P" THEN
             ASSIGN
                 v-program      = "oe/rep/invpnp.p"
@@ -2842,6 +2959,11 @@ PROCEDURE SetInvPostForm:
             ASSIGN
                 v-program      = "ar/rep/invpremx.p"
                 lines-per-page = 66
+                is-xprint-form = YES. 
+        WHEN "Portugese" THEN
+            ASSIGN
+                v-program      = "ar/rep/invport.p"
+                lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "InvPrint-Mex" THEN
             ASSIGN
@@ -2943,8 +3065,9 @@ PROCEDURE SetInvPostForm:
                 is-xprint-form = YES.
         WHEN "Harwell" THEN
             ASSIGN
-                v-program      = "ar/rep/invharwl.p"
-                lines-per-page = 63.
+                v-program      = "ar/rep/invHarwell.p"
+                lines-per-page = 63
+                is-xprint-form = YES.
         WHEN "Chillic" THEN
             ASSIGN
                 v-program      = "ar/rep/invchill.p"

@@ -39,6 +39,8 @@ def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
 
+DEFINE TEMP-TABLE tt-report LIKE report .
+
 /*&SCOPED-DEFINE ASCDSC-1 DESC*/
 &scoped-define FLD-NAME-1 ar-inv.inv-no 
 &scoped-define FLD-NAME-2 ar-inv.inv-date
@@ -50,6 +52,9 @@ def var lv-first-time as log init yes no-undo.
 &SCOPED-DEFINE DATATYPE-2 DATE
 &SCOPED-DEFINE DATATYPE-3 DEC
 &scoped-define IAMWHAT LOOKUP
+&SCOPED-DEFINE yellowColumnsName l-arinv
+&SCOPED-DEFINE noSortByField
+&SCOPED-DEFINE lvSearch
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -67,7 +72,7 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ar-inv
+&Scoped-define INTERNAL-TABLES tt-report ar-inv
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -76,23 +81,25 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 ar-inv.cust-no ar-inv.inv-no ~
 ar-inv.inv-date ar-inv.net ar-inv.paid ar-inv.due 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ar-inv WHERE ~{&KEY-PHRASE} ~
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH tt-report, ~
+      FIRST ar-inv WHERE ~{&KEY-PHRASE} ~
       AND ar-inv.posted = yes AND ~
 ASI.ar-inv.company = ip-company and ~
-ar-inv.cust-no = ip-cust-no ~
- ~
+ar-inv.cust-no = ip-cust-no AND ~
+RECID(ar-inv) EQ tt-report.rec-id ~
  NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH ar-inv WHERE ~{&KEY-PHRASE} ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH tt-report, ~
+FIRST ar-inv WHERE ~{&KEY-PHRASE} ~
       AND ar-inv.posted = yes and ~
 ASI.ar-inv.company = ip-company and ~
-ar-inv.cust-no = ip-cust-no ~
- ~
+ar-inv.cust-no = ip-cust-no and ~
+RECID(ar-inv) EQ tt-report.rec-id ~
  NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 ar-inv
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 ar-inv
-
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 tt-report ar-inv
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 tt-report
+&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 ar-inv
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
 &Scoped-define OPEN-BROWSERS-IN-QUERY-Dialog-Frame ~
@@ -148,6 +155,7 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
+      tt-report, 
       ar-inv SCROLLING.
 &ANALYZE-RESUME
 
@@ -155,13 +163,13 @@ DEFINE QUERY BROWSE-1 FOR
 DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
-      ar-inv.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U WIDTH 12
+      ar-inv.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U WIDTH 12  LABEL-BGCOLOR 14
       ar-inv.inv-no COLUMN-LABEL "Invoice#" FORMAT ">>>>>>>>":U
-            WIDTH 12
-      ar-inv.inv-date FORMAT "99/99/9999":U WIDTH 15
-      ar-inv.net COLUMN-LABEL "Net" FORMAT "->>,>>>,>>9.99":U WIDTH 18
-      ar-inv.paid FORMAT "->,>>>,>>9.99":U WIDTH 18
-      ar-inv.due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U
+            WIDTH 12 LABEL-BGCOLOR 14
+      ar-inv.inv-date FORMAT "99/99/9999":U WIDTH 15  LABEL-BGCOLOR 14
+      ar-inv.net COLUMN-LABEL "Net" FORMAT "->>,>>>,>>9.99":U WIDTH 18  LABEL-BGCOLOR 14
+      ar-inv.paid FORMAT "->,>>>,>>9.99":U WIDTH 18   LABEL-BGCOLOR 14
+      ar-inv.due COLUMN-LABEL "Balance Due" FORMAT "->>,>>>,>>9.99":U LABEL-BGCOLOR 14
             WIDTH 18
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -208,6 +216,9 @@ DEFINE FRAME Dialog-Frame
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
+       
+ASSIGN 
+       BROWSE-1:ALLOW-COLUMN-SEARCHING IN FRAME Dialog-Frame = TRUE.       
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -217,26 +228,17 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.ar-inv"
-     _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ar-inv.posted = yes and
-ASI.ar-inv.company = ip-company and
-ar-inv.cust-no = ip-cust-no
-
-"
-     _FldNameList[1]   > ASI.ar-inv.cust-no
-"ar-inv.cust-no" "Customer#" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > ASI.ar-inv.inv-no
-"ar-inv.inv-no" "Invoice#" ">>>>>>>>" "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > ASI.ar-inv.inv-date
-"ar-inv.inv-date" ? ? "date" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.ar-inv.net
-"ar-inv.net" "Net" ? "decimal" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.ar-inv.paid
-"ar-inv.paid" ? ? "decimal" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.ar-inv.due
-"ar-inv.due" "Balance Due" ? "decimal" ? ? ? ? ? ? no ? no no "18" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _Query            is OPENED
+     _START_FREEFORM
+     OPEN QUERY {&SELF-NAME} FOR EACH tt-report,
+                            FIRST ar-inv WHERE ~{&KEY-PHRASE} 
+                            AND ar-inv.posted = yes AND 
+                            ASI.ar-inv.company = ip-company and 
+                            ar-inv.cust-no = ip-cust-no AND 
+                            RECID(ar-inv) EQ tt-report.rec-id NO-LOCK
+                            ~{&SORTBY-PHRASE}
+     _END_FREEFORM       
+     _Query            is OPENED    
+    
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
@@ -274,11 +276,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
 ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
-   op-char-val = ar-inv.inv-no:screen-value in browse {&browse-name}
+   op-char-val = ar-inv.inv-no:screen-value in BROWSE BROWSE-1
                  .
    op-rec-val = recid(ar-inv).              
    apply "window-close" to frame {&frame-name}. 
       
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON START-SEARCH OF BROWSE-1 IN FRAME Dialog-Frame
+DO:
+  RUN startSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -306,7 +317,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bt-ok Dialog-Frame
 ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
-   op-char-val = ar-inv.inv-no:screen-value in browse {&browse-name}.
+   op-char-val = ar-inv.inv-no:screen-value in browse BROWSE-1.
    op-rec-val = recid(ar-inv).              
    apply "window-close" to frame {&frame-name}. 
       
@@ -384,12 +395,12 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
+   {custom/yellowColumns.i}
 /*
   &scoped-define key-phrase {&FLD-NAME-1} >= ip-cur-val
   &scoped-define sortby-phrase {&sortby-1}
 */  
-
+  RUN pBuildTable. 
   RUN enable_UI.
   
   /*{custom/lookpos.i &lookup-file = "job-hdr" &lookup-field = "job-no" }*/
@@ -444,3 +455,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pBuildTable Dialog-Frame 
+PROCEDURE pBuildTable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  FOR EACH tt-report:
+    DELETE tt-report.
+  END.
+
+  FOR EACH ar-inv NO-LOCK
+      WHERE ar-inv.posted EQ yes 
+      AND ASI.ar-inv.company EQ ip-company 
+      AND ar-inv.cust-no EQ ip-cust-no 
+      AND NOT CAN-FIND (FIRST ar-cashl NO-LOCK 
+               WHERE ar-cashl.company EQ ar-inv.company 
+                 AND ar-cashl.cust-no EQ ar-inv.cust-no 
+                 AND ar-cashl.inv-no  EQ ar-inv.inv-no) :                  
+       CREATE tt-report.
+       ASSIGN
+       tt-report.rec-id = RECID(ar-inv)
+       tt-report.key-01 = string(ar-inv.inv-no)
+       .     
+  END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

@@ -1,0 +1,2 @@
+$OperationHeader$<C2>$MachineName$ <C20>$RunCrew|>>>9.99|DEC|$<C27>$RunHours|>>>9.99|DEC|$<C34>$SetupCrew|>>>9.99|DEC|$<C41>$SetupHours|>>>9.99|DEC|$<C48>$Speed|>>>>>>9|INT|$<C55>$QuantityInSetupWaste|>>>>>>9|INT|$<C62>$QuantityInRunWaste|>>>>>>9|INT|$<C69>$QuantityIn|>>>>>>9|INT|$<C76>$QuantityOut|>>>>>>9|INT|$
+$OperationFooter$

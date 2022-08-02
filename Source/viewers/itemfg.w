@@ -99,47 +99,48 @@ DEF BUFFER b-venditemCostlevel FOR vendItemCostLevel .
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR itemfg.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS itemfg.spare-int-2 itemfg.poStatus ~
-itemfg.i-no itemfg.isaset itemfg.part-no itemfg.i-name itemfg.part-dscr1 ~
-itemfg.part-dscr2 itemfg.part-dscr3 itemfg.spare-char-1 itemfg.est-no ~
-itemfg.designID itemfg.style itemfg.style-desc itemfg.die-no ~
-itemfg.plate-no itemfg.cad-no itemfg.spc-no itemfg.upc-no itemfg.cust-no ~
-itemfg.cust-name itemfg.stat itemfg.pur-man itemfg.ship-meth itemfg.i-code ~
-itemfg.sell-price itemfg.sell-uom itemfg.curr-code[1] itemfg.procat ~
-itemfg.procat-desc itemfg.type-code itemfg.def-loc itemfg.def-loc-bin ~
-itemfg.case-count itemfg.case-pall itemfg.weight-100 itemfg.frt-class ~
-itemfg.frt-class-dscr itemfg.class itemfg.cc-code itemfg.quantityPartial ~
-itemfg.prod-notes itemfg.trNo itemfg.spare-char-4 itemfg.subZone ~
-itemfg.stackHeight itemfg.unitLength itemfg.unitWidth itemfg.unitHeight ~
+&Scoped-Define ENABLED-FIELDS itemfg.i-no itemfg.isaset itemfg.part-no ~
+itemfg.i-name itemfg.part-dscr1 itemfg.part-dscr2 itemfg.part-dscr3 ~
+itemfg.spare-char-1 itemfg.est-no itemfg.designID itemfg.style ~
+itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no itemfg.spc-no ~
+itemfg.upc-no itemfg.spare-int-2 itemfg.poStatus itemfg.receiveAsRMItemID ~
+itemfg.cust-no itemfg.cust-name itemfg.stat itemfg.pur-man itemfg.ship-meth ~
+itemfg.i-code itemfg.sell-price itemfg.sell-uom itemfg.curr-code[1] ~
+itemfg.procat itemfg.procat-desc itemfg.type-code itemfg.def-loc ~
+itemfg.def-loc-bin itemfg.class itemfg.cc-code itemfg.case-count ~
+itemfg.case-pall itemfg.quantityPartial itemfg.weight-100 itemfg.prod-notes ~
+itemfg.weightPerEA itemfg.frt-class itemfg.frt-class-dscr itemfg.trNo ~
+itemfg.spare-char-4 itemfg.subZone itemfg.stackHeight itemfg.unitLength ~
+itemfg.unitWidth itemfg.unitHeight itemfg.palletVolume itemfg.prod-code ~
 itemfg.std-mat-cost itemfg.std-lab-cost itemfg.std-var-cost ~
 itemfg.std-fix-cost itemfg.spare-dec-1 itemfg.total-std-cost ~
-itemfg.avg-cost itemfg.last-cost itemfg.prod-uom itemfg.palletVolume ~
-itemfg.prod-code itemfg.weightPerEA 
+itemfg.avg-cost itemfg.last-cost itemfg.prod-uom 
 &Scoped-define ENABLED-TABLES itemfg
 &Scoped-define FIRST-ENABLED-TABLE itemfg
 &Scoped-Define ENABLED-OBJECTS tg-Freeze-weight btn_misc-est RECT-10 RECT-8 ~
 RECT-9 RECT-11 RECT-12 
-&Scoped-Define DISPLAYED-FIELDS itemfg.spare-int-2 itemfg.poStatus ~
-itemfg.setupDate itemfg.i-no itemfg.isaset itemfg.part-no itemfg.i-name ~
-itemfg.part-dscr1 itemfg.part-dscr2 itemfg.part-dscr3 itemfg.spare-char-1 ~
-itemfg.exempt-disc itemfg.est-no itemfg.designID itemfg.style ~
-itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no itemfg.spc-no ~
-itemfg.upc-no itemfg.cust-no itemfg.cust-name itemfg.stat itemfg.pur-man ~
-itemfg.ship-meth itemfg.i-code itemfg.sell-price itemfg.sell-uom ~
-itemfg.curr-code[1] itemfg.procat itemfg.procat-desc itemfg.type-code ~
-itemfg.def-loc itemfg.def-loc-bin itemfg.case-count itemfg.case-pall ~
-itemfg.weight-100 itemfg.frt-class itemfg.frt-class-dscr itemfg.class ~
-itemfg.cc-code itemfg.quantityPartial itemfg.prod-notes itemfg.trNo ~
-itemfg.spare-char-4 itemfg.subZone itemfg.stackHeight itemfg.unitLength ~
-itemfg.unitWidth itemfg.unitHeight itemfg.std-mat-cost itemfg.std-lab-cost ~
-itemfg.std-var-cost itemfg.std-fix-cost itemfg.spare-dec-1 ~
-itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost itemfg.prod-uom ~
-itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate itemfg.palletVolume ~
-itemfg.prod-code itemfg.weightPerEA 
+&Scoped-Define DISPLAYED-FIELDS itemfg.i-no itemfg.isaset itemfg.part-no ~
+itemfg.i-name itemfg.part-dscr1 itemfg.part-dscr2 itemfg.part-dscr3 ~
+itemfg.spare-char-1 itemfg.exempt-disc itemfg.est-no itemfg.designID ~
+itemfg.style itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no ~
+itemfg.spc-no itemfg.upc-no itemfg.spare-int-2 itemfg.poStatus ~
+itemfg.receiveAsRMItemID itemfg.setupBy itemfg.modifiedBy itemfg.setupDate ~
+itemfg.modifiedDate itemfg.cust-no itemfg.cust-name itemfg.stat ~
+itemfg.pur-man itemfg.ship-meth itemfg.i-code itemfg.sell-price ~
+itemfg.sell-uom itemfg.curr-code[1] itemfg.procat itemfg.procat-desc ~
+itemfg.type-code itemfg.def-loc itemfg.def-loc-bin itemfg.class ~
+itemfg.cc-code itemfg.case-count itemfg.case-pall itemfg.quantityPartial ~
+itemfg.weight-100 itemfg.prod-notes itemfg.weightPerEA itemfg.frt-class ~
+itemfg.frt-class-dscr itemfg.trNo itemfg.spare-char-4 itemfg.subZone ~
+itemfg.stackHeight itemfg.unitLength itemfg.unitWidth itemfg.unitHeight ~
+itemfg.palletVolume itemfg.prod-code itemfg.std-mat-cost ~
+itemfg.std-lab-cost itemfg.std-var-cost itemfg.std-fix-cost ~
+itemfg.spare-dec-1 itemfg.total-std-cost itemfg.avg-cost itemfg.last-cost ~
+itemfg.prod-uom 
 &Scoped-define DISPLAYED-TABLES itemfg
 &Scoped-define FIRST-DISPLAYED-TABLE itemfg
-&Scoped-Define DISPLAYED-OBJECTS cSourceEstimate tb_taxable ~
-tg-Freeze-weight iCount fi_type-dscr 
+&Scoped-Define DISPLAYED-OBJECTS cSourceEstimate tb_taxable fi_type-dscr ~
+tg-Freeze-weight iCount 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -227,20 +228,6 @@ DEFINE VARIABLE tg-Freeze-weight AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     itemfg.spare-int-2 AT ROW 16.91 COL 11 COLON-ALIGNED HELP
-          "" WIDGET-ID 16
-          LABEL "Rel Seq" FORMAT ">>>>>>9"
-          VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-     itemfg.poStatus AT ROW 16.91 COL 50 COLON-ALIGNED
-          VIEW-AS COMBO-BOX INNER-LINES 3
-          LIST-ITEMS "Default","Locked","NoAuto","<none>" 
-          DROP-DOWN-LIST
-          SIZE 14.2 BY 1
-     itemfg.setupDate AT ROW 19.86 COL 15.4 COLON-ALIGNED
-          LABEL "Setup Date" FORMAT "99/99/9999"
-          VIEW-AS FILL-IN 
-          SIZE 15.6 BY 1
      itemfg.i-no AT ROW 1.48 COL 15.4 COLON-ALIGNED
           LABEL "FG Item #"
           VIEW-AS FILL-IN 
@@ -311,13 +298,28 @@ DEFINE FRAME F-Main
           LABEL "UPC #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
-     itemfg.cust-no AT ROW 1.48 COL 76 COLON-ALIGNED
-          LABEL "Cust#" FORMAT "x(8)"
+     itemfg.spare-int-2 AT ROW 16.91 COL 11 COLON-ALIGNED HELP
+          "" WIDGET-ID 16
+          LABEL "Rel Seq" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1
-     itemfg.cust-name AT ROW 1.48 COL 91.2 COLON-ALIGNED NO-LABEL
+          SIZE 16.4 BY 1
+     itemfg.poStatus AT ROW 16.91 COL 50 COLON-ALIGNED
+          VIEW-AS COMBO-BOX INNER-LINES 3
+          LIST-ITEMS "Default","Locked","NoAuto","<none>" 
+          DROP-DOWN-LIST
+          SIZE 14.2 BY 1
+     itemfg.receiveAsRMItemID AT ROW 18.14 COL 15.4 COLON-ALIGNED WIDGET-ID 22
+          LABEL "RM Item#"
           VIEW-AS FILL-IN 
-          SIZE 35.8 BY 1
+          SIZE 19.6 BY 1
+     itemfg.setupBy AT ROW 19.24 COL 15.4 COLON-ALIGNED
+          LABEL "Setup By" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     itemfg.modifiedBy AT ROW 19.24 COL 50.4 COLON-ALIGNED
+          LABEL "Modifed By" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -325,6 +327,21 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     itemfg.setupDate AT ROW 20.29 COL 15.4 COLON-ALIGNED
+          LABEL "Setup Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     itemfg.modifiedDate AT ROW 20.29 COL 50.4 COLON-ALIGNED
+          LABEL "Modified Date" FORMAT "99/99/9999"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     itemfg.cust-no AT ROW 1.48 COL 76 COLON-ALIGNED
+          LABEL "Cust#" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 15 BY 1
+     itemfg.cust-name AT ROW 1.48 COL 91.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 35.8 BY 1
      tb_taxable AT ROW 1.29 COL 129.6
      itemfg.stat AT ROW 3 COL 78.8 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
@@ -373,6 +390,7 @@ DEFINE FRAME F-Main
      itemfg.type-code AT ROW 6.57 COL 118 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
+     fi_type-dscr AT ROW 6.57 COL 122 COLON-ALIGNED NO-LABEL
      itemfg.def-loc AT ROW 7.57 COL 81.6 COLON-ALIGNED
           LABEL "Warehse"
           VIEW-AS FILL-IN 
@@ -380,6 +398,12 @@ DEFINE FRAME F-Main
      itemfg.def-loc-bin AT ROW 8.57 COL 81.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 16.4 BY 1
+     itemfg.class AT ROW 7.57 COL 128.2 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 13.8 BY .95
+     itemfg.cc-code AT ROW 8.52 COL 128.2 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 13.8 BY .95
      itemfg.case-count AT ROW 9.52 COL 81.6 COLON-ALIGNED HELP
           "Enter Qty per Case, Bundle or Pallet"
           LABEL "Unit Count" FORMAT ">>>>>9"
@@ -390,29 +414,6 @@ DEFINE FRAME F-Main
           LABEL "Unit/Pall" FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     itemfg.weight-100 AT ROW 10.52 COL 81.6 COLON-ALIGNED
-          LABEL "ShipWt/100"
-          VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-     tg-Freeze-weight AT ROW 10.52 COL 100 WIDGET-ID 14
-     itemfg.frt-class AT ROW 11.62 COL 111.8 COLON-ALIGNED HELP
-          "Enter A,B,C"
-          VIEW-AS FILL-IN 
-          SIZE 7.2 BY 1
-     itemfg.frt-class-dscr AT ROW 11.62 COL 119 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 23 BY 1
-     itemfg.class AT ROW 7.57 COL 128.2 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 13.8 BY .95
-     itemfg.cc-code AT ROW 8.52 COL 128.2 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 13.8 BY .95
-     itemfg.quantityPartial AT ROW 9.48 COL 128.4 COLON-ALIGNED HELP
-          ""
-          LABEL "Partial" FORMAT ">>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 13.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -420,10 +421,31 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     itemfg.quantityPartial AT ROW 9.48 COL 128.4 COLON-ALIGNED HELP
+          ""
+          LABEL "Partial" FORMAT ">>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 13.8 BY 1
+     itemfg.weight-100 AT ROW 10.52 COL 81.6 COLON-ALIGNED
+          LABEL "ShipWt/100"
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
+     tg-Freeze-weight AT ROW 10.52 COL 100 WIDGET-ID 14
      itemfg.prod-notes AT ROW 10.52 COL 114 COLON-ALIGNED
           LABEL "Pk Note"
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
+     itemfg.weightPerEA AT ROW 11.57 COL 81.6 COLON-ALIGNED WIDGET-ID 18
+          LABEL "Weight/EA"
+          VIEW-AS FILL-IN 
+          SIZE 14.4 BY 1
+     itemfg.frt-class AT ROW 11.62 COL 111.8 COLON-ALIGNED HELP
+          "Enter A,B,C"
+          VIEW-AS FILL-IN 
+          SIZE 7.2 BY 1
+     itemfg.frt-class-dscr AT ROW 11.62 COL 119 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 23 BY 1
      itemfg.trNo AT ROW 12.67 COL 78.2 COLON-ALIGNED
           LABEL "Pallet #" FORMAT "x(10)"
           VIEW-AS FILL-IN 
@@ -452,6 +474,15 @@ DEFINE FRAME F-Main
           LABEL "x (H)" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
+     itemfg.palletVolume AT ROW 15.05 COL 100 COLON-ALIGNED
+          LABEL "Std. Pallet Volume (in3)"
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
+     itemfg.prod-code AT ROW 15.05 COL 128.4 COLON-ALIGNED HELP
+          ""
+          LABEL "Prod Code" FORMAT "X(6)"
+          VIEW-AS FILL-IN 
+          SIZE 13.8 BY 1
      itemfg.std-mat-cost AT ROW 16.52 COL 88.6 COLON-ALIGNED
           LABEL "Std Mat'l Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
@@ -468,6 +499,13 @@ DEFINE FRAME F-Main
           LABEL "Std Fix OH Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      itemfg.spare-dec-1 AT ROW 20.33 COL 88.6 COLON-ALIGNED WIDGET-ID 4
           LABEL "Full Cost" FORMAT "->>>>>>>9.99<<"
           VIEW-AS FILL-IN 
@@ -484,44 +522,11 @@ DEFINE FRAME F-Main
           LABEL "Last Cost" FORMAT ">>>>>>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     fi_type-dscr AT ROW 6.57 COL 122 COLON-ALIGNED NO-LABEL
      itemfg.prod-uom AT ROW 19.38 COL 124.6 COLON-ALIGNED
           LABEL "Cost UOM"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     itemfg.setupBy AT ROW 18.57 COL 15.4 COLON-ALIGNED
-          LABEL "Setup By" FORMAT "x(8)"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     itemfg.modifiedBy AT ROW 18.57 COL 50.4 COLON-ALIGNED
-          LABEL "Modifed By" FORMAT "x(8)"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     itemfg.modifiedDate AT ROW 19.86 COL 50.4 COLON-ALIGNED
-          LABEL "Modified Date" FORMAT "99/99/9999"
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-     itemfg.palletVolume AT ROW 15.05 COL 100 COLON-ALIGNED
-          LABEL "Std. Pallet Volume (in3)"
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
-     itemfg.prod-code AT ROW 15.05 COL 128.4 COLON-ALIGNED HELP
-          ""
-          LABEL "Prod Code" FORMAT "X(6)"
-          VIEW-AS FILL-IN 
-          SIZE 13.8 BY 1
      btn_misc-est AT ROW 20.33 COL 120
-     itemfg.weightPerEA AT ROW 11.57 COL 81.6 COLON-ALIGNED WIDGET-ID 18
-          LABEL "Weight/EA"
-          VIEW-AS FILL-IN 
-          SIZE 14.4 BY 1
      "Status:" VIEW-AS TEXT
           SIZE 8 BY .95 AT ROW 3.05 COL 70
      "Ship Method:" VIEW-AS TEXT
@@ -659,6 +664,8 @@ ASSIGN
    EXP-HELP                                                             */
 /* SETTINGS FOR FILL-IN itemfg.quantityPartial IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN itemfg.receiveAsRMItemID IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN itemfg.sell-price IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.sell-uom IN FRAME F-Main
@@ -878,8 +885,20 @@ DO:
                     IF char-val <> "" THEN
                         ASSIGN lw-focus:SCREEN-VALUE = char-val.
                 END.
-
-
+            WHEN "receiveAsRMItemID" THEN DO:
+                RUN system/openlookup.p (
+                    "",  /* company */ 
+                    "",  /* lookup field */
+                    26, /* Subject ID */
+                    "",  /* User ID */
+                    0,   /* Param value ID */
+                    OUTPUT fields-val, 
+                    OUTPUT char-val, 
+                    OUTPUT look-recid
+                    ).
+                IF char-val <> "" AND char-val NE itemfg.receiveAsRMItemID:SCREEN-VALUE THEN
+                    itemfg.receiveAsRMItemID:SCREEN-VALUE = char-val.                
+            END.
         END.    
 
 
@@ -2007,7 +2026,17 @@ PROCEDURE local-assign-record :
 
             END. /* each e-itemfg ... */
         END. /* if copy */
-
+    
+    IF itemfg.est-no NE "" THEN DO:
+        FIND FIRST bf-eb EXCLUSIVE-LOCK
+             WHERE bf-eb.company  EQ itemfg.company
+               AND bf-eb.est-no   EQ itemfg.est-no
+               AND bf-eb.stock-no EQ itemfg.i-no
+             NO-ERROR.
+        IF AVAILABLE bf-eb THEN
+            bf-eb.receiveAsRMItemID = itemfg.receiveAsRMItemID.
+    END.
+    
     ASSIGN 
         itemfg.taxable      = tb_taxable
         itemfg.modifiedBy  = USERID(LDBNAME(1))
@@ -2267,6 +2296,9 @@ PROCEDURE local-update-record :
     RUN valid-loc NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+    RUN valid-rm-item NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
     RUN pCheckOnHandQty NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
 
@@ -3252,6 +3284,36 @@ PROCEDURE valid-pro-status :
     END.
 
   {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win 
+PROCEDURE valid-rm-item PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF itemfg.receiveAsRMItemID:SCREEN-VALUE EQ "" THEN
+        RETURN.
+        
+    IF NOT CAN-FIND(FIRST item
+                    WHERE item.company  EQ cocode
+                      AND item.i-no     EQ itemfg.receiveAsRMItemID:SCREEN-VALUE) THEN DO:
+        MESSAGE "Invalid RM Item #, try help..." VIEW-AS ALERT-BOX ERROR.
+        
+        APPLY "ENTRY" TO itemfg.receiveAsRMItemID.
+        
+        RETURN ERROR.
+    END.
+    
+    {methods/lValidateError.i NO}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

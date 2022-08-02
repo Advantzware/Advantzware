@@ -280,7 +280,8 @@ ON DEFAULT-ACTION OF BROWSE-1 IN FRAME Dialog-Frame
 DO:
    op-char-val = shipto.ship-id:screen-value in browse {&browse-name} + "," +
                  shipto.ship-name:screen-value in browse {&browse-name} + "," +
-                 shipto.carrier:screen-value in browse {&browse-name}
+                 shipto.carrier:screen-value in browse {&browse-name} + "," +
+                 shipto.cust-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
                  .
    op-rec-val = recid(shipto).              
    apply "window-close" to frame {&frame-name}. 
@@ -314,7 +315,8 @@ ON CHOOSE OF bt-ok IN FRAME Dialog-Frame /* OK */
 DO:
       op-char-val = shipto.ship-id:screen-value in browse {&browse-name} + "," +
                     shipto.ship-name:screen-value in browse {&browse-name} + "," +
-                    shipto.carrier:screen-value in browse {&browse-name}
+                    shipto.carrier:screen-value in browse {&browse-name} + "," +
+                    shipto.cust-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
                  .
       op-rec-val = recid(shipto).           
    apply "window-close" to frame {&frame-name}. 

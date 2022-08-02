@@ -310,7 +310,7 @@ DO:
           RUN system/openLookup.p (
               INPUT  gcompany, 
               INPUT  "", /* Lookup ID */
-              INPUT  155,  /* Subject ID */
+              INPUT  29,  /* Subject ID */
               INPUT  "", /* User ID */
               INPUT  0,  /* Param Value ID */
               OUTPUT cAllFields, 

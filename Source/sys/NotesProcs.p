@@ -31,6 +31,10 @@ DEFINE VARIABLE gTypeShipNote AS CHARACTER NO-UNDO INIT "ES".
 /* ************************  Function Prototypes ********************** */
 
 
+FUNCTION fNotes_IsDuplicateNote RETURNS LOGICAL 
+	(ipriNote AS ROWID,
+	 ipcRecKey AS CHARACTER) FORWARD.
+
 FUNCTION fIsLineEnd RETURNS LOGICAL PRIVATE
     (ipcChar AS CHARACTER) FORWARD.
 
@@ -130,11 +134,7 @@ PROCEDURE Notes_CopyNotes:
         AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)        
         :
         /*Prevent duplication of notes*/
-        IF NOT CAN-FIND(FIRST bfDup-notes WHERE bfDup-notes.rec_key EQ ipcRecKeyTo
-            AND bfDup-notes.note_type EQ notes.note_type
-            AND bfDup-notes.note_code EQ notes.note_code
-            AND bfDup-notes.note_title EQ notes.note_title
-            AND bfDup-notes.note_text EQ notes.note_text) THEN DO:
+        IF NOT fNotes_IsDuplicateNote(ROWID(notes), ipcRecKeyTo) THEN DO:
     
             CREATE bf-notes.
             BUFFER-COPY notes EXCEPT rec_key TO bf-notes.
@@ -187,6 +187,7 @@ PROCEDURE Notes_GetNotesArrayForObject:
     DEFINE INPUT PARAMETER ipcObjectRecKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcTypes AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCodes AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcGroup AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiMaxCharCount AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iplIncludeTitles AS LOGICAL NO-UNDO.
     DEFINE INPUT PARAMETER ipiNotesForm AS INTEGER NO-UNDO.
@@ -199,6 +200,7 @@ PROCEDURE Notes_GetNotesArrayForObject:
         WHERE notes.rec_key EQ ipcObjectRecKey
         AND (ipcTypes EQ "" OR LOOKUP(notes.note_type,ipcTypes) GT 0)
         AND (ipcCodes EQ "" OR LOOKUP(notes.note_code,ipcCodes) GT 0)
+        AND (ipcGroup EQ "" OR LOOKUP(notes.note_group,ipcGroup) GT 0)
         AND (notes.note_form_no EQ ipiNotesForm OR notes.note_form_no EQ 0)
         :
         IF iplIncludeTitles THEN 
@@ -355,6 +357,32 @@ PROCEDURE Notes_UpdateShipNote:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION fNotes_IsDuplicateNote RETURNS LOGICAL 
+	(ipriNote AS ROWID, ipcRecKey AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose:  If a given note has a duplicate on provided rec_key, return yes
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE BUFFER bfDup-notes FOR notes.
+    DEFINE BUFFER bfTarget-notes FOR notes.
+    DEFINE VARIABLE lIsDuplicate AS LOGICAL NO-UNDO.
+    
+    FIND bfTarget-notes NO-LOCK 
+        WHERE ROWID(bfTarget-notes) EQ ipriNote
+        NO-ERROR.
+    
+    IF AVAILABLE bfTarget-notes THEN DO:
+        lIsDuplicate = CAN-FIND(FIRST bfDup-notes WHERE bfDup-notes.rec_key EQ ipcRecKey
+            AND bfDup-notes.note_type EQ bfTarget-notes.note_type
+            AND bfDup-notes.note_code EQ bfTarget-notes.note_code
+            AND bfDup-notes.note_title EQ bfTarget-notes.note_title
+            AND bfDup-notes.note_text EQ bfTarget-notes.note_text).
+            
+    END.
+	RETURN lIsDuplicate.	
+	
+END FUNCTION.
 
 FUNCTION fIsLineEnd RETURNS LOGICAL PRIVATE
     ( ipcChar AS CHARACTER):

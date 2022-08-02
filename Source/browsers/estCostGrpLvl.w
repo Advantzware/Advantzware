@@ -45,14 +45,11 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 {est/ttEstSysConfig.i}
 
-&SCOP adm-attribute-dlg browsers\setting-support.w
-
-&IF DEFINED(adm-attribute-list) = 0 &THEN
-&SCOP adm-attribute-list SAVE-TYPE,BROWSE-COLUMNS,BROWSE-COLUMNS-DISPLAY,HIDE-SEARCH,HIDE-SETTING-FILTER,HIDE-SCOPE-FILTER,SETTING-FILTER-TYPE,LOAD-DATA-FROM-TT,COLUMN-NAME
-&ENDIF
-
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
+
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -317,6 +314,23 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Add-Record B-table-Win
+PROCEDURE Add-Record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN est/destcostgrplvl.w ("Add", INPUT ttEstCostGroupLevel.estCostGroupLevelID).
+        
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
@@ -339,6 +353,73 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Delete-Record B-table-Win
+PROCEDURE Delete-Record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel. 
+    DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
+    DEFINE BUFFER bf-estCostGroup            FOR estCostGroup.
+    
+    IF NOT AVAILABLE ttEstCostGroupLevel THEN
+        RETURN.
+        
+    FIND FIRST bf-estCostGroupLevelSystem NO-LOCK
+         WHERE bf-estCostGroupLevelSystem.estCostGroupLevelID EQ ttEstCostGroupLevel.estCostGroupLevelID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-estCostGroupLevelSystem THEN DO:
+        FIND FIRST bf-estCostGroup NO-LOCK
+             WHERE bf-estCostGroup.company             EQ ttEstCostGroupLevel.company 
+               AND bf-estCostGroup.estCostGroupLevelID EQ ttEstCostGroupLevel.estCostGroupLevelID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostGroup THEN DO:
+            MESSAGE "Cost Group(s) exists for '" + STRING(ttEstCostGroupLevel.estCostGroupLevelID) + "'. Please delete all cost groups linked before deleting" 
+            VIEW-AS ALERT-BOX ERROR.
+            
+            RETURN.
+        END.
+        
+        {custom/askdel.i}.
+
+        FIND FIRST bf-estCostGroupLevel EXCLUSIVE-LOCK
+             WHERE bf-estCostGroupLevel.company             EQ ttEstCostGroupLevel.company 
+               AND bf-estCostGroupLevel.estCostGroupLevelID EQ ttEstCostGroupLevel.estCostGroupLevelID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostGroupLevel THEN
+            DELETE bf-estCostGroupLevel.
+    END.
+    ELSE DO:
+        FIND FIRST bf-estCostGroupLevel NO-LOCK
+             WHERE bf-estCostGroupLevel.company             EQ ttEstCostGroupLevel.company 
+               AND bf-estCostGroupLevel.estCostGroupLevelID EQ ttEstCostGroupLevel.estCostGroupLevelID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostGroupLevel THEN DO:
+            MESSAGE "Do you want to reset the GroupLevel to system default?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+            IF lChoice THEN DO:
+                FIND CURRENT bf-estCostGroupLevel EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE bf-estCostGroupLevel THEN
+                    DELETE bf-estCostGroupLevel.
+            END.                
+        END.    
+        ELSE DO:
+            MESSAGE "Cannot delete system record"
+            VIEW-AS ALERT-BOX ERROR.
+        END.
+    END.
+    
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'OPEN-QUERY':U ) .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -357,6 +438,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAdd B-table-Win
+PROCEDURE EnableAdd:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableAdd AS LOGICAL NO-UNDO.
+    
+    oplEnableAdd = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableBrowse B-table-Win 
 PROCEDURE EnableBrowse :
 /*------------------------------------------------------------------------------
@@ -370,6 +469,60 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableDelete B-table-Win
+PROCEDURE EnableDelete:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableDelete AS LOGICAL NO-UNDO.
+    
+    oplEnableDelete = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableRestore B-table-Win
+PROCEDURE EnableRestore:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableRestore AS LOGICAL NO-UNDO.
+    
+    oplEnableRestore = FALSE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableUpdate B-table-Win
+PROCEDURE EnableUpdate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableUpdate AS LOGICAL NO-UNDO.
+    
+    oplEnableUpdate = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win 
 PROCEDURE local-destroy :
@@ -465,12 +618,12 @@ PROCEDURE pInit :
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
       
-    RUN Estimate_GetSystemDataForEstimate(INPUT "",
+    RUN Estimate_GetSystemDataForEstimate(
+        INPUT  cCompany,
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
-        OUTPUT TABLE ttEstCostGroupLevel). 
-       
-          
+        OUTPUT TABLE ttEstCostGroupLevel
+        ). 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,7 +702,7 @@ PROCEDURE Update-Record :
      Notes:
     ------------------------------------------------------------------------------*/
     IF ttEstCostGroupLevel.estCostGroupLevelID NE 0 THEN 
-        RUN est/destcostgrplvl.w (INPUT ttEstCostGroupLevel.estCostGroupLevelID).
+        RUN est/destcostgrplvl.w ("Update", INPUT ttEstCostGroupLevel.estCostGroupLevelID).
         
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
     

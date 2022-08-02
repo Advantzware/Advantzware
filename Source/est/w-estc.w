@@ -522,7 +522,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 22.43 , 7.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest ( 22.43 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -532,7 +532,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-estc ).
-       RUN set-position IN h_p-estc ( 22.19 , 44.00 ) NO-ERROR.
+       RUN set-position IN h_p-estc ( 22.19 , 38.00 ) NO-ERROR.
        RUN set-size IN h_p-estc ( 1.91 , 61.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -540,7 +540,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_fgadd ).
-       RUN set-position IN h_fgadd ( 22.19 , 109.00 ) NO-ERROR.
+       RUN set-position IN h_fgadd ( 22.19 , 100.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 11.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -548,7 +548,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-est ).
-       RUN set-position IN h_vp-est ( 22.19 , 120.00 ) NO-ERROR.
+       RUN set-position IN h_vp-est ( 22.19 , 111.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 35.00 ) */
 
        /* Initialize other pages that this page requires. */
@@ -1514,6 +1514,10 @@ ELSE
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN reopen-eb IN WIDGET-HANDLE(char-hdl) .
   END.
+  
+  IF li-page[1] = 3 THEN
+  RUN dispatch IN h_v-est ( INPUT 'display-fields':U ) .
+  
   IF li-page[1] = 5 THEN
   RUN dispatch IN h_v-est3 ( INPUT 'row-changed':U ) .
  

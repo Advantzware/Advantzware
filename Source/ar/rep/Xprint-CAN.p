@@ -185,6 +185,8 @@ FOR EACH ar-cash
               AND ar-inv.cust-no EQ ar-cashl.cust-no
               AND ar-inv.inv-no  EQ ar-cashl.inv-no NO-ERROR.
         IF AVAIL ar-inv THEN DO:
+           IF FIRST(ar-cashl.check-no) 
+           THEN 
            ASSIGN 
                v-memo-name    = ar-inv.cust-name
                v-memo-addr[1] = ar-inv.addr[1] 
@@ -275,7 +277,7 @@ FOR EACH ar-cash
            END.  /* else do */
         END.
 
-        IF FIRST-OF(ar-cashl.check-no) THEN DO:
+        IF FIRST(ar-cashl.check-no) THEN DO:
 
            FIND FIRST cust NO-LOCK
                WHERE cust.company EQ cocode

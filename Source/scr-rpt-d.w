@@ -42,9 +42,11 @@ ASSIGN
     li-font-no = ip-font-no
     lv-ornt = ip-orient
     .
-DO TRANSACTION:
-   {sys/inc/notepad.i}
-END.
+
+DEFINE VARIABLE gcNotepad      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcNotepadValue AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("Notepad", OUTPUT gcNotepad).
+RUN spGetSettingByName ("NotepadValue", OUTPUT gcNotepadValue).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -347,11 +349,9 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK D-Dialog 
 
-
 /* ***************************  Main Block  *************************** */
-
-IF notepad-log THEN DO:
-    IF notepad-chr EQ "" THEN DO: /* task 02101509 */
+IF gcNotepad EQ "YES" THEN DO:
+    IF gcNotepadValue EQ "" THEN DO: /* task 02101509 */
 &IF DEFINED(FWD-VERSION) > 0 &THEN
         open-mime-resource "text/plain" STRING("file:///" + list-name) NOT-EMBEDDED.
 &ELSE
@@ -380,8 +380,8 @@ IF notepad-log THEN DO:
                     .
             END. /* if not avail */
         END.  /* not avail usergrps */
-    END. /* else do  notepad-chr = "" */
-END.  /* if notepad-log */
+    END. /* else do  gcNotepadValue */
+END.  /* if gcNotepad */
 ASSIGN
     heightSize:MAX-VALUE = SESSION:HEIGHT - 1
     widthSize:MAX-VALUE  = SESSION:WIDTH

@@ -834,7 +834,7 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
   END.
   ELSE IF lv-format-c = "Burt" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
-      RUN cecrep/jobburt.p (lv-format-c).
+      RUN cerep/jobburt.p (lv-format-c, OUTPUT lcRequestData).
   END.
   ELSE IF lv-format-c = "PExpress" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.

@@ -256,3 +256,23 @@
 "" "202204276121809193551" "UpdateZohoDeskAccount" "UpdateAccount" "Trigger to update zoho account" no 2022-04-29T12:22:09.483 "asi" "_default" 261 61
 "" "202204274860109193513" "CreateZohoDeskTicket" "CreateTicket" "Trigger to create a zoho desk ticket" no 2022-04-27T13:30:01.071 "asi" "_default" 262 62
 "" "202204275414409193530" "GetZohoDeskAccount" "GetAccount" "Fetches account details from zoho" no 2022-04-27T15:02:24.686 "asi" "_default" 263 63
+"" "202205060773509401313" "SendQuote" "PrintQuote" "Print a quote" no 2022-05-06T02:08:55.414 "asi" "_default2" 264 64
+"" "202205060704509401277" "SendQuote" "PrintQuote" "Print a quote" no 2022-05-06T01:57:25.820 "asi" "_default3" 265 65
+"" "202205062336209401543" "SendQuote" "PrintQuote" "Print a quote" no 2022-05-06T06:29:22.656 "asi" "_default4" 266 66
+"" "202205051175609395537" "SendQuote" "PrintQuote" "Print a quote" no 2022-05-05T03:15:56.909 "asi" "_default5" 267 67
+"" "202205062372709401578" "SendQuote" "PrintQuote" "Print a quote" no 2022-05-06T06:35:27.240 "asi" "_default6" 268 68
+"" "202205115338109196541" "SendCustomers" "CRMUpdate" "Trigger to send customer information to CRM" no 2022-05-11T14:49:41.728 "asi" "_default" 269 69
+"" "202205095758909195647" "PrintInvoice" "PrintInvoice" "Trigger to print an invoice" no 2022-05-09T15:59:58.073 "asi" "_default" 270 70
+"" "202206145691809515692" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" no 2022-06-14T16:49:54.681 "asi" "_default" 271 71
+"" "202206150678609589333" "PrintInvoice" "PrintInvoice" "Trigger to print an invoice" no 2022-06-15T01:53:06.219 "asi" "_default2" 272 72
+"" "202206163582805419856" "PrintInvoice" "PrintInvoice" "Trigger to print an invoice" no 2022-06-16T09:57:08.045 "admin" "_default3" 273 73
+"" "202206163627505419884" "PrintInvoice" "PrintInvoice" "Trigger to print an invoice" no 2022-06-16T10:04:35.106 "admin" "_default4" 274 74
+"" "202206164613105420126" "PrintInvoice" "PrintInvoice" "Trigger to print an invoice" no 2022-06-16T12:48:51.456 "admin" "_default5" 275 75
+"" "202206164711605420194" "PrintInvoice" "RePrintInvoice" "Trigger to print an invoice" no 2022-06-16T13:05:16.462 "admin" "_default5" 276 75
+"" "202206164243905420062" "PrintInvoice" "PrintInvoice" "Trigger to print an invoice" no 2022-06-16T11:47:19.669 "admin" "_default6" 277 76
+"" "202206224674405192896" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-22T12:59:04.218 "admin" "_default2" 278 77
+"" "202206233596205193298" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-23T09:59:22.357 "admin" "_default3" 279 78
+"" "202206233765905193371" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-23T10:27:39.011 "admin" "_default4" 280 79
+"" "202206244369105193993" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-24T12:08:11.034 "admin" "_default6" 281 80
+"" "202206245645005194159" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-24T15:40:50.628 "admin" "_default7" 282 81
+"" "202206234589105193477" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-23T12:44:51.803 "admin" "_default5" 283 82

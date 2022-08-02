@@ -653,6 +653,7 @@ PROCEDURE pRunProcess :
     
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     DEFINE BUFFER bf-ar-invl FOR ar-invl.
+    DEFINE BUFFER bf-ar-cashl FOR ar-cashl.
     
     DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
@@ -809,7 +810,18 @@ PROCEDURE pRunProcess :
             
             FIND FIRST ar-cash NO-LOCK WHERE
                 ar-cash.c-no EQ ar-cashl.c-no
-                USE-INDEX c-no.
+                USE-INDEX c-no NO-ERROR.
+            
+            /* If ar-cashl is an orphan, delete it */
+            IF NOT AVAIL ar-cash THEN DO:
+                FIND bf-ar-cashl EXCLUSIVE WHERE 
+                    ROWID(bf-ar-cashl) EQ ROWID(ar-cashl)
+                    NO-ERROR.
+                IF AVAIL bf-ar-cashl THEN 
+                    DELETE bf-ar-cashl.
+                NEXT.
+            END.
+            
             IF ar-cash.check-date > end_date THEN
                 NEXT MAIN-LOOP.
 

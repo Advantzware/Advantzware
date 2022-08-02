@@ -1323,11 +1323,13 @@ PROCEDURE printInv :
 ------------------------------------------------------------------------------*/
   IF AVAILABLE ar-inv THEN DO:
     RUN custom/setUserPrint.p (ar-inv.company,'ar-inv_.',
-                               'begin_inv,end_inv,begin_cust,end_cust,begin_date,end_date,tb_reprint,tb_posted',
+                               'begin_inv,end_inv,begin_cust,end_cust,begin_date,end_date,tb_reprint,tb_posted,begin_inv-id,end_inv-id',
                                STRING(ar-inv.inv-no) + ',' + STRING(ar-inv.inv-no) + ',' +
                                ar-inv.cust-no + ',' + ar-inv.cust-no + ',' +
                                STRING(ar-inv.inv-date) + ',' + STRING(ar-inv.inv-date) + ',' +
-                               STRING(ar-inv.printed) + ',' + STRING(ar-inv.posted)).
+                               STRING(ar-inv.printed) + ',' + STRING(ar-inv.posted) + ',' + 
+                               STRING(ar-inv.x-no) + ',' + STRING(ar-inv.x-no))
+                               .
     RUN listobjs/ar-inv_.w.
   END.
 

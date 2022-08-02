@@ -392,6 +392,9 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
     DEFINE VARIABLE lAvailVendItem AS LOGICAL NO-UNDO.
     DEFINE VARIABLE dCost          AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalCost     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cVendorCostMatrixUseEstimate AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixUseEstimate).
     
     DO iCount = 1 TO EXTENT(ipcAdderList):
         IF ipcAdderList[iCount] <> "" THEN 
@@ -438,7 +441,7 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                     WHERE bf-vendItemCost.company EQ ipcCompany
                     AND bf-vendItemCost.itemID EQ ipcItemID
                     AND bf-vendItemCost.itemType EQ ipcItemType
-                    AND bf-vendItemCost.estimateNo EQ ""
+                    AND (bf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
                     AND bf-vendItemCost.effectiveDate LE TODAY
                     AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                     AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -455,9 +458,9 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                     WHERE bf-vendItemCost.company EQ ipcCompany
                     AND bf-vendItemCost.itemID EQ ipcItemID
                     AND bf-vendItemCost.itemType EQ ipcItemType
-                    AND bf-vendItemCost.estimateNo EQ ipcEstimateNo
-                    AND bf-vendItemCost.formNo EQ ipiFormNo
-                    AND bf-vendItemCost.blankNo EQ ipiBlankNo
+                    AND (bf-vendItemCost.estimateNo EQ ipcEstimateNo OR cVendorCostMatrixUseEstimate EQ "No")
+                    AND (bf-vendItemCost.formNo EQ ipiFormNo OR cVendorCostMatrixUseEstimate EQ "No")
+                    AND (bf-vendItemCost.blankNo EQ ipiBlankNo OR cVendorCostMatrixUseEstimate EQ "No")
                     AND bf-vendItemCost.effectiveDate LE TODAY
                     AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                     AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -471,7 +474,7 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                         WHERE bf-vendItemCost.company EQ ipcCompany
                         AND bf-vendItemCost.itemID EQ ipcItemID
                         AND bf-vendItemCost.itemType EQ ipcItemType
-                        AND bf-vendItemCost.estimateNo EQ ""
+                        AND (bf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
                         AND bf-vendItemCost.effectiveDate LE TODAY
                         AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                         AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -492,9 +495,9 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                     WHERE bf-vendItemCost.company EQ ipcCompany
                     AND bf-vendItemCost.itemID EQ ipcAdderList[iCount]
                     AND bf-vendItemCost.itemType EQ ipcItemType
-                    AND bf-vendItemCost.estimateNo EQ ipcEstimateNo
-                    AND bf-vendItemCost.formNo EQ ipiFormNo
-                    AND bf-vendItemCost.blankNo EQ ipiBlankNo
+                    AND (bf-vendItemCost.estimateNo EQ ipcEstimateNo OR cVendorCostMatrixUseEstimate EQ "No")
+                    AND (bf-vendItemCost.formNo EQ ipiFormNo OR cVendorCostMatrixUseEstimate EQ "No")
+                    AND (bf-vendItemCost.blankNo EQ ipiBlankNo OR cVendorCostMatrixUseEstimate EQ "No")
                     AND bf-vendItemCost.effectiveDate LE TODAY
                     AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                     AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -511,7 +514,7 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                         WHERE bf-vendItemCost.company EQ ipcCompany
                         AND bf-vendItemCost.itemID EQ ipcAdderList[iCount]
                         AND bf-vendItemCost.itemType EQ ipcItemType
-                        AND bf-vendItemCost.estimateNo EQ ""
+                        AND (bf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
                         AND bf-vendItemCost.effectiveDate LE TODAY
                         AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                         AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -588,8 +591,21 @@ PROCEDURE CopyVendItemCost:
         WHERE vendItemCost.company    EQ ipcCompany
         AND vendItemCost.estimateNo EQ ipcEstimate
         AND vendItemCost.formNo     EQ ipiFormNo
-        AND vendItemCost.blankno    EQ ipiBlankNo:
-
+        AND vendItemCost.blankno    EQ ipiBlankNo
+        AND vendItemCost.itemID     EQ ipcItemID:
+        
+        FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK
+             WHERE bf-vendItemCost.company EQ ipcCompany
+             AND bf-vendItemCost.itemID EQ ipcItemID
+             AND bf-vendItemCost.ItemType EQ vendItemCost.ItemType
+             AND bf-vendItemCost.vendorID EQ vendItemCost.vendorID
+             AND bf-vendItemCost.customerID EQ vendItemCost.customerID
+             AND trim(bf-vendItemCost.EstimateNo) EQ trim(ipcNewEstimate)
+             AND bf-vendItemCost.formNo EQ INTEGER(vendItemCost.formNo)              
+             AND bf-vendItemCost.effectiveDate EQ DATE(vendItemCost.effectiveDate)
+             NO-ERROR.
+        
+        IF NOT AVAILABLE bf-vendItemCost THEN
         CREATE bf-vendItemCost .
         BUFFER-COPY vendItemCost EXCEPT company estimateNo rec_key vendItemCostID itemID TO bf-vendItemCost.
         ASSIGN
@@ -2670,10 +2686,13 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
     DEFINE VARIABLE cMsgUsing       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEstNoFromItem  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cDefaultVendorCostStatusFGIApproval AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorCostMatrixUseEstimate        AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-itemfg FOR itemfg.
     
     RUN spGetSettingByName ("DefaultVendorCostStatusFGIApproval", OUTPUT cDefaultVendorCostStatusFGIApproval).
+    
+    RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixUseEstimate).
         
     &SCOPED-DEFINE RequiredCriteria ~
     WHERE opbf-vendItemCost.company           EQ ipcCompany ~
@@ -2705,9 +2724,9 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
         {&RequiredCriteria}
         AND opbf-vendItemCost.vendorID EQ ipcVendorID
         AND opbf-vendItemCost.customerID EQ ipcCustomerID
-        AND opbf-vendItemCost.estimateNo EQ ipcEstimateNo
-        AND opbf-vendItemCost.formNo EQ ipiFormNo
-        AND opbf-vendItemCost.blankNo EQ ipiBlankNo
+        AND (opbf-vendItemCost.estimateNo EQ ipcEstimateNo OR cVendorCostMatrixUseEstimate EQ "No")
+        AND (opbf-vendItemCost.formNo EQ ipiFormNo OR cVendorCostMatrixUseEstimate EQ "No")
+        AND (opbf-vendItemCost.blankNo EQ ipiBlankNo OR cVendorCostMatrixUseEstimate EQ "No")
         NO-ERROR.
     IF NOT AVAILABLE opbf-vendItemCost THEN 
     DO:
@@ -2749,17 +2768,17 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                 DO:  /*Fall back options for Farm Tab in estimate*/
                     FIND FIRST opbf-vendItemCost NO-LOCK  /*Match with blank vendor*/
                         {&RequiredCriteria}
-                        AND opbf-vendItemCost.estimateNo EQ ipcEstimateNo
-                        AND opbf-vendItemCost.formNo EQ ipiFormNo
-                        AND opbf-vendItemCost.blankNo EQ ipiBlankNo
+                        AND (opbf-vendItemCost.estimateNo EQ ipcEstimateNo OR cVendorCostMatrixUseEstimate EQ "No")
+                        AND (opbf-vendItemCost.formNo EQ ipiFormNo OR cVendorCostMatrixUseEstimate EQ "No")
+                        AND (opbf-vendItemCost.blankNo EQ ipiBlankNo OR cVendorCostMatrixUseEstimate EQ "No")
                         AND opbf-vendItemCost.vendorID EQ ""
                         NO-ERROR.
                     IF NOT AVAILABLE opbf-vendItemCost THEN 
                         FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor blank customer*/
                             {&RequiredCriteria}
-                        AND opbf-vendItemCost.estimateNo EQ ipcEstimateNo
-                        AND opbf-vendItemCost.formNo EQ ipiFormNo
-                        AND opbf-vendItemCost.blankNo EQ ipiBlankNo
+                        AND (opbf-vendItemCost.estimateNo EQ ipcEstimateNo OR cVendorCostMatrixUseEstimate EQ "No")
+                        AND (opbf-vendItemCost.formNo EQ ipiFormNo OR cVendorCostMatrixUseEstimate EQ "No")
+                        AND (opbf-vendItemCost.blankNo EQ ipiBlankNo OR cVendorCostMatrixUseEstimate EQ "No")
                         NO-ERROR.
                     IF AVAILABLE opbf-vendItemCost THEN 
                         cMsgUsing = cMsgConstUsing + cMsgConstVend + (IF opbf-vendItemCost.vendorID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.vendorID).
@@ -2769,21 +2788,21 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                     cMsgInputs = cMsgFGInputs.
                     FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank est and non-blank customer*/
                         {&RequiredCriteria}
-                        AND opbf-vendItemCost.estimateNo EQ ""
+                        AND (opbf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
                         AND opbf-vendItemCost.vendorID EQ ipcVendorID
                         AND opbf-vendItemCost.customerID EQ ipcCustomerID
                         NO-ERROR.
                     IF NOT AVAILABLE opbf-vendItemCost THEN 
                         FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank customer*/
                             {&RequiredCriteria}
-                        AND opbf-vendItemCost.estimateNo EQ ""
+                        AND (opbf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
                         AND opbf-vendItemCost.vendorID EQ ipcVendorID
                         AND opbf-vendItemCost.customerID EQ ""
                         NO-ERROR.
                     IF NOT AVAILABLE opbf-vendItemCost THEN 
                         FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor blank customer*/
                             {&RequiredCriteria}
-                        AND opbf-vendItemCost.estimateNo EQ ""
+                        AND (opbf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
                         AND opbf-vendItemCost.vendorID EQ ""
                         AND opbf-vendItemCost.customerID EQ ""
                         NO-ERROR.
@@ -2798,21 +2817,21 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                             cEstNoFromItem = bf-itemfg.est-no.
                             FIND FIRST opbf-vendItemCost NO-LOCK /*Match with estimate from FG Item and customer*/
                                 {&RequiredCriteria}
-                                AND opbf-vendItemCost.estimateNo EQ cEstNoFromItem
+                                AND (opbf-vendItemCost.estimateNo EQ cEstNoFromItem OR cVendorCostMatrixUseEstimate EQ "No")
                                 AND opbf-vendItemCost.vendorID EQ ipcVendorID
                                 AND opbf-vendItemCost.customerID EQ ipcCustomerID
                                 NO-ERROR.
                             IF NOT AVAILABLE opbf-vendItemCost THEN
                                 FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank customer*/
                                     {&RequiredCriteria}
-                                AND opbf-vendItemCost.estimateNo EQ cEstNoFromItem
+                                AND (opbf-vendItemCost.estimateNo EQ cEstNoFromItem OR cVendorCostMatrixUseEstimate EQ "No")
                                 AND opbf-vendItemCost.vendorID EQ ipcVendorID
                                 AND opbf-vendItemCost.customerID EQ ""
                                 NO-ERROR.
                             IF NOT AVAILABLE opbf-vendItemCost THEN 
                                 FIND FIRST opbf-vendItemCost NO-LOCK /*Match with blank vendor blank customer*/
                                     {&RequiredCriteria}
-                                AND opbf-vendItemCost.estimateNo EQ cEstNoFromItem
+                                AND (opbf-vendItemCost.estimateNo EQ cEstNoFromItem OR cVendorCostMatrixUseEstimate EQ "No")
                                 AND opbf-vendItemCost.vendorID EQ ""
                                 AND opbf-vendItemCost.customerID EQ ""
                                 NO-ERROR.

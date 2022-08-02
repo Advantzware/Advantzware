@@ -1079,7 +1079,6 @@ PROCEDURE pCreateRelease:
                               ELSE
                                   bf-oe-ord.carrier
         bf-oe-rel.r-no      = iNextRelNo
-        bf-oe-rel.frt-pay   = SUBSTRING(bf-oe-ord.frt-pay,1,1)
         bf-oe-rel.fob-code  = bf-oe-ord.fob-code
         .
 
@@ -4409,6 +4408,8 @@ PROCEDURE pProcessImportedOrderLine:
     DEFINE VARIABLE cCostUOM         AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFound           AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE hdCostProcs      AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
@@ -4545,7 +4546,7 @@ PROCEDURE pProcessImportedOrderLine:
         /* Add tags to order line */
         IF matrixExists THEN DO:
             RUN AddTagInfoForGroup(
-                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT bf-oe-ordl.company + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
                 INPUT "oe-ordl",
                 INPUT "Price Matrix - Item No:" + bf-oe-ordl.i-no + " Customer No:" + bf-oe-ordl.cust-no + " Ship ID:" + bf-oe-ordl.ship-id + " Quantity:" + STRING(bf-oe-ordl.qty),
                 INPUT "",
@@ -4555,7 +4556,7 @@ PROCEDURE pProcessImportedOrderLine:
         /* If price matrix does not exist and price is different from imported price then price source is item fg */
         ELSE IF bf-oe-ordl.price NE bf-oe-ordl.ediPrice AND bf-oe-ordl.price NE 0 THEN DO:
             RUN AddTagInfoForGroup(
-                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT bf-oe-ordl.company + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
                 INPUT "oe-ordl",
                 INPUT "Item FG - Sell price Item-No:" + bf-oe-ordl.i-no,
                 INPUT "",
@@ -4570,7 +4571,7 @@ PROCEDURE pProcessImportedOrderLine:
                 bf-oe-ordl.pr-uom = bf-oe-ordl.ediPriceUOM
                 .
             RUN AddTagInfoForGroup(
-                INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+                INPUT bf-oe-ordl.company + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
                 INPUT "oe-ordl",
                 INPUT "cXML imported price - Orde PO#:" + bf-oe-ordl.po-no,
                 INPUT "",
@@ -4580,7 +4581,7 @@ PROCEDURE pProcessImportedOrderLine:
     END.
     ELSE DO:
         RUN AddTagInfoForGroup(
-            INPUT STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
+            INPUT bf-oe-ordl.company + STRING(bf-oe-ordl.ord-no) + STRING(bf-oe-ordl.line),
             INPUT "oe-ordl",
             INPUT "cXML imported price - Order PO#:" + bf-oe-ordl.po-no,
             INPUT "",
@@ -4605,7 +4606,25 @@ PROCEDURE pProcessImportedOrderLine:
         OUTPUT cCostUOM,
         OUTPUT lFound
         ) .
-     
+
+    IF cCostUOM NE "M" THEN DO:                 
+        RUN Conv_ValueFromUOMtoUOM (
+                INPUT  bf-oe-ordl.company, 
+                INPUT  bf-oe-ordl.i-no, 
+                INPUT  "FG", 
+                INPUT  dCostPerUOMTotal, 
+                INPUT  cCostUOM, 
+                INPUT  "M", 
+                INPUT  0, 
+                INPUT  0,
+                INPUT  0,
+                INPUT  0, 0, 
+                OUTPUT dCostPerUOMTotal, 
+                OUTPUT lError, 
+                OUTPUT cMessage
+                ).    
+    END.
+           
     ASSIGN
         bf-oe-ordl.cost   = dCostPerUOMTotal
         bf-oe-ordl.t-cost = bf-oe-ordl.cost * bf-oe-ordl.qty / 1000

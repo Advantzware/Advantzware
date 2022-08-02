@@ -295,7 +295,10 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       oe-boll.bol-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       get-release() @ lv-release COLUMN-LABEL "Release" WIDTH 10.2
-      oe-bolh.stat COLUMN-LABEL "Status" FORMAT "!":U WIDTH 2
+      oe-bolh.stat COLUMN-LABEL "Status" FORMAT "!":U WIDTH 2 VIEW-AS COMBO-BOX INNER-LINES 5
+                      LIST-ITEM-PAIRS "H-Hold","H",
+                                      "R-Released","R"
+                      DROP-DOWN-LIST 
   ENABLE
       oe-bolh.bol-no
       oe-boll.ord-no
@@ -448,7 +451,7 @@ ASSIGN
      _FldNameList[10]   > "_<CALC>"
 "get-release() @ lv-release" "Release" ? ? ? ? ? ? ? ? no ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-bolh.stat
-"oe-bolh.stat" "Status" "!" "character" ? ? ? ? ? ? yes "" no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-bolh.stat" "Status" "!" "character" ? ? ? ? ? ? yes "" no no "2" yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "H-Hold,H,R-Released,R" 5 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -1023,6 +1026,7 @@ PROCEDURE local-initialize :
       oe-boll.i-no:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ordl.i-name:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-bolh.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-bolh.stat:READ-ONLY IN BROWSE {&browse-name} = YES
       .
 
  /* FI_moveCol = "Sort".

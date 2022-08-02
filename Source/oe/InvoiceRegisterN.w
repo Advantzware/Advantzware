@@ -202,6 +202,7 @@ DO TRANSACTION:
 END.
 
 
+RUN spSetSettingContext.
 
 &SCOPED-DEFINE use-factored
 
@@ -532,6 +533,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON "CTRL-S" OF {&WINDOW-NAME} ANYWHERE /* Invoice Register */
+DO:
+    RUN windows/setting-dialog.w.
+    
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Invoice Register */
     OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
@@ -1875,16 +1888,17 @@ PROCEDURE list-post-inv :
   
     DEFINE VARIABLE dWeight         AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dTotalFreight   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cInvoiceNumber  AS CHARACTER NO-UNDO.
   
     DEFINE BUFFER bf-inv-line FOR inv-line .
     DEFINE BUFFER bf-inv-misc FOR inv-misc.
   
     FORMAT
-        inv-head.inv-no FORMAT ">>>>>>>9" AT 1
-        inv-head.inv-date AT 9 FORMAT "99/99/99"
-        inv-head.cust-no AT 18
-        inv-head.cust-name FORMAT "x(25)" AT 27
-        iOrdNo TO 60
+        cInvoiceNumber FORMAT "x(8)" AT 1
+        inv-head.inv-date AT 10 FORMAT "99/99/99"
+        inv-head.cust-no AT 19
+        inv-head.cust-name FORMAT "x(25)" AT 28
+        iOrdNo TO 61
         dInvQty
         dTotalFreight FORMAT "->,>>9.99"
         inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
@@ -2007,7 +2021,8 @@ PROCEDURE list-post-inv :
                 v-post-total-w = v-post-total-w - v-line-tot-w.           
         END.
         dTotalFreight = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
-        DISPLAY inv-head.inv-no inv-head.inv-date
+        DISPLAY STRING(inv-head.inv-no) @ cInvoiceNumber
+            inv-head.inv-date
             inv-head.cust-no inv-head.cust-name iOrdNo
             dInvQty dTotalFreight
             inv-head.t-inv-tax
@@ -2369,9 +2384,9 @@ PROCEDURE run-report :
         str-tit4 AT 58
         SKIP(1)
         "  - Invoice - " SKIP
-        "Number"  "Date" AT 11  "Cust#" AT 18 "Customer Name" AT 27 "Order#" TO 60
-        "Quantity" TO 75 "Frt" TO 85 "Tax" TO 99
-        "Misc" TO 109 "Items" TO 121
+        "Number"  "Date" AT 12  "Cust#" AT 19 "Customer Name" AT 28 "Order#" TO 61
+        "Quantity" TO 76 "Frt" TO 86 "Tax" TO 100
+        "Misc" TO 110 "Items" TO 122
         "Total" TO 139 
         lv-label-ton[1] TO 163
         FILL("=",142) FORMAT "x(142)"

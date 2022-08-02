@@ -13,6 +13,7 @@
 
 /* ***************************  Definitions  ************************** */
 {est/ttGoto.i}
+{est/ttEstProcInk.i}
 {est/ttCalcLayoutSize.i}
 {est/ttEstSysConfig.i}
 
@@ -24,7 +25,6 @@ DEFINE VARIABLE gcLeafMatTypes   AS CHARACTER NO-UNDO INITIAL "F,W".
 DEFINE VARIABLE gcWindowMatTypes AS CHARACTER NO-UNDO INITIAL "W".
 DEFINE VARIABLE gcWaxMatTypes    AS CHARACTER NO-UNDO INITIAL "W".
 DEFINE VARIABLE gcAdderMatTypes  AS CHARACTER NO-UNDO INITIAL "A".
-
 DEFINE VARIABLE gcTypeSingle AS CHARACTER NO-UNDO INITIAL "Single".
 DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
 DEFINE VARIABLE gcTypeCombo  AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
@@ -87,6 +87,10 @@ FUNCTION fEstimate_IsSingleType RETURNS LOGICAL
 FUNCTION fEstimate_IsWoodType RETURNS LOGICAL 
     (ipcEstType AS CHARACTER) FORWARD.
 
+FUNCTION flsAssignUnitsForInk RETURNS LOGICAL PRIVATE
+	(ipcCompany AS CHARACTER) FORWARD.
+	   
+
 /* ***************************  Main Block  *************************** */
 
 ASSIGN 
@@ -95,7 +99,81 @@ ASSIGN
     .
     
 /* **********************  Internal Procedures  *********************** */
+PROCEDURE Estimate_CalcFormInksAndCoats:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate the Ink, Coat etc for a Form.
+     Notes: It checks NK1 settings to switch between logic
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimteNo          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo             AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInkPerForm         AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInkPassPerForm     AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCoatPerForm        AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiCoatPassPerForm    AS INTEGER NO-UNDO.
+    
+    
+    DEFINE VARIABLE lUnitsForInkSetup AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iNumCol           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iNumVarn          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lUnitSetup        AS LOGICAL NO-UNDO.
+    
+    
+    DEFINE BUFFER bf-eb   FOR eb.
+    DEFINE BUFFER bf-Item FOR item.
+        
+    lUnitsForInkSetup = flsAssignUnitsForInk (ipcCompany).
+    
+    
+    FOR EACH bf-eb NO-LOCK 
+        WHERE bf-eb.company = ipcCompany
+        AND bf-eb.est-no  = ipcEstimteNo
+        AND bf-eb.form-no = ipiFormNo:
+            
+        ASSIGN
+            opiInkPerForm      = opiInkPerForm + bf-eb.i-col
+            opiInkPassPerForm  = opiInkPassPerForm  + bf-eb.i-pass
+            opiCoatPerForm     = opiCoatPerForm + bf-eb.i-coat
+            opiCoatPassPerForm = opiCoatPassPerForm + bf-eb.i-coat-p. 
+    END.
+        
+    /* If NK1 is setup then calculate Form colors based upon Units */
+    IF lUnitsForInkSetup = YES THEN
+    DO:
+        RUN Estimate_CalcInkUsingUnitNo (ipcCompany, ipcEstimteNo, ipiFormNo, 0, 0, OUTPUT iNumCol, OUTPUT iNumVarn, OUTPUT lUnitSetup).
+        
+        IF lUnitSetup = YES THEN
+            opiInkPerForm  = iNumCol.
+    END.    
+END PROCEDURE.
+   
+PROCEDURE Estimate_DeleteEstCostCatGroupLevel:
+/*------------------------------------------------------------------------------
+     Purpose: Returns the system data in Temp-tables
+     Notes: If No data is setup in user specific tables then use system tables 
+    ------------------------------------------------------------------------------*/
 
+    DEFINE BUFFER bf-estCostCategory         FOR estCostCategory.     
+    DEFINE BUFFER bf-estCostGroup            FOR estCostGroup.
+    DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel.     
+
+    /* Delete custom data  */
+    FOR EACH bf-estCostCategory EXCLUSIVE-LOCK:
+        DELETE bf-estCostCategory.
+    END.
+
+    /* Delete custom data  */
+    FOR EACH bf-estCostGroup EXCLUSIVE-LOCK:        
+        DELETE bf-estCostGroup. 
+    END.
+
+    /* Delete custom data  */
+    FOR EACH bf-estCostGroupLevel EXCLUSIVE-LOCK:
+         DELETE bf-estCostGroupLevel.
+    END.
+
+END PROCEDURE.   
+   
 PROCEDURE Estimate_GetMSF:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -163,7 +241,19 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         ELSE 
             BUFFER-COPY bf-estCostCategorySystem TO ttEstCostCategory.
     END.
-    
+
+    /* Load the estCostCategory data. User created categories */
+    FOR EACH bf-estCostCategory NO-LOCK
+        WHERE bf-estCostCategory.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostCategory WHERE ttEstCostCategory.estCostCategoryID = bf-estCostCategory.estCostCategoryID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostCategory.
+        
+        BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
+    END.
+        
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupSystem NO-LOCK:
         
@@ -181,7 +271,19 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         ELSE 
             BUFFER-COPY bf-estCostGroupSystem TO ttEstCostGroup.
     END.
-   
+
+    /* Load the estCostGroup data. User created groups */
+    FOR EACH bf-estCostGroup NO-LOCK
+        WHERE bf-estCostGroup.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = bf-estCostGroup.estCostGroupID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostGroup.
+        
+        BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
+    END.
+       
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
         
@@ -200,6 +302,17 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
             BUFFER-COPY bf-estCostGroupLevelSystem TO ttEstCostGroupLevel.
     END.
 
+    /* Load the estCostGroupLevel data. User created levels */
+    FOR EACH bf-estCostGroupLevel NO-LOCK
+        WHERE bf-estCostGroupLevel.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevel.estCostGroupLevelID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostGroupLevel.
+        
+        BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
+    END.
 END PROCEDURE.
 
 PROCEDURE Estimate_GetVersionSettings:
@@ -255,6 +368,105 @@ PROCEDURE Estimate_GetVersionSettings:
                 END.
         END CASE.
 
+END PROCEDURE.
+
+PROCEDURE Estimate_CalcInkUsingUnitNo:
+    /*------------------------------------------------------------------------------
+     Purpose: Calculate the Ink count for a Form/Blank/Pass combination.
+     Notes: It calculates the colos using Units defined 
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany              AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimteNo            AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo               AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiBlankNo              AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiPass                 AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiInkCount             AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiVarnCount            AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplUnitConfigured       AS LOGICAL NO-UNDO.
+
+    DEFINE VARIABLE iMaxInkCnt  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iMaxVarnCnt AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lsInkColor  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE iCnt        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatCnt    AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-eb   FOR eb.
+    DEFINE BUFFER bf-Item FOR item.
+    
+    EMPTY TEMP-TABLE ttUniqueInk.
+
+    FOR EACH bf-eb NO-LOCK 
+        WHERE bf-eb.company = ipcCompany
+        AND bf-eb.est-no  = ipcEstimteNo
+        AND bf-eb.form-no = ipiFormNo:
+            
+        IF ipiBlankNo NE 0 AND ipiBlankNo NE bf-eb.blank-no THEN
+            NEXT. 
+        
+        DO iCnt = 1 TO 17:
+        
+            IF ipiPass NE 0 AND bf-eb.i-ps2[iCnt] NE ipiPass THEN
+                NEXT. 
+                
+            IF bf-eb.unitno[iCnt] NE 0 THEN
+                oplUnitConfigured = YES.
+            
+            FIND FIRST bf-Item NO-LOCK
+                WHERE bf-Item.company EQ bf-eb.company
+                AND bf-Item.i-no    EQ bf-eb.i-code2[iCnt]
+                AND INDEX("IV",bf-Item.mat-type) GT 0 NO-ERROR. 
+                
+            
+            IF NOT AVAILABLE bf-Item THEN
+                NEXT.
+            
+            /* Coating */    
+            IF bf-Item.ink-type EQ "A" THEN
+            DO:    
+                iCoatCnt = iCoatCnt + 1.
+                NEXT.
+            END.
+            
+            FIND FIRST ttUniqueInk 
+                WHERE ttUniqueInk.Company   = ipcCompany
+                AND ttUniqueInk.EstNo       = ipcEstimteNo
+                AND ttUniqueInk.FormNo      = ipiFormNo
+                AND ttUniqueInk.BlankNo     = ipiBlankNo
+                AND ttUniqueInk.Pass        = ipiPass
+                AND ttUniqueInk.ItemCode    = bf-eb.i-code2[iCnt]
+                AND ttUniqueInk.UnitNo      = bf-eb.unitno[iCnt] NO-ERROR.
+                 
+            IF NOT AVAILABLE ttUniqueInk THEN
+            DO:
+                CREATE ttUniqueInk.
+                ASSIGN
+                    ttUniqueInk.Company  = ipcCompany
+                    ttUniqueInk.EstNo    = ipcEstimteNo
+                    ttUniqueInk.FormNo   = ipiFormNo
+                    ttUniqueInk.BlankNo  = ipiBlankNo
+                    ttUniqueInk.Pass     = ipiPass
+                    ttUniqueInk.ItemCode = bf-eb.i-code2[iCnt]
+                    ttUniqueInk.UnitNo   = bf-eb.unitno[iCnt].
+            END.
+            
+        END.
+    END. 
+    
+    FOR EACH ttUniqueInk,
+        FIRST bf-Item NO-LOCK
+            WHERE bf-Item.company EQ ttUniqueInk.Company
+            AND bf-Item.i-no      EQ ttUniqueInk.ItemCode:
+                    
+        IF bf-Item.mat-type EQ "I" THEN
+            iMaxInkCnt = iMaxInkCnt + 1.
+        ELSE 
+            iMaxVarnCnt = iMaxVarnCnt + 1.
+    END.
+    
+    ASSIGN
+        opiInkCount  = iMaxInkCnt 
+        opiVarnCount = iMaxVarnCnt.
+     
 END PROCEDURE.
 
 PROCEDURE Estimate_GetQuantities:
@@ -437,24 +649,42 @@ PROCEDURE Estimate_UpdateEstDependencies:
     DEFINE BUFFER bf-notes           FOR notes.
     DEFINE BUFFER bf-ef-nsh          FOR ef-nsh.
     DEFINE BUFFER bf-e-itemfg-vend   FOR e-itemfg-vend.
-    
+
+    DEFINE BUFFER bf-loop-est-flm         FOR est-flm.
+    DEFINE BUFFER bf-loop-ef              FOR ef.
+    DEFINE BUFFER bf-loop-est-prep        FOR est-prep.
+    DEFINE BUFFER bf-loop-est-op          FOR est-op.
+    DEFINE BUFFER bf-loop-est-inst        FOR est-inst.
+    DEFINE BUFFER bf-loop-box-design-line FOR box-design-line.
+    DEFINE BUFFER bf-loop-box-design-hdr  FOR box-design-hdr.
+    DEFINE BUFFER bf-loop-reftable        FOR reftable.
+    DEFINE BUFFER bf-loop-notes           FOR notes.
+    DEFINE BUFFER bf-loop-ef-nsh          FOR ef-nsh.
+    DEFINE BUFFER bf-loop-e-itemfg-vend   FOR e-itemfg-vend.
+        
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
-    FOR EACH bf-est-flm
-        WHERE bf-est-flm.company EQ ipcCompany
-          AND bf-est-flm.est-no  EQ ipcEstNo
-          AND bf-est-flm.snum    EQ ipiFormNo
-          AND bf-est-flm.bnum    EQ ipiBlankNo:
+    FOR EACH bf-loop-est-flm NO-LOCK
+        WHERE bf-loop-est-flm.company EQ ipcCompany
+          AND bf-loop-est-flm.est-no  EQ ipcEstNo
+          AND bf-loop-est-flm.snum    EQ ipiFormNo
+          AND bf-loop-est-flm.bnum    EQ ipiBlankNo:
+        FIND FIRST bf-est-flm EXCLUSIVE-LOCK
+             WHERE ROWID(bf-est-flm) EQ ROWID(bf-loop-est-flm)
+             NO-ERROR.
         ASSIGN
             bf-est-flm.snum = ipiNewFormNo
             bf-est-flm.bnum = ipiNewBlankNo
             .
     END.
 
-    FOR EACH bf-ef
-        WHERE bf-ef.company EQ ipcCompany
-          AND bf-ef.est-no  EQ ipcEstNo
-          AND bf-ef.form-no EQ ipiFormNo:
+    FOR EACH bf-loop-ef NO-LOCK
+        WHERE bf-loop-ef.company EQ ipcCompany
+          AND bf-loop-ef.est-no  EQ ipcEstNo
+          AND bf-loop-ef.form-no EQ ipiFormNo:
+        FIND FIRST bf-ef EXCLUSIVE-LOCK
+             WHERE ROWID(bf-ef) EQ ROWID(bf-loop-ef)
+             NO-ERROR.
         IF ipiNewBlankNo NE 0 THEN DO:
             DO iIndex = 1 TO EXTENT(bf-ef.leaf):
                 IF bf-ef.leaf-bnum[iIndex] EQ ipiBlankNo THEN
@@ -475,23 +705,29 @@ PROCEDURE Estimate_UpdateEstDependencies:
         END.
     END.
 
-    FOR EACH bf-est-prep
-        WHERE bf-est-prep.company EQ ipcCompany
-          AND bf-est-prep.est-no  EQ ipcEstNo
-          AND bf-est-prep.s-num   EQ ipiFormNo
-          AND bf-est-prep.b-num   EQ ipiBlankNo:
+    FOR EACH bf-loop-est-prep NO-LOCK
+        WHERE bf-loop-est-prep.company EQ ipcCompany
+          AND bf-loop-est-prep.est-no  EQ ipcEstNo
+          AND bf-loop-est-prep.s-num   EQ ipiFormNo
+          AND bf-loop-est-prep.b-num   EQ ipiBlankNo:
+        FIND FIRST bf-est-prep EXCLUSIVE-LOCK
+             WHERE ROWID(bf-est-prep) EQ ROWID(bf-loop-est-prep)
+             NO-ERROR.
         ASSIGN
             bf-est-prep.s-num = ipiNewFormNo
             bf-est-prep.b-num = ipiNewBlankNo
             .
     END.
 
-    FOR EACH bf-est-op
-        WHERE bf-est-op.company EQ ipcCompany
-          AND bf-est-op.est-no  EQ ipcEstNo
-          AND (bf-est-op.qty    EQ ipdEQty OR ipiEstType GT 1)
-          AND bf-est-op.s-num   EQ ipiFormNo
-          AND bf-est-op.b-num   EQ ipiBlankNo:
+    FOR EACH bf-loop-est-op NO-LOCK
+        WHERE bf-loop-est-op.company EQ ipcCompany
+          AND bf-loop-est-op.est-no  EQ ipcEstNo
+          AND (bf-loop-est-op.qty    EQ ipdEQty OR ipiEstType GT 1)
+          AND bf-loop-est-op.s-num   EQ ipiFormNo
+          AND bf-loop-est-op.b-num   EQ ipiBlankNo:
+        FIND FIRST bf-est-op EXCLUSIVE-LOCK
+             WHERE ROWID(bf-est-op) EQ ROWID(bf-loop-est-op)
+             NO-ERROR.
         ASSIGN
             bf-est-op.s-num = ipiNewFormNo
             bf-est-op.b-num = ipiNewBlankNo
@@ -499,52 +735,67 @@ PROCEDURE Estimate_UpdateEstDependencies:
     END.
 
     IF ipiNewBlankNo EQ 0 THEN DO:
-        FOR EACH bf-est-inst
-            WHERE bf-est-inst.company EQ ipcCompany
-              AND bf-est-inst.est-no  EQ ipcEstNo
-              AND bf-est-inst.line    EQ ipiFormNo:
+        FOR EACH bf-loop-est-inst NO-LOCK
+            WHERE bf-loop-est-inst.company EQ ipcCompany
+              AND bf-loop-est-inst.est-no  EQ ipcEstNo
+              AND bf-loop-est-inst.line    EQ ipiFormNo:
+            FIND FIRST bf-est-inst EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-est-inst) EQ ROWID(bf-loop-est-inst)
+                 NO-ERROR.
             bf-est-inst.line = ipiNewFormNo.
         END.
     END.
     
-    FOR EACH bf-box-design-line
-        WHERE bf-box-design-line.design-no EQ 0
-          AND bf-box-design-line.company   EQ ipcCompany
-          AND bf-box-design-line.est-no    EQ ipcEstNo
-          AND bf-box-design-line.form-no   EQ ipiFormNo
-          AND bf-box-design-line.blank-no  EQ ipiBlankNo:
+    FOR EACH bf-loop-box-design-line NO-LOCK
+        WHERE bf-loop-box-design-line.design-no EQ 0
+          AND bf-loop-box-design-line.company   EQ ipcCompany
+          AND bf-loop-box-design-line.est-no    EQ ipcEstNo
+          AND bf-loop-box-design-line.form-no   EQ ipiFormNo
+          AND bf-loop-box-design-line.blank-no  EQ ipiBlankNo:
+        FIND FIRST bf-box-design-line EXCLUSIVE-LOCK
+             WHERE ROWID(bf-box-design-line) EQ ROWID(bf-loop-box-design-line)
+             NO-ERROR.
         ASSIGN
             bf-box-design-line.form-no  = ipiNewFormNo
             bf-box-design-line.blank-no = ipiNewBlankNo
             .
     END.
 
-    FOR EACH bf-box-design-hdr
-        WHERE bf-box-design-hdr.design-no EQ 0
-          AND bf-box-design-hdr.company   EQ ipcCompany
-          AND bf-box-design-hdr.est-no    EQ ipcEstNo
-          AND bf-box-design-hdr.form-no   EQ ipiFormNo
-          AND bf-box-design-hdr.blank-no  EQ ipiBlankNo:
+    FOR EACH bf-loop-box-design-hdr NO-LOCK
+        WHERE bf-loop-box-design-hdr.design-no EQ 0
+          AND bf-loop-box-design-hdr.company   EQ ipcCompany
+          AND bf-loop-box-design-hdr.est-no    EQ ipcEstNo
+          AND bf-loop-box-design-hdr.form-no   EQ ipiFormNo
+          AND bf-loop-box-design-hdr.blank-no  EQ ipiBlankNo:
+        FIND FIRST bf-box-design-hdr EXCLUSIVE-LOCK
+             WHERE ROWID(bf-box-design-hdr) EQ ROWID(bf-loop-box-design-hdr)
+             NO-ERROR.
         ASSIGN
             bf-box-design-hdr.form-no  = ipiNewFormNo
             bf-box-design-hdr.blank-no = ipiNewBlankNo
             .
     END.
 
-    FOR EACH bf-reftable
-        WHERE bf-reftable.reftable EQ "PLATE/FOUNTAIN"
-          AND bf-reftable.company  EQ ipcCompany
-          AND bf-reftable.loc      EQ ipcEstNo
-          AND bf-reftable.code2    EQ STRING(ipiFormNo,"9999999999") + STRING(ipiBlankNo,"9999999999"):
+    FOR EACH bf-loop-reftable NO-LOCK
+        WHERE bf-loop-reftable.reftable EQ "PLATE/FOUNTAIN"
+          AND bf-loop-reftable.company  EQ ipcCompany
+          AND bf-loop-reftable.loc      EQ ipcEstNo
+          AND bf-loop-reftable.code2    EQ STRING(ipiFormNo,"9999999999") + STRING(ipiBlankNo,"9999999999"):
+        FIND FIRST bf-reftable EXCLUSIVE-LOCK
+             WHERE ROWID(bf-reftable) EQ ROWID(bf-loop-reftable)
+             NO-ERROR.
         bf-reftable.code2 = STRING(ipiNewFormNo,"9999999999") + STRING(ipiNewBlankNo,"9999999999").
     END.
 
     IF ipiNewBlankNo EQ 0 THEN DO:
-        FOR EACH bf-reftable
-            WHERE bf-reftable.reftable EQ "bf-est-MISC"
-              AND bf-reftable.company  EQ ipcCompany
-              AND bf-reftable.loc      EQ ipcLocation
-              AND bf-reftable.code     EQ TRIM(ipcEstNo) + STRING(ipiFormNo,"/99"):
+        FOR EACH bf-loop-reftable NO-LOCK
+            WHERE bf-loop-reftable.reftable EQ "bf-est-MISC"
+              AND bf-loop-reftable.company  EQ ipcCompany
+              AND bf-loop-reftable.loc      EQ ipcLocation
+              AND bf-loop-reftable.code     EQ TRIM(ipcEstNo) + STRING(ipiFormNo,"/99"):
+            FIND FIRST bf-reftable EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-reftable) EQ ROWID(bf-loop-reftable)
+                 NO-ERROR.
             bf-reftable.code = TRIM(ipcEstNo) + STRING(ipiNewFormNo,"/99").
         END.
     END.
@@ -555,20 +806,26 @@ PROCEDURE Estimate_UpdateEstDependencies:
          NO-ERROR.
 
     IF AVAILABLE bf-est AND ipiNewBlankNo EQ 0 THEN DO:
-        FOR EACH bf-notes
-            WHERE bf-notes.rec_key      EQ bf-est.rec_key
-              AND bf-notes.note_form_no EQ ipiFormNo
-              AND bf-notes.note_form_no NE 0:
+        FOR EACH bf-loop-notes NO-LOCK
+            WHERE bf-loop-notes.rec_key      EQ bf-est.rec_key
+              AND bf-loop-notes.note_form_no EQ ipiFormNo
+              AND bf-loop-notes.note_form_no NE 0:
+            FIND FIRST bf-notes EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-notes) EQ ROWID(bf-loop-notes)
+                 NO-ERROR.
             bf-notes.note_form_no = ipiNewFormNo.
         END.
     END.
 
-    FOR EACH bf-reftable
-        WHERE bf-reftable.reftable EQ "cedepth"
-          AND bf-reftable.company  EQ ipcCompany
-          AND bf-reftable.loc      EQ ipcEstNo
-          AND bf-reftable.code     EQ STRING(ipiFormNo,"9999999999")
-          AND bf-reftable.code2    EQ STRING(ipiBlankNo,"9999999999"):
+    FOR EACH bf-loop-reftable NO-LOCK
+        WHERE bf-loop-reftable.reftable EQ "cedepth"
+          AND bf-loop-reftable.company  EQ ipcCompany
+          AND bf-loop-reftable.loc      EQ ipcEstNo
+          AND bf-loop-reftable.code     EQ STRING(ipiFormNo,"9999999999")
+          AND bf-loop-reftable.code2    EQ STRING(ipiBlankNo,"9999999999"):
+        FIND FIRST bf-reftable EXCLUSIVE-LOCK
+             WHERE ROWID(bf-reftable) EQ ROWID(bf-loop-reftable)
+             NO-ERROR.
         ASSIGN
             bf-reftable.code  = STRING(ipiNewFormNo,"9999999999")
             bf-reftable.code2 = STRING(ipiNewBlankNo,"9999999999")
@@ -576,19 +833,25 @@ PROCEDURE Estimate_UpdateEstDependencies:
     END.
 
     IF ipiNewBlankNo EQ 0 THEN DO:
-        FOR EACH bf-ef-nsh
-            WHERE bf-ef-nsh.company EQ ipcCompany
-              AND bf-ef-nsh.est-no  EQ ipcEstNo
-              AND bf-ef-nsh.form-no EQ ipiFormNo:
+        FOR EACH bf-loop-ef-nsh NO-LOCK
+            WHERE bf-loop-ef-nsh.company EQ ipcCompany
+              AND bf-loop-ef-nsh.est-no  EQ ipcEstNo
+              AND bf-loop-ef-nsh.form-no EQ ipiFormNo:
+            FIND FIRST bf-ef-nsh EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-ef-nsh) EQ ROWID(bf-loop-ef-nsh)
+                 NO-ERROR.
             bf-ef-nsh.form-no = ipiNewFormNo.
         END.
     END.
 
-    FOR EACH bf-e-itemfg-vend
-        WHERE bf-e-itemfg-vend.company  EQ ipcCompany
-          AND bf-e-itemfg-vend.est-no   EQ ipcEstNo
-          AND bf-e-itemfg-vend.form-no  EQ ipiFormNo
-          AND bf-e-itemfg-vend.blank-no EQ ipiBlankNo:
+    FOR EACH bf-loop-e-itemfg-vend NO-LOCK
+        WHERE bf-loop-e-itemfg-vend.company  EQ ipcCompany
+          AND bf-loop-e-itemfg-vend.est-no   EQ ipcEstNo
+          AND bf-loop-e-itemfg-vend.form-no  EQ ipiFormNo
+          AND bf-loop-e-itemfg-vend.blank-no EQ ipiBlankNo:
+        FIND FIRST bf-e-itemfg-vend EXCLUSIVE-LOCK
+             WHERE ROWID(bf-e-itemfg-vend) EQ ROWID(bf-loop-e-itemfg-vend)
+             NO-ERROR.
         ASSIGN
             bf-e-itemfg-vend.form-no  = ipiNewFormNo
             bf-e-itemfg-vend.blank-no = ipiNewBlankNo
@@ -1325,3 +1588,20 @@ FUNCTION fEstimate_UseNew RETURNS LOGICAL
     RETURN lFound AND cReturn EQ "New".
         
 END FUNCTION.
+
+FUNCTION flsAssignUnitsForInk RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER):
+    /*------------------------------------------------------------------------------
+         Purpose: Returns the Setting to use new estimate calculation
+         Notes:
+        ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lReturnVal AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN lReturnVal = cReturn EQ "YES".
+    
+    RETURN lReturnVal.
+        
+END FUNCTION. 
