@@ -576,7 +576,7 @@ PROCEDURE local-change-page:
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF VALID-HANDLE(h_specnote-2) THEN   
-    RUN local-open-query IN h_specnote-2.
+    RUN pShowDelButton IN h_specnote-2.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
