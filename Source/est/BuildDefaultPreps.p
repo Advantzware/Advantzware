@@ -27,6 +27,8 @@ RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 
 DEFINE BUFFER bf-eb FOR eb.
+DEFINE BUFFER bf-estMisc FOR estMisc.
+DEFINE BUFFER bf-estMiscControl FOR estMiscControl.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -134,6 +136,24 @@ FIND FIRST bf-eb NO-LOCK
 IF AVAILABLE bf-eb THEN
     RUN Prep_ValidateAndDeletePlatePrep IN hPrepProcs (ROWID(bf-eb)).      
 
+FOR EACH bf-estMiscControl NO-LOCK
+    WHERE bf-estMiscControl.company EQ ipbf-est.company:
+    FIND FIRST bf-estMisc NO-LOCK
+         WHERE bf-estMisc.company       EQ bf-estMiscControl.company
+           AND bf-estMisc.estimateNo    EQ ipbf-est.est-no
+           AND bf-estMisc.estCostCalcBy EQ bf-estMiscControl.estCostCalcBy
+           AND bf-estMisc.estCostCalcOn EQ bf-estMiscControl.estCostCalcOn
+           AND bf-estMisc.estCostCalcTo EQ bf-estMiscControl.estCostCalcTo
+         NO-ERROR.
+    IF NOT AVAILABLE bf-estMisc THEN DO:
+        CREATE bf-estMisc.
+        BUFFER-COPY bf-estMiscControl EXCEPT rec_key TO bf-estMisc.
+        
+        ASSIGN
+            bf-estMisc.estimateNo = ipbf-est.est-no
+            .
+    END.
+END.
 
 IF VALID-HANDLE(hPrepProcs) THEN 
  DELETE OBJECT hPrepProcs.

@@ -113,14 +113,18 @@ DEFINE VARIABLE h_b-estop AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estprp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estq AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_b-estqty AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_btnaddcost AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_capacityPage AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_farmnav AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_fgadd AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options3 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-box23d AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-cadimg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-dieimg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-estbox AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-estc AS HANDLE NO-UNDO.
@@ -164,10 +168,7 @@ DEFINE VARIABLE h_vp-spec AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-est AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-stkpn AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-qtest AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_fgadd AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-cadimg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_btn-add-mat AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_pv-AltDesign AS HANDLE NO-UNDO.
@@ -211,7 +212,7 @@ DEFINE FRAME message-frame
    Type: SmartWindow
    External Tables: ASI.est
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 9
+   Design Page: 7
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -269,12 +270,12 @@ ASSIGN FRAME message-frame:FRAME = FRAME est:HANDLE
        FRAME OPTIONS-FRAME:FRAME = FRAME est:HANDLE.
 
 /* SETTINGS FOR FRAME est
-                                                                        */
+   FRAME-NAME                                                           */
 
 DEFINE VARIABLE XXTABVALXX AS LOGICAL NO-UNDO.
 
-ASSIGN XXTABVALXX = FRAME message-frame:MOVE-BEFORE-TAB-ITEM (FRAME OPTIONS-FRAME:HANDLE)
-    /* END-ASSIGN-TABS */.
+ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-frame:HANDLE)
+/* END-ASSIGN-TABS */.
 
 /* SETTINGS FOR FRAME message-frame
                                                                         */
@@ -861,14 +862,15 @@ PROCEDURE adm-create-objects :
              OUTPUT h_v-est4 ).
        RUN set-position IN h_v-est4 ( 6.91 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 17.05 , 110.00 ) */
+       RUN set-size IN h_p-updc&c ( 4.67 , 20.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'est/v-navef.w':U ,
+             INPUT  'est/btnaddcost.w':U ,
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_v-navef-2 ).
-       RUN set-position IN h_v-navef-2 ( 22.47 , 117.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.43 , 42.00 ) */
+             OUTPUT h_btnaddcost ).
+       RUN set-position IN h_btnaddcost ( 18.38 , 122.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 24.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/btn_addmaterials.w':U ,
@@ -879,6 +881,15 @@ PROCEDURE adm-create-objects :
              OUTPUT h_btn-add-mat ).
        RUN set-position IN h_btn-add-mat ( 20.71 , 122.00 ) NO-ERROR.
        RUN set-size IN h_btn-add-mat ( 4.67  , 20.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 24.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/v-navef.w':U ,
+             INPUT  FRAME est:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-navef-2 ).
+       RUN set-position IN h_v-navef-2 ( 22.48 , 117.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.43 , 42.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
@@ -893,12 +904,25 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_btn-add-mat. */
        RUN add-link IN adm-broker-hdl ( h_btn-add-mat , 'addMaterials':U , h_b-estitm ).
 
+       /* Links to SmartViewer h_btnaddcost. */
+       RUN add-link IN adm-broker-hdl ( h_btnaddcost , 'addCosts':U , h_b-estitm ).
+
        /* Links to SmartViewer h_v-navef-2. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'nav-itm':U , h_v-navef-2 ).
        RUN add-link IN adm-broker-hdl (h_p-updc&c, 'upd-miscsub-eb':U , h_v-est4 ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vi-est ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updc&c ,
+             h_vi-est , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_btnaddcost ,
+             h_p-updc&c , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_btn-add-mat ,
+             h_btnaddcost , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-navef-2 ,
+             h_btn-add-mat , 'AFTER':U ).
     END. /* Page 7 */
-
     WHEN 8 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/vi-est-.w':U ,
