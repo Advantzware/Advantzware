@@ -5186,6 +5186,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
                 bf-eb.ship-zip     = eb.ship-zip
                 bf-eb.sman         = eb.sman
                 bf-eb.comm         = eb.comm
+                bf-eb.tr-no        = eb.tr-no
                 .
         END.
     END.
