@@ -3836,7 +3836,8 @@ DO WITH FRAME {&FRAME-NAME}:
 
   ASSIGN tb-set:SENSITIVE = FALSE
          bt-new-die:SENSITIVE = FALSE
-         bt-new-plate:SENSITIVE = FALSE.
+         bt-new-plate:SENSITIVE = FALSE
+         fi_lf-blank:SENSITIVE = FALSE.
 
   IF v-cecscrn-char EQ "Decimal" THEN do:
      iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .     
@@ -4163,7 +4164,8 @@ PROCEDURE local-update-record :
   DO WITH frame {&frame-name}:
       ASSIGN tb-set:SENSITIVE = FALSE
              bt-new-die:SENSITIVE = FALSE
-             bt-new-plate:SENSITIVE = FALSE.
+             bt-new-plate:SENSITIVE = FALSE
+             fi_lf-blank:SENSITIVE = FALSE.
   END.
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -4595,7 +4597,8 @@ PROCEDURE proc-enable :
   DO WITH frame {&frame-name}:
       ASSIGN tb-set:SENSITIVE = TRUE
              bt-new-die:SENSITIVE = TRUE
-             bt-new-plate:SENSITIVE = TRUE.
+             bt-new-plate:SENSITIVE = TRUE
+             fi_lf-blank:SENSITIVE = TRUE.
   END.
 
   ASSIGN
