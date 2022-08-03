@@ -298,6 +298,7 @@ DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
            btPOScores:SENSITIVE = FALSE.
+           btn-auto-calc:SENSITIVE = FALSE.
         END.
         ELSE 
         DO: /* Save */
