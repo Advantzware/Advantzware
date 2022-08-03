@@ -1020,7 +1020,8 @@ PROCEDURE run-report :
         FIND FIRST ap-ledger NO-LOCK
             WHERE ap-ledger.company  EQ ap-pay.company
             AND ap-ledger.vend-no  EQ ap-pay.vend-no
-            AND ap-ledger.refnum   EQ "AC" + STRING(ap-pay.check-no, "999999")
+            AND (ap-ledger.refnum   EQ "AC" + STRING(ap-pay.check-no, "99999999")
+            OR ap-ledger.refnum   EQ "AC" + STRING(ap-pay.check-no, "999999"))
             AND ap-ledger.ref-date EQ ap-pay.check-date
             USE-INDEX ap-ledger NO-ERROR.
 
