@@ -97,29 +97,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
 DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
@@ -168,6 +146,7 @@ ASSIGN
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
+      
       IF ar-inv.sold-name <> "" THEN
          assign  v-shipto-name = ar-inv.sold-name
               v-shipto-addr[1] = ar-inv.sold-addr[1]
@@ -365,6 +344,25 @@ ASSIGN
              lv-bol-no = ar-invl.bol-no.
              .
    END.
+   
+   FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
+           FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
+              oe-boll.b-no = oe-bolh.b-no AND
+              oe-boll.i-no = ar-invl.i-no AND
+              oe-boll.ord-no = ar-invl.ord-no:
+
+                                      
+              ASSIGN cLocation     = oe-boll.loc .
+           END. /* each oe-boll */   
+   END. /* each oe-bolh */
+      
+   RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+          
+        IF NOT lValid THEN
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.
+        ASSIGN ls-full-img1 = cRtnChar + ">" .
 
  {ar/rep/invcolnx.i}  /* xprint form */
 

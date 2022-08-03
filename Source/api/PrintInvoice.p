@@ -75,6 +75,8 @@ DEFINE VARIABLE iInvoiceID              AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cReportARMiscAsLine     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lReportARMiscAsLine     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPrintAllQty            AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lValid                  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage                AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-APIOutbound FOR APIOutbound.
 
@@ -179,7 +181,7 @@ FOR EACH ttInvoice
         NEXT.
          
     RUN sys/ref/nk1look.p (cCompany, "INVPRINT", "L" , YES, YES, "" , "", OUTPUT cDisplayCompanyAddress, OUTPUT lRecFound).
-    RUN sys/ref/nk1look.p (cCompany, "BusinessFormLogo", "C", NO, YES, "", "", OUTPUT cBusinessFormLogo, OUTPUT lRecFound).
+    RUN FileSys_GetBusinessFormLogo(cCompany, "" /* cust */ , "" /* Location */ , OUTPUT cBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
     
     ASSIGN
         lPrintInstructions  = LOGICAL(system.SharedConfig:Instance:GetValue("PrintInvoice_PrintInstructions"))

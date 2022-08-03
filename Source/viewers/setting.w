@@ -173,7 +173,7 @@ DEFINE BUTTON btnUpdate-2
 
 DEFINE VARIABLE cbScopeTable AS CHARACTER FORMAT "X(256)":U 
      LABEL "Scope Type" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
+     VIEW-AS COMBO-BOX INNER-LINES 6
      DROP-DOWN-LIST
      SIZE 52 BY 1 NO-UNDO.
 
@@ -540,6 +540,15 @@ DO:
             fiScopeField3:LABEL  = "ShipTo"
             fiScopeField3:HIDDEN = FALSE
             .
+    ELSE IF SELF:SCREEN-VALUE EQ "Location" THEN
+        ASSIGN
+            fiScopeField1:LABEL  = "Company"
+            fiScopeField1:HIDDEN = FALSE
+            fiScopeField2:LABEL  = "Customer"
+            fiScopeField2:HIDDEN = FALSE
+            fiScopeField3:LABEL  = "Location"
+            fiScopeField3:HIDDEN = FALSE
+            .
 
     IF SELF:SCREEN-VALUE NE "System" AND cMode EQ "Add" AND fiScopeField1:SCREEN-VALUE EQ "" THEN
         fiScopeField1:SCREEN-VALUE = cCompany.
@@ -586,7 +595,8 @@ DO:
     DEFINE VARIABLE iSubjectID   AS INTEGER   NO-UNDO.
     
     CASE cbScopeTable:SCREEN-VALUE:
-        WHEN "Customer" OR 
+        WHEN "Customer" OR
+        WHEN "Location" OR
         WHEN "ShipTo" THEN
             iSubjectID = 23.
         WHEN "Vendor" THEN
@@ -606,10 +616,10 @@ DO:
 
     IF returnFields NE "" THEN DO:
         CASE cbScopeTable:SCREEN-VALUE:
-            WHEN "Customer" THEN
+            WHEN "Customer" OR 
+            WHEN "ShipTo"   OR 
+            WHEN "Location"  THEN
                 SELF:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "cust.cust-no", returnFields).
-            WHEN "ShipTo" THEN
-                SELF:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "shipto.cust-no", returnFields).
             WHEN "Vendor" THEN
                 SELF:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "vend.vend-no", returnFields).
         END CASE.
@@ -632,6 +642,8 @@ DO:
     CASE cbScopeTable:SCREEN-VALUE:
         WHEN "ShipTo" THEN
             iSubjectID = 122.
+        WHEN "Location" THEN
+            iSubjectID = 150.
     END CASE.
     iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
@@ -652,8 +664,37 @@ DO:
                     fiScopeField2:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "shipto.cust-no", returnFields)
                     fiScopeField3:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "shipto.ship-id", returnFields)
                     .
+            WHEN "Location" THEN
+                ASSIGN
+                    fiScopeField3:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "loc.loc", returnFields)
+                    .
         END CASE.
     END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiSettingValue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSettingValue V-table-Win
+ON HELP OF fiSettingValue IN FRAME F-Main /* Value */
+DO:    
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ll-ok     AS LOGICAL   NO-UNDO.
+
+    IF fiSettingName:SCREEN-VALUE EQ "BusinessFormLogo" OR fiSettingName EQ "BusinessFormLogo" THEN
+    DO:    
+        SYSTEM-DIALOG GET-FILE cFileName 
+            TITLE "Select File to Save "
+            FILTERS "All Files    (*.*) " "*.*"
+            INITIAL-DIR "*"
+            MUST-EXIST
+            USE-FILENAME
+            UPDATE ll-ok.
+
+        IF ll-ok THEN SELF:SCREEN-VALUE = cFileName.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

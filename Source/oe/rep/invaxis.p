@@ -111,33 +111,9 @@ DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 DEFINE BUFFER bf-cust FOR cust.
 DEFINE BUFFER bf-soldto FOR soldto.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">".
 
 /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &XMLOutput=XMLInvoice &Company=cocode}
@@ -165,6 +141,7 @@ RUN XMLOutput (lXMLOutput,'','','Header').
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
+          
           /*get Remito*/
         FIND FIRST bf-cust 
             WHERE bf-cust.company EQ '001'
@@ -324,7 +301,8 @@ RUN XMLOutput (lXMLOutput,'','','Header').
                                       /** Bill Of Lading TOTAL CASES **/
               ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
                      v-tot-pallets = v-tot-pallets + oe-boll.cases +
-                                     (if oe-boll.partial gt 0 then 1 else 0).
+                                     (if oe-boll.partial gt 0 then 1 else 0)
+                     cLocation     = oe-boll.loc.
               IF oe-boll.p-c THEN v-pc = "C". /*complete*/
               
            END. /* each oe-boll */
@@ -553,6 +531,15 @@ RUN XMLOutput (lXMLOutput,'','','Header').
         RUN cXMLOutput (clXMLOutput,'/InvoiceDetailOrderInfo','','Row').
         XMLPage = NO.
         /* rstark 05291402 */
+        
+       RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+                          
+           IF NOT lValid THEN
+           DO:
+               MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+           END.
+           ASSIGN ls-full-img1 = cRtnChar + ">" .
+        
         PUT "[@startPage" + trim(STRING(inv-head.inv-no,">>>>>9")) + "]" FORMAT "x(20)".
         {oe/rep/invaxis.i}  /* xprint form */
 

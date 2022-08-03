@@ -96,7 +96,7 @@ DEFINE VARIABLE cPOLineTest                AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFirstPurchaseOrder        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lLastPurchaseOrder         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cDisplayCompanyAddress     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cBuisnessFormLogo          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBusinessFormLogo          AS CHARACTER NO-UNDO.
 
 RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
 
@@ -454,9 +454,9 @@ ELSE DO:
     RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
 
     RUN sys/ref/nk1look.p (cCompany, "POPRINT", "L" , YES, YES, "" , "", OUTPUT cDisplayCompanyAddress, OUTPUT lRecFound).
-    RUN sys/ref/nk1look.p (cCompany, "BusinessFormLogo", "C", NO, YES, "", "", OUTPUT cBuisnessFormLogo, OUTPUT lRecFound).
+    RUN FileSys_GetBusinessFormLogo(cCompany, "" /* cust */ , "" /* Location */ , OUTPUT cBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
     
-    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BusinessFormLogo", cBuisnessFormLogo).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BusinessFormLogo", cBusinessFormLogo).
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DisplayCompanyAddress", cDisplayCompanyAddress).
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "PrintMetric", STRING(lPrintMetric)).
     

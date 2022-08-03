@@ -109,30 +109,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
@@ -186,7 +163,7 @@ for each report where report.term-id eq v-term-id no-lock,
 
         break by (IF v-print-fmt EQ "ASIXprnt" THEN "" ELSE ar-inv.cust-no)
               by ar-inv.inv-no:
-     
+        
         find first carrier where carrier.company eq cocode
              and carrier.carrier eq ar-inv.carrier no-lock no-error.
         if avail carrier THEN ASSIGN v-shipvia = carrier.dscr.
@@ -258,14 +235,15 @@ for each report where report.term-id eq v-term-id no-lock,
 
          
         
-         FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no AND
-             oe-bolh.ord-no = ar-invl.ord-no:
+         FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
            FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
               oe-boll.b-no = oe-bolh.b-no AND
-              oe-boll.i-no = ar-invl.i-no:
+              oe-boll.i-no = ar-invl.i-no AND
+             oe-boll.ord-no = ar-invl.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-              ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+              ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                     cLocation   = oe-boll.loc .
               RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
               v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
@@ -362,6 +340,14 @@ for each report where report.term-id eq v-term-id no-lock,
         IF v-salesman = "" THEN v-salesman = cust.sman.
         v-inv-date = ar-inv.inv-date.
         
+        RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+		      
+            IF NOT lValid THEN
+            DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            END.
+                ASSIGN ls-full-img1 = cRtnChar + ">" .
+                
         {ar/rep/invshamrock.i}
 
         ASSIGN

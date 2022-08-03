@@ -107,31 +107,7 @@ DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 ASSIGN tmpstore = fill("-",130).
 
@@ -249,7 +225,9 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             and oe-rell.r-no    eq oe-relh.r-no,
 
           first itemfg of oe-rell no-lock:
-          
+        
+        ASSIGN cLocation = oe-rell.loc .
+        
         create w-oe-rell.
         buffer-copy oe-rell to w-oe-rell.
         
@@ -285,6 +263,14 @@ if v-zone-p then v-zone-hdr = "Route No.:".
         v-weight = v-weight + (oe-rell.qty * itemfg.weight-100 / 100).
       end.
 
+      RUN FileSys_GetBusinessFormLogo(cocode, oe-relh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      ASSIGN ls-full-img1 = cRtnChar + ">" .
+      
       {oe/rep/relcardx2.i}
 
       for each w-bin:
