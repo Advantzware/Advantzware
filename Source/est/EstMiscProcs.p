@@ -24,6 +24,36 @@ BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE EstMisc_Delete:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriSourceRowID      AS ROWID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-estMiscControl     FOR estMiscControl.
+    DEFINE BUFFER bf-estMisc            FOR estMisc.
+    
+    IF ipriSourceRowID NE ? THEN DO:
+        FIND FIRST bf-estMiscControl EXCLUSIVE-LOCK
+             WHERE ROWID(bf-estMiscControl) EQ ipriSourceRowID
+             NO-ERROR.
+        IF AVAILABLE bf-estMiscControl THEN
+            DELETE bf-estMiscControl.
+        ELSE DO:
+            FIND FIRST bf-estMisc EXCLUSIVE-LOCK
+                 WHERE ROWID(bf-estMisc) EQ ipriSourceRowID
+                 NO-ERROR.
+            IF AVAILABLE bf-estMisc THEN
+                DELETE bf-estMisc.           
+       END.
+    END.
+
+
+END PROCEDURE.
+
 PROCEDURE EstMisc_GetCategoryList:
 /*------------------------------------------------------------------------------
  Purpose:
