@@ -109,6 +109,20 @@ PROCEDURE pIsValidGLAccount:
     
 END PROCEDURE.
 
+PROCEDURE pIsValidPallet:
+    /*------------------------------------------------------------------------------
+     Purpose:  Validates Pallet#
+     Notes: Input 1 = Item No, input 2 = Item Type
+    ------------------------------------------------------------------------------*/
+    {util/dev/ValidateWith2Criteria.i 
+        &ValidateTable = "item" 
+        &ValidateField1 = "i-no"
+        &ValidateField2 = "mat-type"  
+        &ValidateMessage = "Pallet#"}
+    
+
+END PROCEDURE.
+
 PROCEDURE pIsValidShiptoID:
     /*------------------------------------------------------------------------------
      Purpose:  Validates shipto ID
