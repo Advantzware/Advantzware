@@ -54,6 +54,27 @@ PROCEDURE EstMisc_Delete:
 
 END PROCEDURE.
 
+PROCEDURE EstMisc_GetCustomList:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcCustomList AS CHARACTER NO-UNDO.
+    
+    opcCustomList = "Board Cost"             + "," + "costTotalBoard" + ","
+                  + "Labor Cost"             + "," + "costTotalLabor" + ","
+                  + "Variable Overhead Cost" + "," + "costTotalVariableOverhead" + ","
+                  + "Fixed Overhead Cost"    + "," + "costTotalFixedOverhead" + ","
+                  + "Material Cost"          + "," + "costTotalMaterial" + ","
+                  + "Factory Cost"           + "," + "costTotalFactory" + ","
+                  + "Non Factory Cost"       + "," + "costTotalNonFactory" + ","
+                  + "Net Profit"             + "," + "netProfit" + ","
+                  + "Full Cost"              + "," + "costTotalFull" + ","
+                  + "Sell Price"             + "," + "sellPrice" + ","
+                  + "Gross Profit"           + "," + "grossProfit".
+END PROCEDURE.
+
 PROCEDURE EstMisc_GetCategoryList:
 /*------------------------------------------------------------------------------
  Purpose:
