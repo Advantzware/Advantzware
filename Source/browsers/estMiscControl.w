@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -36,13 +35,21 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+{est/ttEstMisc.i}
 
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCalcOnDesc AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCalcToDesc AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompany       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEstimateNo    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalcOnDesc    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalcToDesc    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSourceType    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdEstMiscProcs AS HANDLE    NO-UNDO.
+
+/* Required for run_link.i */
+DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
 RUN spGetSessionParam("Company", OUTPUT cCompany).
 
@@ -64,26 +71,19 @@ RUN spGetSessionParam("Company", OUTPUT cCompany).
 &Scoped-define BROWSE-NAME br_table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES estMiscControl
+&Scoped-define INTERNAL-TABLES ttEstMisc
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table estMiscControl.costDescription ~
-estMiscControl.estCostCalcBy ~
-fGetCalcDesc(estMiscControl.estCostCategoryID, TRUE) @ cCalcToDesc ~
-fGetCalcDesc(estMiscControl.estCostCalcSource, FALSE) @ cCalcOnDesc ~
-estMiscControl.flatFeeCharge estMiscControl.chargePercent 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
-&Scoped-define QUERY-STRING-br_table FOR EACH estMiscControl WHERE ~{&KEY-PHRASE} ~
-      AND estMiscControl.company = cCompany NO-LOCK ~
-    ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH estMiscControl WHERE ~{&KEY-PHRASE} ~
-      AND estMiscControl.company = cCompany NO-LOCK ~
-    ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table estMiscControl
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table estMiscControl
+&Scoped-define FIELDS-IN-QUERY-br_table ttEstMisc.costDescription fGetCalcDesc(ttEstMisc.estCostCategoryID, TRUE) @ cCalcToDesc ttEstMisc.estCostCalcBy fGetCalcDesc(ttEstMisc.estCostCalcSource, FALSE) @ cCalcOnDesc ttEstMisc.chargePercent ttEstMisc.flatFeeCharge   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
+&Scoped-define SELF-NAME br_table
+&Scoped-define QUERY-STRING-br_table FOR EACH ttEstMisc WHERE ~{&KEY-PHRASE}     ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttEstMisc WHERE ~{&KEY-PHRASE}     ~{&SORTBY-PHRASE}.
+&Scoped-define TABLES-IN-QUERY-br_table ttEstMisc
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table ttEstMisc
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -157,21 +157,21 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      estMiscControl SCROLLING.
+      ttEstMisc SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _FREEFORM
   QUERY br_table NO-LOCK DISPLAY
-      estMiscControl.costDescription FORMAT "x(40)":U
-      estMiscControl.estCostCalcBy FORMAT "x(32)":U WIDTH 18.4
-      fGetCalcDesc(estMiscControl.estCostCategoryID, TRUE) @ cCalcToDesc COLUMN-LABEL "Category" FORMAT "X(50)":U
-            WIDTH 39.2
-      fGetCalcDesc(estMiscControl.estCostCalcSource, FALSE) @ cCalcOnDesc COLUMN-LABEL "Cost Source" FORMAT "X(50)":U
+      ttEstMisc.costDescription FORMAT "x(40)":U WIDTH 33.2
+      fGetCalcDesc(ttEstMisc.estCostCategoryID, TRUE) @ cCalcToDesc COLUMN-LABEL "Category" FORMAT "X(50)":U
+            WIDTH 36.2
+      ttEstMisc.estCostCalcBy FORMAT "x(32)":U WIDTH 20
+      fGetCalcDesc(ttEstMisc.estCostCalcSource, FALSE) @ cCalcOnDesc COLUMN-LABEL "Cost Source" FORMAT "X(50)":U
             WIDTH 34.2
-      estMiscControl.flatFeeCharge FORMAT ">>,>>,>>9.99<<<<":U
-      estMiscControl.chargePercent FORMAT ">>,>>,>>9.99<<<<":U
+      ttEstMisc.chargePercent FORMAT ">>,>>,>>9.99<<<<":U
+      ttEstMisc.flatFeeCharge FORMAT ">>,>>,>>9.99<<<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 129 BY 14.29.
@@ -249,18 +249,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "ASI.estMiscControl"
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH ttEstMisc WHERE ~{&KEY-PHRASE}
+    ~{&SORTBY-PHRASE}.
+     _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.estMiscControl.company = cCompany"
-     _FldNameList[1]   = ASI.estMiscControl.costDescription
-     _FldNameList[2]   > ASI.estMiscControl.estCostCalcBy
-"estMiscControl.estCostCalcBy" ? ? "character" ? ? ? ? ? ? no ? no no "18.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > "_<CALC>"
-"fGetCalcDesc(estMiscControl.estCostCategoryID, TRUE) @ cCalcToDesc" "Category" "X(50)" ? ? ? ? ? ? ? no ? no no "39.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > "_<CALC>"
-"fGetCalcDesc(estMiscControl.estCostCalcSource, FALSE) @ cCalcOnDesc" "Cost Source" "X(50)" ? ? ? ? ? ? ? no ? no no "34.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   = ASI.estMiscControl.flatFeeCharge
-     _FldNameList[6]   = ASI.estMiscControl.chargePercent
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -372,6 +366,84 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetEstMisc B-table-Win
+PROCEDURE GetEstMisc:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER ophdTTEstMiscHandle AS HANDLE NO-UNDO.
+    
+    IF AVAILABLE ttEstMisc THEN
+        ophdTTEstMiscHandle = BUFFER ttEstMisc:HANDLE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable B-table-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    RUN pInit.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win
+PROCEDURE local-open-query:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN EstMisc_GetEstMisc IN hdEstMiscProcs (cSourceType, cCompany, cEstimateNo, OUTPUT TABLE ttEstMisc).
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 
+PROCEDURE pInit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {methods/run_link.i "CONTAINER-SOURCE" "GetSourceType" "(OUTPUT cSourceType)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "GetEstMiscProcsHandle" "(OUTPUT hdEstMiscProcs)"}
+    {methods/run_link.i "CONTAINER-SOURCE" "GetEstimateNo" "(OUTPUT cEstimateNo)"}
+    
+    IF NOT VALID-HANDLE (hdEstMiscProcs) THEN
+        RUN est/estMiscProcs.p PERSISTENT SET hdEstMiscProcs.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -384,7 +456,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "estMiscControl"}
+  {src/adm/template/snd-list.i "ttEstMisc"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -427,7 +499,7 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
     DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
     DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
     
-    IF AVAILABLE estMiscControl THEN DO:
+    IF AVAILABLE ttEstMisc THEN DO:
         IF iplIsCategory THEN DO:
             FIND FIRST bf-estCostCategorySystem NO-LOCK
                  WHERE bf-estCostCategorySystem.estCostCategoryID EQ ipcCalcID
@@ -436,21 +508,21 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
                 RETURN bf-estCostCategorySystem.estCostCategoryDesc.                
         END.
         ELSE DO:
-            IF estMiscControl.estCostCalcBy EQ "Group" THEN DO:
+            IF ttEstMisc.estCostCalcBy EQ "Group" THEN DO:
                 FIND FIRST bf-estCostGroupSystem NO-LOCK
                      WHERE bf-estCostGroupSystem.estCostGroupID EQ ipcCalcID
                      NO-ERROR.
                 IF AVAILABLE bf-estCostGroupSystem THEN
                     RETURN bf-estCostGroupSystem.estCostGroupDesc.        
             END.
-            ELSE IF estMiscControl.estCostCalcBy EQ "Level" THEN DO:
+            ELSE IF ttEstMisc.estCostCalcBy EQ "Level" THEN DO:
                 FIND FIRST bf-estCostGroupLevelSystem NO-LOCK
                      WHERE bf-estCostGroupLevelSystem.estCostGroupLevelID EQ INTEGER(ipcCalcID)
                      NO-ERROR.
                 IF AVAILABLE bf-estCostGroupLevelSystem THEN
                     RETURN bf-estCostGroupLevelSystem.estCostGroupLevelDesc.        
             END.
-            ELSE IF estMiscControl.estCostCalcBy EQ "Category" THEN DO:
+            ELSE IF ttEstMisc.estCostCalcBy EQ "Category" THEN DO:
                 FIND FIRST bf-estCostCategorySystem NO-LOCK
                      WHERE bf-estCostCategorySystem.estCostCategoryID EQ ipcCalcID
                      NO-ERROR.

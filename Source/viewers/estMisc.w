@@ -1,8 +1,5 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-/* Connected Databases 
-          asi              PROGRESS
-*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*********************************************************************
@@ -41,11 +38,22 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE cSourceType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany            AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCalcByLevelList    AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCalcByGroupList    AS CHARACTER NO-UNDO.    
-DEFINE VARIABLE cCalcByCategoryList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEstimateNo         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCostDescription    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSequenceID         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cEstCostCategoryID  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEstCostCalcBy      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEstCostCalcSource  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lIsFlatFee          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE dFlatFeeCharge      AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dChargeAmount       AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE riSourceRowID       AS ROWID     NO-UNDO.
+DEFINE VARIABLE lRecordAvailable    AS LOGICAL   NO-UNDO.
+
+DEFINE VARIABLE hdEstMiscProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cMode          AS CHARACTER NO-UNDO.
 
 RUN spGetSessionParam("Company", OUTPUT cCompany).
 
@@ -69,26 +77,12 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES estMisc
-&Scoped-define FIRST-EXTERNAL-TABLE estMisc
-
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR estMisc.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS estMisc.costDescription estMisc.estCostCalcBy ~
-estMisc.estCostCalcSource estMisc.estCostCategoryID estMisc.flatFeeCharge ~
-estMisc.chargePercent 
-&Scoped-define ENABLED-TABLES estMisc
-&Scoped-define FIRST-ENABLED-TABLE estMisc
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 
-&Scoped-Define DISPLAYED-FIELDS estMisc.costDescription ~
-estMisc.estCostCalcBy estMisc.estCostCalcSource estMisc.estCostCategoryID ~
-estMisc.flatFeeCharge estMisc.chargePercent 
-&Scoped-define DISPLAYED-TABLES estMisc
-&Scoped-define FIRST-DISPLAYED-TABLE estMisc
-
+&Scoped-Define ENABLED-OBJECTS btnAdd-2 RECT-1 RECT-2 btnCopy-2 btnDelete-2 ~
+btnUpdate-2 
+&Scoped-Define DISPLAYED-OBJECTS fiCostDescription cbEstCostCategoryID ~
+rsCostMethod cbEstCostCalcBy fiFlatFeeCharge cbEstCostCalcSourceCategory ~
+cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel fiChargePercent 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -123,42 +117,136 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAdd-2 
+     IMAGE-UP FILE "Graphics/32x32/navigate_plus.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_plus_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Add" 
+     SIZE 8 BY 1.91 TOOLTIP "Add".
+
+DEFINE BUTTON btnCancel-2 
+     IMAGE-UP FILE "Graphics/32x32/navigate_cross.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_cross_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Cancel" 
+     SIZE 8 BY 1.91 TOOLTIP "Cancel".
+
+DEFINE BUTTON btnCopy-2 
+     IMAGE-UP FILE "Graphics/32x32/element_copy.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/element_copy_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Copy" 
+     SIZE 8 BY 1.91 TOOLTIP "Copy".
+
+DEFINE BUTTON btnDelete-2 
+     IMAGE-UP FILE "Graphics/32x32/garbage_can.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/garbage_can_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Delete" 
+     SIZE 8 BY 1.91 TOOLTIP "Delete".
+
+DEFINE BUTTON btnReset-2 
+     IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Reset" 
+     SIZE 8 BY 1.91 TOOLTIP "Reset".
+
+DEFINE BUTTON btnUpdate-2 
+     IMAGE-UP FILE "Graphics/32x32/pencil.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/pencil_disabled.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "Update" 
+     SIZE 8 BY 1.91 TOOLTIP "Update/Save".
+
+DEFINE VARIABLE cbEstCostCalcBy AS CHARACTER FORMAT "x(32)" 
+     LABEL "Calculate Cost By" 
+     VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "Level","Group","Category" 
+     DROP-DOWN-LIST
+     SIZE 42 BY 1.
+
+DEFINE VARIABLE cbEstCostCalcSourceCategory AS CHARACTER FORMAT "x(32)" 
+     LABEL "Cost Source" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     DROP-DOWN-LIST
+     SIZE 42 BY 1.
+
+DEFINE VARIABLE cbEstCostCalcSourceGroup AS CHARACTER FORMAT "x(32)" 
+     LABEL "Cost Source" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     DROP-DOWN-LIST
+     SIZE 42 BY 1.
+
+DEFINE VARIABLE cbEstCostCalcSourceLevel AS CHARACTER FORMAT "x(32)" 
+     LABEL "Cost Source" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     DROP-DOWN-LIST
+     SIZE 42 BY 1.
+
+DEFINE VARIABLE cbEstCostCategoryID AS CHARACTER FORMAT "x(32)" 
+     LABEL "Category" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     DROP-DOWN-LIST
+     SIZE 42 BY 1.
+
+DEFINE VARIABLE fiChargePercent AS DECIMAL FORMAT ">>,>>,>>9.99<<<<" INITIAL 0 
+     LABEL "Charge Percent" 
+     VIEW-AS FILL-IN 
+     SIZE 18.8 BY 1.
+
+DEFINE VARIABLE fiCostDescription AS CHARACTER FORMAT "x(40)" 
+     LABEL "Cost Description" 
+     VIEW-AS FILL-IN 
+     SIZE 42 BY 1.
+
+DEFINE VARIABLE fiFlatFeeCharge AS DECIMAL FORMAT ">>,>>,>>9.99<<<<" INITIAL 0 
+     LABEL "Flat Fee Amount" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1.
+
+DEFINE VARIABLE rsCostMethod AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Flat Fee", 1,
+"Charge Percent", 2
+     SIZE 42 BY 1.19 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 67 BY 2.69.
+     SIZE 67 BY 6.19.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 67 BY 5.46.
+     SIZE 67 BY 3.33.
+
+DEFINE RECTANGLE transPanel-3
+     EDGE-PIXELS 1 GRAPHIC-EDGE    ROUNDED 
+     SIZE 50 BY 2.38
+     BGCOLOR 15 .
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     estMisc.costDescription AT ROW 1.96 COL 21 COLON-ALIGNED WIDGET-ID 2
-          VIEW-AS FILL-IN 
-          SIZE 42 BY 1
-     estMisc.estCostCalcBy AT ROW 3.15 COL 21 COLON-ALIGNED WIDGET-ID 14
-          VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "Level","Group","Category" 
-          DROP-DOWN-LIST
-          SIZE 42 BY .92
-     estMisc.estCostCalcSource AT ROW 4.35 COL 21 COLON-ALIGNED WIDGET-ID 20
-          VIEW-AS COMBO-BOX INNER-LINES 10
-          DROP-DOWN-LIST
-          SIZE 42 BY 1
-     estMisc.estCostCategoryID AT ROW 5.54 COL 21 COLON-ALIGNED WIDGET-ID 18
-          VIEW-AS COMBO-BOX INNER-LINES 10
-          DROP-DOWN-LIST
-          SIZE 42 BY 1
-     estMisc.flatFeeCharge AT ROW 7.46 COL 21 COLON-ALIGNED WIDGET-ID 22
-          VIEW-AS FILL-IN 
-          SIZE 18.83 BY 1
-     estMisc.chargePercent AT ROW 8.58 COL 21 COLON-ALIGNED WIDGET-ID 12
-          VIEW-AS FILL-IN 
-          SIZE 18.83 BY 1
-     RECT-1 AT ROW 7.19 COL 2 WIDGET-ID 24
-     RECT-2 AT ROW 1.46 COL 2 WIDGET-ID 26
+     btnAdd-2 AT ROW 11.43 COL 18.8 HELP
+          "Add" WIDGET-ID 46
+     btnCancel-2 AT ROW 11.43 COL 50.8 HELP
+          "Cancel" WIDGET-ID 48
+     btnCopy-2 AT ROW 11.43 COL 26.8 HELP
+          "Copy" WIDGET-ID 50
+     btnDelete-2 AT ROW 11.43 COL 34.8 HELP
+          "Delete" WIDGET-ID 52
+     fiCostDescription AT ROW 1.76 COL 21 COLON-ALIGNED WIDGET-ID 2
+     cbEstCostCategoryID AT ROW 3.14 COL 21 COLON-ALIGNED WIDGET-ID 20
+     btnReset-2 AT ROW 11.43 COL 42.8 HELP
+          "Reset" WIDGET-ID 54
+     rsCostMethod AT ROW 5.05 COL 23 NO-LABEL WIDGET-ID 28
+     btnUpdate-2 AT ROW 11.43 COL 10.8 HELP
+          "Update/Save" WIDGET-ID 56
+     cbEstCostCalcBy AT ROW 6.48 COL 21 COLON-ALIGNED WIDGET-ID 14
+     fiFlatFeeCharge AT ROW 6.48 COL 21 COLON-ALIGNED WIDGET-ID 22
+     cbEstCostCalcSourceCategory AT ROW 7.67 COL 21 COLON-ALIGNED WIDGET-ID 18
+     cbEstCostCalcSourceGroup AT ROW 7.67 COL 21 COLON-ALIGNED WIDGET-ID 32
+     cbEstCostCalcSourceLevel AT ROW 7.67 COL 21 COLON-ALIGNED WIDGET-ID 34
+     fiChargePercent AT ROW 8.95 COL 21 COLON-ALIGNED WIDGET-ID 12
+     RECT-1 AT ROW 4.81 COL 2 WIDGET-ID 24
+     RECT-2 AT ROW 1.33 COL 2 WIDGET-ID 26
+     transPanel-3 AT ROW 11.24 COL 9.8 WIDGET-ID 58
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -170,7 +258,6 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.estMisc
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -192,8 +279,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 9.31
-         WIDTH              = 70.5.
+         HEIGHT             = 13.19
+         WIDTH              = 69.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -220,6 +307,36 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnCancel-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnReset-2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbEstCostCalcBy IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbEstCostCalcSourceCategory IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbEstCostCalcSourceGroup IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbEstCostCalcSourceLevel IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbEstCostCategoryID IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiChargePercent IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiChargePercent:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN fiCostDescription IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiFlatFeeCharge IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiFlatFeeCharge:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR RADIO-SET rsCostMethod IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE transPanel-3 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -239,56 +356,96 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME estMisc.estCostCalcBy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estMisc.estCostCalcBy V-table-Win
-ON VALUE-CHANGED OF estMisc.estCostCalcBy IN FRAME F-Main /* Calculate Cost By */
+&Scoped-define SELF-NAME btnAdd-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAdd-2 V-table-Win
+ON CHOOSE OF btnAdd-2 IN FRAME F-Main /* Add */
 DO:
-    DEFINE BUFFER bf-estCostGroupSystem      FOR estCostGroupSystem.
-    DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
-    DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
-    
-    IF estMisc.estCostCalcBy:SCREEN-VALUE EQ "Level" THEN DO:
-        IF cCalcByLevelList EQ "" THEN DO:
-            FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
-                cCalcByLevelList = cCalcByLevelList + "," + bf-estCostGroupLevelSystem.estCostGroupLevelDesc + "," + STRING(bf-estCostGroupLevelSystem.estCostGroupLevelID).
-            END.
-            
-            cCalcByLevelList = TRIM(cCalcByLevelList, ",").
-        END.
-
-        estMisc.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByLevelList.
-    END.
-    ELSE IF estMisc.estCostCalcBy:SCREEN-VALUE EQ "Group" THEN DO:
-        IF cCalcByGroupList EQ "" THEN DO:
-            FOR EACH bf-estCostGroupSystem NO-LOCK:
-                cCalcByGroupList = cCalcByGroupList + "," + bf-estCostGroupSystem.estCostGroupDesc + "," + STRING(bf-estCostGroupSystem.estCostGroupID).
-            END.    
-            
-            cCalcByGroupList = TRIM(cCalcByGroupList, ",").
-        END.
-
-        estMisc.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByGroupList.
-    END.
-    ELSE IF estMisc.estCostCalcBy:SCREEN-VALUE EQ "Category" THEN DO:
-        IF cCalcByCategoryList EQ "" THEN DO:
-            FOR EACH bf-estCostCategorySystem NO-LOCK:
-                cCalcByCategoryList = cCalcByCategoryList + "," + bf-estCostCategorySystem.estCostCategoryDesc + "," + STRING(bf-estCostCategorySystem.estCostCategoryID).
-            END.    
-            
-            cCalcByCategoryList = TRIM(cCalcByCategoryList, ",").
-        END.
-
-        estMisc.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByCategoryList.
-    END.
-        
-    IF AVAILABLE estMisc THEN
-        estMisc.estCostCalcSource:SCREEN-VALUE = estMisc.estCostCalcSource.
+    RUN pCRUD (SELF).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCancel-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel-2 V-table-Win
+ON CHOOSE OF btnCancel-2 IN FRAME F-Main /* Cancel */
+DO:
+    RUN pCRUD (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCopy-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopy-2 V-table-Win
+ON CHOOSE OF btnCopy-2 IN FRAME F-Main /* Copy */
+DO:
+    RUN pCRUD (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnDelete-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDelete-2 V-table-Win
+ON CHOOSE OF btnDelete-2 IN FRAME F-Main /* Delete */
+DO:
+    RUN pCRUD (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnReset-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset-2 V-table-Win
+ON CHOOSE OF btnReset-2 IN FRAME F-Main /* Reset */
+DO:
+    RUN pCRUD (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnUpdate-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpdate-2 V-table-Win
+ON CHOOSE OF btnUpdate-2 IN FRAME F-Main /* Update */
+DO:
+    RUN pCRUD (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME rsCostMethod
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rsCostMethod V-table-Win
+ON VALUE-CHANGED OF rsCostMethod IN FRAME F-Main
+DO:
+    IF SELF:SCREEN-VALUE = "yes" THEN DO:
+        HIDE cbEstCostCalcBy cbEstCostCalcSourceCategory cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel fiChargePercent.
+        VIEW fiFlatFeeCharge.
+    END.
+    ELSE DO:
+        HIDE fiFlatFeeCharge cbEstCostCalcSourceCategory cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel.
+        
+        VIEW cbEstCostCalcBy fiChargePercent.
+        
+        IF cbEstCostCalcBy:SCREEN-VALUE EQ "Category" THEN
+            VIEW cbEstCostCalcSourceCategory.
+        ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Group" THEN
+            VIEW cbEstCostCalcSourceGroup.
+        ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Level" THEN
+            VIEW cbEstCostCalcSourceLevel.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &UNDEFINE SELF-NAME
@@ -323,15 +480,6 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
-  /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "estMisc"}
-
-  /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
-
-  /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "estMisc"}
-
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
@@ -359,31 +507,47 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-statement V-table-Win 
-PROCEDURE local-assign-statement :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
+PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
 
+    /* Code placed here will execute PRIOR to standard behavior. */
+    {custom/askdel.i}
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
     /* Code placed here will execute PRIOR to standard behavior. */
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
     /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
 
-    /* Code placed here will execute AFTER standard behavior.    */ 
+    /* Code placed here will execute AFTER standard behavior.    */
     ASSIGN
-        estMisc.company    = cCompany
-        estMisc.estimateNo = cEstimateNo
+        rsCostMethod:SENSITIVE                     = FALSE
+/*        estMisc.flatFeeCharge:SENSITIVE     = FALSE*/
+/*        estMisc.estCostCalcSource:SENSITIVE = FALSE*/
+/*        estMisc.estCostCalcBy:SENSITIVE     = FALSE*/
+/*        estMisc.chargePercent:SENSITIVE     = FALSE*/
         .
-
-    IF DECIMAL(estMisc.flatFeeCharge:SCREEN-VALUE) NE 0  THEN
-        ASSIGN
-            estMisc.estCostCalcSource = ""
-            estMisc.estCostCalcBy     = ""
-            .        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,8 +569,8 @@ PROCEDURE local-display-fields :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    APPLY "VALUE-CHANGED" TO estMisc.estCostCalcBy.
-    APPLY "VALUE-CHANGED" TO estMisc.flatFeeCharge.
+/*    APPLY "VALUE-CHANGED" TO estMisc.estCostCalcBy.*/
+/*    APPLY "VALUE-CHANGED" TO rsCostMethod.         */
     
 END PROCEDURE.
 
@@ -426,6 +590,52 @@ PROCEDURE local-enable :
     
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+    
+    rsCostMethod:SENSITIVE = TRUE.
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF AVAILABLE estMisc AND estMisc.flatFeeCharge NE 0 THEN
+        rsCostMethod:SCREEN-VALUE = "1".
+    ELSE
+        rsCostMethod:SCREEN-VALUE = "2".
+    
+    APPLY "VALUE-CHANGED" TO rsCostMethod.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    RUN pUpdateFields.
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -451,7 +661,7 @@ PROCEDURE local-update-record :
         
         RETURN ERROR.
     END.
-    
+                    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
     
@@ -462,127 +672,268 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCRUD V-table-Win
+PROCEDURE pCRUD:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iphMode AS HANDLE NO-UNDO.
+    
+    DEFINE VARIABLE lContinue      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE hWidget        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE rRowID         AS ROWID     NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lCustVend      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lUpdateReports AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iSettingId     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE rwRowid        AS ROWID     NO-UNDO.
+    DEFINE VARIABLE char-hdl       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+        CASE iphMode:LABEL:
+            WHEN "Add" OR 
+            WHEN "Copy" OR 
+            WHEN "Update" THEN DO:
+                IF iphMode:LABEL EQ "Add" THEN DO:
+                    /* Add logic goes here. Call a lookup to copy setting */
+                    {methods/run_link.i "RECORD-SOURCE" "AddSetting" "(OUTPUT lError)"}
+                    IF lError THEN
+                        RETURN NO-APPLY.
+                                            
+                    DISABLE btnReset-2.
+                END. /* add */
+                ELSE IF iphMode:LABEL EQ "Update" THEN DO:                
+                    APPLY "ENTRY":U TO fiCostDescription.
+                END.
+                ELSE IF iphMode:LABEL EQ "Copy" THEN DO:
+                    /* Add logic goes here. Call a lookup to copy setting */
+                    {methods/run_link.i "RECORD-SOURCE" "CopySetting" "(OUTPUT lError)"}
+                    IF lError THEN
+                        RETURN NO-APPLY.
+                    
+                    DISABLE btnReset-2.
+                END. /* add */
+                                                
+                {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
+                RUN new-state ("record-update-begin").
+                
+                cMode = iphMode:LABEL.
+                
+                ENABLE fiCostDescription cbEstCostCategoryID rsCostMethod.
+                
+/*                ASSIGN             */
+/*                    fiChargePercent*/
+                
+                DISABLE btnAdd-2 btnCopy-2 btnDelete-2.                  
+                
+                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\floppy_disk.png").
+
+                btnUpdate-2:LABEL = "Save".           
+            END. /* add copy update */
+            WHEN "Cancel" OR 
+            WHEN "Save" THEN DO:
+                IF iphMode:LABEL EQ "Save" THEN DO:
+                    IF cMode EQ "Add" OR cMode EQ "Copy" OR cMode EQ  "Update" THEN DO:
+/*                        {methods/run_link.i "RECORD-SOURCE" "UpdateSetting"                                                  */
+/*                            "(INPUT  edSettingDesc:SCREEN-VALUE,                                                             */
+/*                              INPUT  IF cValidValues EQ '' THEN fiSettingValue:SCREEN-VALUE ELSE cbSettingValue:SCREEN-VALUE,*/
+/*                              INPUT  fiProgramID:SCREEN-VALUE,                                                               */
+/*                              INPUT  tbInactive:CHECKED,                                                                     */
+/*                              INPUT  fiSettingUser:SCREEN-VALUE,                                                             */
+/*                              INPUT  cbScopeTable:SCREEN-VALUE,                                                              */
+/*                              INPUT  fiScopeField1:SCREEN-VALUE,                                                             */
+/*                              INPUT  fiScopeField2:SCREEN-VALUE,                                                             */
+/*                              INPUT  fiScopeField3:SCREEN-VALUE,                                                             */
+/*                              INPUT  rittSetting,                                                                            */
+/*                              OUTPUT lError)"}                                                                               */
+/*                        IF lError THEN                                                                                       */
+/*                            RETURN NO-APPLY.                                                                                 */
+/*                        ELSE DO:                                                                                             */
+/*                            RUN pUpdateFields.                                                                               */
+/*                                                                                                                             */
+/*                            RUN pUpdatePanel.                                                                                */
+/*                        END.                                                                                                 */
+                    END. /* if Add/Copy/Update */
+                END. /* save */
+                IF iphMode:LABEL EQ "Cancel" THEN DO:
+/*                    IF cRecordSource EQ "New" THEN*/
+/*                        {methods/run_link.i "RECORD-SOURCE" "DeleteSetting" "(OUTPUT lError)"}*/
+                        IF lError THEN
+                            RETURN NO-APPLY.
+                END.
+
+/*                DISABLE fiSettingName fiSettingValue cbSettingValue tbInactive*/
+/*                     cbScopeTable fiScopeField1 fiScopeField2 fiScopeField3.  */
+/*                                                                              */
+/*                edSettingDesc:READ-ONLY = TRUE.                               */
+
+                btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Pencil.png").
+                btnUpdate-2:LABEL = "Update".
+
+                ENABLE btnAdd-2 btnCopy-2 btnDelete-2.
+                DISABLE btnReset-2 btnCancel-2 .
+                
+/*                {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}*/
+                RUN new-state ("record-update-end"). 
+
+                RUN pUpdateFields.
+                RUN pUpdatePanel.
+            END. /* cancel save */
+            WHEN "Delete" THEN DO:
+                IF lRecordAvailable THEN DO:
+                    MESSAGE
+                        "Delete Currently Selected Record?"
+                        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                        UPDATE lContinue.
+                    IF lContinue THEN DO:
+/*                        {methods/run_link.i "RECORD-SOURCE" "DeleteSetting" "(OUTPUT lError)"}*/
+                        IF lError THEN
+                            RETURN NO-APPLY.                        
+                    END. /* if lcontinue */
+                END. /* if avail */
+                
+                RUN pUpdateFields.
+                RUN pUpdatePanel.
+            END. /* delete */
+            WHEN "Reset" THEN DO:
+                RUN pUpdateFields.
+            END.
+        END CASE.
+    END. /* with frame */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit V-table-Win 
 PROCEDURE pInit PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-estCostCategorySystem FOR estCostCategorySystem.
-    
+    DEFINE VARIABLE cCalcByLevelList    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCalcByGroupList    AS CHARACTER NO-UNDO.    
+    DEFINE VARIABLE cCalcByCategoryList AS CHARACTER NO-UNDO.
+
     DO WITH FRAME {&FRAME-NAME}:
     END.
 
-    {methods/run_link.i "CONTAINER-SOURCE" "GetEstimateNo" "(OUTPUT cEstimateNo)"}
-
-    FOR EACH bf-estCostCategorySystem NO-LOCK:
-        cCalcByCategoryList = cCalcByCategoryList + "," + bf-estCostCategorySystem.estCostCategoryDesc + "," + STRING(bf-estCostCategorySystem.estCostCategoryID).
-    END.    
+    {methods/run_link.i "CONTAINER-SOURCE" "GetEstMiscProcsHandle" "(OUTPUT hdEstMiscProcs)"}
+    IF NOT VALID-HANDLE (hdEstMiscProcs) THEN
+        RUN est/estMiscProcs.p PERSISTENT SET hdEstMiscProcs.
     
-    cCalcByCategoryList = TRIM(cCalcByCategoryList, ",").
-
-    estMisc.estCostCategoryID:LIST-ITEM-PAIRS = cCalcByCategoryList.
+    RUN EstMisc_GetCategoryList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByCategoryList).
+    RUN EstMisc_GetGroupList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByGroupList).
+    RUN EstMisc_GetGroupLevelList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByLevelList).
     
-    APPLY "VALUE-CHANGED" TO estMisc.estCostCalcBy.
-    APPLY "VALUE-CHANGED" TO estMisc.flatFeeCharge.
+    ASSIGN
+        cbEstCostCategoryID:LIST-ITEM-PAIRS         = cCalcByCategoryList
+        cbEstCostCalcSourceCategory:LIST-ITEM-PAIRS = cCalcByCategoryList
+        cbEstCostCalcSourceGroup:LIST-ITEM-PAIRS    = cCalcByGroupList
+        cbEstCostCalcSourceLevel:LIST-ITEM-PAIRS    = cCalcByLevelList
+        .
+    
+    RUN pUpdateFields.
+                                    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidate V-table-Win 
-PROCEDURE pValidate :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateFields V-table-Win 
+PROCEDURE pUpdateFields :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
-
-    DEFINE BUFFER bf-estMisc FOR estMisc.
+    DEFINE VARIABLE hdttEstMiscBuffer AS HANDLE NO-UNDO.
+    
+    /* Code placed here will execute PRIOR to standard behavior. */
+    {methods/run_link.i "RECORD-SOURCE" "GetEstMisc" "(OUTPUT hdttEstMiscBuffer)"}
     
     DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            cSourceType        = ""
+            cEstimateNo        = ""
+            cCostDescription   = ""
+            iSequenceID        = 0
+            cEstCostCategoryID = ?
+            cEstCostCalcBy     = "Category"
+            cEstCostCalcSource = ?
+            lIsFlatFee         = TRUE
+            dFlatFeeCharge     = 0
+            dChargeAmount      = 0
+            riSourceRowID      = ?
+            lRecordAvailable   = FALSE
+            .            
+        
+        IF VALID-HANDLE(hdttEstMiscBuffer) AND hdttEstMiscBuffer:AVAILABLE THEN
+            ASSIGN
+                cSourceType        = hdttEstMiscBuffer:BUFFER-FIELD("sourceType"):BUFFER-VALUE
+                cCompany           = hdttEstMiscBuffer:BUFFER-FIELD("company"):BUFFER-VALUE
+                cEstimateNo        = hdttEstMiscBuffer:BUFFER-FIELD("estimateNo"):BUFFER-VALUE
+                cCostDescription   = hdttEstMiscBuffer:BUFFER-FIELD("costDescription"):BUFFER-VALUE
+                iSequenceID        = hdttEstMiscBuffer:BUFFER-FIELD("sequenceID"):BUFFER-VALUE
+                cEstCostCategoryID = hdttEstMiscBuffer:BUFFER-FIELD("estCostCategoryID"):BUFFER-VALUE
+                cEstCostCalcBy     = hdttEstMiscBuffer:BUFFER-FIELD("estCostCalcBy"):BUFFER-VALUE
+                cEstCostCalcSource = hdttEstMiscBuffer:BUFFER-FIELD("estCostCalcSource"):BUFFER-VALUE
+                lIsFlatFee         = hdttEstMiscBuffer:BUFFER-FIELD("isFlatFee"):BUFFER-VALUE
+                dFlatFeeCharge     = hdttEstMiscBuffer:BUFFER-FIELD("flatFeeCharge"):BUFFER-VALUE
+                dChargeAmount      = hdttEstMiscBuffer:BUFFER-FIELD("chargeAmount"):BUFFER-VALUE
+                riSourceRowID      = hdttEstMiscBuffer:BUFFER-FIELD("sourceRowID"):BUFFER-VALUE
+                lRecordAvailable   = TRUE
+                NO-ERROR.
+        
+        ASSIGN
+            fiCostDescription:SCREEN-VALUE   = cCostDescription
+            cbEstCostCategoryID:SCREEN-VALUE = cEstCostCategoryID
+            cbEstCostCalcBy:SCREEN-VALUE     = cEstCostCalcBy
+            fiFlatFeeCharge:SCREEN-VALUE     = STRING(dFlatFeeCharge)
+            fiChargePercent:SCREEN-VALUE     = STRING(dChargeAmount)
+            rsCostMethod:SCREEN-VALUE        = STRING(lIsFlatFee)
+            NO-ERROR.  
+        
+        APPLY "VALUE-CHANGED" TO rsCostMethod.             
     END.
-    
-    IF AVAILABLE estMisc THEN DO:
-        IF estMisc.costDescription:SCREEN-VALUE EQ "" THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "Cost Description cannot be empty"
-                .
-            
-            RETURN.            
-        END.
 
-        IF DECIMAL(estMisc.chargePercent:SCREEN-VALUE) EQ 0 AND DECIMAL(estMisc.flatFeeCharge:SCREEN-VALUE) EQ 0 THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "Both Charge Percent and Flat Fee cannot be 0".
-                .
-            
-            RETURN.            
-        END.
-        
-        IF estMisc.estCostCalcBy:SCREEN-VALUE EQ "" OR estMisc.estCostCalcBy:SCREEN-VALUE EQ ? THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "Calculate Cost By cannot be empty"
-                .
-            
-            RETURN.            
-        END.
+END PROCEDURE.
 
-        IF estMisc.estCostCategoryID:SCREEN-VALUE EQ "" OR estMisc.estCostCategoryID:SCREEN-VALUE EQ ? THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "Category cannot be empty"
-                .
-            
-            RETURN.            
-        END.
-        
-        IF DECIMAL(estMisc.chargePercent:SCREEN-VALUE) NE 0 THEN DO:
-            IF estMisc.estCostCalcBy:SCREEN-VALUE EQ "" OR estMisc.estCostCalcBy:SCREEN-VALUE EQ ? THEN DO:
-                ASSIGN
-                    oplError   = TRUE
-                    opcMessage = "Calculate Cost By cannot be empty"
-                    .
-                
-                RETURN.            
-            END.            
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-            IF estMisc.estCostCalcSource:SCREEN-VALUE EQ "" OR estMisc.estCostCalcSource:SCREEN-VALUE EQ ? THEN DO:
-                ASSIGN
-                    oplError   = TRUE
-                    opcMessage = "Cost Source cannot be empty"
-                    .
-                
-                RETURN.
-            END.
-        END.
-                
-        FIND FIRST bf-estMisc NO-LOCK
-             WHERE bf-estMisc.company           EQ cCompany
-               AND bf-estMisc.estimateNo        EQ cEstimateNo
-               AND bf-estMisc.estCostCalcBy     EQ estMisc.estCostCalcBy:SCREEN-VALUE
-               AND bf-estMisc.estCostCategoryID EQ estMisc.estCostCategoryID:SCREEN-VALUE
-               AND bf-estMisc.estCostCalcSource EQ estMisc.estCostCalcSource:SCREEN-VALUE
-               AND ROWID(bf-estMisc)        NE ROWID(estMisc)
-             NO-ERROR.
-        IF AVAILABLE bf-estMisc THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "A record already exists for same configuration"
-                .
-            
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdatePanel V-table-Win
+PROCEDURE pUpdatePanel:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF lRecordAvailable AND (cMode EQ "Add" OR cMode EQ "Copy") THEN DO:            
+            DISABLE btnAdd-2 btnReset-2 btnCopy-2 btnDelete-2.
+            ENABLE btnUpdate-2 btnCancel-2.
             RETURN.
         END.
+        
+        DISABLE btnAdd-2 btnUpdate-2 btnCancel-2 btnDelete-2 btnReset-2 btnCopy-2.
+    
+        IF lRecordAvailable THEN DO:
+            ENABLE btnAdd-2 btnCopy-2 btnUpdate-2 btnDelete-2.
+        END.
+        ELSE
+            ENABLE btnAdd-2.
     END.
 END PROCEDURE.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
@@ -592,14 +943,9 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
-
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "estMisc"}
-
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartViewer, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.
 

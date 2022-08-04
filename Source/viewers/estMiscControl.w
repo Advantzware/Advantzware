@@ -73,19 +73,19 @@ RUN spGetSessionParam("Company", OUTPUT cCompany).
 DEFINE QUERY external_tables FOR estMiscControl.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS estMiscControl.costDescription ~
-estMiscControl.estCostCalcBy estMiscControl.estCostCategoryID ~
-estMiscControl.estCostCalcSource estMiscControl.flatFeeCharge ~
+estMiscControl.estCostCategoryID estMiscControl.flatFeeCharge ~
+estMiscControl.estCostCalcBy estMiscControl.estCostCalcSource ~
 estMiscControl.chargePercent 
 &Scoped-define ENABLED-TABLES estMiscControl
 &Scoped-define FIRST-ENABLED-TABLE estMiscControl
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 
 &Scoped-Define DISPLAYED-FIELDS estMiscControl.costDescription ~
-estMiscControl.estCostCalcBy estMiscControl.estCostCategoryID ~
-estMiscControl.estCostCalcSource estMiscControl.flatFeeCharge ~
+estMiscControl.estCostCategoryID estMiscControl.flatFeeCharge ~
+estMiscControl.estCostCalcBy estMiscControl.estCostCalcSource ~
 estMiscControl.chargePercent 
 &Scoped-define DISPLAYED-TABLES estMiscControl
 &Scoped-define FIRST-DISPLAYED-TABLE estMiscControl
-
+&Scoped-Define DISPLAYED-OBJECTS rsCostMethod 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -120,42 +120,50 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE rsCostMethod AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Flat Fee", 1,
+"Charge Percent", 2
+     SIZE 42 BY 1.19 NO-UNDO.
+
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 67 BY 2.85.
+     SIZE 67 BY 6.19.
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 67 BY 5.38.
+     SIZE 67 BY 3.33.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     estMiscControl.costDescription AT ROW 1.77 COL 21 COLON-ALIGNED WIDGET-ID 2
+     estMiscControl.costDescription AT ROW 1.76 COL 21 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 42 BY 1
-     estMiscControl.estCostCalcBy AT ROW 2.96 COL 21 COLON-ALIGNED WIDGET-ID 14
+     estMiscControl.estCostCategoryID AT ROW 3.14 COL 21 COLON-ALIGNED WIDGET-ID 20
+          VIEW-AS COMBO-BOX INNER-LINES 10
+          DROP-DOWN-LIST
+          SIZE 42 BY 1
+     rsCostMethod AT ROW 5.05 COL 23 NO-LABEL WIDGET-ID 28
+     estMiscControl.flatFeeCharge AT ROW 6.48 COL 21 COLON-ALIGNED WIDGET-ID 22
+          VIEW-AS FILL-IN 
+          SIZE 19 BY 1
+     estMiscControl.estCostCalcBy AT ROW 6.48 COL 21 COLON-ALIGNED WIDGET-ID 14
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "Level","Group","Category" 
           DROP-DOWN-LIST
-          SIZE 42 BY .92
-     estMiscControl.estCostCategoryID AT ROW 4.12 COL 21 COLON-ALIGNED WIDGET-ID 20
+          SIZE 42 BY 1
+     estMiscControl.estCostCalcSource AT ROW 7.67 COL 21 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS COMBO-BOX INNER-LINES 10
           DROP-DOWN-LIST
           SIZE 42 BY 1
-     estMiscControl.estCostCalcSource AT ROW 5.27 COL 21 COLON-ALIGNED WIDGET-ID 18
-          VIEW-AS COMBO-BOX INNER-LINES 10
-          DROP-DOWN-LIST
-          SIZE 42 BY 1
-     estMiscControl.flatFeeCharge AT ROW 7.19 COL 21 COLON-ALIGNED WIDGET-ID 22
+     estMiscControl.chargePercent AT ROW 8.95 COL 21 COLON-ALIGNED WIDGET-ID 12
           VIEW-AS FILL-IN 
-          SIZE 19 BY 1
-     estMiscControl.chargePercent AT ROW 8.38 COL 21 COLON-ALIGNED WIDGET-ID 12
-          VIEW-AS FILL-IN 
-          SIZE 18.83 BY 1
-     RECT-1 AT ROW 6.92 COL 2 WIDGET-ID 24
-     RECT-2 AT ROW 1.27 COL 2 WIDGET-ID 26
+          SIZE 18.8 BY 1
+     RECT-1 AT ROW 4.81 COL 2 WIDGET-ID 24
+     RECT-2 AT ROW 1.33 COL 2 WIDGET-ID 26
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -189,8 +197,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 8.85
-         WIDTH              = 69.33.
+         HEIGHT             = 10.19
+         WIDTH              = 69.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -217,6 +225,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR RADIO-SET rsCostMethod IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -240,52 +250,22 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL estMiscControl.estCostCalcBy V-table-Win
 ON VALUE-CHANGED OF estMiscControl.estCostCalcBy IN FRAME F-Main /* Calculate Cost By */
 DO:
-    DEFINE BUFFER bf-estCostGroupSystem      FOR estCostGroupSystem.
-    DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
-    DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
-    
-    IF estMiscControl.estCostCalcBy:SCREEN-VALUE EQ "Level" THEN DO:
-        IF cCalcByLevelList EQ "" THEN DO:
-            FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
-                cCalcByLevelList = cCalcByLevelList + "," + bf-estCostGroupLevelSystem.estCostGroupLevelDesc + "," + STRING(bf-estCostGroupLevelSystem.estCostGroupLevelID).
-            END.
-            
-            cCalcByLevelList = TRIM(cCalcByLevelList, ",").
-        END.
-
-        estMiscControl.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByLevelList.
-    END.
-    ELSE IF estMiscControl.estCostCalcBy:SCREEN-VALUE EQ "Group" THEN DO:
-        IF cCalcByGroupList EQ "" THEN DO:
-            FOR EACH bf-estCostGroupSystem NO-LOCK:
-                cCalcByGroupList = cCalcByGroupList + "," + bf-estCostGroupSystem.estCostGroupDesc + "," + STRING(bf-estCostGroupSystem.estCostGroupID).
-            END.    
-            
-            cCalcByGroupList = TRIM(cCalcByGroupList, ",").
-        END.
-
-        estMiscControl.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByGroupList.
-    END.
-    ELSE IF estMiscControl.estCostCalcBy:SCREEN-VALUE EQ "Category" THEN DO:
-        IF cCalcByCategoryList EQ "" THEN DO:
-            FOR EACH bf-estCostCategorySystem NO-LOCK:
-                cCalcByCategoryList = cCalcByCategoryList + "," + bf-estCostCategorySystem.estCostCategoryDesc + "," + STRING(bf-estCostCategorySystem.estCostCategoryID).
-            END.    
-            
-            cCalcByCategoryList = TRIM(cCalcByCategoryList, ",").
-        END.
-
-        estMiscControl.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByCategoryList.
-    END.
-    
-    IF AVAILABLE estMiscControl THEN
-        estMiscControl.estCostCalcSource:SCREEN-VALUE = estMiscControl.estCostCalcSource.
+    RUN pUpdateUI(estMiscControl.estCostCalcBy:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rsCostMethod
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rsCostMethod V-table-Win
+ON VALUE-CHANGED OF rsCostMethod IN FRAME F-Main
+DO:
+    RUN pUpdateUI(estMiscControl.estCostCalcBy:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &UNDEFINE SELF-NAME
@@ -362,6 +342,9 @@ PROCEDURE local-assign-statement :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iSequence AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-estMiscControl FOR estMiscControl.
 
     /* Code placed here will execute PRIOR to standard behavior. */
     DO WITH FRAME {&FRAME-NAME}:
@@ -371,14 +354,76 @@ PROCEDURE local-assign-statement :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */ 
-    estMiscControl.company = cCompany.
+    IF estMiscControl.sequenceID EQ 0 THEN DO:
+        FOR EACH bf-estMiscControl NO-LOCK
+            WHERE bf-estMiscControl.company    EQ cCompany
+            BY bf-estMiscControl.sequenceID DESCENDING:
+            iSequence = bf-estMiscControl.sequenceID.
+            LEAVE.
+        END.
+        
+        estMiscControl.sequenceID = iSequence + 1.
+    END.
 
+    estMiscControl.company = cCompany.
     
-    IF DECIMAL(estMiscControl.flatFeeCharge:SCREEN-VALUE) NE 0  THEN
+    IF rsCostMethod:SCREEN-VALUE EQ "1"  THEN
         ASSIGN
             estMiscControl.estCostCalcSource = ""
             estMiscControl.estCostCalcBy     = ""
+            estMiscControl.chargePercent     = 0
             .    
+    ELSE
+        estMiscControl.flatFeeCharge = 0.        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win
+PROCEDURE local-delete-record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+    {custom/askdel.i}
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+    ASSIGN
+        rsCostMethod:SENSITIVE                     = FALSE
+        estMiscControl.flatFeeCharge:SENSITIVE     = FALSE
+        estMiscControl.estCostCalcSource:SENSITIVE = FALSE
+        estMiscControl.estCostCalcBy:SENSITIVE     = FALSE
+        estMiscControl.chargePercent:SENSITIVE     = FALSE        
+        .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -400,9 +445,10 @@ PROCEDURE local-display-fields :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    APPLY "VALUE-CHANGED" TO estMiscControl.estCostCalcBy.
-    APPLY "VALUE-CHANGED" TO estMiscControl.flatFeeCharge.
-    
+    IF AVAILABLE estMiscControl THEN
+        RUN pUpdateUI(estMiscControl.estCostCalcBy).
+    ELSE    
+        RUN pUpdateUI("").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,6 +467,34 @@ PROCEDURE local-enable :
     
     /* Code placed here will execute AFTER standard behavior.    */
     RUN pInit.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+    
+    rsCostMethod:SENSITIVE = TRUE.
+    
+    /* Code placed here will execute AFTER standard behavior.    */
+    IF AVAILABLE estMiscControl AND estMiscControl.flatFeeCharge NE 0 THEN
+        rsCostMethod:SCREEN-VALUE = "1".
+    ELSE
+        rsCostMethod:SCREEN-VALUE = "2".
+    
+    RUN pUpdateUI(estMiscControl.estCostCalcBy:SCREEN-VALUE).    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -457,6 +531,89 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pComboBoxes V-table-Win
+PROCEDURE pUpdateUI:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcEstCostCalcBy AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-estCostGroupSystem      FOR estCostGroupSystem.
+    DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
+    DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF ipcEstCostCalcBy EQ "Level" THEN DO:
+        IF cCalcByLevelList EQ "" THEN DO:
+            FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
+                cCalcByLevelList = cCalcByLevelList + "," + bf-estCostGroupLevelSystem.estCostGroupLevelDesc + "," + STRING(bf-estCostGroupLevelSystem.estCostGroupLevelID).
+            END.
+            
+            cCalcByLevelList = TRIM(cCalcByLevelList, ",").
+        END.
+
+        estMiscControl.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByLevelList.
+    END.
+    ELSE IF ipcEstCostCalcBy EQ "Group" THEN DO:
+        IF cCalcByGroupList EQ "" THEN DO:
+            FOR EACH bf-estCostGroupSystem NO-LOCK:
+                cCalcByGroupList = cCalcByGroupList + "," + bf-estCostGroupSystem.estCostGroupDesc + "," + STRING(bf-estCostGroupSystem.estCostGroupID).
+            END.    
+            
+            cCalcByGroupList = TRIM(cCalcByGroupList, ",").
+        END.
+
+        estMiscControl.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByGroupList.
+    END.
+    ELSE IF ipcEstCostCalcBy EQ "Category" THEN DO:
+        IF cCalcByCategoryList EQ "" THEN DO:
+            FOR EACH bf-estCostCategorySystem NO-LOCK:
+                cCalcByCategoryList = cCalcByCategoryList + "," + bf-estCostCategorySystem.estCostCategoryDesc + "," + STRING(bf-estCostCategorySystem.estCostCategoryID).
+            END.    
+            
+            cCalcByCategoryList = TRIM(cCalcByCategoryList, ",").
+        END.
+
+        estMiscControl.estCostCalcSource:LIST-ITEM-PAIRS = cCalcByCategoryList.
+    END.
+    
+    IF AVAILABLE estMiscControl THEN
+        estMiscControl.estCostCalcSource:SCREEN-VALUE = estMiscControl.estCostCalcSource.
+
+    ASSIGN
+        estMiscControl.flatFeeCharge:SENSITIVE     = rsCostMethod:SENSITIVE
+        estMiscControl.estCostCalcSource:SENSITIVE = rsCostMethod:SENSITIVE
+        estMiscControl.estCostCalcBy:SENSITIVE     = rsCostMethod:SENSITIVE
+        estMiscControl.chargePercent:SENSITIVE     = rsCostMethod:SENSITIVE
+        .
+    
+    IF SELF:SCREEN-VALUE EQ "1" THEN DO:
+        ASSIGN
+            estMiscControl.flatFeeCharge:VISIBLE     = TRUE
+            estMiscControl.estCostCalcSource:VISIBLE = FALSE
+            estMiscControl.estCostCalcBy:VISIBLE     = FALSE
+            estMiscControl.chargePercent:VISIBLE     = FALSE
+            .
+    END.
+    ELSE DO:
+        ASSIGN
+            estMiscControl.flatFeeCharge:VISIBLE     = FALSE
+            estMiscControl.estCostCalcSource:VISIBLE = TRUE
+            estMiscControl.estCostCalcBy:VISIBLE     = TRUE
+            estMiscControl.chargePercent:VISIBLE     = TRUE
+            .    
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit V-table-Win 
 PROCEDURE pInit PRIVATE :
 /*------------------------------------------------------------------------------
@@ -475,9 +632,9 @@ PROCEDURE pInit PRIVATE :
     cCalcByCategoryList = TRIM(cCalcByCategoryList, ",").
 
     estMiscControl.estCostCategoryID:LIST-ITEM-PAIRS = cCalcByCategoryList.
-            
-    APPLY "VALUE-CHANGED" TO estMiscControl.estCostCalcBy.
-    APPLY "VALUE-CHANGED" TO estMiscControl.flatFeeCharge.
+    
+    IF AVAILABLE estMiscControl THEN        
+        RUN pUpdateUI(estMiscControl.estCostCalcBy).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -508,24 +665,6 @@ PROCEDURE pValidate :
             RETURN.            
         END.
 
-        IF DECIMAL(estMiscControl.chargePercent:SCREEN-VALUE) EQ 0 AND DECIMAL(estMiscControl.flatFeeCharge:SCREEN-VALUE) EQ 0 THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "Both Charge Percent and Flat Fee cannot be 0".
-                .
-            
-            RETURN.            
-        END.
-        
-        IF estMiscControl.estCostCalcBy:SCREEN-VALUE EQ "" OR estMiscControl.estCostCalcBy:SCREEN-VALUE EQ ? THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "Calculate Cost By cannot be empty"
-                .
-            
-            RETURN.            
-        END.
-
         IF estMiscControl.estCostCategoryID:SCREEN-VALUE EQ "" OR estMiscControl.estCostCategoryID:SCREEN-VALUE EQ ? THEN DO:
             ASSIGN
                 oplError   = TRUE
@@ -535,7 +674,41 @@ PROCEDURE pValidate :
             RETURN.            
         END.
 
-        IF DECIMAL(estMiscControl.chargePercent:SCREEN-VALUE) NE 0 THEN DO:
+        IF rsCostMethod:SCREEN-VALUE EQ "1" THEN DO:
+            IF  DECIMAL(estMiscControl.flatFeeCharge:SCREEN-VALUE) EQ 0 THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "Flat Fee cannot be 0".
+                    .
+                
+                RETURN.
+            END.            
+
+            FIND FIRST bf-estMiscControl NO-LOCK
+                 WHERE bf-estMiscControl.company           EQ cCompany
+                   AND bf-estMiscControl.estCostCategoryID EQ estMiscControl.estCostCategoryID:SCREEN-VALUE
+                   AND ROWID(bf-estMiscControl)            NE ROWID(estMiscControl)
+                 NO-ERROR.
+            IF AVAILABLE bf-estMiscControl THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "A record already exists for same configuration"
+                    .
+                
+                RETURN.
+            END.        
+        END.
+
+        IF rsCostMethod:SCREEN-VALUE EQ "2" THEN DO:
+            IF DECIMAL(estMiscControl.chargePercent:SCREEN-VALUE) EQ 0 THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "Charge Percent cannot be 0".
+                    .
+                
+                RETURN.
+            END.            
+
             IF estMiscControl.estCostCalcBy:SCREEN-VALUE EQ "" OR estMiscControl.estCostCalcBy:SCREEN-VALUE EQ ? THEN DO:
                 ASSIGN
                     oplError   = TRUE
@@ -553,22 +726,22 @@ PROCEDURE pValidate :
                 
                 RETURN.
             END.
-        END.
 
-        FIND FIRST bf-estMiscControl NO-LOCK
-             WHERE bf-estMiscControl.company           EQ cCompany
-               AND bf-estMiscControl.estCostCalcBy     EQ estMiscControl.estCostCalcBy:SCREEN-VALUE
-               AND bf-estMiscControl.estCostCalcSource EQ estMiscControl.estCostCalcSource:SCREEN-VALUE
-               AND bf-estMiscControl.estCostCategoryID EQ estMiscControl.estCostCategoryID:SCREEN-VALUE
-               AND ROWID(bf-estMiscControl)        NE ROWID(estMiscControl)
-             NO-ERROR.
-        IF AVAILABLE bf-estMiscControl THEN DO:
-            ASSIGN
-                oplError   = TRUE
-                opcMessage = "A record already exists for same configuration"
-                .
-            
-            RETURN.
+            FIND FIRST bf-estMiscControl NO-LOCK
+                 WHERE bf-estMiscControl.company           EQ cCompany
+                   AND bf-estMiscControl.estCostCalcBy     EQ estMiscControl.estCostCalcBy:SCREEN-VALUE
+                   AND bf-estMiscControl.estCostCalcSource EQ estMiscControl.estCostCalcSource:SCREEN-VALUE
+                   AND bf-estMiscControl.estCostCategoryID EQ estMiscControl.estCostCategoryID:SCREEN-VALUE
+                   AND ROWID(bf-estMiscControl)            NE ROWID(estMiscControl)
+                 NO-ERROR.
+            IF AVAILABLE bf-estMiscControl THEN DO:
+                ASSIGN
+                    oplError   = TRUE
+                    opcMessage = "A record already exists for same configuration"
+                    .
+                
+                RETURN.
+            END.
         END.
     END.
 END PROCEDURE.

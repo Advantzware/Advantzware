@@ -12,7 +12,7 @@
 *********************************************************************/
 /*------------------------------------------------------------------------
 
-  File: 
+  File: windows/estMiscControl.w
 
   Description: from cntnrwin.w - ADM SmartWindow Template
 
@@ -41,6 +41,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cSourceType    AS CHARACTER NO-UNDO INITIAL "estMiscControl".
+DEFINE VARIABLE hdEstMiscProcs AS HANDLE    NO-UNDO.
+
+RUN est/estMiscProcs.p PERSISTENT SET hdEstMiscProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,11 +76,9 @@ CREATE WIDGET-POOL.
 DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of handles for SmartObjects                              */
+DEFINE VARIABLE h_estmisc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_estmisccontrol AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_estmisccontrol-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navlbl AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -169,10 +171,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* Estimate Misc Control */
 DO:
-  /* This ADM code must be left here in order for the SmartWindow
-     and its descendents to terminate properly on exit. */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+    /* This ADM code must be left here in order for the SmartWindow
+       and its descendents to terminate properly on exit. */
+    IF VALID-HANDLE(hdEstMiscProcs) THEN
+        DELETE PROCEDURE hdEstMiscProcs.
+        
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -213,11 +218,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Misc Control' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
-       RUN set-position IN h_folder ( 3.86 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_folder ( 22.38 , 146.00 ) NO-ERROR.
+       RUN set-position IN h_folder ( 3.86 , 2.00 ) NO-ERROR.
+       RUN set-size IN h_folder ( 22.38 , 145.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
@@ -229,14 +234,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_estmisccontrol ).
-       RUN set-position IN h_estmisccontrol ( 5.76 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_estmisccontrol ( 5.52 , 3.00 ) NO-ERROR.
        RUN set-size IN h_estmisccontrol ( 19.05 , 144.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
-
-       /* Links to SmartBrowser h_estmisccontrol. */
-       RUN add-link IN adm-broker-hdl ( h_p-navlbl , 'Navigation':U , h_estmisccontrol ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_estmisccontrol ,
@@ -244,47 +243,22 @@ PROCEDURE adm-create-objects :
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/estmisccontrol.w':U ,
+             INPUT  'viewers/estmisc.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
-             OUTPUT h_estmisccontrol-2 ).
-       RUN set-position IN h_estmisccontrol-2 ( 6.48 , 37.40 ) NO-ERROR.
-       /* Size in UIB:  ( 8.95 , 76.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-navlbl.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = NAV-LABEL,
-                     Right-to-Left = First-On-Left':U ,
-             OUTPUT h_p-navlbl ).
-       RUN set-position IN h_p-navlbl ( 16.48 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_p-navlbl ( 2.24 , 40.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 16.48 , 46.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.24 , 77.00 ) NO-ERROR.
+             OUTPUT h_estmisc ).
+       RUN set-position IN h_estmisc ( 6.00 , 43.00 ) NO-ERROR.
+       /* Size in UIB:  ( 12.62 , 68.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to SmartViewer h_estmisccontrol-2. */
-       RUN add-link IN adm-broker-hdl ( h_estmisccontrol , 'Record':U , h_estmisccontrol-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_estmisccontrol-2 ).
+       /* Links to SmartViewer h_estmisc. */
+       RUN add-link IN adm-broker-hdl ( h_estmisccontrol , 'Record':U , h_estmisc ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_estmisccontrol-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_estmisc ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navlbl ,
-             h_estmisccontrol-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_p-navlbl , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -352,6 +326,36 @@ PROCEDURE enable_UI :
   VIEW FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetEstMiscProcsHandle W-Win 
+PROCEDURE GetEstMiscProcsHandle :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER ophdEstMiscProcs AS HANDLE NO-UNDO.
+    
+    ophdEstMiscProcs = hdEstMiscProcs.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSourceType W-Win 
+PROCEDURE GetSourceType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETE opcSourceType AS CHARACTER NO-UNDO.
+    
+    opcSourceType = cSourceType.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
