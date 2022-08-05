@@ -1020,37 +1020,62 @@ PROCEDURE pSetPanel:
             cbEstCostCalcSourceLevel = ""
             cbEstCostCalcSourceCustom = ""
             fiChargePercent = 0.
-            HIDE cbEstCostCalcBy cbEstCostCalcSourceCategory cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel cbEstCostCalcSourceCustom fiChargePercent.
-            VIEW fiFlatFeeCharge.             
+            ASSIGN
+            cbEstCostCalcBy:HIDDEN = YES
+            cbEstCostCalcSourceCategory:HIDDEN = YES
+            cbEstCostCalcSourceGroup:HIDDEN = YES
+            cbEstCostCalcSourceLevel:HIDDEN = YES
+            cbEstCostCalcSourceCustom:HIDDEN = YES
+            fiChargePercent:HIDDEN = YES.
+            fiFlatFeeCharge:HIDDEN = NO.             
         END.
         ELSE DO:
-            HIDE fiFlatFeeCharge cbEstCostCalcSourceCategory cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel cbEstCostCalcSourceCustom.
+            ASSIGN
+             fiFlatFeeCharge:HIDDEN = YES
+             cbEstCostCalcSourceCategory:HIDDEN = YES
+             cbEstCostCalcSourceGroup:HIDDEN = YES 
+             cbEstCostCalcSourceLevel:HIDDEN = YES 
+             cbEstCostCalcSourceCustom:HIDDEN = YES.
             
-            VIEW cbEstCostCalcBy fiChargePercent.
+            ASSIGN
+            cbEstCostCalcBy:HIDDEN = NO
+            fiChargePercent:HIDDEN = NO.
             
             ASSIGN
             fiFlatFeeCharge:SCREEN-VALUE = ""
             fiFlatFeeCharge = 0.
             
             IF cbEstCostCalcBy:SCREEN-VALUE EQ "Category" THEN
-            do:
-                VIEW cbEstCostCalcSourceCategory.
-                HIDE cbEstCostCalcSourceGroup  cbEstCostCalcSourceLevel cbEstCostCalcSourceCustom.
+            do:                 
+                ASSIGN
+                cbEstCostCalcSourceCategory:HIDDEN = NO
+                cbEstCostCalcSourceGroup:HIDDEN = YES
+                cbEstCostCalcSourceLevel:HIDDEN = YES
+                cbEstCostCalcSourceCustom:HIDDEN = YES.
             END.    
             ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Group" THEN
             do:
-                VIEW cbEstCostCalcSourceGroup.
-                HIDE cbEstCostCalcSourceCategory cbEstCostCalcSourceLevel cbEstCostCalcSourceCustom.
+                ASSIGN
+                cbEstCostCalcSourceGroup:HIDDEN = NO
+                cbEstCostCalcSourceCategory:HIDDEN = YES 
+                cbEstCostCalcSourceLevel:HIDDEN = YES
+                cbEstCostCalcSourceCustom:HIDDEN = YES.
             END.    
             ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Level" THEN
             do:
-                VIEW cbEstCostCalcSourceLevel.
-                HIDE cbEstCostCalcSourceGroup cbEstCostCalcSourceCategory cbEstCostCalcSourceCustom.
+                ASSIGN
+                cbEstCostCalcSourceLevel:HIDDEN = NO
+                cbEstCostCalcSourceGroup:HIDDEN = YES
+                cbEstCostCalcSourceCategory:HIDDEN = YES 
+                cbEstCostCalcSourceCustom:HIDDEN = YES.
             END.   
             ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Custom" THEN
             do:
-                VIEW cbEstCostCalcSourceCustom.
-                HIDE cbEstCostCalcSourceGroup cbEstCostCalcSourceCategory cbEstCostCalcSourceLevel.
+                ASSIGN
+                cbEstCostCalcSourceCustom:HIDDEN = NO
+                cbEstCostCalcSourceGroup:HIDDEN = YES
+                cbEstCostCalcSourceCategory:HIDDEN = YES
+                cbEstCostCalcSourceLevel:HIDDEN = YES.
             END.
         END.
     END.
