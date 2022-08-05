@@ -724,6 +724,8 @@ DO:
                 fiSettingValue:SCREEN-VALUE = cSettingValue
                 .
         END.
+    END.
+END.
 
 ON HELP OF fiSettingValue IN FRAME F-Main /* Value */
 DO:    
