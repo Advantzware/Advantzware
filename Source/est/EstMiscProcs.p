@@ -428,6 +428,8 @@ PROCEDURE EstMisc_Update:
                  WHERE bf-dup-estMisc.company           EQ ipcCompany
                    AND bf-dup-estMisc.estimateNo        EQ ipcEstimateNo
                    AND bf-dup-estMisc.estCostCategoryID EQ ipcEstCostCategoryID
+                   AND bf-dup-estMisc.estCostCalcBy     EQ ""
+                   AND bf-dup-estMisc.estCostCalcSource EQ ""
                    AND ROWID(bf-dup-estMisc)            NE ROWID(bf-estMisc)
                  NO-ERROR.
             IF AVAILABLE bf-dup-estMisc THEN DO:
