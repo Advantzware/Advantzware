@@ -46,6 +46,7 @@
     DEFINE VARIABLE lcFGItemImage              AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcPlateImage               AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcCADImage                 AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcSetComponent             AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatJob                AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatForm               AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatMaterial           AS LONGCHAR NO-UNDO.
@@ -58,6 +59,7 @@
     DEFINE VARIABLE lcConcatBlankImageFiles    AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatFormImageFiles     AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcConcatJobImageFiles      AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcConcatSetComponent       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcReportFooter             AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcJobHeader                AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcJobGroupHeader           AS LONGCHAR NO-UNDO.
@@ -75,7 +77,9 @@
     DEFINE VARIABLE lcSpecInstrctnGroupHeader  AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcSpecInstrctnGroupFooter  AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcDeptInstrctnGroupHeader  AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE lcDeptInstrctnGroupFooter  AS LONGCHAR NO-UNDO.    
+    DEFINE VARIABLE lcDeptInstrctnGroupFooter  AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcSetComponentGroupHeader  AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcSetComponentGroupFooter  AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcData                     AS LONGCHAR NO-UNDO.
 
     DEFINE VARIABLE lcJobData            AS LONGCHAR NO-UNDO.
@@ -92,6 +96,7 @@
     DEFINE VARIABLE lcFGItemImageData    AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcPlateImageData     AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcCADImageData       AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcSetComponentData   AS LONGCHAR NO-UNDO.
     
     DEFINE VARIABLE lJobAvailable            AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lOperationAvailable      AS LOGICAL NO-UNDO.
@@ -121,17 +126,24 @@
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPrintBoxDesign     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lPrintFGItemImage   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lPageBreakByForm    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValid              AS LOGICAL   NO-UNDO.
-
+    DEFINE VARIABLE lFirstForm          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lLastForm           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFirstBlank         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lLastBlank          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lIsSet              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iNumLinesInPage     AS INTEGER   NO-UNDO INITIAL 62.
         
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
     DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bf-cust    FOR cust.
+    DEFINE BUFFER bf-eb      FOR eb.
     
     RUN spGetSessionParam ("Company", OUTPUT cCompany).
-
+    RUN pGetNumLinesInPage(ipiAPIOutboundID, OUTPUT iNumLinesInPage).
+    
     /* ************************  Function Prototypes ********************** */
     FUNCTION fGetImageFile RETURNS CHARACTER 
         ( ipcImageFile AS CHARACTER ) FORWARD.
@@ -141,6 +153,7 @@
         cSpecList         = system.SharedConfig:Instance:GetValue("JobTicket_SpecList")
         lPrintBoxDesign   = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintBoxDesign")) 
         lPrintFGItemImage = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintFGItemImage"))
+        lPageBreakByForm  = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PageBreakByForm"))
         NO-ERROR.
     
     RUN sys/ref/nk1look.p (
@@ -262,6 +275,7 @@
         RUN pGetRequestData ("FGItemImage", OUTPUT lcFGItemImageData).
         RUN pGetRequestData ("PlateImage", OUTPUT lcPlateImageData).
         RUN pGetRequestData ("CADImage", OUTPUT lcCADImageData).
+        RUN pGetRequestData ("SetComponent", OUTPUT lcSetComponentData).
         
         RUN pGetRequestData ("PageHeader", OUTPUT lcPageHeader).
         RUN pGetRequestData ("PageFooter", OUTPUT lcPageFooter).
@@ -281,6 +295,8 @@
         RUN pGetRequestData ("SpecialInstructionGroupFooter", OUTPUT lcSpecInstrctnGroupFooter).
         RUN pGetRequestData ("DeptInstructionGroupHeader", OUTPUT lcDeptInstrctnGroupHeader).
         RUN pGetRequestData ("DeptInstructionGroupFooter", OUTPUT lcDeptInstrctnGroupFooter).
+        RUN pGetRequestData ("SetComponentGroupHeader", OUTPUT lcSetComponentGroupHeader).
+        RUN pGetRequestData ("SetComponentGroupFooter", OUTPUT lcSetComponentGroupFooter).
         
         FOR EACH ttEstCostHeaderID:
             FIND FIRST estCostHeader NO-LOCK
@@ -303,6 +319,12 @@
                        AND cust.cust-no EQ job-hdr.cust-no
                      NO-ERROR.
             END.
+
+            FIND FIRST est NO-LOCK
+                 WHERE est.company EQ estCostHeader.company
+                   AND est.est-no  EQ estCostHeader.estimateNo
+                 NO-ERROR.
+            lIsSet = AVAILABLE est AND (est.est-type EQ 2 OR est.est-type EQ 6).
             
             ASSIGN
                 lJobAvailable          = TRUE
@@ -315,7 +337,7 @@
             
             FOR EACH estCostForm NO-LOCK
                 WHERE estCostForm.estCostHeaderID EQ estCostHeader.estCostHeaderID
-                BY estCostForm.formNo:
+                BREAK BY estCostForm.formNo:
 
                 FIND FIRST ef NO-LOCK
                      WHERE ef.company  EQ estCostForm.company
@@ -327,6 +349,8 @@
                     lFormAvailable      = TRUE
                     lBlankAvailable     = FALSE
                     lOperationAvailable = FALSE
+                    lFirstForm          = FIRST(estCostForm.formNo)
+                    lLastForm           = LAST(estCostForm.formNo)
                     .
                 
                 ASSIGN
@@ -336,8 +360,14 @@
                 
                 FOR EACH estCostBlank NO-LOCK
                     WHERE estCostBlank.estCostHeaderID EQ estCostForm.estCostHeaderID
-                      AND estCostBlank.estCostFormID   EQ estCostForm.estCostFormID:
-                    lcConcatBlankImageFiles = "".
+                      AND estCostBlank.estCostFormID   EQ estCostForm.estCostFormID
+                    BREAK BY estCostBlank.blankNo:
+                    ASSIGN
+                        lcConcatBlankImageFiles = ""
+                        lcConcatSetComponent    = ""
+                        lFirstBlank             = FIRST(estCostBlank.blankNo)
+                        lLastBlank              = LAST(estCostBlank.blankNo)
+                        .
                           
                     FIND FIRST eb NO-LOCK
                          WHERE eb.company  EQ estCostBlank.company
@@ -512,12 +542,30 @@
 
                     oAttribute:UpdateRequestData(INPUT-OUTPUT lcBlank, "MaterialAvailable", STRING(lMaterialAvailable)).
 
+                    IF lIsSet AND AVAILABLE eb AND eb.blank-no EQ 0 AND eb.form-no EQ 0 THEN DO:
+                        FOR EACH bf-eb NO-LOCK
+                            WHERE bf-eb.company EQ eb.company
+                              AND bf-eb.est-no  EQ eb.est-no
+                              AND bf-eb.form-no GT 0 
+                            BREAK BY bf-eb.form-no:
+                            lcSetComponent = lcSetComponentData.
+                            
+                            IF lcSetComponent NE "" THEN
+                                lcSetComponent = oAttribute:ReplaceAttributes(lcSetComponent, BUFFER bf-eb:HANDLE).
+                            
+                            lcConcatSetComponent = lcConcatSetComponent + lcSetComponent. 
+                        END.
+                    END.
+
                     lcBlank = REPLACE(lcBlank, "$FGItemImage$", lcFGItemImage).
                     lcBlank = REPLACE(lcBlank, "$BoxDesignImage$", lcBoxDesignImage).
                     lcBlank = REPLACE(lcBlank, "$DieImage$", lcDieImage).
                     lcBlank = REPLACE(lcBlank, "$CADImage$", lcCADImage).
                     lcBlank = REPLACE(lcBlank, "$PlateImage$", lcPlateImage).
                     lcBlank = REPLACE(lcBlank, "$BlankImages$", lcConcatBlankImageFiles).
+
+                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcBlank, "FirstBlank", STRING(lFirstBlank)).
+                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcBlank, "LastBlank", STRING(lLastBlank)).
                     
                     lcConcatBlankImageFiles = oAttribute:ReplaceAttributes(lcConcatBlankImageFiles, BUFFER eb:HANDLE).
 
@@ -525,6 +573,10 @@
                     lcBlank = REPLACE(lcBlank, "$MaterialGroupHeader$", lcMaterialGroupHeader).
                     lcBlank = REPLACE(lcBlank, "$MaterialGroupFooter$", lcMaterialGroupFooter).
                     
+                    lcBlank = REPLACE(lcBlank, "$SetComponents$", lcConcatSetComponent).
+                    lcBlank = REPLACE(lcBlank, "$SetComponentGroupHeader$", lcSetComponentGroupHeader).
+                    lcBlank = REPLACE(lcBlank, "$SetComponentGroupFooter$", lcSetComponentGroupFooter).
+
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER estCostBlank:HANDLE).
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER eb:HANDLE).
                     lcBlank = oAttribute:ReplaceAttributes(lcBlank, BUFFER cust:HANDLE).
@@ -609,6 +661,13 @@
                 lcForm = REPLACE(lcForm, "$FormImages$", lcConcatFormImageFiles).
                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "FormMaterialAvailable",STRING(lFormMaterialAvailable)).
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "FirstForm", STRING(lFirstForm)).
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "LastForm", STRING(lLastForm)).
+                
+                IF lPageBreakByForm AND lLastForm THEN
+                    lPageBreakByForm = FALSE.
+                    
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcForm, "PageBreakByForm", STRING(lPageBreakByForm)).
 
                 lcForm = REPLACE(lcForm, "$FormMaterials$", lcConcatFormMaterial).
                 lcForm = REPLACE(lcForm, "$FormMaterialGroupHeader$", lcFormMaterialGroupHeader).

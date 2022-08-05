@@ -165,7 +165,8 @@ PROCEDURE local-delete-record :
   &IF "{&FIRST-ENABLED-TABLE}" EQ "notes" &THEN
     RUN custom/notewtrg.p (ROWID({&FIRST-ENABLED-TABLE})).
   &ENDIF
-
+IF INDEX(THIS-PROCEDURE:INTERNAL-ENTRIES,"deleteNote") NE 0 THEN 
+    RUN deleteNote.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 

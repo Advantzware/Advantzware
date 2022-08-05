@@ -111,7 +111,7 @@ IF AVAILABLE xbox-design-hdr THEN DO:
                    box-design-hdr.wcum-score = w-box-h.wcum-score.
 
       FOR EACH w-box-l OF box-design-hdr NO-LOCK,
-          FIRST box-design-line OF w-box-l:
+          FIRST box-design-line OF w-box-l EXCLUSIVE-LOCK:
 
           IF ipcRebuild EQ "S" THEN
              ASSIGN box-design-line.line-no   = w-box-l.line-no
@@ -127,11 +127,7 @@ IF AVAILABLE xbox-design-hdr THEN DO:
    END.
 END.
 
-
 FIND CURRENT box-design-line NO-LOCK NO-ERROR.
 FIND CURRENT box-design-hdr NO-LOCK NO-ERROR. 
 
 /* **********************  Internal Procedures  *********************** */
-
-
-

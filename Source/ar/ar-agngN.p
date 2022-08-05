@@ -440,7 +440,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                 USE-INDEX ar-cash,                                                                                               
                 EACH ar-cashl                                           
     FIELDS(check-no c-no posted inv-no company                     
-                cust-no memo amt-disc amt-paid on-account rec_key)        
+                cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
                 NO-LOCK                                                 
                 WHERE ar-cashl.c-no       EQ ar-cash.c-no                 
                 AND ar-cashl.posted     EQ YES                        
@@ -1251,7 +1251,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                                                                                   
             EACH tt-ar-cashl                                           
          FIELDS(check-no c-no posted inv-no company                     
-            cust-no memo amt-disc amt-paid on-account rec_key)        
+            cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
             NO-LOCK                                                 
             WHERE tt-ar-cashl.c-no       EQ tt-ar-cash.c-no                 
             AND tt-ar-cashl.posted     EQ YES                        
@@ -1325,7 +1325,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                                                               
             EACH tt-ar-cashl                                           
          FIELDS(check-no c-no posted inv-no company                     
-            cust-no memo amt-disc amt-paid on-account rec_key)        
+            cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
             NO-LOCK                                                
             WHERE tt-ar-cashl.c-no       EQ tt-ar-cash.c-no                
             AND tt-ar-cashl.posted     EQ YES                        

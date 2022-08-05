@@ -10,5 +10,5 @@
   ELSE
   ENABLE {&autoMonitorObjects} WITH FRAME {&FRAME-NAME}.
   RUN closePopups.
-  RUN autoMonitor in h_board (autoMonitor).
+  RUN autoMonitor IN h_board (autoMonitor).
   RUN setMenuItems (NOT autoMonitor).

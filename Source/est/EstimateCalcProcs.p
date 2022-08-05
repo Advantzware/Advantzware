@@ -849,7 +849,7 @@ PROCEDURE pAddEstMaterial PRIVATE:
             opbf-ttEstCostMaterial.estimateNo       = ipbf-ttEstCostForm.estimateNo
             opbf-ttEstCostMaterial.formNo           = ipbf-ttEstCostForm.formNo
             opbf-ttEstCostMaterial.itemID           = bf-item.i-no 
-            opbf-ttEstCostMaterial.itemName         = IF bf-item.est-dscr NE "" THEN bf-item.est-dscr ELSE bf-item.i-name 
+            opbf-ttEstCostMaterial.itemName         = IF bf-item.i-name NE "" THEN bf-item.i-name ELSE bf-item.est-dscr 
             opbf-ttEstCostMaterial.quantityUOM      = CAPS(bf-item.cons-uom)
             opbf-ttEstCostMaterial.quantityUOMWaste = opbf-ttEstCostMaterial.quantityUOM
             opbf-ttEstCostMaterial.basisWeight      = bf-item.basis-w
@@ -1686,6 +1686,9 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
     DEFINE VARIABLE lError        AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage      AS CHARACTER NO-UNDO.
     
+    DEFINE VARIABLE dFreightTotalInternal AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dFreightTotalExternal AS DECIMAL   NO-UNDO.
+    
     DEFINE BUFFER bf-ttEstCostDetail FOR ttEstCostDetail.
     DEFINE BUFFER bf-ttEstCostMisc   FOR ttEstCostMisc.
     
@@ -1703,9 +1706,10 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
         .
             
     /*Get Total Freight from Freight Procs*/
-    IF DYNAMIC-FUNCTION("HasReleases", ROWID(ipbf-eb)) THEN  /*Run through estReleases Calc*/
+    IF DYNAMIC-FUNCTION("HasReleases", ROWID(ipbf-eb)) THEN DO: /*Run through estReleases Calc*/
         RUN GetFreightForEstimateBlank (ipbf-ttEstCostBlank.company, ipbf-ttEstCostBlank.estimateNo, dQtyShipped, ipbf-ttEstCostBlank.formNo, ipbf-ttEstCostBlank.blankNo,
-            OUTPUT dFreightTotal).
+            OUTPUT dFreightTotal, OUTPUT dFreightTotalInternal, OUTPUT dFreightTotalExternal).
+    END.
     ELSE 
     DO: /*Calc Freight based on basic inputs*/
         RUN GetFreight(ipbf-ttEstCostBlank.company, ipbf-ttEstCostHeader.warehouseID, ipbf-ttEstCostItem.carrierID, ipbf-ttEstCostItem.carrierZone, "", 
@@ -1719,7 +1723,10 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
         IF ipbf-ttEstCostItem.freightChargeMethod EQ "P" THEN 
         DO: /*Integrate Freight Cost for Prepaid*/
             RUN pAddCostDetail(ipbf-ttEstCostBlank.estCostHeaderID, ipiEstCostFormIDForCost, ipiEstCostBlankIDForCost, ipbf-ttEstCostBlank.estCostBlankID, 
-                gcSourceTypeNonFactory, "nfFreight", "Freight", dFreightTotal, 0, ipbf-ttEstCostBlank.company, ipbf-ttEstCostBlank.estimateNo, BUFFER bf-ttEstCostDetail).
+                gcSourceTypeNonFactory, "nfFreightInternal", "Freight Internal", dFreightTotalInternal, 0, ipbf-ttEstCostBlank.company, ipbf-ttEstCostBlank.estimateNo, BUFFER bf-ttEstCostDetail).
+
+            RUN pAddCostDetail(ipbf-ttEstCostBlank.estCostHeaderID, ipiEstCostFormIDForCost, ipiEstCostBlankIDForCost, ipbf-ttEstCostBlank.estCostBlankID, 
+                gcSourceTypeNonFactory, "nfFreight", "Freight", dFreightTotalExternal, 0, ipbf-ttEstCostBlank.company, ipbf-ttEstCostBlank.estimateNo, BUFFER bf-ttEstCostDetail).
         END. /*Prepaid Freight*/
         ELSE 
         DO: /*Separate Billed Freight*/
@@ -2444,7 +2451,7 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     
     RUN pBuildFactoryCostDetails(ipiEstCostHeaderID).
     RUN pBuildNonFactoryCostDetails(ipiEstCostHeaderID).
-
+    RUN pBuildFreightCostDetails(ipiEstCostHeaderID).
     RUN pBuildPriceRelatedCostDetails(ipiEstCostHeaderID).
     RUN pBuildCostSummary(ipiEstCostHeaderID).
     
@@ -4902,8 +4909,10 @@ PROCEDURE pProcessGlues PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
 
     DEFINE           BUFFER bf-ttEstCostMaterial FOR ttEstCostMaterial.
-    DEFINE VARIABLE dQtyRequiredMinDiff AS DECIMAL NO-UNDO.
     
+    DEFINE VARIABLE dQtyRequiredMinDiff AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iNumOut             AS INTEGER NO-UNDO.
+        
     FOR EACH ttEstCostOperation NO-LOCK 
         WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
         AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
@@ -4913,7 +4922,7 @@ PROCEDURE pProcessGlues PRIVATE:
         AND ttGlue.estFormID EQ ttEstCostOperation.estCostFormID
         AND (ttGlue.estBlankID EQ ttEstCostOperation.estCostBlankID 
         OR (ttEstCostOperation.estCostBlankID EQ ? 
-        AND ttEstCostOperation.FeedType EQ "S"))
+        AND (ttEstCostOperation.FeedType EQ "S" OR ttEstCostOperation.FeedType EQ "R")))
         ,
         FIRST ttEstCostBlank NO-LOCK 
         WHERE ttEstCostBlank.estCostHeaderID EQ ttGlue.estHeaderID
@@ -4923,11 +4932,15 @@ PROCEDURE pProcessGlues PRIVATE:
 
         RUN pAddEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, ttGlue.cItemID, ttEstCostBlank.estCostBlankID, BUFFER bf-ttEstCostMaterial).
         
+        iNumOut = IF ttEstCostOperation.FeedType EQ "R" THEN ipbf-ttEstCostForm.numOutNet * ttEstCostBlank.numOut 
+                  ELSE IF ttEstCostOperation.FeedType EQ "S" THEN ttEstCostBlank.numOut
+                  ELSE 1.
+
         ASSIGN    
             bf-ttEstCostMaterial.addToWeightNet             = YES
-            bf-ttEstCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
-            bf-ttEstCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
-            bf-ttEstCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank * (IF ttEstCostOperation.FeedType EQ "S" THEN ttEstcostblank.numout ELSE 1)
+            bf-ttEstCostMaterial.quantityRequiredNoWaste    = ttEstCostOperation.quantityInNoWaste * ttGlue.dQtyRequiredPerBlank * iNumOut
+            bf-ttEstCostMaterial.quantityRequiredRunWaste   = ttEstCostOperation.quantityInRunWaste * ttGlue.dQtyRequiredPerBlank * iNumOut
+            bf-ttEstCostMaterial.quantityRequiredSetupWaste = ttEstCostOperation.quantityInSetupWaste * ttGlue.dQtyRequiredPerBlank * iNumOut
             dQtyRequiredMinDiff                           = ttGlue.dMinLbsPerJob - 
                                                     (bf-ttEstCostMaterial.quantityRequiredNoWaste + bf-ttEstCostMaterial.quantityRequiredRunWaste + bf-ttEstCostMaterial.quantityRequiredSetupWaste)
             bf-ttEstCostMaterial.quantityUOM                = ttGlue.cQtyUOM

@@ -1370,13 +1370,13 @@ ON VALUE-CHANGED OF tb_more IN FRAME FRAME-A /* Print Multiple Releases Per Form
 ON VALUE-CHANGED OF tb_p-bin IN FRAME FRAME-A /* Print Bin Locations? */
     DO:
         ASSIGN {&self-name}.
-        IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Henry,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2") > 0 THEN 
+        IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Henry,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2,Portugese") > 0 THEN 
         DO:
             IF tb_p-bin THEN
             DO:
                 IF v-relprint = "PremierX" OR v-relprint = "Relprint 10" OR v-relprint = "Lakeside" OR v-relprint = "Distributor" OR v-relprint = "Frank" OR v-relprint = "NSTOCK" OR v-relprint = "Axis"
                     OR v-relprint = "Protagon" OR v-relprint = "Soule"  OR v-relprint = "Henry"
-                    OR v-relprint = "NStock"  /*OR v-relprint = "Prystup"*/ OR v-relprint = "StClair" OR v-relprint = "Midwest" THEN
+                    OR v-relprint = "NStock"  /*OR v-relprint = "Prystup"*/ OR v-relprint = "StClair" OR v-relprint = "Midwest" OR v-relprint = "Portugese" THEN
                     rd-print-what:SCREEN-VALUE = "S".
                 ELSE
                     rd-print-what:SCREEN-VALUE = "I".
@@ -2286,7 +2286,8 @@ PROCEDURE pRunFormatValueChanged :
             OR v-relprint EQ "StClair"
             OR v-relprint EQ "Midwest"
             OR v-relprint EQ "Relprint 10"
-            OR v-relprint EQ "Henry" THEN 
+            OR v-relprint EQ "Henry"  
+            OR v-relprint EQ "Portugese" THEN 
         DO:
         /*         rd-print-what:DELETE("Summary of Bins On Hand") NO-ERROR.*/
         /*         rd-print-what:ADD-LAST("Summary of Bins On Hand","S").   */
@@ -2308,6 +2309,10 @@ PROCEDURE pRunFormatValueChanged :
             tb_exl-tg-bin:HIDDEN = YES.
 
         IF v-relprint NE "PremierX" THEN
+            tb_sort-rel:HIDDEN = YES .
+        ELSE tb_sort-rel:HIDDEN = NO .
+        
+        IF v-relprint NE "Portugese" THEN
             tb_sort-rel:HIDDEN = YES .
         ELSE tb_sort-rel:HIDDEN = NO .
 
@@ -2369,7 +2374,7 @@ PROCEDURE pRunFormatValueChanged :
                 begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
                 END_loc-bin:SENSITIVE   = begin_loc:SENSITIVE.
         ELSE
-            IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Loylang,PremierX,Relprint 10,Henry,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2") > 0 THEN   /* NSTOCK,*/
+            IF LOOKUP(v-relprint,"HOPX,ACPI,RFC,Fibrex,Accord,Loylang,PremierX,Relprint 10,Henry,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2,Portugese") > 0 THEN   /* NSTOCK,*/
                 ASSIGN rd-print-what:sensitive = YES
                     begin_loc:SENSITIVE     = IF LOOKUP(rd-print-what:SCREEN-VALUE,"I,S") > 0 THEN YES ELSE NO
                     END_loc:SENSITIVE       = begin_loc:SENSITIVE
@@ -2460,7 +2465,7 @@ PROCEDURE run-report :
         lPrintQtyUom      = LOGICAL(tb_print-qty-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
 
-    IF LOOKUP(v-relprint,"Hopx,ACPI,RFC,Fibrex,Accord,Metro,Carded,Loylang,PremierX,PremTarget,Relprint 10,Henry,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2") > 0 AND
+    IF LOOKUP(v-relprint,"Hopx,ACPI,RFC,Fibrex,Accord,Metro,Carded,Loylang,PremierX,PremTarget,Relprint 10,Henry,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest,CardedX2,Portugese") > 0 AND
         LOOKUP(s-print-what-item,"I,S") > 0 THEN 
         ASSIGN s-print-loc-from = begin_loc
             s-print-loc-to   = END_loc
@@ -2561,7 +2566,7 @@ PROCEDURE run-report :
                 END.
             WHEN 5 THEN 
                 DO:
-                    IF LOOKUP(v-relprint,"PremierX,Lakeside,Distributor") > 0 THEN
+                    IF LOOKUP(v-relprint,"PremierX,Lakeside,Distributor,Portugese") > 0 THEN
                         PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=-3mm><PDF-TOP=5mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
                     ELSE
                         PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
@@ -2883,6 +2888,12 @@ PROCEDURE set-report :
                                                                                                                                                                                                 lines-per-page = 75
                                                                                                                                                                                                 is-xprint-form = YES  . /*60*/
                                                                                                                                                                                         END.
+                                                                                                                                                                                        ELSE
+                                                                                                                                                                                            IF v-relprint EQ "Portugese" THEN
+                                                                                                                                                                                            ASSIGN
+                                                                                                                                                                                                lv-program     = "oe/rep/relport.p"
+                                                                                                                                                                                                lines-per-page = 75
+                                                                                                                                                                                                is-xprint-form = YES  . /*60*/
                                                                                                                                                                                         ELSE
                                                                                                                                                                                             IF v-more THEN
                                                                                                                                                                                                 ASSIGN

@@ -88,6 +88,8 @@ DEFINE {2} VARIABLE spo                     AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE ctrl                    AS DECIMAL   EXTENT 20 NO-UNDO.
 DEFINE {2} VARIABLE ctrl2                   AS DECIMAL   EXTENT 20 NO-UNDO.
 DEFINE {2} VARIABLE fr-tot                  AS DECIMAL   FORMAT "->>>>>9.99" NO-UNDO.
+DEFINE {2} VARIABLE dFreightTotalInternal   AS DECIMAL   FORMAT "->>>>>9.99" NO-UNDO.
+DEFINE {2} VARIABLE dFreightTotalExternal   AS DECIMAL   FORMAT "->>>>>9.99" NO-UNDO.
 DEFINE {2} VARIABLE v-2                     AS LOG       INIT NO NO-UNDO.
 DEFINE {2} VARIABLE t-shtfrm                AS DECIMAL   EXTENT 99 NO-UNDO.  /* total # sheets per form    */
 DEFINE {2} VARIABLE t-blksht                AS INTEGER   EXTENT 99 NO-UNDO. /* total # blanks per sheets  */

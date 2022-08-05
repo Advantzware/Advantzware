@@ -1054,6 +1054,8 @@ PROCEDURE copyOrder :
       b-oe-ord.due-date  = b-oe-ord.last-date 
       b-oe-ord.posted    = no
       b-oe-ord.stat      = "N"  
+      b-oe-ord.user-id    = USERID(LDBNAME(1))
+      b-oe-ord.entered-id = USERID(LDBNAME(1))
       .
       
        IF  lastship-cha = "Stock/Custom" THEN DO:

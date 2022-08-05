@@ -40,6 +40,8 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 cocode = gcompany.
 
+{methods/prgsecdt.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -288,6 +290,27 @@ PROCEDURE send-records :
      Tables specified for this SmartViewer, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
+PROCEDURE local-initialize :
+/*--------------------------------------------------------------------------
+  Purpose     : If the SmartPanel is type COMMIT, enable all the fields of
+                the TABLEIO-TARGETS since they are defaulted to disabled.
+  Notes       :
+  ------------------------------------------------------------------------*/
+     
+  /* Insert pre-dispatch code here. */ 
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
+            
+  DO WITH FRAME {&FRAME-NAME}:       
+    IF NOT v-can-run THEN DISABLE ALL.          
+  END.
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

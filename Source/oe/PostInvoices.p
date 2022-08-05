@@ -324,7 +324,7 @@ PROCEDURE pAddGLTransactionsForFGDetail PRIVATE:
         ttGLTransaction.account           = ipcAccount
         ttGLTransaction.amount            = dCostTotal
         ttGLTransaction.itemID            = ipbf-ttInvoiceLineToPost.itemID
-        ttGLTransaction.transactionDesc   = fGetTransactionDescription(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.customerID, ipbf-ttInvoiceLineToPost.invoiceID) + " " + ipcTransactionType + " Line:" + STRING(ipbf-ttInvoiceLineToPost.invoiceLine)
+        ttGLTransaction.transactionDesc   = fGetTransactionDescription(ipbf-ttInvoiceLineToPost.company, ipbf-ttInvoiceLineToPost.customerID, ipbf-ttInvoiceLineToPost.invoiceID) + " " + ipcTransactionType + " Line:" + STRING(ipbf-ttInvoiceLineToPost.orderLine)
         ttGLTransaction.journalNote       = ipbf-ttPostingMaster.journalNote
         ttGLTransaction.transactionDate   = ipbf-ttPostingMaster.postDate
         ttGLTransaction.transactionPeriod = ipbf-ttPostingMaster.periodID
@@ -1536,6 +1536,7 @@ PROCEDURE pCreateGLTrans PRIVATE:
             bf-glhist.module    = "AR"
             bf-glhist.posted    =  NO
             bf-glhist.documentID = IF INDEX(ipcDescription,'#') EQ 0 THEN ipcDescription ELSE "Inv: " + substring(ipcDescription,INDEX(ipcDescription,'#') + 1 ,45)
+            bf-glhist.sourceDate = TODAY
             .
         RELEASE bf-glhist.
     END.

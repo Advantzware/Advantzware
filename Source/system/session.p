@@ -64,8 +64,9 @@ DEFINE VARIABLE sessionInstance     AS system.SessionConfig NO-UNDO.
 DEFINE VARIABLE oSetting            AS system.Setting       NO-UNDO.
 DEFINE VARIABLE hdBrokerHandle      AS HANDLE               NO-UNDO.
  
-DEFINE VARIABLE cProgramName  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCategoryTags AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCategoryTags          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cProgramHotKeyOverride AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
     FIELD superProcedure AS CHARACTER 
@@ -76,6 +77,7 @@ DEFINE TEMP-TABLE ttSuperProcedure NO-UNDO
 DEFINE TEMP-TABLE ttProgramTag NO-UNDO
     FIELD programName     AS CHARACTER 
     FIELD categoryTags    AS CHARACTER
+    FIELD programHotKey   AS CHARACTER
     INDEX programName IS PRIMARY UNIQUE programName
     .
 
@@ -512,12 +514,19 @@ END. /* each ttSuperProcedure */
 INPUT FROM VALUE(SEARCH("ProgramTagsList.dat")) NO-ECHO.
 IMPORT ^.
 REPEAT:
-    IMPORT cProgramName cCategoryTags.
+    ASSIGN
+        cProgramName           = ""
+        cCategoryTags          = ""
+        cProgramHotKeyOverride = ""
+        .
+        
+    IMPORT cProgramName cCategoryTags cProgramHotKeyOverride.
     IF cProgramName NE "" AND cCategoryTags NE "" THEN DO:
         CREATE ttProgramTag.
         ASSIGN
-            ttProgramTag.programName  = cProgramName
-            ttProgramTag.categoryTags = cCategoryTags
+            ttProgramTag.programName   = cProgramName
+            ttProgramTag.categoryTags  = cCategoryTags
+            ttProgramTag.programHotKey = cProgramHotKeyOverride
             .
     END.
 END. /* repeat */
@@ -2170,6 +2179,33 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetSettingByNameAndLocation) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSettingByNameAndLocation Procedure
+PROCEDURE spGetSettingByNameAndLocation:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSettingValue AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    opcSettingValue = oSetting:GetByNameAndLocation(ipcSettingName, ipcCustomerID, ipcLocation).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spGetSettingByNameAndVendor) = 0 &THEN
 
@@ -2530,6 +2566,9 @@ PROCEDURE spSetSettingContext:
     
     oSetting = NEW system.Setting(cProgramName, cCategoryTags).
     
+    IF AVAILABLE ttProgramTag AND ttProgramTag.programHotKey NE "" THEN
+        oSetting:CurrentProgramHotKey = ttProgramTag.programHotKey.
+        
     ttSettingObject.settingObject = oSetting.
 
 END PROCEDURE.
@@ -3922,15 +3961,8 @@ FUNCTION sfGetNextRecKey RETURNS CHARACTER
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RETURN STRING(YEAR(TODAY),"9999")
-         + STRING(MONTH(TODAY),"99")
-         + STRING(DAY(TODAY),"99")
-         + "_"
-         + STRING(TIME,"HH:MM:SS")
-         + "_"
-         + STRING(NEXT-VALUE(rec_key_seq,ASI),"99999999")
-         .
-         
+    RETURN {methods/setRecKeyValue.i}.
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

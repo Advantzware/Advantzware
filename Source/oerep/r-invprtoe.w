@@ -2436,7 +2436,7 @@ PROCEDURE pRunFormatValueChanged :
                 fi_broker-bol:SENSITIVE = NO
                 fi_broker-bol:HIDDEN    = YES.
          
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Portugese" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
             ASSIGN
                 tb_prt-zero-qty:SENSITIVE = YES
                 tb_prt-zero-qty:HIDDEN    = NO.
@@ -2451,7 +2451,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN rs_no_PN:HIDDEN    = TRUE
                 rs_no_PN:SENSITIVE = FALSE.
 
-        IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,PremierS,Carded2") > 0 THEN
+        IF LOOKUP(v-print-fmt,"PremierX,Portugese,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,PremierS,Carded2") > 0 THEN
             ASSIGN
                 tb_cust-copy:HIDDEN      = NO
                 tb_cust-copy:SENSITIVE   = YES

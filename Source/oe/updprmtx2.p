@@ -30,6 +30,7 @@ DEFINE VARIABLE dtEffectiveDate AS DATE NO-UNDO.
 DEFINE VARIABLE cCustType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustCompareValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPriceMatrixPricingMethod AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtExpireDate AS DATE INIT 12/31/2099.
 RUN util/updQuoteProcs.p PERSISTENT SET hdupdQuoteProcs.
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -154,7 +155,7 @@ IF AVAIL quotehd THEN DO:
     IF ip-TransQ = "Q" THEN RUN update-matrix.
     ELSE IF ip-TransQ = "1" THEN RUN update-matrix-minus.
     FIND CURRENT quotehd EXCLUSIVE-LOCK NO-ERROR.
-    quotehd.expireDate = IF quotehd.expireDate EQ ? THEN 12/31/2099 ELSE quotehd.expireDate.
+    quotehd.expireDate = dtExpireDate.
     IF lQuotePriceMatrix THEN
     DO:    
       ASSIGN
@@ -226,7 +227,7 @@ PROCEDURE update-matrix.
                 INPUT ""
                 ). /*From TagProcs Super Proc*/     
   END.
-  oe-prmtx.exp-date = IF quotehd.expireDate NE ? THEN quotehd.expireDate ELSE 12/31/2099.
+  oe-prmtx.exp-date = dtExpireDate.
   
   DO li = 1 TO EXTENT(oe-prmtx.qty):
     IF oe-prmtx.qty[li] NE 0 THEN DO:
@@ -354,7 +355,7 @@ PROCEDURE update-matrix-minus.
                 INPUT ""
                 ). /*From TagProcs Super Proc*/
   END.  
-  oe-prmtx.exp-date = IF quotehd.expireDate NE ? THEN quotehd.expireDate ELSE 12/31/2099. 
+  oe-prmtx.exp-date = dtExpireDate. 
   
   DO li = 1 TO EXTENT(oe-prmtx.qty):
     IF oe-prmtx.qty[li] NE 0 THEN DO:

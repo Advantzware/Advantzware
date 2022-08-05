@@ -64,6 +64,7 @@ DEFINE VARIABLE cFilePath            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRequestDateTime     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lError               AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cBearerToken         AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE oAPIHandler          AS API.APIHandler NO-UNDO. 
 DEFINE VARIABLE scInstance           AS CLASS System.SharedConfig NO-UNDO. 
@@ -329,6 +330,12 @@ ASSIGN
     FIX-CODEPAGE(oplcResponseData) = 'utf-8'
     FIX-CODEPAGE(glcResponseData)  = 'utf-8'.
     .
+
+IF gcAuthType EQ "Bearer" THEN DO:
+    cBearerToken = scInstance:GetValue (gcAPIID + "_" + gcClientID + "_BearerToken").
+    IF cBearerToken NE "" THEN
+        gcPassword = cBearerToken.    
+END.
         
 IF cAPIRequestMethod EQ "cURL" THEN DO:
     ASSIGN
@@ -429,8 +436,10 @@ ELSE IF cAPIRequestMethod EQ "Internal" THEN DO:
     ELSE IF gcRequestVerb EQ "GET" THEN 
         oplcResponseData = oAPIHandler:Get(gcEndPoint).
     ELSE IF gcRequestVerb EQ "DELETE" THEN 
-        oplcResponseData = oAPIHandler:DELETE(gcEndPoint).
-    
+        oplcResponseData = oAPIHandler:Delete(gcEndPoint).
+    ELSE IF gcRequestVerb EQ "PATCH" THEN
+        oplcResponseData = oAPIHandler:Patch(gcEndPoint, iplcRequestData).
+        
     cResponseCode = oAPIHandler:GetResponseStatusCode().
                             
     IF VALID-OBJECT(oAPIHandler) THEN

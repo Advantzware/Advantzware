@@ -332,7 +332,7 @@ PROCEDURE pDisableButton :
   DO WITH FRAME {&FRAME-NAME}:
     IF iplDisable THEN
     DISABLE btn-update.
-    ELSE ENABLE btn-update.
+    ELSE IF v-can-update THEN ENABLE btn-update.
   END. 
       
 END PROCEDURE.

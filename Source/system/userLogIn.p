@@ -33,8 +33,20 @@ DEFINE VARIABLE iLoginUserSecLevel AS INT NO-UNDO.
 DEFINE VARIABLE dtTestDateTime AS DATETIME NO-UNDO.
 DEFINE VARIABLE iSessionLimit AS INT NO-UNDO.
 
+DEFINE VARIABLE cSettingValue          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dtLastVerificationDate AS DATETIME  NO-UNDO.
+DEFINE VARIABLE iVerificationInterval  AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iBillableUserCount     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE iLicensedUserCount     AS INTEGER   NO-UNDO.
+DEFINE VARIABLE hdZohoProcs            AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lError                 AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage               AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAdvantzwareAccountID  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyName           AS CHARACTER NO-UNDO.
+
 DEFINE BUFFER bf-users FOR users.
 DEFINE BUFFER bf-userlog FOR userLog.
+DEFINE BUFFER bf-company FOR company.
 
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
@@ -66,6 +78,23 @@ ASSIGN
     cCurrentUserID = USERID(LDBNAME(1))
     oplExit = FALSE.
 
+RUN spGetSettingByName ("AccountVerificationInterval", OUTPUT cSettingValue).
+iVerificationInterval = INTEGER(cSettingValue) NO-ERROR.
+IF iVerificationInterval EQ ? OR iVerificationInterval EQ 0 THEN
+    iVerificationInterval = 30.
+
+RUN spGetSettingByName ("AccountVerificationDate", OUTPUT cSettingValue).
+dtLastVerificationDate = DATETIME(cSettingValue) NO-ERROR.
+IF dtLastVerificationDate EQ ? THEN
+    dtLastVerificationDate = 01/01/2000.
+
+RUN spGetSettingByName ("AdvantzwareAccountID", OUTPUT cAdvantzwareAccountID).
+
+/* Company scope is not set at this point */
+FIND FIRST bf-company NO-LOCK NO-ERROR.
+IF AVAILABLE bf-company THEN
+    cCompanyName = bf-company.name.
+     
 /* Find related sys-ctrl records */
     FIND FIRST sys-ctrl NO-LOCK 
         WHERE sys-ctrl.name EQ "enforceUserCount"
@@ -280,6 +309,46 @@ ASSIGN
         END.
     END. 
 
+    IF NOT oplExit THEN DO:
+        IF TODAY - DATE(dtLastVerificationDate) GT iVerificationInterval THEN DO:
+            RUN CRM/ZohoProcs.p PERSISTENT SET hdZohoProcs.
+
+            RUN spSetSettingByName ("AccountVerificationDate", STRING(NOW)).
+
+            IF cAdvantzwareAccountID EQ ? OR cAdvantzwareAccountID EQ "" THEN DO:
+                RUN Zoho_UpdateDeskAccessToken IN hdZohoProcs (OUTPUT lError, OUTPUT cMessage).
+
+                RUN Zoho_CreateDeskTicket IN hdZohoProcs (
+                    INPUT  "N-K-6 AdvantzwareAccountID is not setup - " + cCompanyName, 
+                    INPUT  "N-K-6 AdvantzwareAccountID is not setup - " + cCompanyName, 
+                    OUTPUT lError, 
+                    OUTPUT cMessage
+                    ).                
+            END.
+            ELSE DO:    
+                RUN Zoho_UpdateDeskAccessToken IN hdZohoProcs (OUTPUT lError, OUTPUT cMessage).
+
+                IF NOT lError THEN DO: 
+                    RUN Zoho_GetDeskAccount IN hdZohoProcs (OUTPUT lError, OUTPUT cMessage).
+                    IF NOT lError THEN DO:
+                        RUN  Zoho_GetAccountLicensedUserCount IN hdZohoProcs (OUTPUT iLicensedUserCount).
+                        RUN  Zoho_GetAccountBillableUserCount IN hdZohoProcs (OUTPUT iBillableUserCount).
+                        
+                        IF userControl.maxAllowedUsers NE iLicensedUserCount AND userControl.maxAllowedUsers NE iBillableUserCount THEN
+                            RUN Zoho_CreateDeskTicket IN hdZohoProcs (
+                                INPUT  "Customer User Count Mismatch - " + cCompanyName, 
+                                INPUT  "Customer User Count Mismatch - " + cCompanyName + ". Advantzware User Count:" + STRING(userControl.maxAllowedUsers) + " Zoho User Count:" + STRING(iLicensedUserCount), 
+                                OUTPUT lError, 
+                                OUTPUT cMessage
+                                ).                        
+                    END.                    
+                END.
+            END.
+
+            DELETE PROCEDURE hdZohoProcs.
+        END.            
+    END.
+    
 IF NOT oplExit THEN DO TRANSACTION:
     RUN GetCurrentProcessID (OUTPUT ppid).
     CREATE userLog.

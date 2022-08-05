@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -393,20 +393,14 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-  IF ll-first THEN
-  DO:
-     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
-     RUN estimate-notes-proc IN WIDGET-HANDLE(char-hdl) (OUTPUT op-est).
-
-     IF op-est THEN
-        ASSIGN btn-delete:SENSITIVE IN FRAME {&FRAME-NAME} = YES
-               btn-delete:HIDDEN IN FRAME {&FRAME-NAME} = NO.
-
-     ll-first = NO.
-  END.
   
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF ll-first THEN 
+  DO:
+    RUN pShowDelButton.
+    ll-first = NO.
+  END.
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -451,6 +445,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowDelButton B-table-Win 
+PROCEDURE pShowDelButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/  
+        
+ RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+ RUN estimate-notes-proc IN WIDGET-HANDLE(char-hdl) (OUTPUT op-est).
+
+ IF op-est THEN
+    ASSIGN btn-delete:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+           btn-delete:HIDDEN IN FRAME {&FRAME-NAME} = NO. 
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :

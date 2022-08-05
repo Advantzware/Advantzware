@@ -38,6 +38,7 @@ def var v-phone-num         as   char format "x(13)" no-undo.
 def var v-ship-id    like shipto.ship-id.
 def var v-ship-name  like shipto.ship-name.
 def var v-ship-addr  like shipto.ship-addr.
+def var cShipAddr3   like shipto.spare-char-3.
 def var v-ship-city  like shipto.ship-city.
 def var v-ship-state like shipto.ship-state.
 def var v-ship-zip   like shipto.ship-zip.
@@ -223,6 +224,7 @@ ASSIGN v-comp-add1 = ""
         v-ship-name = "" 
         v-ship-addr[1] = "" 
         v-ship-addr[2] = "" 
+        cShipAddr3 = "" 
         v-ship-city = "" 
         v-ship-state = "" 
         v-ship-zip = ""  .
@@ -299,6 +301,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
         v-ship-name    = shipto.ship-name
         v-ship-addr[1] = shipto.ship-addr[1]
         v-ship-addr[2] = shipto.ship-addr[2]
+        cShipAddr3     = shipto.spare-char-3
         v-ship-addr3   = shipto.ship-city + ", " +
                          shipto.ship-state + "  " +
                          shipto.ship-zip
@@ -355,9 +358,27 @@ for each xxreport where xxreport.term-id eq v-term-id,
        v-comp-city = ""
        v-comp-state = ""
        v-comp-zip = "" .
-    if v-ship-addr[2] eq "" then
-      assign
+    IF cShipAddr3 EQ "" AND v-ship-addr[2] EQ "" THEN
+      ASSIGN
        v-ship-addr[2] = v-ship-addr3
+       cShipAddr3     = ""
+       v-ship-addr3   = ""
+       v-ship-city = ""
+       v-ship-state = ""
+       v-ship-zip = ""
+       .
+    IF cShipAddr3 EQ "" THEN
+      ASSIGN
+       cShipAddr3     = v-ship-addr3
+       v-ship-addr3   = ""
+       v-ship-city = ""
+       v-ship-state = ""
+       v-ship-zip = ""
+       .
+    IF v-ship-addr[2] EQ "" THEN
+      ASSIGN
+       v-ship-addr[2] = cShipAddr3
+       cShipAddr3     = v-ship-addr3
        v-ship-addr3   = ""
        v-ship-city = ""
        v-ship-state = ""
@@ -491,8 +512,16 @@ for each xxreport where xxreport.term-id eq v-term-id,
      IF v-comp-addr[2] = "" THEN
            ASSIGN v-comp-addr[2] = v-comp-addr3
                   v-comp-addr3 = "".
-     IF v-ship-addr[2] = "" THEN
+     IF v-ship-addr[2] = "" AND cShipAddr3 = "" THEN
            ASSIGN v-ship-addr[2] = v-ship-addr3
+                  cShipAddr3   = ""
+                  v-ship-addr3 = "".
+     IF cShipAddr3 = "" THEN
+           ASSIGN cShipAddr3   = v-ship-addr3
+                  v-ship-addr3 = "".
+     IF v-ship-addr[2] = "" THEN
+           ASSIGN v-ship-addr[2] = cShipAddr3
+                  cShipAddr3   = v-ship-addr3
                   v-ship-addr3 = "".
 
      /*IF lv-bolfmt-int = 1 THEN

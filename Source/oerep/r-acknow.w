@@ -1259,7 +1259,7 @@ ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
                     tb_prt-bom:SENSITIVE                           = NO
                     tb_prt-bom:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
                 THEN ASSIGN
                     tb_itempo:HIDDEN       = NO
                     tb_hide_sell:HIDDEN    = NO
@@ -1270,14 +1270,14 @@ ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
                     tb_itempo:HIDDEN    = YES
                     tb_hide_sell:HIDDEN = YES .
 
-            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
+            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
                 THEN ASSIGN
                     tb_untcnt:HIDDEN    = NO 
                     tb_untcnt:SENSITIVE = YES.
             ELSE ASSIGN 
                     tb_untcnt:HIDDEN = YES .
 
-            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
+            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "Portugese"
                 THEN ASSIGN
                     tb_shpnot:HIDDEN    = NO 
                     tb_shpnot:SENSITIVE = YES. 
@@ -1363,7 +1363,7 @@ ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
                         tb_ship-to:SENSITIVE    = NO
                         tb_ship-to:SCREEN-VALUE = "NO".
             END.
-            IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN 
+            IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex,Portugese") <> 0 THEN 
             DO:
                 IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
                     tb_act-rel:SCREEN-VALUE EQ "NO" THEN
@@ -1934,7 +1934,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 TG_print-pen-notes:HIDDEN    = YES
                 TG_print-pen-notes:SENSITIVE = YES.
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_itempo:HIDDEN    = NO
                 tb_hide_sell:HIDDEN = NO. 
@@ -1942,20 +1942,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 tb_itempo:HIDDEN    = YES
                 tb_hide_sell:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" THEN
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese" THEN
             ASSIGN
                 tb_itm-tot:HIDDEN = NO . 
         ELSE
             tb_itm-tot:HIDDEN = YES  . 
 
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_untcnt:HIDDEN = NO .
         ELSE ASSIGN 
                 tb_untcnt:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_shpnot:HIDDEN = NO .
         ELSE ASSIGN 
@@ -2046,7 +2046,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                     tb_ship-to:SENSITIVE    = NO
                     tb_ship-to:SCREEN-VALUE = "NO".
         END.
-        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN 
+        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex,Portugese") <> 0 THEN 
         DO:
             IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
                 tb_act-rel:SCREEN-VALUE EQ "NO" THEN
@@ -3299,7 +3299,7 @@ PROCEDURE RUN_format-value-changed :
                 TG_print-pen-notes:HIDDEN    = YES
                 TG_print-pen-notes:SENSITIVE = YES.
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_itempo:HIDDEN    = NO
                 tb_hide_sell:HIDDEN = NO. 
@@ -3307,20 +3307,20 @@ PROCEDURE RUN_format-value-changed :
                 tb_itempo:HIDDEN    = YES
                 tb_hide_sell:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" THEN
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"  OR v-print-fmt EQ "Portugese" THEN
             ASSIGN
                 tb_itm-tot:HIDDEN = NO . 
         ELSE
             tb_itm-tot:HIDDEN = YES  . 
 
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_untcnt:HIDDEN = NO .
         ELSE ASSIGN 
                 tb_untcnt:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_shpnot:HIDDEN = NO .
         ELSE ASSIGN 
@@ -3411,7 +3411,7 @@ PROCEDURE RUN_format-value-changed :
                     tb_ship-to:SENSITIVE    = NO
                     tb_ship-to:SCREEN-VALUE = "NO".
         END.
-        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN 
+        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex,Portugese") <> 0 THEN 
         DO:
             IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
                 tb_act-rel:SCREEN-VALUE EQ "NO" THEN
@@ -3746,6 +3746,11 @@ PROCEDURE SetOEAckForm :
                 v-program      = "oe/rep/ackhenry.p" 
                 is-xprint-form = YES 
                 lines-per-page = 65.
+        WHEN "Portugese" THEN 
+            ASSIGN 
+                v-program      = "oe/rep/ackport.p" 
+                is-xprint-form = YES 
+                lines-per-page = 65.        
         OTHERWISE 
         ASSIGN 
             v-program      = "oe/rep/ackasi.p" 
