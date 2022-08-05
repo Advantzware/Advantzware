@@ -3418,12 +3418,12 @@ PROCEDURE pUpdateCostDetails PRIVATE:
         WHERE bf-estMisc.company       EQ bf-ttEstCostHeader.company
           AND bf-estMisc.estimateNo    EQ bf-ttEstCostHeader.estimateNo
         BY bf-estMisc.sequenceID:
-        lEstMiscAvailable = TRUE.
-        
         FOR EACH bf-ttEstCostDetail
             WHERE bf-ttEstCostDetail.estCostHeaderID   EQ bf-ttEstCostHeader.estCostHeaderID
               AND bf-ttEstCostDetail.estCostCategoryID EQ bf-estMisc.estCostCategoryID
               AND bf-ttEstCostDetail.hasBeenProcessed  EQ TRUE:
+            lEstMiscAvailable = TRUE.
+
             IF bf-estMisc.flatFeeCharge NE 0 THEN DO:
                 cDescription = bf-estMisc.costDescription 
                              + " (" + "Flat Fee " + STRING(bf-estMisc.flatFeeCharge) + ")".
