@@ -424,6 +424,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery B-table-Win 
+PROCEDURE pReOpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  def input parameter ip-rowid as rowid no-undo.           
+  DEFINE BUFFER bf-ttEstMisc FOR ttEstMisc.
+  
+  RUN local-open-query.   
+  
+  FIND FIRST bf-ttEstMisc NO-LOCK
+       WHERE bf-ttEstMisc.sourceRowID EQ ip-rowid NO-ERROR.
+                
+  IF AVAILABLE bf-ttEstMisc THEN
+  reposition {&browse-name} to rowid rowid(bf-ttEstMisc) no-error.
+
+  run dispatch in this-procedure ("row-changed").
+  APPLY "value-changed" TO BROWSE {&browse-name}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pInit B-table-Win 

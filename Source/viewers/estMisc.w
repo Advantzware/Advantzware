@@ -51,6 +51,7 @@ DEFINE VARIABLE dFlatFeeCharge      AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dChargeAmount       AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE riSourceRowID       AS ROWID     NO-UNDO.
 DEFINE VARIABLE lRecordAvailable    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iFormNo             AS INTEGER   NO-UNDO.
 
 DEFINE VARIABLE hdEstMiscProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cMode          AS CHARACTER NO-UNDO.
@@ -82,7 +83,8 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 btnUpdate-2 
 &Scoped-Define DISPLAYED-OBJECTS fiCostDescription cbEstCostCategoryID ~
 rsCostMethod cbEstCostCalcBy fiFlatFeeCharge cbEstCostCalcSourceCategory ~
-cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel fiChargePercent 
+cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel fiChargePercent ~
+cbEstCostCalcSourceCustom
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -156,7 +158,7 @@ DEFINE BUTTON btnUpdate-2
 DEFINE VARIABLE cbEstCostCalcBy AS CHARACTER FORMAT "x(32)" 
      LABEL "Calculate Cost By" 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "Level","Group","Category" 
+     LIST-ITEMS "Level","Group","Category","Custom" 
      DROP-DOWN-LIST
      SIZE 42 BY 1.
 
@@ -177,6 +179,12 @@ DEFINE VARIABLE cbEstCostCalcSourceLevel AS CHARACTER FORMAT "x(32)"
      VIEW-AS COMBO-BOX INNER-LINES 10
      DROP-DOWN-LIST
      SIZE 42 BY 1.
+     
+DEFINE VARIABLE cbEstCostCalcSourceCustom AS CHARACTER FORMAT "x(32)" 
+     LABEL "Cost Source" 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     DROP-DOWN-LIST
+     SIZE 42 BY 1.     
 
 DEFINE VARIABLE cbEstCostCategoryID AS CHARACTER FORMAT "x(32)" 
      LABEL "Category" 
@@ -243,6 +251,7 @@ DEFINE FRAME F-Main
      cbEstCostCalcSourceCategory AT ROW 7.67 COL 21 COLON-ALIGNED WIDGET-ID 18
      cbEstCostCalcSourceGroup AT ROW 7.67 COL 21 COLON-ALIGNED WIDGET-ID 32
      cbEstCostCalcSourceLevel AT ROW 7.67 COL 21 COLON-ALIGNED WIDGET-ID 34
+     cbEstCostCalcSourceCustom AT ROW 7.67 COL 21 COLON-ALIGNED WIDGET-ID 34
      fiChargePercent AT ROW 8.95 COL 21 COLON-ALIGNED WIDGET-ID 12
      RECT-1 AT ROW 4.81 COL 2 WIDGET-ID 24
      RECT-2 AT ROW 1.33 COL 2 WIDGET-ID 26
@@ -319,6 +328,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cbEstCostCalcSourceLevel IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR COMBO-BOX cbEstCostCalcSourceCustom IN FRAME F-Main
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR COMBO-BOX cbEstCostCategoryID IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiChargePercent IN FRAME F-Main
@@ -425,23 +436,18 @@ END.
 &Scoped-define SELF-NAME rsCostMethod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rsCostMethod V-table-Win
 ON VALUE-CHANGED OF rsCostMethod IN FRAME F-Main
-DO:
-    IF SELF:SCREEN-VALUE = "yes" THEN DO:
-        HIDE cbEstCostCalcBy cbEstCostCalcSourceCategory cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel fiChargePercent.
-        VIEW fiFlatFeeCharge.
-    END.
-    ELSE DO:
-        HIDE fiFlatFeeCharge cbEstCostCalcSourceCategory cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel.
-        
-        VIEW cbEstCostCalcBy fiChargePercent.
-        
-        IF cbEstCostCalcBy:SCREEN-VALUE EQ "Category" THEN
-            VIEW cbEstCostCalcSourceCategory.
-        ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Group" THEN
-            VIEW cbEstCostCalcSourceGroup.
-        ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Level" THEN
-            VIEW cbEstCostCalcSourceLevel.
-    END.
+DO:         
+    RUN pSetPanel.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME cbEstCostCalcBy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbEstCostCalcBy V-table-Win
+ON VALUE-CHANGED OF cbEstCostCalcBy IN FRAME F-Main
+DO:         
+    RUN pSetPanel.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -691,41 +697,52 @@ PROCEDURE pCRUD:
     DEFINE VARIABLE rwRowid        AS ROWID     NO-UNDO.
     DEFINE VARIABLE char-hdl       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
-    
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+        
     DO WITH FRAME {&FRAME-NAME}:
         CASE iphMode:LABEL:
             WHEN "Add" OR 
             WHEN "Copy" OR 
             WHEN "Update" THEN DO:
                 IF iphMode:LABEL EQ "Add" THEN DO:
-                    /* Add logic goes here. Call a lookup to copy setting */
-                    {methods/run_link.i "RECORD-SOURCE" "AddSetting" "(OUTPUT lError)"}
-                    IF lError THEN
-                        RETURN NO-APPLY.
-                                            
+                    ASSIGN
+                    riSourceRowID      = ?
+                    iSequenceID        = 0.
                     DISABLE btnReset-2.
+                    {methods/run_link.i "CONTAINER-SOURCE" "GetEstimateNo" "(OUTPUT cEstimateNo, OUTPUT iFormNo)"}
+                     ASSIGN
+                         fiCostDescription:SCREEN-VALUE = ""
+                         cbEstCostCategoryID:SCREEN-VALUE = ?
+                         cbEstCostCalcSourceCategory:SCREEN-VALUE = ?
+                         cbEstCostCalcSourceGroup:SCREEN-VALUE = ?
+                         cbEstCostCalcSourceLevel:SCREEN-VALUE = ?
+                         cbEstCostCalcSourceCustom:SCREEN-VALUE = ?
+                         fiFlatFeeCharge:SCREEN-VALUE = ""
+                         fiChargePercent:SCREEN-VALUE = "" . 
+                         
                 END. /* add */
                 ELSE IF iphMode:LABEL EQ "Update" THEN DO:                
                     APPLY "ENTRY":U TO fiCostDescription.
                 END.
-                ELSE IF iphMode:LABEL EQ "Copy" THEN DO:
-                    /* Add logic goes here. Call a lookup to copy setting */
-                    {methods/run_link.i "RECORD-SOURCE" "CopySetting" "(OUTPUT lError)"}
-                    IF lError THEN
-                        RETURN NO-APPLY.
-                    
+                ELSE IF iphMode:LABEL EQ "Copy" THEN DO:                     
+                    ASSIGN
+                    riSourceRowID      = ?
+                    iSequenceID        = 0.
                     DISABLE btnReset-2.
+                     {methods/run_link.i "CONTAINER-SOURCE" "GetEstimateNo" "(OUTPUT cEstimateNo, OUTPUT iFormNo)"}
                 END. /* add */
                                                 
-                {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
+                //{methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
                 RUN new-state ("record-update-begin").
                 
                 cMode = iphMode:LABEL.
-                
-                ENABLE fiCostDescription cbEstCostCategoryID rsCostMethod.
-                
-/*                ASSIGN             */
-/*                    fiChargePercent*/
+                ENABLE btnUpdate-2 btnReset-2 btnCancel-2.
+                ENABLE fiCostDescription cbEstCostCategoryID rsCostMethod fiFlatFeeCharge
+                        cbEstCostCalcBy cbEstCostCalcSourceCategory
+                        cbEstCostCalcSourceLevel fiChargePercent cbEstCostCalcSourceGroup
+                        cbEstCostCalcSourceCustom.
+                        
+                RUN pSetPanel.     
                 
                 DISABLE btnAdd-2 btnCopy-2 btnDelete-2.                  
                 
@@ -736,50 +753,66 @@ PROCEDURE pCRUD:
             WHEN "Cancel" OR 
             WHEN "Save" THEN DO:
                 IF iphMode:LABEL EQ "Save" THEN DO:
-                    IF cMode EQ "Add" OR cMode EQ "Copy" OR cMode EQ  "Update" THEN DO:
-/*                        {methods/run_link.i "RECORD-SOURCE" "UpdateSetting"                                                  */
-/*                            "(INPUT  edSettingDesc:SCREEN-VALUE,                                                             */
-/*                              INPUT  IF cValidValues EQ '' THEN fiSettingValue:SCREEN-VALUE ELSE cbSettingValue:SCREEN-VALUE,*/
-/*                              INPUT  fiProgramID:SCREEN-VALUE,                                                               */
-/*                              INPUT  tbInactive:CHECKED,                                                                     */
-/*                              INPUT  fiSettingUser:SCREEN-VALUE,                                                             */
-/*                              INPUT  cbScopeTable:SCREEN-VALUE,                                                              */
-/*                              INPUT  fiScopeField1:SCREEN-VALUE,                                                             */
-/*                              INPUT  fiScopeField2:SCREEN-VALUE,                                                             */
-/*                              INPUT  fiScopeField3:SCREEN-VALUE,                                                             */
-/*                              INPUT  rittSetting,                                                                            */
-/*                              OUTPUT lError)"}                                                                               */
-/*                        IF lError THEN                                                                                       */
-/*                            RETURN NO-APPLY.                                                                                 */
-/*                        ELSE DO:                                                                                             */
-/*                            RUN pUpdateFields.                                                                               */
-/*                                                                                                                             */
-/*                            RUN pUpdatePanel.                                                                                */
-/*                        END.                                                                                                 */
+                    IF cMode EQ "Add" OR cMode EQ "Copy" OR cMode EQ  "Update" THEN DO: 
+                    
+                    IF cbEstCostCalcBy:SCREEN-VALUE EQ "Category" THEN
+                    cEstCostCalcSource = cbEstCostCalcSourceCategory:SCREEN-VALUE.                       
+                    ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Group" THEN                     
+                    cEstCostCalcSource = cbEstCostCalcSourceGroup:SCREEN-VALUE.                                    
+                    ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Level" THEN
+                    cEstCostCalcSource = cbEstCostCalcSourceLevel:SCREEN-VALUE.
+                    ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Custom" THEN
+                    cEstCostCalcSource = cbEstCostCalcSourceCustom:SCREEN-VALUE.
+                                        
+                   RUN EstMisc_Update IN hdEstMiscProcs(riSourceRowID,
+                                         cSourceType,         
+                                         cCompany,
+                                         cEstimateNo,
+                                         iFormNo,
+                                         fiCostDescription:SCREEN-VALUE,
+                                         cbEstCostCategoryID:SCREEN-VALUE,
+                                         IF rsCostMethod:SCREEN-VALUE EQ "1" THEN TRUE ELSE FALSE,
+                                         cbEstCostCalcBy:SCREEN-VALUE,
+                                         cEstCostCalcSource,
+                                         DECIMAL(fiFlatFeeCharge:SCREEN-VALUE),
+                                         DECIMAL(fiChargePercent:SCREEN-VALUE),
+                                         iSequenceID,
+                                         OUTPUT rwRowid,
+                                         OUTPUT lError,
+                                         OUTPUT cMessage).                                             
+                                                                                                  
+                        IF lError THEN do:  
+                            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+                            RETURN NO-APPLY. 
+                        END.    
+                        ELSE DO:
+                           {methods/run_link.i "RECORD-SOURCE" "pReOpenQuery" "(input rwRowid)" }  
+                                                                                                                                        
+                        END.                                                                                                 
                     END. /* if Add/Copy/Update */
                 END. /* save */
                 IF iphMode:LABEL EQ "Cancel" THEN DO:
-/*                    IF cRecordSource EQ "New" THEN*/
-/*                        {methods/run_link.i "RECORD-SOURCE" "DeleteSetting" "(OUTPUT lError)"}*/
                         IF lError THEN
                             RETURN NO-APPLY.
                 END.
 
-/*                DISABLE fiSettingName fiSettingValue cbSettingValue tbInactive*/
-/*                     cbScopeTable fiScopeField1 fiScopeField2 fiScopeField3.  */
-/*                                                                              */
-/*                edSettingDesc:READ-ONLY = TRUE.                               */
+                DISABLE fiCostDescription cbEstCostCategoryID rsCostMethod fiFlatFeeCharge
+                        cbEstCostCalcBy cbEstCostCalcSourceCategory
+                        cbEstCostCalcSourceLevel fiChargePercent cbEstCostCalcSourceGroup
+                        cbEstCostCalcSourceCustom.
 
                 btnUpdate-2:LOAD-IMAGE("Graphics\32x32\Pencil.png").
                 btnUpdate-2:LABEL = "Update".
 
                 ENABLE btnAdd-2 btnCopy-2 btnDelete-2.
-                DISABLE btnReset-2 btnCancel-2 .
-                
-/*                {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}*/
+                DISABLE btnReset-2 btnCancel-2 .                   
+
                 RUN new-state ("record-update-end"). 
 
-                RUN pUpdateFields.
+                cMode = iphMode:LABEL.
+                            
+                RUN pUpdateFields.                                                                               
+                                                                                                                 
                 RUN pUpdatePanel.
             END. /* cancel save */
             WHEN "Delete" THEN DO:
@@ -789,9 +822,18 @@ PROCEDURE pCRUD:
                         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
                         UPDATE lContinue.
                     IF lContinue THEN DO:
-/*                        {methods/run_link.i "RECORD-SOURCE" "DeleteSetting" "(OUTPUT lError)"}*/
-                        IF lError THEN
+                    RUN EstMisc_Delete IN hdEstMiscProcs(riSourceRowID,                                          
+                                         OUTPUT lError,
+                                         OUTPUT cMessage).             
+
+                        IF lError THEN 
+                        do:
+                            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
                             RETURN NO-APPLY.                        
+                        END.
+                        ELSE DO:
+                           {methods/run_link.i "RECORD-SOURCE" "local-open-query" }
+                        END.
                     END. /* if lcontinue */
                 END. /* if avail */
                 
@@ -819,6 +861,7 @@ PROCEDURE pInit PRIVATE :
     DEFINE VARIABLE cCalcByLevelList    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCalcByGroupList    AS CHARACTER NO-UNDO.    
     DEFINE VARIABLE cCalcByCategoryList AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCalcByCustomList   AS CHARACTER NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
     END.
@@ -830,15 +873,18 @@ PROCEDURE pInit PRIVATE :
     RUN EstMisc_GetCategoryList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByCategoryList).
     RUN EstMisc_GetGroupList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByGroupList).
     RUN EstMisc_GetGroupLevelList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByLevelList).
+    RUN EstMisc_GetCustomList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByCustomList).
     
     ASSIGN
         cbEstCostCategoryID:LIST-ITEM-PAIRS         = cCalcByCategoryList
         cbEstCostCalcSourceCategory:LIST-ITEM-PAIRS = cCalcByCategoryList
         cbEstCostCalcSourceGroup:LIST-ITEM-PAIRS    = cCalcByGroupList
         cbEstCostCalcSourceLevel:LIST-ITEM-PAIRS    = cCalcByLevelList
+        cbEstCostCalcSourceCustom:LIST-ITEM-PAIRS    = cCalcByCustomList
         .
     
     RUN pUpdateFields.
+    RUN pUpdatePanel. 
                                     
 END PROCEDURE.
 
@@ -854,12 +900,13 @@ PROCEDURE pUpdateFields :
     DEFINE VARIABLE hdttEstMiscBuffer AS HANDLE NO-UNDO.
     
     /* Code placed here will execute PRIOR to standard behavior. */
-    {methods/run_link.i "RECORD-SOURCE" "GetEstMisc" "(OUTPUT hdttEstMiscBuffer)"}
+    {methods/run_link.i "RECORD-SOURCE" "GetEstMisc" "(OUTPUT hdttEstMiscBuffer)"}     
+    {methods/run_link.i "CONTAINER-SOURCE" "GetSourceType" "(OUTPUT cSourceType)"}
     
     DO WITH FRAME {&FRAME-NAME}:
-        ASSIGN
-            cSourceType        = ""
+        ASSIGN             
             cEstimateNo        = ""
+            iFormNo            = 0
             cCostDescription   = ""
             iSequenceID        = 0
             cEstCostCategoryID = ?
@@ -884,19 +931,37 @@ PROCEDURE pUpdateFields :
                 cEstCostCalcSource = hdttEstMiscBuffer:BUFFER-FIELD("estCostCalcSource"):BUFFER-VALUE
                 lIsFlatFee         = hdttEstMiscBuffer:BUFFER-FIELD("isFlatFee"):BUFFER-VALUE
                 dFlatFeeCharge     = hdttEstMiscBuffer:BUFFER-FIELD("flatFeeCharge"):BUFFER-VALUE
-                dChargeAmount      = hdttEstMiscBuffer:BUFFER-FIELD("chargeAmount"):BUFFER-VALUE
+                dChargeAmount      = hdttEstMiscBuffer:BUFFER-FIELD("chargePercent"):BUFFER-VALUE
                 riSourceRowID      = hdttEstMiscBuffer:BUFFER-FIELD("sourceRowID"):BUFFER-VALUE
+                iFormNo            = hdttEstMiscBuffer:BUFFER-FIELD("formNo"):BUFFER-VALUE
                 lRecordAvailable   = TRUE
-                NO-ERROR.
-        
+                NO-ERROR .
+                   
         ASSIGN
             fiCostDescription:SCREEN-VALUE   = cCostDescription
             cbEstCostCategoryID:SCREEN-VALUE = cEstCostCategoryID
             cbEstCostCalcBy:SCREEN-VALUE     = cEstCostCalcBy
             fiFlatFeeCharge:SCREEN-VALUE     = STRING(dFlatFeeCharge)
             fiChargePercent:SCREEN-VALUE     = STRING(dChargeAmount)
-            rsCostMethod:SCREEN-VALUE        = STRING(lIsFlatFee)
+            rsCostMethod:SCREEN-VALUE        = IF lIsFlatFee THEN "1" ELSE "2" 
             NO-ERROR.  
+                       
+        IF cbEstCostCalcBy:SCREEN-VALUE EQ "Category" THEN
+        DO:
+            cbEstCostCalcSourceCategory:SCREEN-VALUE = cEstCostCalcSource.             
+        END.    
+        ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Group" THEN
+        do:
+            cbEstCostCalcSourceGroup:SCREEN-VALUE = cEstCostCalcSource.               
+        END.    
+        ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Level" THEN
+        do:
+            cbEstCostCalcSourceLevel:SCREEN-VALUE = cEstCostCalcSource.             
+        END. 
+        ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Custom" THEN
+        do:
+            cbEstCostCalcSourceCustom:SCREEN-VALUE = cEstCostCalcSource.             
+        END.
         
         APPLY "VALUE-CHANGED" TO rsCostMethod.             
     END.
@@ -913,7 +978,8 @@ PROCEDURE pUpdatePanel:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    DO WITH FRAME {&FRAME-NAME}:
+           
+    DO WITH FRAME {&FRAME-NAME}:    
         IF lRecordAvailable AND (cMode EQ "Add" OR cMode EQ "Copy") THEN DO:            
             DISABLE btnAdd-2 btnReset-2 btnCopy-2 btnDelete-2.
             ENABLE btnUpdate-2 btnCancel-2.
@@ -921,12 +987,72 @@ PROCEDURE pUpdatePanel:
         END.
         
         DISABLE btnAdd-2 btnUpdate-2 btnCancel-2 btnDelete-2 btnReset-2 btnCopy-2.
-    
+           
         IF lRecordAvailable THEN DO:
             ENABLE btnAdd-2 btnCopy-2 btnUpdate-2 btnDelete-2.
         END.
         ELSE
             ENABLE btnAdd-2.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetPanel V-table-Win
+PROCEDURE pSetPanel:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF rsCostMethod:SCREEN-VALUE = "1" THEN DO:            
+            ASSIGN
+            cbEstCostCalcBy:SCREEN-VALUE = ""
+            cbEstCostCalcSourceCategory:SCREEN-VALUE = ""
+            cbEstCostCalcSourceGroup:SCREEN-VALUE = ""
+            cbEstCostCalcSourceLevel:SCREEN-VALUE = ""
+            cbEstCostCalcSourceCustom:SCREEN-VALUE = ""
+            fiChargePercent:SCREEN-VALUE = ""
+            cbEstCostCalcBy = ""
+            cbEstCostCalcSourceCategory = ""
+            cbEstCostCalcSourceGroup = ""
+            cbEstCostCalcSourceLevel = ""
+            cbEstCostCalcSourceCustom = ""
+            fiChargePercent = 0.
+            HIDE cbEstCostCalcBy cbEstCostCalcSourceCategory cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel cbEstCostCalcSourceCustom fiChargePercent.
+            VIEW fiFlatFeeCharge.             
+        END.
+        ELSE DO:
+            HIDE fiFlatFeeCharge cbEstCostCalcSourceCategory cbEstCostCalcSourceGroup cbEstCostCalcSourceLevel cbEstCostCalcSourceCustom.
+            
+            VIEW cbEstCostCalcBy fiChargePercent.
+            
+            ASSIGN
+            fiFlatFeeCharge:SCREEN-VALUE = ""
+            fiFlatFeeCharge = 0.
+            
+            IF cbEstCostCalcBy:SCREEN-VALUE EQ "Category" THEN
+            do:
+                VIEW cbEstCostCalcSourceCategory.
+                HIDE cbEstCostCalcSourceGroup  cbEstCostCalcSourceLevel cbEstCostCalcSourceCustom.
+            END.    
+            ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Group" THEN
+            do:
+                VIEW cbEstCostCalcSourceGroup.
+                HIDE cbEstCostCalcSourceCategory cbEstCostCalcSourceLevel cbEstCostCalcSourceCustom.
+            END.    
+            ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Level" THEN
+            do:
+                VIEW cbEstCostCalcSourceLevel.
+                HIDE cbEstCostCalcSourceGroup cbEstCostCalcSourceCategory cbEstCostCalcSourceCustom.
+            END.   
+            ELSE IF cbEstCostCalcBy:SCREEN-VALUE EQ "Custom" THEN
+            do:
+                VIEW cbEstCostCalcSourceCustom.
+                HIDE cbEstCostCalcSourceGroup cbEstCostCalcSourceCategory cbEstCostCalcSourceLevel.
+            END.
+        END.
     END.
 END PROCEDURE.
 	

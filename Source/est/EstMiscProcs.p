@@ -219,9 +219,10 @@ PROCEDURE EstMisc_Update:
     DEFINE INPUT  PARAMETER ipdFlatFeeCharge     AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdChargePercent     AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiSequenceID        AS INTEGER   NO-UNDO.
+    DEFINE OUTPUT PARAMETER oprwRowid            AS ROWID     NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError             AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage           AS CHARACTER NO-UNDO.
-    
+                    
     DEFINE BUFFER bf-estMiscControl     FOR estMiscControl.
     DEFINE BUFFER bf-estMisc            FOR estMisc.
     DEFINE BUFFER bf-dup-estMiscControl FOR estMiscControl.
@@ -330,7 +331,7 @@ PROCEDURE EstMisc_Update:
                    AND bf-dup-estMiscControl.estCostCategoryID EQ ipcEstCostCategoryID
                    AND ROWID(bf-dup-estMiscControl)            NE ROWID(bf-estMiscControl)
                  NO-ERROR.
-            IF AVAILABLE bf-estMiscControl THEN DO:
+            IF AVAILABLE bf-dup-estMiscControl THEN DO:
                 ASSIGN
                     oplError   = TRUE
                     opcMessage = "A record already exists for same configuration"
@@ -379,6 +380,7 @@ PROCEDURE EstMisc_Update:
                     bf-estMiscControl.estCostCalcSource = ipcEstCostCalcSource
                     bf-estMiscControl.chargePercent     = ipdChargePercent
                     .
+            oprwRowid = ROWID(bf-estMiscControl).        
         END.
         ELSE DO:
             ASSIGN
@@ -415,7 +417,7 @@ PROCEDURE EstMisc_Update:
                    AND bf-dup-estMisc.estCostCategoryID EQ ipcEstCostCategoryID
                    AND ROWID(bf-dup-estMisc)            NE ROWID(bf-estMisc)
                  NO-ERROR.
-            IF AVAILABLE bf-estMisc THEN DO:
+            IF AVAILABLE bf-dup-estMisc THEN DO:
                 ASSIGN
                     oplError   = TRUE
                     opcMessage = "A record already exists for same configuration"
@@ -467,6 +469,7 @@ PROCEDURE EstMisc_Update:
                     bf-estMisc.estCostCalcSource = ipcEstCostCalcSource
                     bf-estMisc.chargePercent     = ipdChargePercent
                     .
+            oprwRowid = ROWID(bf-estMisc).        
         END.
         ELSE DO:
             ASSIGN

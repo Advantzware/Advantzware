@@ -45,6 +45,11 @@ DEFINE INPUT  PARAMETER ipriEstimate AS ROWID NO-UNDO.
 
 DEFINE VARIABLE cCompany    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cEstimateNo AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSourceType    AS CHARACTER NO-UNDO INITIAL "estMisc".
+DEFINE VARIABLE hdEstMiscProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE iFormNo AS INTEGER NO-UNDO.
+
+RUN est/estMiscProcs.p PERSISTENT SET hdEstMiscProcs.
 /* Local Variable Definitions ---                                       */
 
 DEFINE BUFFER bf-eb FOR eb.
@@ -56,6 +61,7 @@ IF AVAILABLE bf-eb THEN
     ASSIGN
         cCompany    = bf-eb.company
         cEstimateNo = bf-eb.est-no
+        iFormNo     = bf-eb.form-no
         .
 
 RELEASE bf-eb.
@@ -177,7 +183,11 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME D-Dialog /* Additional Costs */
 DO:  
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
-  APPLY "END-ERROR":U TO SELF.
+  IF VALID-HANDLE(hdEstMiscProcs) THEN
+        DELETE PROCEDURE hdEstMiscProcs.
+        
+    APPLY "END-ERROR":U TO SELF.
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -230,27 +240,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_estmisc-2 ( 2.95 , 117.00 ) NO-ERROR.
        /* Size in UIB:  ( 8.95 , 68.00 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.w':U ,
-             INPUT  FRAME D-Dialog:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 12.52 , 118.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.38 , 67.00 ) NO-ERROR.
-
        /* Links to SmartViewer h_estmisc-2. */
        RUN add-link IN adm-broker-hdl ( h_estmisc , 'Record':U , h_estmisc-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_estmisc-2 ).
-
+       
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_estmisc ,
              fiEstimateNo:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_estmisc-2 ,
-             h_estmisc , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_estmisc-2 , 'AFTER':U ).
+             h_estmisc , 'AFTER':U ).        
     END. /* Page 0 */
 
   END CASE.
@@ -327,8 +324,10 @@ PROCEDURE GetEstimateNo :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiFormNo AS INTEGER NO-UNDO.
     
     opcEstimateNo = cEstimateNo.
+    opiFormNo = iFormNo.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -367,6 +366,36 @@ PROCEDURE pInit :
     ASSIGN
         fiEstimateNo:SCREEN-VALUE = cEstimateNo
         .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetEstMiscProcsHandle W-Win 
+PROCEDURE GetEstMiscProcsHandle :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER ophdEstMiscProcs AS HANDLE NO-UNDO.
+    
+    ophdEstMiscProcs = hdEstMiscProcs.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetSourceType W-Win 
+PROCEDURE GetSourceType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETE opcSourceType AS CHARACTER NO-UNDO.
+    
+    opcSourceType = cSourceType.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
