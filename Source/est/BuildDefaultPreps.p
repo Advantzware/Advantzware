@@ -139,11 +139,11 @@ IF AVAILABLE bf-eb THEN
 FOR EACH bf-estMiscControl NO-LOCK
     WHERE bf-estMiscControl.company EQ ipbf-est.company:
     FIND FIRST bf-estMisc NO-LOCK
-         WHERE bf-estMisc.company       EQ bf-estMiscControl.company
-           AND bf-estMisc.estimateNo    EQ ipbf-est.est-no
-           AND bf-estMisc.estCostCalcBy EQ bf-estMiscControl.estCostCalcBy
-           AND bf-estMisc.estCostCalcOn EQ bf-estMiscControl.estCostCalcOn
-           AND bf-estMisc.estCostCalcTo EQ bf-estMiscControl.estCostCalcTo
+         WHERE bf-estMisc.company           EQ bf-estMiscControl.company
+           AND bf-estMisc.estimateNo        EQ ipbf-est.est-no
+           AND bf-estMisc.estCostCalcBy     EQ bf-estMiscControl.estCostCalcBy
+           AND bf-estMisc.estCostCalcSource EQ bf-estMiscControl.estCostCalcSource
+           AND bf-estMisc.estCostCategoryID EQ bf-estMiscControl.estCostCategoryID
          NO-ERROR.
     IF NOT AVAILABLE bf-estMisc THEN DO:
         CREATE bf-estMisc.
