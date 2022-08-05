@@ -45,6 +45,7 @@ DEFINE VARIABLE cEstimateNo    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcOnDesc    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalcToDesc    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSourceType    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCalcByCustomList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdEstMiscProcs AS HANDLE    NO-UNDO.
 
 /* Required for run_link.i */
@@ -464,6 +465,8 @@ PROCEDURE pInit :
     
     IF NOT VALID-HANDLE (hdEstMiscProcs) THEN
         RUN est/estMiscProcs.p PERSISTENT SET hdEstMiscProcs.
+        
+    RUN EstMisc_GetCustomList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByCustomList).     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,6 +526,7 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
     DEFINE BUFFER bf-estCostGroupSystem      FOR estCostGroupSystem.
     DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
     DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
+    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     
     IF AVAILABLE ttEstMisc THEN DO:
         IF iplIsCategory THEN DO:
@@ -553,7 +557,16 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
                      NO-ERROR.
                 IF AVAILABLE bf-estCostCategorySystem THEN
                     RETURN bf-estCostCategorySystem.estCostCategoryDesc.        
-            END.            
+            END.
+            ELSE IF ttEstMisc.estCostCalcBy EQ "Custom" THEN DO:
+                 DO iCount = 1 TO NUM-ENTRIES(cCalcByCustomList):
+                    IF ttEstMisc.estCostCalcSource EQ ENTRY(iCount,cCalcByCustomList) THEN
+                    DO:
+                        RETURN ENTRY(iCount - 1,cCalcByCustomList).
+                    END.                 
+                 END.
+                                
+            END.
         END.
     END.
     

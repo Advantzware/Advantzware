@@ -474,7 +474,7 @@ PROCEDURE pInit :
     IF NOT VALID-HANDLE (hdEstMiscProcs) THEN
         RUN est/estMiscProcs.p PERSISTENT SET hdEstMiscProcs.
         
-   RUN EstMisc_GetCustomList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByCustomList).     
+    RUN EstMisc_GetCustomList IN hdEstMiscProcs (cCompany, OUTPUT cCalcByCustomList).     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
