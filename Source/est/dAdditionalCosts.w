@@ -1,7 +1,5 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-/* Connected Databases 
-*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS D-Dialog 
@@ -65,7 +63,7 @@ IF AVAILABLE bf-eb THEN
         .
 
 RELEASE bf-eb.
-            
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -83,6 +81,7 @@ RELEASE bf-eb.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
+&Scoped-Define ENABLED-OBJECTS btReset 
 &Scoped-Define DISPLAYED-OBJECTS fiEstimateNo 
 
 /* Custom List Definitions                                              */
@@ -92,13 +91,6 @@ RELEASE bf-eb.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartDialogCues" D-Dialog _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartDialog,ab,49267
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -107,21 +99,26 @@ Destroy on next read */
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_estmisc AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_estmisc-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btReset 
+     LABEL "Reset Cost From Misc Control" 
+     SIZE 37 BY 1.62
+     FONT 6.
+
 DEFINE VARIABLE fiEstimateNo AS CHARACTER FORMAT "X(256)":U 
      LABEL "Estimate #" 
      VIEW-AS FILL-IN 
-     SIZE 26.4 BY 1
+     SIZE 26.33 BY 1
      FONT 6 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     fiEstimateNo AT ROW 1.48 COL 13.6 COLON-ALIGNED WIDGET-ID 2
-     SPACE(145.39) SKIP(20.18)
+     fiEstimateNo AT ROW 1.46 COL 13.67 COLON-ALIGNED WIDGET-ID 2
+     btReset AT ROW 16.23 COL 133 WIDGET-ID 4
+     SPACE(17.39) SKIP(4.81)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          BGCOLOR 15 
@@ -192,6 +189,32 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btReset D-Dialog
+ON CHOOSE OF btReset IN FRAME D-Dialog /* Reset Cost From Misc Control */
+DO:
+    DEFINE BUFFER bf-estMisc        FOR estMisc.
+    DEFINE BUFFER bf-estMiscControl FOR estMiscControl.
+    
+    IF cEstimateNo EQ "" THEN
+        RETURN.
+        
+    MESSAGE "Are you sure you want to reset? This will delete the costs configuration for the estimate and reset to default costs"  
+    VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+    
+    IF NOT lChoice THEN
+        RETURN.
+    
+    RUN EstMisc_ResetEstMiscForEstimate IN hdEstMiscProcs (cCompany, cEstimateNo).
+    
+    RUN dispatch IN h_estmisc ("open-query").
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -308,6 +331,8 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY fiEstimateNo 
+      WITH FRAME D-Dialog.
+  ENABLE btReset 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

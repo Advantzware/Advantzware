@@ -175,11 +175,11 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       ttEstMisc.costDescription FORMAT "x(40)":U WIDTH 32.2
-      ttEstMisc.estCostCalcBy FORMAT "x(32)":U WIDTH 17.2
       fGetCalcDesc(ttEstMisc.estCostCategoryID, TRUE) @ cCalcToDesc COLUMN-LABEL "Category" FORMAT "X(50)":U
-            WIDTH 23.2
+            WIDTH 32.2
+      ttEstMisc.estCostCalcBy FORMAT "x(32)":U WIDTH 19
       fGetCalcDesc(ttEstMisc.estCostCalcSource, FALSE) @ cCalcOnDesc COLUMN-LABEL "Cost Source" FORMAT "X(50)":U
-            WIDTH 26.2
+            WIDTH 32.2
       ttEstMisc.flatFeeCharge FORMAT ">>,>>,>>9.99<<<<":U
       ttEstMisc.chargePercent FORMAT ">>,>>,>>9.99<<<<":U
 /* _UIB-CODE-BLOCK-END */

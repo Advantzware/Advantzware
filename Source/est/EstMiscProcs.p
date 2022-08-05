@@ -201,6 +201,37 @@ PROCEDURE EstMisc_GetEstMisc:
     END.    
 END PROCEDURE.
 
+PROCEDURE EstMisc_ResetEstMiscForEstimate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-estMisc        FOR estMisc.
+    DEFINE BUFFER bf-estMiscControl FOR estMiscControl.
+    
+    IF ipcEstimateNo EQ "" THEN
+        RETURN.
+        
+    DO TRANSACTION:
+        FOR EACH bf-estMisc EXCLUSIVE-LOCK
+            WHERE bf-estMisc.company    EQ ipcCompany
+              AND bf-estMisc.estimateNo EQ ipcEstimateNo:
+            DELETE bf-estMisc.
+        END.
+        
+        FOR EACH bf-estMiscControl NO-LOCK
+            WHERE bf-estMiscControl.company EQ ipcCompany:
+            CREATE bf-estMisc.
+            BUFFER-COPY bf-estMiscControl EXCEPT rec_key TO bf-estMisc.
+
+            bf-estMisc.estimateNo = ipcEstimateNo.
+        END.
+    END.
+END PROCEDURE.
+
 PROCEDURE EstMisc_Update:
 /*------------------------------------------------------------------------------
  Purpose:

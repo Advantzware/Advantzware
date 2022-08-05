@@ -360,9 +360,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL CostSummaryBrowse C-Win
 ON VALUE-CHANGED OF CostSummaryBrowse IN FRAME DEFAULT-FRAME /* Estimate Cost Summary */
 DO:
+    cGroupID = "".
+    
     IF AVAILABLE estCostSummary THEN
         cGroupID = estCostSummary.estCostGroupID.
-        
+            
     {&OPEN-QUERY-CostDetailBrowse}
 END.
 
@@ -375,6 +377,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL GroupLevelBrowse C-Win
 ON VALUE-CHANGED OF GroupLevelBrowse IN FRAME DEFAULT-FRAME /* Estimate Cost Level */
 DO:
+    iGroupLevelID = 0.
+    
     IF AVAILABLE ttEstCostGroupLevel THEN
         iGroupLevelID = ttEstCostGroupLevel.estCostGroupLevelID.
         
