@@ -162,7 +162,7 @@ DO v-local-loop = 1 TO v-local-copies:
       RUN cecrep/jobtick1.p (RECID(job-hdr), v-format,
                               v-local-loop, v-local-copies).
 
-      FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm),
+      FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
           EACH b-eb NO-LOCK WHERE b-eb.company = job-hdr.company
                               AND b-eb.est-no = job-hdr.est-no 
                               AND b-eb.form-no = w-ef.frm
