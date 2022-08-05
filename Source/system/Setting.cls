@@ -10,6 +10,8 @@
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
+USING Progress.Json.ObjectModel.JsonObject.
+USING Progress.Json.ObjectModel.ObjectModelParser.
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
@@ -1347,6 +1349,9 @@ CLASS system.Setting:
         ipcScopeField1   AS CHARACTER, 
         ipcScopeField2   AS CHARACTER, 
         ipcScopeField3   AS CHARACTER):
+
+        DEFINE VARIABLE oJsonParser AS ObjectModelParser NO-UNDO.
+        DEFINE VARIABLE oJsonObject AS JsonObject        NO-UNDO.
 		         
         DEFINE BUFFER bf-setting     FOR setting.
         DEFINE BUFFER bf-settingType FOR settingType.
@@ -1372,17 +1377,27 @@ CLASS system.Setting:
         
         IF bf-settingType.dataType EQ "Integer" THEN
             INTEGER(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "Decimal" THEN
+        ELSE IF bf-settingType.dataType EQ "Decimal" THEN
             DECIMAL(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "Date" THEN
+        ELSE IF bf-settingType.dataType EQ "Date" THEN
             DATE(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "DateTime" THEN
+        ELSE IF bf-settingType.dataType EQ "DateTime" THEN
             DATETIME(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "DateTime-TZ" THEN
+        ELSE IF bf-settingType.dataType EQ "DateTime-TZ" THEN
             DATETIME-TZ(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "Logical" THEN
+        ELSE IF bf-settingType.dataType EQ "Logical" THEN
             LOGICAL(ipcSettingValue) NO-ERROR.
-                                                
+        ELSE IF bf-settingType.dataType EQ "Json" THEN DO:
+            IF ipcSettingValue NE "" THEN DO:
+                IF LENGTH(ipcSettingValue) GT 31995 THEN
+                    RETURN "Maximum character value reached. Cannot save data more than 31995 characters". 
+                oJsonParser = NEW ObjectModelParser().
+                oJsonObject = CAST(oJsonParser:Parse(INPUT ipcSettingValue), JsonObject) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                    RETURN "Error parsing Json " + ERROR-STATUS:GET-MESSAGE(1).  
+            END.            
+        END.
+                                                        
         IF ERROR-STATUS:ERROR THEN
              RETURN "'" + ipcSettingValue + "' is not a valid value for '" + bf-settingType.settingName + "'. Value has to be " + STRING(bf-settingType.dataType EQ "Integer", "an/a") + "'" + bf-settingType.dataType + "'".
         

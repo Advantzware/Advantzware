@@ -29,6 +29,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+USING Progress.Json.ObjectModel.JsonObject.
+USING Progress.Json.ObjectModel.ObjectModelParser.
 
 CREATE WIDGET-POOL.
 
@@ -76,6 +78,9 @@ DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE oJsonParser AS ObjectModelParser NO-UNDO.
+DEFINE VARIABLE oJsonObject AS JsonObject        NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -678,6 +683,48 @@ END.
 
 &Scoped-define SELF-NAME fiSettingValue
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSettingValue V-table-Win
+ON ENTRY OF fiSettingValue IN FRAME F-Main /* Value */
+DO:
+    DEFINE VARIABLE lcSettingValue AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lSave          AS LOGICAL  NO-UNDO.
+    
+    IF lRecordAvailable AND cDataType EQ "Json" THEN DO:
+        FIX-CODEPAGE(lcSettingValue) = "utf-8".
+        lcSettingValue = cSettingValue.
+
+        IF NOT VALID-OBJECT(oJsonParser) THEN DO:
+            oJsonParser = NEW ObjectModelParser().
+            oJsonObject = CAST(oJsonParser:Parse(INPUT lcSettingValue), JsonObject) NO-ERROR.
+        END.
+
+        IF VALID-OBJECT(oJsonObject) THEN
+            oJsonObject:Write(INPUT-OUTPUT lcSettingValue, TRUE /* Formatted */). /* Beautifies the JSON for easy viewing */        
+        
+        RUN api/d-dataViewer.w (
+            INPUT-OUTPUT lcSettingValue,
+            INPUT        "Update",
+            OUTPUT       lSave   
+            ).
+        IF lSave THEN DO:
+            IF lcSettingValue NE "" THEN DO:
+                oJsonObject = CAST(oJsonParser:Parse(INPUT lcSettingValue), JsonObject) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN DO:
+                    MESSAGE "Error parsing input json" SKIP
+                        ERROR-STATUS:GET-MESSAGE (1) 
+                        VIEW-AS ALERT-BOX ERROR.
+                    lcSettingValue = cSettingValue.
+                    
+                    RETURN NO-APPLY.
+                END.
+                oJsonObject:Write(INPUT-OUTPUT lcSettingValue, FALSE /* Formatted */). /* Removed formatting. Saves memory */
+            END.
+                        
+            ASSIGN
+                cSettingValue               = STRING(lcSettingValue)
+                fiSettingValue:SCREEN-VALUE = cSettingValue
+                .
+        END.
+
 ON HELP OF fiSettingValue IN FRAME F-Main /* Value */
 DO:    
     DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
@@ -947,7 +994,7 @@ PROCEDURE pCRUD :
                         system.SharedConfig:Instance:SetValue("IsSettingUpdated", "YES").
                         {methods/run_link.i "RECORD-SOURCE" "UpdateSetting" 
                             "(INPUT  edSettingDesc:SCREEN-VALUE,
-                              INPUT  IF cValidValues EQ '' THEN fiSettingValue:SCREEN-VALUE ELSE cbSettingValue:SCREEN-VALUE,
+                              INPUT  IF cDataType EQ 'Json' THEN cSettingValue ELSE IF cValidValues EQ '' THEN fiSettingValue:SCREEN-VALUE ELSE cbSettingValue:SCREEN-VALUE,
                               INPUT  fiProgramID:SCREEN-VALUE,
                               INPUT  tbInactive:CHECKED,
                               INPUT  fiSettingUser:SCREEN-VALUE,
