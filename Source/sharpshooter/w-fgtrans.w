@@ -500,6 +500,7 @@ DO:
         fiTag:SCREEN-VALUE      = ""
         fiLocation:SCREEN-VALUE = ""
         fiPallets:SCREEN-VALUE  = "0"
+        iTagsScanned            = 0
         .
     
     APPLY "ENTRY" TO fiTag.
