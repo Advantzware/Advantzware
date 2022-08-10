@@ -35,7 +35,8 @@
        itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
        itemfg.type-code         = "O"
        itemfg.def-loc           = IF cFGItemLoc NE "" THEN CAPS(cFGItemLoc) ELSE itemfg.def-loc
-       itemfg.def-loc-bin       = IF cFGItemLoc NE "" THEN CAPS(cFGItemLocBin) ELSE itemfg.def-loc-bin 
+       itemfg.def-loc-bin       = IF cFGItemLoc NE "" THEN CAPS(cFGItemLocBin) ELSE itemfg.def-loc-bin
+       itemfg.trno              = xeb.tr-no
        .
 
       IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.

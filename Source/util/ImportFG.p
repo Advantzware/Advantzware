@@ -417,7 +417,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList ("Stock Item", ipbf-ttImportFG.StockItem, "S,C", OUTPUT oplValid, OUTPUT cValidNote).            
 
         IF oplValid AND ipbf-ttImportFG.TrNo NE "" THEN   
-            RUN pIsValidItemForType (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidPallet (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     

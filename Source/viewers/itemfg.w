@@ -60,6 +60,7 @@ DEFINE VARIABLE lv-puruom       LIKE itemfg.pur-uom NO-UNDO.
 DEFINE VARIABLE v-shpmet        LIKE itemfg.ship-meth NO-UNDO.
 DEFINE VARIABLE lCheckPurMan    AS LOGICAL   NO-UNDO .
 /*DEFINE VARIABLE lFound          AS LOGICAL   NO-UNDO.*/
+DEFINE VARIABLE lReturnError     AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCheckMessage    AS LOGICAL NO-UNDO .
 DEFINE VARIABLE hInventoryProcs  AS HANDLE  NO-UNDO.
 DEFINE VARIABLE hdFGProcs        AS HANDLE  NO-UNDO.
@@ -885,6 +886,12 @@ DO:
                     IF char-val <> "" THEN
                         ASSIGN lw-focus:SCREEN-VALUE = char-val.
                 END.
+            WHEN "trno" THEN 
+                DO:
+                    run windows/l-item.w (cocode,"","D",itemfg.trno:SCREEN-VALUE, output char-val).
+                    IF char-val <> "" THEN
+                        ASSIGN lw-focus:SCREEN-VALUE = entry(1,char-val).
+                END.    
             WHEN "receiveAsRMItemID" THEN DO:
                 RUN system/openlookup.p (
                     "",  /* company */ 
@@ -1527,6 +1534,19 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.trno V-table-Win
+ON LEAVE OF itemfg.trno IN FRAME F-Main /* Pallet */
+DO:
+        IF LASTKEY NE -1 THEN 
+        DO:
+            RUN pValidTrNo(OUTPUT lReturnError) NO-ERROR.
+            IF lReturnError THEN RETURN NO-APPLY.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -1738,10 +1758,7 @@ PROCEDURE enable-itemfg-field :
             itemfg.procat-desc
             itemfg.style-desc itemfg.setupDate iCount cSourceEstimate
             fi_type-dscr itemfg.setupBy itemfg.modifiedBy itemfg.modifiedDate .
-
-        IF AVAIL itemfg AND itemfg.trNo NE "" THEN
-            DISABLE itemfg.trNo .
-
+                
         IF NOT adm-new-record THEN 
         DO:
             DISABLE itemfg.i-no .
@@ -2328,6 +2345,9 @@ PROCEDURE local-update-record :
 
        RUN valid-pro-status NO-ERROR.
        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+       
+       RUN pValidTrNo(OUTPUT lReturnError) NO-ERROR.
+       IF lReturnError THEN RETURN NO-APPLY.
 
         IF itemfg.prod-uom:VISIBLE = YES THEN 
         DO:
@@ -3201,6 +3221,41 @@ PROCEDURE valid-i-no :
             APPLY "entry" TO itemfg.i-no.
             RETURN ERROR.
         END.
+    END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidTrno V-table-Win 
+PROCEDURE pValidTrno :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-item FOR ITEM.  
+   
+  {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+      IF itemfg.trno:SCREEN-VALUE NE "" THEN 
+      DO:             
+        FIND FIRST bf-item NO-LOCK 
+             WHERE bf-item.company = cocode
+             AND bf-item.i-no = itemfg.trno:SCREEN-VALUE 
+             AND bf-item.mat-type EQ "D" NO-ERROR.
+
+        IF NOT AVAILABLE bf-item THEN 
+        DO:
+            MESSAGE "Invalid Pallet #. Try Help."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO itemfg.trno.
+            oplReturnError = YES.
+        END.
+      END.
     END.
 
   {methods/lValidateError.i NO}

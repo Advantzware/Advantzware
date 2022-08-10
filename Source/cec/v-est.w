@@ -2980,6 +2980,7 @@ assign
  itemfg.pur-man           = xeb.pur-man  
  itemfg.alloc             = xeb.set-is-assembled
  itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+ itemfg.trno              = xeb.tr-no
  .
 
  IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
