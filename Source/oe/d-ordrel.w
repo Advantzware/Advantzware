@@ -2939,7 +2939,6 @@ PROCEDURE new-ship-id :
                 oe-rel.ship-city:SCREEN-VALUE    = bf-shipto.ship-city
                 oe-rel.ship-state:SCREEN-VALUE   = bf-shipto.ship-state 
                 oe-rel.carrier:SCREEN-VALUE      = bf-shipto.carrier
-                oe-rel.spare-char-1:SCREEN-VALUE = bf-shipto.loc
                 li-ship-no                       = bf-shipto.ship-no.
         IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN
             RUN new-due-date.
