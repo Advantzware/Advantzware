@@ -785,6 +785,13 @@ DO:
             AND xef.est-no  EQ est-op.est-no
             AND xef.form-no EQ est-op.s-num
             NO-LOCK NO-ERROR.
+            
+        IF NOT AVAILABLE xef AND xest.est-type EQ 6 THEN
+        FIND FIRST xef NO-LOCK
+            WHERE xef.company EQ est-op.company
+            AND xef.est-no  EQ est-op.est-no
+            AND xef.form-no EQ 1
+            NO-ERROR.
 
         RELEASE xeb.
         

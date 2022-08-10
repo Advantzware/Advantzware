@@ -4393,7 +4393,9 @@ PROCEDURE pProcessOperations PRIVATE:
                     dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-ttEstCostOperation.numOutForOperation.
             END.
             IF dQtyInOut EQ 0 THEN 
-                dQtyInOut = ipbf-ttEstCostForm.quantityFGOnFormYielded.
+                dQtyInOut = ipbf-ttEstCostForm.quantityFGOnFormYielded.   
+            IF dQtyInOut EQ 0 THEN
+               dQtyInOut = est-op.qty.                  
             RUN pProcessOperation(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostOperation, INPUT-OUTPUT dQtyInOut, 
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
