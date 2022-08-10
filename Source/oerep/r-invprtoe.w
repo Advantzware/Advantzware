@@ -1371,7 +1371,10 @@ DO:
             OUTPUT cMessage) . 
         /*   END. */
         IF tbAutoClose:CHECKED THEN 
-            APPLY "CLOSE":U TO THIS-PROCEDURE. 
+            APPLY "CLOSE":U TO THIS-PROCEDURE.
+        ELSE DO:    
+         RUN refreshCallingBrowse.
+        END.
     
     END.
 
@@ -2594,6 +2597,20 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+PROCEDURE refreshCallingBrowse:
+  DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+   
+  phandle = SESSION:FIRST-PROCEDURE.
+  
+  DO WHILE VALID-HANDLE(phandle):   
+    IF INDEX(phandle:FILE-NAME,'w-oeinv.') NE 0 THEN DO:
+      RUN refreshBrowse IN phandle.
+      RETURN.
+    END.
+    phandle = phandle:NEXT-SIBLING.
+  END. /* do while */
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
