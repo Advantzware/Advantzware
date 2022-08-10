@@ -2280,7 +2280,8 @@ PROCEDURE pLocalCSV:
                     hQueryBuf    = iphQuery:GET-BUFFER-HANDLE(ENTRY(1,dynValueColumn.colName,"."))
                     cFieldName   = ENTRY(2,dynValueColumn.colName,".")
                     cBufferValue = fFormatValue(hQueryBuf, cFieldName, dynValueColumn.colFormat)
-                    cBufferValue = DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue)
+                    cBufferValue = IF CAN-DO("Decimal,Integer",dynValueColumn.dataType) THEN REPLACE(cBufferValue,",","")
+                                   ELSE DYNAMIC-FUNCTION("FormatForCSV" IN hOutputProcs, cBufferValue)
                     .
                 IF cBufferValue EQ ? THEN
                 cBufferValue = "".
