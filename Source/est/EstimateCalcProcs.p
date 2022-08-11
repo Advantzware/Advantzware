@@ -464,7 +464,7 @@ PROCEDURE pAddCostSummary PRIVATE:
 END PROCEDURE.
 
 
-PROCEDURE pAddECostDetailEstMisc:
+PROCEDURE pAddCostDetailEstMisc:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3418,17 +3418,36 @@ PROCEDURE pUpdateCostDetails PRIVATE:
         WHERE bf-estMisc.company       EQ bf-ttEstCostHeader.company
           AND bf-estMisc.estimateNo    EQ bf-ttEstCostHeader.estimateNo
         BY bf-estMisc.sequenceID:
+        FIND FIRST bf-ttEstCostDetail
+             WHERE bf-ttEstCostDetail.estCostHeaderID   EQ bf-ttEstCostHeader.estCostHeaderID
+               AND bf-ttEstCostDetail.estCostCategoryID EQ bf-estMisc.estCostCategoryID
+               AND bf-ttEstCostDetail.hasBeenProcessed  EQ TRUE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-ttEstCostDetail THEN DO:
+            FOR EACH bf-ttEstCostForm
+                WHERE bf-ttEstCostForm.estCostHeaderID EQ bf-ttEstCostHeader.estCostHeaderID:
+                RUN pAddCostDetail(bf-ttEstCostHeader.estCostHeaderID, bf-ttEstCostForm.estCostFormID, 0, 0, 
+                    "estMisc", bf-estMisc.estCostCategoryID, bf-estMisc.costDescription, 0, 0, bf-ttEstCostHeader.company, bf-ttEstCostHeader.estimateNo, BUFFER bf-ttEstCostDetail).
+                IF AVAILABLE bf-ttEstCostDetail THEN
+                    bf-ttEstCostDetail.hasBeenProcessed = TRUE.
+                
+            END. 
+        END.
+                    
         FOR EACH bf-ttEstCostDetail
             WHERE bf-ttEstCostDetail.estCostHeaderID   EQ bf-ttEstCostHeader.estCostHeaderID
               AND bf-ttEstCostDetail.estCostCategoryID EQ bf-estMisc.estCostCategoryID
-              AND bf-ttEstCostDetail.hasBeenProcessed  EQ TRUE:
+              AND bf-ttEstCostDetail.hasBeenProcessed  EQ TRUE,
+            FIRST bf-ttEstCostForm
+            WHERE bf-ttEstCostForm.estCostHeaderID EQ bf-ttEstCostHeader.estCostHeaderID
+              AND bf-ttEstCostForm.estCostFormID   EQ bf-ttEstCostDetail.estCostFormID:
             lEstMiscAvailable = TRUE.
 
             IF bf-estMisc.flatFeeCharge NE 0 THEN DO:
                 cDescription = bf-estMisc.costDescription 
                              + " (" + "Flat Fee " + STRING(bf-estMisc.flatFeeCharge) + ")".
                              
-                RUN pAddECostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, bf-estMisc.flatFeeCharge).
+                RUN pAddCostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, bf-estMisc.flatFeeCharge).
             END.
             ELSE IF bf-estMisc.chargePercent NE 0 THEN DO:
                 dSourceTotalCost = 0.
@@ -3436,7 +3455,8 @@ PROCEDURE pUpdateCostDetails PRIVATE:
                 IF bf-estMisc.estCostCalcBy EQ "Category" THEN DO:
                     FOR EACH bf-source-ttEstCostDetail
                         WHERE bf-source-ttEstCostDetail.estCostHeaderID   EQ bf-ttEstCostDetail.estCostHeaderID
-                          AND bf-source-ttEstCostDetail.estCostCategoryID EQ bf-estMisc.estCostCalcSource:
+                          AND bf-source-ttEstCostDetail.estCostCategoryID EQ bf-estMisc.estCostCalcSource
+                          AND bf-source-ttEstCostDetail.estCostFormID     EQ bf-ttEstCostForm.estCostFormID:
                         dSourceTotalCost = dSourceTotalCost + bf-source-ttEstCostDetail.costTotal.
                     END.
                     
@@ -3451,13 +3471,13 @@ PROCEDURE pUpdateCostDetails PRIVATE:
                                  + "(" + STRING(bf-estMisc.chargePercent) + "% of Category - " 
                                  + cDescription + " - "  + STRING(dSourceTotalCost) + ")".
 
-                    RUN pAddECostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, dSourceTotalCost * bf-estMisc.chargePercent * 0.01).
+                    RUN pAddCostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, dSourceTotalCost * bf-estMisc.chargePercent * 0.01).
                 END.
                 ELSE IF bf-estMisc.estCostCalcBy EQ "Group" THEN DO:
                     FOR EACH bf-ttEstCostSummary
                         WHERE bf-ttEstCostSummary.estcostHeaderID EQ bf-ttEstCostDetail.estCostHeaderID
                           AND bf-ttEstCostSummary.estCostGroupID  EQ bf-estMisc.estCostCalcSource
-                          AND bf-ttEstCostSummary.scopeRecKey     EQ bf-ttEstCostHeader.rec_key:
+                          AND bf-ttEstCostSummary.scopeRecKey     EQ bf-ttEstCostForm.rec_key:
                         dSourceTotalCost = dSourceTotalCost + bf-ttEstCostSummary.costTotal.
                     END.
                     
@@ -3472,7 +3492,7 @@ PROCEDURE pUpdateCostDetails PRIVATE:
                                  + "(" + STRING(bf-estMisc.chargePercent) + "% of Group - " 
                                  + cDescription + " - "  + STRING(dSourceTotalCost) + ")".
 
-                    RUN pAddECostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, dSourceTotalCost * bf-estMisc.chargePercent * 0.01).
+                    RUN pAddCostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, dSourceTotalCost * bf-estMisc.chargePercent * 0.01).
                 END.
                 ELSE IF bf-estMisc.estCostCalcBy EQ "Level" THEN DO:
                     FOR EACH ttEstCostGroup
@@ -3480,7 +3500,7 @@ PROCEDURE pUpdateCostDetails PRIVATE:
                         FOR EACH bf-ttEstCostSummary
                             WHERE bf-ttEstCostSummary.estcostHeaderID EQ bf-ttEstCostDetail.estCostHeaderID
                               AND bf-ttEstCostSummary.estCostGroupID  EQ ttEstCostGroup.estCostGroupID
-                              AND bf-ttEstCostSummary.scopeRecKey     EQ bf-ttEstCostHeader.rec_key:
+                              AND bf-ttEstCostSummary.scopeRecKey     EQ bf-ttEstCostForm.rec_key:
                             dSourceTotalCost = dSourceTotalCost + bf-ttEstCostSummary.costTotal.
                         END.
                     END.
@@ -3496,39 +3516,39 @@ PROCEDURE pUpdateCostDetails PRIVATE:
                                  + "(" + STRING(bf-estMisc.chargePercent) + "% of Level - " 
                                  + cDescription + " - "  + STRING(dSourceTotalCost) + ")".
 
-                    RUN pAddECostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, dSourceTotalCost * bf-estMisc.chargePercent * 0.01).
+                    RUN pAddCostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, dSourceTotalCost * bf-estMisc.chargePercent * 0.01).
                 END.
                 ELSE IF bf-estMisc.estCostCalcBy EQ "Custom" THEN DO:
                     CASE bf-estMisc.estCostCalcSource:
                         WHEN "costTotalBoard" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.costTotalBoard.
+                            dSourceTotalCost = bf-ttEstCostForm.costTotalBoard.
                         WHEN "costTotalLabor" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.costTotalLabor.
+                            dSourceTotalCost = bf-ttEstCostForm.costTotalLabor.
                         WHEN "costTotalVariableOverhead" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.costTotalVariableOverhead.
+                            dSourceTotalCost = bf-ttEstCostForm.costTotalVariableOverhead.
                         WHEN "costTotalFixedOverhead" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.costTotalFixedOverhead.
+                            dSourceTotalCost = bf-ttEstCostForm.costTotalFixedOverhead.
                         WHEN "costTotalMaterial" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.costTotalMaterial.
+                            dSourceTotalCost = bf-ttEstCostForm.costTotalMaterial.
                         WHEN "costTotalFactory" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.costTotalFactory.
+                            dSourceTotalCost = bf-ttEstCostForm.costTotalFactory.
                         WHEN "costTotalNonFactory" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.costTotalNonFactory.
+                            dSourceTotalCost = bf-ttEstCostForm.costTotalNonFactory.
                         WHEN "netProfit" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.netProfit.
+                            dSourceTotalCost = bf-ttEstCostForm.netProfit.
                         WHEN "costTotalFull" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.costTotalFull.
+                            dSourceTotalCost = bf-ttEstCostForm.costTotalFull.
                         WHEN "sellPrice" THEN
-                            dSourceTotalCost = bf-ttEstCostHeader.sellPrice.
+                            dSourceTotalCost = bf-ttEstCostForm.sellPrice.
                         WHEN "grossProfit" THEN                        
-                            dSourceTotalCost = bf-ttEstCostHeader.sellPrice - bf-ttEstCostHeader.costTotalFactory.
+                            dSourceTotalCost = bf-ttEstCostForm.sellPrice - bf-ttEstCostForm.costTotalFactory.
                     END CASE.
                     
                     cDescription = bf-estMisc.costDescription 
                                  + "(" + STRING(bf-estMisc.chargePercent) + "% of " + bf-estMisc.estCostCalcSource  
                                  + " - "  + STRING(dSourceTotalCost) + ")".
 
-                    RUN pAddECostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, dSourceTotalCost * bf-estMisc.chargePercent * 0.01).                    
+                    RUN pAddCostDetailEstMisc(BUFFER bf-ttEstCostDetail, cDescription, dSourceTotalCost * bf-estMisc.chargePercent * 0.01).                    
                 END.
             END.
         END.
