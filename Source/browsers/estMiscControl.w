@@ -526,6 +526,11 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
     DEFINE BUFFER bf-estCostGroupSystem      FOR estCostGroupSystem.
     DEFINE BUFFER bf-estCostGroupLevelSystem FOR estCostGroupLevelSystem.
     DEFINE BUFFER bf-estCostCategorySystem   FOR estCostCategorySystem.
+
+    DEFINE BUFFER bf-estCostGroup      FOR estCostGroup.
+    DEFINE BUFFER bf-estCostGroupLevel FOR estCostGroupLevel.
+    DEFINE BUFFER bf-estCostCategory   FOR estCostCategory.
+    
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     
     IF AVAILABLE ttEstMisc THEN DO:
@@ -534,7 +539,14 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
                  WHERE bf-estCostCategorySystem.estCostCategoryID EQ ipcCalcID
                  NO-ERROR.
             IF AVAILABLE bf-estCostCategorySystem THEN
-                RETURN bf-estCostCategorySystem.estCostCategoryDesc.                
+                RETURN bf-estCostCategorySystem.estCostCategoryDesc.     
+            ELSE
+                FIND FIRST bf-estCostCategory NO-LOCK
+                     WHERE bf-estCostCategory.company           EQ cCompany 
+                       AND bf-estCostCategory.estCostCategoryID EQ ipcCalcID
+                     NO-ERROR.
+            IF AVAILABLE bf-estCostCategory THEN
+                RETURN bf-estCostCategory.estCostCategoryDesc.                           
         END.
         ELSE DO:
             IF ttEstMisc.estCostCalcBy EQ "Group" THEN DO:
@@ -542,7 +554,15 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
                      WHERE bf-estCostGroupSystem.estCostGroupID EQ ipcCalcID
                      NO-ERROR.
                 IF AVAILABLE bf-estCostGroupSystem THEN
-                    RETURN bf-estCostGroupSystem.estCostGroupDesc.        
+                    RETURN bf-estCostGroupSystem.estCostGroupDesc.
+                ELSE
+                    FIND FIRST bf-estCostGroup NO-LOCK
+                         WHERE bf-estCostGroup.company        EQ cCompany
+                           AND bf-estCostGroup.estCostGroupID EQ ipcCalcID
+                         NO-ERROR.
+
+                IF AVAILABLE bf-estCostGroup THEN
+                    RETURN bf-estCostGroup.estCostGroupDesc.        
             END.
             ELSE IF ttEstMisc.estCostCalcBy EQ "Level" THEN DO:
                 FIND FIRST bf-estCostGroupLevelSystem NO-LOCK
@@ -550,13 +570,27 @@ FUNCTION fGetCalcDesc RETURNS CHARACTER
                      NO-ERROR.
                 IF AVAILABLE bf-estCostGroupLevelSystem THEN
                     RETURN bf-estCostGroupLevelSystem.estCostGroupLevelDesc.        
+                ELSE
+                    FIND FIRST bf-estCostGroupLevel NO-LOCK
+                         WHERE bf-estCostGroupLevel.company             EQ cCompany
+                           AND bf-estCostGroupLevel.estCostGroupLevelID EQ INTEGER(ipcCalcID)
+                         NO-ERROR.
+                IF AVAILABLE bf-estCostGroupLevel THEN
+                    RETURN bf-estCostGroupLevel.estCostGroupLevelDesc.        
             END.
             ELSE IF ttEstMisc.estCostCalcBy EQ "Category" THEN DO:
                 FIND FIRST bf-estCostCategorySystem NO-LOCK
                      WHERE bf-estCostCategorySystem.estCostCategoryID EQ ipcCalcID
                      NO-ERROR.
                 IF AVAILABLE bf-estCostCategorySystem THEN
-                    RETURN bf-estCostCategorySystem.estCostCategoryDesc.        
+                    RETURN bf-estCostCategorySystem.estCostCategoryDesc.
+                ELSE
+                    FIND FIRST bf-estCostCategory NO-LOCK
+                         WHERE bf-estCostCategory.company           EQ cCompany 
+                           AND bf-estCostCategory.estCostCategoryID EQ ipcCalcID
+                         NO-ERROR.
+                IF AVAILABLE bf-estCostCategory THEN
+                    RETURN bf-estCostCategory.estCostCategoryDesc.                           
             END.
             ELSE IF ttEstMisc.estCostCalcBy EQ "Custom" THEN DO:
                  DO iCount = 1 TO NUM-ENTRIES(cCalcByCustomList):
