@@ -992,6 +992,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&FRAME-NAME}:
         {custom/usrprint.i}
+        ASSIGN tran-time:SCREEN-VALUE = tran-time.
         APPLY "entry" TO begin_bolnum .
     END.    
   
