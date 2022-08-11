@@ -1464,6 +1464,10 @@ PROCEDURE local-change-page :
     RUN phideButton IN h_btn-add-mat .
         
   END.
+  IF li-page[1] = 3 THEN DO:
+    RUN phidePOScores IN h_p-rfqsiz .
+        
+  END.
   
     
 END PROCEDURE.
