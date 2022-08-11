@@ -508,7 +508,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-fest1 ).
-       RUN set-position IN h_p-fest1 ( 22.43 , 52.00 ) NO-ERROR.
+       RUN set-position IN h_p-fest1 ( 22.43 , 45.00 ) NO-ERROR.
        RUN set-size IN h_p-fest1 ( 1.91 , 55.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -516,7 +516,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_vp-est ).
-       RUN set-position IN h_vp-est ( 22.43 , 119.00 ) NO-ERROR.
+       RUN set-position IN h_vp-est ( 22.43 , 106.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 35.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
