@@ -118,7 +118,7 @@ DEFINE TEMP-TABLE ttArClass NO-UNDO
     FOR EACH ar-inv                                ~
         FIELDS(company posted cust-no inv-date     ~
                terms x-no due-date net gross       ~
-               freight tax-amt inv-no)             ~
+               freight tax-amt inv-no postedDate)             ~
         NO-LOCK                                    ~
         WHERE ar-inv.company     EQ cust.company   ~
           AND ar-inv.posted      EQ YES            ~
