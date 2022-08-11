@@ -226,6 +226,7 @@ PROCEDURE processComponent:
     END.
     v-cost = fg-rctd.ext-cost / fg-rctd.t-qty.
 
+    FIND CURRENT fg-rctd EXCLUSIVE-LOCK NO-ERROR.
     IF DYNAMIC-FUNCTION("Conv_IsEAUOM", fg-rctd.company, fg-rctd.i-no, fg-rctd.cost-uom) THEN 
         fg-rctd.std-cost = v-cost.
     ELSE
