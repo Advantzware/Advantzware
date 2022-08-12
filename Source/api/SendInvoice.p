@@ -214,6 +214,12 @@ FOR EACH ttInv:
         INPUT ttInv.shiptoID
         ).                                                           
     
+    FIND FIRST shipto NO-LOCK WHERE 
+        shipto.company EQ ttInv.company AND 
+        shipto.cust-no EQ ttInv.customerID AND 
+        shipto.ship-ID EQ ttInv.shiptoID
+        NO-ERROR.
+         
     FOR EACH ttInvLine NO-LOCK:
         IF ttInvLine.quantity EQ 0 OR ttInvLine.priceTotal EQ 0 THEN
             NEXT.
@@ -442,6 +448,7 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDiscountDue", ttInv.amountTotal - ttInv.termDiscountAmount ).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IsEDIOrder", STRING(ttInv.isEDIOrder)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLDate", STRING(ttInv.bolDate)).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SiteID", IF AVAIL shipto THEN shipto.siteid ELSE "").
         
     ASSIGN 
         iSECount = NUM-ENTRIES(ioplcRequestData, "~n") - 1   

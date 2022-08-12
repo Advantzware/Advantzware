@@ -721,7 +721,7 @@ DO:
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"Whsed", cWhsed). 
         RUN updateRequestData(INPUT-OUTPUT lcLineData,"Freight", dFreight).
         RUN updateRequestData(INPUT-OUTPUT lcLineData, "OrdDate", cOrdDate).
-       
+
         // RUN pUpdateDelimiter (INPUT-OUTPUT lcLineData, cRequestDataType).  
         lcConcatLineData = lcConcatLineData +  lcLineData . 
 
@@ -1190,10 +1190,38 @@ RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountPercent", stri
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDescription", cTermsDesc).
           
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "invNotes", cInvNotes).
-    
-/* If the previous section was not blank, it ended with CR so don't need to start with one */
-     
 
+    
+/* Section added pursuant TO ticket 111226 (Premier GLOBAL FIELD Additions */
+IF AVAIL shipto THEN FIND FIRST loc NO-LOCK WHERE
+    loc.loc EQ shipto.loc
+    NO-ERROR. 
+IF AVAIL loc THEN FIND FIRST location NO-LOCK WHERE 
+    location.company EQ loc.company AND 
+    location.locationCode EQ loc.loc 
+    NO-ERROR.    
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FreightTerms", oe-ord.frt-pay).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToName", IF AVAIL shipto THEN shipto.ship-name ELSE "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressStreet", IF AVAIL shipto THEN shipto.ship-addr[1] ELSE "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressCity", IF AVAIL shipto THEN shipto.ship-city ELSE "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressState", IF AVAIL shipto THEN shipto.ship-state ELSE "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressPostalCode", IF AVAIL shipto THEN shipto.ship-zip ELSE "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToPostalAddressCountryCode", IF AVAIL location THEN location.countryCode ELSE "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToEmail", oe-ord.email-addr).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SiteID", IF AVAIL shipto THEN shipto.siteID ELSE "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BillToStreetAddress1", oe-ord.sold-addr[1]).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BillToStreetAddress2", oe-ord.sold-addr[2]).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCity", oe-ord.sold-city).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerState", oe-ord.sold-state).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode", oe-ord.sold-zip).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipToID", oe-ord.ship-id).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APIField1", "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APIField2", "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APIField3", "").
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "APIField4", "").
+
+
+/* If the previous section was not blank, it ended with CR so don't need to start with one */
 RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineData, cRequestDataType).        
          
 RUN pUpdateDelimiter (INPUT-OUTPUT lcConcatLineMiscChargeData, cRequestDataType).

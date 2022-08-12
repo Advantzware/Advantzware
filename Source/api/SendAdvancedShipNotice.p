@@ -157,7 +157,7 @@
             INPUT  oe-bolh.ship-id,
             BUFFER shipto
             ).
-        IF AVAILABLE shipTo THEN
+        IF AVAILABLE shipTo THEN DO:
             ASSIGN
                 cPostalName       = shipto.ship-name
                 cPostalStreet     = shipto.ship-addr[1] + shipto.ship-addr[2]
@@ -173,6 +173,14 @@
                 cPhoneNumber      = shipto.phone
                 cPhoneExtension   = shipto.phone-prefix
                 .
+            FIND FIRST loc NO-LOCK WHERE
+                loc.loc EQ shipto.loc
+                NO-ERROR. 
+            IF AVAIL loc THEN FIND FIRST location NO-LOCK WHERE 
+                location.company EQ loc.company AND 
+                location.locationCode EQ loc.loc
+                NO-ERROR.
+        END. 
         
         ASSIGN
             cEstimatedTimeOfArrival = STRING(oe-bolh.bol-date + 2)
@@ -257,6 +265,17 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerState", cCustomerState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode", cCustomerZip).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCountry", cCustomerCountry).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SCAC", IF AVAIL shipto THEN shipto.scac ELSE "").
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FreightTerms", oe-bolh.frt-pay).
+        
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromName", IF AVAIL loc THEN loc.dscr ELSE "").
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromStreetAddress1", IF AVAIL location THEN location.streetAddr[1] ELSE "").
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromStreetAddress2", IF AVAIL location THEN location.streetAddr[2] ELSE "").
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromCity", IF AVAIL location THEN location.subCode3 ELSE "").
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromState", IF AVAIL location THEN location.subCode1 ELSE "").
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromPostCode", IF AVAIL location THEN location.subCode4 ELSE "").
+        
+        
                 
         FIND FIRST APIOutboundDetail NO-LOCK
              WHERE APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
@@ -337,6 +356,7 @@
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "ItemName", cItemName).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "BuyerPart", cBuyerPart).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "HLCount", iHLCount).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "LineItemStatus", STRING(oe-boll.p-c)).
 
             FIND FIRST oe-ordl NO-LOCK
                  WHERE oe-ordl.company EQ oe-boll.company
