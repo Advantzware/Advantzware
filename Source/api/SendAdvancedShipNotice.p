@@ -157,6 +157,13 @@
             INPUT  oe-bolh.ship-id,
             BUFFER shipto
             ).
+            
+        FIND FIRST shipto NO-LOCK WHERE 
+            shipto.company EQ oe-bolh.company AND 
+            shipto.cust-no EQ oe-bolh.cust-no AND 
+            shipto.ship-id EQ oe-bolh.ship-id
+            NO-ERROR.
+                
         IF AVAILABLE shipTo THEN DO:
             ASSIGN
                 cPostalName       = shipto.ship-name
