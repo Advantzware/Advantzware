@@ -86,9 +86,12 @@
     
     DEFINE VARIABLE cCarrierDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemName           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cOrderStatus     AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iSECount AS INTEGER NO-UNDO.
     DEFINE VARIABLE iHLCount AS INTEGER NO-UNDO INITIAL 2.
+    DEFINE VARIABLE iTotalCases AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cTotalCases      AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
@@ -180,15 +183,17 @@
                 cPhoneNumber      = shipto.phone
                 cPhoneExtension   = shipto.phone-prefix
                 .
-            FIND FIRST loc NO-LOCK WHERE
-                loc.loc EQ shipto.loc
-                NO-ERROR. 
-            IF AVAIL loc THEN FIND FIRST location NO-LOCK WHERE 
-                location.company EQ loc.company AND 
-                location.locationCode EQ loc.loc
-                NO-ERROR.
         END. 
         
+        FIND FIRST loc NO-LOCK WHERE
+            loc.company EQ oe-bolh.company AND 
+            loc.loc EQ oe-bolh.loc
+            NO-ERROR. 
+        IF AVAIL loc THEN FIND FIRST location NO-LOCK WHERE 
+            location.company EQ loc.company AND 
+            location.locationCode EQ loc.loc
+            NO-ERROR.
+
         ASSIGN
             cEstimatedTimeOfArrival = STRING(oe-bolh.bol-date + 2)
             cShipID                 = STRING(oe-bolh.ship-id)
@@ -281,6 +286,7 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromCity", IF AVAIL location THEN location.subCode3 ELSE "").
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromState", IF AVAIL location THEN location.subCode1 ELSE "").
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromPostCode", IF AVAIL location THEN location.subCode4 ELSE "").
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SiteID", IF AVAIL shipto THEN shipto.siteid  ELSE "").
         
         
                 
@@ -300,6 +306,8 @@
         IF AVAILABLE APIOutboundDetail THEN
             lcItemTempData = APIOutboundDetail.data.  
                 
+        iTotalCases = 0.
+        
         FOR EACH oe-boll NO-LOCK
             WHERE oe-boll.company EQ oe-bolh.company
               AND oe-boll.b-no    EQ oe-bolh.b-no
@@ -329,6 +337,7 @@
                 END.
             END.
                         
+            
             lcItemData = lcItemTempData.
                
             RUN GetOriginalQuantity (
@@ -340,6 +349,8 @@
             cQuantity = TRIM(STRING(dQuantity, "->>>>>>>9")).
             
             iHLCount = iHLCount + 1.
+            iTotalCases = iTotalCases + oe-boll.cases.
+            
 
             FIND FIRST bf-itemfg NO-LOCK
                  WHERE bf-itemfg.company EQ oe-boll.company
@@ -376,7 +387,9 @@
                         
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
-        
+
+        cTotalCases = TRIM(STRING(iTotalCases,">>>>>>9")).
+                
         FIND FIRST bf-loc NO-LOCK
              WHERE bf-loc.company EQ oe-bolh.company
                AND bf-loc.loc     EQ oe-bolh.loc
@@ -396,6 +409,7 @@
         
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "LocationID", cLocationID).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "HLCount", iHLCount).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalCases", cTotalCases).
             
         ioplcRequestData = REPLACE(ioplcRequestData,"$ItemDetailID$",lcItemConcatData).                
         ioplcRequestData = REPLACE(ioplcRequestData,"$OrderDetailID$",lcOrderConcatData).

@@ -56,6 +56,10 @@ DEFINE VARIABLE cCXMLPayloadID       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCXMLSharedSecret    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustomerPONoBlank   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iPurchaseOrder       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE deTotalMiscCharges   AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cTotalMiscCharges    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTotalCases AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTotalCases      AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-APIOutbound                FOR APIOutbound.
 DEFINE BUFFER bf-line-APIOutboundDetail     FOR APIOutboundDetail.
@@ -125,6 +129,9 @@ IF NOT AVAILABLE inv-head AND NOT AVAILABLE ar-inv THEN DO:
     RETURN.
 END.
            
+ASSIGN 
+    deTotalMiscCharges = 0. 
+               
 IF AVAILABLE inv-head THEN DO:
     IF NOT CAN-FIND(FIRST inv-line
                     WHERE inv-line.r-no EQ inv-head.r-no) AND
@@ -136,6 +143,29 @@ IF AVAILABLE inv-head THEN DO:
             .
         RETURN.
     END.
+    FOR EACH inv-misc NO-LOCK WHERE 
+        inv-misc.company EQ inv-head.company AND 
+        inv-misc.r-no EQ inv-head.r-no:
+        ASSIGN
+            deTotalMiscCharges = deTotalMiscCharges + inv-misc.amt.
+    END.
+    cTotalMiscCharges = TRIM(STRING(deTotalMiscCharges,"->>>>>>>>9.99")). 
+    FIND FIRST oe-bolh NO-LOCK WHERE 
+        oe-bolh.company EQ inv-head.company AND 
+        oe-bolh.bol-no EQ inv-head.bol-no and
+        oe-bolh.r-no EQ inv-head.r-no /* ??? */
+        NO-ERROR.
+    IF AVAIL oe-bolh THEN DO:
+        FIND FIRST loc NO-LOCK WHERE
+            loc.company EQ oe-bolh.company AND 
+            loc.loc EQ oe-bolh.loc
+            NO-ERROR. 
+        IF AVAIL loc THEN FIND FIRST location NO-LOCK WHERE 
+            location.company EQ loc.company AND 
+            location.locationCode EQ loc.loc
+            NO-ERROR.
+    END.
+    
 END. 
 ELSE DO:
     IF NOT CAN-FIND(FIRST ar-invl
@@ -146,6 +176,28 @@ ELSE DO:
             .
         RETURN.
     END.            
+    FOR EACH ar-invm NO-LOCK WHERE 
+        ar-invm.company EQ ar-inv.company AND 
+        ar-invm.x-no EQ ar-inv.x-no:
+        ASSIGN
+            deTotalMiscCharges = deTotalMiscCharges + ar-invm.amt.
+    END.
+    cTotalMiscCharges = TRIM(STRING(deTotalMiscCharges,"->>>>>>>>9.99")). 
+    FOR EACH ar-invl NO-LOCK WHERE 
+        ar-invl.company EQ ar-inv.company AND 
+        ar-invl.x-no EQ ar-inv.x-no:
+        iTotalCases = iTotalCases + ar-invl.cas-cnt.
+    END.
+    cTotalCases = TRIM(STRING(iTotalCases,"->>>>>9")). 
+    FIND FIRST loc NO-LOCK WHERE
+        loc.company EQ ar-inv.company AND 
+        loc.loc EQ ar-inv.loc
+        NO-ERROR. 
+    IF AVAIL loc THEN FIND FIRST location NO-LOCK WHERE 
+        location.company EQ loc.company AND 
+        location.locationCode EQ loc.loc
+        NO-ERROR.
+     
 END.
 
 IF AVAILABLE inv-head THEN
@@ -448,7 +500,15 @@ FOR EACH ttInv:
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDiscountDue", ttInv.amountTotal - ttInv.termDiscountAmount ).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "IsEDIOrder", STRING(ttInv.isEDIOrder)).
     RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "BOLDate", STRING(ttInv.bolDate)).
-    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SiteID", IF AVAIL shipto THEN shipto.siteid ELSE "").
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TMiscCharge", cTotalMiscCharges).
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalCases", cTotalCases).
+
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromName", IF AVAIL loc THEN loc.dscr ELSE "").
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromStreetAddress1", IF AVAIL location THEN location.streetAddr[1] ELSE "").
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromStreetAddress2", IF AVAIL location THEN location.streetAddr[2] ELSE "").
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromCity", IF AVAIL location THEN location.subCode3 ELSE "").
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromState", IF AVAIL location THEN location.subCode1 ELSE "").
+    RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromPostCode", IF AVAIL location THEN location.subCode4 ELSE "").
         
     ASSIGN 
         iSECount = NUM-ENTRIES(ioplcRequestData, "~n") - 1   

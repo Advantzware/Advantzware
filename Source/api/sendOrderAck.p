@@ -184,6 +184,7 @@ DEFINE VARIABLE cTInvFreight          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTInvRev              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTInvTax              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTInvWeight           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTMiscCharge          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTRevenue             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTWeight              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTax                  AS CHARACTER NO-UNDO.
@@ -307,6 +308,7 @@ DEFINE VARIABLE dDiscPct              AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iDiscDays             AS DECIMAL   NO-UNDO. 
 DEFINE VARIABLE cTermsDesc            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lError                AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE deTotalMiscCharge     AS DECIMAL   NO-UNDO.
    
 /* Order Address Variables */
 DEFINE VARIABLE cState                LIKE shipto.ship-state NO-UNDO.
@@ -412,10 +414,12 @@ IF AVAILABLE cust AND cust.country GT "" THEN
 ELSE 
     cCustCountry = "US".
           
-FIND FIRST shipto NO-LOCK WHERE shipto.company EQ oe-ord.company
-    AND shipto.cust-no EQ oe-ord.cust-no
-    AND shipto.ship-id EQ oe-ord.ship-id
+FIND FIRST shipto NO-LOCK WHERE 
+    shipto.company EQ oe-ord.company AND 
+    shipto.cust-no EQ oe-ord.cust-no AND 
+    shipto.ship-id EQ oe-ord.ship-id
     NO-ERROR.
+
 
         
 /* Fetch Order notes from notes table */    
@@ -736,6 +740,9 @@ DO:
     /* Fetch MiscCharge details for the Order MiscCharge */           
     /* Added charges section, i.e. Freight, Tax, Etc */
 
+    ASSIGN 
+        deTotalMiscCharge = 0.
+        
     FOR EACH oe-ordm OF oe-ord NO-LOCK
         WHERE oe-ordm.deleted = FALSE               
         :             
@@ -809,7 +816,9 @@ DO:
             cEstPrepLine    = STRING(oe-ordm.estPrepLine)
             cMiscType       = STRING(oe-ordm.miscType)
             cMiscInd        = STRING(oe-ordm.miscInd)
-            .            
+            .     
+            
+        deTotalMiscCharge = deTotalMiscCharge + oe-ordm.amt.           
  
         /* this section in case the misc charges are using the same fields as the detail */
         RUN updateRequestData(INPUT-OUTPUT lcLineMiscChargeData,"LineNum",      cLineCnt).
@@ -1030,7 +1039,8 @@ ASSIGN
     cUserId          = STRING(oe-ord.user-id)
     cWhsRder         = STRING(oe-ord.whs-order)
     cWhsed           = STRING(oe-ord.whsed)
-    cZip             = STRING(oe-ord.zip ) 
+    cZip             = STRING(oe-ord.zip )
+    cTMiscCharge     = TRIM(STRING(deTotalMiscCharge,"->>>>>>>>9.99")) 
     .  
     
    RUN Credit_GetTerms (
@@ -1188,6 +1198,7 @@ RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermNetDays", string(iNetD
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountDays", string(iDiscDays)).
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermDiscountPercent", string(dDiscPct)).
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TermsDescription", cTermsDesc).
+RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "TMiscCharge", cTMiscCharge).
           
 RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "invNotes", cInvNotes).
 
