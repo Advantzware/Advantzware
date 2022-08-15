@@ -509,8 +509,7 @@ PROCEDURE create-tt-boll.
    tt-boll.cases  = tt-boll.cases + ip-cases
    tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
    tt-boll.qty-sum = tt-boll.qty-sum + (ip-qty-case * ip-cases)
-   tt-boll.weight = tt-boll.weight + 
-                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight)
+   tt-boll.weight = oe-boll.weight
    tt-boll.partial = tt-boll.partial + oe-boll.partial 
    tt-boll.unitCount =  tt-boll.unitCount + ip-cases
    v-tot-palls = v-tot-palls + ip-cases
