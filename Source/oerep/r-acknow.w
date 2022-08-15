@@ -2987,11 +2987,8 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
             OUTPUT cMessage                 /* Status message */
             ) NO-ERROR.
 
-        IF iplReprint THEN 
-            cTriggerID = "ReprintOrder".
-        ELSE 
-            cTriggerID = "PrintOrder".
         ASSIGN 
+            cTriggerID   = IF iplReprint THEN "ReprintOrder" ELSE "PrintOrder"
             cAPIID       = "SendOrder"
             cPrimaryID   = STRING(ipbf-oe-ord.ord-no)
             cDescription = cAPIID + " triggered by " + cTriggerID + " from r-acknow.w for Order: " + cPrimaryID
