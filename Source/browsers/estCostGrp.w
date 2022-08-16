@@ -81,13 +81,13 @@ DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table ttEstCostGroup.costGroupLabel ttEstCostGroupLevel.estCostGroupLevelDesc ttEstCostGroup.estCostGroupID   
+&Scoped-define FIELDS-IN-QUERY-br_table ttEstCostGroup.costGroupLabel ttEstCostGroupLevel.estCostGroupLevelDesc ttEstCostGroup.estCostGroupID ttEstCostGroup.costGroupSequence   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH ttEstCostGroup, ~
-       FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = ttEstCostGroup.estCostGroupLevelID
+       FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = ttEstCostGroup.estCostGroupLevelID BY ttEstCostGroup.estCostGroupLevelID BY ttEstCostGroup.costGroupSequence
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostGroup, ~
-       FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = ttEstCostGroup.estCostGroupLevelID .
+       FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = ttEstCostGroup.estCostGroupLevelID BY ttEstCostGroup.estCostGroupLevelID BY ttEstCostGroup.costGroupSequence .
 &Scoped-define TABLES-IN-QUERY-br_table ttEstCostGroup ttEstCostGroupLevel
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table ttEstCostGroup
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table ttEstCostGroupLevel
@@ -166,6 +166,7 @@ DEFINE BROWSE br_table
       ttEstCostGroup.costGroupLabel        FORMAT "X(50)" WIDTH 50 COLUMN-LABEL "Group"
       ttEstCostGroupLevel.estCostGroupLevelDesc  FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "Group Level"
       ttEstCostGroup.estCostGroupID  FORMAT "X(50)" WIDTH 25 COLUMN-LABEL "ID"
+      ttEstCostGroup.costGroupSequence COLUMN-LABEL "Print Sequence"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 120 BY 16
@@ -248,6 +249,7 @@ ASSIGN
      _START_FREEFORM
 OPEN QUERY {&SELF-NAME} FOR EACH ttEstCostGroup,
 FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = ttEstCostGroup.estCostGroupLevelID
+BY ttEstCostGroup.estCostGroupLevelID BY ttEstCostGroup.costGroupSequence
 .
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
