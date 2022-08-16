@@ -306,7 +306,7 @@ RUN XMLOutput (lXMLOutput,'','','Header').
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = xinv-line.b-no 
                 /*oe-bolh.ord-no = xinv-line.ord-no*/ :
            v-pc = "P". /* partial*/ 
-           FOR EACH oe-boll fields(cases partial p-c) NO-LOCK WHERE
+           FOR EACH oe-boll fields(cases partial p-c loc) NO-LOCK WHERE
               oe-boll.company = oe-bolh.company AND
               oe-boll.b-no = oe-bolh.b-no AND
               oe-boll.i-no = xinv-line.i-no AND
