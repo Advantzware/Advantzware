@@ -38,6 +38,8 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 &SCOPED-DEFINE winReSize  
 &SCOPED-DEFINE h_Browse01 h_locw
+&SCOPED-DEFINE h_Object01 h_p-fg-bj
+&SCOPED-DEFINE h_Object02 h_p-calcq
 &SCOPED-DEFINE local-destroy local-destroy
 &SCOPED-DEFINE LocalInitApply
 
