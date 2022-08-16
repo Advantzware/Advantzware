@@ -410,7 +410,6 @@ DO:
               STRING(job.job-no2,"999") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
     END.    
-    MESSAGE "" VIEW-AS ALERT-BOX.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).     
     DISPLAY "" @ fi_status WITH FRAME {&FRAME-NAME}.
     SESSION:SET-WAIT-STATE("").        
