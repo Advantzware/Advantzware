@@ -550,7 +550,7 @@ DEFINE FRAME Corr
           LABEL "Width" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.dep AT ROW 12.91 COL 88 COLON-ALIGNED
+     eb.dep AT ROW 12.91 COL 91 COLON-ALIGNED
           LABEL "Depth" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -573,7 +573,7 @@ DEFINE FRAME Corr
           LABEL "Bottom Flap" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.lock AT ROW 13.86 COL 88 COLON-ALIGNED
+     eb.lock AT ROW 13.86 COL 91 COLON-ALIGNED
           LABEL "Lock Tab" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -589,7 +589,7 @@ DEFINE FRAME Corr
           LABEL "Scores on Length" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.tuck AT ROW 14.81 COL 88 COLON-ALIGNED
+     eb.tuck AT ROW 14.81 COL 91 COLON-ALIGNED
           LABEL "Tuck" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -4088,7 +4088,7 @@ END.
     IF AVAIL b-style AND lookup(b-style.TYPE,'P,R') > 0 THEN
     DO:
        ASSIGN
-          eb.dep:LABEL = "Slot Hei"
+          eb.dep:LABEL = "Slot Height"
           eb.gluelap:LABEL = "Slot Width"
           eb.wid:LABEL = "Height"
           eb.t-wid:LABEL = "Height"
