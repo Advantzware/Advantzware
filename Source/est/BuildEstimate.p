@@ -432,8 +432,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
     IF ttInputEst.cEstType EQ "SetSubAssembly" OR ttInputEst.cEstType EQ "MiscEstimate" THEN
       ASSIGN
           eb.sourceEstimate  = ttInputEst.cSourceEst
-          eb.flute           = ttInputEst.cFlute
-          eb.test            = ttInputEst.cTest
+          eb.flute           = IF ttInputEst.cEstType EQ "MiscEstimate" THEN ttInputEst.cFlute ELSE eb.flute
+          eb.test            = IF ttInputEst.cEstType EQ "MiscEstimate" THEN ttInputEst.cTest ELSE eb.test 
           eb.cad-no          = ttInputEst.cCadID
           eb.spc-no          = ttInputEst.cProject
           ef.cost-msh        = ttInputEst.dMSF
@@ -446,7 +446,10 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
           eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
           eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
           .         
-      
+    ASSIGN
+         ef.flute = eb.flute
+         ef.test  = eb.test.
+         
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
         ASSIGN  
             est.estimateTypeID = "MISC" 
@@ -480,8 +483,29 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
       IF ttInputEst.cEstType EQ "NewSetEstimate" THEN
       ASSIGN
          est.estimateTypeID = "WOOD" .
-      ELSE 
+      ELSE do: 
          est.estimateTypeID = "SetSubAssembly" .
+         FIND FIRST style NO-LOCK
+              WHERE style.company = est.company 
+                AND style.style = eb.style NO-ERROR.
+         IF AVAIL style THEN DO:
+            ASSIGN eb.adhesive = style.material[7]
+                   eb.gluelap = style.dim-gl
+                   eb.fpanel = style.dim-pan5
+                   eb.lock = style.dim-fit
+                   eb.tuck = style.dim-tk.
+            FIND FIRST ITEM NO-LOCK
+                 WHERE ITEM.company = eb.company 
+                   AND ITEM.i-no = eb.adhesive NO-ERROR.
+            IF AVAIL ITEM AND index("G,S,T",ITEM.mat-type) > 0 AND ITEM.i-no <> "No Joint"
+            THEN eb.lin-in = eb.dep.
+         END.  /* avail style */          
+         ASSIGN
+           eb.i-col = ttInputEst.iColor
+           eb.i-coat = ttInputEst.iCoating.
+         RUN Estmate_DefaultAssignInks (BUFFER eb).
+         RUN est/BuildBoxDesign.p ("B", ROWID(eb)).
+      END. /*est.estimateTypeID = "SetSubAssembly" */  
          
       IF NOT CAN-FIND(FIRST itemfg
                   WHERE itemfg.company EQ eb.company

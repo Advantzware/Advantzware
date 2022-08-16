@@ -1690,7 +1690,10 @@ PROCEDURE pDisplayValue :
                     ttInputEst.lPurchased       = bf-eb.pur-man 
                     ttInputEst.riParentEst      = ROWID(bf-eb)
                     ttInputEst.iEstNo           = INTEGER(bf-eb.est-no) 
-                    ttInputEst.cSourceEst       = bf-eb.sourceEstimate.                
+                    ttInputEst.cSourceEst       = bf-eb.sourceEstimate
+                    ttInputEst.iColor           = INTEGER(bf-eb.i-col) 
+                    ttInputEst.iCoating         = bf-eb.i-coat
+                    .                
             END.
             RUN repo-query (lv-rowid).          
         

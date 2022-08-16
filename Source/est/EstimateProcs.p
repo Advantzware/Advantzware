@@ -1162,6 +1162,11 @@ PROCEDURE pGetAdders PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE Estmate_DefaultAssignInks:
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    RUN pDefaultAssignInks(BUFFER ipbf-eb). 
+END.
+
 PROCEDURE Estmate_GetAddersList:
     DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  estCostMaterial.company    NO-UNDO.
     DEFINE INPUT  PARAMETER ipchEstimateNo LIKE  estCostMaterial.estimateNo NO-UNDO.
@@ -1237,6 +1242,121 @@ PROCEDURE pBuildQuantityList PRIVATE:
     END.
     
     opcQtyList = TRIM(opcQtyList, ipcDelimiter).
+    
+END PROCEDURE.
+
+PROCEDURE pDefaultAssignInks PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    DEFINE VARIABLE kCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE counter  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE save_id  AS RECID   NO-UNDO.
+    DEFINE VARIABLE save_id2 AS RECID   NO-UNDO.
+    DEFINE BUFFER bf-Item FOR item .
+    DEFINE VARIABLE choice AS LOG NO-UNDO.
+    DEFINE BUFFER bf-eb FOR eb.        
+                 
+    FIND FIRST style NO-LOCK
+        WHERE style.company EQ ipbf-eb.company 
+        AND style.style EQ ipbf-eb.style NO-ERROR. 
+         
+    IF AVAILABLE style THEN 
+    DO:
+        IF kCount = 0 THEN kCount = INTEGER(style.material[3]). 
+         
+        RELEASE ITEM.
+
+        IF AVAILABLE style AND style.material[2] NE "" THEN
+            FIND FIRST item WHERE
+                item.company = ipbf-eb.company AND
+                item.i-no = style.material[2]
+                NO-LOCK NO-ERROR.
+
+        IF AVAILABLE item THEN kCount = IF AVAILABLE style THEN INTEGER(style.material[3]) ELSE 0.
+
+        RELEASE bf-Item.
+
+        IF AVAILABLE style AND style.material[6] NE "" THEN
+            FIND FIRST bf-Item NO-LOCK
+                WHERE bf-Item.company  = ipbf-eb.company  
+                AND bf-Item.mat-type = "V" 
+                AND bf-Item.i-no     = style.material[6] NO-ERROR.
+    END.
+    IF NOT AVAILABLE item OR NOT AVAILABLE bf-Item OR (kCount = 0) THEN 
+    DO:
+        FIND FIRST ce-ctrl WHERE ce-ctrl.company = ipbf-eb.company AND
+            ce-ctrl.loc = ipbf-eb.loc
+            NO-LOCK NO-ERROR.
+        IF kCount = 0 THEN kCount = ce-ctrl.def-inkcov.
+        IF NOT AVAILABLE item THEN 
+        DO:
+
+            FIND FIRST item WHERE item.company = ipbf-eb.company AND
+                item.i-no = ce-ctrl.def-ink NO-LOCK NO-ERROR.
+        END.
+        IF NOT AVAILABLE bf-Item THEN
+            FIND FIRST bf-Item NO-LOCK
+                WHERE bf-Item.company  = ipbf-eb.company  
+                AND bf-Item.mat-type = "V"     
+                AND bf-Item.i-no     = ce-ctrl.def-coat NO-ERROR.
+    END.
+        
+    ASSIGN
+        save_id  = RECID(item)
+        save_id2 = RECID(bf-Item)
+        jCount   = (INTEGER(ipbf-eb.i-col)
+          + integer(ipbf-eb.i-coat))
+        counter  = 1
+        choice   = TRUE.
+
+    {sys/inc/roundup.i jCount}
+             
+    FIND bf-eb OF ipbf-eb EXCLUSIVE-LOCK.    
+    IF ipbf-eb.i-col > 0 THEN ASSIGN bf-eb.i-pass = 1.
+    IF ipbf-eb.i-coat > 0 THEN ASSIGN bf-eb.i-coat-p = 1.
+    IF choice THEN 
+    DO iCount = 1 TO 10:
+        IF iCount LE integer(ipbf-eb.i-col) THEN 
+        DO:
+            FIND item WHERE RECID(item) = save_id NO-LOCK NO-ERROR.
+
+            ASSIGN 
+                bf-eb.i-ps[iCount]   = counter
+                bf-eb.i-code[iCount] = item.i-no
+                bf-eb.i-dscr[iCount] = item.i-name
+                bf-eb.i-%[iCount]    = kCount.
+        END.
+        ELSE IF (iCount > integer(ipbf-eb.i-col)) AND
+                (iCount <= (INTEGER(ipbf-eb.i-col) + 
+                integer(ipbf-eb.i-coat)) )
+                THEN 
+            DO:
+                FIND bf-Item WHERE RECID(bf-Item) = save_id2 NO-LOCK NO-ERROR.
+                ASSIGN 
+                    bf-eb.i-ps[iCount]   = counter
+                    bf-eb.i-code[iCount] = IF AVAILABLE bf-Item THEN bf-Item.i-no ELSE ""
+                    bf-eb.i-dscr[iCount] = IF AVAILABLE bf-Item THEN bf-Item.i-name ELSE ""
+                    bf-eb.i-%[iCount]    = 100.
+            END.
+            ELSE IF (iCount >  (ipbf-eb.i-col + ipbf-eb.i-coat) )
+                    THEN 
+                DO:
+                    ASSIGN 
+                        bf-eb.i-ps[iCount]   = 0  
+                        bf-eb.i-code[iCount] = ""
+                        bf-eb.i-dscr[iCount] = "" 
+                        bf-eb.i-%[iCount]    = 0.  
+        
+                END.
+        IF jCount <> 0 AND iCount MODULO jCount = 0 THEN counter = counter + 1.
+        IF counter > (ipbf-eb.i-pass) THEN counter = ipbf-eb.i-pass.  
+    END.
     
 END PROCEDURE.
 

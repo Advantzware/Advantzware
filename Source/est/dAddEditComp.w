@@ -83,7 +83,7 @@ lMiscEstimateSource = logical(cRtnChar) NO-ERROR .
 RUN sys/ref/nk1look.p (INPUT cocode, "MiscEstimateSource", "I" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT cRtnChar, OUTPUT lRecFound). 
-iMiscEstimateSource = INTEGER(cRtnChar) NO-ERROR . 
+iMiscEstimateSource = INTEGER(cRtnChar) NO-ERROR .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -101,12 +101,12 @@ iMiscEstimateSource = INTEGER(cRtnChar) NO-ERROR .
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS dQtyPerSet Btn_OK Btn_Done Btn_Cancel ~
-cCustPart cFGItem style-cod board fg-cat len wid dep rd_show1 item-name ~
-item-dscr RECT-21 RECT-38 RECT-39 cSourceEst 
+cCustPart cFGItem style-cod board fg-cat len wid dep item-name item-dscr ~
+rd_show1 cSourceEst RECT-21 RECT-38 RECT-39 iColors iCoatings 
 &Scoped-Define DISPLAYED-OBJECTS est-no iForm iBlank cSetCustPart ~
 dQtyPerSet set-item-name cCustPart cFGItem style-cod style-dscr board ~
-fg-cat board-dscr cat-dscr len wid dep rd_show1 item-name item-dscr ~
-cSourceEst 
+fg-cat board-dscr cat-dscr len wid dep item-name item-dscr rd_show1 ~
+cSourceEst iColors iCoatings 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -163,6 +163,18 @@ DEFINE VARIABLE cFGItem AS CHARACTER FORMAT "X(15)":U
      LABEL "FG Item" 
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
+
+DEFINE VARIABLE iCoatings AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "Coatings" 
+     VIEW-AS FILL-IN 
+     SIZE 7.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
+
+DEFINE VARIABLE iColors AS INTEGER FORMAT ">9":U INITIAL 0 
+     LABEL "Colors" 
+     VIEW-AS FILL-IN 
+     SIZE 7.6 BY 1
+     BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE cSetCustPart AS CHARACTER FORMAT "X(15)":U 
      LABEL "Part#" 
@@ -253,12 +265,12 @@ DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE rd_show1 AS CHARACTER INITIAL "M" 
-     VIEW-AS RADIO-SET horizontal 
+     VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Purchased", "P",
 "Manufactured", "M",
 "Sub-Assembly", "S"
-     SIZE 56 BY 2.07 NO-UNDO.
+     SIZE 56 BY 2.05 NO-UNDO.
 
 DEFINE RECTANGLE RECT-21
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -272,8 +284,9 @@ DEFINE RECTANGLE RECT-38
 
 DEFINE RECTANGLE RECT-39
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 124.8 BY 9.35
+     SIZE 124.8 BY 9.33
      BGCOLOR 15 .
+
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -300,14 +313,16 @@ DEFINE FRAME Dialog-Frame
      dep AT ROW 10.29 COL 79 COLON-ALIGNED WIDGET-ID 192
      item-name AT ROW 11.43 COL 79 COLON-ALIGNED WIDGET-ID 322
      item-dscr AT ROW 12.52 COL 79 COLON-ALIGNED WIDGET-ID 210
-     rd_show1 AT ROW 5.77 COL 3.8 NO-LABEL WIDGET-ID 324      
+     rd_show1 AT ROW 5.76 COL 3.8 NO-LABEL WIDGET-ID 324
      cSourceEst AT ROW 6.29 COL 79 COLON-ALIGNED WIDGET-ID 330
+     iColors AT ROW 7.76 COL 109 COLON-ALIGNED WIDGET-ID 332
+     iCoatings AT ROW 9 COL 109 COLON-ALIGNED WIDGET-ID 334
      "Set Header" VIEW-AS TEXT
           SIZE 14 BY .71 AT ROW 1 COL 5 WIDGET-ID 206
      RECT-21 AT ROW 15 COL 107
      RECT-38 AT ROW 1.43 COL 1.2
      RECT-39 AT ROW 5.52 COL 1.2 WIDGET-ID 2
-     SPACE(0.99) SKIP(2.64)
+     SPACE(0.99) SKIP(2.66)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FGCOLOR 1 FONT 6
@@ -367,7 +382,6 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN style-dscr IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
-
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -620,6 +634,8 @@ DO:
             ttInputEst.cStyle           = style-cod
             ttInputEst.dQtyPerSet       = dQtyPerSet
             ttInputEst.lPurchased       = IF rd_show1 EQ "P" OR rd_show1 EQ "S" THEN TRUE ELSE FALSE
+            ttInputEst.iColor           = iColors
+            ttInputEst.iCoating         = iCoatings
             .           
         IF cSourceEst:SCREEN-VALUE NE "" OR integer(cSourceEst:SCREEN-VALUE) NE 0 THEN
             RUN pGetTempValue.
@@ -724,6 +740,28 @@ DO:
                 item-dscr:SCREEN-VALUE = itemfg.part-dscr1 .
         ASSIGN 
             lCreateNewFG = FALSE .
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME iCoatings
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iCoatings Dialog-Frame
+ON LEAVE OF iCoatings IN FRAME Dialog-Frame /* iCoatings */
+DO:
+             
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME iColors
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL iColors Dialog-Frame
+ON LEAVE OF iColors IN FRAME Dialog-Frame /* iColors */
+DO:
+            
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1077,6 +1115,7 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME wid
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wid Dialog-Frame
 ON LEAVE OF wid IN FRAME Dialog-Frame /* Width */
@@ -1231,7 +1270,9 @@ PROCEDURE display-item :
             wid        = ttInputEst.dWidth
             dep        = ttInputEst.dDepth
             rd_show1   = IF ttInputEst.lPurchased AND ttInputEst.cSourceEst NE "" THEN "S" ELSE IF ttInputEst.lPurchased THEN "P" ELSE "M" 
-            cSourceEst = ttInputEst.cSourceEst.
+            cSourceEst = ttInputEst.cSourceEst
+            iColors     = ttInputEst.iColor
+            iCoatings   = ttInputEst.iCoating.
     est-no = IF AVAILABLE eb THEN eb.est-no ELSE "".     
     cSetCustPart = ipcSetPart.
     set-item-name = ipcSetPartName.
@@ -1273,7 +1314,7 @@ PROCEDURE display-item :
     DISPLAY   
         est-no iForm iBlank cSetCustPart dQtyPerSet set-item-name cCustPart  
         style-cod style-dscr board fg-cat board-dscr cat-dscr item-name item-dscr 
-        rd_show1 len wid dep cFGItem cSourceEst
+        rd_show1 len wid dep cFGItem cSourceEst iColors iCoatings
         WITH FRAME Dialog-Frame.       
    
     IF ipcEstType EQ "SetSubAssembly" THEN
@@ -1295,9 +1336,185 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
+PROCEDURE enable_UI :
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY est-no iForm iBlank cSetCustPart dQtyPerSet set-item-name cCustPart 
+          cFGItem style-cod style-dscr board fg-cat board-dscr cat-dscr len wid 
+          dep item-name item-dscr rd_show1 cSourceEst iColors iCoatings 
+      WITH FRAME Dialog-Frame.
+  ENABLE dQtyPerSet Btn_OK Btn_Done Btn_Cancel cCustPart cFGItem style-cod 
+         board fg-cat len wid dep item-name item-dscr rd_show1 cSourceEst 
+         RECT-21 RECT-38 RECT-39 iColors iCoatings 
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
+PROCEDURE local-exit :
+/*------------------------------------------------------------------------------
+             Purpose:
+             Notes:
+            ------------------------------------------------------------------------------*/
+
+
+    /* Code placed here will execute PRIOR to standard behavior. */
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
+
+/* Code placed here will execute AFTER standard behavior.    */
+    
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisableField Dialog-Frame 
+PROCEDURE pDisableField :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/       
+
+    DO WITH FRAME {&FRAME-NAME}:
+        DISABLE set-item-name style-cod style-dscr board fg-cat 
+        board-dscr cat-dscr len wid dep item-name item-dscr .
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableField Dialog-Frame 
+PROCEDURE pEnableField :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/       
+
+    DO WITH FRAME {&FRAME-NAME}:
+        ENABLE set-item-name style-cod style-dscr board fg-cat 
+        board-dscr cat-dscr len wid dep item-name item-dscr .
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetBoardFromStyle Dialog-Frame 
+PROCEDURE pGetBoardFromStyle :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcStyle AS CHARACTER NO-UNDO .
+    DO WITH FRAME {&FRAME-NAME}:
+    
+        FIND FIRST flute NO-LOCK
+            WHERE flute.company EQ cocode NO-ERROR .
+        IF AVAILABLE flute THEN
+            FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = ipcStyle 
+                AND reftable.loc = flute.code
+                AND reftable.code = "BOARD"
+                NO-LOCK NO-ERROR. 
+        board:screen-value = IF AVAILABLE reftable AND AVAILABLE flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstDetail Dialog-Frame 
+PROCEDURE pGetEstDetail :
+/*------------------------------------------------------------------------------
+                          Purpose:     
+                          PARAMs:  <none>
+                          Notes:       
+         ------------------------------------------------------------------------------*/   
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST bf-eb NO-LOCK
+            WHERE bf-eb.company EQ cocode
+            AND bf-eb.est-no EQ cSourceEst:SCREEN-VALUE
+            AND (bf-eb.form-no NE 0 OR (bf-eb.est-type EQ 6 AND bf-eb.form-no EQ 0)) NO-ERROR.
+                  
+        IF AVAILABLE bf-eb THEN 
+        do:           
+            FIND FIRST ef NO-LOCK
+                WHERE ef.company EQ bf-eb.company
+                AND ef.est-no EQ bf-eb.est-no
+                AND (ef.form-no EQ bf-eb.form-no OR bf-eb.form-no EQ 0) 
+                NO-ERROR. 
+            ASSIGN                
+                cCustPart:SCREEN-VALUE = bf-eb.part-no
+                cFGItem:SCREEN-VALUE   = bf-eb.stock-no
+                item-name:SCREEN-VALUE = bf-eb.part-dscr1
+                item-dscr:SCREEN-VALUE = bf-eb.part-dscr2
+                len:SCREEN-VALUE       = string(bf-eb.len)
+                wid:SCREEN-VALUE       = string(bf-eb.wid)
+                dep:SCREEN-VALUE       = string(bf-eb.dep)
+                style-cod:SCREEN-VALUE = bf-eb.style
+                board:SCREEN-VALUE     = IF AVAILABLE ef THEN ef.board ELSE ""
+                fg-cat:SCREEN-VALUE    = bf-eb.procat
+                iColors:SCREEN-VALUE   = string(bf-eb.i-col)
+                iCoatings:SCREEN-VALUE  = string(bf-eb.i-coat)
+                .
+            IF ipcEstType EQ "Wood" THEN
+            rd_show1:SCREEN-VALUE  = IF bf-eb.pur-man THEN "P" ELSE "M".  
+               
+            FIND FIRST ITEM NO-LOCK WHERE item.company = cocode
+                AND item.i-no EQ board:SCREEN-VALUE NO-ERROR .
+            IF AVAILABLE ITEM THEN
+                ASSIGN board-dscr:SCREEN-VALUE = item.i-name .
+
+            FIND FIRST style NO-LOCK WHERE style.company = cocode
+                AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
+            IF NOT AVAILABLE style THEN 
+                FIND FIRST style NO-LOCK 
+                WHERE style.company EQ cocode
+                NO-ERROR.
+            IF AVAILABLE style THEN
+                ASSIGN 
+                    style-cod:SCREEN-VALUE = style.style
+                    style-dscr:SCREEN-VALUE = style.dscr 
+                    . 
+            
+            FIND FIRST fgcat NO-LOCK WHERE fgcat.company = cocode
+                AND fgcat.procat EQ fg-cat:SCREEN-VALUE NO-ERROR .
+            IF AVAILABLE fgcat THEN
+                ASSIGN cat-dscr:SCREEN-VALUE = fgcat.dscr .    
+            
+        END.         
+    END. 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTempValue Dialog-Frame 
 PROCEDURE pGetTempValue :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
                           Purpose:     
                           PARAMs:  <none>
                           Notes:       
@@ -1337,181 +1554,6 @@ PROCEDURE pGetTempValue :
                 ttInputEst.cSourceEst   = cSourceEst:SCREEN-VALUE   .             
         END.         
     END. 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstDetail Dialog-Frame 
-PROCEDURE pGetEstDetail :
-    /*------------------------------------------------------------------------------
-                          Purpose:     
-                          PARAMs:  <none>
-                          Notes:       
-         ------------------------------------------------------------------------------*/   
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST bf-eb NO-LOCK
-            WHERE bf-eb.company EQ cocode
-            AND bf-eb.est-no EQ cSourceEst:SCREEN-VALUE
-            AND (bf-eb.form-no NE 0 OR (bf-eb.est-type EQ 6 AND bf-eb.form-no EQ 0)) NO-ERROR.
-                  
-        IF AVAILABLE bf-eb THEN 
-        do:           
-            FIND FIRST ef NO-LOCK
-                WHERE ef.company EQ bf-eb.company
-                AND ef.est-no EQ bf-eb.est-no
-                AND (ef.form-no EQ bf-eb.form-no OR bf-eb.form-no EQ 0) 
-                NO-ERROR. 
-            ASSIGN                
-                cCustPart:SCREEN-VALUE = bf-eb.part-no
-                cFGItem:SCREEN-VALUE   = bf-eb.stock-no
-                item-name:SCREEN-VALUE = bf-eb.part-dscr1
-                item-dscr:SCREEN-VALUE = bf-eb.part-dscr2
-                len:SCREEN-VALUE       = string(bf-eb.len)
-                wid:SCREEN-VALUE       = string(bf-eb.wid)
-                dep:SCREEN-VALUE       = string(bf-eb.dep)
-                style-cod:SCREEN-VALUE = bf-eb.style
-                board:SCREEN-VALUE     = IF AVAILABLE ef THEN ef.board ELSE ""
-                fg-cat:SCREEN-VALUE    = bf-eb.procat
-                .
-            IF ipcEstType EQ "Wood" THEN
-            rd_show1:SCREEN-VALUE  = IF bf-eb.pur-man THEN "P" ELSE "M".  
-               
-            FIND FIRST ITEM NO-LOCK WHERE item.company = cocode
-                AND item.i-no EQ board:SCREEN-VALUE NO-ERROR .
-            IF AVAILABLE ITEM THEN
-                ASSIGN board-dscr:SCREEN-VALUE = item.i-name .
-
-            FIND FIRST style NO-LOCK WHERE style.company = cocode
-                AND style.style EQ style-cod:SCREEN-VALUE NO-ERROR .
-            IF NOT AVAILABLE style THEN 
-                FIND FIRST style NO-LOCK 
-                WHERE style.company EQ cocode
-                NO-ERROR.
-            IF AVAILABLE style THEN
-                ASSIGN 
-                    style-cod:SCREEN-VALUE = style.style
-                    style-dscr:SCREEN-VALUE = style.dscr 
-                    . 
-            
-            FIND FIRST fgcat NO-LOCK WHERE fgcat.company = cocode
-                AND fgcat.procat EQ fg-cat:SCREEN-VALUE NO-ERROR .
-            IF AVAILABLE fgcat THEN
-                ASSIGN cat-dscr:SCREEN-VALUE = fgcat.dscr .    
-            
-        END.         
-    END. 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisableField D-Dialog 
-PROCEDURE pDisableField :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/       
-
-    DO WITH FRAME {&FRAME-NAME}:
-        DISABLE set-item-name style-cod style-dscr board fg-cat 
-        board-dscr cat-dscr len wid dep item-name item-dscr .
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableField D-Dialog 
-PROCEDURE pEnableField :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/       
-
-    DO WITH FRAME {&FRAME-NAME}:
-        ENABLE set-item-name style-cod style-dscr board fg-cat 
-        board-dscr cat-dscr len wid dep item-name item-dscr .
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
-PROCEDURE enable_UI :
-/*------------------------------------------------------------------------------
-  Purpose:     ENABLE the User Interface
-  Parameters:  <none>
-  Notes:       Here we display/view/enable the widgets in the
-               user-interface.  In addition, OPEN all queries
-               associated with each FRAME and BROWSE.
-               These statements here are based on the "Other 
-               Settings" section of the widget Property Sheets.
-------------------------------------------------------------------------------*/
-  DISPLAY est-no iForm iBlank cSetCustPart dQtyPerSet set-item-name cCustPart 
-          cFGItem style-cod style-dscr board fg-cat board-dscr cat-dscr len wid 
-          dep rd_show1 item-name item-dscr cSourceEst 
-      WITH FRAME Dialog-Frame.
-  ENABLE dQtyPerSet Btn_OK Btn_Done Btn_Cancel cCustPart cFGItem style-cod 
-         board fg-cat len wid dep rd_show1 item-name item-dscr RECT-21 RECT-38 
-         RECT-39 cSourceEst 
-      WITH FRAME Dialog-Frame.
-  VIEW FRAME Dialog-Frame.
-  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit Dialog-Frame 
-PROCEDURE local-exit :
-/*------------------------------------------------------------------------------
-             Purpose:
-             Notes:
-            ------------------------------------------------------------------------------*/
-
-
-    /* Code placed here will execute PRIOR to standard behavior. */
-
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'exit':U ) .
-
-/* Code placed here will execute AFTER standard behavior.    */
-    
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetBoardFromStyle Dialog-Frame 
-PROCEDURE pGetBoardFromStyle :
-/*------------------------------------------------------------------------------
-          Purpose:     
-          Parameters:  <none>
-          Notes:       
-        ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcStyle AS CHARACTER NO-UNDO .
-    DO WITH FRAME {&FRAME-NAME}:
-    
-        FIND FIRST flute NO-LOCK
-            WHERE flute.company EQ cocode NO-ERROR .
-        IF AVAILABLE flute THEN
-            FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = ipcStyle 
-                AND reftable.loc = flute.code
-                AND reftable.code = "BOARD"
-                NO-LOCK NO-ERROR. 
-        board:screen-value = IF AVAILABLE reftable AND AVAILABLE flute AND reftable.dscr NE "" THEN reftable.dscr ELSE board:screen-value.
-    END.
 
 END PROCEDURE.
 
@@ -1566,9 +1608,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-est-no D-Dialog 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-est-no Dialog-Frame 
 PROCEDURE valid-est-no :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
           Purpose:     
           Parameters:  <none>
           Notes:       
