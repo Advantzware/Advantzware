@@ -747,6 +747,7 @@ DO:
 
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            lNumberOutOverride = NO.
 
             RUN valid-op-pass NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1968,7 +1969,6 @@ PROCEDURE valid-mach :
 
             est-op.n-out:SCREEN-VALUE = STRING(iNumOut).
         END.
-        lNumberOutOverride = NO.
         
         FIND FIRST style
             {sys/ref/styleW.i}
