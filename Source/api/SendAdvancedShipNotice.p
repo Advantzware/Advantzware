@@ -83,6 +83,7 @@
     DEFINE VARIABLE dConsolidatedQty AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cQuantity        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUOM             AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSiteID          AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cCarrierDescription AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cItemName           AS CHARACTER NO-UNDO.
@@ -161,12 +162,6 @@
             BUFFER shipto
             ).
             
-        FIND FIRST shipto NO-LOCK WHERE 
-            shipto.company EQ oe-bolh.company AND 
-            shipto.cust-no EQ oe-bolh.cust-no AND 
-            shipto.ship-id EQ oe-bolh.ship-id
-            NO-ERROR.
-                
         IF AVAILABLE shipTo THEN DO:
             ASSIGN
                 cPostalName       = shipto.ship-name
@@ -182,6 +177,7 @@
                 cPhoneCityCode    = shipto.area-code
                 cPhoneNumber      = shipto.phone
                 cPhoneExtension   = shipto.phone-prefix
+                cSiteID           = shipto.siteID
                 .
         END. 
         
@@ -277,19 +273,12 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerState", cCustomerState).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerPostalCode", cCustomerZip).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "CustomerCountry", cCustomerCountry).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SCAC", IF AVAIL shipto THEN shipto.scac ELSE "").
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "FreightTerms", oe-bolh.frt-pay).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SiteID", cSiteID).
         
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromName", IF AVAIL loc THEN loc.dscr ELSE "").
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromStreetAddress1", IF AVAIL location THEN location.streetAddr[1] ELSE "").
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromStreetAddress2", IF AVAIL location THEN location.streetAddr[2] ELSE "").
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromCity", IF AVAIL location THEN location.subCode3 ELSE "").
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromState", IF AVAIL location THEN location.subCode1 ELSE "").
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "ShipFromPostCode", IF AVAIL location THEN location.subCode4 ELSE "").
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "SiteID", IF AVAIL shipto THEN shipto.siteid  ELSE "").
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-carrier:HANDLE).
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER location:HANDLE).
         
-        
-                
         FIND FIRST APIOutboundDetail NO-LOCK
              WHERE APIOutboundDetail.apiOutboundID EQ ipiAPIOutboundID
                AND APIOutboundDetail.detailID      EQ "OrderDetailID"
@@ -384,6 +373,7 @@
                  NO-ERROR.                            
             
             lcItemData = oAttribute:ReplaceAttributes(lcItemData, BUFFER oe-ordl:HANDLE).
+            lcItemData = oAttribute:ReplaceAttributes(lcItemData, BUFFER oe-boll:HANDLE).
                         
             lcItemConcatData = lcItemConcatData + lcItemData.
         END.    
