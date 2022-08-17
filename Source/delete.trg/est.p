@@ -60,3 +60,9 @@ FOR EACH e-itemfg-vend
 
   DELETE e-itemfg-vend.
 END.
+
+FOR EACH estMisc
+    WHERE estMisc.company    EQ {&TABLENAME}.company
+      AND estMisc.estimateNo EQ {&TABLENAME}.est-no:
+    DELETE estMisc.
+END.
