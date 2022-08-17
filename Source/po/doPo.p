@@ -1047,7 +1047,7 @@ PROCEDURE buildRptRecs :
                         v-item-cost  = ttVendItemCost.costPerVendorUOM                       
                         v-setup-cost = ttVendItemCost.costSetup
                         v-setup      = ttVendItemCost.costTotal
-                        v-vend-item  = ttVendItemCost.itemID.   
+                        v-vend-item  = ttVendItemCost.vendorItemID.   
                         
                     FIND FIRST vend
                         WHERE vend.company EQ cocode
