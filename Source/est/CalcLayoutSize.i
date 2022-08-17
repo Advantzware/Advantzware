@@ -167,6 +167,8 @@ PROCEDURE pAreBlanksPartitionStyleType PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
     DEFINE OUTPUT PARAMETER oplStyleTypePartition AS LOGICAL NO-UNDO.
     
+    DEFINE VARIABLE iBlankCount AS INTEGER NO-UNDO.
+    
     DEFINE BUFFER bf-eb FOR eb.
     
     IF NOT AVAILABLE ipbf-ef THEN
@@ -183,10 +185,14 @@ PROCEDURE pAreBlanksPartitionStyleType PRIVATE:
         WHERE style.company EQ bf-eb.company
           AND style.style   EQ bf-eb.style:
         IF style.type NE "P" THEN DO:
+            iBlankCount = iBlankCount + 1.              
             oplStyleTypePartition = FALSE.
             LEAVE.
         END.    
     END.
     
+    IF iBlankCount LE 1 OR iBlankCount GT 2 THEN
+        oplStyleTypePartition = FALSE.
+            
     RELEASE bf-eb.
 END PROCEDURE.

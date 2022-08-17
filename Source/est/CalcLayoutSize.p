@@ -259,7 +259,8 @@ RUN pGetDecimalSettings(
     OUTPUT dConversionFactor
     ).
             
-IF lBlanksStyleTypePartition THEN DO:
+IF lBlanksStyleTypePartition AND 
+    DYNAMIC-FUNCTION("fEstimate_IsComboType", DYNAMIC-FUNCTION("fEstimate_GetEstimateType", bf-eb.est-type, "")) THEN DO:
     ASSIGN
         dCalcTotalLength = 0
         dCalcTotalWidth  = bf-eb.t-wid * bf-eb.num-len
