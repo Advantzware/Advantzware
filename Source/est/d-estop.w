@@ -39,9 +39,10 @@ DEFINE VARIABLE li AS INTEGER NO-UNDO.
 {est/d-selblk.i NEW}
 {sys/inc/ceprepprice.i}
 
-DEFINE VARIABLE lv-item-recid   AS RECID   NO-UNDO.
-DEFINE VARIABLE ll-order-warned AS LOGICAL NO-UNDO.
-DEFINE VARIABLE ll-new-record   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lv-item-recid      AS RECID   NO-UNDO.
+DEFINE VARIABLE ll-order-warned    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ll-new-record      AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lNumberOutOverride AS LOGICAL NO-UNDO.
 
 DEFINE NEW SHARED BUFFER xest    FOR est.
 DEFINE NEW SHARED BUFFER xef     FOR ef.
@@ -1096,6 +1097,7 @@ ON LEAVE OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
 DO:
         IF LASTKEY NE -1 THEN 
         DO:
+            lNumberOutOverride = SELF:MODIFIED.
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1953,8 +1955,7 @@ PROCEDURE valid-mach :
                 est-op.n-out:SCREEN-VALUE  =
                     IF lv-dept EQ "RC" THEN STRING(xef.n-out) ELSE STRING(xef.n-out-l).  */            
 
-
-        IF AVAILABLE xef THEN
+        IF AVAILABLE xef AND NOT lNumberOutOverride THEN
         DO:
             RUN Operations_GetNumout IN hdOpProcs ( INPUT xef.company,
                 INPUT xef.est-no,
@@ -1967,6 +1968,7 @@ PROCEDURE valid-mach :
 
             est-op.n-out:SCREEN-VALUE = STRING(iNumOut).
         END.
+        lNumberOutOverride = NO.
         
         FIND FIRST style
             {sys/ref/styleW.i}
