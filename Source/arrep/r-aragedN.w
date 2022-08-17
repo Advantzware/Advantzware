@@ -2082,6 +2082,7 @@ PROCEDURE run-report :
                 sPrtInvNote = YES.
             IF ttRptSelected.TextList = "COLLECTION NOTE"  THEN
                 sPrtCollectionNote = YES.
+            IF NOT v-export THEN
             NEXT.
         END.
 
