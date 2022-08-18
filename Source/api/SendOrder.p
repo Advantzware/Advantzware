@@ -44,9 +44,12 @@
     DEFINE VARIABLE iOrderMiscCount       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotalLineCount       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cNote                 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dTotalMiscCharge      AS DECIMAL   NO-UNDO.
     
-    DEFINE BUFFER bf-carrier FOR carrier.
-    DEFINE BUFFER bf-shipto  FOR shipto.
+    DEFINE BUFFER bf-carrier  FOR carrier.
+    DEFINE BUFFER bf-shipto   FOR shipto.
+    DEFINE BUFFER bf-loc      FOR loc.
+    DEFINE BUFFER bf-location FOR location.
       
     RUN pUpdateRequestDataType(INPUT ipiAPIOutboundID).
         
@@ -106,8 +109,9 @@
         FOR EACH oe-ordm NO-LOCK OF oe-ord
             WHERE oe-ordm.deleted EQ FALSE:
             ASSIGN
-                lcOrderMisc     = lcOrderMiscData
-                iOrderMiscCount = iOrderMiscCount + 1
+                lcOrderMisc      = lcOrderMiscData
+                iOrderMiscCount  = iOrderMiscCount + 1
+                dTotalMiscCharge = dTotalMiscCharge + oe-ordm.amt.
                 .
             
             lcOrderMisc = oAttribute:ReplaceAttributes(lcOrderMisc, BUFFER oe-ordm:HANDLE).
@@ -160,12 +164,17 @@
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderLineCount", STRING(iOrderLineCount)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "OrderMiscCount", STRING(iOrderMiscCount)).
         oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalLineCount", STRING(iTotalLineCount)).
-
-       FIND FIRST bf-shipto NO-LOCK 
-            WHERE bf-shipto.company EQ oe-ord.company
-              AND bf-shipto.cust-no EQ oe-ord.cust-no
-              AND bf-shipto.ship-id EQ oe-ord.ship-id
-            NO-ERROR.
+        oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "TotalMiscCharge", STRING(dTotalMiscCharge)).
+        oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "APIField1", "").
+        oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "APIField2", "").
+        oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "APIField3", "").
+        oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "APIField4", "").
+        
+        FIND FIRST bf-shipto NO-LOCK 
+             WHERE bf-shipto.company EQ oe-ord.company
+               AND bf-shipto.cust-no EQ oe-ord.cust-no
+               AND bf-shipto.ship-id EQ oe-ord.ship-id
+             NO-ERROR.
 
         FIND FIRST bf-carrier NO-LOCK
              WHERE bf-carrier.company EQ oe-ord.company
@@ -186,9 +195,20 @@
                AND shipto.cust-no EQ oe-ord.cust-no
                AND shipto.ship-id EQ oe-ord.ship-id
              NO-ERROR.
+
+        FIND FIRST bf-loc NO-LOCK 
+             WHERE bf-loc.company EQ oe-ord.company 
+               AND bf-loc.loc     EQ oe-ord.loc
+            NO-ERROR. 
+        IF AVAILABLE bf-loc THEN 
+            FIND FIRST bf-location NO-LOCK 
+                 WHERE bf-location.company      EQ bf-loc.company 
+                   AND bf-location.locationCode EQ bf-loc.loc
+                 NO-ERROR.
         
         ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER cust:HANDLE).
         ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER shipto:HANDLE).
+        ioplcRequestData = oAttribute:ReplaceAttributes(ioplcRequestData, BUFFER bf-location:HANDLE).
         
         ASSIGN   
             opcMessage       = ""

@@ -22,6 +22,7 @@ DEF SHARED VAR v-fr-tax AS LOGICAL INITIAL NO NO-UNDO.
 DEF VAR cAddr4 AS CHARACTER FORMAT "x(30)" NO-UNDO.
 DEF VAR cBillNotes LIKE inv-head.bill-i NO-UNDO.
 DEF VAR cMessage AS CHARACTER NO-UNDO.
+DEF VAR cLocation AS CHARACTER NO-UNDO.
 DEF VAR cnt AS INT NO-UNDO.
 DEF VAR cRtnChar AS CHARACTER NO-UNDO.
 DEF VAR cShipAddr4 AS CHARACTER FORMAT "x(30)" NO-UNDO.
@@ -119,32 +120,6 @@ DEF VAR v-tot-wght      AS DEC     FORMAT "->>>>>>>9.99".
 DEF VAR v-tx-rate LIKE stax.tax-rate NO-UNDO.
 
 FIND FIRST inv-head NO-LOCK NO-ERROR.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath",
-        cRtnChar
-        ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN 
-    DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST sys-ctrl NO-LOCK WHERE 
     sys-ctrl.company EQ cocode AND 
@@ -344,7 +319,8 @@ FOR EACH report NO-LOCK WHERE
 
                     /** Bill Of Lading TOTAL CASES **/
                     ASSIGN 
-                        v-bol-cases = v-bol-cases + oe-boll.cases.
+                        v-bol-cases = v-bol-cases + oe-boll.cases
+                        cLocation   = oe-boll.loc.
                     RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                     v-tot-pallets = v-tot-pallets + v-int.
                 END. /* each oe-boll */
@@ -462,6 +438,13 @@ FOR EACH report NO-LOCK WHERE
             ELSE ASSIGN 
                 v-po-no = "".
         END.
+
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              IF NOT lValid THEN
+              DO:
+                  MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              ASSIGN ls-full-img1 = cRtnChar + ">" .
 
         {oe/rep/invHarwell.i}
 

@@ -25,8 +25,10 @@ form
 
 form                                                                                 
   skip(8)
-  ap-chk.check-no to 6 ap-chk.check-date to 15
-  vend.vend-no to 24 ctot to 77 format "*,***,**9.99" skip(2)
+  ap-chk.check-no to 8 
+  ap-chk.check-date to 17
+  vend.vend-no to 26 
+  ctot to 77 format "*,***,**9.99" skip(2)
   dollar[1]  at 10
   dollar[2]  at 12 skip(1)
   vend.remit at 10

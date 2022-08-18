@@ -32,6 +32,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+USING Progress.Json.ObjectModel.JsonObject.
+USING Progress.Json.ObjectModel.ObjectModelParser.
 
 CREATE WIDGET-POOL.
 
@@ -40,6 +42,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE lcDefaultData AS LONGCHAR NO-UNDO.
+
+DEFINE VARIABLE oJsonParser AS ObjectModelParser NO-UNDO.
+DEFINE VARIABLE oJsonObject AS JsonObject        NO-UNDO.
+
+FIX-CODEPAGE(lcDefaultData) = "utf-8".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -175,7 +183,7 @@ DEFINE FRAME F-Main
           SIZE 14 BY 1
      settingType.dataType AT ROW 6.62 COL 26 COLON-ALIGNED WIDGET-ID 14
           VIEW-AS COMBO-BOX INNER-LINES 5
-          LIST-ITEMS "Character","Integer","Decimal","Logical","Date","DateTime","DateTime-TZ" 
+          LIST-ITEMS "Character","Integer","Decimal","Logical","Date","DateTime","DateTime-TZ","Json" 
           DROP-DOWN-LIST
           SIZE 23.6 BY 1
      btCategoryTagsInsert AT ROW 7.67 COL 154.8 WIDGET-ID 36
@@ -376,6 +384,68 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME settingType.dataType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL settingType.dataType V-table-Win
+ON VALUE-CHANGED OF settingType.dataType IN FRAME F-Main /* Data Type */
+DO:
+    settingType.defaultValue:READ-ONLY = SELF:SCREEN-VALUE EQ "Json".   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME settingType.defaultValue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL settingType.defaultValue V-table-Win
+ON ENTRY OF settingType.defaultValue IN FRAME F-Main /* Default Value */
+DO:
+    DEFINE VARIABLE lSave   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+    
+    IF settingType.dataType:SCREEN-VALUE EQ "Json" THEN DO:
+        lcDefaultData = settingType.defaultValue.
+        
+        IF NOT VALID-OBJECT(oJsonParser) THEN
+            oJsonParser = NEW ObjectModelParser().
+        
+        IF lcDefaultData NE "" THEN DO:
+            oJsonObject = CAST(oJsonParser:Parse(INPUT lcDefaultData), JsonObject) NO-ERROR.
+            
+            IF NOT ERROR-STATUS:ERROR THEN
+                oJsonObject:Write(INPUT-OUTPUT lcDefaultData, TRUE /* Formatted */) NO-ERROR. /* Beautifies the JSON for easy viewing */        
+        END.
+        
+        RUN api/d-dataViewer.w (
+            INPUT-OUTPUT lcDefaultData,
+            INPUT        "Update",
+            OUTPUT       lSave   
+            ).
+
+        IF lSave THEN DO:
+            IF lcDefaultData NE "" THEN DO:
+                
+                oJsonObject = CAST(oJsonParser:Parse(INPUT lcDefaultData), JsonObject) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN DO:
+                    MESSAGE "Error parsing input json" SKIP
+                        ERROR-STATUS:GET-MESSAGE (1) 
+                        VIEW-AS ALERT-BOX ERROR.
+                    lcDefaultData = settingType.defaultValue.
+                    
+                    RETURN.
+                END.
+                
+                oJsonObject:Write(INPUT-OUTPUT lcDefaultData, FALSE /* Formatted */). /* Removed formatting. Saves memory */       
+            END.
+
+            SELF:SCREEN-VALUE = STRING(lcDefaultData).
+        END.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -466,6 +536,7 @@ PROCEDURE local-add-record :
         validValues:SCREEN-VALUE  = ""
         categoryTags:LIST-ITEMS   = ""
         categoryTags:SCREEN-VALUE = ""
+        lcDefaultData             = ""
         .
 END PROCEDURE.
 
@@ -487,7 +558,7 @@ PROCEDURE local-assign-statement :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
-    IF AVAILABLE settingType THEN
+    IF AVAILABLE settingType THEN DO:
         ASSIGN
             settingType.validValues = IF validValues:LIST-ITEMS EQ "" OR validValues:LIST-ITEMS EQ ? THEN
                                           ""
@@ -497,7 +568,11 @@ PROCEDURE local-assign-statement :
                                           ""
                                       ELSE
                                           categoryTags:LIST-ITEMS
-            .                                          
+            .
+       
+        IF settingType.dataType:SCREEN-VALUE EQ "Json" THEN
+            settingType.defaultValue = lcDefaultData.                        
+    END.                  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -557,6 +632,7 @@ PROCEDURE local-display-fields :
     ASSIGN
         validValues:LIST-ITEMS IN FRAME {&FRAME-NAME} = ""
         categoryTags:LIST-ITEMS = ""
+        lcDefaultData           = ""
         .
 
     /* Code placed here will execute AFTER standard behavior.    */
@@ -567,9 +643,12 @@ PROCEDURE local-display-fields :
     
     IF AVAILABLE settingType THEN
         ASSIGN
-            validValues:LIST-ITEMS  = settingType.validValues
-            categoryTags:LIST-ITEMS = settingType.categoryTags
+            validValues:LIST-ITEMS             = settingType.validValues
+            categoryTags:LIST-ITEMS            = settingType.categoryTags
+            lcDefaultData                      = IF settingType.dataType EQ "Json" THEN settingType.defaultValue ELSE ""
+            settingType.defaultValue:READ-ONLY = settingType.dataType EQ "Json"
             .
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

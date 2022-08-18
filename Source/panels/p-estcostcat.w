@@ -78,7 +78,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-update btn-reset 
+&Scoped-Define ENABLED-OBJECTS btn-update btn-Add btn-Delete btn-reset 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -93,24 +93,34 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btn-Add 
+     LABEL "Add" 
+     SIZE 22 BY 1.29.
+
+DEFINE BUTTON btn-Delete 
+     LABEL "Delete" 
+     SIZE 22 BY 1.29.
+
+DEFINE BUTTON btn-reset 
+     LABEL "Reset to Defaults" 
+     SIZE 22 BY 1.29.
+
 DEFINE BUTTON btn-update 
      LABEL "Update" 
      SIZE 22 BY 1.29.
-     
-DEFINE BUTTON btn-reset 
-     LABEL "Reset to Defaults" 
-     SIZE 22 BY 1.29.     
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 45 BY 1.76.
+     SIZE 92 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
      btn-update AT ROW 1.24 COL 2
-     btn-reset AT ROW 1.24 COL 23.5
+     btn-Add AT ROW 1.24 COL 24.4 WIDGET-ID 2
+     btn-Delete AT ROW 1.24 COL 47.2 WIDGET-ID 4
+     btn-reset AT ROW 1.24 COL 70
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -173,12 +183,20 @@ ASSIGN
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
 ASSIGN 
-       btn-update:PRIVATE-DATA IN FRAME Panel-Frame     = 
+       btn-Add:PRIVATE-DATA IN FRAME Panel-Frame     = 
                 "panel-image".
-                
+
+ASSIGN 
+       btn-Delete:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
 ASSIGN 
        btn-reset:PRIVATE-DATA IN FRAME Panel-Frame     = 
-                "panel-image".                
+                "panel-image".
+
+ASSIGN 
+       btn-update:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
@@ -201,9 +219,9 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME btn-update
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update C-WIn
-ON CHOOSE OF btn-update IN FRAME Panel-Frame /* Update */
+&Scoped-define SELF-NAME btn-Add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Add C-WIn
+ON CHOOSE OF btn-Add IN FRAME Panel-Frame /* Add */
 DO:
   DO WITH FRAME Panel-Frame:
      def var source-str as cha no-undo.
@@ -216,13 +234,38 @@ DO:
      disable btn-DELETE btn-view btn-item btn-print btn-quote btn-imp-price
              with frame {&frame-name}.
     */
-     run Update-Record in widget-handle(source-str). 
+     run Add-Record in widget-handle(source-str). 
   END.
 
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn-Delete
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Delete C-WIn
+ON CHOOSE OF btn-Delete IN FRAME Panel-Frame /* Delete */
+DO:
+  DO WITH FRAME Panel-Frame:
+     def var source-str as cha no-undo.
+          
+     RUN get-link-handle IN adm-broker-hdl 
+       (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
+  /*
+     enable btn-cancel with frame {&frame-name}.
+     btn-save:label = "&Save" .
+     disable btn-DELETE btn-view btn-item btn-print btn-quote btn-imp-price
+             with frame {&frame-name}.
+    */
+     run Delete-Record in widget-handle(source-str). 
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn-reset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-reset C-WIn
@@ -240,6 +283,30 @@ DO:
              with frame {&frame-name}.
     */
      RUN pResetRecord in widget-handle(source-str). 
+  END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn-update
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-update C-WIn
+ON CHOOSE OF btn-update IN FRAME Panel-Frame /* Update */
+DO:
+  DO WITH FRAME Panel-Frame:
+     def var source-str as cha no-undo.
+          
+     RUN get-link-handle IN adm-broker-hdl 
+       (THIS-PROCEDURE, 'Tableio-Target':U, OUTPUT source-str).
+  /*
+     enable btn-cancel with frame {&frame-name}.
+     btn-save:label = "&Save" .
+     disable btn-DELETE btn-view btn-item btn-print btn-quote btn-imp-price
+             with frame {&frame-name}.
+    */
+     run Update-Record in widget-handle(source-str). 
   END.
 
 END.
@@ -307,10 +374,25 @@ PROCEDURE local-enable :
            termined from the variable adm-panel-state.
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lEnable AS LOGICAL NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
+//    RUN set-buttons (adm-panel-state).
 
-  RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
-  RUN set-buttons (adm-panel-state).
-  
+    {methods/run_link.i "TableIO-TARGET" "EnableAdd" "(OUTPUT lEnable)"}
+    btn-Add:SENSITIVE = lEnable.
+
+    {methods/run_link.i "TableIO-TARGET" "EnableUpdate" "(OUTPUT lEnable)"}
+    btn-update:SENSITIVE = lEnable.
+
+    {methods/run_link.i "TableIO-TARGET" "EnableDelete" "(OUTPUT lEnable)"}
+    btn-Delete:SENSITIVE = lEnable.
+
+    {methods/run_link.i "TableIO-TARGET" "EnableRestore" "(OUTPUT lEnable)"}
+    btn-reset:SENSITIVE = lEnable.   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,9 +415,9 @@ PROCEDURE local-initialize :
   /* Insert post-dispatch code here. */
 
    
-  RUN set-buttons (adm-panel-state).
+  //RUN set-buttons (adm-panel-state).
 
- 
+  
   
  
 END PROCEDURE.
@@ -377,7 +459,7 @@ PROCEDURE reopen-init :
          ELSE adm-panel-state = 'initial':U.
        END.
      END.
-     RUN set-buttons (adm-panel-state).
+     //RUN set-buttons (adm-panel-state).
   END.
 
 
@@ -525,7 +607,7 @@ PROCEDURE state-changed :
   CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/pustates.i}
+      //{src/adm/template/pustates.i}
   END CASE.
 END PROCEDURE.
 

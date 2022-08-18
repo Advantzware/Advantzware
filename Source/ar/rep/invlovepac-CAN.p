@@ -110,36 +110,13 @@ DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lv-currency AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cShipAddr4 AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cAddr4 AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE opcBusinessFormLogo AS CHARACTER NO-UNDO .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
@@ -182,7 +159,7 @@ ELSE lv-comp-color = "BLACK".
                      AND cust.cust-no = ar-inv.cust-no NO-LOCK 
 
         break by (IF v-print-fmt EQ "ASIXprnt" THEN "" ELSE ar-inv.cust-no)
-              by ar-inv.inv-no:
+              by ar-inv.inv-no:      
      
         find first carrier where carrier.company eq cocode
              and carrier.carrier eq ar-inv.carrier no-lock no-error.
@@ -261,14 +238,15 @@ ELSE lv-comp-color = "BLACK".
 
          
         
-         FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no AND
-             oe-bolh.ord-no = ar-invl.ord-no:
+         FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
            FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
               oe-boll.b-no = oe-bolh.b-no AND
-              oe-boll.i-no = ar-invl.i-no:
+              oe-boll.i-no = ar-invl.i-no AND
+              oe-boll.ord-no = ar-invl.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-              ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+              ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                     cLocation   = oe-boll.loc .
               RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
               v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
@@ -364,6 +342,15 @@ ELSE lv-comp-color = "BLACK".
          view frame invhead-comp.  /* Print headers */  */
         IF v-salesman = "" THEN v-salesman = cust.sman.
         v-inv-date = ar-inv.inv-date.
+               
+        RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT opcBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
+      
+            IF NOT lValid THEN
+            DO:
+               MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            END.
+            
+            ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .
         
         {ar/rep/invlovepac-CAN.i}
 

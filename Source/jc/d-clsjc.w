@@ -84,7 +84,7 @@ v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 &Scoped-Define ENABLED-OBJECTS RECT-1 begin_job begin_job2 end_job end_job2 ~
 begin_ord end_ord begin_date end_date tb_only close_date btn_ok 
 &Scoped-Define DISPLAYED-OBJECTS begin_job begin_job2 end_job end_job2 ~
-begin_ord end_ord begin_date end_date tb_only close_date fi_status 
+begin_ord end_ord begin_date end_date tb_only close_date 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -225,7 +225,10 @@ ASSIGN
        FRAME D-Dialog:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_status IN FRAME D-Dialog
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       fi_status:HIDDEN IN FRAME D-Dialog           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -602,7 +605,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job begin_job2 end_job end_job2 begin_ord end_ord begin_date 
-          end_date tb_only close_date fi_status 
+          end_date tb_only close_date 
       WITH FRAME D-Dialog.
   ENABLE RECT-1 begin_job begin_job2 end_job end_job2 begin_ord end_ord 
          begin_date end_date tb_only close_date btn_ok 

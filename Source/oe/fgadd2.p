@@ -171,6 +171,7 @@ do on error undo:
        itemfg.pur-man           = bf-eb.form-no GT 0 AND bf-eb.pur-man
        itemfg.alloc             = bf-eb.set-is-assembled
        itemfg.receiveAsRMItemID = bf-eb.receiveAsRMItemID
+       itemfg.trno              = bf-eb.tr-no
        .
 
       /* Create an itemfg-loc for the default warehouse */

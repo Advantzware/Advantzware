@@ -513,6 +513,61 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item B-table-Win 
+PROCEDURE add-item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lv-rec_key   AS CHARACTER    NO-UNDO.
+   DEFINE VARIABLE cPoNo        AS CHARACTER    NO-UNDO.
+   DEFINE VARIABLE cDirectory   AS CHARACTER    NO-UNDO.
+
+   DO TRANSACTION:
+   {sys/inc/poattach.i}
+   END.
+   
+   ASSIGN cPoNo = "".
+   cDirectory = IF v-poattach-char NE "" THEN v-poattach-char ELSE "boximage\".
+   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+   RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
+
+   FIND FIRST po-ord WHERE po-ord.rec_key = lv-rec_key NO-LOCK NO-ERROR.
+
+   IF AVAIL po-ord THEN
+     cPoNo = STRING(po-ord.po-no).
+   ELSE
+   DO:
+   FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
+
+     IF AVAIL po-ordl THEN
+     DO:
+        FIND FIRST po-ord WHERE
+             po-ord.company EQ po-ordl.company AND
+             po-ord.po-no EQ po-ordl.po-no
+             NO-LOCK no-error.
+
+        IF AVAIL po-ord THEN
+           cPoNo = STRING(po-ord.po-no).
+     END. /* IF AVAIL po-ordl */
+   END.
+   
+   RUN system\quickAttachProcs.p("po",           /* ipcContext */
+                                 g_company,      /* company  */
+                                 lv-rec_key,     /* rec-key */
+                                 cPoNo,          /* ipcContextValue */
+                                 cDirectory    /* ipcDirectory */
+                                 ).    
+        
+   RUN dispatch ("open-query").
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------

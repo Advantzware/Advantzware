@@ -10,6 +10,8 @@
   ----------------------------------------------------------------------*/
 
 USING Progress.Lang.*.
+USING Progress.Json.ObjectModel.JsonObject.
+USING Progress.Json.ObjectModel.ObjectModelParser.
 
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
@@ -21,7 +23,7 @@ CLASS system.Setting:
     DEFINE VARIABLE cCompany                     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cUser                        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iUserSecurityLevel           AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cScopeTypeWithContextList    AS CHARACTER NO-UNDO INITIAL "System,Company,Customer,ShipTo,Vendor".
+    DEFINE VARIABLE cScopeTypeWithContextList    AS CHARACTER NO-UNDO INITIAL "System,Company,Customer,ShipTo,Vendor,Location".
     DEFINE VARIABLE cScopeTypeWithoutContextList AS CHARACTER NO-UNDO INITIAL "System,Company".
     DEFINE VARIABLE cSearchFieldListSettingType  AS CHARACTER NO-UNDO INITIAL "settingName,settingTypeDesc,defaultValue".
     DEFINE VARIABLE cSearchFieldListSetting      AS CHARACTER NO-UNDO INITIAL "scopeTable,scopeField1,scopeField2,scopeField3,settingUser,inactive".
@@ -164,6 +166,8 @@ CLASS system.Setting:
 	METHOD PRIVATE INTEGER pGetPriorityID( ipcScope AS CHARACTER ):
 		
 		CASE ipcScope:
+            WHEN "Location" THEN
+                RETURN 1000.
             WHEN "ShipTo" THEN
                 RETURN 1000.
             WHEN "Customer" THEN
@@ -375,6 +379,23 @@ CLASS system.Setting:
            ).
     END METHOD.   
      
+    
+    /*------------------------------------------------------------------------------
+     Purpose: Get the value of a setting by name and Location
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    METHOD PUBLIC CHARACTER GetByNameAndLocation ( ipcSettingName AS CHARACTER, ipcCustomerID AS CHARACTER, ipcLocation AS CHARACTER ):
+        
+        RETURN pGet( 
+           ipcSettingName,
+           "Location",       /* Scope Table */
+           cCompany,       /* Scope Field 1 */
+           ipcCustomerID,  /* Scope Field 2 */
+           ipcLocation     /* Scope Field 3 */
+           ).
+    END METHOD.    
+    
 	/*------------------------------------------------------------------------------
 	 Purpose:
 	 Notes:
@@ -424,7 +445,7 @@ CLASS system.Setting:
         
         lFound = pGetByScope(ipcSettingName, ipcScopeTable, ipcScopeField1, ipcScopeField2, ipcScopeField3, OUTPUT cValue).    
         
-        IF NOT lFound AND ipcScopeTable EQ "ShipTo" THEN
+        IF NOT lFound AND (ipcScopeTable EQ "ShipTo" OR ipcScopeTable EQ "Location") THEN
             lFound = pGetByScope(ipcSettingName, "Customer", ipcScopeField1, ipcScopeField2, "", OUTPUT cValue).
             
         IF NOT lFound THEN
@@ -761,7 +782,7 @@ CLASS system.Setting:
                            AND bf-scope.scopeField2 EQ ipcScopeField2
                            AND bf-scope.scopeField3 EQ ""                           
                          NO-ERROR.                         
-                ELSE IF ipcScopeTable EQ "ShipTo" AND ipcScopeField1 NE "" AND ipcScopeField2 NE "" AND ipcScopeField3 NE "" THEN
+                ELSE IF (ipcScopeTable EQ "ShipTo" OR ipcScopeTable EQ "Location") AND ipcScopeField1 NE "" AND ipcScopeField2 NE "" AND ipcScopeField3 NE "" THEN
                     FIND FIRST bf-scope NO-LOCK 
                          WHERE bf-scope.scopeTable  EQ ipcScopeTable
                            AND bf-scope.scopeField1 EQ ipcScopeField1
@@ -1328,6 +1349,9 @@ CLASS system.Setting:
         ipcScopeField1   AS CHARACTER, 
         ipcScopeField2   AS CHARACTER, 
         ipcScopeField3   AS CHARACTER):
+
+        DEFINE VARIABLE oJsonParser AS ObjectModelParser NO-UNDO.
+        DEFINE VARIABLE oJsonObject AS JsonObject        NO-UNDO.
 		         
         DEFINE BUFFER bf-setting     FOR setting.
         DEFINE BUFFER bf-settingType FOR settingType.
@@ -1336,6 +1360,7 @@ CLASS system.Setting:
         DEFINE BUFFER bf-cust        FOR cust.
         DEFINE BUFFER bf-shipto      FOR shipto.
         DEFINE BUFFER bf-vend        FOR vend.
+        DEFINE BUFFER bf-loc         FOR loc.
         
         FIND FIRST bf-settingType NO-LOCK
              WHERE bf-settingType.settingTypeID EQ ipiSettingTypeID
@@ -1352,17 +1377,27 @@ CLASS system.Setting:
         
         IF bf-settingType.dataType EQ "Integer" THEN
             INTEGER(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "Decimal" THEN
+        ELSE IF bf-settingType.dataType EQ "Decimal" THEN
             DECIMAL(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "Date" THEN
+        ELSE IF bf-settingType.dataType EQ "Date" THEN
             DATE(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "DateTime" THEN
+        ELSE IF bf-settingType.dataType EQ "DateTime" THEN
             DATETIME(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "DateTime-TZ" THEN
+        ELSE IF bf-settingType.dataType EQ "DateTime-TZ" THEN
             DATETIME-TZ(ipcSettingValue) NO-ERROR.
-        IF bf-settingType.dataType EQ "Logical" THEN
+        ELSE IF bf-settingType.dataType EQ "Logical" THEN
             LOGICAL(ipcSettingValue) NO-ERROR.
-                                                
+        ELSE IF bf-settingType.dataType EQ "Json" THEN DO:
+            IF ipcSettingValue NE "" THEN DO:
+                IF LENGTH(ipcSettingValue) GT 31995 THEN
+                    RETURN "Maximum character value reached. Cannot save data more than 31995 characters". 
+                oJsonParser = NEW ObjectModelParser().
+                oJsonObject = CAST(oJsonParser:Parse(INPUT ipcSettingValue), JsonObject) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN
+                    RETURN "Error parsing Json " + ERROR-STATUS:GET-MESSAGE(1).  
+            END.            
+        END.
+                                                        
         IF ERROR-STATUS:ERROR THEN
              RETURN "'" + ipcSettingValue + "' is not a valid value for '" + bf-settingType.settingName + "'. Value has to be " + STRING(bf-settingType.dataType EQ "Integer", "an/a") + "'" + bf-settingType.dataType + "'".
         
@@ -1403,6 +1438,21 @@ CLASS system.Setting:
                  NO-ERROR.
             IF NOT AVAILABLE bf-shipto THEN     
                 RETURN "Invalid Company/Customer/Shipto '" + ipcScopeField1 + "/" + ipcScopeField2 + "/" + ipcScopeField3 + "'".
+        END.
+        ELSE IF ipcScopeTable EQ "Location" THEN DO:
+            FIND FIRST bf-cust NO-LOCK
+                 WHERE bf-cust.company EQ ipcScopeField1
+                   AND bf-cust.cust-no EQ ipcScopeField2
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-cust THEN
+                RETURN "Invalid Company/Customer '" + ipcScopeField1 + "/" + ipcScopeField2 + "'".
+            IF AVAILABLE bf-cust THEN
+            FIND FIRST bf-loc NO-LOCK
+                 WHERE bf-loc.company EQ ipcScopeField1
+                   AND bf-loc.loc     EQ ipcScopeField3
+                 NO-ERROR.
+            IF NOT AVAILABLE bf-loc THEN     
+                RETURN "Invalid Company/Customer/Location '" + ipcScopeField1 + "/" + ipcScopeField2 + "/" + ipcScopeField3 + "'".
         END.
         ELSE IF ipcScopeTable EQ "Vendor" THEN DO:
             FIND FIRST bf-vend NO-LOCK

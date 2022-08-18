@@ -1028,12 +1028,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         v-inv-freight = v-inv-freight + b-inv-head.t-inv-freight.
     END.
    
-    PUT "<R58><C58.5><#8><FROM><R+5><C+23><RECT> " 
-        "<=8> Subtotal do    :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> imposto sobre  :" v-inv-freight
-        "<=8><R+2> " cTaxCode FORMAT "x(15)" ":" inv-head.t-inv-tax FORM "->>,>>9.99"
+    PUT "<R58><C54><#8><FROM><R+5><C+27><RECT> " 
+        "<=8> Subtotal do imposto:"v-subtot-lines FORM "->>,>>9.99"
+        "<=8><R+1> sobre              :" v-inv-freight
+        "<=8><R+2> " cTaxCode FORMAT "x(19)" ":" inv-head.t-inv-tax FORM "->>,>>9.99"
         "<=8><R+3>" "" 
-        "<=8><R+4> Fatura         :" inv-head.t-inv-rev FORM "->>,>>9.99" .
+        "<=8><R+4> Fatura total       :" inv-head.t-inv-rev FORM "->>,>>9.99" .
 
     PUT "<FArial><R58><C1><P12><B> OBRIGADO. </B> <P9> " SKIP.
     PUT "<FArial><R60><C1><P12> Todas as moedas exibidas em " cCurCode FORMAT "x(3)" ". <P9> " SKIP.

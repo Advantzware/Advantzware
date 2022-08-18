@@ -29,3 +29,7 @@
             ). 
     END.           
 &ENDIF
+
+&IF DEFINED(LocalInitApply) NE 0 &THEN
+      RUN pLocalInit.       
+&ENDIF

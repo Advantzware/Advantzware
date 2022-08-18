@@ -6,6 +6,7 @@ def buffer xoe-bolh     for oe-bolh.
 def buffer xoe-boll     for oe-boll.
 def buffer xitemfg      for itemfg.
 def buffer xxreport     for report.
+
 {oe/bolSign.i}
 {oe/rep/oe-lad.i}
 
@@ -314,7 +315,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       end.
 
       assign v-terms = oe-ord.terms-d
-             v-frt-terms = if oe-bolh.frt-pay eq "P" then "pré-pago"
+             v-frt-terms = if oe-bolh.frt-pay eq "P" then "prÃ©-pago"
                            else if oe-bolh.frt-pay eq "B" then "Conta"
                            else if oe-bolh.frt-pay eq "C" then "Coletar"
                            else if oe-bolh.frt-pay eq "T" then "Terceiro"
@@ -428,8 +429,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       "<R48><C3><#9><FROM><R+3><C+25><RECT> "
       "<=9> ESTRADOS:"
       "<=9><R+1> Conteúdo declarado:"
-      "<=9><R+2> LB:"  "<C30><B>N° do item NMFC  29250 - CLASS 125</B>" 
-      " <R51><C1><P12><B>     Instruções de envio: <P10> "
+      "<=9><R+2> LB:"  "<C30><B>NÂ° do item NMFC  29250 - CLASS 125</B>" 
+      " <R51><C2><P12><B>     Instruções de envio: <P10> "
       "<R52.5><C3.5>" oe-bolh.ship-i[1] 
       "<R53.5><C3.5>" oe-bolh.ship-i[2] 
       "<R54.5><C3.5>" oe-bolh.ship-i[3] 
@@ -447,41 +448,67 @@ for each xxreport where xxreport.term-id eq v-term-id,
   RUN XMLOutput (lXMLOutput,'/BOLFooter','','Row').
   /* rstark 05181205 */
   
-  PUT "<R57><C10><P10>TODAS AS RECLAMAÇÕES RELATIVAS AO ENVIO DEVEM SER FEITAS DENTRO DE 10 DIAS</B>"
+  /* Separator Lines and Title for conditions section */
+  PUT "<R56.6><C10><P10>TODAS AS RECLAMAÇÕES RELATIVAS AO ENVIO DEVEM SER FEITAS DENTRO DE 10 DIAS</B>"
       "<SAVE=LPI><ADJUST=LPI><P7>" 
-      "<R58><C26><From><R+10><C26><LINE><||3>"
-      "<R58><C43.7><From><R+10><C43.7><LINE><||3>"
+      "<R58><C26><From><R67><C26><LINE><||3>"
+      "<R58><C50><From><R67><C50><LINE><||3>"
+      .
   
-      "<R59.8><C26.5><From><C43><LINE><||3>"
-      "<R60><C26.5><From><C43><LINE><||3>"
-      "<R61><C26.5><From><C43><LINE><||3>"
-      "<R62><C26.5><From><C43><LINE><||3>"
-      "<R64><C26.5><From><C43><LINE><||3>"
-      "<R65><C54><From><C78><LINE><||3>"
-      "<R66><C27.5><From><C43><LINE><||3>"
-      "<R66.5><C50><From><C78><LINE><||3>"
-      "<R67.8><C33><From><C43><LINE><||3><C50><From><C78><LINE><||3>"
-  
-      "<R58><C1><P7>Sujeito à Seção 7 das Condições do conhecimento de <C26.1>Se os encargos forem pré-pagos,escreva    <C44>Se a carga transitar entre dois portos por um transportador por via marítima, a lei exige"
-      "<R59><C1>embarque aplicável, esta remessa deve ser entregue   <C26.3>ou carimbe aqui ""A ser pré-pago.""          <C44>que o conhecimento de embarque indique se é peso do transportador ou do expedidor."
-      "<R60><C1>ao destinatário sem recurso ao consignador. O                                              <C44>NOTA: quando a tarifa depende do valor, os expedidores são obrigados a indicar "
-      "<R61><C1>consignador deve assinar a seguinte declaração.     <C26.5>Recebi US$                              <C44>especificamente por escrito o valor acordado ou declarado do bem. O valor acordado"
-      "<R62><C1>O transportador não fará a entrega desta declaração sem <C26.5><P6>para aplicar ao pré-pagamento dos encargos <P7>     <C44>ou declarado do bem é especificamente declarado pelo expedidor como não"
-      "<R63><C1>o pagamento do frete e demais encargos legais.   <C26.5><P6>sobre o bem aqui descrito.<P7>                    <C44>excedendo. "
-      "<R64><C26.5><P6>              Agente ou caixa <P7>  <C44>  EXPEDIDOR POR         " SPACE(4) USERID(LDBNAME(1)).
+  /* Text for left side block of conditions section */
+  PUT
+      "<R58.0><C3><P7>Sujeito ã Seção 7 das Condições do"
+      "<R58.6><C3>conhecimento de embarque aplicãvel, esta" 
+      "<R59.2><C3>remessa deve ser entregue ao destinatãrio sem"
+      "<R59.8><C3>recurso ao consignador. O consignador deve"
+      "<R60.4><C3>assinar a seguinte declaração."
+      "<R61.0><C3>O transportador não farã a entrega desta"
+      "<R61.6><C3>declaração sem o pagamento do frete e demais"
+      "<R62.2><C3>encargos legais."
+      "<R65.2><C3><From><C25><LINE><||3>"
+      "<R65.8><C9>(Assinatura do consignador)"
+      .
+  /* Text for middle block of conditions section */
+  PUT
+      "<R58.0><C27><P7>Se os encargos forem pré-pagos,escreva ou"
+      '<R58.6><C27>carimbe aqui "A ser pré-pago".'
+      "<R59.78><C27><From><C48><LINE><||3>"
+      "<R59.8><C27>Recebie US$"
+      "<R60.98><C27><From><C48><LINE><||3>"
+      "<R61.0><C27>para aplicar ao pré-pagamento dos encargos sobre"
+      "<R61.6><C27>o bem aqui descrito."
+      "<R62.78><C27><From><C48><LINE><||3>"
+      "<R62.8><C32>Agente ou caixa"
+      "<R63.4><C27>Por"
+      "<R64.0><C27><P5>(A assinatura ãqui reconhece apenas o valor proposto.)"
+      "<R64.6><C27><P7>Encargoes"
+      "<R65.2><C27>adiantamento:"
+      "<R65.8><C27>US$ ______________________________________"
+      .
+
+  /* Text for right-side block of conditions section */
+  PUT
+      "<R58.0><C51><P7>Se a carga transitar entre dois portos por um"
+      "<R58.6><C51>transportador por via marÃ­tima, a lei exige que o" 
+      "<R59.2><C51>conhecimento de embarque indique se é peso do"
+      "<R59.8><C51>transportador ou do expedidor."
+      "<R60.4><C51>NOTA: quando a tarifa depende do valor, os"
+      "<R61.0><C51>expédidores são obrigados a indicar especificamente"
+      "<R61.6><C51>por escrito o valor acordado ou declarado do bem. O"
+      "<R62.2><C51>valor acordado ou declarado do bem é"
+      "<R62.8><C51>especificamente declarado pelo expedidor como não"
+      "<R63.4><C51>excedendo."
+      "<R64.6><C51><P7>EXPEDIDOR POR: ________________________"
+      "<R65.2><C51>AGENTE: ___________________________________"
+      "<R65.8><C51>POR: ______________________________________"
+      .
+      
   IF cSignatureFile NE "" THEN 
-      PUT "<C1><R65><#3><R+4><C+20><IMAGE#3=" cSignatureFile.
-  PUT "<R68><C1><From><C25><LINE><||3><R68><C9>(Assinatura do consignador)"
-      "<R64.5><C26.5>Por "
-      "<R65.5><C44>  AGENTE"   
-      "<R65.2><C26.5><From><C43><LINE><||3>"  /* per line*/
-      "<R65.2><C26.5><P4>(A assinatura aqui reconhece apenas o valor proposto.)<P7>"
-      "<R66><C26.5><From><C43><LINE><||3>"
-      "<R66> <C26.5>Encargos"
-      "<R67><C26.5><P6>adiantamento:US$ <P7><C44>  POR"
+      PUT "<C3><R64.2><#3><R+4><C+20><IMAGE#3=" cSignatureFile.
+      
+  PUT
       "<RESTORE=LPI>".
  
-
   v-printline = v-printline + 14. 
   
   PAGE.   
