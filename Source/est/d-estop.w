@@ -629,6 +629,16 @@ DO:
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out Dialog-Frame
+ON VALUE-CHANGED OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
+DO:
+    lNumberOutOverride = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME est-op.b-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num Dialog-Frame
 ON ENTRY OF est-op.b-num IN FRAME Dialog-Frame /* Blank# */
@@ -1010,12 +1020,13 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code Dialog-Frame
 ON ENTRY OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
 DO:
-        IF v-estopmch-log = NO AND v-override-mode THEN
-        DO:
-            APPLY "tab" TO est-op.m-code .
-            RETURN NO-APPLY.
-        END.
+    SELF:MODIFIED = NO.
+    IF v-estopmch-log = NO AND v-override-mode THEN
+    DO:
+        APPLY "tab" TO est-op.m-code .
+        RETURN NO-APPLY.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1024,39 +1035,41 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code Dialog-Frame
 ON LEAVE OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
 DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
+    IF LASTKEY NE -1 THEN 
+    DO:
+        IF SELF:MODIFIED THEN DO:
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        END. // self modified
 
-            FIND FIRST mach NO-LOCK
-                {sys/look/machW.i}
-                AND mach.m-code EQ {&self-name}:SCREEN-VALUE 
-                NO-ERROR.
-            IF AVAILABLE MACH THEN DO:
-                ASSIGN
-                    {&SELF-NAME}:SCREEN-VALUE  = CAPS(mach.m-code)
-                    est-op.m-dscr:SCREEN-VALUE = mach.m-dscr
-                    lv-dept                    = mach.dept[1]
-                    .    
-                IF mach.p-type EQ "B" AND
-                    INT(est-op.b-num:SCREEN-VALUE ) EQ 0 THEN
-                    est-op.b-num:SCREEN-VALUE  = "1".
-    
-                IF mach.p-type NE "B" AND NOT LOOKUP(mach.p-type, "P,A") GT 0 THEN
-                    est-op.b-num:SCREEN-VALUE  = "0".
-            END.            
-            
-            IF ll-import-stds AND NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
-            DO:
-                IF lv-dept EQ "PR" THEN
-                    APPLY "entry" TO est-op.plates .
-                ELSE
-                    APPLY "entry" TO est-op.att-type[1] .
-                RETURN NO-APPLY.
-            END.
+        FIND FIRST mach NO-LOCK
+            {sys/look/machW.i}
+            AND mach.m-code EQ SELF:SCREEN-VALUE 
+            NO-ERROR.
+        IF AVAILABLE MACH THEN DO:
+            ASSIGN
+                SELF:SCREEN-VALUE          = CAPS(mach.m-code)
+                est-op.m-dscr:SCREEN-VALUE = mach.m-dscr
+                lv-dept                    = mach.dept[1]
+                .    
+            IF mach.p-type EQ "B" AND
+                INT(est-op.b-num:SCREEN-VALUE ) EQ 0 THEN
+                est-op.b-num:SCREEN-VALUE  = "1".
+
+            IF mach.p-type NE "B" AND NOT LOOKUP(mach.p-type, "P,A") GT 0 THEN
+                est-op.b-num:SCREEN-VALUE  = "0".
+        END.            
+        
+        IF ll-import-stds AND NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
+        DO:
+            IF lv-dept EQ "PR" THEN
+                APPLY "entry" TO est-op.plates .
+            ELSE
+                APPLY "entry" TO est-op.att-type[1] .
+            RETURN NO-APPLY.
         END.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1096,22 +1109,22 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out Dialog-Frame
 ON LEAVE OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
 DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
-            lNumberOutOverride = SELF:MODIFIED.
-            RUN valid-mach NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF LASTKEY NE -1 THEN 
+    DO:
+        lNumberOutOverride = SELF:MODIFIED.
+        RUN valid-mach NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-            IF ll-import-stds AND CAN-DO(lv-n-out-depts,lv-dept) THEN 
-            DO:
-                IF lv-dept EQ "PR" THEN
-                    APPLY "entry" TO est-op.plates .
-                ELSE
-                    APPLY "entry" TO est-op.att-type[1] .
-                RETURN NO-APPLY.
-            END.
+        IF ll-import-stds AND CAN-DO(lv-n-out-depts,lv-dept) THEN 
+        DO:
+            IF lv-dept EQ "PR" THEN
+                APPLY "entry" TO est-op.plates .
+            ELSE
+                APPLY "entry" TO est-op.att-type[1] .
+            RETURN NO-APPLY.
         END.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
