@@ -803,7 +803,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-bill NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -815,7 +815,8 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+  
+  rwRowid = ROWID(quotechg).
   /* Code placed here will execute AFTER standard behavior.    */
   IF lv-update-est AND AVAIL quotechg THEN DO:     
       FIND FIRST quotehd OF quotechg NO-LOCK NO-ERROR.
@@ -839,7 +840,31 @@ PROCEDURE local-update-record :
             RELEASE est-prep.
       END.
   END.
+  
+  IF lv-update-est THEN
+  RUN pReOpenQuery(rwRowid). 
+  
   lv-update-est = NO.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery B-table-Win 
+PROCEDURE pReOpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO. 
+
+  DO WITH FRAME {&FRAME-NAME}:
+    RUN dispatch ("open-query").     
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.      
+    IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ("row-changed").
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
