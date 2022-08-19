@@ -504,7 +504,7 @@ PROCEDURE pInit :
             RUN FileSys_ValidateFile(cFile, OUTPUT lValid, OUTPUT cMessage).
     
             IF lValid THEN 
-                lLoaded = hdTT:READ-JSON("file", cFile, "empty").
+                lLoaded = hdTT:READ-JSON("file", cFile, "empty") NO-ERROR.
         END.
     END.
     
