@@ -706,7 +706,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cPalletLength               = "0.00"
                 cUnitPallet                 = "0"
                 cPurchaseUnit               = STRING(po-ordl.pr-qty-uom)
-                cJobID                      = TRIM(STRING(po-ordl.job-no, "X(" + STRING(LENGTH(po-ordl.job-no)) + ")"))
+                cJobID                      = TRIM(STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")"))
                 cJobID2                     = STRING(po-ordl.job-no2, ">9")
                 cJobConcat                  = IF po-ordl.job-no EQ "" THEN
                                                   ""
@@ -715,7 +715,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cJobConcatHRMS              = IF po-ordl.job-no EQ "" THEN
                                                   ""
                                               ELSE
-                                                  STRING(po-ordl.job-no, "X(" + STRING(LENGTH(po-ordl.job-no)) + ")") + "-" + STRING(po-ordl.job-no2, "99")
+                                                  STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")") + "-" + STRING(po-ordl.job-no2, "99")
                 cJobConcatSmurfit           = "" 
                 cJobConcat1                 = TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2, "99")                                         
                 cJobIDFormNo                = STRING(po-ordl.s-num)
