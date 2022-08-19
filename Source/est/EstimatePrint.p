@@ -86,6 +86,7 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD summColSellPriceShow        AS LOGICAL INITIAL YES
     FIELD summColSellPriceCol         AS DECIMAL INITIAL 76
     FIELD summColSellPriceWidth       AS INTEGER INITIAL 6
+    FIELD lCorrware                   AS LOGICAL 
     .
 
 {system\NotesProcs.i}
@@ -382,6 +383,8 @@ PROCEDURE pBuildConfig PRIVATE:
     DEFINE VARIABLE lLoaded       AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cFormatMaster AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormatFont   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReturn       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE glCorrware    AS LOGICAL   NO-UNDO.
 
     EMPTY TEMP-TABLE ttCEFormatConfig.
         
@@ -392,6 +395,9 @@ PROCEDURE pBuildConfig PRIVATE:
     RUN sys/ref/nk1look.p (INPUT ipcCompany, "CEFormatFont", "C" /* Character */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
         OUTPUT cFormatFont, OUTPUT lRecFound).
+        
+    RUN sys/ref/nk1look.p (ipcCompany, "MSFCALC", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lRecFound).
+     glCorrware = lRecFound AND cReturn EQ "Corrware".     
     
     IF cFormatMaster EQ "Config" THEN 
     DO:
@@ -429,6 +435,7 @@ PROCEDURE pBuildConfig PRIVATE:
             opbf-ttCEFormatConfig.maxColumnsForQuantity = 99.
         IF opbf-ttCEFormatConfig.rowsPerPage EQ 0 THEN 
             opbf-ttCEFormatConfig.rowsPerPage = 64.
+        opbf-ttCEFormatConfig.lCorrware  = glCorrware.  
     END.    
     
     //RUN Output_TempTableToJSON(TEMP-TABLE opbf-ttCEFormatConfig:HANDLE, "C:\temp\CEFormatConfig.json", YES).
@@ -1437,12 +1444,8 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         IF ttCEFormatConfig.showDimensionsIn16ths THEN
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ROUND (opdConvertTo16th,2), 4, 2, NO, YES, NO, NO, YES).
         ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostBlank.blankLength, 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostBlank.dimUOM , NO, NO, NO).
-        ASSIGN opdConvertTo16th = estCostBlank.blankArea.
-        RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT opdConvertTo16th).
-        IF ttCEFormatConfig.showDimensionsIn16ths THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ROUND (opdConvertTo16th,4), 8, 4, NO, YES, NO, NO, YES).
-        ELSE RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostBlank.blankArea, 8, 5, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostBlank.dimUOM , NO, NO, NO).         
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], IF ttCEFormatConfig.lCorrware THEN estCostBlank.blankArea * 0.007 ELSE estCostBlank.blankArea / 144, 8, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostBlank.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostBlank.numOut, 4, 0, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostBlank.weightPerBlank * 1000, 8, 4, NO, YES, NO, NO, YES). 
