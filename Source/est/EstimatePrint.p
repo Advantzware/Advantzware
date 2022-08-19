@@ -32,118 +32,7 @@ DEFINE TEMP-TABLE ttItemName NO-UNDO
     FIELD BlankNo  LIKE estcostitem.blankno
     FIELD ItemName LIKE estcostitem.itemname.    
     
-DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
-    FIELD outputFile                  AS CHARACTER 
-    FIELD previewFile                 AS LOGICAL INITIAL YES
-    FIELD printInPDF                  AS LOGICAL
-    FIELD formatMaster                AS CHARACTER
-    FIELD formatFont                  AS CHARACTER INITIAL "Calibri"
-    FIELD formatFontSize              AS INTEGER INITIAL 11
-    FIELD xprintTags                  AS CHARACTER 
-    FIELD isClassic                   AS LOGICAL 
-    FIELD maxColumnsForQuantity       AS INTEGER INITIAL 99
-    FIELD characterNumberError        AS CHARACTER INITIAL "#"
-    FIELD characterContinue           AS CHARACTER INITIAL ">>"
-    FIELD characterMasterQuantity     AS CHARACTER INITIAL "*"
-    FIELD rowsPerPage                 AS INTEGER INITIAL 64
-    FIELD showAllQuantities           AS LOGICAL INITIAL YES
-    FIELD showProfitPercent           AS LOGICAL INITIAL YES
-    FIELD SIMONListInclude            AS CHARACTER INITIAL "I,M"
-    FIELD SIMONListSeparate           AS CHARACTER INITIAL "S,O,N"
-    FIELD useReferenceQuantity        AS LOGICAL INITIAL NO
-    FIELD printByForm                 AS LOGICAL INITIAL YES
-    FIELD printSummary                AS LOGICAL INITIAL YES
-    FIELD printSummaryFirst           AS LOGICAL INITIAL YES
-    FIELD printAnalysis               AS LOGICAL INITIAL YES
-    FIELD printNotes                  AS LOGICAL INITIAL YES
-    FIELD printBoxDesigns             AS LOGICAL INITIAL YES
-    FIELD showDimensionsIn16ths       AS LOGICAL INITIAL YES
-    FIELD operationTimeInHHMM         AS LOGICAL 
-    FIELD summColQuantityShow         AS LOGICAL INITIAL NO
-    FIELD summColQuantityLabel        AS CHARACTER INITIAL "Quantity"
-    FIELD summColQuantityCol          AS DECIMAL INITIAL 36
-    FIELD summColQuantityWidth        AS INTEGER INITIAL 9
-    FIELD summColQuantityRequestShow  AS LOGICAL INITIAL YES
-    FIELD summColQuantityRequestLabel AS CHARACTER INITIAL "Requested"
-    FIELD summColQuantityRequestCol   AS DECIMAL INITIAL 26
-    FIELD summColQuantityRequestWidth AS INTEGER INITIAL 9
-    FIELD summColQuantityYieldShow    AS LOGICAL INITIAL YES
-    FIELD summColQuantityYieldLabel   AS CHARACTER INITIAL "Yielded" 
-    FIELD summColQuantityYieldCol     AS DECIMAL INITIAL 36
-    FIELD summColQuantityYieldWidth   AS INTEGER INITIAL 9
-    FIELD summColWeightShow           AS LOGICAL INITIAL YES
-    FIELD summColWeightLabel          AS CHARACTER INITIAL "Weight"
-    FIELD summColWeightCol            AS DECIMAL INITIAL 46
-    FIELD summColWeightWidth          AS INTEGER INITIAL 9
-    FIELD summColItemNameShow         AS LOGICAL INITIAL YES
-    FIELD summColItemNameLabel        AS CHARACTER INITIAL "Item Name"
-    FIELD summColItemNameCol          AS DECIMAL INITIAL 2
-    FIELD summColItemNameWidth        AS INTEGER INITIAL 30
-    FIELD summColDirectCostShow       AS LOGICAL INITIAL NO
-    FIELD summColDirectCostCol        AS DECIMAL INITIAL 46
-    FIELD summColDirectCostWidth      AS INTEGER INITIAL 6
-    FIELD summColFactoryCostShow      AS LOGICAL INITIAL YES
-    FIELD summColFactoryCostCol       AS DECIMAL INITIAL 56
-    FIELD summColFactoryCostWidth     AS INTEGER INITIAL 6
-    FIELD summColFullCostShow         AS LOGICAL INITIAL YES
-    FIELD summColFullCostCol          AS DECIMAL INITIAL 66
-    FIELD summColFullCostWidth        AS INTEGER INITIAL 6
-    FIELD summColSellPriceShow        AS LOGICAL INITIAL YES
-    FIELD summColSellPriceCol         AS DECIMAL INITIAL 76
-    FIELD summColSellPriceWidth       AS INTEGER INITIAL 6
-    FIELD analysisColQuantityShow     AS LOGICAL INITIAL YES
-    FIELD analysisColQuantityLabel    AS CHARACTER INITIAL "Quantity"
-    FIELD analysisColQuantityCol      AS DECIMAL INITIAL 2
-    FIELD analysisColQuantityWidth    AS INTEGER INITIAL 9
-    FIELD analysisColFactCostShow     AS LOGICAL INITIAL YES
-    FIELD analysisColFactCostLabel    AS CHARACTER INITIAL "FactCost"
-    FIELD analysisColFactCostCol      AS DECIMAL INITIAL 16
-    FIELD analysisColFactCostWidth    AS INTEGER INITIAL 8
-    FIELD analysisColFullCostShow     AS LOGICAL INITIAL YES
-    FIELD analysisColFullCostLabel    AS CHARACTER INITIAL "FullCost"
-    FIELD analysisColFullCostCol      AS DECIMAL INITIAL 26
-    FIELD analysisColFullCostWidth    AS INTEGER INITIAL 8
-    FIELD analysisColGrossMarginShow  AS LOGICAL INITIAL YES
-    FIELD analysisColGrossMarginLabel AS CHARACTER INITIAL "GrossMargin%"
-    FIELD analysisColGrossMarginCol   AS DECIMAL INITIAL 36
-    FIELD analysisColGrossMarginWidth AS INTEGER INITIAL 12
-    FIELD analysisColNetMarginShow    AS LOGICAL INITIAL YES
-    FIELD analysisColNetMarginLabel   AS CHARACTER INITIAL "NetMargin%"
-    FIELD analysisColNetMarginCol     AS DECIMAL INITIAL 50
-    FIELD analysisColNetMarginWidth   AS INTEGER INITIAL 10
-    FIELD analysisColSellPriceShow    AS LOGICAL INITIAL YES
-    FIELD analysisColSellPriceLabel   AS CHARACTER INITIAL "SellPrice"
-    FIELD analysisColSellPriceCol     AS DECIMAL INITIAL 66
-    FIELD analysisColSellPriceWidth   AS INTEGER INITIAL 9
-    FIELD analysisColPriceMSFShow     AS LOGICAL INITIAL YES
-    FIELD analysisColPriceMSFLabel    AS CHARACTER INITIAL "Price/MSF"
-    FIELD analysisColPriceMSFCol      AS DECIMAL INITIAL 76
-    FIELD analysisColPriceMSFWidth    AS INTEGER INITIAL 9
-    FIELD analysisColSheetsShow       AS LOGICAL INITIAL YES
-    FIELD analysisColSheetsLabel      AS CHARACTER INITIAL "Sheets"
-    FIELD analysisColSheetsCol        AS DECIMAL INITIAL 86
-    FIELD analysisColSheetsWidth      AS INTEGER INITIAL 6
-    FIELD analysisColTotalShtMSFShow  AS LOGICAL INITIAL YES
-    FIELD analysisColTotalShtMSFLabel AS CHARACTER INITIAL "TotalSht MSF"
-    FIELD analysisColTotalShtMSFCol   AS DECIMAL INITIAL 96
-    FIELD analysisColTotalShtMSFWidth AS INTEGER INITIAL 12
-    FIELD analysisColBoard$MShow      AS LOGICAL INITIAL NO
-    FIELD analysisColBoard$MLabel     AS CHARACTER INITIAL "Board$/M"
-    FIELD analysisColBoard$MCol       AS DECIMAL INITIAL 16
-    FIELD analysisColBoard$MWidth     AS INTEGER INITIAL 6
-    FIELD analysisColBoard%Show       AS LOGICAL INITIAL NO
-    FIELD analysisColBoard%Label      AS CHARACTER INITIAL "Board %"
-    FIELD analysisColBoard%Col        AS DECIMAL INITIAL 26
-    FIELD analysisColBoard%Width      AS INTEGER INITIAL 7 
-    FIELD analysisColTotalContbShow   AS LOGICAL INITIAL NO
-    FIELD analysisColTotalContbLabel  AS CHARACTER INITIAL "TotalContb"
-    FIELD analysisColTotalContbCol    AS DECIMAL INITIAL 36
-    FIELD analysisColTotalContbWidth  AS INTEGER INITIAL 6
-    FIELD analysisColContbHrShow      AS LOGICAL INITIAL NO
-    FIELD analysisColContbHrLabel     AS CHARACTER INITIAL "Contb/Hr"
-    FIELD analysisColContbHrCol       AS DECIMAL INITIAL 46
-    FIELD analysisColContbHrWidth     AS INTEGER INITIAL 6 
-    .
+{est/ttCEFormatConfig.i}
 
 {system\NotesProcs.i}
 
@@ -245,7 +134,7 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
         opbf-ttCEFormatConfig.printByForm                 = INDEX(ipcFormatMaster, "By Form") GT 0
         opbf-ttCEFormatConfig.printAnalysis               = INDEX(ipcFormatMaster, "Analysis") GT 0
         opbf-ttCEFormatConfig.printNotes                  = INDEX(ipcFormatMaster, "No Notes") EQ 0
-        opbf-ttCEFormatConfig.printBoxDesigns             = YES
+        opbf-ttCEFormatConfig.printBoxDesigns             = NO
         opbf-ttCEFormatConfig.showDimensionsIn16ths       = YES 
         opbf-ttCEFormatConfig.showProfitPercent           = YES
         opbf-ttCEFormatConfig.summColItemNameShow         = YES
@@ -2104,13 +1993,13 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
                     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
                 END. 
                 ELSE       
-                    RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeadersTop), YES, NO, YES). 
+                    RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeadersTop), YES, NO, NO). 
             END.    
         END.
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         DO iIndex = 1 TO EXTENT(iColumn):
             IF iIndex LE NUM-ENTRIES(cHeaders) AND ENTRY(iIndex,cHeaders) NE " " THEN 
-                RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeaders), YES, YES, YES).          
+                RUN pWriteToCoordinates(iopiRowCount, iColumn[iIndex], ENTRY(iIndex,cHeaders), YES, YES, NO).          
         END.         
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
@@ -2136,32 +2025,34 @@ PROCEDURE pPrintAnalysisLine PRIVATE:
                 .
         END. 
         IF ipbf-ttCEFormatConfig.analysisColQuantityShow THEN   
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ipbf-estCostHeader.quantityMaster , 9, 0, NO, YES, NO, NO, YES).
-        IF iplPrimary THEN RUN pWriteToCoordinates(iopiRowCount, iColumn[2] + 1, "*", NO, NO, NO).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], ipbf-estCostHeader.quantityMaster , 9, 0, NO, YES, NO, NO, NO).
+        IF iplPrimary THEN 
+            RUN pWriteToCoordinates(iopiRowCount, iColumn[2] + LENGTH(TRIM(STRING(ipbf-estCostHeader.quantityMaster))), "*", NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColFactCostShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostHeader.costTotalFactory / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostHeader.costTotalFactory / dQtyInM , 9, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColFullCostShow THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostHeader.costTotalFull / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostHeader.costTotalFull / dQtyInM , 9, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColGrossMarginShow THEN
-        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[5], ipbf-estCostHeader.profitPctGross , 4, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[5], ipbf-estCostHeader.profitPctGross , 4, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColNetMarginShow THEN
-        RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[6], ipbf-estCostHeader.profitPctNet , 4, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNumNeg(iopiRowCount, iColumn[6], ipbf-estCostHeader.profitPctNet , 4, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColBoard$MShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostHeader.costTotalBoard / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], ipbf-estCostHeader.costTotalBoard / dQtyInM , 9, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColBoard%Show THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100 , 9, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostHeader.costTotalBoard / ipbf-estCostHeader.sellPrice * 100 , 9, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColTotalContbShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], (ipbf-estCostHeader.sellPrice - (ipbf-estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM , 9, 2, NO, YES, NO, NO, YES).  
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], (ipbf-estCostHeader.sellPrice - (ipbf-estCostHeader.costTotalBoard / dQtyInM)) * dQtyInM , 9, 2, NO, YES, NO, NO, NO).  
         IF ipbf-ttCEFormatConfig.analysisColContbHrShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], dContbPerHR , 9, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], dContbPerHR , 9, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColSellPriceShow THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], ipbf-estCostHeader.sellPrice / dQtyInM , 9, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7], ipbf-estCostHeader.sellPrice / dQtyInM , 9, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColPriceMSFShow THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], ipbf-estCostHeader.sellPrice / dMSFTotal, 9, 2, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], ipbf-estCostHeader.sellPrice / dMSFTotal, 9, 2, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColSheetsShow THEN
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[9], dSheetsTotal , 9, 0, NO, YES, NO, NO, YES).
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[9], dSheetsTotal , 9, 0, NO, YES, NO, NO, NO).
         IF ipbf-ttCEFormatConfig.analysisColTotalShtMSFShow THEN 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[10], dMSFTotal , 9, 2, NO, YES, NO, NO, YES).   
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[10], dMSFTotal , 9, 2, NO, YES, NO, NO, NO).   
+        
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
 
@@ -2517,42 +2408,60 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
         END.   
     END.   
     
-    IF ipbf-estCostHeader.estType EQ "Set" THEN
+    IF ipbf-estCostHeader.estType EQ "Set" AND ipbf-ttCEFormatConfig.showSetPartSummary THEN
     DO:
         EMPTY TEMP-TABLE ttItemName.
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Individual Part # ", YES, YES, NO).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[2], "Description ", YES, YES, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[3], "Qty/Set ", YES, YES, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[4], "Price/EA ", YES, YES, YES).
-        
+        IF ipbf-ttCEFormatConfig.setPartSummPartIDShow THEN
+            RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPartIDCol, ipbf-ttCEFormatConfig.setPartSummPartIDLabel, YES, YES, NO).
+        IF ipbf-ttCEFormatConfig.setPartSummPartDescShow THEN
+            RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPartDescCol, ipbf-ttCEFormatConfig.setPartSummPartDescLabel, YES, YES, NO).
+        IF ipbf-ttCEFormatConfig.setPartSummQtyPerSetShow THEN
+            RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummQtyPerSetCol, ipbf-ttCEFormatConfig.setPartSummQtyPerSetLabel, YES, YES, YES).
+        IF ipbf-ttCEFormatConfig.setPartSummSellPriceShow THEN
+            RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummSellPriceCol, ipbf-ttCEFormatConfig.setPartSummSellPriceLabel, YES, YES, YES).
+        IF ipbf-ttCEFormatConfig.setPartSummPricePerEAShow THEN
+            RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, ipbf-ttCEFormatConfig.setPartSummPricePerEALabel, YES, YES, YES).
+
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         
         FOR EACH estCostItem NO-LOCK 
-        WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
-        AND NOT estCostItem.isSet
-        BY estCostItem.formNo
-        BY estCostItem.blankNo:
+            WHERE estCostItem.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
+              AND NOT estCostItem.isSet
+            BREAK BY estCostItem.estCostHeaderID
+            BY estCostItem.formNo
+            BY estCostItem.blankNo:
             
-        CREATE ttItemName.
-        ASSIGN ttItemName.BlankNo  = estcostItem.BlankNo
-               ttItemName.FormNo   = estcostItem.FormNo
-               ttItemName.ItemName = estcostItem.ItemName.
-                   
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn[1], estCostItem.customerPart, 30, NO, NO, NO).
-        RUN pWriteToCoordinatesString(iopiRowCount, iColumn[2], estCostItem.itemName, 30, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostItem.quantityPerSet, 2, 1, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostItem.sellprice * estCostItem.quantityPerSet / 1000 , 4, 2, NO, YES, NO, NO, YES).
-        ASSIGN dPriceTotal = dPriceTotal + estCostItem.sellprice * estCostItem.quantityPerSet / 1000.
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            CREATE ttItemName.
+            ASSIGN ttItemName.BlankNo  = estcostItem.BlankNo
+                   ttItemName.FormNo   = estcostItem.FormNo
+                   ttItemName.ItemName = estcostItem.ItemName.
+            
+            IF ipbf-ttCEFormatConfig.setPartSummPartIDShow THEN                   
+                RUN pWriteToCoordinatesString(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPartIDCol, estCostItem.customerPart, ipbf-ttCEFormatConfig.setPartSummPartIDWidth, NO, NO, NO).
+            IF ipbf-ttCEFormatConfig.setPartSummPartDescShow THEN            
+                RUN pWriteToCoordinatesString(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPartDescCol, estCostItem.itemName, ipbf-ttCEFormatConfig.setPartSummPartDescWidth, NO, NO, NO).
+            IF ipbf-ttCEFormatConfig.setPartSummQtyPerSetShow THEN
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummQtyPerSetCol, estCostItem.quantityPerSet, 2, 1, NO, YES, NO, NO, YES).
+            IF ipbf-ttCEFormatConfig.setPartSummSellPriceShow THEN
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummSellPriceCol, estCostItem.sellprice / 1000, 4, 4, NO, YES, NO, NO, YES).
+            IF ipbf-ttCEFormatConfig.setPartSummPricePerEAShow THEN DO:
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, estCostItem.sellprice * estCostItem.quantityPerSet / 1000 , 4, 2, NO, YES, NO, NO, YES).
+                
+            dPriceTotal = dPriceTotal + estCostItem.sellprice * estCostItem.quantityPerSet / 1000.
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            
+            IF LAST-OF(estCostItem.estCostHeaderID) THEN DO:
+                RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, "--------------", NO, NO, YES).
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                RUN pWriteToCoordinates(iopiRowCount, 2, "Set Total Price ", NO, NO, NO).
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, dPriceTotal , 4, 2, NO, YES, NO, NO, YES). 
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            END.
+            END.
         END. 
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[4], "--------------", NO, NO, YES).
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Set Total Price ", NO, NO, NO).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], dPriceTotal , 4, 2, NO, YES, NO, NO, YES). 
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).  
     END.    
     
     RUN pGetSummaryCosts(ipbf-estCostHeader.estCostHeaderID, ipbf-estCostHeader.rec_key, OUTPUT dCostTotal, OUTPUT dCostPerM).
@@ -2589,33 +2498,50 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     
-    FOR EACH estCostMisc NO-LOCK 
-        WHERE estCostMisc.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID 
-          AND estcostMisc.isPrep  
-    BREAK BY estCostMisc.estCostMiscID :
-        IF FIRST(estCostMisc) THEN
-        DO: 
-           RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Billable Prep", YES, YES, NO).
-           RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        END.
-        FIND FIRST ttItemName NO-LOCK 
-             WHERE ttItemName.FormNo  EQ estCostMisc.FormNo
-               AND ttItemName.BlankNo EQ estCostMisc.BlankNo NO-ERROR.
-        IF NOT AVAILABLE ttItemName AND estCostMisc.BlankNo EQ 0 THEN 
+    IF ipbf-ttCEFormatConfig.showBillablePrep THEN DO:
+        FOR EACH estCostMisc NO-LOCK 
+            WHERE estCostMisc.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID 
+              AND estcostMisc.isPrep  
+            BREAK BY estCostMisc.estCostMiscID :
+            IF FIRST(estCostMisc) THEN
+            DO: 
+                RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Billable Prep", YES, YES, NO).
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                IF ipbf-ttCEFormatConfig.billablePrepItemIDShow THEN
+                    RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemIDCol, ipbf-ttCEFormatConfig.billablePrepItemIDLabel, YES, YES, NO).
+                IF ipbf-ttCEFormatConfig.billablePrepItemNameShow THEN
+                    RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemNameCol, ipbf-ttCEFormatConfig.billablePrepItemNameLabel, YES, YES, NO).
+                IF ipbf-ttCEFormatConfig.billablePrepItemCostShow THEN
+                    RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemCostCol, ipbf-ttCEFormatConfig.billablePrepItemCostLabel, YES, YES, NO).
+                
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            END.
             FIND FIRST ttItemName NO-LOCK 
-                 WHERE ttItemName.FormNo  EQ estCostMisc.FormNo NO-ERROR.
-
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[1], estCostMisc.ItemID, NO, NO, NO).  
-        IF AVAILABLE ttItemName THEN 
-            RUN pWriteToCoordinates(iopiRowCount, iColumn[2], ttItemName.ItemName, NO, NO, YES). 
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], estCostMisc.costTotal , 9, 2, YES, YES, NO, NO, YES). 
-        ASSIGN dPrepCostTotal = dPrepCostTotal + estCostMisc.costTotal.
-        RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                 WHERE ttItemName.FormNo  EQ estCostMisc.FormNo
+                   AND ttItemName.BlankNo EQ estCostMisc.BlankNo NO-ERROR.
+            IF NOT AVAILABLE ttItemName AND estCostMisc.BlankNo EQ 0 THEN 
+                FIND FIRST ttItemName NO-LOCK 
+                     WHERE ttItemName.FormNo  EQ estCostMisc.FormNo NO-ERROR.
+            
+            IF ipbf-ttCEFormatConfig.billablePrepItemIDShow THEN
+                RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemIDCol, estCostMisc.ItemID, NO, NO, NO).  
+            IF AVAILABLE ttItemName AND ipbf-ttCEFormatConfig.billablePrepItemNameShow THEN 
+                RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemNameCol, ttItemName.ItemName, NO, NO, NO). 
+            IF ipbf-ttCEFormatConfig.billablePrepItemCostShow THEN
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemCostCol, estCostMisc.costTotal, 9, 2, YES, YES, NO, NO, NO). 
+            
+            ASSIGN dPrepCostTotal = dPrepCostTotal + estCostMisc.costTotal.
+            RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+            
+            IF LAST(estCostMisc) AND ipbf-ttCEFormatConfig.billablePrepItemCostShow THEN DO:
+                RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemCostCol, "-----------", NO, NO, NO).
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+                RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemIDCol, "Total: ", NO, NO, NO).
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.billablePrepItemCostCol, dPrepCostTotal , 9, 2, NO, YES, NO, NO, NO). 
+                RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
+            END.            
+        END.
     END.
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Total: ", NO, NO, NO).
-    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], dPrepCostTotal , 9, 2, NO, YES, NO, NO, YES). 
-    RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount). 
-     
 END PROCEDURE.
 
 
