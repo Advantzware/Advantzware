@@ -2446,11 +2446,11 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
             IF ipbf-ttCEFormatConfig.setPartSummQtyPerSetShow THEN
                 RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummQtyPerSetCol, estCostItem.quantityPerSet, 2, 1, NO, YES, NO, NO, YES).
             IF ipbf-ttCEFormatConfig.setPartSummSellPriceShow THEN
-                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummSellPriceCol, estCostItem.sellprice / 1000, 4, 4, NO, YES, NO, NO, YES).
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummSellPriceCol, estCostItem.sellprice / ipbf-estCostHeader.quantityMaster, 4, 4, NO, YES, NO, NO, YES).
             IF ipbf-ttCEFormatConfig.setPartSummPricePerEAShow THEN DO:
-                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, estCostItem.sellprice * estCostItem.quantityPerSet / 1000 , 4, 2, NO, YES, NO, NO, YES).
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, estCostItem.sellprice * estCostItem.quantityPerSet / ipbf-estCostHeader.quantityMaster, 4, 2, NO, YES, NO, NO, YES).
                 
-            dPriceTotal = dPriceTotal + estCostItem.sellprice * estCostItem.quantityPerSet / 1000.
+            dPriceTotal = dPriceTotal + estCostItem.sellprice * estCostItem.quantityPerSet / ipbf-estCostHeader.quantityMaster.
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             
             IF LAST-OF(estCostItem.estCostHeaderID) THEN DO:
@@ -2501,8 +2501,11 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     IF ipbf-ttCEFormatConfig.showBillablePrep THEN DO:
         FOR EACH estCostMisc NO-LOCK 
             WHERE estCostMisc.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID 
-              AND estcostMisc.isPrep  
-            BREAK BY estCostMisc.estCostMiscID :
+              AND estcostMisc.isPrep 
+              AND estCostMisc.simon           EQ "S" 
+            BREAK BY estCostMisc.formNo
+                  BY estCostMisc.blankNo
+                  BY estCostMisc.estCostMiscID :
             IF FIRST(estCostMisc) THEN
             DO: 
                 RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Billable Prep", YES, YES, NO).
