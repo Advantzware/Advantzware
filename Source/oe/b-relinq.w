@@ -1840,7 +1840,7 @@ PROCEDURE pSetLocation :
   DEFINE VARIABLE iUserLocation AS INTEGER   NO-UNDO.
         
   RUN pGetUserLocation(Output cUserLocation, OUTPUT iUserLocation).
-  MESSAGE iUserLocation VIEW-AS ALERT-BOX.
+  
   rdLocation:LIST-ITEMs IN FRAME {&FRAME-NAME}  = cUserLocation.
   IF iUserLocation EQ 1 THEN
   ASSIGN
