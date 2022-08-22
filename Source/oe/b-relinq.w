@@ -1840,6 +1840,7 @@ PROCEDURE pSetLocation :
   DEFINE VARIABLE iUserLocation AS INTEGER   NO-UNDO.
         
   RUN pGetUserLocation(Output cUserLocation, OUTPUT iUserLocation).
+  MESSAGE iUserLocation VIEW-AS ALERT-BOX.
   rdLocation:LIST-ITEMs IN FRAME {&FRAME-NAME}  = cUserLocation.
   IF iUserLocation EQ 1 THEN
   ASSIGN
@@ -1874,12 +1875,13 @@ PROCEDURE pGetUserLocation :
    FIND FIRST users NO-LOCK
         WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
    IF AVAILABLE users THEN
-   FOR EACH usrx NO-LOCK
-       WHERE usrx.uid EQ users.user_id
-         AND usrx.company EQ cocode 
-         AND usrx.loc NE "" , 
-       EACH loc OF usrx NO-LOCK :      
-      cUserLoc = cUserLoc + "," + usrx.loc . 
+   
+   FOR EACH usercomp NO-LOCK
+       WHERE usercomp.user_id EQ users.user_id
+         AND usercomp.company EQ cocode 
+         AND usercomp.loc NE "" , 
+       EACH loc OF usercomp NO-LOCK :      
+      cUserLoc = cUserLoc + "," + usercomp.loc . 
       opiUserLoc = opiUserLoc + 1.   
    END.
    IF cUserLoc EQ "All" THEN
