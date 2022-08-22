@@ -79,7 +79,7 @@ DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*F
 DEFINE VARIABLE gcCECostSourceLookup                  AS CHARACTER NO-UNDO.  /*CECostSource*/
 DEFINE VARIABLE giPromptForErrorLevel                 AS INTEGER   NO-UNDO.  /*CEShowErrorsAndWarnings*/
 DEFINE VARIABLE glAutoRecostBoard                     AS LOGICAL   NO-UNDO.  /*CEAutoRecostBoard*/
-
+DEFINE VARIABLE gclCorrware                           AS LOGICAL   NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -543,7 +543,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-ttEstCostBlank.blankWidth              = IF ipbf-eb.t-wid EQ 0 THEN ipbf-eb.wid ELSE ipbf-eb.t-wid
         opbf-ttEstCostBlank.blankLength             = IF ipbf-eb.t-len EQ 0 THEN ipbf-eb.len ELSE ipbf-eb.t-len
         opbf-ttEstCostBlank.blankDepth              = IF ipbf-eb.t-dep EQ 0 THEN ipbf-eb.dep ELSE ipbf-eb.t-dep
-        opbf-ttEstCostBlank.blankArea               = IF ipbf-eb.t-sqin EQ 0 THEN opbf-ttEstCostBlank.blankLength * opbf-ttEstCostBlank.blankWidth ELSE ipbf-eb.t-sqin
+        opbf-ttEstCostBlank.blankArea               = IF ipbf-eb.t-sqin EQ 0 THEN opbf-ttEstCostBlank.blankLength * opbf-ttEstCostBlank.blankWidth ELSE ( IF gclCorrware THEN ipbf-eb.t-sqin * 0.007 ELSE ipbf-eb.t-sqin / 144)
         opbf-ttEstCostBlank.dimLength               = ipbf-eb.len
         opbf-ttEstCostBlank.dimWidth                = ipbf-eb.wid
         opbf-ttEstCostBlank.dimDepth                = ipbf-eb.dep
@@ -552,7 +552,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-ttEstCostBlank.isPurchased             = ipbf-eb.pur-man
                                                         
         /*Refactor - Hardcoded*/
-        opbf-ttEstCostBlank.areaUOM                 = "SQIN"
+        opbf-ttEstCostBlank.areaUOM                 = "SF"
         opbf-ttEstCostBlank.dimUOM                  = "IN"
         opbf-ttEstCostBlank.weightUOM               = gcDefaultWeightUOM
                     
@@ -670,15 +670,15 @@ PROCEDURE pAddEstFormFromEf PRIVATE:
             
                
         /*Refactor - Formulas/Conversions - don't assume SF and inches*/
-        opbf-ttEstCostForm.grossArea                      = opbf-ttEstCostForm.grossWidth * opbf-ttEstCostForm.grossLength / 144
-        opbf-ttEstCostForm.netArea                        = opbf-ttEstCostForm.netWidth * opbf-ttEstCostForm.netLength / 144
-        opbf-ttEstCostForm.dieArea                        = opbf-ttEstCostForm.dieWidth * opbf-ttEstCostForm.dieLength / 144
+        opbf-ttEstCostForm.grossArea                      = IF gclCorrware THEN (opbf-ttEstCostForm.grossWidth * opbf-ttEstCostForm.grossLength * 0.007) ELSE (opbf-ttEstCostForm.grossWidth * opbf-ttEstCostForm.grossLength / 144)
+        opbf-ttEstCostForm.netArea                        = IF gclCorrware THEN (opbf-ttEstCostForm.netWidth * opbf-ttEstCostForm.netLength * 0.007)  ELSE (opbf-ttEstCostForm.netWidth * opbf-ttEstCostForm.netLength / 144)
+        opbf-ttEstCostForm.dieArea                        = IF gclCorrware THEN (opbf-ttEstCostForm.dieWidth * opbf-ttEstCostForm.dieLength * 0.007)  ELSE (opbf-ttEstCostForm.dieWidth * opbf-ttEstCostForm.dieLength / 144)
         
         opbf-ttEstCostForm.weightDieSheet                 = opbf-ttEstCostForm.basisWeight * opbf-ttEstCostForm.dieArea 
         opbf-ttEstCostForm.weightNetSheet                 = opbf-ttEstCostForm.basisWeight * opbf-ttEstCostForm.netArea 
         opbf-ttEstCostForm.weightGrossSheet               = opbf-ttEstCostForm.basisWeight * opbf-ttEstCostForm.grossArea
         .
-
+                   
 END PROCEDURE.
 
 PROCEDURE pAddEstItem PRIVATE:
@@ -6355,6 +6355,9 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipcCompany, "CEShowErrorsAndWarnings", "I" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
         giPromptForErrorLevel = IF lFound THEN INTEGER (cReturn) ELSE 0.
+        
+    RUN sys/ref/nk1look.p (ipcCompany, "MSFCALC", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+     gclCorrware = lFound AND cReturn EQ "Corrware".     
        
 END PROCEDURE.
 
