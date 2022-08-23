@@ -57,7 +57,8 @@ DEFINE VARIABLE dConversionFactor AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iStyleFormulaOnLen LIKE style.use-l   NO-UNDO.
 DEFINE VARIABLE iStyleFormulaOnWid LIKE style.use-w   NO-UNDO.
 
-DEFINE VARIABLE lBlanksStyleTypePartition AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBlanksStyleTypePartition AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCENewPartitionCalc       AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE ceroute-dec AS DECIMAL NO-UNDO. // ASk  BRAD
 
@@ -245,7 +246,10 @@ IF avail(bf-item) AND bf-item.i-code EQ "E" AND bf-ef.xgrain = "N" AND AVAILABLE
         dTempLength = min(dTempLength, bf-mach.max-wid)
         dTempWidth  = min(dTempWidth, bf-mach.max-len).
 
-RUN pAreBlanksPartitionStyleType (BUFFER bf-ef, OUTPUT lBlanksStyleTypePartition).
+RUN spGetSettingByName ("CENewPartitionCalc", OUTPUT cCENewPartitionCalc).
+
+IF cCENewPartitionCalc EQ "YES" THEN
+    RUN pAreBlanksPartitionStyleType (BUFFER bf-ef, OUTPUT lBlanksStyleTypePartition).
 
 RUN pGetDecimalSettings(
     INPUT  bf-eb.company,  /*Get NK1 CECSCRN settings*/
@@ -255,7 +259,8 @@ RUN pGetDecimalSettings(
     OUTPUT dConversionFactor
     ).
             
-IF lBlanksStyleTypePartition THEN DO:
+IF lBlanksStyleTypePartition AND 
+    DYNAMIC-FUNCTION("fEstimate_IsComboType", DYNAMIC-FUNCTION("fEstimate_GetEstimateType", bf-eb.est-type, "")) THEN DO:
     ASSIGN
         dCalcTotalLength = 0
         dCalcTotalWidth  = bf-eb.t-wid * bf-eb.num-len

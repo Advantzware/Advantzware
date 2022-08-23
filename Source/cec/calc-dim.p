@@ -28,7 +28,8 @@ def var lv-is-foam as log no-undo.
 def var lv-industry as cha no-undo.
 DEF VAR li AS INT NO-UNDO.
 
-DEFINE VARIABLE lBlanksStyleTypePartition AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBlanksStyleTypePartition AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCENewPartitionCalc       AS CHARACTER NO-UNDO.
 
 DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
 
@@ -170,9 +171,13 @@ DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
       llen = min(llen, mach.max-wid)
       lwid = min(lwid, mach.max-len).
 
-  RUN pAreBlanksPartitionStyleType (BUFFER xef, OUTPUT lBlanksStyleTypePartition).
+  RUN spGetSettingByName ("CENewPartitionCalc", OUTPUT cCENewPartitionCalc).
 
-  IF lBlanksStyleTypePartition THEN DO:
+  IF cCENewPartitionCalc EQ "YES" THEN
+      RUN pAreBlanksPartitionStyleType (BUFFER xef, OUTPUT lBlanksStyleTypePartition).
+
+  IF lBlanksStyleTypePartition AND 
+    DYNAMIC-FUNCTION("fEstimate_IsComboType", DYNAMIC-FUNCTION("fEstimate_GetEstimateType", xeb.est-type, "")) THEN DO:
     ASSIGN
      num[1] = 0
      num[2] = xeb.t-wid * xeb.num-len.
