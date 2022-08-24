@@ -929,18 +929,6 @@ PROCEDURE local-initialize :
  
   /* Code placed here will execute PRIOR to standard behavior. */
   cObjects = "First,Last,HomeSmall,JobList,EnterJob,PageUpSmall,PageDownSmall,Schedule,Sort,BackSmall".
-  RUN methods/prgsecur.p (
-      "touchSort",
-      "Access",
-      NO, /* validate directory */
-      NO, /* show messages      */
-      NO, /* group override     */
-      OUTPUT lAccess,
-      OUTPUT lAccessClose,
-      OUTPUT cAccessList
-      ).
-  IF NOT lAccess THEN
-  cObjects = REPLACE(cObjects,"Sort,","").
 
   DISPLAY sortBy WITH FRAME {&FRAME-NAME}.
   RUN pCreateINIObjects (cObjects).
