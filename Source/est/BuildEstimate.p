@@ -499,10 +499,14 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
                    AND ITEM.i-no = eb.adhesive NO-ERROR.
             IF AVAIL ITEM AND index("G,S,T",ITEM.mat-type) > 0 AND ITEM.i-no <> "No Joint"
             THEN eb.lin-in = eb.dep.
+            FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+            {est/u2estc.i eb.gluelap 1}
          END.  /* avail style */          
          ASSIGN
            eb.i-col = ttInputEst.iColor
-           eb.i-coat = ttInputEst.iCoating.
+           eb.i-coat = ttInputEst.iCoating
+           eb.k-wid-array2 = 0
+           eb.k-len-array2 = 0.
          RUN Estmate_DefaultAssignInks (BUFFER eb).
          RUN est/BuildBoxDesign.p ("B", ROWID(eb)).
       END. /*est.estimateTypeID = "SetSubAssembly" */  

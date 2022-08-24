@@ -466,6 +466,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               AND ITEM.i-no = eb.adhesive NO-ERROR.
        IF AVAIL ITEM AND index("G,S,T",ITEM.mat-type) > 0 AND ITEM.i-no <> "No Joint"
        THEN eb.lin-in = eb.dep.
+       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+       {est/u2estc.i eb.gluelap 1}
     END.  /* avail style */            
           
     IF ttInputEst.cEstType EQ "SetSubAssembly" THEN
@@ -481,11 +483,15 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         MESSAGE "Do you wish to reset box design?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
             UPDATE lBuildFile.         
-    END.
+    END.  
+    
     IF lBuildFile AND lBoxDesign THEN
     DO:
+       ASSIGN 
+           eb.k-wid-array2 = 0
+           eb.k-len-array2 = 0.
        RUN est/BuildBoxDesign.p ("B", ROWID(eb)).        
-    END. 
+    END.  
       
     RUN  est/CalcBlankSize.p("C", ROWID(eb)) .
         
