@@ -1,0 +1,86 @@
+ADD FIELD "emailPreference" OF "cust" AS integer
+  FORMAT "9"
+  POSITION 180
+  INITIAL "0"
+  LABEL "Email Preference"
+  COLUMN-LABEL "Email Preference"
+  ORDER 1780
+  MAX-WIDTH 4
+
+ADD FIELD "receiveAsRMItemID" OF "eb" AS character
+  FORMAT "x(10)"
+  POSITION 167
+  INITIAL ""
+  LABEL "Receive As RM ItemID"
+  COLUMN-LABEL "Receive As RM ItemID"
+  ORDER 1630
+  MAX-WIDTH 20
+
+ADD FIELD "hoursSetup" OF "estCostHeader" AS decimal
+  DESCRIPTION "Setup/Make Ready Hours for cost header quantity"
+  FORMAT "->>,>>9.99"
+  POSITION 65
+  INITIAL "0"
+  LABEL "Setup Hours"
+  DECIMALS 6
+  ORDER 1100
+  MAX-WIDTH 21
+
+ADD FIELD "hoursRun" OF "estCostHeader" AS decimal
+  DESCRIPTION "Run Hours for cost header quantity"
+  FORMAT "->>,>>9.99"
+  POSITION 66
+  INITIAL "0"
+  LABEL "Run Hours"
+  DECIMALS 6
+  ORDER 1110
+  MAX-WIDTH 21
+
+ADD FIELD "isCorrugator" OF "estCostOperation" AS logical
+  DESCRIPTION "Is Operation a corrugator?"
+  FORMAT "yes/no"
+  POSITION 79
+  INITIAL "no"
+  HELP "Enter if operation is corrugator"
+  LABEL "Corrugator?"
+  COLUMN-LABEL "Corrugator?"
+  ORDER 810
+  MAX-WIDTH 1
+
+ADD FIELD "receiveAsRMItemID" OF "itemfg" AS character
+  FORMAT "x(10)"
+  POSITION 233
+  INITIAL ""
+  LABEL "Receive As RM ItemID"
+  COLUMN-LABEL "Receive As RM ItemID"
+  ORDER 2300
+  MAX-WIDTH 20
+
+ADD INDEX "receiveAsRMItemID" ON "itemfg"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "receiveAsRMItemID" ASCENDING
+
+ADD FIELD "floorPositions" OF "loc" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 18
+  INITIAL "0"
+  LABEL "# Floor Positions"
+  COLUMN-LABEL "# Floor Positions"
+  ORDER 170
+  MAX-WIDTH 4
+
+ADD FIELD "rackPositions" OF "loc" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 19
+  INITIAL "0"
+  LABEL "# Rack Positions"
+  COLUMN-LABEL "# Rack Positions"
+  ORDER 180
+  MAX-WIDTH 4
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001870

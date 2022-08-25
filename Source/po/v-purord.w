@@ -1085,8 +1085,12 @@ DO:
                         NO-ERROR.
                         
         FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
-  
-        IF AVAILABLE loc THEN DO:
+        IF AVAILABLE loc AND NOT loc.ACTIVE THEN 
+        DO:
+           MESSAGE "Warehouse is Inactive. Try help. " VIEW-AS ALERT-BOX ERROR.
+           RETURN NO-APPLY.
+        END.
+        ELSE IF AVAILABLE loc THEN DO:
           RUN pAssignAddressFromLocation(loc.loc). 
         END.
         ELSE IF AVAIL company AND company.company EQ po-ord.ship-id:SCREEN-VALUE THEN
@@ -3197,6 +3201,27 @@ PROCEDURE valid-ship-id :
             oplReturnError = YES.
         END.
     END.
+    ELSE IF rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "S"  THEN DO:
+       FIND FIRST loc NO-LOCK
+            WHERE loc.company EQ cocode
+            AND loc.loc EQ po-ord.ship-id:SCREEN-VALUE
+            NO-ERROR.
+                        
+        FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
+        IF AVAILABLE loc AND NOT loc.ACTIVE THEN 
+        DO:
+           MESSAGE "Warehouse is Inactive. Try help. " VIEW-AS ALERT-BOX ERROR.
+           APPLY "entry" TO po-ord.ship-id.
+           oplReturnError = YES.
+        END.
+        ELSE IF company.company NE po-ord.ship-id:SCREEN-VALUE AND NOT AVAILABLE loc THEN
+        DO:
+            MESSAGE "Invalid Warehouse. Try help. " VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO po-ord.ship-id.
+            oplReturnError = YES.
+        END.
+        
+    END.    
   END.
   {methods/lValidateError.i NO}
     

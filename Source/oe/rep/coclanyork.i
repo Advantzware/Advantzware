@@ -1,6 +1,6 @@
 /* oe/rep/coclanyork.i  */  
 PUT "<FCourier New>"
-    "<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 
+    "<C3><R2><#1><R+8><C+40><IMAGE#1=" ls-full-img1 
     "<B><R4><C45><P14>CERTIFICATE OF COMPLIANCE</B><P10>" SKIP
     "<R12><C1>"
     SPACE(7) "Customer:" SPACE(39) "Ship To:"  SKIP

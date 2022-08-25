@@ -220,7 +220,7 @@
 "001" "Reports" "Selectable Report Columns" 0 0 "DR8" ? yes "" "0729201509761297" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR5" ? yes "" "0729201509761313" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "JR4" ? yes "" "0729201509763558" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "Reports" "Selectable Report Columns" 0 0 "DR1" ? no "" "0730201509764409" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "Reports" "Selectable Report Columns" 0 0 "DR1" ? yes "" "0730201509764409" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR2" ? yes "" "0730201509764838" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "JR5" ? yes "" "0805201509770750" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "DR3" ? yes "" "0730201509765269" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -438,4 +438,5 @@
 "001" "cXMLShipToPrefix" "" 0 0 "DICKS:" ? no "" "1111201409488089" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "LoadTagSSCC" "" 0 0 "" ? yes "OU7" "0111201609886898" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "BOLPOST" "" 0 0 "AutoSelectShipFrom" ? yes "OS5" "0916201610173875" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "INVPRINT" "" 0 0 "invprint 1" ? no "" "202206163283109592521" yes "ZOV100" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CINVOICE" "" 0 0 "FibreMexico" ? yes "" "201903264705203421834" yes "ZOV100" "ZOVBRK" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no

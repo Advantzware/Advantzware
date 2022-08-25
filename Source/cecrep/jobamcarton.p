@@ -527,7 +527,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<B>"
               "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(20)"
               "</B>"
-              "<=DieLocation>" v-die-loc FORMAT "x(10)"
+              "<=DieLocation>" v-die-loc FORMAT "x(15)"
               "<=Impressions>" TRIM(STRING(v-dc-qty))    FORMAT "x(7)"
               "<=GrossWidth>" TRIM(STRING({sys/inc/k16v.i xef.gsh-wid},">>>>9.99")) FORMAT "x(8)"
               "<=GrossLength>" TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>>9.99")) FORMAT "x(8)"
@@ -694,12 +694,12 @@ DO v-local-loop = 1 TO v-local-copies:
            v-dept-note     = "" .
         IF NOT v-dept-log THEN v-dept-codes = "".   
         
-        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).   
+        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, "", 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).   
                         
         ASSIGN          
         v-spec-note   = "" .
         
-        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, "", 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
                 
          PUT  "<=NotesStart><FROM><C108><LINE><|1>"
               "<=NotesStart><C+1><R+1><B>Department Notes</B><#Notes>"

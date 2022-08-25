@@ -14,8 +14,9 @@
 
 form
   skip(3)
-  ap-chk.check-no to 6 ap-chk.check-date to 15
-  vend.vend-no to 26 skip(5)                                                 /* ekw01130003 */
+  ap-chk.check-no to 8 
+  ap-chk.check-date to 17
+  vend.vend-no to 28 skip(5)                                                 /* ekw01130003 */
   dol at 1 skip(1)                                                                  /* ekw01130003 */
   ctot to 75 format "*,***,**9.99" skip(2)
   vend.remit at 10

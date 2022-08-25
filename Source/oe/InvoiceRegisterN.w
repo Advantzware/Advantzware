@@ -202,6 +202,7 @@ DO TRANSACTION:
 END.
 
 
+RUN spSetSettingContext.
 
 &SCOPED-DEFINE use-factored
 
@@ -532,6 +533,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 /* ************************  Control Triggers  ************************ */
 
 &Scoped-define SELF-NAME C-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
+ON "CTRL-S" OF {&WINDOW-NAME} ANYWHERE /* Invoice Register */
+DO:
+    RUN windows/setting-dialog.w.
+    
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Invoice Register */
     OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 

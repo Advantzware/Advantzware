@@ -97,7 +97,6 @@ DEFINE VARIABLE cPoStatus     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPoLineStatus AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsMatches    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lEnableShowAll     AS LOGICAL   NO-UNDO.
-
 DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cBrowseWhereClause AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
@@ -107,6 +106,8 @@ DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFormattedJobno    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdJobProcs         AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lChoice        AS LOGICAL NO-UNDO.
+
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 DEFINE VARIABLE iInitialQueryLimit AS INTEGER   NO-UNDO.
@@ -125,7 +126,8 @@ RUN sys/ref/nk1look.p(
     OUTPUT lFound
     ).
 IF lFound THEN
-    iInitialQueryLimit = INTEGER(cReturn).        
+    iInitialQueryLimit = INTEGER(cReturn).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -804,6 +806,9 @@ END.*/
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
+    IF lChoice = FALSE THEN 
+        APPLY "LEAVE" TO fi_due-date.
+    
     cFormattedJobno      = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fi_job-no:SCREEN-VALUE)) 
             .
     fi_job-no:SCREEN-VALUE = cFormattedJobno .    
@@ -894,6 +899,25 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fi_due-date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_due-date B-table-Win
+ON LEAVE OF fi_due-date IN FRAME F-Main
+    DO:
+        IF DATE(fi_due-date:SCREEN-VALUE) LT TODAY - 365  THEN  
+            MESSAGE "Date entered is more than a year ago." SKIP(1)
+                "Do you want to continue?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                TITLE "" UPDATE lChoice.
+        IF lChoice = NO THEN 
+            RETURN NO-APPLY.
+        
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME fi_i-no
@@ -1059,8 +1083,9 @@ SESSION:DATA-ENTRY-RETURN = YES.
 
  DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}  /* task 07101525 */
-    fi_due-date = DATE(fi_due-date:SCREEN-VALUE)  .
-    IF fi_due-date LT TODAY - 365  THEN
+    fi_due-date = DATE(fi_due-date:SCREEN-VALUE).
+    
+    IF fi_due-date EQ ? THEN
         ASSIGN
            fi_due-date:SCREEN-VALUE = STRING(TODAY - 180) 
            fi_due-date = TODAY - 180 .

@@ -146,7 +146,61 @@ PROCEDURE Estimate_CalcFormInksAndCoats:
             opiInkPerForm  = iNumCol.
     END.    
 END PROCEDURE.
+   
+PROCEDURE Estimate_DeleteEstCostCatGroupLevel:
+/*------------------------------------------------------------------------------
+     Purpose: Returns the system data in Temp-tables
+     Notes: If No data is setup in user specific tables then use system tables 
+    ------------------------------------------------------------------------------*/
+
+    DEFINE BUFFER bf-estCostCategory         FOR estCostCategory.     
+    DEFINE BUFFER bf-estCostGroup            FOR estCostGroup.
+    DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel.     
+
+    /* Delete custom data  */
+    FOR EACH bf-estCostCategory EXCLUSIVE-LOCK:
+        DELETE bf-estCostCategory.
+    END.
+
+    /* Delete custom data  */
+    FOR EACH bf-estCostGroup EXCLUSIVE-LOCK:        
+        DELETE bf-estCostGroup. 
+    END.
+
+    /* Delete custom data  */
+    FOR EACH bf-estCostGroupLevel EXCLUSIVE-LOCK:
+         DELETE bf-estCostGroupLevel.
+    END.
+
+END PROCEDURE.   
+   
+PROCEDURE Estimate_GetMSF:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ip-eb-recid  AS RECID.
+DEFINE INPUT PARAMETER iplCorrware AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdNextQuantity AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER ipdNextMSF AS DECIMAL NO-UNDO.
+
+DEFINE BUFFER buf-eb FOR eb.
+
+FIND buf-eb NO-LOCK
+    WHERE RECID(buf-eb) EQ ip-eb-recid NO-ERROR.
     
+IF AVAILABLE buf-eb THEN 
+    ASSIGN ipdNextMSF = (IF iplCorrware THEN (ipdNextQuantity * buf-eb.t-len * buf-eb.t-wid * .007)
+                        ELSE (ipdNextQuantity * buf-eb.t-len * buf-eb.t-wid / 144)) *
+                             (IF buf-eb.est-type EQ 2 THEN
+                             (IF buf-eb.cust-% LT 0 THEN (-1 / buf-eb.cust-%) ELSE buf-eb.cust-%)
+                             ELSE
+                             IF buf-eb.est-type EQ 6 THEN
+                             (IF buf-eb.quantityPerSet LT 0 THEN -1 / (buf-eb.quantityPerSet) ELSE buf-eb.quantityPerSet)
+                             ELSE 1) / 1000.   
+
+END PROCEDURE.
+
 PROCEDURE Estimate_GetSystemDataForEstimate:
 /*------------------------------------------------------------------------------
      Purpose: Returns the system data in Temp-tables
@@ -187,7 +241,19 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         ELSE 
             BUFFER-COPY bf-estCostCategorySystem TO ttEstCostCategory.
     END.
-    
+
+    /* Load the estCostCategory data. User created categories */
+    FOR EACH bf-estCostCategory NO-LOCK
+        WHERE bf-estCostCategory.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostCategory WHERE ttEstCostCategory.estCostCategoryID = bf-estCostCategory.estCostCategoryID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostCategory.
+        
+        BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
+    END.
+        
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupSystem NO-LOCK:
         
@@ -205,7 +271,19 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         ELSE 
             BUFFER-COPY bf-estCostGroupSystem TO ttEstCostGroup.
     END.
-   
+
+    /* Load the estCostGroup data. User created groups */
+    FOR EACH bf-estCostGroup NO-LOCK
+        WHERE bf-estCostGroup.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = bf-estCostGroup.estCostGroupID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostGroup.
+        
+        BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
+    END.
+       
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
         
@@ -224,6 +302,17 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
             BUFFER-COPY bf-estCostGroupLevelSystem TO ttEstCostGroupLevel.
     END.
 
+    /* Load the estCostGroupLevel data. User created levels */
+    FOR EACH bf-estCostGroupLevel NO-LOCK
+        WHERE bf-estCostGroupLevel.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevel.estCostGroupLevelID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostGroupLevel.
+        
+        BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
+    END.
 END PROCEDURE.
 
 PROCEDURE Estimate_GetVersionSettings:

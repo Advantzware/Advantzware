@@ -90,7 +90,7 @@ DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dValue          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iIndex          AS INTEGER   NO-UNDO.
 
-DEFINE VARIABLE cBuisnessFormLogo           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBusinessFormLogo           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFirstQuote                 AS LOGICAL   NO-UNDO INITIAL ?.
 DEFINE VARIABLE lFirstItem                  AS LOGICAL   NO-UNDO INITIAL ?.
 DEFINE VARIABLE lFirstQuantity              AS LOGICAL   NO-UNDO INITIAL ?.
@@ -110,12 +110,15 @@ DEFINE VARIABLE cAdders                     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBoxDesignImage             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidthScoreMetric           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWidthCumulativeScoreMetric AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLogoColor                  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cDisplayCompanyAddress      AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-quotehd  FOR quotehd.
 DEFINE BUFFER bf-quoteitm FOR quoteitm.
 DEFINE BUFFER bf-quoteqty FOR quoteqty.
 DEFINE BUFFER bf-quotechg FOR quotechg.
 DEFINE BUFFER bf-eb       FOR eb.
+DEFINE BUFFER bf-cust     FOR cust.
 
 RUN est/QuoteProcs.p PERSISTENT SET hdQuoteProcs.
 
@@ -167,7 +170,10 @@ ELSE DO:
     oAttribute = NEW system.Attribute().
     oAttribute:RequestDataType = gcRequestDataType.
 
-    RUN sys/ref/nk1look.p (cCompany, "BusinessFormLogo", "C", NO, YES, "", "", OUTPUT cBuisnessFormLogo, OUTPUT lRecFound).
+    RUN FileSys_GetBusinessFormLogo(cCompany, "" /* cust */ , "" /* Location */ , OUTPUT cBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
+    RUN sys/ref/nk1look.p (cCompany, "LOGOCOLR", "C", NO, YES, "", "", OUTPUT cLogoColor, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (cCompany, "QUOPRINT", "L" , YES, YES, "" , "", OUTPUT cDisplayCompanyAddress, OUTPUT lRecFound).
+    IF cLogoColor EQ "" THEN "BLACK".
     
     /* Code to send data from dynamic temp-table handle to static temp-table */
     hdTTHandle:WRITE-XML("MEMPTR", mptrTTQuote).
@@ -590,8 +596,10 @@ ELSE DO:
     
     RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
     
-    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BusinessFormLogo", cBuisnessFormLogo).
-    
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BusinessFormLogo", cBusinessFormLogo).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "LogoColor", cLogoColor).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DisplayCompanyAddress", cDisplayCompanyAddress).
+
     ASSIGN   
         opcMessage       = ""
         oplSuccess       = TRUE

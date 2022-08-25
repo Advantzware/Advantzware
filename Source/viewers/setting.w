@@ -29,6 +29,8 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+USING Progress.Json.ObjectModel.JsonObject.
+USING Progress.Json.ObjectModel.ObjectModelParser.
 
 CREATE WIDGET-POOL.
 
@@ -76,6 +78,9 @@ DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
+
+DEFINE VARIABLE oJsonParser AS ObjectModelParser NO-UNDO.
+DEFINE VARIABLE oJsonObject AS JsonObject        NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -173,7 +178,7 @@ DEFINE BUTTON btnUpdate-2
 
 DEFINE VARIABLE cbScopeTable AS CHARACTER FORMAT "X(256)":U 
      LABEL "Scope Type" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
+     VIEW-AS COMBO-BOX INNER-LINES 6
      DROP-DOWN-LIST
      SIZE 52 BY 1 NO-UNDO.
 
@@ -540,6 +545,15 @@ DO:
             fiScopeField3:LABEL  = "ShipTo"
             fiScopeField3:HIDDEN = FALSE
             .
+    ELSE IF SELF:SCREEN-VALUE EQ "Location" THEN
+        ASSIGN
+            fiScopeField1:LABEL  = "Company"
+            fiScopeField1:HIDDEN = FALSE
+            fiScopeField2:LABEL  = "Customer"
+            fiScopeField2:HIDDEN = FALSE
+            fiScopeField3:LABEL  = "Location"
+            fiScopeField3:HIDDEN = FALSE
+            .
 
     IF SELF:SCREEN-VALUE NE "System" AND cMode EQ "Add" AND fiScopeField1:SCREEN-VALUE EQ "" THEN
         fiScopeField1:SCREEN-VALUE = cCompany.
@@ -586,7 +600,8 @@ DO:
     DEFINE VARIABLE iSubjectID   AS INTEGER   NO-UNDO.
     
     CASE cbScopeTable:SCREEN-VALUE:
-        WHEN "Customer" OR 
+        WHEN "Customer" OR
+        WHEN "Location" OR
         WHEN "ShipTo" THEN
             iSubjectID = 23.
         WHEN "Vendor" THEN
@@ -606,10 +621,10 @@ DO:
 
     IF returnFields NE "" THEN DO:
         CASE cbScopeTable:SCREEN-VALUE:
-            WHEN "Customer" THEN
+            WHEN "Customer" OR 
+            WHEN "ShipTo"   OR 
+            WHEN "Location"  THEN
                 SELF:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "cust.cust-no", returnFields).
-            WHEN "ShipTo" THEN
-                SELF:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "shipto.cust-no", returnFields).
             WHEN "Vendor" THEN
                 SELF:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "vend.vend-no", returnFields).
         END CASE.
@@ -632,6 +647,8 @@ DO:
     CASE cbScopeTable:SCREEN-VALUE:
         WHEN "ShipTo" THEN
             iSubjectID = 122.
+        WHEN "Location" THEN
+            iSubjectID = 150.
     END CASE.
     iSubjectID = DYNAMIC-FUNCTION("sfSubjectID",iSubjectID).
     RUN system/openlookup.p (
@@ -652,8 +669,81 @@ DO:
                     fiScopeField2:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "shipto.cust-no", returnFields)
                     fiScopeField3:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "shipto.ship-id", returnFields)
                     .
+            WHEN "Location" THEN
+                ASSIGN
+                    fiScopeField3:SCREEN-VALUE = DYNAMIC-FUNCTION("sfDynLookupValue", "loc.loc", returnFields)
+                    .
         END CASE.
     END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiSettingValue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSettingValue V-table-Win
+ON ENTRY OF fiSettingValue IN FRAME F-Main /* Value */
+DO:
+    DEFINE VARIABLE lcSettingValue AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lSave          AS LOGICAL  NO-UNDO.
+    
+    IF lRecordAvailable AND cDataType EQ "Json" THEN DO:
+        FIX-CODEPAGE(lcSettingValue) = "utf-8".
+        lcSettingValue = cSettingValue.
+
+        IF NOT VALID-OBJECT(oJsonParser) THEN DO:
+            oJsonParser = NEW ObjectModelParser().
+            oJsonObject = CAST(oJsonParser:Parse(INPUT lcSettingValue), JsonObject) NO-ERROR.
+        END.
+
+        IF VALID-OBJECT(oJsonObject) THEN
+            oJsonObject:Write(INPUT-OUTPUT lcSettingValue, TRUE /* Formatted */). /* Beautifies the JSON for easy viewing */        
+        
+        RUN api/d-dataViewer.w (
+            INPUT-OUTPUT lcSettingValue,
+            INPUT        "Update",
+            OUTPUT       lSave   
+            ).
+        IF lSave THEN DO:
+            IF lcSettingValue NE "" THEN DO:
+                oJsonObject = CAST(oJsonParser:Parse(INPUT lcSettingValue), JsonObject) NO-ERROR.
+                IF ERROR-STATUS:ERROR THEN DO:
+                    MESSAGE "Error parsing input json" SKIP
+                        ERROR-STATUS:GET-MESSAGE (1) 
+                        VIEW-AS ALERT-BOX ERROR.
+                    lcSettingValue = cSettingValue.
+                    
+                    RETURN NO-APPLY.
+                END.
+                oJsonObject:Write(INPUT-OUTPUT lcSettingValue, FALSE /* Formatted */). /* Removed formatting. Saves memory */
+            END.
+                        
+            ASSIGN
+                cSettingValue               = STRING(lcSettingValue)
+                fiSettingValue:SCREEN-VALUE = cSettingValue
+                .
+        END.
+    END.
+END.
+
+ON HELP OF fiSettingValue IN FRAME F-Main /* Value */
+DO:    
+    DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE ll-ok     AS LOGICAL   NO-UNDO.
+
+    IF fiSettingName:SCREEN-VALUE EQ "BusinessFormLogo" OR fiSettingName EQ "BusinessFormLogo" THEN
+    DO:    
+        SYSTEM-DIALOG GET-FILE cFileName 
+            TITLE "Select File to Save "
+            FILTERS "All Files    (*.*) " "*.*"
+            INITIAL-DIR "*"
+            MUST-EXIST
+            USE-FILENAME
+            UPDATE ll-ok.
+
+        IF ll-ok THEN SELF:SCREEN-VALUE = cFileName.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -906,7 +996,7 @@ PROCEDURE pCRUD :
                         system.SharedConfig:Instance:SetValue("IsSettingUpdated", "YES").
                         {methods/run_link.i "RECORD-SOURCE" "UpdateSetting" 
                             "(INPUT  edSettingDesc:SCREEN-VALUE,
-                              INPUT  IF cValidValues EQ '' THEN fiSettingValue:SCREEN-VALUE ELSE cbSettingValue:SCREEN-VALUE,
+                              INPUT  IF cDataType EQ 'Json' THEN cSettingValue ELSE IF cValidValues EQ '' THEN fiSettingValue:SCREEN-VALUE ELSE cbSettingValue:SCREEN-VALUE,
                               INPUT  fiProgramID:SCREEN-VALUE,
                               INPUT  tbInactive:CHECKED,
                               INPUT  fiSettingUser:SCREEN-VALUE,

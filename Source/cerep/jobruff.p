@@ -1213,8 +1213,11 @@ PROCEDURE pPrintData:
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
-                  i         = i + 1         
-                  inInkCount = inInkCount + 1. 
+                  i         = i + 1.
+                  
+                  IF wrk-ink.i-unit NE 0 THEN
+                    ASSIGN inInkCount = inInkCount + 1.         
+                  
           DELETE wrk-ink. 
         END. /* each wrk-ink */
         
@@ -1475,8 +1478,10 @@ PROCEDURE pPrintDetail:
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
-                  i          = i + 1         
-                  inInkCount = inInkCount + 1. 
+                  i          = i + 1.
+                  
+                  IF wrk-ink.i-unit NE 0 THEN
+                    ASSIGN inInkCount = inInkCount + 1. 
             DELETE wrk-ink.
         END. /* each wrk-ink */
         ASSIGN

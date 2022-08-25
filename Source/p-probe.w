@@ -93,6 +93,11 @@ btn-view btn-print btn-quote btn-imp-price btn-copy btn-whatif
 /* ***********************  Control Definitions  ********************** */
 
 
+/* Menu Definitions                                                     */
+DEFINE MENU POPUP-MENU-btn-view 
+       MENU-ITEM m_View_CeFormatConfig LABEL "View CeFormatConfig":C.
+
+
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn-Cancel 
      LABEL "Ca&ncel" 
@@ -233,6 +238,7 @@ ASSIGN
                 "panel-image".
 
 ASSIGN 
+       btn-view:POPUP-MENU IN FRAME Panel-Frame       = MENU POPUP-MENU-btn-view:HANDLE
        btn-view:PRIVATE-DATA IN FRAME Panel-Frame     = 
                 "panel-image".
 
@@ -383,7 +389,7 @@ END.
 
 &Scoped-define SELF-NAME btn-quote
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-quote C-WIn
-ON CHOOSE OF btn-quote IN FRAME Panel-Frame /* Quote */
+ON CHOOSE OF btn-quote IN FRAME Panel-Frame /* + Quote */
 DO:
   DO WITH FRAME Panel-Frame:
      def var source-str as cha no-undo.
@@ -506,6 +512,17 @@ DO:
      run run-whatif in widget-handle(source-str). 
   END.
 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME m_View_CeFormatConfig
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_View_CeFormatConfig C-WIn
+ON CHOOSE OF MENU-ITEM m_View_CeFormatConfig /* View CeFormatConfig */
+DO:
+    RUN est/ttCeFormatConfig.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -871,7 +888,12 @@ DO WITH FRAME Panel-Frame:
                                     btn-whatif:SENSITIVE = NO
                                     btn-item:SENSITIVE = NO.
     IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.
-    /*IF NOT v-can-run THEN DISABLE ALL. */
+    
+    IF NOT v-can-run THEN  
+           ASSIGN
+           btn-view:SENSITIVE = NO
+           btn-print:SENSITIVE = NO
+           . 
   END.
   
 END. /* DO WITH FRAME */

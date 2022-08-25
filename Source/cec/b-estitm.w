@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {custom/persist.i}
 {est/ttInputEst.i NEW}
-
+{api/ttAPIOutboundEvent.i}
     
 DEF VAR ls-add-what AS cha NO-UNDO.
 DEF VAR ll-add-set AS LOG NO-UNDO INIT NO.
@@ -2294,6 +2294,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+{est/ShareEstimate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5191,6 +5192,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
                 bf-eb.ship-zip     = eb.ship-zip
                 bf-eb.sman         = eb.sman
                 bf-eb.comm         = eb.comm
+                bf-eb.tr-no        = eb.tr-no
                 .
         END.
     END.

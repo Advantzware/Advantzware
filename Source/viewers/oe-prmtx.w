@@ -1050,6 +1050,10 @@ PROCEDURE enable-oe-prmtx-field :
 
     IF AVAIL oe-prmtx AND oe-prmtx.i-no NE "" THEN DISABLE oe-prmtx.procat.
     DISABLE oe-prmtx.quoteID.
+    
+    IF oe-prmtx.quoteID NE 0 AND lQuotePriceMatrix THEN
+    DISABLE oe-prmtx.qty.
+    
   END.
   RUN set-panel (0).
   lEditMode = YES .
@@ -1099,6 +1103,7 @@ PROCEDURE local-cancel-record :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN set-panel (1).
   lEditMode = NO.
+  adm-new-record = NO.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1200,6 +1205,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE lNewRecord AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE lError     AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF  oe-prmtx.cust-no:SCREEN-VALUE IN frame {&FRAME-NAME} <> "" THEN DO:
       RUN valid-cust-no NO-ERROR.
@@ -1231,9 +1237,13 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN DO:
      RETURN NO-APPLY.
   END.
+    
+  IF lQuotePriceMatrix  THEN
+  do:
+    RUN valid-effective-date (OUTPUT lError) NO-ERROR.
+    IF lError THEN RETURN NO-APPLY.
+  END.
   
- 
-
   run valid-uom-01.
   if v-invalid then return no-apply.
 
@@ -1292,7 +1302,7 @@ PROCEDURE local-update-record :
   
   RUN set-panel (1).
   lEditMode = NO.
-    
+  adm-new-record = NO.  
 
 END PROCEDURE.
 
@@ -1323,6 +1333,23 @@ PROCEDURE pricemtx-newitem :
 DEF OUTPUT PARAMETER oplExists AS LOG NO-UNDO.
 
 ASSIGN oplExists = lEditMode .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisableDeleteButton V-table-Win 
+PROCEDURE pDisableDeleteButton :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER oplDelete AS LOG NO-UNDO.
+IF lQuotePriceMatrix THEN
+ASSIGN 
+oplDelete = IF AVAIL oe-prmtx AND oe-prmtx.quoteID NE 0 THEN TRUE ELSE FALSE .
 
 END PROCEDURE.
 
@@ -1545,7 +1572,7 @@ PROCEDURE valid-entry :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-   
+             
    IF adm-new-record THEN 
     FIND FIRST bf-oe-prmtx NO-LOCK 
       WHERE bf-oe-prmtx.company EQ g_company
@@ -1557,7 +1584,7 @@ PROCEDURE valid-entry :
         AND bf-oe-prmtx.eff-date EQ date(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
         NO-ERROR .
 
-  IF AVAIL bf-oe-prmtx THEN DO:
+  IF AVAIL bf-oe-prmtx AND adm-new-record THEN DO:
       MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-prmtx.cust-no.
       RETURN ERROR.
@@ -1583,6 +1610,45 @@ PROCEDURE valid-expdate :
           APPLY "entry" TO oe-prmtx.exp-date.
           RETURN ERROR.
       END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-effective-date V-table-Win 
+PROCEDURE valid-effective-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE dtLastEffectiveDate AS DATE NO-UNDO.
+  {methods/lValidateError.i YES}
+         
+   FOR EACH bf-oe-prmtx NO-LOCK 
+        WHERE bf-oe-prmtx.company EQ g_company
+          AND bf-oe-prmtx.custShipID EQ oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND bf-oe-prmtx.cust-no EQ oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND bf-oe-prmtx.i-no EQ oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND bf-oe-prmtx.custype EQ oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND  ROWID(bf-oe-prmtx) NE ROWID(oe-prmtx) 
+        BREAK BY bf-oe-prmtx.eff-date DESC:           
+          dtLastEffectiveDate = bf-oe-prmtx.eff-date.
+          LEAVE.
+        END.
+        
+        IF dtLastEffectiveDate NE ? AND oe-prmtx.eff-date NE DATE(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}) AND
+           DATE(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}) LE  dtLastEffectiveDate THEN
+        DO:
+           MESSAGE "Effective Date can not be updated earlier than an existing effective date:" + string(dtLastEffectiveDate)
+                   VIEW-AS ALERT-BOX ERROR TITLE "Earlier Date Found" .
+            APPLY "entry" TO oe-prmtx.eff-date.
+            oplReturnError = YES.
+        END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

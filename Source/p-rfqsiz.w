@@ -298,6 +298,7 @@ DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
            btPOScores:SENSITIVE = FALSE.
+           btn-auto-calc:SENSITIVE = FALSE.
         END.
         ELSE 
         DO: /* Save */
@@ -451,7 +452,8 @@ PROCEDURE EnablePOScores:
  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        ENABLE btPOScores.
+       IF v-can-update THEN
+       ENABLE btPOScores.
     END.
 END PROCEDURE.
 	
@@ -472,6 +474,28 @@ IF Btn-Save:LABEL IN FRAME {&FRAME-NAME} = '&SAVE' THEN
     opl-is-updating = YES.
 ELSE
     opl-is-updating = NO.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE phidePOScores C-WIn 
+PROCEDURE phidePOScores :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+        btPOScores:HIDDEN = YES
+        Btn-Save:COL = 5
+        Btn-Cancel:COL = 24
+        btn-auto-calc:COL = 44
+        .
+  END.
 
 END PROCEDURE.
 
@@ -689,7 +713,8 @@ DO WITH FRAME Panel-Frame:
 
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT v-can-update THEN ASSIGN btn-save:SENSITIVE IN FRAME {&FRAME-NAME} = NO
-                                    btn-auto-calc:SENSITIVE = NO.
+                                    btn-auto-calc:SENSITIVE = NO
+                                    btPOScores:SENSITIVE = NO.
     IF NOT v-can-run THEN DISABLE ALL.
   END.
 

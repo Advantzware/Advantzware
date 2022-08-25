@@ -348,14 +348,16 @@ PROCEDURE run-process :
     /* -------------------------------------------------------------------------- */
 
     SESSION:SET-WAIT-STATE ("general").
-
+       
     FOR EACH rm-bin
         WHERE rm-bin.company EQ cocode
         AND rm-bin.qty     EQ 0
         AND rm-bin.i-no    NE "":
+       {custom/statusMsg.i " 'Processing RM Item#  '  + rm-bin.i-no "}
+        
         DELETE rm-bin.
-    END.
-
+    END.      
+    {custom/statusMsg.i " 'Processing Completed  '  "}      
     SESSION:SET-WAIT-STATE (""). 
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */

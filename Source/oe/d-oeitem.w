@@ -8767,6 +8767,8 @@ PROCEDURE OnSaveButton :
 
     RUN validate-all NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
+    lv-price = oe-ordl.price:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
 
     IF lOEPriceWarning AND
         (DECIMAL(oe-ordl.cost:SCREEN-VALUE) * decimal(oe-ordl.qty:SCREEN-VALUE) / 1000 ) GT DECIMAL(oe-ordl.t-price:SCREEN-VALUE) THEN

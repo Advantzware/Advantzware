@@ -952,6 +952,8 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Update C-Win
 ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
 DO:
+    DEFINE BUFFER bf-estCostGroup FOR estCostGroup.
+    
         IF {&SELF-NAME}:LABEL = "&Update" THEN
         DO WITH FRAME {&FRAME-NAME}:   
             ENABLE {&LIST-1}
@@ -967,7 +969,43 @@ DO:
         DO WITH FRAME {&FRAME-NAME}:
             RUN validate NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+            FOR EACH estCostGroupSystem NO-LOCK
+                 WHERE estCostGroupSystem.costGroupSequence GE 13 
+                  AND estCostGroupSystem.costGroupSequence LE 15 :
+                FIND FIRST bf-estCostGroup EXCLUSIVE-LOCK
+                     WHERE bf-estCostGroup.estCostGroupID = estCostGroupSystem.estCostGroupID 
+                     NO-ERROR.
+                    
+                IF NOT AVAILABLE bf-estCostGroup THEN
+                DO:
+                    CREATE bf-estCostGroup.
+                    BUFFER-COPY estCostGroupSystem EXCEPT rec_key TO bf-estCostGroup.
+                END.
+                   
+                CASE bf-estCostGroup.costGroupSequence:
+                    WHEN 13 THEN 
+                    DO:
+                        IF ce-ctrl.spec-l[1]:SCREEN-VALUE NE "" THEN 
+                            ASSIGN bf-estCostGroup.CostGroupLabel = ce-ctrl.spec-l[1]:SCREEN-VALUE.
+                        ELSE 
+                            ASSIGN bf-estCostGroup.CostGroupLabel = "User Defined Expense 1".    
+                    END.  
+                    WHEN 14 THEN 
+                    DO:
+                        IF ce-ctrl.spec-l[2]:SCREEN-VALUE NE "" THEN 
+                            ASSIGN bf-estCostGroup.CostGroupLabel = ce-ctrl.spec-l[2]:SCREEN-VALUE.
+                        ELSE 
+                            ASSIGN bf-estCostGroup.CostGroupLabel = "User Defined Expense 2".    
+                    END.
+                    WHEN 15 THEN 
+                    DO:
+                        IF ce-ctrl.spec-l[3]:SCREEN-VALUE NE "" THEN 
+                            ASSIGN bf-estCostGroup.CostGroupLabel = ce-ctrl.spec-l[3]:SCREEN-VALUE.
+                        ELSE 
+                            ASSIGN bf-estCostGroup.CostGroupLabel = "User Defined Expense 3".    
+                    END.   
+                END CASE.  
+            END.   
             DISABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
 

@@ -446,6 +446,7 @@ DO:
     DEFINE BUFFER bf-estCostMaterialForAll FOR estCostMaterial.
     DEFINE BUFFER bb-ttEstCostHeaderToCalc FOR ttEstCostHeaderToCalc.
     DEFINE BUFFER bb-estCostHeaderForAll   FOR esTCostHeader.
+    DEFINE BUFFER bf-ttEstCostMaterial     FOR ttEstCostMaterial.
         
     DEFINE VARIABLE gcScopeRMOverride  AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - RM Override".
     DEFINE VARIABLE gcScopeFGEstimated AS CHARACTER NO-UNDO INITIAL "Effective and Not Expired - FG Estimated".
@@ -541,10 +542,19 @@ DO:
                   
             ASSIGN 
                 bf-estCostMaterialForAll.vendorId = estCostMaterial.vendorID.
-        END.          
+        END.                  
     END.
+        
+    IF AVAIL ttEstCostMaterial AND ttEstCostMaterial.vendorID NE ""  THEN
+    FOR EACH bf-ttEstCostMaterial NO-LOCK     
+        WHERE bf-ttEstCostMaterial.vendorId <> ttEstCostMaterial.vendorID:
+                
+          ASSIGN 
+              bf-ttEstCostMaterial.vendorId = ttEstCostMaterial.vendorID.
+    END.      
              
     RELEASE bf-estCostMaterialForAll.
+    RELEASE bf-ttEstCostMaterial.
     
         {&OPEN-QUERY-{&BROWSE-NAME}}     
       

@@ -45,6 +45,10 @@ CLASS system.JSONConfig IMPLEMENTS system.Config:
         pLoadJSON(INPUT ipcJSONFile).
     END CONSTRUCTOR.
 
+    CONSTRUCTOR PUBLIC JSONConfig(iplcJSONData AS LONGCHAR):
+        pLoadJSONData(INPUT iplcJSONData).
+    END CONSTRUCTOR.
+
     METHOD PRIVATE LOGICAL pLoadJSON (ipcJSONFile AS CHARACTER):
         DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
         DEFINE VARIABLE oJSONObject     AS JsonObject        NO-UNDO. 
@@ -52,6 +56,27 @@ CLASS system.JSONConfig IMPLEMENTS system.Config:
         oModelParser = NEW ObjectModelParser().
         
         oJSONObject = CAST(oModelParser:ParseFile(ipcJSONFile), JsonObject).
+        
+        EMPTY TEMP-TABLE ttConfig.
+        EMPTY TEMP-TABLE ttAttribute.
+        
+        IF TYPE-OF(oJSONObject, "jsonObject") THEN
+            pCreateConfig (INPUT oJSONObject, INPUT "root", INPUT 0).
+        
+        IF VALID-OBJECT(oJSONObject) THEN
+            DELETE OBJECT oJSONObject.
+        
+        IF VALID-OBJECT(oModelParser) THEN
+            DELETE OBJECT oModelParser.
+    END METHOD.
+
+    METHOD PRIVATE LOGICAL pLoadJSONData (iplcJSONData AS LONGCHAR):
+        DEFINE VARIABLE oModelParser    AS ObjectModelParser NO-UNDO.
+        DEFINE VARIABLE oJSONObject     AS JsonObject        NO-UNDO. 
+                
+        oModelParser = NEW ObjectModelParser().
+        
+        oJSONObject = CAST(oModelParser:Parse(iplcJSONData), JsonObject) NO-ERROR.
         
         EMPTY TEMP-TABLE ttConfig.
         EMPTY TEMP-TABLE ttAttribute.

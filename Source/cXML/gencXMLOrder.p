@@ -659,7 +659,7 @@ PROCEDURE genOrderLinesLocal:
          ).
         
      IF NOT oplSuccess THEN DO:
-        opcReturnValue = "SupplierPartID does not exist".
+        opcReturnValue = "SupplierPartID '" + ttOrdLines.ttItemSupplierPartID + "' does not exist for Customer # '" + oe-ord.cust-no + "' and PO Line# '" + STRING(ttOrdLines.ttItemLineNumber) + "'".
 
         RETURN.
      END.
@@ -789,8 +789,27 @@ PROCEDURE genOrderLinesLocal:
         
       RUN GetCostForFGItem IN hdCostProcs(oe-ordl.company,oe-ordl.i-no, OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
                                              OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
-       oe-ordl.cost = dCostPerUOMTotal .
-       oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .
+
+      IF cCostUOM NE "M" THEN DO:                 
+          RUN Conv_ValueFromUOMtoUOM (
+                  INPUT  oe-ordl.company, 
+                  INPUT  oe-ordl.i-no, 
+                  INPUT  "FG", 
+                  INPUT  dCostPerUOMTotal, 
+                  INPUT  cCostUOM, 
+                  INPUT  "M", 
+                  INPUT  0, 
+                  INPUT  0,
+                  INPUT  0,
+                  INPUT  0, 0, 
+                  OUTPUT dCostPerUOMTotal, 
+                  OUTPUT lError, 
+                  OUTPUT cMessage
+                  ).    
+      END.
+      
+      oe-ordl.cost = dCostPerUOMTotal .
+      oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .
       
       /* Logic if price matrix does not exist. Price matrix may not exist but price and pr-uom may still get updated from itemfg */
       IF NOT matrixExists AND oe-ordl.price EQ oe-ordl.ediPrice AND oe-ordl.pr-uom EQ oe-ordl.ediPriceUOM THEN DO:

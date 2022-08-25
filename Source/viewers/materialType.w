@@ -434,12 +434,23 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lAutoPost AS LOGICAL NO-UNDO.  
+  DEFINE VARIABLE lAutoPost AS LOGICAL   NO-UNDO.  
+  DEFINE VARIABLE lError    AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  assign
-   lAutoPost = materialType.autoIssue
-   .        
+  ASSIGN
+      lAutoPost = materialType.autoIssue
+      .        
+  
+  RUN pValidateDepartment(OUTPUT cMessage, OUTPUT lError).
+  IF lError THEN DO:
+      MESSAGE cMessage
+          VIEW-AS ALERT-BOX ERROR.
+      
+      APPLY "ENTRY" TO materialType.consumedByDept IN FRAME {&FRAME-NAME}.
+      RETURN.
+  END.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -552,6 +563,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateDepartment V-table-Win
+PROCEDURE pValidateDepartment:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-dept FOR dept.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    IF materialType.consumedByDept:SCREEN-VALUE NE "" THEN 
+    do:
+        FIND FIRST bf-dept NO-LOCK
+             WHERE bf-dept.code EQ materialType.consumedByDept:SCREEN-VALUE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-dept THEN     
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid depatment '" + materialType.consumedByDept:SCREEN-VALUE + "'"
+                .
+    END.        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

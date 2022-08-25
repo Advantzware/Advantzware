@@ -1022,21 +1022,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetDesignConfig W-Win 
-PROCEDURE GetDesignConfig :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoDesignConfig AS system.Config NO-UNDO.
-    
-    opoDesignConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTagBOLDesign").
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetKeyboard W-Win 
 PROCEDURE GetKeyboard :
 /*------------------------------------------------------------------------------

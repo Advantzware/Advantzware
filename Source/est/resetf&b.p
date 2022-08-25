@@ -76,6 +76,11 @@ IF AVAIL est THEN DO:
 
       lv-blk = lv-blk + 1.
 
+      IF eb.form-no  NE lv-frm OR eb.blank-no NE lv-blk OR (lv-part-no NE "" AND eb.stock-no EQ "") THEN
+          FIND FIRST bf-eb EXCLUSIVE-LOCK 
+               WHERE ROWID(bf-eb) EQ ROWID(eb)
+               NO-ERROR.
+
       IF eb.form-no  NE lv-frm OR
          eb.blank-no NE lv-blk THEN DO:
         RUN Estimate_UpdateEstDependencies(
@@ -89,9 +94,6 @@ IF AVAIL est THEN DO:
             INPUT lv-frm,
             INPUT lv-blk
             ).        
-        FIND FIRST bf-eb EXCLUSIVE-LOCK 
-             WHERE ROWID(bf-eb) EQ ROWID(eb)
-             NO-ERROR.
         ASSIGN
             bf-eb.form-no  = lv-frm
             bf-eb.blank-no = lv-blk
@@ -99,13 +101,19 @@ IF AVAIL est THEN DO:
       END.
 
       IF lv-part-no NE "" AND eb.stock-no EQ "" THEN
-        ASSIGN
-         li-part-no = li-part-no + 1
-         eb.part-no = TRIM(lv-part-no) + "-" + STRING(li-part-no).
+          ASSIGN
+              li-part-no    = li-part-no + 1
+              bf-eb.part-no = TRIM(lv-part-no) + "-" + STRING(li-part-no)
+              .
     END.
 
-    IF lv-blk EQ 0 THEN DELETE ef.
-
+    IF lv-blk EQ 0 THEN DO:
+        FIND FIRST bf-ef EXCLUSIVE-LOCK 
+             WHERE ROWID(bf-ef) EQ ROWID(ef)
+             NO-ERROR.
+        
+        DELETE bf-ef.
+    END.
     ELSE
     IF ef.form-no NE lv-frm THEN DO:
       RUN Estimate_UpdateEstDependencies(

@@ -112,7 +112,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(44.39) SKIP(0.09)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Flute Code Information".
+         TITLE "Estimate Forms".
 
 
 /* *********************** Procedure Settings ************************ */

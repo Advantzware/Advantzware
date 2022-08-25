@@ -29,7 +29,7 @@
 &Global-define DESCRIP2 Bank
 &Global-define FLDNAME3 ap-chk.check-no
 &Global-define DATATYP3 INTEGER
-&Global-define FORMAT-3 999999
+&Global-define FORMAT-3 >>>>>>>>
 &Global-define SORTBY-3 
 &Global-define IDXNAME3 
 &Global-define DESCRIP3 Check No

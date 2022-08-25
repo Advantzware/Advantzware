@@ -81,21 +81,28 @@ IF tb_order THEN DO:
     
     v-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Updating Order " + string(oe-ord.ord-no).
 
+    FIND FIRST sman
+         WHERE sman.company EQ cocode
+           AND sman.sman    EQ cust.sman
+           NO-LOCK NO-ERROR.
+
     FOR EACH oe-ordl WHERE oe-ordl.company EQ cocode
         AND oe-ordl.ord-no EQ oe-ord.ord-no
         AND oe-ordl.opened EQ YES 
         AND oe-ordl.stat NE "C" EXCLUSIVE-LOCK:
-        IF oe-ordl.s-man[1] <> cust.sman  THEN oe-ordl.s-man[1] = cust.sman .
+        IF oe-ordl.s-man[1] <> cust.sman  THEN
+        ASSIGN
+            oe-ordl.s-man[1] = cust.sman
+            oe-ordl.s-comm[1] = IF AVAIL sman THEN sman.scomm ELSE oe-ordl.s-comm[1].            
     END.
 
         IF oe-ord.sman[1] <> cust.sman  THEN do:
             ASSIGN oe-ord.sman[1] = cust.sman .
-            FIND FIRST sman
-                WHERE sman.company EQ cocode
-                AND sman.sman    EQ cust.sman
-                NO-LOCK NO-ERROR.
+            
             IF AVAIL sman THEN
-                oe-ord.sname[1] = sman.sNAME.
+              ASSIGN
+                oe-ord.sname[1] = sman.sNAME
+                oe-ord.s-comm[1] = sman.scomm.
         END.
 
     FOR EACH oe-ordm

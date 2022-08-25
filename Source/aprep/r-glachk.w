@@ -1235,7 +1235,8 @@ PROCEDURE run-report :
         FIND FIRST ap-ledger
             WHERE ap-ledger.company  EQ ap-pay.company
             AND ap-ledger.vend-no  EQ ap-pay.vend-no      
-            AND ap-ledger.refnum   EQ ("AC" + string(ap-pay.check-no,"999999"))      
+            AND (ap-ledger.refnum   EQ ("AC" + string(ap-pay.check-no,"99999999"))  
+            OR ap-ledger.refnum   EQ ("AC" + string(ap-pay.check-no,"999999")))
             AND ((ap-ledger.tr-date GE begin_date AND ap-ledger.tr-date LE end_date) OR NOT tb_post-date)
             /*use-index ap-ledger */NO-LOCK NO-ERROR.
 

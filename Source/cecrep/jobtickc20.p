@@ -127,7 +127,6 @@ DO TRANSACTION:
 END.
 
 v-job-cust = sys-ctrl.log-fld.
-s-prt-set-header = NO .
 
 ASSIGN
     v-line[1]      = CHR(95) + fill(CHR(95),40) + chr(95) + "  " +
@@ -702,12 +701,12 @@ DO v-local-loop = 1 TO v-local-copies:
            v-dept-note   = ""  .
         IF NOT v-dept-log THEN v-dept-codes = "". 
         
-        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
+        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, "", 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
                        
         ASSIGN         
         v-spec-note   = ""  .
         
-        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, "", 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
 
            
 
@@ -920,12 +919,15 @@ DO v-local-loop = 1 TO v-local-copies:
                 ASSIGN
                     v-over-run  = TRIM(STRING(cust.over-pct,">>9.99%"))
                     v-under-run = TRIM(STRING(cust.under-pct,">>9.99%")) .
+                    
+            ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING("00") + "-" + STRING("00") .        
 
             PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)
-                "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
-                "<C60>Our Date: " v-ord-date SKIP
-                "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
-                "<=1><R+6><C2><From><R+5><C78><RECT><||3>" SKIP
+                "Job #: " AT 3 v-job-prt "<C20>Our Order #: " v-ord-no 
+                "<C40>Our Date: " v-ord-date   
+                "<C55><R+.3><FROM><C80><R3.9><BARCODE,TYPE=128B,CHECKSUM=TRUE,VALUE=" cBarCodeVal FORMAT "x(20)" ">" SKIP
+                "Est #: " AT 3 v-est-no "<C20>FG #: " v-fg-set "<C40>Due Date: " v-due-date SKIP
+                "<=1><R+6><C1.2><From><R+5><C78><RECT><||3>" SKIP
                 "<=1><R+6><C2>CUSTOMER INFORMATION <C25> ORDER INFORMATION <C53>ITEM DESCRIPTION" SKIP
                 v-cus[1] AT 3 " PO#: " v-po-no " Set Qty: "  v-set-qty
                 v-i-line[2] AT 90
@@ -946,7 +948,7 @@ DO v-local-loop = 1 TO v-local-copies:
             v-tmp-line = 0.
             FOR EACH xeb WHERE xeb.company = est.company
                 AND xeb.est-no = est.est-no
-                AND xeb.form-no > 0 NO-LOCK:
+                AND xeb.form-no > 0 NO-LOCK BREAK BY xeb.form-no:
                 PUT xeb.stock-no AT 3 SPACE(14) xeb.part-dscr1 SPACE(5) xeb.quantityPerSet FORMAT "->>>>>>>9" SKIP.
                 v-tmp-line = v-tmp-line + 1.
             END.
@@ -963,7 +965,7 @@ DO v-local-loop = 1 TO v-local-copies:
                     v-tmp-line = v-tmp-line + 1.
                 END.
             END.
-            PUT "<=1><R+12><C2><FROM><R+" + string(v-tmp-line) + "><C78><RECT><||3>" FORM "x(150)" SKIP.
+            PUT "<=1><R+12><C1.2><FROM><R+" + string(v-tmp-line) + "><C78><RECT><||3>" FORM "x(150)" SKIP.
             v-tmp-line = v-tmp-line + 12 .
         
             i = 0.
@@ -973,7 +975,7 @@ DO v-local-loop = 1 TO v-local-copies:
             i = i + 2.
             PUT /*"<C2>Machine Routing:  <C15> SU:    Start    Stop     Total    Run:   Start   Stop    total   qty   in   out  waste  date" SKIP*/
                 "  Machine Routing        SU:    Start    Stop    Total   RUN:  Start   Stop    Total   QTY:    In     Out     Waste     Date" SKIP
-                "<=1><R+" + string(v-tmp-line + 1) + "><C2><FROM><R+" + string(i) + "><C78><RECT><||3>" FORM "x(150)" SKIP
+                "<=1><R+" + string(v-tmp-line + 1) + "><C1.2><FROM><R+" + string(i) + "><C78><RECT><||3>" FORM "x(150)" SKIP
                 "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
             .
         
@@ -1043,8 +1045,8 @@ DO v-local-loop = 1 TO v-local-copies:
             "# Per Unit: " AT 3 tt-prem.tt-#-unit "<C20>_____________________ <C40>____________________  <C62>Partial" SKIP
             "Pattern: " AT 3 tt-prem.tt-pattern "<C20>_____________________ <C40>____________________  <C60>________________" SKIP
             "Pallet: " AT 3 tt-prem.tt-pallet "<C20>_____________________ <C40>____________________ " SKIP
-            "<=1><R+" + string(v-tmp-line) + "><C2><FROM><R+6><C78><RECT><||3>" FORM "x(150)" SKIP
-            "<=1><R+" + string(v-tmp-line + 7) + "><C2><FROM><R+7><C78><RECT><||3>" FORM "x(150)" SKIP
+            "<=1><R+" + string(v-tmp-line) + "><C1.2><FROM><R+6><C78><RECT><||3>" FORM "x(150)" SKIP
+            "<=1><R+" + string(v-tmp-line + 7) + "><C1.2><FROM><R+7><C78><RECT><||3>" FORM "x(150)" SKIP
         
             "<=1><R+" + string(v-tmp-line + 7) + "><C2>Special instructions  <C51>SHIPPING INFO       Ship to: " + v-shipto FORM "x(250)" SKIP
             v-dept-inst[1] AT 3 FORM "x(82)" CHR(124) FORMAT "xx" v-shp[1] SKIP

@@ -104,31 +104,7 @@ DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 find first sys-ctrl where sys-ctrl.company eq cocode
     and sys-ctrl.name    eq "RELPRINT" no-lock no-error.
@@ -370,6 +346,8 @@ for each oe-rell
 
     first itemfg of oe-rell no-lock:
           
+    ASSIGN cLocation = oe-rell.loc .
+    
     create w-oe-rell.
     buffer-copy oe-rell to w-oe-rell.
         
@@ -404,6 +382,14 @@ for each oe-rell
 
     v-weight = v-weight + (oe-rell.qty * itemfg.weight-100 / 100).
 end.
+
+RUN FileSys_GetBusinessFormLogo(cocode, oe-relh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+IF NOT lValid THEN
+DO:
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+END.
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 {oe/rep/relrfc2.i}
 

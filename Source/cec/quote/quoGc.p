@@ -106,6 +106,8 @@ DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ls-full-img2    AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-image1       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
@@ -113,31 +115,6 @@ DEFINE VARIABLE ls-image1       AS CHARACTER NO-UNDO.
 ASSIGN 
     tmpstore = fill("-",130).
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-    
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
 ASSIGN    
     ls-image1 = "CustFiles\images\GcTerms.pdf"
     FILE-INFO:FILE-NAME = ls-image1
@@ -193,6 +170,17 @@ find first cust
     where cust.company eq xquo.company
     and cust.cust-no eq xquo.cust-no
     no-lock no-error.
+
+  IF AVAIL cust THEN ASSIGN cCustomerNo       = cust.cust-no
+                            cCustomerLocation = cust.loc .
+  
+  RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    	      
+  IF NOT lValid THEN
+  DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+  END.
+  ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 if available cust then
     v-over-under = trim(string(cust.over-pct,">>9%")) + "-" +

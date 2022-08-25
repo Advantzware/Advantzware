@@ -111,34 +111,9 @@ DEF VAR v-tot-sqft      AS DEC     FORMAT "->>>>>>>9.99".
 DEF VAR v-tot-tax       AS DEC     NO-UNDO.
 DEF VAR v-tot-wght      AS DEC     FORMAT "->>>>>>>9.99".
 DEF VAR v-tx-rate       LIKE stax.tax-rate NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
 FIND FIRST ar-inv NO-LOCK NO-ERROR.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN 
-DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath",
-        cRtnChar
-        ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN 
-    DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
     AND sys-ctrl.name    EQ "INVPRINT" NO-LOCK NO-ERROR.
@@ -184,7 +159,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     BREAK BY (IF v-print-fmt EQ "ASIXprnt" THEN "" ELSE ar-inv.cust-no)
     BY ar-inv.inv-no:
-     
+    
     FIND FIRST carrier WHERE carrier.company EQ cocode
         AND carrier.carrier EQ ar-inv.carrier NO-LOCK NO-ERROR.
     IF AVAIL carrier THEN ASSIGN v-shipvia = carrier.dscr.
@@ -268,16 +243,17 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             v-t-weight = v-t-weight + (ROUND(ar-invl.t-weight / ar-invl.qty, 2) * ar-invl.inv-qty).
         
         FOR EACH oe-bolh NO-LOCK WHERE 
-            oe-bolh.b-no = ar-invl.b-no AND
-            oe-bolh.ord-no = ar-invl.ord-no:
+            oe-bolh.b-no = ar-invl.b-no:
             FOR EACH oe-boll NO-LOCK WHERE 
                 oe-boll.company = oe-bolh.company AND
                 oe-boll.b-no = oe-bolh.b-no AND
-                oe-boll.i-no = ar-invl.i-no:
+                oe-boll.i-no = ar-invl.i-no AND
+                oe-boll.ord-no = ar-invl.ord-no:
 
                 /** Bill Of Lading TOTAL CASES **/
                 ASSIGN 
-                    v-bol-cases = v-bol-cases + oe-boll.cases.
+                    v-bol-cases = v-bol-cases + oe-boll.cases
+                    cLocation   = oe-boll.loc .
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 ASSIGN 
                     v-tot-pallets = v-tot-pallets + v-int.
@@ -388,6 +364,14 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         lv-bol-no    = ar-invl.bol-no.
         
     v-inv-date = ar-inv.inv-date.
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    	      
+        IF NOT lValid THEN
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.
+        ASSIGN ls-full-img1 = cRtnChar + ">" .
         
     {ar/rep/invHarwell.i}
 

@@ -38,7 +38,7 @@ FOR EACH ap-pay NO-LOCK
    
     RELEASE ap-ledger.
 
-    v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
+    v-refnum = "AC" + STRING(ap-pay.check-no, "99999999").
 
     FIND FIRST ap-ledger NO-LOCK
         WHERE ap-ledger.company  EQ ap-pay.company
@@ -46,6 +46,16 @@ FOR EACH ap-pay NO-LOCK
           AND ap-ledger.refnum   EQ v-refnum
           AND ap-ledger.ref-date EQ ap-pay.check-date
         USE-INDEX ap-ledger NO-ERROR.
+    IF NOT AVAIL ap-ledger THEN DO:
+        v-refnum = "AC" + STRING(ap-pay.check-no, "99999999").
+    
+        FIND FIRST ap-ledger NO-LOCK
+            WHERE ap-ledger.company  EQ ap-pay.company
+              AND ap-ledger.vend-no  EQ ap-pay.vend-no
+              AND ap-ledger.refnum   EQ v-refnum
+              AND ap-ledger.ref-date EQ ap-pay.check-date
+            USE-INDEX ap-ledger NO-ERROR.
+    END.    
 
     IF NOT AVAIL ap-ledger THEN
     DO:
@@ -103,7 +113,7 @@ FOR EACH ap-pay NO-LOCK
    
     RELEASE ap-ledger.
 
-    v-refnum = "AC" + STRING(ap-pay.check-no, "999999").
+    v-refnum = "AC" + STRING(ap-pay.check-no, "99999999").
 
     FIND FIRST ap-ledger NO-LOCK
         WHERE ap-ledger.company  EQ ap-pay.company
@@ -111,6 +121,17 @@ FOR EACH ap-pay NO-LOCK
           AND ap-ledger.refnum   EQ v-refnum
           AND ap-ledger.ref-date EQ ap-pay.check-date
         USE-INDEX ap-ledger NO-ERROR.
+        
+    IF NOT AVAIL ap-ledger THEN DO:
+        v-refnum = "AC" + STRING(ap-pay.check-no, "99999999").
+    
+        FIND FIRST ap-ledger NO-LOCK
+            WHERE ap-ledger.company  EQ ap-pay.company
+              AND ap-ledger.vend-no  EQ ap-pay.vend-no
+              AND ap-ledger.refnum   EQ v-refnum
+              AND ap-ledger.ref-date EQ ap-pay.check-date
+            USE-INDEX ap-ledger NO-ERROR.
+    END.    
 
     IF NOT AVAIL ap-ledger THEN
     DO:

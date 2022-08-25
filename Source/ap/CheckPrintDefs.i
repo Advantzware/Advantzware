@@ -153,7 +153,7 @@ DEFINE {1} TEMP-TABLE ttCheckConfig LIKE ttcheckconfig1
  FIELD checkRemitToNameRightJustify AS LOG
  FIELD checkRemitToNameAllCaps AS LOG INIT YES
 
- FIELD checkRemitToAddNameShow AS LOG INIT YES
+ FIELD checkRemitToAddNameShow AS LOG INIT NO
  FIELD checkRemitToAddNameFont AS CHAR 
  FIELD checkRemitToAddNameFontSize AS INT 
  FIELD checkRemitToAddNameSize AS INT INIT 70

@@ -194,7 +194,7 @@ ttSetting.scopeField3  FORMAT "X(15)" WIDTH 15
 ttSetting.inactive     FORMAT "Inactive/Active" WIDTH 10 
 ttSetting.settingUser  FORMAT "X(15)" WIDTH 12
 ttSetting.programID    FORMAT "X(10)" WIDTH 25
-ttSetting.settingValue FORMAT "X(30)" WIDTH 25
+ttSetting.settingValue FORMAT "X(80)" WIDTH 45
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 138 BY 27.38

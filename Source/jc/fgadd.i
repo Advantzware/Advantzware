@@ -11,30 +11,32 @@
 
       create itemfg.
       assign
-       itemfg.company     = cocode
-       itemfg.loc         = locode
-       itemfg.job-date    = today
-       itemfg.i-no        = /*input */ xeb.stock-no
-       itemfg.est-no      = xest.est-no
-       itemfg.i-name      = xeb.part-dscr1
-       itemfg.part-dscr1  = xeb.part-dscr2
-       itemfg.part-no     = xeb.part-no
-       itemfg.cust-no     = xeb.cust-no
-       itemfg.cust-name   = if avail cust then cust.name else ""
-       itemfg.cust-job-no = string(job.job-no) + "-" + string(job.job-no2)
-       itemfg.die-no      = xeb.die-no
-       itemfg.plate-no    = xeb.plate-no
-       itemfg.style       = xeb.style
-       itemfg.procat      = xeb.procat
-       itemfg.cad-no      = xeb.cad-no
-       itemfg.upc-no      = xeb.upc-no
-       itemfg.spc-no      = xeb.spc-no
-       itemfg.isaset      = xeb.form-no eq 0
-       itemfg.pur-man     = xeb.pur-man
-       itemfg.alloc       = xeb.set-is-assembled
-       itemfg.type-code   = "O"
-       itemfg.def-loc     = IF cFGItemLoc NE "" THEN CAPS(cFGItemLoc) ELSE itemfg.def-loc
-       itemfg.def-loc-bin = IF cFGItemLoc NE "" THEN CAPS(cFGItemLocBin) ELSE itemfg.def-loc-bin 
+       itemfg.company           = cocode
+       itemfg.loc               = locode
+       itemfg.job-date          = today
+       itemfg.i-no              = /*input */ xeb.stock-no
+       itemfg.est-no            = xest.est-no
+       itemfg.i-name            = xeb.part-dscr1
+       itemfg.part-dscr1        = xeb.part-dscr2
+       itemfg.part-no           = xeb.part-no
+       itemfg.cust-no           = xeb.cust-no
+       itemfg.cust-name         = if avail cust then cust.name else ""
+       itemfg.cust-job-no       = string(job.job-no) + "-" + string(job.job-no2)
+       itemfg.die-no            = xeb.die-no
+       itemfg.plate-no          = xeb.plate-no
+       itemfg.style             = xeb.style
+       itemfg.procat            = xeb.procat
+       itemfg.cad-no            = xeb.cad-no
+       itemfg.upc-no            = xeb.upc-no
+       itemfg.spc-no            = xeb.spc-no
+       itemfg.isaset            = xeb.form-no eq 0
+       itemfg.pur-man           = xeb.pur-man
+       itemfg.alloc             = xeb.set-is-assembled
+       itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+       itemfg.type-code         = "O"
+       itemfg.def-loc           = IF cFGItemLoc NE "" THEN CAPS(cFGItemLoc) ELSE itemfg.def-loc
+       itemfg.def-loc-bin       = IF cFGItemLoc NE "" THEN CAPS(cFGItemLocBin) ELSE itemfg.def-loc-bin
+       itemfg.trno              = xeb.tr-no
        .
 
       IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
