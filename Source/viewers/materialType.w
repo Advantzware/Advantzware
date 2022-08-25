@@ -578,15 +578,17 @@ PROCEDURE pValidateDepartment:
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
-    FIND FIRST bf-dept NO-LOCK
-         WHERE bf-dept.code EQ materialType.consumedByDept:SCREEN-VALUE
-         NO-ERROR.
-    IF NOT AVAILABLE bf-dept THEN     
-        ASSIGN
-            oplError   = TRUE
-            opcMessage = "Invalid depatment '" + materialType.consumedByDept:SCREEN-VALUE + "'"
-            .
+    IF materialType.consumedByDept:SCREEN-VALUE NE "" THEN 
+    do:
+        FIND FIRST bf-dept NO-LOCK
+             WHERE bf-dept.code EQ materialType.consumedByDept:SCREEN-VALUE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-dept THEN     
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid depatment '" + materialType.consumedByDept:SCREEN-VALUE + "'"
+                .
+    END.        
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
