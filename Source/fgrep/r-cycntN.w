@@ -116,6 +116,9 @@ DEFINE VARIABLE cSellUom           LIKE itemfg.sell-uom NO-UNDO.
 DEFINE VARIABLE v-counted-date     AS DATE      NO-UNDO.
 DEFINE VARIABLE v-cust-no          LIKE itemfg.cust-no NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "ITEM,DESCRIPTION,CUSTOMER," +
@@ -648,6 +651,7 @@ ON END-ERROR OF C-Win /* Finished Goods Cycle Count Report */
 ON WINDOW-CLOSE OF C-Win /* Finished Goods Cycle Count Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -739,6 +743,7 @@ ON LEAVE OF begin_loc IN FRAME FRAME-A /* From Location */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -2091,7 +2096,7 @@ PROCEDURE run-report :
                             ELSE IF LENGTH(cTmpField) <  int(ENTRY(iEntryNumber, cFieldLength)) THEN
                             (FILL(" ",int(ENTRY(iEntryNumber, cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
                             ELSE cTmpField.
-                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".   
 
                     END.
                     ELSE 
@@ -2138,7 +2143,7 @@ PROCEDURE run-report :
                         WHEN "count"      THEN 
                             cVarValue =  STRING(iFGCount,"->,>>>,>>9") .
                     END CASE.
-                    cExcelVarValue = cVarValue.  
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(iEntryNumber, cFieldLength)) + 1 - LENGTH(cVarValue)).             
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -2419,7 +2424,7 @@ PROCEDURE run-reportCust :
                         ELSE IF LENGTH(cTmpField) <  int(ENTRY(iEntryNumber, cFieldLength)) THEN
                         (FILL(" ",int(ENTRY(iEntryNumber, cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
                         ELSE cTmpField.
-                    cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".   
 
                 END.
                 ELSE 
@@ -2464,7 +2469,7 @@ PROCEDURE run-reportCust :
                     WHEN "count"      THEN 
                         cVarValue =  STRING(iFGCount,"->,>>>,>>9") .
                 END CASE.
-                cExcelVarValue = cVarValue.  
+                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(iEntryNumber, cFieldLength)) + 1 - LENGTH(cVarValue)).             
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 

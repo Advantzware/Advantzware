@@ -251,6 +251,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tb_excel           AS LOGICAL   NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /* 4 + 4 + 10 = 18 columns */
 ASSIGN 
@@ -865,6 +868,7 @@ ON END-ERROR OF C-Win /* Aged Inventory with WIP Report */
 ON WINDOW-CLOSE OF C-Win /* Aged Inventory with WIP Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -1009,6 +1013,7 @@ ON LEAVE OF begin_whse IN FRAME FRAME-A /* Beginning Warehouse */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -2912,7 +2917,7 @@ PROCEDURE print_report :
                         WHEN "rep"       THEN 
                             cVarValue = STRING(tt-sman,"x(3)") .
                     END CASE.
-                    cExcelVarValue = cVarValue.  
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -3167,7 +3172,7 @@ PROCEDURE print_report :
                         WHEN "rep"       THEN 
                             cVarValue = "" .
                     END CASE.
-                    cExcelVarValue = cVarValue.  
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 

@@ -451,7 +451,7 @@ FOR EACH ttCustList
                                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                             .
 
-                                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".       
+                                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".       
                                     END.
                                     ELSE 
                                     DO:            
@@ -518,7 +518,7 @@ FOR EACH ttCustList
                                                  
                                         END CASE.
 
-                                        cExcelVarValue = cVarValue.  
+                                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                                         cDisplay = cDisplay + cVarValue +
                                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                                         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -644,7 +644,7 @@ FOR EACH ttCustList
                                                     cVarValue = "".
                                    
                                             END CASE.
-                                            cExcelVarValue = cVarValue.  
+                                            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                                             cDisplay = cDisplay + cVarValue +
                                                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                                             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -805,7 +805,7 @@ FOR EACH ttCustList
                         cDisplay = cDisplay + cTmpField + 
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                             .
-                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".       
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".       
                     END.
                     ELSE 
                     DO:            
@@ -871,7 +871,7 @@ FOR EACH ttCustList
                                 END.
 
                         END CASE.
-                        cExcelVarValue = cVarValue.  
+                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -968,7 +968,7 @@ FOR EACH ttCustList
                                     cVarValue = "".
                                    
                             END CASE.
-                            cExcelVarValue = cVarValue.  
+                            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                             cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -1178,7 +1178,7 @@ FOR EACH ttCustList
                                         cDisplay = cDisplay + cTmpField + 
                                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                             .
-                                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".       
+                                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".       
                                     END.
                                     ELSE 
                                     DO:            
@@ -1244,7 +1244,7 @@ FOR EACH ttCustList
                                                 END.
                                    
                                         END CASE.
-                                        cExcelVarValue = cVarValue.  
+                                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                                         cDisplay = cDisplay + cVarValue +
                                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                                         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -1427,7 +1427,7 @@ FOR EACH ttCustList
                         cDisplay = cDisplay + cTmpField + 
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                             .
-                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".       
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".       
                     END.
                     ELSE 
                     DO:            
@@ -1492,7 +1492,7 @@ FOR EACH ttCustList
                                     cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE ""  .
                                 END.
                         END CASE.
-                        cExcelVarValue = cVarValue.  
+                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
                         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -1606,7 +1606,7 @@ FOR EACH ttCustList
                     cVarValue = "" .
                                    
             END CASE.
-            cExcelVarValue = cVarValue.  
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -1706,7 +1706,7 @@ DO i = 1 TO NUM-ENTRIES(cSelectedlist):
         WHEN "on-hand-cost" THEN 
             cVarValue = ""  .
     END CASE.
-    cExcelVarValue = cVarValue.  
+    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
     cDisplay = cDisplay + cVarValue +
         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 

@@ -360,9 +360,10 @@ FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                         .
                 IF ENTRY(i,cSelectedList) = "Job#" THEN
-                    cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + (IF fg-rcpth.job-no  <> "" THEN 
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + 
+                                    (IF fg-rcpth.job-no  <> "" THEN 
                                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))) ELSE  "") + ",".
-                ELSE cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
+                ELSE cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".
             END.
             ELSE 
             DO:
@@ -453,7 +454,7 @@ FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
                     cVarValue = IF dBinFOHCost NE 0 THEN STRING(dBinFOHCost,"->>>,>>9.99<<") ELSE "".
             END CASE.
               
-            cExcelVarValue = cVarValue.
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
             IF cTmpField <> "loc" THEN 
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 

@@ -531,7 +531,7 @@
               cDisplay = cDisplay + cTmpField + 
                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)).
 
-          cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".      
+          cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".      
        END.
        ELSE DO:            
             CASE cTmpField:               
@@ -569,7 +569,7 @@
 		        WHEN "partial" THEN cVarValue = STRING(tt-fg-bin.partial-count,"->>>>>9").	              
 		        WHEN "pallet" THEN cVarValue = STRING(v-bin-qoh / fGetPalletCount(BUFFER itemfg),"->>,>>>,>>9.99").	              
             END CASE.
-            cExcelVarValue = cVarValue.  
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -616,7 +616,7 @@
               cDisplay = cDisplay + cTmpField + 
                   FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)).
 
-          cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".      
+          cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,GetFieldValue(hField))) + ",".      
        END.
        ELSE DO:            
             CASE cTmpField:               
@@ -655,7 +655,7 @@
 		        WHEN "pallet" THEN cVarValue = STRING(tt-fg-bin.qty / fGetPalletCount(BUFFER itemfg),"->>,>>>,>>9.99").	              	
                    
             END CASE.
-            cExcelVarValue = cVarValue.  
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -828,7 +828,7 @@
 		        WHEN "pallet" THEN cVarValue = STRING(dTotalPallet[2],"->>,>>>,>>9.99") .
                 
             END CASE.
-            cExcelVarValue = cVarValue.  
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -934,7 +934,7 @@
 		        WHEN "partial" THEN cVarValue = "". 
 		        WHEN "pallet" THEN cVarValue = STRING(dTotalPallet[2],"->>,>>>,>>9.99") .
             END CASE.
-            cExcelVarValue = cVarValue.  
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
