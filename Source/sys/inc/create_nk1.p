@@ -53,7 +53,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
            + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CEInksWithUnits,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength,CEShowErrorsAndWarnings,"
-           + "CECostSource,CEStyleF,ROUND"
+           + "CECostSource,CEStyleF,ROUND,CESetHeaderForm,JobSubAssemblyPrefix,CESubAssembly"
            .
                       
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1766,6 +1766,17 @@ CASE ip-nk1-value:
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
             ).
+    WHEN "CESetHeaderForm" THEN     
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO, 
+            INPUT "Separate Form 0", /*Description */
+            INPUT "Existing Form 1", /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).
     WHEN "CEStyleF" THEN     
     RUN sys/inc/addnk1.p (
             INPUT cocode, 
@@ -1777,17 +1788,43 @@ CASE ip-nk1-value:
             INPUT YES,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
             ).                                            
-    WHEN "ROUND" THEN     
+         
+    WHEN "JobSubAssemblyPrefix" THEN
     RUN sys/inc/addnk1.p (
             INPUT cocode, 
             INPUT ip-nk1-value, 
             INPUT NO,           
+            INPUT "Enter prefix letter to identify sub assembly jobs",     /* Description */
+            INPUT "A", /* Char Value */
+            INPUT 0,                              /* Int value */
+            INPUT NO,                             /* Logical value */ 
+            INPUT 0                               /* Dec value*/
+            ).   
+
+    WHEN "ROUND" THEN
+    RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,
             INPUT "Round Up Scoring Allowances?", /* Description */
             INPUT "",                             /* Char Value */
             INPUT 0,                              /* Int value */
             INPUT NO,                             /* Logical value */ 
             INPUT 0                               /* Dec value*/
-            ).                      
+            ).
+        WHEN "CESubAssembly" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Activate Sub-Assembly Set Entry",             /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                           /* Logical value */ 
+            INPUT 0                                              /* dec value*/
+            ).          
+                                  
+
 END CASE.
 ELSE
 CASE ip-nk1-value:

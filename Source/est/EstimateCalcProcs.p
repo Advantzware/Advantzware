@@ -79,7 +79,9 @@ DEFINE VARIABLE glCalcFoamCostFromBlank               AS LOGICAL   NO-UNDO.  /*F
 DEFINE VARIABLE gcCECostSourceLookup                  AS CHARACTER NO-UNDO.  /*CECostSource*/
 DEFINE VARIABLE giPromptForErrorLevel                 AS INTEGER   NO-UNDO.  /*CEShowErrorsAndWarnings*/
 DEFINE VARIABLE glAutoRecostBoard                     AS LOGICAL   NO-UNDO.  /*CEAutoRecostBoard*/
+DEFINE VARIABLE glSeparateSetHeaderAsForm0            AS LOGICAL   NO-UNDO.  /*CESetHeaderForm*/
 DEFINE VARIABLE gclCorrware                           AS LOGICAL   NO-UNDO.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -190,6 +192,22 @@ PROCEDURE CalculateEstimate:
     
 END PROCEDURE.
 
+PROCEDURE CalculateEstimateForQuantity:
+    /*------------------------------------------------------------------------------
+     Purpose: Primary Public Procedure for calculating the estimate
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstimateNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER iplPurge AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantity AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+    
+    RUN pCalcEstimate(ipcCompany, ipcEstimateNo, "", 0, ipiQuantity, iplPurge, NO, OUTPUT iEstCostHeaderID).
+    
+END PROCEDURE.
+
 PROCEDURE CalculateEstimateWithPrompts:
     /*------------------------------------------------------------------------------
     Purpose:  Public Procedure that calculates estimate and may include UI prompts
@@ -296,7 +314,7 @@ PROCEDURE ChangeSellPrice:
                 
                 /*Calculate new Price for form and commisson*/
                 ASSIGN 
-                    dNewPrice   = MAXIMUM (ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 2),ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 0))
+                    dNewPrice   = ROUND(ttEstCostForm.sellPrice * dPriceDiffRatio, 2)
                     dCommission = dNewPrice * ttEstCostItem.commissionPct / 100
                     .   
                 
@@ -2491,6 +2509,25 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
 
 END PROCEDURE.
 
+PROCEDURE pCalcEstimateSubAssembly PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Internal master procedure for calculating an estimate/job
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostHeader FOR ttEstCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostBlank FOR ttEstCostBlank.
+    DEFINE INPUT PARAMETER ipcEstimateNoSubAssembly AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iEstCostHeaderID AS INT64 NO-UNDO.
+            
+    RUN pBuildHeadersToProcess(ipbf-ttEstCostHeader.company, ipcEstimateNoSubAssembly, "", 0, ipbf-ttEstCostBlank.quantityRequired, OUTPUT iEstCostHeaderID).
+    
+    RUN pCalcHeader(iEstCostHeaderID).
+            
+    RUN pWriteDatasetIntoDB.
+    
+END PROCEDURE.
+
 PROCEDURE pCalcEstimate PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Internal master procedure for calculating an estimate/job
@@ -2592,16 +2629,21 @@ PROCEDURE pCalcHeader PRIVATE:
                 OF ef:
                 
                 RUN pAddEstBlank(BUFFER eb, BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm, BUFFER bf-ttEstCostBlank).
-                ASSIGN 
-                    iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-ttEstCostBlank.numOut
-                    dQtyOnForm          = dQtyOnForm + 
-                                        (IF bf-ttEstCostBlank.priceBasedOnYield THEN bf-ttEstCostBlank.quantityYielded ELSE bf-ttEstCostBlank.quantityRequired)
-                    dQtyOnFormRequired  = dQtyOnFormRequired + bf-ttEstCostBlank.quantityRequired
-                    dQtyOnFormYielded   = dQtyOnFormYielded + bf-ttEstCostBlank.quantityYielded
-                    .
-                RUN pBuildInksForEb(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
-                RUN pAddGlue(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
-                RUN pBuildPackingForEb(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
+                IF FALSE /* eb.sourceEstimate NE ""*/ THEN DO:
+                    RUN pCalcEstimateSubAssembly(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, eb.sourceEstimate).
+                END.
+                ELSE DO:
+                    ASSIGN 
+                        iNumOutBlanksOnForm = iNumOutBlanksOnForm + bf-ttEstCostBlank.numOut
+                        dQtyOnForm          = dQtyOnForm + 
+                                            (IF bf-ttEstCostBlank.priceBasedOnYield THEN bf-ttEstCostBlank.quantityYielded ELSE bf-ttEstCostBlank.quantityRequired)
+                        dQtyOnFormRequired  = dQtyOnFormRequired + bf-ttEstCostBlank.quantityRequired
+                        dQtyOnFormYielded   = dQtyOnFormYielded + bf-ttEstCostBlank.quantityYielded
+                        .
+                    RUN pBuildInksForEb(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
+                    RUN pAddGlue(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
+                    RUN pBuildPackingForEb(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostBlank, BUFFER eb).
+                END.                
                 
             END. /*Each eb of ef*/
             
@@ -3037,8 +3079,11 @@ PROCEDURE pBuildItems PRIVATE:
                 RUN pAddEstForm(BUFFER ipbf-ttEstCostHeader, 0, BUFFER bf-ttEstCostForm).
                 RUN pAddEstBlank(BUFFER eb, BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostForm, BUFFER bf-ttEstCostBlank).
                 
-                IF AVAILABLE bf-ttEstCostForm THEN 
+                IF AVAILABLE bf-ttEstCostForm THEN DO:
                     bf-ttEstCostForm.quantityFGOnForm = ipbf-ttEstCostHeader.quantityMaster.
+                    IF glSeparateSetHeaderAsForm0 THEN 
+                        RUN pProcessOperations(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostForm).
+                END.
                 IF eb.pur-man THEN /*Refactor - this should be .unitized*/
                 DO:
                     FIND CURRENT ipbf-ttEstCostHeader EXCLUSIVE-LOCK.
@@ -4359,16 +4404,16 @@ PROCEDURE pProcessEstMaterial PRIVATE:
             bf-ttEstCostMaterial.quantityRequiredSetupWaste = (bf-estMaterial.wastePercent / 100) * bf-ttEstCostMaterial.quantityRequiredNoWaste
             bf-ttEstCostMaterial.weightTotal = bf-estMaterial.weightPerEA * bf-ttEstCostMaterial.quantityRequiredNoWaste
             .
-        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN 
+        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm AND NOT glSeparateSetHeaderAsForm0 THEN
         DO:
             /*Associate Form 0 materials to the unitize form (Form 1)*/
-            ASSIGN 
+            ASSIGN
                 bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID
                 bf-ttEstCostMaterial.estCostBlankID = 0
                 .
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).
-        END. 
-        ELSE     
+        END.
+        ELSE
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bf-ttEstCostForm).
         
     END.
@@ -4567,7 +4612,9 @@ PROCEDURE pProcessOperations PRIVATE:
                     dQtyInOutRunWaste   = dQtyInOutRunWaste * bf-ttEstCostOperation.numOutForOperation.
             END.
             IF dQtyInOut EQ 0 THEN 
-                dQtyInOut = ipbf-ttEstCostForm.quantityFGOnFormYielded.
+                dQtyInOut = ipbf-ttEstCostForm.quantityFGOnFormYielded.   
+            IF dQtyInOut EQ 0 THEN
+               dQtyInOut = est-op.qty.                  
             RUN pProcessOperation(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostOperation, INPUT-OUTPUT dQtyInOut, 
                 INPUT-OUTPUT dQtyInOutSetupWaste, INPUT-OUTPUT dQtyInOutRunWaste).
                 
@@ -5527,16 +5574,16 @@ PROCEDURE pProcessPacking PRIVATE:
                 bf-ttEstCostMaterial.weightTotal = ttPack.dWeightTare * bf-ttEstCostMaterial.quantityRequiredNoWaste.
             END.
         
-        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm THEN 
+        IF bf-ttEstCostForm.formNo EQ 0 AND AVAILABLE bfUnitize-ttEstCostForm AND NOT glSeparateSetHeaderAsForm0 THEN
         DO:
             /*Associate Form 0 materials to the unitize form (Form 1)*/
-            ASSIGN 
+            ASSIGN
                 bf-ttEstCostMaterial.estCostFormID  = bfUnitize-ttEstCostForm.estCostFormID
                 bf-ttEstCostMaterial.estCostBlankID = 0
                 .
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bfUnitize-ttEstCostForm).
-        END. 
-        ELSE     
+        END.
+        ELSE
             RUN pCalcEstMaterial(BUFFER ipbf-ttEstCostHeader, BUFFER bf-ttEstCostMaterial, BUFFER bf-ttEstCostForm).
         
     END.
@@ -6359,9 +6406,13 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipcCompany, "CEShowErrorsAndWarnings", "I" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
         giPromptForErrorLevel = IF lFound THEN INTEGER (cReturn) ELSE 0.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CESetHeaderForm", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+        glSeparateSetHeaderAsForm0 = lFound AND cReturn = "Separate Form 0".
         
     RUN sys/ref/nk1look.p (ipcCompany, "MSFCALC", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
      gclCorrware = lFound AND cReturn EQ "Corrware".     
+
        
 END PROCEDURE.
 
