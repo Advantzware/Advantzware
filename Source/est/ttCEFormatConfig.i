@@ -18,12 +18,14 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD SIMONListSeparate           AS CHARACTER INITIAL "S,O,N" LABEL "SIMON Separate List"
     FIELD useReferenceQuantity        AS LOGICAL INITIAL NO LABEL "Use Reference Quantity?"
     FIELD printByForm                 AS LOGICAL INITIAL YES LABEL "Print By Form?"
+    FIELD printForm0Separately        AS LOGICAL INITIAL NO
     FIELD printSummary                AS LOGICAL INITIAL YES LABEL "Print Summary?"
     FIELD printSummaryFirst           AS LOGICAL INITIAL YES LABEL "Print Summart First?"
     FIELD printAnalysis               AS LOGICAL INITIAL YES LABEL "Print Analysis?"
     FIELD printNotes                  AS LOGICAL INITIAL YES LABEL "Print Notes?"
+    FIELD printSubAssemblyDetail      AS LOGICAL INITIAL NO
     FIELD printBoxDesigns             AS LOGICAL INITIAL NO LABEL "Print Box Designs?"
-    FIELD showDimensionsIn16ths       AS LOGICAL INITIAL YES LABEL "Show Dimensions in 16ths?"
+    FIELD showDimensionsIn16ths       AS LOGICAL INITIAL NO LABEL "Show Dimensions in 16ths?"
     FIELD operationTimeInHHMM         AS LOGICAL LABEL "Display Operation Time in HHMM"
     FIELD summColQuantityShow         AS LOGICAL INITIAL NO LABEL "Show Quantity in Summary?"
     FIELD summColQuantityLabel        AS CHARACTER INITIAL "Quantity" LABEL "Label"
