@@ -1630,7 +1630,7 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
             cLabelGross = "Raw Wood Size" .
     END.
     
-    ASSIGN dGrossQtyRequiredTotalWeightInTons = estCostForm.grossQtyRequiredTotalWeight / 2000 .
+    ASSIGN dGrossQtyRequiredTotalWeightInTons = ipbf-estCostForm.grossQtyRequiredTotalWeight / 2000 .
        
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
