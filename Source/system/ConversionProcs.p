@@ -1345,26 +1345,29 @@ FUNCTION fGetSqInches RETURNS DECIMAL PRIVATE
      Purpose: given an Are measurement and uom, convert to Sq inches
      Notes:
     ------------------------------------------------------------------------------*/    
-    DEFINE VARIABLE dInches  AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dSqInches  AS DECIMAL NO-UNDO.
     DEFINE VARIABLE iExponent AS INTEGER NO-UNDO INITIAL 2.
     
     CASE CAPS(ipcUOM):
         WHEN "SQIN" OR WHEN "SQLI" THEN 
-            dInches = ipdArea.
-        WHEN "SQFT" OR WHEN "SQLF" THEN 
-            dInches = ipdArea * EXP( gdInPerFt, iExponent).
+            dSqInches = ipdArea.
+        WHEN "SQFT" OR WHEN "SQLF" OR WHEN "SF" OR WHEN "MSF" THEN 
+            DO: 
+                dSqInches = ipdArea * EXP( gdInPerFt, iExponent).
+                IF ipcUOM EQ "MSF" THEN dSqInches = dSqInches * 1000.
+            END.
         WHEN "SQCM" THEN 
-            dInches = ipdArea / EXP( gdCMPerIn, iExponent).
+            dSqInches = ipdArea / EXP( gdCMPerIn, iExponent).
         WHEN "SQMM" THEN 
-            dInches = ipdArea / (EXP( gdCMPerIn, iExponent) * EXP( gdMMPerCm, iExponent)).
+            dSqInches = ipdArea / (EXP( gdCMPerIn, iExponent) * EXP( gdMMPerCm, iExponent)).
         WHEN "SQMET" OR WHEN "SQM" THEN 
-            dInches = ipdArea / (EXP( gdCMPerIn, iExponent) / EXP( gdCMPerM, iExponent)).          
+            dSqInches = ipdArea / (EXP( gdCMPerIn, iExponent) / EXP( gdCMPerM, iExponent)).          
         OTHERWISE 
-        dInches = ipdArea.
+        dSqInches = ipdArea.
  
     END CASE.     
       
-    RETURN dInches.
+    RETURN dSqInches.
         
 END FUNCTION.
 

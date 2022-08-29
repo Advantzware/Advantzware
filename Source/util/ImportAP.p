@@ -129,11 +129,18 @@ PROCEDURE pValidate PRIVATE:
         IF AVAILABLE ap-inv THEN 
             FIND FIRST ap-invl NO-LOCK 
                 WHERE ap-invl.company EQ ap-inv.company
-                AND ap-invl.i-no EQ ap-inv.i-no
-                AND ap-invl.po-no EQ ipbf-ttImportAP.LinePONumber
-                AND ap-invl.po-line EQ ipbf-ttImportAP.LinePOLine
-                NO-ERROR.
-        IF AVAILABLE ap-inv AND AVAILABLE ap-invl THEN 
+                  AND ap-invl.i-no    EQ ap-inv.i-no
+                  AND ap-invl.po-no   EQ ipbf-ttImportAP.LinePONumber
+                  AND ap-invl.LINE    EQ ((ipbf-ttImportAP.LinePONumber * 1000) + ipbf-ttImportAP.LinePOLine)
+                  NO-ERROR.
+        IF AVAILABLE ap-inv AND ap-inv.posted THEN 
+        DO: 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Posted Invoice: No addings are allowed!"
+                .       
+        END.
+        ELSE IF AVAILABLE ap-inv AND AVAILABLE ap-invl THEN 
         DO:
             IF NOT iplUpdateDuplicates THEN 
                 ASSIGN 

@@ -168,7 +168,7 @@ FOR EACH est-op
     WHERE est-op.company EQ xest.company
       AND est-op.est-no  EQ xest.est-no
       AND est-op.qty     EQ v-op-qty
-      AND est-op.s-num   EQ xef.form-no
+      AND (est-op.s-num   EQ xef.form-no OR est-op.s-num EQ 0)
       AND est-op.line    GE ip-line
       AND est-op.line    LT ip-line + 500
     NO-LOCK
@@ -213,7 +213,7 @@ FOR EACH est-op
     WHERE est-op.company EQ xest.company
       AND est-op.est-no  EQ xest.est-no
       AND est-op.qty     EQ v-op-qty
-      AND est-op.s-num   EQ xef.form-no
+      AND (est-op.s-num   EQ xef.form-no OR est-op.s-num EQ 0)
       AND est-op.line    GE ip-line
       AND est-op.line    LT ip-line + 500
       AND CAN-FIND(FIRST mach
@@ -243,7 +243,7 @@ FOR EACH est-op
     WHERE est-op.company EQ xest.company
       AND est-op.est-no  EQ xest.est-no
       AND est-op.qty     EQ v-op-qty
-      AND est-op.s-num   EQ xef.form-no
+      AND (est-op.s-num   EQ xef.form-no OR est-op.s-num EQ 0)
       AND est-op.line    GE ip-line
       AND est-op.line    LT ip-line + 500
       AND CAN-FIND(FIRST mach

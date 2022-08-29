@@ -1164,8 +1164,9 @@ DEF BUFFER bfCust FOR Cust.
          END.
       END.
   END.
-  FOR EACH bfCust WHERE bfCust.ACTIVE = "X"
-     NO-LOCK:
+  FOR EACH bfCust NO-LOCK
+      WHERE bfCust.company EQ cocode 
+        AND bfCust.ACTIVE = "X":   
     cCustX = bfCust.cust-no.
     FOR EACH ASI.itemfg WHERE itemfg.company = cocode 
           AND itemfg.cust-no EQ ASI.bfCust.cust-no 

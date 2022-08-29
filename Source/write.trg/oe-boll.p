@@ -38,6 +38,13 @@ ELSE DO:
   IF ({&TABLENAME}.partial GT {&TABLENAME}.qty AND {&TABLENAME}.partial GT 0) OR
      ({&TABLENAME}.partial LT 0 AND {&TABLENAME}.partial LT {&TABLENAME}.qty) THEN
     {&TABLENAME}.partial = {&TABLENAME}.qty.
+    
+  IF {&TABLENAME}.qty-case LE 0                       OR
+     ({&TABLENAME}.qty LT {&TABLENAME}.qty-case AND
+      {&TABLENAME}.qty GT 0)                          THEN
+    ASSIGN
+    {&TABLENAME}.qty-case = {&TABLENAME}.qty
+    {&TABLENAME}.partial  = 0.  
 
   IF {&TABLENAME}.qty-case GT 0 THEN DO:
     {&TABLENAME}.cases = TRUNC(({&TABLENAME}.qty - {&TABLENAME}.partial) / {&TABLENAME}.qty-case,0).
@@ -49,13 +56,7 @@ ELSE DO:
     {&TABLENAME}.partial = {&TABLENAME}.qty - 
                            ({&TABLENAME}.cases * {&TABLENAME}.qty-case).
   END.
-
-  IF {&TABLENAME}.qty-case LE 0                       OR
-     ({&TABLENAME}.qty LT {&TABLENAME}.qty-case AND
-      {&TABLENAME}.qty GT 0)                          THEN
-    ASSIGN
-    {&TABLENAME}.qty-case = {&TABLENAME}.qty
-    {&TABLENAME}.partial  = 0.
+    
 END.
 
 IF {&TABLENAME}.cases   EQ ? THEN {&TABLENAME}.cases   = 0.
