@@ -2268,8 +2268,9 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
       Purpose: Calculate material dimension from blank
       Notes: If N-K-1 FoamCost = Blank then calculate Total Cost using eb dimenstions
     ------------------------------------------------------------------------------*/
-    DEFINE PARAMETER BUFFER ipbf-estCostForm     FOR estCostForm.
-    DEFINE PARAMETER BUFFER opbf-estCostMaterial FOR estCostMaterial.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostHeader FOR ttEstCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostForm   FOR ttEstCostForm.
+    DEFINE PARAMETER BUFFER opbf-ttEstCostMaterial FOR ttEstCostMaterial.
     
     DEFINE VARIABLE lFoam  AS LOGICAL NO-UNDO.
     
@@ -2282,17 +2283,27 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
         
     IF lFoam THEN
     DO:
-        FIND FIRST bf-estCostBlank NO-LOCK 
-            WHERE bf-estCostBlank.estCostHeaderID EQ ipbf-estCostForm.estCostHeaderID
-              AND bf-estCostBlank.estCostFormID   EQ ipbf-estCostForm.estCostFormID NO-ERROR.
-        
-        IF AVAILABLE bf-estCostBlank THEN
-            ASSIGN 
-                opbf-estCostMaterial.dimLength               = bf-estCostBlank.blankLength
-                opbf-estCostMaterial.dimWidth                = bf-estCostBlank.blankWidth
-                opbf-estCostMaterial.dimDepth                = bf-estCostBlank.blankDepth
-                opbf-estCostMaterial.quantityRequiredNoWaste = bf-estCostBlank.quantityRequired
+        IF DYNAMIC-FUNCTION("fEstimate_IsCombo", ipbf-ttEstCostHeader.estType) THEN DO:
+            ASSIGN
+                opbf-ttEstCostMaterial.dimLength               = ipbf-ttEstCostForm.netLength
+                opbf-ttEstCostMaterial.dimWidth                = ipbf-ttEstCostForm.netWidth
+                opbf-ttEstCostMaterial.dimDepth                = ipbf-ttEstCostForm.netDepth 
+                opbf-ttEstCostMaterial.quantityRequiredNoWaste = opbf-ttEstCostMaterial.quantityRequiredNoWaste * ipbf-ttEstCostForm.numOutNet
                 .
+        END.
+        ELSE DO:
+            FIND FIRST bf-ttEstCostBlank NO-LOCK  
+                WHERE bf-ttEstCostBlank.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
+                  AND bf-ttEstCostBlank.estCostFormID   EQ ipbf-ttEstCostForm.estCostFormID NO-ERROR.
+            
+            IF AVAILABLE bf-ttEstCostBlank THEN
+                ASSIGN 
+                    opbf-ttEstCostMaterial.dimLength               = bf-ttEstCostBlank.blankLength
+                    opbf-ttEstCostMaterial.dimWidth                = bf-ttEstCostBlank.blankWidth
+                    opbf-ttEstCostMaterial.dimDepth                = bf-ttEstCostBlank.blankDepth
+                    opbf-ttEstCostMaterial.quantityRequiredNoWaste = bf-ttEstCostBlank.quantityRequired
+                    .
+        END.
     END.  
 
 END PROCEDURE.
@@ -4377,7 +4388,7 @@ PROCEDURE pProcessBoard PRIVATE:
             bf-estCostMaterial.noCharge                   = ipbf-estCostForm.noCost
             .
         
-        RUN pCalcBoardCostFromBlank (BUFFER ipbf-estCostForm, BUFFER bf-estCostMaterial).
+        RUN pCalcBoardCostFromBlank (BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER bf-ttEstCostMaterial).
             
         cMaterialTypeCalculation = fGetMatTypeCalc(bf-estCostMaterial.company, bf-estCostMaterial.materialType).
         IF cMaterialTypeCalculation NE gcMaterialTypeCalcDefault THEN

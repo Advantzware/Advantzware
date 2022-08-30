@@ -43,6 +43,9 @@ FUNCTION fEstimate_GetEstimateType RETURNS CHARACTER
 FUNCTION fEstimate_GetQuantityPerSet RETURNS DECIMAL 
 	(BUFFER ipbf-eb FOR eb) FORWARD.
 
+FUNCTION fEstimate_IsCombo RETURNS LOGICAL 
+	(ipiEstimateType AS INTEGER ) FORWARD.
+
 FUNCTION fEstimate_IsDepartment RETURNS LOGICAL 
 	(ipcDepartment AS CHARACTER,
 	 ipcDepartmentList AS CHARACTER EXTENT 4) FORWARD.
@@ -1089,6 +1092,15 @@ FUNCTION fEstimate_GetQuantityPerSet RETURNS DECIMAL
 
     RETURN dQuantityPerSet.
 
+END FUNCTION.
+
+FUNCTION fEstimate_IsCombo RETURNS LOGICAL 
+	( ipiEstimateType AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsComboType", DYNAMIC-FUNCTION("fEstimate_GetEstimateType", ipiEstimateType, "")).
 END FUNCTION.
 
 FUNCTION fEstimate_IsDepartment RETURNS LOGICAL 
