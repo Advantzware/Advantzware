@@ -349,8 +349,10 @@ DO:
   {src/adm/template/brschnge.i}
   ttRowID = IF AVAILABLE tt-tran THEN ROWID(tt-tran) ELSE ?.
 
-  IF AVAIL tt-tran THEN
+  IF AVAIL tt-tran THEN DO:
      RUN paper-clip-image-proc(INPUT tt-tran.rec_key).
+     RUN GearWheelsImageProc.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -663,6 +665,39 @@ PROCEDURE local-update-record :
      RUN dispatch ('row-change').
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GearWheelsImageProc B-table-Win 
+PROCEDURE GearWheelsImageProc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE v-spec AS LOG NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+   IF AVAIL tt-tran AND tt-tran.job_number <> "" THEN
+     FIND FIRST job WHERE job.company EQ company_code AND
+                          job.job-no = tt-tran.job_number AND
+                          job.job-no2 = tt-tran.job_sub NO-LOCK NO-ERROR.
+   
+   IF AVAIL job THEN
+   FIND FIRST notes WHERE notes.rec_key = job.rec_key
+       AND notes.note_type = "O" 
+       NO-LOCK NO-ERROR.
+
+   IF AVAILABLE notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'optonote-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN pUpdateGearWheelsImage IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
