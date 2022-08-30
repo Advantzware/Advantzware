@@ -1378,12 +1378,19 @@ END.
 ON LEAVE OF cust.cust-no IN FRAME F-Main /* Customer */
 DO:
    {&methods/lValidateError.i YES}
-   IF LASTKEY = -1 THEN  RETURN.
+   IF LASTKEY = -1 THEN RETURN.
+   IF cust.cust-no:SCREEN-VALUE = "" THEN DO:
+       MESSAGE "Customer number must be entered." VIEW-AS ALERT-BOX ERROR.
+       APPLY "entry" TO cust.cust-no.
+       RETURN NO-APPLY.
+    END.
+   
    IF adm-new-record AND 
       CAN-FIND(FIRST cust WHERE cust.company = gcompany 
                             AND cust.cust-no = cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})
    THEN DO:
       MESSAGE "Customer already exists. Try other number." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO cust.cust-no.
       RETURN NO-APPLY.
    END.
    {&methods/lValidateError.i NO}
@@ -2569,13 +2576,6 @@ PROCEDURE local-update-record :
    ls-prev-sman = cust.sman  
    ll-new-record = FALSE .
 
-    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
-    IF adm-new-record 
-    AND cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
-        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-        RETURN NO-APPLY.
-    END.
-
   RUN cust-zip.
   {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
@@ -2584,7 +2584,7 @@ PROCEDURE local-update-record :
         IF cust.cust-no:SCREEN-VALUE = "" THEN DO:
            MESSAGE "Customer number must be entered." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.cust-no.
-           RETURN.
+           RETURN NO-APPLY.
         END.
         FIND FIRST bf-cust WHERE bf-cust.company = gcompany 
                              AND bf-cust.cust-no = cust.cust-no:SCREEN-VALUE
@@ -2593,7 +2593,7 @@ PROCEDURE local-update-record :
         IF AVAIL bf-cust THEN DO:
            MESSAGE "Customer already exist. Try other number." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.cust-no.
-           RETURN.
+           RETURN NO-APPLY.
         END.
         IF v-custsize = "Hughes" and
            v-cust-length <> LENGTH(cust.cust-no:SCREEN-VALUE) THEN DO:
@@ -2601,7 +2601,7 @@ PROCEDURE local-update-record :
                "must change your setting or use a" v-cust-length "character length customer number."
                VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.cust-no.
-           RETURN.
+           RETURN NO-APPLY.
         END.
      END.
      {&methods/lValidateError.i NO}
@@ -2613,6 +2613,13 @@ PROCEDURE local-update-record :
         return .
      end.*/
 
+     /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+        IF adm-new-record 
+        AND cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+            RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+            RETURN NO-APPLY.
+        END.
+     
      RUN check-cr-bal NO-ERROR .
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
