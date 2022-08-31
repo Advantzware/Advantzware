@@ -1,4 +1,5 @@
 /* oe/rep/relprysx2.i */   
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No. */
 
    PUT "<FArial>" SKIP
        "<P14><C35><B>Pick Ticket</B> " SKIP
@@ -8,7 +9,7 @@
 /*        "<=1><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" */
 /*        "<P10></B>"                                                                                 */
 /*        "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"                            */
-       "<P10><=1><R+3>"
+       "<P10><=1><R+2>"
         v-comp-add1 AT 8 SKIP
         v-comp-add2 AT 8  SKIP
         v-comp-add3 AT 8 SKIP
@@ -16,11 +17,13 @@
         v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
         lv-email AT 8 SKIP(1)
               "<FCourier New>"
-              "Sold To:" SPACE(30) "Ship To:"  SKIP
+              "Sold To:" SPACE(30) "Ship To:" shipto.ship-id SKIP
               SPACE(5) cust.name shipto.ship-name AT 45 skip
               SPACE(5) cust.addr[1] shipto.ship-addr[1] AT 45 SKIP.
-      IF cust.addr[2] <> "" OR shipto.ship-addr[2] <> "" THEN
-                  PUT SPACE(5) cust.addr[2] shipto.ship-addr[2] AT 45 SKIP
+      IF cust.addr[2] <> "" OR shipto.ship-addr[2] <> ""  THEN
+                  PUT SPACE(5) cust.addr[2] shipto.ship-addr[2] AT 45 SKIP.
+      IF shipto.spare-char-3 NE "" THEN           
+                  PUT shipto.spare-char-3 AT 45 FORM "x(30)" SKIP
                   SPACE(5) cust.city + " " + cust.state + " " + cust.zip FORM "x(30)"
                            shipto.ship-city + " " + shipto.ship-state + " " + shipto.ship-zip AT 45 FORM "x(30)" SKIP.
       ELSE PUT SPACE(5) cust.city + " " + cust.state + " " + cust.zip FORM "x(30)"
@@ -46,14 +49,17 @@
          "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                           Ship Via                                        Freight Terms" SKIP
          "<FCourier New><=4><R+3> " v-zone space(10) v-weight space(10) oe-ord.fob-code SPACE(5) v-carrier space(10) v-frt-terms   SKIP
          "<|10><R24><C1><#5><FROM><R26><C79.5><RECT>" SKIP    
-         "<R24><C7><FROM><R26><C7><LINE>" SKIP
-         "<R24><C27><FROM><R26><C27><LINE>" SKIP
-         "<R24><C53><FROM><R26><C53><LINE>" SKIP 
+         "<R24><C7.5><FROM><R26><C7.5><LINE>" SKIP
+         "<R24><C29><FROM><R26><C29><LINE>" SKIP
+         "<R24><C53.5><FROM><R26><C53.5><LINE>" SKIP 
          "<R24><C59><FROM><R26><C59><LINE>" SKIP 
          "<R24><C65><FROM><R26><C65><LINE>" SKIP   
          "<R24><C70><FROM><R26><C70><LINE>" SKIP
          "<FArial><=5><C65.8>Case<C71>EA Qty/UOM" SKIP
-         "<=5><R+1> Order# <C10>Item / Desc / RFQ #<C28>TAG / Whs / Bin <C53.5>Skids<C59.5>Cases<C65.8>Count<C70.5>Ord Qty/UOM" SKIP(1)
+         "<=5><R+1>   Order#
+               <C7>   Item / Desc / RFQ #
+              <C29>   TAG / Whs / Bin 
+              <C54>   Skids<C60>Cases<C65.8>Count<C70.5>Ord Qty/UOM" SKIP(1)
          "<FCourier New>".
       v-printline = v-printline + 16.
 

@@ -1,7 +1,7 @@
 /* ----------------------------------------------  */
 /*  cecrep/jobPExpress.p  Corrugated factory ticket  for Xprint landscape */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 DEFINE INPUT PARAMETER v-format AS CHARACTER.
@@ -81,9 +81,6 @@ DEFINE VARIABLE lJobCardPrntScor-Log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
-Define Variable hNotesProc as Handle NO-UNDO.
-
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -229,16 +226,16 @@ DO v-local-loop = 1 TO v-local-copies:
                     iunder-run   = DECIMAL(cust.under-pct)
                     iover-run    = DECIMAL(cust.over-pct)
                              .
-               ASSIGN cBarCodeVal = job-hdr.job-no + "-" + STRING(job-hdr.job-no2,"99") + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
+               ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
              ASSIGN  cCustName = cust.NAME 
                {sys/inc/ctrtext.i cCustName 30}.
       
         PUT "<C1><R1.2><#Start>"
             "<=Start><FROM><C108><R50><RECT><|1>"
             "<=Start><#JobStart>"
-            "<=JobStart><C+20><#JobTR>"
+            "<=JobStart><C+23><#JobTR>"
             "<=JobStart><R+3><#JobBL> "
-            "<=JobStart><C+20><R+3><#JobEnd>"
+            "<=JobStart><C+23><R+3><#JobEnd>"
             "<=JobStart><FROM><RECT#JobEnd><|1>"
             "<=JobTR><#HeaderStart>"
             "<=HeaderStart><C+58><#HeaderTR>"
@@ -262,7 +259,7 @@ DO v-local-loop = 1 TO v-local-copies:
             "<P14>                  "
             "<=JobLabel>Job #:"
             "<FGColor=Blue><B>   "
-            "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") FORMAT "x(10)"
+            "<=JobNum>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORMAT "x(13)"
             "</B><FGColor=Black>"
             "<P8> "
             "<=BlankLabel>Blank:"
@@ -690,12 +687,12 @@ DO v-local-loop = 1 TO v-local-copies:
            v-dept-note   = ""  .
         IF NOT v-dept-log THEN v-dept-codes = "". 
         
-        RUN GetNotesArrayForObject IN hNotesProc (INPUT job.rec_key, "", v-dept-codes, 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
+        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, "", 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
                        
         ASSIGN         
         v-spec-note   = ""  .
         
-        RUN GetNotesArrayForObject IN hNotesProc (INPUT bf-itemfg.rec_key, "", spec-list, 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, "", 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
 
            
 
@@ -751,9 +748,9 @@ DO v-local-loop = 1 TO v-local-copies:
         PUT  "<C1><R1.2><#Start>"
               "<=Start><FROM><C108><R50><RECT><|1>  "
               "<=Start><#JobStart>"
-              "<=JobStart><C+20><#JobTR>"
+              "<=JobStart><C+23><#JobTR>"
               "<=JobStart><R+3><#JobBL> "
-              "<=JobStart><C+20><R+3><#JobEnd>"
+              "<=JobStart><C+23><R+3><#JobEnd>"
               "<=JobStart><FROM><RECT#JobEnd><|1>"
               "<=JobTR><#HeaderStart>"
               "<=HeaderStart><C+58><#HeaderTR>"
@@ -779,7 +776,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<P14>"
               "<=JobLabel>Job #:"
               "<FGColor=Blue><B> "
-              "<=JobNum>" job-hdr.job-no + "-" + string(job-hdr.job-no2)
+              "<=JobNum>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) FORMAT "x(13)"
               "</B><FGColor=Black>"
               "<P8>"
               "<=BlankLabel>Blank:"
@@ -1052,9 +1049,6 @@ END.  /* each job */
 END.  /* end v-local-loop  */
  
 HIDE ALL NO-PAUSE.
-
-IF VALID-HANDLE(hNotesProc) THEN  
-  DELETE OBJECT hNotesProc.
   
 PROCEDURE stackImage:
     DEFINE BUFFER pattern      FOR reftable.

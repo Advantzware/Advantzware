@@ -187,7 +187,7 @@ DEFINE BROWSE BROWSE-1
      estMaterial.itemID LABEL "Material" FORMAT "x(24)" WIDTH 24
      fget-mat-name() @ cMatName COLUMN-LABEL "Material Name" FORMAT "x(25)":U
      estMaterial.materialTypeID LABEL "Type" FORMAT "x(10)" WIDTH 15
-     estMaterial.quantity  FORMAT "->,>>>,>>9.99" WIDTH 15
+     estMaterial.quantity  FORMAT "->,>>>,>>9.99<<<<" WIDTH 15
      fGetPerQty(estMaterial.quantityPer) @ cQtyPer LABEL "Per" FORMAT "x(7)":U  WIDTH 10 
     
 /* _UIB-CODE-BLOCK-END */

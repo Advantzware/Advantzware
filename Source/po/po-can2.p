@@ -31,7 +31,7 @@ def var v-saddr like shipto.ship-addr NO-UNDO.
 def var v-scity like shipto.ship-city NO-UNDO.
 def var v-sstate like shipto.ship-state NO-UNDO.
 def var v-szip like shipto.ship-zip NO-UNDO.
-def var v-job as char format "x(12)" NO-UNDO.
+def var v-job as char format "x(16)" NO-UNDO.
 def var v-po-tot like po-ord.t-cost extent 2 NO-UNDO.
 def var v-t-freight like po-ord.t-freight extent 2 NO-UNDO.
 def var v-sqft as dec NO-UNDO.
@@ -78,27 +78,13 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
+RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
 
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
+IF NOT lValid THEN
+DO:
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
 END.
+
 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-overrun AS cha NO-UNDO.

@@ -31,12 +31,12 @@ PUT "<||3><R4><C50><#3><FROM><R10><C80><RECT>" SKIP
     "<R19><C36><FROM><R23><C36><LINE>" SKIP
     "<R19><C49><FROM><R23><C49><LINE>" SKIP
     "<R19><C65><FROM><R23><C65><LINE>" SKIP
-    "<R19><C72><FROM><R23><C72><LINE>" SKIP
-    "<=4><R+1> Ready Date     FOB           Ship Via           Terms       Sales Person     Order#   Quote#" SKIP
+    "<R19><C73><FROM><R23><C73><LINE>" SKIP
+    "<=4><R+1> Ready Date     FOB           Ship Via           Terms       Sales Person     Order#    Quote#" SKIP
     "<=4><R+3> " oe-ord.due-date FORM "99/99/9999" space(2)
     cust.fob-code FORM "x(13)" SPACE(1)
     v-shipvia FORM "x(16)" 
-    oe-ord.terms-d FORM "x(14)" SPACE(1) v-salesman FORM "x(18)" space(1) oe-ord.ord-no space(4) v-q-no SKIP
+    oe-ord.terms-d FORM "x(14)" SPACE(1) v-salesman FORM "x(18)" "<C65.5>" oe-ord.ord-no space(2) v-q-no SKIP
     "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP    
     "<R24><C14.2><FROM><R26><C14.2><LINE>" SKIP
     "<R24><C27><FROM><R26><C27><LINE>" SKIP

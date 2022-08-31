@@ -175,8 +175,8 @@ DEFINE QUERY ttBrowseInventory FOR
 DEFINE BROWSE ttBrowseInventory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttBrowseInventory B-table-Win _FREEFORM
   QUERY ttBrowseInventory DISPLAY
-      ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" LABEL-BGCOLOR 14
-    ttBrowseInventory.jobID2 WIDTH 5 COLUMN-LABEL "" FORMAT ">9"
+      ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "x(9)" LABEL-BGCOLOR 14
+    ttBrowseInventory.jobID2 WIDTH 8 COLUMN-LABEL "" FORMAT "999"
     ttBrowseInventory.poID WIDTH 25 COLUMN-LABEL "PO #" FORMAT ">>>>>>" LABEL-BGCOLOR 14
     fGetConcatLocation () @ ttBrowseInventory.locationID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(20)" LABEL-BGCOLOR 14
     ttBrowseInventory.tag WIDTH 60 COLUMN-LABEL "Tag #" FORMAT "X(30)" LABEL-BGCOLOR 14

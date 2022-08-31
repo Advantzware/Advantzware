@@ -17,6 +17,7 @@
 BLOCK-LEVEL ON ERROR UNDO, THROW.
 
 {est/ttCalcLayoutSize.i}
+{est/CalcLayoutSize.i}
 
 DEFINE INPUT PARAMETER ipriEf           AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER ipriEb           AS ROWID NO-UNDO.
@@ -56,7 +57,8 @@ DEFINE VARIABLE dConversionFactor AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iStyleFormulaOnLen LIKE style.use-l   NO-UNDO.
 DEFINE VARIABLE iStyleFormulaOnWid LIKE style.use-w   NO-UNDO.
 
-
+DEFINE VARIABLE lBlanksStyleTypePartition AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCENewPartitionCalc       AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE ceroute-dec AS DECIMAL NO-UNDO. // ASk  BRAD
 
@@ -115,23 +117,32 @@ PROCEDURE pCalcLayoutSizeOnly:
     
     /* Initializing the fields using previous calculated DB values and then re-assigning as per logic below */
     ASSIGN
-        ttLayoutSize.dGrossSheetLength  = bf-ef.gsh-len
-        ttLayoutSize.dGrossSheetWidth   = bf-ef.gsh-wid
-        ttLayoutSize.dGrossSheetDepth   = bf-ef.gsh-dep
-        ttLayoutSize.dNetSheetLength    = bf-ef.nsh-len
-        ttLayoutSize.dNetSheetWidth     = bf-ef.nsh-wid 
-        ttLayoutSize.dNetSheetDepth     = bf-ef.nsh-dep
-        ttLayoutSize.dDieSizeWidth      = bf-ef.trim-w
-        ttLayoutSize.dDieSizeLength     = bf-ef.trim-l
-        ttLayoutSize.dDieSizeDepth      = bf-ef.trim-d 
-        ttLayoutSize.dLayoutSheetLength = bf-ef.lsh-len
-        ttLayoutSize.dLayoutSheetWidth  = bf-ef.lsh-wid
-        ttLayoutSize.iNumOutWidth       = bf-ef.n-out         
-        ttLayoutSize.iNumOutLength      = bf-ef.n-out-l        
-        ttLayoutSize.iNumOutDepth       = bf-ef.n-out-d         
-        ttLayoutSize.iNumberCuts        = bf-ef.n-cuts
-        . 
-    
+        ttLayoutSize.dLayoutSheetLength    = bf-ef.lsh-len     
+        ttLayoutSize.dLayoutSheetWidth     = bf-ef.lsh-wid 
+        ttLayoutSize.dNetSheetLength       = bf-ef.nsh-len 
+        ttLayoutSize.dNetSheetWidth        = bf-ef.nsh-wid 
+        ttLayoutSize.dNetSheetDepth        = bf-ef.nsh-dep 
+        ttLayoutSize.dGrossSheetLength     = bf-ef.gsh-len 
+        ttLayoutSize.dGrossSheetWidth      = bf-ef.gsh-wid 
+        ttLayoutSize.dGrossSheetDepth      = bf-ef.gsh-dep 
+        ttLayoutSize.dDieSizeLength        = bf-ef.trim-l  
+        ttLayoutSize.dDieSizeWidth         = bf-ef.trim-w  
+        ttLayoutSize.dDieSizeDepth         = bf-ef.trim-d  
+        ttLayoutSize.dRollWidth            = bf-ef.roll-wid
+        ttLayoutSize.dDieInchesRequired    = bf-ef.die-in  
+        ttLayoutSize.cBoardItemCode        = bf-ef.i-code  
+        ttLayoutSize.cBoardItemBasisWeight = bf-ef.weight  
+        ttLayoutSize.dBoardItemCaliper     = bf-ef.cal     
+        ttLayoutSize.IsRollMaterial        = bf-ef.roll    
+        ttLayoutSize.iNumOutWidth          = bf-ef.n-out   
+        ttLayoutSize.iNumOutLength         = bf-ef.n-out-l 
+        ttLayoutSize.iNumOutDepth          = bf-ef.n-out-d 
+        ttLayoutSize.iNumberCuts           = bf-ef.n-cuts  
+        ttLayoutSize.iBlankNumUp           = bf-eb.num-up  
+        ttLayoutSize.iBlankNumOnWidth      = bf-eb.num-wid 
+        ttLayoutSize.iBlankNumOnLength     = bf-eb.num-len 
+        ttLayoutSize.iBlankNumOnDepth      = bf-eb.num-dep
+        .    
     
     IF bf-ef.m-code NE "" THEN
     DO:
@@ -140,12 +151,19 @@ PROCEDURE pCalcLayoutSizeOnly:
             AND bf-mach.loc     = bf-ef.loc
             AND bf-mach.m-code = bf-ef.m-code  NO-LOCK NO-ERROR.
     
-        IF AVAILABLE bf-mach THEN 
+        ASSIGN 
+            dTrimLength                     = bf-mach.min-triml * 2
+            dTrimWidth                      = bf-mach.min-trimw * 2
+            ttLayoutSize.dLayoutSheetLength = bf-mach.max-wid
+            ttLayoutSize.dLayoutSheetWidth  = bf-mach.max-len
+            ttLayoutSize.IsRollMaterial     = bf-mach.p-type = "R". 
+              
+        IF bf-item.i-code EQ "E" THEN
             ASSIGN 
-                dTrimLength = bf-mach.min-triml * 2
-                dTrimWidth  = bf-mach.min-trimw * 2.
-                
-                
+                ttLayoutSize.dGrossSheetWidth  = ( trunc(bf-mach.max-len / bf-eb.t-len,0) * bf-eb.t-len + dTrimWidth)
+                ttLayoutSize.dGrossSheetLength = (trunc(bf-mach.max-wid / bf-eb.t-wid,0) * bf-eb.t-wid + dTrimLength )
+                ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (trunc(bf-mach.max-dep / bf-eb.t-dep,0) * bf-eb.t-dep ) ELSE 0
+                .
     END.
     ELSE
     DO:
@@ -154,8 +172,10 @@ PROCEDURE pCalcLayoutSizeOnly:
             AND bf-ce-ctrl.loc     = bf-ef.loc NO-ERROR.
         
         ASSIGN 
-            dTrimLength = bf-ce-ctrl.ls-triml * 2
-            dTrimWidth  = bf-ce-ctrl.ls-trimw * 2.
+            dTrimLength                     = bf-ce-ctrl.ls-triml * 2
+            dTrimWidth                      = bf-ce-ctrl.ls-trimw * 2
+            ttLayoutSize.dLayoutSheetWidth  = bf-ce-ctrl.ls-length
+            ttLayoutSize.dLayoutSheetLength = bf-ce-ctrl.ls-width.
     END.
     
     RUN pGetDecimalSettings(bf-eb.company,  
@@ -256,6 +276,8 @@ PROCEDURE pCalcLayoutSizeOnly:
     END. /* ELSE Corrugated */
       
     ASSIGN
+        ttLayoutSize.dGrossSheetLength  = bf-eb.t-len
+        ttLayoutSize.dGrossSheetWidth   = bf-eb.t-wid
         ttLayoutSize.dDieSizeWidth      = dCalcTotalWidth
         ttLayoutSize.dDieSizeLength     = dCalcTotalLength
         ttLayoutSize.iBlankNumUp        = bf-eb.num-wid * bf-eb.num-len
@@ -460,11 +482,15 @@ END PROCEDURE.
 
 PROCEDURE pCalcLayout:
     
+    IF NOT bf-ef.lsh-lock THEN 
     /* Create Temp-table record and populate the fields later */    
     CREATE ttLayoutSize.
         
     IF bf-ef.m-code NE "" THEN
     DO:
+        ttLayoutSize.dBoardItemCaliper   = bf-item.cal. 
+           
+        IF bf-item.i-code EQ "R" THEN 
         FIND FIRST bf-mach 
             WHERE bf-mach.company = bf-ef.company  
             AND bf-mach.loc     = bf-ef.loc
@@ -472,6 +498,7 @@ PROCEDURE pCalcLayout:
     
         IF AVAILABLE bf-mach THEN 
         DO:
+            IF bf-item.r-wid GT 0  THEN 
             ASSIGN 
                 dTrimLength                     = bf-mach.min-triml * 2
                 dTrimWidth                      = bf-mach.min-trimw * 2
@@ -497,9 +524,13 @@ PROCEDURE pCalcLayout:
             END.
             ELSE IF AVAILABLE bf-item THEN
                 ASSIGN 
-                    ttLayoutSize.dGrossSheetWidth  = (bf-item.s-wid)
-                    ttLayoutSize.dGrossSheetLength = (bf-item.s-len)
-                    ttLayoutSize.dGrossSheetDepth  = IF isFoamStyle THEN (bf-item.s-dep) ELSE 0.
+                    ttLayoutSize.dRollWidth         = bf-item.r-wid
+                    ttLayoutSize.dGrossSheetWidth   = bf-item.r-wid
+                    ttLayoutSize.dLayoutSheetLength = bf-item.r-wid
+                    ttLayoutSize.IsRollMaterial     = YES
+                    ttLayoutSize.dGrossSheetWidth   = (bf-item.s-wid)
+                    ttLayoutSize.dGrossSheetLength  = (bf-item.s-len)
+                    ttLayoutSize.dGrossSheetDepth   = IF isFoamStyle THEN (bf-item.s-dep) ELSE 0.
         END.
     END. /* IF bf-ef.m-code NE "" THEN */
     
@@ -587,23 +618,21 @@ PROCEDURE pCalcLayout:
            
             END. /* i-code = "R" */
             /* ELSE item.i-code EQ "E" */
-            ELSE 
-            DO:
+            ELSE DO:
                 ASSIGN 
-                    ttLayoutSize.dGrossSheetWidth  = ttLayoutSize.dLayoutSheetWidth
-                    ttLayoutSize.dGrossSheetLength = ttLayoutSize.dLayoutSheetLength
-                    ttLayoutSize.dNetSheetLength   = ttLayoutSize.dGrossSheetLength
-                    ttLayoutSize.dNetSheetWidth    = ttLayoutSize.dGrossSheetWidth
-                    ttLayoutSize.dRollWidth        = ttLayoutSize.dGrossSheetWidth.
-                    
-                IF cIndustryType = "Folding" AND bf-ef.xgrain EQ "S" THEN
-                    ASSIGN 
-                        ttLayoutSize.dGrossSheetWidth  = ttLayoutSize.dLayoutSheetlength
-                        ttLayoutSize.dGrossSheetLength = ttLayoutSize.dLayoutSheetWidth
-                        ttLayoutSize.dNetSheetLength   = ttLayoutSize.dGrossSheetWidth
-                        ttLayoutSize.dNetSheetWidth    = ttLayoutSize.dGrossSheetLength.
-                
-            END.   /* bf-item.i-code = "E" */
+                        ttLayoutSize.dGrossSheetWidth  = ttLayoutSize.dLayoutSheetWidth
+                        ttLayoutSize.dGrossSheetLength = ttLayoutSize.dLayoutSheetLength
+                        ttLayoutSize.dNetSheetLength   = ttLayoutSize.dGrossSheetLength
+                        ttLayoutSize.dNetSheetWidth    = ttLayoutSize.dGrossSheetWidth
+                        ttLayoutSize.dRollWidth        = ttLayoutSize.dGrossSheetWidth.
+                        
+                    IF cIndustryType = "Folding" AND bf-ef.xgrain EQ "S" THEN
+                        ASSIGN 
+                            ttLayoutSize.dGrossSheetWidth  = ttLayoutSize.dLayoutSheetlength
+                            ttLayoutSize.dGrossSheetLength = ttLayoutSize.dLayoutSheetWidth
+                            ttLayoutSize.dNetSheetLength   = ttLayoutSize.dGrossSheetWidth
+                            ttLayoutSize.dNetSheetWidth    = ttLayoutSize.dGrossSheetLength.
+            END.   /* bf-item.i-code = "E" */   
         END. /* IF NOT bf-ef.lsh-lock THEN */
     END. /* IF AVAIL bf-item THEN */
     
@@ -807,7 +836,7 @@ PROCEDURE pCalcLayout:
                     ELSE 
                         LEAVE.
                 END.
-                ELSe
+                ELSE
                 DO:
                     IF dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2] <= dLengthtoUse
                         OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 

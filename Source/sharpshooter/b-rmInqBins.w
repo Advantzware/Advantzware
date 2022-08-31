@@ -179,7 +179,7 @@ DEFINE BROWSE ttBrowseInventory
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttBrowseInventory B-table-Win _FREEFORM
   QUERY ttBrowseInventory DISPLAY
       ttBrowseInventory.poID WIDTH 30 COLUMN-LABEL "PO #" FORMAT ">>>>>>" LABEL-BGCOLOR 14
-    fGetConcatJob () @ ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(10)" LABEL-BGCOLOR 14
+    fGetConcatJob () @ ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(13)" LABEL-BGCOLOR 14
     fGetConcatLocation () @ ttBrowseInventory.locationID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(20)" LABEL-BGCOLOR 14
     ttBrowseInventory.tag WIDTH 60 COLUMN-LABEL "Tag #" FORMAT "X(30)" LABEL-BGCOLOR 14
     ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Qty On-Hand" FORMAT "->,>>>,>>>,>>9.9<<<<<" LABEL-BGCOLOR 14
@@ -620,10 +620,8 @@ FUNCTION fGetConcatJob RETURNS CHARACTER
     DEFINE VARIABLE cConcatJob AS CHARACTER NO-UNDO.
        
     IF AVAILABLE ttBrowseInventory AND ttBrowseInventory.jobID NE "" THEN DO:
-        cConcatJob = ttBrowseInventory.jobID 
-                   + FILL(" ", 6 - LENGTH(ttBrowseInventory.jobID)) 
-                   + "-"
-                   + STRING(ttBrowseInventory.jobID2,"99").
+        cConcatJob = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ttBrowseInventory.jobID, ttBrowseInventory.jobID2))   
+                   .
     END.
     
     RETURN cConcatJob.

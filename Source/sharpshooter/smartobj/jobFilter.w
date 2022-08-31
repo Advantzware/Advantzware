@@ -36,6 +36,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
+
 DEFINE VARIABLE cCompany           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cStatusMessage     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStatusMessageType AS INTEGER   NO-UNDO.
@@ -434,6 +436,17 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
+ON HELP OF fiJobNo IN FRAME F-Main
+DO:
+    APPLY "MOUSE-SELECT-CLICK" TO imJobLookup.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobNo s-object
 ON LEAVE OF fiJobNo IN FRAME F-Main
 DO:
     DEFINE VARIABLE cJobNo     AS CHARACTER NO-UNDO.
@@ -510,7 +523,7 @@ DO:
         cJobNo = SELF:SCREEN-VALUE.
         
     cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                      "fAddSpacesToString" IN hdJobProcs, cJobNo, iJobLen, TRUE
                       ).
     
     RUN pUpdateJobDetails (
@@ -525,7 +538,7 @@ DO:
         OUTPUT iJobNo2,
         OUTPUT cJobNo2ListItems 
         ).
-    IF lParse AND cJobNo2 NE "" AND INDEX(cJobNo2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0 THEN DO:
+    IF lParse AND cJobNo2 NE "" AND INDEX(cJobNo2ListItems,STRING(INTEGER(cJobNo2),"999")) LE 0 THEN DO:
         RUN pSendError ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.").
         
         RETURN.            
@@ -1204,7 +1217,7 @@ PROCEDURE pUpdateJobDetails PRIVATE :
     ELSE IF ipcWidget EQ "JobNo2" THEN
         ASSIGN
             cbJobNo2:LIST-ITEMS    = ipcListItems
-            cbJobNo2:SCREEN-VALUE  = STRING(INTEGER(ipcValue), "99")
+            cbJobNo2:SCREEN-VALUE  = STRING(INTEGER(ipcValue), "999")
             NO-ERROR.                    
     ELSE IF ipcWidget EQ "FormNo" THEN
         ASSIGN

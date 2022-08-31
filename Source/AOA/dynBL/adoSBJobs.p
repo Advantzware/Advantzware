@@ -25,25 +25,26 @@ DEFINE VARIABLE lProgressBar AS LOGICAL    NO-UNDO.
 
 /* Temp-Table Definitions ---                                           */
 DEFINE TEMP-TABLE ttSBJobs NO-UNDO
-    FIELD company  AS CHARACTER 
-    FIELD location AS CHARACTER 
-    FIELD line     AS INTEGER
-    FIELD m-code   AS CHARACTER
-    FIELD seq-no   AS INTEGER
-    FIELD job-no   AS CHARACTER 
-    FIELD job-no2  AS INTEGER
-    FIELD frm      AS INTEGER
-    FIELD blank-no AS INTEGER
-    FIELD pass     AS INTEGER 
-    FIELD qty      AS INTEGER
-    FIELD i-no     AS CHARACTER
-    FIELD i-name   AS CHARACTER
-    FIELD cust-no  AS CHARACTER      
-    FIELD due-date AS DATE
-    FIELD run-qty  AS INTEGER
-    FIELD mr-hr    AS DECIMAL
-    FIELD run-hr   AS DECIMAL
-    FIELD speed    AS INTEGER
+    FIELD company      AS CHARACTER 
+    FIELD location     AS CHARACTER 
+    FIELD line         AS INTEGER
+    FIELD m-code       AS CHARACTER
+    FIELD seq-no       AS INTEGER
+    FIELD job-no       AS CHARACTER 
+    FIELD job-no2      AS INTEGER
+    FIELD frm          AS INTEGER
+    FIELD blank-no     AS INTEGER
+    FIELD pass         AS INTEGER 
+    FIELD qty          AS INTEGER
+    FIELD i-no         AS CHARACTER
+    FIELD i-name       AS CHARACTER
+    FIELD cust-no      AS CHARACTER      
+    FIELD due-date     AS DATE
+    FIELD run-qty      AS INTEGER
+    FIELD mr-hr        AS DECIMAL
+    FIELD run-hr       AS DECIMAL
+    FIELD speed        AS INTEGER
+    FIELD qtyRecvd     AS INTEGER
     .
 DEFINE TEMP-TABLE ttUniqueJob NO-UNDO
     FIELD company AS CHARACTER 
@@ -114,7 +115,7 @@ PROCEDURE pBusinessLogic:
 
     IF lProgressBar THEN
     RUN spProgressBar (?, ?, 100).
-    
+
     RETURN "".
 
 END PROCEDURE.
@@ -130,6 +131,9 @@ PROCEDURE pADOSBJobs:
     /* grab all record set fields */
     hFields = hRecordSet:Fields.
     /* read all record set rows */
+
+/*    OUTPUT TO c:\tmp\Amtech.txt.*/
+
     DO WHILE TRUE:
         IF hRecordSet:EOF THEN LEAVE.
         iCount = iCount + 1.
@@ -138,6 +142,10 @@ PROCEDURE pADOSBJobs:
         RUN pCreatettSBJobs.
         hRecordSet:MoveNext.
     END. /* do while */
+
+/*    OUTPUT CLOSE.                                    */
+/*    OS-COMMAND NO-WAIT notepad.exe c:\tmp\Amtech.txt.*/
+
     RUN pSetLineOrder.
     RUN pSBJobs.
     /* close record set */
@@ -156,28 +164,49 @@ PROCEDURE pCreatettSBJobs:
     IF AVAILABLE mach THEN DO:
         CREATE ttSBJobs.
         ASSIGN
-            ttSBJobs.blank-no = 1
-            ttSBJobs.company  = cCompany
-            ttSBJobs.cust-no  = hFields:Item("cscode"):Value
-            ttSBJobs.due-date = hFields:Item("due_date"):Value
-            ttSBJobs.frm      = hFields:Item("form_no"):Value
-            ttSBJobs.i-name   = hFields:Item("cust_ident"):Value
-            ttSBJobs.i-no     = hFields:Item("item_no"):Value
-            ttSBJobs.job-no   = hFields:Item("job_number"):Value
-            ttSBJobs.job-no2  = 0
-            ttSBJobs.line     = 0
-            ttSBJobs.location = cLocation
-            ttSBJobs.m-code   = mach.m-code
-            ttSBJobs.mr-hr    = hFields:Item("stnd_su_hrs"):Value
-            ttSBJobs.pass     = hFields:Item("pass_no"):Value
-            ttSBJobs.qty      = hFields:Item("qty_ordered"):Value
-            ttSBJobs.run-hr   = hFields:Item("stnd_run_hrs"):Value
-            ttSBJobs.run-qty  = hFields:Item("qty_to_run"):Value
-            ttSBJobs.seq-no   = hFields:Item("mach_seq_no"):Value
-            ttSBJobs.speed    = hFields:Item("mach_speed"):Value
-            ttSBJobs.run-hr   = ttSBJobs.run-qty / ttSBJobs.speed
-            iTotal            = iTotal + 1
+            ttSBJobs.blank-no     = 1
+            ttSBJobs.company      = cCompany
+            ttSBJobs.cust-no      = hFields:Item("cscode"):Value
+            ttSBJobs.due-date     = hFields:Item("due_date"):Value
+            ttSBJobs.frm          = hFields:Item("form_no"):Value
+            ttSBJobs.i-name       = hFields:Item("cust_ident"):Value
+            ttSBJobs.i-no         = hFields:Item("item_no"):Value
+            ttSBJobs.job-no       = hFields:Item("job_number"):Value
+            ttSBJobs.job-no2      = 0
+            ttSBJobs.line         = 0
+            ttSBJobs.location     = cLocation
+            ttSBJobs.m-code       = mach.m-code
+            ttSBJobs.mr-hr        = hFields:Item("stnd_su_hrs"):Value
+            ttSBJobs.pass         = hFields:Item("pass_no"):Value
+            ttSBJobs.qty          = hFields:Item("qty_ordered"):Value
+            ttSBJobs.run-hr       = hFields:Item("stnd_run_hrs"):Value
+            ttSBJobs.run-qty      = hFields:Item("qty_to_run"):Value
+            ttSBJobs.seq-no       = hFields:Item("mach_seq_no"):Value
+            ttSBJobs.speed        = hFields:Item("mach_speed"):Value
+            ttSBJobs.run-hr       = ttSBJobs.run-qty / ttSBJobs.speed
+            ttSBJobs.qtyRecvd     = hFields:Item("qty_corr_rcvd"):Value
+            iTotal                = iTotal + 1
             .
+
+/*        IF hFields:Item("qty_corr_rcvd"):VALUE GT 0 THEN*/
+/*        EXPORT                                          */
+/*            hFields:Item("job_number"):Value            */
+/*            hFields:Item("part_comp_flg"):Value         */
+/*            hFields:Item("cscode"):Value                */
+/*            hFields:Item("due_date"):Value              */
+/*            hFields:Item("form_no"):Value               */
+/*            hFields:Item("cust_ident"):Value            */
+/*            hFields:Item("item_no"):Value               */
+/*            hFields:Item("stnd_su_hrs"):Value           */
+/*            hFields:Item("pass_no"):Value               */
+/*            hFields:Item("qty_ordered"):Value           */
+/*            hFields:Item("stnd_run_hrs"):Value          */
+/*            hFields:Item("qty_to_run"):Value            */
+/*            hFields:Item("mach_seq_no"):Value           */
+/*            hFields:Item("mach_speed"):Value            */
+/*            hFields:Item("qty_corr_rcvd"):Value         */
+/*            .                                           */
+
     END. /* if avail */
 
 END PROCEDURE.
@@ -219,6 +248,8 @@ PROCEDURE pSBJobs:
     DISABLE TRIGGERS FOR LOAD OF job-hdr.
     DISABLE TRIGGERS FOR LOAD OF job-mch.                                                                                                                                 
 
+    DEFINE BUFFER bJobMch FOR job-mch.
+
     RUN sys/ref/nk1look.p (
         cCompany,"CEMENU","C",NO,NO,"","",
         OUTPUT cCEMenu,OUTPUT lCEMenu
@@ -228,6 +259,54 @@ PROCEDURE pSBJobs:
            ELSE IF cCEMenu EQ "Corrware" THEN "2"
            ELSE "".
 
+    FOR EACH job-mch NO-LOCK
+        WHERE job-mch.company      EQ cCompany
+          AND job-mch.run-complete EQ NO
+        :
+        IF CAN-FIND(FIRST ttSBJobs
+                    WHERE ttSBJobs.company  EQ job-mch.company
+                      AND ttSBJobs.line     EQ job-mch.line
+                      AND ttSBJobs.m-code   EQ job-mch.m-code
+                      AND ttSBJobs.job-no   EQ job-mch.job-no
+                      AND ttSBJobs.job-no2  EQ job-mch.job-no2
+                      AND ttSBJobs.frm      EQ job-mch.frm
+                      AND ttSBJobs.blank-no EQ job-mch.blank-no
+                      AND ttSBJobs.pass     EQ job-mch.pass) THEN
+        NEXT.
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar ("Run Complete Job Routings", iCount, ?).
+        FIND FIRST bJobMch EXCLUSIVE-LOCK
+             WHERE ROWID(bJobMch) EQ ROWID(job-mch).
+        bJobMch.run-complete = YES.
+        RELEASE bJobMch.
+    END. // each job-mch
+
+    iCount = 0.
+    FOR EACH job-hdr NO-LOCK
+        WHERE job-hdr.company EQ cCompany
+          AND job-hdr.opened  EQ YES
+        :
+        IF CAN-FIND(FIRST job-mch
+                    WHERE job-mch.company      EQ job-hdr.company
+                      AND job-mch.job          EQ job-hdr.job
+                      AND job-mch.job-no       EQ job-hdr.job-no
+                      AND job-mch.job-no2      EQ job-hdr.job-no2
+                      AND job-mch.run-complete EQ NO) THEN
+        NEXT.
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar ("Close Jobs Run Completed", iCount, ?).
+        FIND CURRENT job-hdr EXCLUSIVE-LOCK.
+        FIND FIRST job OF job-hdr EXCLUSIVE-LOCK.
+        ASSIGN
+            job-hdr.opened = NO
+            job.opened     = NO
+            .
+        FIND CURRENT job-hdr NO-LOCK.
+    END. // each job-hdr
+
+    iCount = 0.
     FOR EACH ttSBJobs:
         iCount = iCount + 1.
         IF lProgressBar THEN
@@ -323,16 +402,56 @@ PROCEDURE pSBJobs:
                 job-mch.pass           = ttSBJobs.pass
                 job-mch.est-op_rec_key = "None"
                 job-mch.job            = ttUniqueJob.job
+                job-mch.start-date-su  = ?
+                job-mch.start-time-su  = 0 
+                job-mch.end-date-su    = ?
+                job-mch.end-time-su    = 0
+                job-mch.start-date     = ?
+                job-mch.start-time     = 0 
+                job-mch.end-date       = ?
+                job-mch.end-time       = 0
                 .                    
         END. /* if not avail */
         ASSIGN
             job-mch.i-no    = ttSBJobs.i-no
-            job-mch.i-name  = ttSBJobs.i-name 
+            job-mch.i-name  = ttSBJobs.i-name
             job-mch.run-qty = ttSBJobs.run-qty
             job-mch.mr-hr   = ttSBJobs.mr-hr
             job-mch.run-hr  = ttSBJobs.run-hr
             job-mch.speed   = ttSBJobs.speed
             .
+        /* check if job has board */
+        IF ttSBJobs.qtyRecvd NE 0 THEN DO:
+            /* check if w/f board status exists */ 
+            IF CAN-FIND(FIRST sbStatus
+                        WHERE sbStatus.company     EQ ttSBJobs.company
+                          AND sbStatus.m-code      EQ ttSBJobs.m-code
+                          AND sbStatus.job-no      EQ ttSBJobs.job-no
+                          AND sbStatus.job-no2     EQ ttSBJobs.job-no2
+                          AND sbStatus.frm         EQ ttSBJobs.frm
+                          AND sbStatus.sbStatus[1] EQ YES) THEN
+            NEXT.
+            /* find job's status record or create one */
+            FIND FIRST sbStatus EXCLUSIVE-LOCK
+                 WHERE sbStatus.company EQ ttSBJobs.company
+                   AND sbStatus.m-code  EQ ttSBJobs.m-code
+                   AND sbStatus.job-no  EQ ttSBJobs.job-no
+                   AND sbStatus.job-no2 EQ ttSBJobs.job-no2
+                   AND sbStatus.frm     EQ ttSBJobs.frm
+                 NO-ERROR.
+            IF NOT AVAILABLE sbStatus THEN DO:
+                CREATE sbStatus.
+                ASSIGN
+                    sbStatus.company = ttSBJobs.company
+                    sbStatus.m-code  = ttSBJobs.m-code
+                    sbStatus.job-no  = ttSBJobs.job-no
+                    sbStatus.job-no2 = ttSBJobs.job-no2
+                    sbStatus.frm     = ttSBJobs.frm
+                    . 
+            END. /* not avail */
+            sbStatus[1] = YES.
+            RELEASE sbStatus.
+        END. /* qtyrecvd ne 0 */
     END. /* each ttsbjobs */
 
     RELEASE job.
@@ -368,24 +487,26 @@ PROCEDURE pSetSelect:
 
     /* define sql section statement */
     opcSelect = "Select "
+              + "Customer.cscode, "
+              + "Ord_Mach_Ops.part_comp_flg, "
+              + "Ord_Mach_Ops.form_no, "
               + "Ord_Mach_Ops.mach_no, "
               + "Ord_Mach_Ops.mach_seq_no, "
-              + "Orders.due_date, "
-              + "Orders.completion_flg, "
-              + "Orders.for_invt_flg, "
+              + "Ord_Mach_Ops.mach_speed, "
+              + "Ord_Mach_Ops.pass_no, "
+              + "Ord_Mach_Ops.qty_to_run, "
               + "Ord_Mach_Ops.stnd_run_hrs, "
               + "Ord_Mach_Ops.stnd_su_hrs, "
-              + "Ord_Mach_Ops.mach_speed, "
-              + "Ord_Mach_Ops.qty_to_run, "
-              + "Customer.cscode, "
-              + "Spec_File.item_no, "
-              + "Orders.qty_ordered, "
-              + "Ord_Mach_Ops.pass_no, "
-              + "Orders.plt_no, "
-              + "Ord_Mach_Ops.form_no, "
+              + "Orders.completion_flg, "
+              + "Orders.due_date, "
+              + "Orders.for_invt_flg, "
               + "Orders.job_number, "
               + "Orders.order_no, "
-              + "Spec_File.cust_ident "
+              + "Orders.plt_no, "
+              + "Orders.qty_ordered, "
+              + "Ord_Part.qty_corr_rcvd, "
+              + "Spec_File.cust_ident, "
+              + "Spec_File.item_no "
               + "from Ord_Mach_Ops Ord_Mach_Ops "
               + "Inner Join ((Customer Customer "
               + "Inner Join Orders Orders on Customer.cscode=Orders.cscode) "
@@ -393,6 +514,7 @@ PROCEDURE pSetSelect:
               + "and (Orders.spec_no=Spec_File.spec_no)) "
               + "and (Orders.spec_part_no=Spec_File.spec_part_no)) "
               + "on Ord_Mach_Ops.order_no=Orders.order_no "
+              + "Left Outer Join Ord_Part Ord_Part on (Orders.order_no=Ord_Part.order_no) "
               + "Where (Orders.completion_flg='O' or Orders.completion_flg='P') "
               + "and Orders.for_invt_flg in ('Y','N') "
               + "and ("
@@ -400,11 +522,14 @@ PROCEDURE pSetSelect:
     FOR EACH mach NO-LOCK
         WHERE mach.company EQ cCompany
           AND mach.spare-int-2 GT 0
-           BY mach.spare-int-2
+        BREAK BY mach.spare-int-2
         :
+        IF FIRST-OF(mach.spare-int-2) THEN
         opcSelect = opcSelect
-                  + "Ord_Mach_Ops.mach_no="
+                  + "(Ord_Mach_Ops.mach_no="
                   + STRING(mach.spare-int-2)
+                  + " and "
+                  + "Ord_Mach_Ops.part_comp_flg='O' or Ord_Mach_Ops.part_comp_flg='P')"
                   + " or "
                   .
     END. /* each mach */

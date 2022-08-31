@@ -173,8 +173,8 @@ DEFINE BROWSE Browser-Table
       oe-boll.cases COLUMN-LABEL "Units" FORMAT "->>>,>>Z":U
       oe-boll.qty-case COLUMN-LABEL "Qty/Unit" FORMAT "->>>,>>Z":U
       oe-boll.partial COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
-      oe-boll.job-no COLUMN-LABEL "Job No" FORMAT "x(6)":U
-      oe-boll.job-no2 COLUMN-LABEL "" FORMAT "99":U
+      oe-boll.job-no COLUMN-LABEL "Job No" FORMAT "x(9)":U
+      oe-boll.job-no2 COLUMN-LABEL "" FORMAT "999":U
       oe-boll.p-c COLUMN-LABEL "P/C" FORMAT "C/P":U
       get-cost() @ li-cost COLUMN-LABEL "Cost/M" FORMAT ">>>,>>9.99":U
   ENABLE

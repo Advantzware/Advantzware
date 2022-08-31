@@ -257,7 +257,7 @@ PROCEDURE get-job-no:
       lcRitaCode = "R".
   
     fg-rctd.job-no =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no))) +
+        FILL(" ", iJobLen - LENGTH(TRIM(fg-rctd.job-no))) +
         TRIM(fg-rctd.job-no).
 
 /*    IF TRIM(fg-rctd.job-no) NE TRIM(lv-job-no)  OR */
@@ -362,7 +362,7 @@ PROCEDURE get-set-full-qty:
   lv-out-qty = 0.
   FOR EACH b-fg-rctd WHERE b-fg-rctd.company eq g_company and
            (b-fg-rctd.rita-code eq "R" or b-fg-rctd.rita-code eq "E")
-           AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no)
+           AND b-fg-rctd.job-no = fg-rctd.job-no
            AND b-fg-rctd.job-no2 = (fg-rctd.job-no2)
            AND b-fg-rctd.i-no = fg-rctd.i-no 
            AND recid(b-fg-rctd) <> recid(fg-rctd)
@@ -625,7 +625,7 @@ PROCEDURE new-tag:
             IF loadtag.job-no <> "" THEN DO:
                 ASSIGN
                     fg-rctd.job-no = loadtag.job-no
-                    fg-rctd.job-no2 = /* FILL(" ",6 - LENGTH(TRIM(string(loadtag.job-no2)))) +
+                    fg-rctd.job-no2 = /* FILL(" ", iJobLen - LENGTH(TRIM(string(loadtag.job-no)))) +
                                                                            TRIM(string(loadtag.job-no2))*/
                                       loadtag.job-no2.
 /*                IF NOT fgRecptPassWord-log THEN                 */
@@ -681,7 +681,7 @@ PROCEDURE new-tag:
             IF fg-bin.job-no <> "" THEN
                 ASSIGN
                   fg-rctd.job-no = fg-bin.job-no
-                  fg-rctd.job-no2 = fg-bin.job-no2 /*FILL(" ",6 - LENGTH(TRIM(string(fg-bin.job-no2)))) +
+                  fg-rctd.job-no2 = fg-bin.job-no2 /*FILL(" ", iJobLen - LENGTH(TRIM(string(fg-bin.job-no)))) +
                                                                           TRIM(string(fg-bin.job-no2)) */
                   .
         END.

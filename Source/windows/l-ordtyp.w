@@ -32,6 +32,7 @@
 /* Local Variable Definitions ---                                       */
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 DEF TEMP-TABLE tt-type FIELD otype AS cha LABEL "Type"
                        FIELD odesc AS cha LABEL "Description".

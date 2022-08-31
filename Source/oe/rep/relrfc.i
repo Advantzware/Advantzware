@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relrfc.i  08/08/2018 YSK*/
 /* Print OE Release/Picking tickets    for RFC                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -55,7 +56,7 @@ DEFINE SHARED VARIABLE s-print-bin-from  AS cha       NO-UNDO.
 DEFINE SHARED VARIABLE s-print-bin-to    AS cha       NO-UNDO.
 
 format w-oe-rell.ord-no                 
-    "<c7>" w-par          format "x(20)"
+    "<c8>" w-par          format "x(20)"
     "<c24>" v-bin         format "x(20)"
     "<c49.5>" w-x         format "X/"
     "<c52.7>" w-pal       format "->>>>"
@@ -103,31 +104,7 @@ DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 find first sys-ctrl where sys-ctrl.company eq cocode
     and sys-ctrl.name    eq "RELPRINT" no-lock no-error.
@@ -177,7 +154,7 @@ END.
 
 format
     tt-rell.ord-no
-    tt-rell.po-no at 8
+    tt-rell.po-no AT 9
     tt-rell.loc-bin  AT 23  FORM "x(5)"
     tt-rell.i-no at 29  oe-ordl.i-name at 44
     /*tt-rell.cases format ">>>>>9" to 73                    */
@@ -246,8 +223,8 @@ FOR EACH xoe-rell
     where oe-ord.company eq xoe-rell.company
     and oe-ord.ord-no  eq xoe-rell.ord-no
     no-lock:
-
-    case oe-ord.frt-pay:
+    v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+    case v-frt-terms:
         when "P" THEN 
             v-frt-terms = "Prepaid".
         when "C" THEN 
@@ -369,6 +346,8 @@ for each oe-rell
 
     first itemfg of oe-rell no-lock:
           
+    ASSIGN cLocation = oe-rell.loc .
+    
     create w-oe-rell.
     buffer-copy oe-rell to w-oe-rell.
         
@@ -403,6 +382,14 @@ for each oe-rell
 
     v-weight = v-weight + (oe-rell.qty * itemfg.weight-100 / 100).
 end.
+
+RUN FileSys_GetBusinessFormLogo(cocode, oe-relh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+IF NOT lValid THEN
+DO:
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+END.
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 {oe/rep/relrfc2.i}
 

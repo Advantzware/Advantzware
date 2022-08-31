@@ -499,7 +499,7 @@ DO:
       v-job-no2 = v-job-no2 + substring(trim(scan_itemfg:screen-value),x,1).
   end.
   
-  v-job-no =  fill(" ",6 - length(trim(string(v-job-no)))) +
+  v-job-no =  FILL(" ", iJobLen - length(trim(string(v-job-no)))) +
                         trim(string(v-job-no)).
 
   find first job-mat where job-mat.company eq gcompany 
@@ -835,7 +835,7 @@ PROCEDURE create-bol :
                 oe-bolh.release#
                 oe-bolh.frt-pay .... */
              .
-     RUN CopyShipNote (shipto.rec_key, oe-bolh.rec_key).
+     RUN pCopyShipNote (shipto.rec_key, oe-bolh.rec_key).
   END.
   CREATE oe-boll.
   ASSIGN oe-boll.b-no = oe-bolh.b-no
@@ -855,8 +855,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -864,13 +864,8 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
     
-    DELETE OBJECT hNotesProcs.   
 
 END PROCEDURE.
     

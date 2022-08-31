@@ -145,12 +145,12 @@ DEFINE BUTTON btn_cancel AUTO-END-KEY
 DEFINE BUTTON btn_itemfg 
      IMAGE-UP FILE "Graphics/32x32/plus.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Add" 
-     SIZE 11 BY 1.8.
+     SIZE 11 BY 1.81.
 
-DEFINE VARIABLE part-no AS CHARACTER FORMAT "x(15)" 
+DEFINE VARIABLE part-no AS CHARACTER FORMAT "x(30)" 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 27 BY 1 NO-UNDO.
+     SIZE 42.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE stock-no LIKE eb.stock-no
      LABEL "Enter New &FG Item" 
@@ -169,7 +169,7 @@ DEFINE BROWSE BROWSE-3
   QUERY BROWSE-3 NO-LOCK DISPLAY
       itemfg.i-no COLUMN-LABEL "Existing!FG Items" FORMAT "x(15)":U
       itemfg.i-name FORMAT "x(30)":U
-      itemfg.part-no FORMAT "x(12)":U
+      itemfg.part-no FORMAT "x(30)":U
       itemfg.est-no FORMAT "x(8)":U WIDTH 11
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -184,8 +184,8 @@ DEFINE FRAME Dialog-Frame
      stock-no AT ROW 1.24 COL 36 COLON-ALIGNED HELP
           ""
           LABEL "Enter New &FG Item"
-     btnOK AT ROW 1.24 COL 65.6
-     btn_cancel AT ROW 1.24 COL 79.4 WIDGET-ID 2
+     btnOK AT ROW 1.24 COL 80
+     btn_cancel AT ROW 1.24 COL 94 WIDGET-ID 2
      part-no AT ROW 2.1 COL 36.2 COLON-ALIGNED
      BROWSE-3 AT ROW 3.1 COL 1.6
      SPACE(2.59) SKIP(0.13)
@@ -234,11 +234,12 @@ AND itemfg.cust-no EQ ipCustNo
 AND (itemfg.i-no BEGINS stock-no
 OR stock-no EQ '')"
      _FldNameList[1]   > asi.itemfg.i-no
-"itemfg.i-no" "Existing!FG Items" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"i-no" "Existing!FG Items" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = asi.itemfg.i-name
-     _FldNameList[3]   = asi.itemfg.part-no
+     _FldNameList[3]   > asi.itemfg.part-no
+"part-no" ? "x(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.itemfg.est-no
-"itemfg.est-no" ? "x(8)" "character" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-no" ? "x(8)" "character" ? ? ? ? ? ? no ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
@@ -336,7 +337,7 @@ END.
 
 &Scoped-define SELF-NAME btn_itemfg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_itemfg Dialog-Frame
-ON CHOOSE OF btn_itemfg IN FRAME Dialog-Frame /* Cancel */
+ON CHOOSE OF btn_itemfg IN FRAME Dialog-Frame /* Add */
 DO:
   DEF BUFFER bf-eb-chk FOR eb .
   DEF VAR v-est-fgitem AS CHAR NO-UNDO .
@@ -536,9 +537,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateStockNo Dialog-Frame
-PROCEDURE pUpdateStockNo PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateStockNo Dialog-Frame 
+PROCEDURE pUpdateStockNo PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -557,11 +557,9 @@ PROCEDURE pUpdateStockNo PRIVATE:
         FIND CURRENT bf-stockno-eb NO-LOCK NO-ERROR.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-auto-add-item Dialog-Frame 
 PROCEDURE set-auto-add-item :

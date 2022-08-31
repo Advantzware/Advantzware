@@ -1,3 +1,4 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 DEF VAR ll-act-rate AS LOG NO-UNDO.
 DEF VAR ld-tot-rate AS DEC NO-UNDO. 
@@ -21,13 +22,13 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
     put skip.
 
     for EACH job
-        where job.company            eq cocode
-          and job.job-no             ge SUBSTR(v-job-no[1],1,6)
-          and job.job-no             le SUBSTR(v-job-no[2],1,6)
-          AND fill(" ",6 - length(trim(job.job-no))) +
-              trim(begin_job-no) + string(int(job.job-no2),"99") GE v-job-no[1]
-          AND fill(" ",6 - length(trim(job.job-no))) +
-              trim(begin_job-no) + string(int(job.job-no2),"99") LE v-job-no[2]
+        where job.company            eq cocode          
+          AND FILL(" ", iJobLen - length(trim(job.job-no))) +
+              trim(job.job-no) + string(int(job.job-no2),"999") GE v-job-no[1]
+          AND FILL(" ", iJobLen - length(trim(job.job-no))) +
+              trim(job.job-no) + string(int(job.job-no2),"999") LE v-job-no[2]
+          AND job.job-no2 GE int(begin_job-no2)
+	  AND job.job-no2 LE int(end_job-no2)
           and (v-stat                eq "A"                     or
                (v-stat               eq "O" and job.opened)     or
                (v-stat               eq "C" and NOT job.opened))
@@ -98,7 +99,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
       if not avail work-item then next.
 
       put "Job Number: "
-          trim(job.job-no) + "-" + string(job.job-no2,"99") +
+          trim(job.job-no) + "-" + string(job.job-no2,"999") +
           "     Closing Date: " +
           (IF job.close-date EQ ? THEN "        " ELSE
                                   STRING(job.close-date,"99/99/99"))
@@ -109,7 +110,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
        IF rd-dest EQ 3 THEN
          PUT STREAM excel2 UNFORMATTED                       
             '"' "Job Number: "                '",'           
-            '"' STRING(trim(job.job-no) + "-" + string(job.job-no2,"99"))               '",'
+            '"' STRING(trim(job.job-no) + "-" + string(job.job-no2,"999"))               '",'
             '"' "Closing Date: "                '",' 
          '"' (IF job.close-date EQ ? THEN " " ELSE STRING(job.close-date,"99/99/99"))               '",'  
            SKIP
@@ -666,7 +667,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
 
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED            
-            '"' trim(job.job-no) + "-" + string(job.job-no2,"99") '",'
+            '"' trim(job.job-no) + "-" + string(job.job-no2,"999") '",'
             '"' STRING(work-item.sales-rep,"x(3)")                '",'
             '"' STRING(v-cust)                                    '",'
             '"' STRING(work-item.i-no)                            '",'
@@ -1008,17 +1009,6 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
       END.
         
       
-      /*PUT skip(1)
-          "Job Number: "
-          trim(job.job-no) + "-" + string(job.job-no2,"99") +
-          "     Closing Date: " +
-          (IF job.close-date EQ ? THEN "        " ELSE
-                         STRING(job.close-date,"99/99/99"))
-         FORMAT "X(36)" SKIP
-         "Customer:   "
-         v-cust.
-
-      page.*/ /* ticket 26126 */
      end.
 
      if v-mch and last(job.job-no) then do:

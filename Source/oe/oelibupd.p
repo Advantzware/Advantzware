@@ -15,6 +15,7 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -826,7 +827,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
-            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+            RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
             IF v-ship-from GT "" THEN
                 oe-rel.spare-char-1 = v-ship-from.
              /* if add mode then use default carrier */
@@ -876,7 +877,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                IF TRUE /* wfk - replace adm-new-record */ THEN DO:
                   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -920,7 +921,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
-           RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+           RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            IF TRUE /* wfk - replace logical(get-val("adm-new-record")) */ THEN DO:                
                  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -1387,14 +1388,14 @@ IF AVAIL xest THEN DO:
       FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) NO-LOCK.
       
       IF ll-do-job THEN DO:
-        v-job-no = FILL(" ",6 - length(TRIM(get-sv("oe-ord.ord-no")))) + get-sv("oe-ord.ord-no").
+        v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', get-sv("oe-ord.ord-no"))) .
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                          INPUT-OUTPUT v-job-no2,
                          INPUT v-prod-cat,
-                         INPUT FILL(" ",6 - length(TRIM(get-sv("oe-ord.est-no")))) + trim(get-sv("oe-ord.est-no"))).
+                         INPUT STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', get-sv("oe-ord.est-no"))) ).
          
         IF v-job-no EQ "" THEN
-          v-job-no = FILL(" ",6 - length(TRIM(get-sv("oe-ord.est-no")))) + trim(get-sv("oe-ord.est-no")).
+          v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', get-sv("oe-ord.est-no")))  .
       
       END.
       ELSE
@@ -2784,8 +2785,7 @@ PROCEDURE valid-job-no :
 ------------------------------------------------------------------------------*/
 
 
-    set-sv("oe-ord.job-no", FILL(" ",6 - LENGTH(TRIM(get-sv("oe-ord.job-no")))) +
-                                 TRIM(get-sv("oe-ord.job-no"))). 
+    set-sv("oe-ord.job-no", STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', get-sv("oe-ord.job-no")))  ). 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2961,8 +2961,8 @@ END PROCEDURE.
 
 &ENDIF
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -2970,12 +2970,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-DELETE OBJECT hNotesProcs.   
+RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
     

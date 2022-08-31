@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -68,7 +69,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,ITEM #,PO #,JOB,QTY ORD,REL DATE," +
                            "QTY SHIPPED,QTY ONHAND,SELLING PRICE,TOTAL VALUE"
        cFieldListToSelect = "cust,item,po,job,qty-ord,rel-dt," +
                             "qty-shp,qty-oh,sel-pric,ttl-val"
-       cFieldLength = "8,15,15,10,10,10," + "11,12,14,15" 
+       cFieldLength = "8,15,15,13,10,10," + "11,12,14,15" 
        cFieldType = "c,c,c,i,c,c," + "i,i,i,i" 
     .
 
@@ -1503,7 +1504,7 @@ def var v-frst-i-no as log.
 def var v-print as log.
 def var trans-date like fg-rcpts.trans-date.
 def var rec-date as log init no.
-def var v-job as char format "x(9)".
+def var v-job as char format "x(13)".
 def var v-rec-found as log.
 def var v-qty-job like v-qty-onh.
 def var v-ext-job like v-ext.
@@ -1702,9 +1703,9 @@ display "" with frame r-top.
 
         if itemfg.sell-uom eq "L" then v-ext = oe-ordl.price.
 
-        v-job = oe-ordl.job-no + "-" + string(oe-ordl.job-no2,"99").
+        v-job = oe-ordl.job-no + "-" + string(oe-ordl.job-no2,"999").
 
-        if v-job = "-00" then v-job = "".
+        if v-job = "-000" then v-job = "".
 
         if v-qty-onh ne 0 or zbal then do:
 

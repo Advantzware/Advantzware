@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolbrick.p 02/00 FWK */
 /* PRINT Brick BOL when sys-ctrl.log-fld eq no                                */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -216,7 +217,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     assign
      report.term-id  = v-term
      report.key-01   = oe-boll.i-no
-     report.key-02   = string(oe-boll.ord-no,"999999")
+     report.key-02   = string(oe-boll.ord-no,"99999999")
      report.rec-id   = recid(oe-boll)
      oe-boll.printed = yes.
   end.

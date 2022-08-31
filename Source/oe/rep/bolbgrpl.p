@@ -6,6 +6,7 @@
 *     Modify By    :                                                         *
 *                                                                            *       
 * -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
@@ -34,7 +35,7 @@ def var v-part-comp         as   char format "x" no-undo.
 def var v-part-qty          as   DEC no-undo.
 def var v-ord-no            like oe-boll.ord-no no-undo.
 def var v-po-no             like oe-bolh.po-no no-undo.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 DEF VAR v-ship-phone        AS   CHAR FORMAT "X(13)" NO-UNDO.
 
@@ -102,6 +103,7 @@ DEF VAR v-ship-i AS cha EXTENT 4 FORM "x(60)" NO-UNDO.
 DEF VAR v-ship-i2 AS cha EXTENT 2 FORM "x(60)" NO-UNDO.
 DEF VAR v-tmp-lines AS DEC NO-UNDO.
 DEF VAR v-class-msg AS CHAR FORMAT "X(60)" NO-UNDO.
+DEF VAR lPrintPackingList AS LOGICAL NO-UNDO.
 
 ASSIGN tmpstore = fill("-",130).
 
@@ -317,7 +319,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
       ASSIGN
       v-salesman = trim(v-salesman)
       v-po-no = oe-boll.po-no
-      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))
+      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
       v-fob = if oe-ord.fob-code begins "ORIG" then "Origin" else "Destination".
 
       if v-salesman gt '' then
@@ -357,8 +359,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
         ASSIGN v-ship-addr[2] = v-ship-addr3
                v-ship-addr3 = "".
      
+     ASSIGN lPrintPackingList = YES. /* To print a Packing List */
+     
      {oe/rep/bolbgrpl.i}             
-     {oe/rep/bolbadg2.i}
+     {oe/rep/bolbadg2.i}      /* used in oe/rep/bolbgrpl.p && oe/rep/bolbadgr.p */
 
     v-last-page = page-number.
 

@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relcntbx.i 12/03 JLF */
 /* Print OE Release/Picking tickets (Century Box)                             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -122,31 +123,31 @@ format header
        skip(1)
          
        "Order#"                         to 6
-       "Item / Descrip"                 at 8
-       "Tag/Whs/Bin"                    at 29
-       "X"                              at 50
-       "#Pal"                           to 55
-       "#Cas"                           to 60
+       "Item / Descrip"                 at 10
+       "Tag/Whs/Bin"                    at 31
+       "X"                              at 51
+       "#Pal"                           to 56
+       "#Cas"                           to 61
        "Count"                          to 70
        "Bin Qty"                        to 80
        
        "------"                         to 6
-       "--------------"                 at 8
-       "----------"                     at 29
-       "-"                              at 50
-       "----"                           to 55
-       "----"                           to 60
+       "--------------"                 at 10
+       "----------"                     at 31
+       "-"                              at 51
+       "----"                           to 56
+       "----"                           to 61
        "-----"                          to 70
        "-------"                        to 80
        
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(20)"
-       v-bin                            at 29   format "x(20)"
-       w-x                              at 50   format "X/"
-       w-pal                            to 55   format "->>>"
-       w-cas                            to 60   format "->>>"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(20)"
+       v-bin                            at 31   format "x(20)"
+       w-x                              at 51   format "X/"
+       w-pal                            to 56   format "->>>"
+       w-cas                            TO 61   format "->>>"
        w-c-c                            to 70   format "->>>>>>>>"
        w-qty[1]                         to 80   format "->>>>>>>>"
     
@@ -199,8 +200,8 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
           where oe-ord.company eq oe-rell.company
             and oe-ord.ord-no  eq oe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-pay-dscr = IF oe-rell.frt-pay NE "" THEN oe-rell.frt-pay ELSE oe-ord.frt-pay. 
+        case v-frt-pay-dscr:
              when "P" THEN v-frt-pay-dscr = "Prepaid".
              when "C" THEN v-frt-pay-dscr = "Collect".
              when "B" THEN v-frt-pay-dscr = "Bill".

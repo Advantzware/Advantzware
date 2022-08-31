@@ -1,17 +1,16 @@
 /* ----------------------------------------------- jc/rep/jc-back.i 05/99 JLF */
 /* Job Backlog by Machine - run by customer                                   */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
-
-      and job-hdr.job-no     ge substr(v-fjob,1,6)
-      and job-hdr.job-no     le substr(v-tjob,1,6)
-      and fill(" ",6 - length(trim(job-hdr.job-no))) +
-          trim(job-hdr.job-no) + string(job-hdr.job-no2,"99")
+      
+      and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
+          trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                          ge v-fjob
-      and fill(" ",6 - length(trim(job-hdr.job-no))) +
-          trim(job-hdr.job-no) + string(job-hdr.job-no2,"99")
+      and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
+          trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                          le v-tjob
-
-
+      AND job-hdr.job-no2 GE int(begin_job-no2)
+      AND job-hdr.job-no2 LE int(end_job-no2)
       AND job-hdr.opened EQ YES 
       AND job-hdr.cust-no GE v-fcust
       AND job-hdr.cust-no LE v-tcust

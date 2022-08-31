@@ -92,17 +92,18 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD SwiftBIC      AS CHARACTER FORMAT "x(11)" COLUMN-LABEL "Swift Code" HELP "Optional - Validated - Size:11"
     FIELD BankRTN       AS INTEGER FORMAT "999999999" COLUMN-LABEL "Routing" HELP "Optional - Integer"
     
-    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Account type is used for sales reporting optional - Size:12 Split/Originated/Handed/None (None for no change)"
-    FIELD splitType     AS INTEGER FORMAT "9" COLUMN-LABEL "Split Type" HELP "Split type used for sales reporting Optional - default 0"
-    FIELD parentCust    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Parent Customer" HELP "Master customer account Optional - Size:12"
-    FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Market segment for sales reporting Optional - Size:16"
-    FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "NAICS Code - link to NaicsTable (Default = 999999)"
+    FIELD accountType   AS CHARACTER FORMAT "X(12)" COLUMN-LABEL "Account Type" HELP "Required - Size:12 Split/Originated/Handed/None (None for no change)"
+    FIELD splitType     AS INTEGER FORMAT "9" COLUMN-LABEL "Split Type" HELP "Optional - default 0"
+    FIELD parentCust    AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Parent Cust" HELP "Optional - Size:12"
+    FIELD marketSegment AS CHARACTER FORMAT "x(16)" COLUMN-LABEL "Market Segment" HELP "Optional - Size:16"
+    FIELD naicsCode     AS CHARACTER FORMAT "999999" COLUMN-LABEL "NAICS" HELP "Optional - Integer (Default = 999999)"
     FIELD classId       AS INTEGER   FORMAT ">>" COLUMN-LABEL "AR ClassID" HELP "Optional - Integer  Default = blank or 0 "    
     FIELD accountant    AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Accountant" HELP "Optional - Size:10 "    
     FIELD matrixPrecision AS INTEGER FORMAT "9"   COLUMN-LABEL "Matrix Precision" HELP "Optional - default 0"
     FIELD matrixRounding  AS CHARACTER FORMAT "X" COLUMN-LABEL "Matrix Rounding"  HELP "Optional - N/U/D (Default 'U' if 'write blank and zero' flag is selected)"
-    FIELD industryID      AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Industry name"
-    FIELD tagStatus      AS CHArACTER FORMAT "x(40)" COLUMN-LABEL "Tag Status"  HELP "Optional- Only tags that are not on hold, Only on Hold tags, Any tag status"
+    FIELD industryID      AS CHArACTER FORMAT "x(16)" COLUMN-LABEL "Industry"  HELP "Optional - Size:16"
+    FIELD tagStatus      AS CHArACTER FORMAT "x(1)" COLUMN-LABEL "Tag Status"  HELP "Optional- H-Only on Hold tags/A-Any tag status/Leave Blank-Only tags that are not on hold"
+    FIELD emailPreference AS CHArACTER FORMAT "x(10)" COLUMN-LABEL "Email Preference"  HELP "Optional - Ask/Combined/Separate"
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
@@ -283,6 +284,13 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Invalid Rounding method"
                 .
     END.
+    IF oplValid THEN DO:
+        IF LOOKUP(ipbf-ttImportCust.tagStatus,",A,H") EQ 0 THEN
+            ASSIGN
+                oplValid = NO
+                opcNote  = "Invalid Tag Status"
+                .
+    END.
     IF oplValid THEN 
     DO:
         FIND FIRST cust NO-LOCK 
@@ -307,15 +315,15 @@ PROCEDURE pValidate PRIVATE:
                 .
         
     END.
-    
+            
     /*Field level validation*/
     IF oplValid AND iplFieldValidation THEN 
     DO:
         IF oplValid AND ipbf-ttImportCust.CustStatus NE "" THEN 
             RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
 
-        IF oplValid AND ipbf-ttImportCust.CustSman NE "" THEN 
-            RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
+        IF oplValid AND ipbf-ttImportCust.CustSman NE ""  THEN 
+            RUN pIsValidSalesRep IN hdValidator (ipbf-ttImportCust.CustSman, YES, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
 
         IF oplValid AND ipbf-ttImportCust.CustType NE "" THEN 
             RUN pIsValidCustomerType IN hdValidator (ipbf-ttImportCust.CustType, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
@@ -388,6 +396,9 @@ PROCEDURE pValidate PRIVATE:
         
         IF oplValid AND ipbf-ttImportCust.industryID NE "" THEN 
             RUN pIsValidIndustry IN hdValidator (ipbf-ttImportCust.industryID, NO, ipbf-ttImportCust.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportCust.emailPreference NE "" THEN 
+            RUN pIsValidFromList IN hdValidator ("Email Preference", ipbf-ttImportCust.emailPreference, "Ask,Combined,Separate", OUTPUT oplValid, OUTPUT cValidNote).    
         
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
@@ -421,11 +432,14 @@ PROCEDURE pValidate PRIVATE:
     ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
         ipbf-ttImportCust.CustStatus = "E".
         
-   IF ipbf-ttImportCust.tagStatus EQ "Only tags that are not on hold" THEN 
-        ipbf-ttImportCust.tagStatus = "".
-    ELSE IF ipbf-ttImportCust.tagStatus EQ "Only on Hold tags" THEN 
-        ipbf-ttImportCust.tagStatus = "H".
-    ELSE ipbf-ttImportCust.tagStatus = "A". 
+
+   IF ipbf-ttImportCust.emailPreference EQ "Ask" THEN 
+        ipbf-ttImportCust.emailPreference = "0".
+    ELSE IF ipbf-ttImportCust.emailPreference EQ "Combined" THEN 
+        ipbf-ttImportCust.emailPreference = "1".
+    ELSE IF ipbf-ttImportCust.emailPreference EQ "Separate" THEN 
+        ipbf-ttImportCust.emailPreference = "2". 
+    ELSE ipbf-ttImportCust.emailPreference = "0".    
     
     DELETE OBJECT hdValidator.   
 END PROCEDURE.
@@ -454,6 +468,10 @@ PROCEDURE pProcessRecord PRIVATE:
             bf-cust.company = ipbf-ttImportCust.Company
             bf-cust.cust-no = ipbf-ttImportCust.CustNo
             .
+    END.
+    IF ipbf-ttImportCust.CustSman EQ "" THEN
+    DO:
+         RUN pGetSalesRep(ipbf-ttImportCust.Company, OUTPUT ipbf-ttImportCust.CustSman).
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
     RUN pAssignValueC (ipbf-ttImportCust.CustName, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.name).
@@ -536,7 +554,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.accountant, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.accountant).
     RUN pAssignValueI (ipbf-ttImportCust.matrixPrecision, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.matrixPrecision).
     RUN pAssignValueC (ipbf-ttImportCust.tagStatus, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tagStatus).
-    
+    RUN pAssignValueIValidZero (integer(ipbf-ttImportCust.emailPreference), iplIgnoreBlanks, INPUT-OUTPUT bf-cust.emailPreference).
     /* Set to round up if write blank and zero is selected */
     IF NOT iplIgnoreBlanks AND ipbf-ttImportCust.matrixRounding EQ "" THEN
         bf-cust.matrixRounding = "U".
@@ -641,3 +659,30 @@ PROCEDURE pAddNote:
     END.                           
     RELEASE bf-notes.
 END PROCEDURE.
+
+PROCEDURE pGetSalesRep:
+/*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
+    DEFINE OUTPUT PARAMETER opcSalesRep AS CHARACTER.
+    
+    DEFINE BUFFER bf-cust FOR cust.
+    DEFINE BUFFER bf-sman FOR sman.
+    
+    FIND FIRST bf-cust NO-LOCK
+         WHERE bf-cust.company EQ ipcCompany
+           AND bf-cust.ACTIVE EQ "X" NO-ERROR.
+    IF AVAIL bf-cust AND bf-cust.sman NE "" THEN
+    DO:
+         opcSalesRep = bf-cust.sman.
+    END.
+    ELSE DO:
+      FIND FIRST bf-sman NO-LOCK
+           WHERE bf-sman.company EQ ipcCompany NO-ERROR.
+      IF available bf-sman THEN
+         opcSalesRep = bf-sman.sman .
+    END.         
+END PROCEDURE.
+

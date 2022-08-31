@@ -885,7 +885,7 @@ RUN est/rc-seq.p (OUTPUT lv-rc-seq).
           TRIM(mch-act.code)                                            + "," +
           TRIM(IF AVAIL job-code THEN job-code.cat ELSE "")             + "," +
           TRIM(STRING(mch-act.op-date,"99/99/99"))                      + "," +
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
+          TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")             + "," +
           TRIM(STRING(mch-act.shift,">>"))                              + "," +
           TRIM(STRING(mch-act.hours,">>>>>>>>>9.9<<"))                  + "," +
           TRIM(STRING(mch-act.qty,">>>>>>>>>>"))                        + "," +

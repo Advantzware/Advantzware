@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -107,7 +108,7 @@ DEFINE BUFFER b-itemfg FOR itemfg .
 
 ASSIGN cTextListToSelect = "Machine,Job#,Cust#,Die#,Style,Total Hours" 
        cFieldListToSelect = "mch,job,cust,die,style,ttl-hrs"
-       cFieldLength = "7,10,8,15,6,11" 
+       cFieldLength = "7,13,8,15,6,11" 
        cFieldType = "c,c,c,c,c,i"
     .
 
@@ -1538,34 +1539,6 @@ display "" with frame r-top.
 
       {custom/statusMsg.i " 'Processing Job#  '  + tt-job-mch.job-no "}
 
-    /* IF FIRST-OF(tt-job-mch.m-code) THEN
-     DO:
-        v-total-mach-hrs = 0.
-        DISPLAY v-line FORMAT "X(80)" SKIP
-                "Machine: " + tt-job-mch.m-code FORMAT "X(17)"
-                SKIP(1)
-           WITH FRAME mach-head STREAM-IO width 180 no-labels no-box down.
-     END. */
-
-  /*   IF tb_excel THEN
-        EXPORT STREAM excel DELIMITER ","
-               tt-job-mch.m-code 
-               tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"99")
-               tt-job-mch.cust-no
-               tt-job-mch.die
-               tt-job-mch.style
-               tt-job-mch.total-hrs
-               SKIP. */
-
-    /*DISPLAY SPACE(5)
-             tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"99") FORMAT "X(9)" COLUMN-LABEL "Job #"
-             tt-job-mch.cust-no FORMAT "X(8)" COLUMN-LABEL "Cust #"
-             tt-job-mch.die FORMAT "X(15)" COLUMN-LABEL "Die#"
-             tt-job-mch.style FORMAT "X(6)" COLUMN-LABEL "Style"
-             tt-job-mch.total-hrs FORMAT "ZZZ,ZZ9.99" COLUMN-LABEL "Total Hours"
-        WITH FRAME mach-job STREAM-IO width 180 no-box down. */
-
-
      ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1576,7 +1549,7 @@ display "" with frame r-top.
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "mch"            THEN cVarValue =  STRING(tt-job-mch.m-code) .
-                         WHEN "job"        THEN cVarValue =  STRING(tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"99")) .
+                         WHEN "job"        THEN cVarValue =  STRING(tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"999")) .
                          WHEN "cust"           THEN cVarValue =  STRING(tt-job-mch.cust-no,"X(8)") .
                          WHEN "die"            THEN cVarValue =  STRING(tt-job-mch.die,"X(15)") .
                          WHEN "style"          THEN cVarValue =  STRING(tt-job-mch.style,"X(6)") .

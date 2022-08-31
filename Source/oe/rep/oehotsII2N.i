@@ -1,5 +1,6 @@
 /* ---------------------------------- oe/rep/oehotsII2.i  12/15 GDm */
 /* Schedule Release Report  - Hots II Report                        */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* -----------------------------------------------------------------*/
 IF v-first THEN 
     PUT UNFORMATTED
@@ -221,7 +222,8 @@ IF AVAIL itemfg THEN DO:
           AND eb.est-no   EQ oe-ordl.est-no
           AND eb.stock-no EQ oe-ordl.i-no NO-ERROR.
 
-   cFullJobNo = IF w-ord.job-no NE "" THEN STRING(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99") ,"x(9)") + (if avail eb then "-" + string(eb.form-no,"99") + "-" + string(eb.blank-no,"99") ELSE "") ELSE "". 
+   cFullJobNo = IF w-ord.job-no NE "" THEN TRIM(w-ord.job-no) + "-" + STRING(w-ord.job-no2,"999") + 
+   (if avail eb then "-" + string(eb.form-no,"99") + "-" + string(eb.blank-no,"99") ELSE "") ELSE "". 
 
    RUN getLastActivity in hdJobProcs(INPUT cocode, INPUT w-ord.job-no, INPUT w-ord.job-no2, OUTPUT cLastAction ).   
 
@@ -246,8 +248,8 @@ IF AVAIL itemfg THEN DO:
                          WHEN "desc"  THEN cVarValue = STRING(w-ord.i-name,"x(30)") .
                          WHEN "cat"   THEN cVarValue = STRING(itemfg.procat,"x(5)") .
                          WHEN "po"  THEN cVarValue = STRING(w-ord.po-num,"x(15)") .
-                         WHEN "order"   THEN cVarValue = STRING(w-ord.ord-no,">>>>>>9") .
-                         WHEN "sales"  THEN cVarValue = STRING(w-ord.price,"->>>,>>9.999999") .
+                         WHEN "order"   THEN cVarValue = TRIM(STRING(w-ord.ord-no,">>>>>>>9")) .
+                         WHEN "unitPrice"  THEN cVarValue = STRING(w-ord.price,"->>>,>>9.999999") .
 
                          WHEN "rel-qty"  THEN cVarValue = STRING(w-ord.rel-qty,"->>,>>>,>>9") .
                          WHEN "rel-date"   THEN cVarValue = IF w-ord.rel-date NE ? THEN STRING(date(w-ord.rel-date),"99/99/99") ELSE "" .
@@ -256,11 +258,11 @@ IF AVAIL itemfg THEN DO:
                          WHEN "style"   THEN cVarValue = STRING(itemfg.style ,"x(6)").
                          WHEN "pro-date-reason"   THEN cVarValue = IF AVAIL rejct-cd THEN STRING(w-ord.prom-date-reason + " " + rejct-cd.dscr ,"x(30)") ELSE "".
                          WHEN "last-mch"   THEN cVarValue = STRING(lv-routing ,"x(12)").
-                         WHEN "job-no"   THEN cVarValue = IF w-ord.job-no NE "" THEN STRING(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99") ,"x(9)") ELSE "".
+                         WHEN "job-no"   THEN cVarValue = IF w-ord.job-no NE "" THEN TRIM(w-ord.job-no) + "-" + STRING(w-ord.job-no2,"999") ELSE "".
 			             WHEN "ord-prom-date"   THEN cVarValue = IF w-ord.ord-prom-date ne ? THEN STRING(w-ord.ord-prom-date,"99/99/9999") ELSE "".
                          WHEN "job-prom-date"   THEN cVarValue = IF w-ord.job-prom-date ne ? THEN STRING(w-ord.job-prom-date,"99/99/9999") ELSE "".
                          WHEN "prom-code"   THEN cVarValue = IF w-ord.prom-code ne ? THEN STRING(w-ord.prom-code,"x(10)") ELSE "".
-                         WHEN "full-job-no"   THEN cVarValue = STRING(cFullJobNo,"x(15)") . 
+                         WHEN "full-job-no"   THEN cVarValue = STRING(cFullJobNo,"x(19)") . 
                          WHEN "LastActionOnJob" THEN cVarValue = STRING(cLastAction ,"x(15)") . 
 			
                     END CASE.

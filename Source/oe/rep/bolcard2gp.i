@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolcard2.p 11/09 GDM */
 /* N-K BOLFMT = Carded - FORM for Carded Graphics                             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 v-tot-cases = 0.
@@ -53,8 +54,6 @@ FOR EACH tt-boll,
                         w2.qty    = oe-ordl.qty.
                 ELSE IF i = 2 THEN 
                         ASSIGN w2.job-po = tt-boll.job-no
-                            /*                  w2.job-po = if oe-ordl.job-no eq "" then "" else                        */
-                            /*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                             w2.dscr   = oe-ordl.i-name
                             w2.i-no   = oe-ordl.i-no.
                     ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -79,8 +78,6 @@ FOR EACH tt-boll,
                     w2.i-no = "".
                     IF i = 2 THEN 
                         ASSIGN w2.job-po = tt-boll.job-no
-                            /*            if oe-ordl.job-no eq "" then "" else                                          */
-                            /*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                             w2.dscr   = oe-ordl.i-name
                             w2.i-no   = oe-ordl.i-no.
                     ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -104,8 +101,6 @@ FOR EACH tt-boll,
                     w2.i-no = "".
                     IF i = 2 THEN
                         ASSIGN w2.job-po = tt-boll.job-no
-                            /*            if oe-ordl.job-no eq "" then "" else                                          */
-                            /*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                             w2.dscr   = oe-ordl.i-name
                             w2.i-no   = oe-ordl.i-no.
                     ELSE IF i EQ 3 THEN ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -258,8 +253,6 @@ FOR EACH tt-boll,
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
                         v-job-po    = tt-boll.job-no
-                        /*         if oe-ordl.job-no eq "" then "" else                                    */
-                        /*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                         .
     
                 ELSE
@@ -296,8 +289,6 @@ FOR EACH tt-boll,
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
                         v-job-po    = tt-boll.job-no
-                        /*         if oe-ordl.job-no eq "" then "" else                                    */
-                        /*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                         .
 
                 ELSE IF i EQ 3 THEN v-part-dscr = oe-ordl.part-dscr1.
@@ -357,8 +348,6 @@ FOR EACH tt-boll,
                     ASSIGN
                         v-part-dscr = oe-ordl.i-name
                         v-job-po    = tt-boll.job-no
-                        /*         if oe-ordl.job-no eq "" then "" else                                    */
-                        /*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                         .
 
                 ELSE
@@ -371,7 +360,7 @@ FOR EACH tt-boll,
     
             IF i = 2 AND v-job-po = "" THEN
                 v-job-po = IF tt-boll.job-no EQ "" THEN "" ELSE
-                    (TRIM(tt-boll.job-no) + "-" + string(tt-boll.job-no2,"99"))                 
+                           TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-boll.job-no, tt-boll.job-no2)))
                     .
 
             IF v-part-dscr NE "" OR v-job-po NE "" OR i LE 2 THEN 

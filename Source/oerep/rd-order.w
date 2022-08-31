@@ -18,6 +18,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No).
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -69,6 +71,7 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 DEFINE TEMP-TABLE tt-report NO-UNDO
     FIELD i-no      AS CHARACTER
     FIELD ord-no    LIKE oe-rel.ord-no
+    FIELD iLINE      LIKE oe-rel.LINE
     FIELD vdate     LIKE oe-rel.rel-date
     FIELD carrier   AS CHARACTER
     FIELD shipid    AS CHARACTER
@@ -184,7 +187,7 @@ DEFINE VARIABLE begin_item     AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_order    AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE begin_order    AS INTEGER   FORMAT ">>>>>>>9" INITIAL 0 
     LABEL "From Order#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -219,7 +222,7 @@ DEFINE VARIABLE end_item       AS CHARACTER FORMAT "X(15)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_order      AS INTEGER   FORMAT ">>>>>9" INITIAL 0 
+DEFINE VARIABLE end_order      AS INTEGER   FORMAT ">>>>>>>9" INITIAL 0 
     LABEL "To Order#" 
     VIEW-AS FILL-IN 
     SIZE 17 BY 1.
@@ -1297,7 +1300,7 @@ PROCEDURE run-report :
         /*                                 AND (oe-ord.type    NE "T" OR NOT NO) */
         USE-INDEX ord-no NO-LOCK, 
         FIRST itemfg NO-LOCK WHERE itemfg.company EQ oe-ordl.company 
-        AND itemfg.i-no EQ oe-ordl.i-no:
+        AND itemfg.i-no EQ oe-ordl.i-no :
 
         ASSIGN 
             v-prod-qty           = 0
@@ -1421,6 +1424,7 @@ PROCEDURE run-report :
                         tt-report.qty       = oe-rel.qty
                         tt-report.i-no      = oe-rel.i-no   
                         tt-report.ord-no    = oe-rel.ord-no
+                        tt-report.iLINE     = oe-ordl.LINE
                         tt-report.carrier   = oe-rel.carrier
                         tt-report.shipid    = oe-rel.ship-id 
                         tt-report.vdate     = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date
@@ -1444,6 +1448,7 @@ PROCEDURE run-report :
                     tt-report.qty       = oe-ordl.qty
                     tt-report.i-no      = oe-ordl.i-no 
                     tt-report.ord-no    = oe-ordl.ord-no
+                    tt-report.iLINE     = oe-ordl.LINE
                     tt-report.carrier   = oe-ordl.carrier
                     tt-report.shipid    = oe-ord.ship-id
                     tt-report.cShipFrom = oe-ord.loc .
@@ -1489,7 +1494,10 @@ PROCEDURE run-report :
       
         FOR EACH tt-report
             WHERE tt-report.cShipFrom GE begin_shipfrom
-            AND tt-report.cShipFrom LE end_shipfrom NO-LOCK BY tt-report.vdate DESCENDING:
+            AND tt-report.cShipFrom LE end_shipfrom NO-LOCK BREAK
+            BY tt-report.ord-no 
+            BY tt-report.iLINE
+            BY tt-report.vdate DESCENDING:
       
             IF tb_print-del THEN  /* task 06051405 */
                 IF NOT CAN-FIND( FIRST tt-report WHERE tt-report.vdate GE begin_reldt AND tt-report.vdate LE end_reldt  ) THEN NEXT .
@@ -1581,7 +1589,7 @@ PROCEDURE run-report :
                         WHEN "skid-count" THEN 
                             cVarValue = STRING(v-skid-count).
                         WHEN "job" THEN 
-                            cVarValue = STRING(TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")).
+                            cVarValue = STRING(TRIM(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"999")).
                         WHEN "act-rel-qty" THEN 
                             cVarValue = STRING(v-act-rel-qty).
                         WHEN "wip-qty" THEN 
@@ -1599,7 +1607,11 @@ PROCEDURE run-report :
                         WHEN "shipid" THEN 
                             cVarValue = STRING(vshipid) .
                         WHEN "v-prod-qty" THEN 
+                        do: 
+                            IF FIRST(tt-report.iLINE) THEN                            
                             cVarValue = STRING(v-prod-qty) .
+                            ELSE cVarValue = "".
+                        END.    
                         WHEN "approved-date" THEN 
                             cVarValue = IF oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE ""    .
                         WHEN "sch-rel-qty" THEN 

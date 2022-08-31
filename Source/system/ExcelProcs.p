@@ -109,6 +109,18 @@ PROCEDURE Excel_SetCellValue:
 
 END PROCEDURE.
 
+PROCEDURE Excel_SetCellFormat:
+/*------------------------------------------------------------------------------
+ Purpose:  given cell address and value, sets the value within the active sheet
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCellAddress AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCellFormat AS CHARACTER NO-UNDO.
+    
+    RUN pSetCellFormat(ipcCellAddress, ipcCellFormat).
+
+END PROCEDURE.
+
 PROCEDURE pCleanup PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Resets Excel Status and cleans up procedure-level objects
@@ -213,7 +225,19 @@ PROCEDURE pSetCellValue PRIVATE:
     DEFINE INPUT PARAMETER ipcCellAddress AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCellValue AS CHARACTER NO-UNDO.
 
-    gchExcelWorkSheet:Range(ipcCellAddress):Value = ipcCellValue.
+    gchExcelWorkSheet:Range(ipcCellAddress):Value = ipcCellValue.    
+     
+END PROCEDURE.
+
+PROCEDURE pSetCellFormat PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  given cell address and value, sets the value within the active sheet
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCellAddress AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCellFormat AS CHARACTER NO-UNDO.
+
+    gchExcelWorkSheet:Range(ipcCellAddress):NumberFormat = ipcCellFormat.    
      
 END PROCEDURE.
 

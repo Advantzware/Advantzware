@@ -73,7 +73,7 @@ IF bf-job.job-no2 GT 0 THEN
 ELSE 
     bf-job.orderType = "O".               
 
-RUN jc/BuildJob.p (ROWID(bf-job), 0, OUTPUT lError, OUTPUT cMessage).                       
+RUN jc/BuildJob.p (ROWID(bf-job), 0, 0, OUTPUT lError, OUTPUT cMessage).                       
 //RUN jc/jc-calc.p (RECID(bf-job), YES) NO-ERROR.
 
 RUN pUpdateFGItemQty(BUFFER bf-job).
@@ -144,7 +144,7 @@ PROCEDURE pGetJobNo PRIVATE :
         cBldJob = SUBSTR(cJobCreat,1,1) + TRIM(cBldJob).
 
     ASSIGN
-        cBldJob = FILL(" ",6 - LENGTH(TRIM(cBldJob))) + TRIM(cBldJob).              
+        cBldJob = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cBldJob)).              
                       
     FOR EACH bf-job FIELDS(job-no2) NO-LOCK
         WHERE bf-job.company EQ ipcCompany

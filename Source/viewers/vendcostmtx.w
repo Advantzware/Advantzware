@@ -207,7 +207,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE FRAME F-Main
      vendItemCost.vendorUOM AT ROW 1.67 COL 79 COLON-ALIGNED
-          LABEL "Cost and Quantity UOM"
+          LABEL "Cost UOM"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 
@@ -1207,7 +1207,8 @@ PROCEDURE proc-enable :
      IF adm-new-record AND NOT adm-adding-record THEN
      DO:
         vendItemCost.expirationDate:SCREEN-VALUE IN FRAME {&frame-name}  = "12/31/2099".
-     END.
+        vendItemCost.ItemType:SENSITIVE IN FRAME {&frame-name} = NO. 
+     END.   
      lCheckEditMode = YES.
      {methods/run_link.i "getPanel-SOURCE" "DisablePanel"}.
      Btn_multi:SENSITIVE = NO.
@@ -1798,6 +1799,49 @@ PROCEDURE valid-itemnumber:
   {methods/lValidateError.i NO}
   END.
   
+END PROCEDURE.
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE approve-change V-table-Win 
+PROCEDURE approve-change:
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  //DEFINE INPUT PARAMETER ipcItemNumber AS CHARACTER NO-UNDO.
+  DEFINE BUFFER bf-venditemcost FOR venditemcost. 
+   
+  IF NOT AVAIL venditemcost THEN RETURN. 
+  IF lCheckEditMode THEN RETURN.
+  DO WITH FRAME {&FRAME-NAME}: 
+   FIND FIRST bf-venditemcost EXCLUSIVE-LOCK 
+        WHERE ROWID(bf-venditemcost) EQ ROWID(venditemcost) NO-ERROR.
+   IF AVAILABLE bf-venditemcost THEN
+   DO:
+       bf-venditemcost.approved = IF bf-venditemcost.approved THEN NO ELSE YES.
+       
+       IF bf-venditemcost.approved THEN
+       ASSIGN
+        bf-venditemcost.formNo = 0
+        bf-venditemcost.blankNo = 0
+        bf-venditemcost.updatedDate = TODAY
+        bf-venditemcost.updatedID = USERID(LDBNAME(1))
+        bf-venditemcost.expirationDate = 12/31/2099
+        bf-venditemcost.effectiveDate = TODAY.
+       
+   END.
+  END.  
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"reopenmain-target",OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(vendItemCost)).  
+  
+  IF AVAILABLE bf-venditemcost AND bf-venditemcost.approved THEN
+  {methods/run_link.i "TableIO-SOURCE" "undo-update"}.    
+    
 END PROCEDURE.
 
 

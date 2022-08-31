@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relmulti.p 02/98 FWK */
 /* print oe Release/Picking tickets when RELPRINT = "MultiWll"                */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -66,8 +67,8 @@ format
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -196,7 +197,7 @@ format
         cust.city    at 11 cust.state cust.zip
         shipto.ship-city at 50 shipto.ship-state shipto.ship-zip   skip(1)
         "--------------------------------------------------------------------------------" skip
-        "ORDER#:" at 1 xoe-rell.ord-no "PAY TERMS:" at 16                         
+        "ORDER#:" at 1 xoe-rell.ord-no "PAY TERMS:" at 18                         
         oe-ord.terms-d format "x(18)" at 28                                           
         "DUE ON:" at 47 oe-relh.rel-date skip                                       
         "CUST PO#:" at 1 correct-po "Page" at 47                                

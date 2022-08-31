@@ -72,34 +72,6 @@ DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN 
-DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath",
-        cRtnChar
-        ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN 
-    DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
-
 DEF VAR ls-image2 AS cha NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 ASSIGN ls-image2 = "images\worldpaclogo9.jpg".
@@ -144,13 +116,11 @@ DEF VARIABLE li-mm AS INTEGER NO-UNDO.
 
 DEFINE VARIABLE opcParsedText AS CHARACTER NO-UNDO EXTENT 100.
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
-Define Variable hNotesProc as Handle NO-UNDO.
 DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iShipQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iIntValue AS INTEGER NO-UNDO.
-
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
-
+DEFINE VARIABLE cAddress AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
 ASSIGN tmpstore = FILL("-",80).
 
@@ -175,7 +145,9 @@ ASSIGN v-comp-add1 = company.addr[1]
        v-comp-add2 = company.city + ", " + company.st + "  " + company.zip
        v-comp-add3 = "Phone: 604.533.2545" 
        v-comp-add4 = "Fax  : 604.533.2633"
-       v-printline = 0.
+       v-printline = 0
+       cAddress    = company.NAME + " - " + v-comp-add1 + " - " + v-comp-add2
+       .
 
 FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     FIRST oe-bolh WHERE RECID(oe-bolh)   EQ xxreport.rec-id,
@@ -186,7 +158,18 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     NO-LOCK
 
     BREAK BY oe-bolh.bol-no:
-      
+    
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN ASSIGN cLocation = oe-boll.loc .
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+    
     IF FIRST-OF(oe-bolh.bol-no) THEN DO:
     FIND FIRST carrier
         WHERE carrier.company EQ oe-bolh.company
@@ -429,9 +412,9 @@ PUT "<R35.5><C47><#7>Initial"
 v-printline = v-printline + 4.
 
 /*PUT "<R39><C30>" SKIP.*/
-RUN GetNotesArrayForObject IN hNotesProc (INPUT oe-bolh.rec_key, "ES", "", 130, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
+RUN Notes_GetNotesArrayForObject (INPUT oe-bolh.rec_key, "ES", "", "", 130, NO,0, OUTPUT opcParsedText, OUTPUT opiArraySize).
 
-IF opiArraySize <= 4 THEN DO:
+IF opiArraySize <= 3 THEN DO:
     PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R40><C1>" AT 1 SKIP.
     IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
@@ -443,8 +426,8 @@ IF opiArraySize <= 4 THEN DO:
         v-printline = v-printline + 1.    
     END.
     RUN pFooterLabel.
-END. /*IF opiArraySize <=4 THEN DO:*/
-ELSE IF opiArraySize > 4 AND opiArraySize <= 20 THEN DO:
+END. /*IF opiArraySize <=3 THEN DO:*/
+ELSE IF opiArraySize > 3 AND opiArraySize <= 20 THEN DO:
     PUT "<FBook Antiqua><R39.5><C1><P12><B>Shipping Instructions:</B><P9>" AT 1 SKIP.
     PUT "<R40><C1>" AT 1 SKIP.
     IF v-dock-note NE "" THEN PUT v-dock-note AT 1 SKIP.
@@ -601,9 +584,7 @@ END.
      oe-bolh.printed = YES.
 
 END. /* for each oe-bolh */
-
-IF VALID-HANDLE(hNotesProc) THEN  
-  DELETE OBJECT hNotesProc.     
+     
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */
 
 PROCEDURE get-pallets-num:
@@ -695,7 +676,7 @@ PUT "<R55><C48><FROM><R55><C80><LINE><||3>" SKIP
   PUT 
     "<C1><R63.5>" lv-prt-date "  " lv-prt-time "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP.
-      
+    PUT cAddress FORMAT "x(115)" SKIP.  
     PUT "<FGCOLOR=RED><BGCOLOR=RED><LINECOLOR=RED>"
       /*"<=9><C+10><FROM><R+4><C+20><RECT> " */
       "<R56><C5><#15><FROM><R+4><C+25><RECT>" 

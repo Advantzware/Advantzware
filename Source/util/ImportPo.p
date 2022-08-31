@@ -13,6 +13,7 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+{sys/inc/var.i}
 {util\ttImport.i SHARED}
 
 DEFINE TEMP-TABLE ttImportPo
@@ -39,7 +40,7 @@ DEFINE TEMP-TABLE ttImportPo
     FIELD line-tax                AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Optional - Yes or No(Blank No)"
     FIELD terms                   AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Payment Terms" HELP "Required - Size:5"
     FIELD t-cost                  AS DECIMAL FORMAT "->,>>>,>>9.99<<" COLUMN-LABEL "Total Cost" HELP "Optional - Decimal" 
-    FIELD job-no                  AS CHARACTER FORMAT "X(6)" COLUMN-LABEL "Job #" HELP "Optional - Size:6"
+    FIELD job-no                  AS CHARACTER FORMAT "X(9)" COLUMN-LABEL "Job #" HELP "Optional - SizeUpto:9"
     FIELD item-type               AS CHARACTER FORMAT "x(2)" COLUMN-LABEL "Item Type" HELP "Required - RM or FG"
     FIELD i-no                    AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Item #" HELP "Optional - Size:15"
     FIELD i-name                  AS CHARACTER   FORMAT "x(30)" COLUMN-LABEL "Item Name" HELP "Optional - Size:30"
@@ -117,6 +118,8 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE BUFFER bf-po-ord FOR po-ord.
     DEFINE BUFFER bf-po-ordl FOR po-ordl.       
     DEFINE BUFFER bf-ttImportPo FOR ttImportPo.
+    
+    ASSIGN ipbf-ttImportPo.job-no = SUBSTRING(ipbf-ttImportPo.job-no,1,iJobLen) NO-ERROR.
     
     RUN po\POProcs.p PERSISTENT SET ghPOProcs.
     

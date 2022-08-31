@@ -10,9 +10,11 @@
     Created     : Tue Jun 07 07:33:22 EDT 2019
     Notes       :
   ----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */  
     {api/ttArgs.i}
     {api/CommonAPIProcs.i}
     {system/FormulaProcs.i}
+    {sys/inc/var.i}
     
     DEFINE INPUT        PARAMETER TABLE                   FOR ttArgs.
     DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
@@ -704,7 +706,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cPalletLength               = "0.00"
                 cUnitPallet                 = "0"
                 cPurchaseUnit               = STRING(po-ordl.pr-qty-uom)
-                cJobID                      = TRIM(STRING(po-ordl.job-no, "X(6)"))
+                cJobID                      = TRIM(STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")"))
                 cJobID2                     = STRING(po-ordl.job-no2, ">9")
                 cJobConcat                  = IF po-ordl.job-no EQ "" THEN
                                                   ""
@@ -713,7 +715,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cJobConcatHRMS              = IF po-ordl.job-no EQ "" THEN
                                                   ""
                                               ELSE
-                                                  STRING(po-ordl.job-no, "X(6)") + "-" + STRING(po-ordl.job-no2, "99")
+                                                  STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")") + "-" + STRING(po-ordl.job-no2, "99")
                 cJobConcatSmurfit           = "" 
                 cJobConcat1                 = TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2, "99")                                         
                 cJobIDFormNo                = STRING(po-ordl.s-num)
@@ -726,7 +728,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"99999999")
                                               + "-" + STRING(po-ordl.LINE,"99") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
-                                              TRIM(STRING(po-ordl.job-no, "X(6)")) + "-" + STRING(po-ordl.job-no2,"99") 
+                                              DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",po-ordl.job-no,po-ordl.job-no2) 
                                               + "-" + STRING(po-ordl.s-num,"99")
                 cGLAccountNumber            = po-ordl.actnum                                
                 cScoreSizeDecimal           = ""
@@ -1035,7 +1037,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                     ).
            
                 cJobConcatSmurfit = (IF SUBSTRING(cOperationID,1,1) NE "" THEN SUBSTRING(cOperationID,1,1) + "-" ELSE "") +
-                                     TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2,"99").
+                                     DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",po-ordl.job-no,po-ordl.job-no2).
             END.
             /* Fetch purchase order notes from notes table */    
             FOR EACH notes NO-LOCK
@@ -1048,10 +1050,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cPoNotesKiwi1 = TRIM(po-ordl.dscr[1]) + " " + TRIM(po-ordl.dscr[2]) + " " + cPoNotesKiwi
                 cPoLineNotes  = REPLACE(cPoLineNotes, CHR(10)," ")
                 cPoLineNotes  = REPLACE(cPoLineNotes, CHR(13)," ")
-                cPoNotesHRMS  = IF cPoNotesHRMS EQ "" THEN
-                                    cPoLineNotes
-                                ELSE
-                                    cPoNotesHRMS + " " + cPoLineNotes
+                cPoNotesHRMS  = cPoNotes + " " + cPoLineNotes
                 .      
             cPoLineNotes1 = cPoLineNotes.
             IF cPoLineNotes EQ "" THEN
@@ -1268,7 +1267,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
             /* Fetch Adders for HRMS */
             FIND FIRST job NO-LOCK 
                  WHERE job.company EQ po-ordl.company
-                   AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(po-ordl.job-no))) + TRIM(po-ordl.job-no) 
+                   AND trim(job.job-no)  EQ TRIM(po-ordl.job-no) 
                    AND job.job-no2 EQ po-ordl.job-no2
                  NO-ERROR.            
             IF AVAILABLE job THEN DO:
@@ -1528,9 +1527,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cScoreSizeDecimalCorrTrim   = REPLACE(cScoreSizeDecimalCorrTrim,".","")
                 .
 
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-len, OUTPUT dItemScoreLength16ths).
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-wid, OUTPUT dItemScoreWidth16ths).
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-dep, OUTPUT dItemScoreDepth16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-len ELSE 0, OUTPUT dItemScoreLength16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-wid ELSE 0, OUTPUT dItemScoreWidth16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-dep ELSE 0, OUTPUT dItemScoreDepth16ths).
             
             IF cFormattedScoresLiberty EQ "" THEN DO:
                 IF AVAILABLE item THEN DO:

@@ -758,52 +758,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckIssuedMaterials s-object 
-PROCEDURE pCheckIssuedMaterials :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-{methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}  
-{methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
-{methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
-    
-IF CAN-FIND(FIRST mach
-                  WHERE mach.company EQ company_code
-                    AND mach.m-code  EQ machine_code
-                    AND (mach.dept[1] EQ "PR" OR mach.dept[2] EQ "PR" )) THEN     
-FOR EACH job-mat NO-LOCK
-    WHERE job-mat.company EQ company_code
-      AND job-mat.job-no EQ job_number 
-      AND job-mat.job-no2 EQ INTEGER(job_sub) 
-      AND job-mat.frm EQ INTEGER(form_number)
-      AND (job-mat.blank-no EQ INTEGER(blank_number) OR INTEGER(blank_number) EQ 0)
-      AND job-mat.all-flg EQ NO       
-      USE-INDEX seq-idx,
-      FIRST item
-      WHERE item.company    EQ job-mat.company
-        AND item.i-no       EQ job-mat.i-no
-        AND index("1234ABPR",item.mat-type) gt 0
-      NO-LOCK:
-     
-      RUN displayMessage(
-                        INPUT "72"
-                        ). 
-      LEAVE.                  
-END.   
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
-    
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE close-job s-object 
 PROCEDURE close-job :
 /*------------------------------------------------------------------------------
@@ -820,7 +774,7 @@ PROCEDURE close-job :
     FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ ip-company
                                  AND sys-ctrl.name    EQ "CLOSEJOB" NO-ERROR.
     IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "TS" THEN 
-       MESSAGE "Do you want to close job " TRIM(ip-job_number) + "-" + ip-job_sub
+       MESSAGE "Do you want to close job " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job_number, ip-job_sub)))
                      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF ll-ans THEN DO:
 
@@ -838,7 +792,7 @@ PROCEDURE close-job :
            {jc/job-clos.i}
            FIND CURRENT reftable NO-LOCK NO-ERROR.
        END.
-       MESSAGE "Job " TRIM(ip-job_number) + "-" + ip-job_sub " is closed." VIEW-AS ALERT-BOX.
+       MESSAGE "Job " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job_number, ip-job_sub))) " is closed." VIEW-AS ALERT-BOX.
        SESSION:SET-WAIT-STATE("").
     END.
     
@@ -1858,7 +1812,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN pCreateINIObjects ("HomeSmall,ResetTime,SetTime,AcceptEntry,Back").
+  RUN pCreateINIObjects ("HomeSmall,ResetTime,SetTime,AcceptEntry,Back,SharpShooterJobData").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1891,6 +1845,50 @@ PROCEDURE local-view :
     .
   {methods/run_link.i "CONTAINER" "Get_Value" "('machine_list',OUTPUT machine_list)"}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckIssuedMaterials s-object 
+PROCEDURE pCheckIssuedMaterials :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+{methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}  
+{methods/run_link.i "CONTAINER" "Get_Value" "('job_number',OUTPUT job_number)"}
+{methods/run_link.i "CONTAINER" "Get_Value" "('job_sub',OUTPUT job_sub)"}
+{methods/run_link.i "CONTAINER" "Get_Value" "('form_number',OUTPUT form_number)"}
+{methods/run_link.i "CONTAINER" "Get_Value" "('blank_number',OUTPUT blank_number)"}
+{methods/run_link.i "CONTAINER" "Get_Value" "('machine_code',OUTPUT machine_code)"}
+    
+IF CAN-FIND(FIRST mach
+                  WHERE mach.company EQ company_code
+                    AND mach.m-code  EQ machine_code
+                    AND (mach.dept[1] EQ "PR" OR mach.dept[2] EQ "PR" )) THEN     
+FOR EACH job-mat NO-LOCK
+    WHERE job-mat.company EQ company_code
+      AND job-mat.job-no EQ job_number 
+      AND job-mat.job-no2 EQ INTEGER(job_sub) 
+      AND job-mat.frm EQ INTEGER(form_number)
+      AND (job-mat.blank-no EQ INTEGER(blank_number) OR INTEGER(blank_number) EQ 0)
+      AND job-mat.all-flg EQ NO       
+      USE-INDEX seq-idx,
+      FIRST item
+      WHERE item.company    EQ job-mat.company
+        AND item.i-no       EQ job-mat.i-no
+        AND index("1234ABPR",item.mat-type) gt 0
+      NO-LOCK:
+     
+      RUN displayMessage(
+                        INPUT "72"
+                        ). 
+      LEAVE.                  
+END.   
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2037,8 +2035,7 @@ PROCEDURE pClick :
                  
                   IF AVAIL bf-machtran THEN DO:
                      MESSAGE "Machine " + "is running for a job " +
-                             TRIM(bf-machtran.job_number) +
-                             "-" + TRIM(STRING(bf-machtran.job_sub,"99")) +  
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-machtran.job_number, bf-machtran.job_sub))) +  
                              ".   Must end data collection for the job " +
                              TRIM(bf-machtran.job_number)
                          VIEW-AS ALERT-BOX ERROR.
@@ -2126,8 +2123,7 @@ PROCEDURE pClick :
                    IF NOT v-valid THEN
                    DO:
                       MESSAGE "Machine transaction " + TRIM(bf-machtran.charge_code) +
-                              " exists for Job#: " + TRIM(bf-machtran.job_number) + "-" +
-                              TRIM(STRING(bf-machtran.job_sub,"99")) +
+                              " exists for Job#: " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-machtran.job_number, bf-machtran.job_sub))) +
                               " Form#: " + STRING(bf-machtran.form_number) +
                               " Blank#: " + STRING(bf-machtran.blank_number) +
                               " From " + STRING(bf-machtran.start_date,"99/99/99") + "@" +
@@ -2162,6 +2158,8 @@ PROCEDURE pClick :
         WHEN "Back" THEN DO:
             {methods/run_link.i "CONTAINER" "Change_Page" "(13)"}
         END.
+        WHEN "SharpShooterJobData" THEN
+        RUN sharpshooter/ssmenu.w.
     END CASE.
 
 END PROCEDURE.

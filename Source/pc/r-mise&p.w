@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -166,12 +167,12 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1 NO-UNDO.
@@ -181,15 +182,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 55 
      LABEL "Lines Per Page" 
@@ -1244,14 +1245,14 @@ PROCEDURE run-report :
 {sys/form/r-top3w.f}
 
     def var v-date like pc-misc.misc-date extent 2 format "99/99/9999" initial today no-undo.
-    def var v-job-no like job.job-no extent 2 initial ["", "999999"] no-undo.
-    def var v-job-no2 like job.job-no2 extent 2 initial [0, 99] no-undo.
+    def var v-job-no like job.job-no extent 2 initial ["", "999999999"] no-undo.
+    def var v-job-no2 like job.job-no2 extent 2 initial [0, 999] no-undo.
     def var v-value as dec format "->>,>>>,>>9.99".
 
     form pc-misc.misc-date column-label "TRANS DATE"
      pc-misc.ml column-label "MATL/LABOR"
      pc-misc.job-no column-label "JOB #" space(0) "-" space(0)
-     pc-misc.job-no2 no-label format "99"
+     pc-misc.job-no2 no-label format "999"
      pc-misc.frm column-label "F /" space(0) "/" space(0)
      pc-misc.blank-no column-label "B"
      pc-misc.i-no column-label "ITEM #"
@@ -1268,25 +1269,13 @@ PROCEDURE run-report :
       {sys/inc/ctrtext.i str-tit2 112}
 
 
-     v-job-no[1]   = fill(" ",6 - length(trim(begin_job-no))) +
-                     trim(begin_job-no) + string(int(begin_job-no2),"99")
-     v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
-                     trim(end_job-no)   + string(int(end_job-no2),"99") 
+     v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no))  
+     v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no))   
 
      v-date[1]     = begin_date
      v-date[2]     = END_date.
 
-   do x = 1 to 2:
-      v-job-no[x] = fill(" ", 6 - integer(length(trim(v-job-no[x])))) +
-                    trim(v-job-no[x]).
-  END.
-
-
-   do x = 1 to 2:
-      v-job-no[x] = fill(" ", 6 - integer(length(trim(v-job-no[x])))) +
-                    trim(v-job-no[x]).
-   end.
-
+   
         FORM HEADER SKIP(1) WITH FRAME r-top.
 
           FIND first period                   
@@ -1322,9 +1311,9 @@ PROCEDURE run-report :
                  if first-of(pc-misc.misc-date) then
                     put " " skip.
 
-                 if pc-misc.job-no < v-job-no[1] or pc-misc.job-no > v-job-no[2]
-                    or pc-misc.job-no2 < v-job-no2[1] or
-                   pc-misc.job-no2 > v-job-no2[2]
+                 if STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-misc.job-no))  < v-job-no[1] or STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-misc.job-no)) > v-job-no[2]
+                    or pc-misc.job-no2 < INT(begin_job-no2) or
+                   pc-misc.job-no2 > INT(end_job-no2)
                    then next.
 
                  display pc-misc.misc-date

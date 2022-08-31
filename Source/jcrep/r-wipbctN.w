@@ -59,7 +59,7 @@ ASSIGN cTextListToSelect = "CAT,CUSTOMER,FG ITEM #,CUSTOMER PART #,JOB #,"
               + "ACT LABOR,ACT MAT'L,MSF,RCPT QTY,ORDER QTY"
        cFieldListToSelect = "cat,cust,fgitem,cust-part,job," +
                             "act-lab,act-mat,msf,rcpt-qty,ord-qty"
-       cFieldLength = "5,8,15,15,9," + "17,17,9,14,14"
+       cFieldLength = "5,8,15,15,13," + "17,17,9,14,14"
        cFieldType = "c,c,c,c,c," + "i,i,i,i,i" 
     .
 
@@ -146,37 +146,37 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_cat AS CHARACTER FORMAT "X(5)" 
      LABEL "Beginning Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE clsd_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "As of" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE end_cat AS CHARACTER FORMAT "X(5)" INITIAL "zzzzz" 
      LABEL "Ending Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 20.4 BY 1.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\r-wipbct.csv" 
      LABEL "Name" 
@@ -189,7 +189,7 @@ DEFINE VARIABLE lbl_mch-ind AS CHARACTER FORMAT "X(256)":U INITIAL "Machine Indu
 
 DEFINE VARIABLE lbl_mch-rate AS CHARACTER FORMAT "X(256)":U INITIAL "Machine Rate?" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY .95 NO-UNDO.
+     SIZE 18.4 BY .95 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -292,17 +292,17 @@ DEFINE FRAME FRAME-A
      rd_mch-ind AT ROW 5.76 COL 39 NO-LABEL
      lbl_mch-rate AT ROW 6.71 COL 20 COLON-ALIGNED NO-LABEL
      rd_mch-rate AT ROW 6.71 COL 39 NO-LABEL
-     begin_cat AT ROW 8.62 COL 28 COLON-ALIGNED HELP
+     begin_cat AT ROW 8.62 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Category"
-     end_cat AT ROW 8.62 COL 65 COLON-ALIGNED HELP
+     end_cat AT ROW 8.62 COL 67 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_job-no AT ROW 9.57 COL 28 COLON-ALIGNED HELP
+     begin_job-no AT ROW 9.57 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 9.57 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 9.57 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 9.57 COL 65 COLON-ALIGNED HELP
+     end_job-no AT ROW 9.57 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 9.57 COL 77 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 9.57 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      sl_avail AT ROW 11.95 COL 4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 11.95 COL 40.6 HELP
@@ -1367,10 +1367,8 @@ assign
   v-d-lab   = rd_mch-rate EQ "Direct"
   v-fcat    = begin_cat
   v-tcat    = END_cat
-  v-fjob    = fill(" ",6 - length(trim(begin_job-no))) +
-               trim(begin_job-no) + string(int(begin_job-no2),"99")
-  v-tjob    = fill(" ",6 - length(trim(end_job-no)))   +
-               trim(end_job-no)   + string(int(end_job-no2),"99")
+  v-fjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+  v-tjob    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
   str-tit3 = "FOR JOBS AS OF " + string(v-date)          + "  " +
                 "Category:" + trim(v-fcat) + " - " + trim(v-tcat)   + "  " +
                 "Job #:"    + trim(v-fjob) + " - " + trim(v-tjob)   + "  " +
@@ -1733,7 +1731,7 @@ for each tt-report,
                          WHEN "cust"   THEN cVarValue = string(tt-report.key-02,"x(8)").
                          WHEN "fgitem"   THEN cVarValue = STRING(tt-report.key-03,"x(15)").
                          WHEN "cust-part"  THEN cVarValue = STRING(tt-report.key-04,"x(15)") .
-                         WHEN "job"   THEN cVarValue = STRING(tt-report.key-05,"x(9)") .
+                         WHEN "job"   THEN cVarValue = STRING(tt-report.key-05,"x(13)") .
                          WHEN "act-lab"  THEN cVarValue = STRING(v-t-lab[1],"->,>>>,>>>,>>9.99") .
                          WHEN "act-mat"   THEN cVarValue = STRING(v-t-mat[1],"->,>>>,>>>,>>9.99") .
                          WHEN "msf"  THEN cVarValue = STRING(v-t-msf[1],"->,>>9.99") .
@@ -1808,7 +1806,7 @@ for each tt-report,
                          WHEN "cust"   THEN cVarValue = IF NOT v-detl THEN string(tt-report.key-02,"x(8)") ELSE "".
                          WHEN "fgitem"   THEN cVarValue = IF NOT v-detl THEN STRING(tt-report.key-03,"x(15)") ELSE "".
                          WHEN "cust-part"  THEN cVarValue = IF NOT v-detl THEN STRING(tt-report.key-04,"x(15)")  ELSE "".
-                         WHEN "job"   THEN cVarValue = IF NOT v-detl THEN STRING("ALL","x(9)") ELSE "" .
+                         WHEN "job"   THEN cVarValue = IF NOT v-detl THEN STRING("ALL","x(13)") ELSE "" .
                          WHEN "act-lab"  THEN cVarValue = STRING(v-t-lab[2],"->,>>>,>>>,>>9.99") .
                          WHEN "act-mat"   THEN cVarValue = STRING(v-t-mat[2],"->,>>>,>>>,>>9.99") .
                          WHEN "msf"  THEN cVarValue = STRING(v-t-msf[2],"->,>>9.99") .

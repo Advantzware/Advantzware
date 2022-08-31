@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolcard.p  11/09 GDM */
-/* N-K BOLFMT = Loylang - FORM for Carded                                    */
+/* N-K BOLFMT = Loylang - FORM for Carded                                     */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -31,7 +32,7 @@ DEFINE VARIABLE v-part-comp  AS CHARACTER FORMAT "x".
 DEFINE VARIABLE v-part-qty   AS DECIMAL.
 DEFINE VARIABLE v-ord-no     LIKE oe-boll.ord-no.
 DEFINE VARIABLE v-po-no      LIKE oe-bolh.po-no.
-DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-phone-num  AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-cntct-nam  AS CHARACTER FORMAT "x(22)" NO-UNDO.
 
@@ -76,37 +77,9 @@ DEFINE VARIABLE ls-full-img2 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-full-img3 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cLocation    AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
 DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN
-    ls-full-img1 = cRtnChar + ">" 
-    ls-full-img2 = cRtnChar + ">" 
-    ls-full-img3 = cRtnChar + ">" 
-    .
 
 DEFINE VARIABLE v-tel           AS cha       FORM "x(30)" NO-UNDO.
 DEFINE VARIABLE v-fax           AS cha       FORM "x(30)" NO-UNDO.
@@ -149,6 +122,7 @@ DEFINE VARIABLE iRelCase       AS INTEGER NO-UNDO.
 DEFINE VARIABLE iCartonsCase   AS INTEGER NO-UNDO.
 DEFINE VARIABLE dTotalWeight   AS DECIMAL NO-UNDO.
 DEFINE VARIABLE v-qty    LIKE oe-boll.qty NO-UNDO.
+DEFINE VARIABLE iPageNum    AS INT NO-UNDO.
 
 FORM w2.i-no                         FORMAT "x(15)"
     w2.job-po                       AT 17 FORMAT "x(15)"
@@ -239,7 +213,22 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     AND cust.cust-no EQ oe-bolh.cust-no
     NO-LOCK
     BREAK BY oe-bolh.bol-no:
-      
+    
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN ASSIGN cLocation = oe-boll.loc .
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN
+        ls-full-img1 = cRtnChar + ">" 
+        ls-full-img2 = cRtnChar + ">" 
+        ls-full-img3 = cRtnChar + ">" 
+        .
+    
     IF FIRST-OF(oe-bolh.bol-no) THEN 
     DO:
         FIND FIRST carrier
@@ -357,13 +346,14 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       
             v-salesman = TRIM(v-salesman).
             v-po-no = oe-boll.po-no.
-            v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+            v-job-no = IF oe-boll.job-no = "" THEN "" ELSE 
+                       TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
             IF v-salesman GT '' THEN
                 IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
                     substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
 
             v-fob = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
-            IF ipcFormName EQ "GPI2_I" THEN ASSIGN v-fob = "EXW".
+            
             LEAVE.
         END.
 
@@ -474,6 +464,18 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                     END.
             END.
         END.
+        
+        FIND FIRST po-ordl NO-LOCK
+             WHERE po-ordl.company        EQ oe-ordl.company
+               AND po-ordl.po-no          EQ oe-ordl.po-no-po
+               AND ((po-ordl.item-type    EQ YES 
+               AND TRIM(oe-ordl.job-no) NE "" 
+               AND po-ordl.job-no       EQ oe-ordl.job-no 
+               AND po-ordl.job-no2      EQ oe-ordl.job-no2)      
+               OR (po-ordl.item-type    EQ NO 
+               AND po-ordl.i-no         EQ oe-ordl.i-no))
+                   NO-ERROR.
+               
         /* end of dup loop */
         lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 27,0) .  /* 23->47 25 po detail lines */
         /*  end of getting total page per po */
@@ -518,21 +520,26 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
         v-printline = v-printline + 14.
         IF LAST-OF(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUMBER .
 
-        PAGE.
-        
+        iPageNum = PAGE-NUMBER.
         IF ipcFormName EQ "GPI2_I" THEN
         DO:
-           
-           FOR EACH tt-boll NO-LOCK
-            BREAK BY tt-boll.i-no:
-               v-printline = 0.
-               PAGE.
-                    {oe/rep/bolcardGPI2_I.i}
-               PAGE.
+           PUT "[@startPage" + TRIM(STRING(iPageNum)) + "]" FORMAT "X(50)".
+           FOR EACH tt-boll,
+               FIRST itemfg NO-LOCK
+               WHERE itemfg.company EQ tt-boll.company
+                 AND itemfg.i-no    EQ tt-boll.i-no
+               BREAK BY tt-boll.i-no:
+               IF LAST-OF(tt-boll.i-no) THEN
+               DO:
+                   v-printline = 0.
+                   PAGE.
+                        {oe/rep/bolcardGPI2_I.i}
+               END.
            END.
+           PUT "[@endPage" + TRIM(STRING(iPageNum)) + "]" FORMAT "X(50)".
            
         END.
-        
+        PAGE.
         v-printline = 0.
 
         FOR EACH report WHERE report.term-id EQ v-term-id,

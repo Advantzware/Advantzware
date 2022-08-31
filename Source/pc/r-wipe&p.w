@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -122,15 +123,15 @@ DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine#" 
@@ -147,15 +148,15 @@ DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine#" 
@@ -1268,8 +1269,8 @@ PROCEDURE run-report :
 {sys/form/r-topw.f}
 
 def var v-date like pc-prdd.op-date extent 2 format "99/99/9999" init TODAY no-undo.
-def var v-job-no like job.job-no extent 2 init ["","zzzzzz"] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 format "99" init [0,99] no-undo.
+def var v-job-no like job.job-no extent 2 init ["","zzzzzzzzz"] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 format "999" init [0,999] no-undo.
 def var v-m-code like mach.m-code extent 2 init ["","zzzzzz"] no-undo.
 def var v-shift like pc-prdd.shift extent 2 no-undo.
 
@@ -1311,7 +1312,7 @@ form
     space(0)
     pc-prdd.shift column-label "SH" format ">>"
     pc-prdd.job-no column-label "  JOB #" space(0) "-" space(0)
-    pc-prdd.job-no2 no-label format "99"
+    pc-prdd.job-no2 no-label format "999"
     pc-prdd.frm column-label " S" space(0) "/" space(0)
     pc-prdd.blank-no column-label "/B"
     job-hdr.i-no column-label "ITEM #"
@@ -1334,10 +1335,8 @@ assign
  v-m-code[2]   = end_mach
  v-date[1]     = begin_date
  v-date[2]     = end_date
- v-job-no[1]   = fill(" ",6 - length(trim(begin_job-no))) +
-                 trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-job-no[2]   = fill(" ",6 - length(trim(end_job-no)))   +
-                 trim(end_job-no)   + string(int(end_job-no2),"99")
+ v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+ v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
  v-shift[1]    = begin_shift
  v-shift[2]    = end_shift
  v-toth        = tb_tot-hrs
@@ -1358,15 +1357,15 @@ for each pc-prdd
       and pc-prdd.op-date ge v-date[1]
       and pc-prdd.op-date le v-date[2]
       and pc-prdd.shift   ge v-shift[1]
-      and pc-prdd.shift   le v-shift[2]
-      and pc-prdd.job-no  ge substr(v-job-no[1],1,6)
-      and pc-prdd.job-no  le substr(v-job-no[2],1,6)
-      and fill(" ",6 - length(trim(pc-prdd.job-no))) +
-          trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"99")
+      and pc-prdd.shift   le v-shift[2]       
+      and FILL(" ", iJobLen - length(trim(pc-prdd.job-no))) +
+          trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
                           ge v-job-no[1]
-      and fill(" ",6 - length(trim(pc-prdd.job-no))) +
-          trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"99")
+      and FILL(" ", iJobLen - length(trim(pc-prdd.job-no))) +
+          trim(pc-prdd.job-no) + string(int(pc-prdd.job-no2),"999")
                           le v-job-no[2]
+      AND pc-prdd.job-no2 GE int(begin_job-no2)
+      AND pc-prdd.job-no2 LE int(end_job-no2)                    
       and ((pc-prdd.stopp - pc-prdd.start
                           ne 0) or
            (pc-prdd.qty   ne 0) or

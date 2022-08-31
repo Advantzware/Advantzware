@@ -34,6 +34,7 @@ def input parameter ip-cur-val as cha no-undo.
 DEFINE INPUT PARAMETER ip-vendor AS CHARACTER NO-UNDO .
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-recid as recid no-undo.
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 def var lv-type-dscr as cha no-undo.

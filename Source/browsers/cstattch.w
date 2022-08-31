@@ -9,6 +9,7 @@
 
   File:  browsers/cstattch.w
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -162,7 +163,7 @@ DEFINE BROWSE Browser-Table
       attach.file-type FORMAT "X(8)":U
       attach.creat-date FORMAT "99/99/9999":U
       attach.attach-file FORMAT "x(50)":U
-      attach.est-no COLUMN-LABEL "Order #" FORMAT "x(6)":U WIDTH 10
+      attach.est-no COLUMN-LABEL "Order #" FORMAT "x(8)":U WIDTH 12
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.67
@@ -272,7 +273,7 @@ ASSIGN
      _FldNameList[2]   = asi.attach.creat-date
      _FldNameList[3]   = asi.attach.attach-file
      _FldNameList[4]   > asi.attach.est-no
-"attach.est-no" "Order #" "x(6)" "character" ? ? ? ? ? ? no "" no no "10" no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"attach.est-no" "Order #" "x(8)" "character" ? ? ? ? ? ? no "" no no "12" no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -459,6 +460,49 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item B-table-Win 
+PROCEDURE add-item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lv-rec_key   AS CHARACTER    NO-UNDO.
+   DEFINE VARIABLE lv-ord-no    AS CHARACTER    NO-UNDO.   
+   
+   DO TRANSACTION:
+   {sys/inc/pushpin.i}
+   END.
+   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+   RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key,OUTPUT lv-ord-no).
+
+   FIND FIRST oe-ord WHERE oe-ord.company = g_company
+       AND oe-ord.ord-no = int(lv-ord-no) NO-LOCK NO-ERROR.
+   IF AVAIL oe-ord THEN
+   FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE 
+        sys-ctrl-shipto.cust-vend-no = oe-ord.cust-no NO-LOCK NO-ERROR.
+   
+    IF AVAIL sys-ctrl-shipto THEN do:
+        pushpin-char = sys-ctrl-shipto.char-fld .
+    END.
+   
+   /* get pushpin-char - nk1 */
+   
+   RUN system\quickAttachProcs.p("oe-ord",       /* ipcContext */
+                                 g_company,      /* company  */
+                                 lv-rec_key,     /* rec-key */
+                                 lv-ord-no,      /* ipcContextValue */
+                                 pushpin-char    /* Directory */
+                                 ).    
+        
+   RUN dispatch ("open-query").
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

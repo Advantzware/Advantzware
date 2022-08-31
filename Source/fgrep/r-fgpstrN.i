@@ -353,14 +353,15 @@ FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
             DO:                 
                 cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                 IF ENTRY(i,cSelectedList) = "Job#" THEN
-                    cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".                  
+                    cTmpField = IF cTmpField <> "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rcpth.job-no2))) ELSE "".                  
                      
                 IF cFieldName <> "fg-rdtld.loc" THEN
                     cDisplay = cDisplay + cTmpField + 
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                         .
                 IF ENTRY(i,cSelectedList) = "Job#" THEN
-                    cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + (IF fg-rcpth.job-no  <> "" THEN  "-" + string(fg-rcpth.job-no2,"99") ELSE  "") + ",".
+                    cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + (IF fg-rcpth.job-no  <> "" THEN 
+                                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))) ELSE  "") + ",".
                 ELSE cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
             END.
             ELSE 
@@ -478,8 +479,8 @@ FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
            ELSE "")                                                '",'.
     ELSE            
         PUT STREAM excel UNFORMATTED
-           '"' (IF fg-rcpth.job-no <> "" THEN fg-rcpth.job-no + "-" + string(fg-rcpth.job-no2,"99")
-           ELSE "")                                                '",'.
+           '"' (IF fg-rcpth.job-no <> "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2)))
+           ELSE "") FORM "X(13)"                                   '",'.
         
     PUT STREAM excel UNFORMATTED
       '"' STRING(v-tran-type,"X(1)")                               '",'

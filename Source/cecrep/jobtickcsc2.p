@@ -2,7 +2,7 @@
 /*  factory ticket                                                            */
 /* -------------------------------------------------------------------------- */
 /*  YSK 06/08/01  change local var v-out1-id, v-out2-id to shared var for despr~nt1.p  */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -667,7 +667,7 @@ do v-local-loop = 1 to v-local-copies:
                     v-under-run = trim(string(cust.under-pct,">>9.99%")) .
 
            PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)
-               "Job #: " AT 3 string(v-job-prt,"99") "<C25>Our Order #: " v-ord-no 
+               "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
                "<C60>Our Date: " v-ord-date SKIP
                "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
                "<=1><R+6><C2><From><R+5><C78><RECT><||3>" SKIP

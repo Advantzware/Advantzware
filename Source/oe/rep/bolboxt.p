@@ -1,5 +1,6 @@
 /* ----------------------------------------------- oe/rep/bolboxt.p 12/99 FWK */
-/*  BOL Format for Boxtech                                                      */
+/*  BOL Format for Boxtech                                                    */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -156,10 +157,10 @@ for each report   where report.term-id eq v-term-id,
              skip(4)
              "Ord Bal     Qty Ship Cs Pcs/Cs      "
              "P.O. No. / Item / Description  "
-             "Order# P/C  Wt." skip
+             "Order#   P/C  Wt." skip
              "--------- ---------- -- ------"
              "-------------------------------------"
-             "------ --- ----" skip
+             "-------- --- ----" skip
           with frame hd-top-comp no-box no-labels page-top stream-io width 90.
       view frame hd-top-comp.
     end.

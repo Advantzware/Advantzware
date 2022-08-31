@@ -100,62 +100,62 @@ DEFINE BUTTON btn-ok
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_procat AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_rm-no AS CHARACTER FORMAT "X(10)":U 
      LABEL "Beginning Item#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_whs AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Warehouse" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_procat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Category" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_rm-no AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz" 
      LABEL "Ending Item#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_whs AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Warehouse" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-trh.csv" 
      LABEL "If Yes, File Name" 
@@ -263,29 +263,29 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_rm-no AT ROW 2.19 COL 28 COLON-ALIGNED HELP
+     begin_rm-no AT ROW 2.19 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
      end_rm-no AT ROW 2.19 COL 69 COLON-ALIGNED HELP
           "Enter Ending Item number"
-     begin_procat AT ROW 3.14 COL 28 COLON-ALIGNED HELP
+     begin_procat AT ROW 3.14 COL 26 COLON-ALIGNED HELP
           "Enter Begining Category"
      end_procat AT ROW 3.14 COL 69 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_date AT ROW 4.1 COL 28 COLON-ALIGNED HELP
+     begin_date AT ROW 4.1 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Date"
      end_date AT ROW 4.1 COL 69 COLON-ALIGNED HELP
           "Enter ending Date"
-     begin_whs AT ROW 5.05 COL 28 COLON-ALIGNED HELP
+     begin_whs AT ROW 5.05 COL 26 COLON-ALIGNED HELP
           "Enter Beginng Warehouse"
      end_whs AT ROW 5.05 COL 69 COLON-ALIGNED HELP
           "Enter Endng Warehouse"
-     begin_job-no AT ROW 6 COL 28 COLON-ALIGNED HELP
+     begin_job-no AT ROW 6 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 6 COL 40 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 6 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 6 COL 69 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 6 COL 81 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 6 COL 84 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      mat-types AT ROW 7.67 COL 15 COLON-ALIGNED
      select-mat AT ROW 7.95 COL 19 HELP
@@ -1104,14 +1104,14 @@ def var v-tdate like v-fdate                  init TODAY NO-UNDO.
 def var v-floc  like rm-rcpth.loc NO-UNDO.
 def var v-tloc  like v-floc                   initial "zzzzz" NO-UNDO.
 def var v-fjob  like job.job-no NO-UNDO.
-def var v-tjob  like v-fjob                   init "zzzzzz" NO-UNDO.
-def var v-fjob2 like job.job-no2 format "99" NO-UNDO.
-def var v-tjob2 like v-fjob2                  init 99 NO-UNDO.
+def var v-tjob  like v-fjob                   init "zzzzzzzzz" NO-UNDO.
+def var v-fjob2 like job.job-no2 format "999" NO-UNDO.
+def var v-tjob2 like v-fjob2                  init 999 NO-UNDO.
 def var v-mtype as   char format "x(47)" NO-UNDO.
 def var v-code  like rm-rcpth.rita-code NO-UNDO.
 
 def var v-value as dec format "->>,>>>,>>9.99" NO-UNDO.
-def var v-job-no as char format "x(9)" NO-UNDO.
+def var v-job-no as char format "x(13)" NO-UNDO.
 def var v-qty like rm-rdtlh.qty extent 3 NO-UNDO.
 def var v-val like v-value extent 3 NO-UNDO.
 def var v-first as log extent 3 NO-UNDO.
@@ -1147,7 +1147,7 @@ form rm-rcpth.trans-date format "99/99/99" label "DATE"
      space(0)
      v-value label "VALUE"
      skip
-    with frame itemx no-box down stream-io width 150.
+    with frame itemx no-box down stream-io width 155.
 
 form rm-rcpth.trans-date format "99/99/99" label "DATE"
      rm-rcpth.i-no label "ITEM"
@@ -1165,7 +1165,7 @@ form rm-rcpth.trans-date format "99/99/99" label "DATE"
      space(0)
      v-value label "VALUE"
      skip
-    with frame itemy no-box down stream-io width 150.
+    with frame itemy no-box down stream-io width 155.
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 assign
@@ -1185,10 +1185,10 @@ assign
            (if tb_transfers   then "T" else "") +
            (if tb_adjustments then "A" else "") +
            (if tb_counts      then "C" else "")
- v-fjob  = fill(" ",6 - length(trim(begin_job-no))) +
-           trim(begin_job-no) + string(int(begin_job-no2),"99")
- v-tjob  = fill(" ",6 - length(trim(end_job-no)))   +
-           trim(end_job-no)   + string(int(end_job-no2),"99").
+ v-fjob  = FILL(" ", iJobLen - length(trim(begin_job-no))) +
+           trim(begin_job-no) + string(int(begin_job-no2),"999")
+ v-tjob  = FILL(" ", iJobLen - length(trim(end_job-no)))   +
+           trim(end_job-no)   + string(int(end_job-no2),"999").
 
 do with frame {&frame-name}:          
   do i = 1 to select-mat:num-items:
@@ -1267,8 +1267,8 @@ SESSION:SET-WAIT-STATE ("general").
 
    ASSIGN
       v-type = caps(v-type)
-      v-fjob1 = substr(v-fjob,1,6)
-      v-tjob1 = substr(v-tjob,1,6)
+      v-fjob1 = substr(v-fjob,1,iJobLen)
+      v-tjob1 = substr(v-tjob,1,iJobLen)
       v-job1sub = INT(begin_job-no2).
 
    IF begin_job-no EQ end_job-no AND
@@ -1307,11 +1307,11 @@ SESSION:SET-WAIT-STATE ("general").
       FOR each rm-rdtlh WHERE
           rm-rdtlh.company EQ cocode AND
           rm-rdtlh.job-no  EQ v-fjob1 AND 
-          fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+          FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                                  ge v-fjob AND
-          fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+          FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                                  le v-tjob AND
           index(v-type,rm-rdtlh.rita-code) gt 0 AND
           rm-rdtlh.loc       ge v-floc AND
@@ -1354,11 +1354,11 @@ SESSION:SET-WAIT-STATE ("general").
           and rm-rdtlh.loc       le v-tloc
           and rm-rdtlh.job-no    ge v-fjob1 
           and rm-rdtlh.job-no    le v-tjob1
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                                  ge v-fjob
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                                  le v-tjob
         no-lock,
         first item
@@ -1392,11 +1392,11 @@ SESSION:SET-WAIT-STATE ("general").
           and rm-rdtlh.loc       le v-tloc
           and rm-rdtlh.job-no    ge v-fjob1 
           and rm-rdtlh.job-no    le v-tjob1
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                                  ge v-fjob
-          and fill(" ",6 - length(trim(rm-rdtlh.job-no))) +
-              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"99")
+          and FILL(" ", iJobLen - length(trim(rm-rdtlh.job-no))) +
+              trim(rm-rdtlh.job-no) + string(rm-rdtlh.job-no2,"999")
                                  le v-tjob
         no-lock,
         first item

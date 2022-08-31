@@ -158,10 +158,10 @@ DEFINE VARIABLE fi_part-dscr2 AS CHARACTER FORMAT "x(30)"
      SIZE 44 BY 1
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "x(15)" 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "x(30)" 
      LABEL "Set Cust Part#" 
      VIEW-AS FILL-IN 
-     SIZE 32 BY 1
+     SIZE 43.8 BY 1
      FONT 6 NO-UNDO.
 
 DEFINE VARIABLE fi_procat AS CHARACTER FORMAT "x(5)" 
@@ -229,8 +229,8 @@ DEFINE VARIABLE scr-style-2 AS CHARACTER FORMAT "X(6)":U
 DEFINE VARIABLE rd_alloc AS LOGICAL 
      VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
-          "Assembled", NO,
-"Unassembled", YES,
+          "Assembled", no,
+"Unassembled", yes,
 "Assembled w/Part Receipts", ?
      SIZE 41 BY 2.62 NO-UNDO.
 
@@ -277,14 +277,14 @@ DEFINE FRAME D-Dialog
      Btn_SAVE AT ROW 16.14 COL 42.2
      "Form(s)" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 12.95 COL 28.8 WIDGET-ID 4
+     "Interior Cell" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 5.67 COL 63.6 WIDGET-ID 10
      "End Cell" VIEW-AS TEXT
-          SIZE 10.2 BY .62 AT ROW 5.67 COL 46.6 WIDGET-ID 8
+          SIZE 11.2 BY .62 AT ROW 5.67 COL 80.8 WIDGET-ID 34
      "Slot" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 5.67 COL 36.6 WIDGET-ID 6
      "End Cell" VIEW-AS TEXT
-          SIZE 11.2 BY .62 AT ROW 5.67 COL 80.8 WIDGET-ID 34
-     "Interior Cell" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 5.67 COL 63.6 WIDGET-ID 10
+          SIZE 10.2 BY .62 AT ROW 5.67 COL 46.6 WIDGET-ID 8
      RECT-5 AT ROW 1 COL 1
      SPACE(0.39) SKIP(2.13)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -671,6 +671,27 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_alloc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_alloc D-Dialog
+ON VALUE-CHANGED OF rd_alloc IN FRAME D-Dialog
+DO:
+
+    ASSIGN rd_alloc.
+    IF rd_alloc THEN
+      ASSIGN
+        tb_unitize:SCREEN-VALUE = "NO"
+        tb_unitize = NO.
+    ELSE
+       ASSIGN
+        tb_unitize:SCREEN-VALUE = "YES"
+        tb_unitize = YES.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME scr-board
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL scr-board D-Dialog
 ON HELP OF scr-board IN FRAME D-Dialog /* Board */
@@ -1004,25 +1025,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME rd_alloc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_alloc D-Dialog
-ON VALUE-CHANGED OF rd_alloc IN FRAME D-Dialog                      /*Task# 01291403*/
-DO:
-
-    ASSIGN rd_alloc.
-    IF rd_alloc THEN
-      ASSIGN
-        tb_unitize:SCREEN-VALUE = "NO"
-        tb_unitize = NO.
-    ELSE
-       ASSIGN
-        tb_unitize:SCREEN-VALUE = "YES"
-        tb_unitize = YES.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
 

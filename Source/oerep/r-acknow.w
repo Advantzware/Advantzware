@@ -294,7 +294,7 @@ DEFINE VARIABLE RS_whs-mths    AS CHARACTER
 
 DEFINE RECTANGLE RECT-6
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 5.91.
+    SIZE 91 BY 5.62.
 
 DEFINE RECTANGLE RECT-7
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -306,7 +306,7 @@ DEFINE RECTANGLE RECT-8
 
 DEFINE RECTANGLE RECT-9
     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 5.48.
+    SIZE 91 BY 6.76.
 
 DEFINE VARIABLE sel-attch          AS CHARACTER 
     VIEW-AS SELECTION-LIST MULTIPLE NO-DRAG 
@@ -432,75 +432,75 @@ DEFINE VARIABLE TG_whs-mths        AS LOGICAL   INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    rd_ack-ordmst AT ROW 1.91 COL 34.4 NO-LABELS WIDGET-ID 38
-    begin_ord-no AT ROW 2.91 COL 26.6 COLON-ALIGNED HELP
-    "Enter Beginning Order Number"
-    end_ord-no AT ROW 2.91 COL 69.6 COLON-ALIGNED HELP
-    "Enter Ending Order Number"
-    begin_cust-no AT ROW 3.86 COL 26.6 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number"
-    end_cust-no AT ROW 3.86 COL 69.6 COLON-ALIGNED HELP
-    "Enter Ending Customer Number"
-    begin_due-date AT ROW 4.81 COL 26.6 COLON-ALIGNED
-    end_due-date AT ROW 4.81 COL 69.6 COLON-ALIGNED HELP
-    "Enter Ending Due Date"
-    begin_relnum AT ROW 5.76 COL 26.6 COLON-ALIGNED HELP
-    "Enter Beginning Release Number"
-    end_relnum AT ROW 5.76 COL 69.6 COLON-ALIGNED HELP
-    "Enter Ending Release Number"
-    tb_reprint AT ROW 8.19 COL 7
-    TG_cons_form AT ROW 8.19 COL 63.2 WIDGET-ID 16
-    TG_whs-mths AT ROW 9.05 COL 7 WIDGET-ID 6
-    RS_whs-mths AT ROW 9.05 COL 34.2 NO-LABELS WIDGET-ID 2
-    tb_sch-rel AT ROW 11.1 COL 3.8
-    tb_inst AT ROW 11.1 COL 37
-    tb_ship-to AT ROW 11.1 COL 66
-    tb_billnotes AT ROW 11.48 COL 37 WIDGET-ID 46
-    tb_act-rel AT ROW 12 COL 3.8
-    tb_prt-revise AT ROW 12 COL 37
-    tb_prt-bom AT ROW 12 COL 66
-    tb_itempo AT ROW 12.33 COL 3.8 WIDGET-ID 30
-    tb_untcnt AT ROW 12.33 COL 37 WIDGET-ID 30
-    TG_print-due-cd AT ROW 12.43 COL 3.8 WIDGET-ID 34
-    tb_terms AT ROW 12.86 COL 3.8 WIDGET-ID 20
-    TG_print-pen-notes AT ROW 12.91 COL 37 WIDGET-ID 22
-    tb_print-component AT ROW 12.91 COL 66 WIDGET-ID 28
-    tb_hide_sell AT ROW 13.81 COL 3.8 WIDGET-ID 32
-    tb_itm-tot AT ROW 13.81 COL 37 WIDGET-ID 44
-    tb_shpnot AT ROW 14.71 COL 3.8 WIDGET-ID 42
-    spec-code AT ROW 14.86 COL 13 COLON-ALIGNED WIDGET-ID 24
-    lv-termFile AT ROW 14.86 COL 41.6 COLON-ALIGNED WIDGET-ID 18
-    dept-code AT ROW 14.86 COL 60 COLON-ALIGNED WIDGET-ID 26
-    lv-font-no AT ROW 16.71 COL 38 COLON-ALIGNED
-    lv-ornt AT ROW 16.71 COL 47 NO-LABELS
-    lines-per-page AT ROW 16.71 COL 87 COLON-ALIGNED
-    rd-dest AT ROW 16.86 COL 4.6 NO-LABELS
-    lv-font-name AT ROW 17.86 COL 28.6 COLON-ALIGNED NO-LABELS
-    sel-attch AT ROW 18.95 COL 61.4 NO-LABELS WIDGET-ID 14
-    TG_eml-push-att AT ROW 19.05 COL 28.6 WIDGET-ID 48
-    TG_preview AT ROW 20.05 COL 28.6 WIDGET-ID 36
-    run_format AT ROW 21.05 COL 65 COLON-ALIGNED WIDGET-ID 12
-    td-show-parm AT ROW 21.1 COL 28.6
-    tbAutoClose AT ROW 22.48 COL 28.6 WIDGET-ID 64
-    btn-ok AT ROW 23.43 COL 28.4
-    btn-cancel AT ROW 23.43 COL 50.4
-    " Print Options" VIEW-AS TEXT
-    SIZE 13 BY .62 AT ROW 10.24 COL 4 WIDGET-ID 12
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.05 COL 4
-    " Output Destination" VIEW-AS TEXT
-    SIZE 19 BY .62 AT ROW 16.14 COL 4
-    " Report Type" VIEW-AS TEXT
-    SIZE 13 BY .62 AT ROW 7.19 COL 4 WIDGET-ID 14
-    RECT-6 AT ROW 16.52 COL 3
-    RECT-8 AT ROW 7.62 COL 3 WIDGET-ID 8
-    RECT-9 AT ROW 10.67 COL 3 WIDGET-ID 10
-    RECT-7 AT ROW 1.52 COL 3 WIDGET-ID 50
+     rd_ack-ordmst AT ROW 1.91 COL 34.4 NO-LABEL WIDGET-ID 38
+     begin_ord-no AT ROW 2.91 COL 26.6 COLON-ALIGNED HELP
+          "Enter Beginning Order Number"
+     end_ord-no AT ROW 2.91 COL 69.6 COLON-ALIGNED HELP
+          "Enter Ending Order Number"
+     begin_cust-no AT ROW 3.86 COL 26.6 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number"
+     end_cust-no AT ROW 3.86 COL 69.6 COLON-ALIGNED HELP
+          "Enter Ending Customer Number"
+     begin_due-date AT ROW 4.81 COL 26.6 COLON-ALIGNED
+     end_due-date AT ROW 4.81 COL 69.6 COLON-ALIGNED HELP
+          "Enter Ending Due Date"
+     begin_relnum AT ROW 5.76 COL 26.6 COLON-ALIGNED HELP
+          "Enter Beginning Release Number"
+     end_relnum AT ROW 5.76 COL 69.6 COLON-ALIGNED HELP
+          "Enter Ending Release Number"
+     tb_reprint AT ROW 8.19 COL 7
+     TG_cons_form AT ROW 8.19 COL 63.2 WIDGET-ID 16
+     TG_whs-mths AT ROW 9.05 COL 7 WIDGET-ID 6
+     RS_whs-mths AT ROW 9.05 COL 34.2 NO-LABEL WIDGET-ID 2
+     tb_sch-rel AT ROW 10.95 COL 3.8
+     tb_inst AT ROW 10.95 COL 37
+     tb_ship-to AT ROW 10.95 COL 66
+     tb_act-rel AT ROW 11.71 COL 3.8
+     tb_billnotes AT ROW 11.71 COL 37 WIDGET-ID 46
+     tb_prt-bom AT ROW 11.71 COL 66
+     tb_itempo AT ROW 12.43 COL 3.8 WIDGET-ID 30
+     tb_prt-revise AT ROW 12.48 COL 37
+     tb_print-component AT ROW 12.48 COL 66 WIDGET-ID 28
+     TG_print-due-cd AT ROW 13.14 COL 3.8 WIDGET-ID 34
+     tb_untcnt AT ROW 13.24 COL 37 WIDGET-ID 30
+     tb_terms AT ROW 13.86 COL 3.8 WIDGET-ID 20
+     TG_print-pen-notes AT ROW 14 COL 37 WIDGET-ID 22
+     tb_hide_sell AT ROW 14.57 COL 3.8 WIDGET-ID 32
+     tb_itm-tot AT ROW 14.76 COL 37 WIDGET-ID 44
+     tb_shpnot AT ROW 15.29 COL 3.8 WIDGET-ID 42
+     dept-code AT ROW 16.1 COL 60 COLON-ALIGNED WIDGET-ID 26
+     spec-code AT ROW 16.19 COL 13 COLON-ALIGNED WIDGET-ID 24
+     lv-termFile AT ROW 16.19 COL 41.6 COLON-ALIGNED WIDGET-ID 18
+     lv-font-no AT ROW 17.86 COL 38 COLON-ALIGNED
+     lv-ornt AT ROW 17.86 COL 47 NO-LABEL
+     lines-per-page AT ROW 17.86 COL 87 COLON-ALIGNED
+     rd-dest AT ROW 18.48 COL 4.6 NO-LABEL
+     lv-font-name AT ROW 18.91 COL 28.6 COLON-ALIGNED NO-LABEL
+     sel-attch AT ROW 20 COL 61.4 NO-LABEL WIDGET-ID 14
+     TG_eml-push-att AT ROW 20.1 COL 28.6 WIDGET-ID 48
+     TG_preview AT ROW 21.1 COL 28.6 WIDGET-ID 36
+     run_format AT ROW 22.1 COL 65 COLON-ALIGNED WIDGET-ID 12
+     td-show-parm AT ROW 22.14 COL 28.6
+     tbAutoClose AT ROW 23.52 COL 28.6 WIDGET-ID 64
+     btn-ok AT ROW 24.48 COL 28.4
+     btn-cancel AT ROW 24.48 COL 50.4
+     " Print Options" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 10.24 COL 4 WIDGET-ID 12
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.05 COL 4
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 17.43 COL 4
+     " Report Type" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 7.19 COL 4 WIDGET-ID 14
+     RECT-6 AT ROW 17.76 COL 3
+     RECT-8 AT ROW 7.62 COL 3 WIDGET-ID 8
+     RECT-9 AT ROW 10.67 COL 3 WIDGET-ID 10
+     RECT-7 AT ROW 1.52 COL 3 WIDGET-ID 50
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 94.4 BY 24.71
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 94.4 BY 25.19
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -517,24 +517,24 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Print Order Acknowledgements"
-        HEIGHT             = 23.95
-        WIDTH              = 94.6
-        MAX-HEIGHT         = 46.57
-        MAX-WIDTH          = 280
-        VIRTUAL-HEIGHT     = 46.57
-        VIRTUAL-WIDTH      = 280
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Print Order Acknowledgements"
+         HEIGHT             = 25.19
+         WIDTH              = 94.6
+         MAX-HEIGHT         = 46.57
+         MAX-WIDTH          = 280
+         VIRTUAL-HEIGHT     = 46.57
+         VIRTUAL-WIDTH      = 280
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -1259,7 +1259,7 @@ ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
                     tb_prt-bom:SENSITIVE                           = NO
                     tb_prt-bom:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
                 THEN ASSIGN
                     tb_itempo:HIDDEN       = NO
                     tb_hide_sell:HIDDEN    = NO
@@ -1270,14 +1270,14 @@ ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
                     tb_itempo:HIDDEN    = YES
                     tb_hide_sell:HIDDEN = YES .
 
-            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
+            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
                 THEN ASSIGN
                     tb_untcnt:HIDDEN    = NO 
                     tb_untcnt:SENSITIVE = YES.
             ELSE ASSIGN 
                     tb_untcnt:HIDDEN = YES .
 
-            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
+            IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "Portugese"
                 THEN ASSIGN
                     tb_shpnot:HIDDEN    = NO 
                     tb_shpnot:SENSITIVE = YES. 
@@ -1363,7 +1363,7 @@ ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
                         tb_ship-to:SENSITIVE    = NO
                         tb_ship-to:SCREEN-VALUE = "NO".
             END.
-            IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN 
+            IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex,Portugese") <> 0 THEN 
             DO:
                 IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
                     tb_act-rel:SCREEN-VALUE EQ "NO" THEN
@@ -1934,7 +1934,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 TG_print-pen-notes:HIDDEN    = YES
                 TG_print-pen-notes:SENSITIVE = YES.
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_itempo:HIDDEN    = NO
                 tb_hide_sell:HIDDEN = NO. 
@@ -1942,20 +1942,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 tb_itempo:HIDDEN    = YES
                 tb_hide_sell:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" THEN
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese" THEN
             ASSIGN
                 tb_itm-tot:HIDDEN = NO . 
         ELSE
             tb_itm-tot:HIDDEN = YES  . 
 
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_untcnt:HIDDEN = NO .
         ELSE ASSIGN 
                 tb_untcnt:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_shpnot:HIDDEN = NO .
         ELSE ASSIGN 
@@ -2046,7 +2046,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                     tb_ship-to:SENSITIVE    = NO
                     tb_ship-to:SCREEN-VALUE = "NO".
         END.
-        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN 
+        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex,Portugese") <> 0 THEN 
         DO:
             IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
                 tb_act-rel:SCREEN-VALUE EQ "NO" THEN
@@ -2987,6 +2987,25 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
             OUTPUT cMessage                 /* Status message */
             ) NO-ERROR.
 
+        ASSIGN 
+            cTriggerID   = IF iplReprint THEN "ReprintOrder" ELSE "PrintOrder"
+            cAPIID       = "SendOrder"
+            cPrimaryID   = STRING(ipbf-oe-ord.ord-no)
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-acknow.w for Order: " + cPrimaryID
+            . 
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  ipbf-oe-ord.company,                /* Company Code (Mandatory) */
+            INPUT  ipbf-oe-ord.loc,               /* Location Code (Mandatory) */
+            INPUT  cAPIID,                  /* API ID (Mandatory) */
+            INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+            INPUT  "oe-ord",               /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-oe-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,       /* Event's description (Optional) */
+            OUTPUT lSuccess,                /* Success/Failure flag */
+            OUTPUT cMessage                 /* Status message */
+            ) NO-ERROR.
 
         RUN Outbound_ResetContext IN hdOutboundProcs.
     END.
@@ -3220,16 +3239,12 @@ PROCEDURE run-report-bom :
       Notes:       
     ------------------------------------------------------------------------------*/
     ASSIGN   
-        fjob-no         = FILL(" ",6 - LENGTH(STRING(begin_ord-no))) +
-                          STRING(begin_ord-no)
-        tjob-no         = FILL(" ",6 - LENGTH(STRING(end_ord-no))) +
-                 STRING(end_ord-no)
+        fjob-no         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_ord-no)))
+        tjob-no         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_ord-no)))
         fjob-no2        = 0
-        tjob-no2        = 99
-        fjob-no         = FILL(" ",6 - LENGTH(TRIM(fjob-no))) + TRIM(fjob-no) +
-                 STRING(fjob-no2,"99")
-        tjob-no         = FILL(" ",6 - LENGTH(TRIM(tjob-no))) + TRIM(tjob-no) +
-                 STRING(tjob-no2,"99")
+        tjob-no2        = 999
+        fjob-no         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fjob-no, fjob-no2)))
+        tjob-no         = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tjob-no, tjob-no2)))
         s-print-revised = tb_prt-revise.
     IF v-print-fmt EQ "CENTURY"  THEN
         RUN cerep/bomcbox.p (YES) .
@@ -3303,7 +3318,7 @@ PROCEDURE RUN_format-value-changed :
                 TG_print-pen-notes:HIDDEN    = YES
                 TG_print-pen-notes:SENSITIVE = YES.
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt = "ACPI" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_itempo:HIDDEN    = NO
                 tb_hide_sell:HIDDEN = NO. 
@@ -3311,20 +3326,20 @@ PROCEDURE RUN_format-value-changed :
                 tb_itempo:HIDDEN    = YES
                 tb_hide_sell:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" THEN
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"  OR v-print-fmt EQ "Portugese" THEN
             ASSIGN
                 tb_itm-tot:HIDDEN = NO . 
         ELSE
             tb_itm-tot:HIDDEN = YES  . 
 
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "PremierCX" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_untcnt:HIDDEN = NO .
         ELSE ASSIGN 
                 tb_untcnt:HIDDEN = YES .
 
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex"
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "AckHead-Mex" OR v-print-fmt EQ "Portugese"
             THEN ASSIGN
                 tb_shpnot:HIDDEN = NO .
         ELSE ASSIGN 
@@ -3415,7 +3430,7 @@ PROCEDURE RUN_format-value-changed :
                     tb_ship-to:SENSITIVE    = NO
                     tb_ship-to:SCREEN-VALUE = "NO".
         END.
-        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex") <> 0 THEN 
+        IF LOOKUP(v-print-fmt,"PremierX,AckHead-Mex,Portugese") <> 0 THEN 
         DO:
             IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
                 tb_act-rel:SCREEN-VALUE EQ "NO" THEN
@@ -3750,6 +3765,11 @@ PROCEDURE SetOEAckForm :
                 v-program      = "oe/rep/ackhenry.p" 
                 is-xprint-form = YES 
                 lines-per-page = 65.
+        WHEN "Portugese" THEN 
+            ASSIGN 
+                v-program      = "oe/rep/ackport.p" 
+                is-xprint-form = YES 
+                lines-per-page = 65.        
         OTHERWISE 
         ASSIGN 
             v-program      = "oe/rep/ackasi.p" 

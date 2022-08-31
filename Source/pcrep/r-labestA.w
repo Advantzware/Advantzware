@@ -1037,9 +1037,9 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
-     hdr-tit format "x(132)" skip
-     hdr-tit2 format "x(132)" skip
-     hdr-tit3 format "x(132)"
+     hdr-tit format "x(135)" skip
+     hdr-tit2 format "x(135)" skip
+     hdr-tit3 format "x(135)"
 
     WITH FRAME r-top.
 
@@ -1058,10 +1058,10 @@ assign
  cls-dte     = as-of-date
  show-det    = tb_job 
 
-     hdr-tit  = "       MACH                        ACTUAL     ACTUAL  " +
+     hdr-tit  = "       MACH                            ACTUAL     ACTUAL  " +
                 " DOWNTIME   DOWNTIME      TOTAL   ESTIMATE   ESTIMATE   " +
                 "   TOTAL      LABOR"
-     hdr-tit2 = "CHARGE           JOB #    F/ B    RUN HRS     MR HRS  " +
+     hdr-tit2 = "CHARGE           JOB #        F/ B    RUN HRS     MR HRS  " +
                 " CHARGED    NOCHARGE  ACT HOURS    RUN HRS   MR HOURS  E" +
                 "ST HOURS   VARIANCE"
      hdr-tit3 = fill("-", 130).
@@ -1158,8 +1158,7 @@ display "" with frame r-top.
         display work-rep.code
                 space(2)
                 work-rep.m-code
-                work-rep.job-no space(0) "-" space(0)
-                work-rep.job-no2 format "99"
+                TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', work-rep.job-no, work-rep.job-no2))) FORMAT "x(13)"
                 work-rep.form-no space(0) "/" space(0)
                 work-rep.blank-no format "99"
                 work-rep.r-act-hrs
@@ -1176,7 +1175,7 @@ display "" with frame r-top.
                 (work-rep.r-std-hrs + work-rep.m-std-hrs))
                 format ">>>>>>9.99-"
 
-             with frame det STREAM-IO width 132 no-box no-labels down.
+             with frame det STREAM-IO width 135 no-box no-labels down.
 
         IF tb_excel THEN
            PUT STREAM excel UNFORMATTED

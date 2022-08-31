@@ -74,6 +74,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dSetItemQty AS DECIMAL NO-UNDO .
 DEFINE BUFFER bf-shipto FOR shipto .
+DEFINE BUFFER bff-shipto FOR shipto .
 DEFINE BUFFER bf-oe-rel FOR oe-rel .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
@@ -83,31 +84,10 @@ DEFINE VARIABLE v-blank        AS INTEGER NO-UNDO.
 DEF VAR lv-text        AS CHARACTER                     NO-UNDO.
 DEF VAR li             AS INTEGER                       NO-UNDO.
 DEF VAR cShiptoAddress AS CHAR FORMAT "x(80)"  EXTENT 4 NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE lMultiShipId AS LOGICAL                 NO-UNDO.
+DEFINE VARIABLE cShipID      AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "ACKHEAD" no-lock no-error.
@@ -169,7 +149,22 @@ find first company where company.company eq cocode no-lock no-error.
   
   FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       FIRST oe-ord WHERE RECID(oe-ord) EQ report.rec-id:
-
+      
+      FIND FIRST cust
+           WHERE cust.company EQ cocode
+             AND cust.cust-no EQ oe-ord.cust-no
+             NO-LOCK NO-ERROR.
+      IF AVAIL cust THEN 
+      ASSIGN cCustomerNo = cust.cust-no
+       cCustomerLocation = cust.loc .
+      
+      RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      ASSIGN ls-full-img1 = cRtnChar + ">" .
+      
       if oe-ord.sman[2] eq "" and oe-ord.sman[3] eq "" then
         v-salesman = oe-ord.sman[1].
       else
@@ -244,7 +239,55 @@ find first company where company.company eq cocode no-lock no-error.
 
       END.
       
-      IF AVAIL bf-shipto THEN
+      
+      ASSIGN
+          lMultiShipId = NO
+          cShipID      = ""
+          .
+      
+      FOR EACH oe-rel
+            WHERE oe-rel.company EQ oe-ordl.company
+              AND oe-rel.ord-no  EQ oe-ordl.ord-no
+            NO-LOCK:
+            IF cShipID EQ "" THEN ASSIGN cShipID = oe-rel.ship-id.
+            IF cShipID NE oe-rel.ship-id THEN lMultiShipId = YES.
+            
+            IF lMultiShipId THEN 
+            LEAVE.
+      END.
+      
+      FIND FIRST bf-oe-rel NO-LOCK
+            where bf-oe-rel.company EQ oe-ordl.company
+              AND bf-oe-rel.ord-no  EQ oe-ordl.ord-no
+              AND bf-oe-rel.i-no    EQ oe-ordl.i-no
+              AND bf-oe-rel.line    EQ oe-ordl.LINE NO-ERROR.
+      
+      RUN oe/custxship.p (bf-oe-rel.company,
+                        bf-oe-rel.cust-no,
+                        bf-oe-rel.ship-id,
+                        BUFFER bff-shipto).
+      
+      IF AVAIL bff-shipto AND NOT lMultiShipId THEN
+      DO:
+        ASSIGN
+            v-ship-name   = bff-shipto.ship-name
+            v-ship-add[1] = bff-shipto.ship-addr[1]
+            v-ship-add[2] = bff-shipto.ship-addr[2]
+            v-ship-add[3] = bff-shipto.ship-city + ", " +
+                            bff-shipto.ship-state + "  " + bff-shipto.ship-zip
+                            .
+          
+      END.
+      ELSE IF lMultiShipId THEN
+      DO:
+        ASSIGN
+            v-ship-name   = "MULTIPLE"
+            v-ship-add[1] = ""
+            v-ship-add[2] = ""
+            v-ship-add[3] = "".
+          
+      END.
+      ELSE IF AVAIL bf-shipto THEN
       DO:
         ASSIGN
             v-ship-name   = bf-shipto.ship-name

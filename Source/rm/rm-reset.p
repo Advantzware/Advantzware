@@ -8,7 +8,8 @@ def input parameter rec-id as recid no-undo.
 def new shared var cocode as cha no-undo.
 
 def var v-hld-qty   as   dec                                            no-undo.
-
+DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 find item where recid(item) eq rec-id.
 
@@ -34,6 +35,32 @@ FOR EACH po-ordl NO-LOCK
   
   item.q-ono = item.q-ono + v-hld-qty.
 end.
+
+FOR EACH itemfg NO-LOCK
+    WHERE itemfg.company           EQ item.company
+      AND itemfg.receiveAsRMItemID EQ item.i-no:
+    RUN fg/calcqono.p (ROWID(itemfg), OUTPUT v-hld-qty).
+    
+    IF item.cons-uom NE "EA" THEN
+        RUN Conv_QuantityFromUOMToUOM (
+            INPUT  item.company,
+            INPUT  item.i-no,
+            INPUT  "RM",
+            INPUT  v-hld-qty,
+            INPUT  "EA", 
+            INPUT  item.cons-uom,
+            INPUT  0,
+            INPUT  0,
+            INPUT  0,
+            INPUT  0,
+            INPUT  0,
+            OUTPUT v-hld-qty,
+            OUTPUT lError,
+            OUTPUT cMessage
+            ).
+      
+    item.q-ono = item.q-ono + v-hld-qty.
+END.
 
 RUN rm/calcqcom.p (ROWID(item), OUTPUT item.q-comm).
 

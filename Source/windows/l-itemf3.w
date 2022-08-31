@@ -20,6 +20,8 @@
   Author: 
 
   Created: 
+  
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No.
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -38,6 +40,8 @@ def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-recid as recid no-undo.
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
+
+{sys/inc/var.i new shared}
 
 DEF TEMP-TABLE tt-itg FIELD i-no LIKE itemfg.i-no
                       FIELD i-name LIKE itemfg.i-name

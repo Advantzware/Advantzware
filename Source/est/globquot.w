@@ -107,222 +107,222 @@ tb_prmtx tb_undo fi_file tbAutoClose
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-    LABEL "Ca&ncel" 
-    SIZE 16 BY 1.29.
+     LABEL "Ca&ncel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-process 
-    LABEL "&Start Process" 
-    SIZE 16 BY 1.29.
+     LABEL "&Start Process" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_cust    AS CHARACTER FORMAT "X(8)":U 
-    LABEL "Beginning Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)":U 
+     LABEL "Beginning Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_date    AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Beginning Quote Date" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Quote Date" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_fg-cat  AS CHARACTER FORMAT "X(5)":U 
-    LABEL "Beginning Product Category" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_fg-cat AS CHARACTER FORMAT "X(5)":U 
+     LABEL "Beginning Product Category" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_part-no AS CHARACTER FORMAT "X(15)":U 
-    LABEL "Beginning Cust Part#" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_part-no AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Beginning Cust Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_rm-no   AS CHARACTER FORMAT "X(10)":U 
-    LABEL "Beginning Board Code" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_rm-no AS CHARACTER FORMAT "X(10)":U 
+     LABEL "Beginning Board Code" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_cust      AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
-    LABEL "Ending Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
+     LABEL "Ending Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_date      AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
-    LABEL "Ending Quote Date" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Quote Date" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_fg-cat    AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
-    LABEL "Ending Product Category" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE end_fg-cat AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
+     LABEL "Ending Product Category" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_part-no   AS CHARACTER FORMAT "x(15)":U INITIAL "zzzzzzzzzzzzzzz" 
-    LABEL "Ending Cust Part#" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE end_part-no AS CHARACTER FORMAT "x(30)":U INITIAL "zzzzzzzzzzzzzzz" 
+     LABEL "Ending Cust Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_rm-no     AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz" 
-    LABEL "Ending Board Code" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE end_rm-no AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz" 
+     LABEL "Ending Board Code" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file       AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\GlobalQuotePrice.csv" 
-    LABEL "Name" 
-    VIEW-AS FILL-IN NATIVE 
-    SIZE 49 BY 1.
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\GlobalQuotePrice.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 49 BY 1.
 
-DEFINE VARIABLE lbl_i-code    AS CHARACTER FORMAT "X(256)":U INITIAL "Item Code?" 
-    VIEW-AS FILL-IN 
-    SIZE 12 BY 1 NO-UNDO.
+DEFINE VARIABLE lbl_i-code AS CHARACTER FORMAT "X(256)":U INITIAL "Item Code?" 
+     VIEW-AS FILL-IN 
+     SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_pur-man   AS CHARACTER FORMAT "X(256)":U INITIAL "Est Purch/Manuf?" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE lbl_pur-man AS CHARACTER FORMAT "X(256)":U INITIAL "Est Purch/Manuf?" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE percent_chg   AS DECIMAL   FORMAT "->>>>9.99":U INITIAL 0 
-    LABEL "Percent Change" 
-    VIEW-AS FILL-IN 
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE percent_chg AS DECIMAL FORMAT "->>>>9.99":U INITIAL 0 
+     LABEL "Percent Change" 
+     VIEW-AS FILL-IN 
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd_i-code     AS CHARACTER INITIAL "A" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Stock", "S",
-    "Custom", "C",
-    "All", "A"
-    SIZE 37 BY 1 NO-UNDO.
+DEFINE VARIABLE rd_i-code AS CHARACTER INITIAL "A" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Stock", "S",
+"Custom", "C",
+"All", "A"
+     SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd_pur-man    AS LOGICAL 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Purchased", YES,
-    "Manufactured", NO,
-    "All", ?
-    SIZE 45 BY 1 NO-UNDO.
+DEFINE VARIABLE rd_pur-man AS LOGICAL 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Purchased", yes,
+"Manufactured", no,
+"All", ?
+     SIZE 45 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd_round      AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Penny", "P",
-    "Dime", "D",
-    "Dollar", "B",
-    "No Round", "N"
-    SIZE 45.6 BY 1 NO-UNDO.
+DEFINE VARIABLE rd_round AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Penny", "P",
+"Dime", "D",
+"Dollar", "B",
+"No Round", "N"
+     SIZE 45.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd_round-EA   AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Penny", "P",
-    "Dime", "D",
-    "Dollar", "B",
-    "No Round", "N"
-    SIZE 45.8 BY 1 NO-UNDO.
+DEFINE VARIABLE rd_round-EA AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Penny", "P",
+"Dime", "D",
+"Dollar", "B",
+"No Round", "N"
+     SIZE 45.8 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 93 BY 16.19.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 93 BY 16.19.
 
-DEFINE VARIABLE tbAutoClose    AS LOGICAL INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prmtx       AS LOGICAL INITIAL NO 
-    LABEL "Update Price Matrix?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 32 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_prmtx AS LOGICAL INITIAL no 
+     LABEL "Update Price Matrix?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_RoundDown   AS LOGICAL INITIAL NO 
-    LABEL "" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 3.4 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_RoundDown AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_RoundDownEA AS LOGICAL INITIAL NO 
-    LABEL "" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 3 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_RoundDownEA AS LOGICAL INITIAL no 
+     LABEL "" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 3 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_undo        AS LOGICAL INITIAL NO 
-    LABEL "UNDO a prior price change?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 32 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_undo AS LOGICAL INITIAL no 
+     LABEL "UNDO a prior price change?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td_imported    AS LOGICAL INITIAL NO 
-    LABEL "Include Contract Pricing Customers?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 40.8 BY .81 NO-UNDO.
+DEFINE VARIABLE td_imported AS LOGICAL INITIAL no 
+     LABEL "Include Contract Pricing Customers?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td_include-exp AS LOGICAL INITIAL NO 
-    LABEL "Include Expired Quotes" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 28.4 BY .81 NO-UNDO.
+DEFINE VARIABLE td_include-exp AS LOGICAL INITIAL no 
+     LABEL "Include Expired Quotes" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td_only-fgitem AS LOGICAL INITIAL NO 
-    LABEL "Only Quotes with FG Item?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 40.8 BY .81 NO-UNDO.
+DEFINE VARIABLE td_only-fgitem AS LOGICAL INITIAL no 
+     LABEL "Only Quotes with FG Item?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40.8 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_cust AT ROW 2.43 COL 30 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number"
-    end_cust AT ROW 2.43 COL 74 COLON-ALIGNED HELP
-    "Enter Ending Customer Number"
-    begin_date AT ROW 3.38 COL 30 COLON-ALIGNED
-    end_date AT ROW 3.38 COL 74 COLON-ALIGNED HELP
-    "Enter Ending Date"
-    begin_part-no AT ROW 4.33 COL 30 COLON-ALIGNED HELP
-    "Enter Beginning Customer Part Number"
-    end_part-no AT ROW 4.33 COL 74 COLON-ALIGNED HELP
-    "Enter Ending Customer Part Number"
-    begin_fg-cat AT ROW 5.29 COL 30 COLON-ALIGNED HELP
-    "Enter Beginning Product Category"
-    end_fg-cat AT ROW 5.29 COL 74 COLON-ALIGNED HELP
-    "Enter Ending Product Category"
-    begin_rm-no AT ROW 6.24 COL 30 COLON-ALIGNED HELP
-    "Enter Beginning Board Code" WIDGET-ID 16
-    end_rm-no AT ROW 6.24 COL 74 COLON-ALIGNED HELP
-    "Enter Ending Board Code" WIDGET-ID 18
-    td_only-fgitem AT ROW 7.91 COL 10 WIDGET-ID 20
-    td_include-exp AT ROW 7.91 COL 55.6 WIDGET-ID 30
-    percent_chg AT ROW 9 COL 70 COLON-ALIGNED HELP
-    "Enter a Negative or Positive Percentage"
-    td_imported AT ROW 9.05 COL 10
-    rd_i-code AT ROW 10.19 COL 38 NO-LABELS
-    lbl_i-code AT ROW 10.24 COL 23 COLON-ALIGNED NO-LABELS
-    rd_pur-man AT ROW 11.38 COL 38 NO-LABELS
-    lbl_pur-man AT ROW 11.43 COL 19 COLON-ALIGNED NO-LABELS
-    rd_round-EA AT ROW 12.62 COL 31.8 NO-LABELS WIDGET-ID 2
-    tb_RoundDownEA AT ROW 12.81 COL 77.6 WIDGET-ID 22
-    rd_round AT ROW 13.76 COL 32 NO-LABELS
-    tb_RoundDown AT ROW 13.86 COL 77.6 WIDGET-ID 24
-    tb_prmtx AT ROW 14.91 COL 35
-    tb_undo AT ROW 14.95 COL 34
-    fi_file AT ROW 16.19 COL 26 COLON-ALIGNED HELP
-    "Enter File Name"
-    tbAutoClose AT ROW 18.05 COL 28.2 WIDGET-ID 64
-    btn-process AT ROW 18.95 COL 28
-    btn-cancel AT ROW 18.95 COL 55
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .62 AT ROW 1.29 COL 4
-    "For UOM=EA, round  to:" VIEW-AS TEXT
-    SIZE 23.6 BY .71 AT ROW 12.67 COL 6.8 WIDGET-ID 14
-    "Round Down" VIEW-AS TEXT
-    SIZE 13 BY .62 AT ROW 13.91 COL 81.6 WIDGET-ID 28
-    "Round Down" VIEW-AS TEXT
-    SIZE 12.8 BY .95 AT ROW 12.71 COL 81.8 WIDGET-ID 26
-    "For all other UOM, round to:" VIEW-AS TEXT
-    SIZE 28 BY .71 AT ROW 13.86 COL 4 WIDGET-ID 12
-    RECT-17 AT ROW 1.71 COL 3
+     begin_cust AT ROW 2.43 COL 30 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number"
+     end_cust AT ROW 2.43 COL 74 COLON-ALIGNED HELP
+          "Enter Ending Customer Number"
+     begin_date AT ROW 3.38 COL 30 COLON-ALIGNED
+     end_date AT ROW 3.38 COL 74 COLON-ALIGNED HELP
+          "Enter Ending Date"
+     begin_part-no AT ROW 4.33 COL 30 COLON-ALIGNED HELP
+          "Enter Beginning Customer Part Number"
+     end_part-no AT ROW 4.33 COL 74 COLON-ALIGNED HELP
+          "Enter Ending Customer Part Number"
+     begin_fg-cat AT ROW 5.29 COL 30 COLON-ALIGNED HELP
+          "Enter Beginning Product Category"
+     end_fg-cat AT ROW 5.29 COL 74 COLON-ALIGNED HELP
+          "Enter Ending Product Category"
+     begin_rm-no AT ROW 6.24 COL 30 COLON-ALIGNED HELP
+          "Enter Beginning Board Code" WIDGET-ID 16
+     end_rm-no AT ROW 6.24 COL 74 COLON-ALIGNED HELP
+          "Enter Ending Board Code" WIDGET-ID 18
+     td_only-fgitem AT ROW 7.91 COL 10 WIDGET-ID 20
+     td_include-exp AT ROW 7.91 COL 55.6 WIDGET-ID 30
+     percent_chg AT ROW 9 COL 70 COLON-ALIGNED HELP
+          "Enter a Negative or Positive Percentage"
+     td_imported AT ROW 9.05 COL 10
+     rd_i-code AT ROW 10.19 COL 38 NO-LABEL
+     lbl_i-code AT ROW 10.24 COL 23 COLON-ALIGNED NO-LABEL
+     rd_pur-man AT ROW 11.38 COL 38 NO-LABEL
+     lbl_pur-man AT ROW 11.43 COL 19 COLON-ALIGNED NO-LABEL
+     rd_round-EA AT ROW 12.62 COL 31.8 NO-LABEL WIDGET-ID 2
+     tb_RoundDownEA AT ROW 12.81 COL 77.6 WIDGET-ID 22
+     rd_round AT ROW 13.76 COL 32 NO-LABEL
+     tb_RoundDown AT ROW 13.86 COL 77.6 WIDGET-ID 24
+     tb_prmtx AT ROW 14.91 COL 35
+     tb_undo AT ROW 14.95 COL 34
+     fi_file AT ROW 16.19 COL 26 COLON-ALIGNED HELP
+          "Enter File Name"
+     tbAutoClose AT ROW 18.05 COL 28.2 WIDGET-ID 64
+     btn-process AT ROW 18.95 COL 28
+     btn-cancel AT ROW 18.95 COL 55
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .62 AT ROW 1.29 COL 4
+     "For all other UOM, round to:" VIEW-AS TEXT
+          SIZE 28 BY .71 AT ROW 13.86 COL 4 WIDGET-ID 12
+     "Round Down" VIEW-AS TEXT
+          SIZE 12.8 BY .95 AT ROW 12.71 COL 81.8 WIDGET-ID 26
+     "Round Down" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 13.91 COL 81.6 WIDGET-ID 28
+     "For UOM=EA, round  to:" VIEW-AS TEXT
+          SIZE 23.6 BY .71 AT ROW 12.67 COL 6.8 WIDGET-ID 14
+     RECT-17 AT ROW 1.71 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 96.8 BY 19.48
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 96.8 BY 19.48
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -339,30 +339,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Global Quote Price Change"
-        HEIGHT             = 19.48
-        WIDTH              = 96.8
-        MAX-HEIGHT         = 32.52
-        MAX-WIDTH          = 273.2
-        VIRTUAL-HEIGHT     = 32.52
-        VIRTUAL-WIDTH      = 273.2
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Global Quote Price Change"
+         HEIGHT             = 19.48
+         WIDTH              = 96.8
+         MAX-HEIGHT         = 32.52
+         MAX-WIDTH          = 273.2
+         VIRTUAL-HEIGHT     = 32.52
+         VIRTUAL-WIDTH      = 273.2
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -377,92 +377,119 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    begin_cust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_fg-cat:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_fg-cat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_part-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_part-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_rm-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_rm-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-process:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    end_cust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_fg-cat:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_fg-cat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_part-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_part-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_rm-no:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_rm-no:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    fi_file:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lbl_i-code IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_i-code:PRIVATE-DATA IN FRAME FRAME-A = "rd_i-code".
+       lbl_i-code:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_i-code".
 
 /* SETTINGS FOR FILL-IN lbl_pur-man IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_pur-man:PRIVATE-DATA IN FRAME FRAME-A = "rd_pur-man".
+       lbl_pur-man:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_pur-man".
 
 ASSIGN 
-    percent_chg:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       percent_chg:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    rd_i-code:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       rd_i-code:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    rd_pur-man:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       rd_pur-man:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    rd_round:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       rd_round:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    rd_round-EA:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       rd_round-EA:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_prmtx:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_prmtx:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_RoundDown:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_RoundDown:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_RoundDownEA:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_RoundDownEA:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_undo:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_undo:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    td_imported:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       td_imported:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    td_include-exp:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       td_include-exp:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    td_only-fgitem:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       td_only-fgitem:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -476,7 +503,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Global Quote Price Change */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -490,7 +517,7 @@ ON END-ERROR OF C-Win /* Global Quote Price Change */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Global Quote Price Change */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -503,7 +530,7 @@ ON WINDOW-CLOSE OF C-Win /* Global Quote Price Change */
 &Scoped-define SELF-NAME begin_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -514,7 +541,7 @@ ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Quote Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -525,7 +552,7 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Quote Date */
 &Scoped-define SELF-NAME begin_fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_fg-cat C-Win
 ON LEAVE OF begin_fg-cat IN FRAME FRAME-A /* Beginning Product Category */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -536,7 +563,7 @@ ON LEAVE OF begin_fg-cat IN FRAME FRAME-A /* Beginning Product Category */
 &Scoped-define SELF-NAME begin_part-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_part-no C-Win
 ON HELP OF begin_part-no IN FRAME FRAME-A /* Beginning Cust Part# */
-    DO:
+DO:
         DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
 
         RUN est/l-ebrfqP.w (cocode, locode, begin_part-no:screen-value, OUTPUT lv-eb-tmpid) .
@@ -552,7 +579,7 @@ ON HELP OF begin_part-no IN FRAME FRAME-A /* Beginning Cust Part# */
 &Scoped-define SELF-NAME begin_rm-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_rm-no C-Win
 ON LEAVE OF begin_rm-no IN FRAME FRAME-A /* Beginning Board Code */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -563,7 +590,7 @@ ON LEAVE OF begin_rm-no IN FRAME FRAME-A /* Beginning Board Code */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -574,7 +601,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-    DO:
+DO:
         DEFINE VARIABLE v-process AS LOG INIT NO NO-UNDO.
 
 
@@ -604,7 +631,7 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 &Scoped-define SELF-NAME end_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -615,7 +642,7 @@ ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Quote Date */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -626,7 +653,7 @@ ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Quote Date */
 &Scoped-define SELF-NAME end_fg-cat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_fg-cat C-Win
 ON LEAVE OF end_fg-cat IN FRAME FRAME-A /* Ending Product Category */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -637,7 +664,7 @@ ON LEAVE OF end_fg-cat IN FRAME FRAME-A /* Ending Product Category */
 &Scoped-define SELF-NAME end_part-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_part-no C-Win
 ON HELP OF end_part-no IN FRAME FRAME-A /* Ending Cust Part# */
-    DO:
+DO:
         DEFINE VARIABLE lv-eb-tmpid AS RECID NO-UNDO.
 
         RUN est/l-ebrfqP.w (cocode, locode, end_part-no:screen-value, OUTPUT lv-eb-tmpid) .
@@ -653,17 +680,18 @@ ON HELP OF end_part-no IN FRAME FRAME-A /* Ending Cust Part# */
 &Scoped-define SELF-NAME end_rm-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_rm-no C-Win
 ON LEAVE OF end_rm-no IN FRAME FRAME-A /* Ending Board Code */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON HELP OF fi_file IN FRAME FRAME-A /* Name */
-    DO:
+DO:
         DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
         DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
 
@@ -683,10 +711,9 @@ ON HELP OF fi_file IN FRAME FRAME-A /* Name */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -697,7 +724,7 @@ ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
 &Scoped-define SELF-NAME percent_chg
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL percent_chg C-Win
 ON LEAVE OF percent_chg IN FRAME FRAME-A /* Percent Change */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -708,7 +735,7 @@ ON LEAVE OF percent_chg IN FRAME FRAME-A /* Percent Change */
 &Scoped-define SELF-NAME rd_pur-man
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_pur-man C-Win
 ON VALUE-CHANGED OF rd_pur-man IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -719,7 +746,7 @@ ON VALUE-CHANGED OF rd_pur-man IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd_round
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_round C-Win
 ON VALUE-CHANGED OF rd_round IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&SELF-NAME}.
   
         IF {&SELF-NAME} = "N" THEN 
@@ -739,7 +766,7 @@ ON VALUE-CHANGED OF rd_round IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd_round-EA
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_round-EA C-Win
 ON VALUE-CHANGED OF rd_round-EA IN FRAME FRAME-A
-    DO: 
+DO: 
         ASSIGN {&SELF-NAME}.
         IF {&SELF-NAME} = "N" THEN 
         DO:
@@ -758,7 +785,7 @@ ON VALUE-CHANGED OF rd_round-EA IN FRAME FRAME-A
 &Scoped-define SELF-NAME tb_prmtx
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prmtx C-Win
 ON VALUE-CHANGED OF tb_prmtx IN FRAME FRAME-A /* Update Price Matrix? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -769,7 +796,7 @@ ON VALUE-CHANGED OF tb_prmtx IN FRAME FRAME-A /* Update Price Matrix? */
 &Scoped-define SELF-NAME td_only-fgitem
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td_only-fgitem C-Win
 ON VALUE-CHANGED OF td_only-fgitem IN FRAME FRAME-A /* Only Quotes with FG Item? */
-    DO:
+DO:
         ASSIGN {&self-name}.
         IF td_only-fgitem:SCREEN-VALUE EQ "NO" THEN
             ASSIGN
@@ -852,18 +879,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -871,29 +898,29 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_cust end_cust begin_date end_date begin_part-no end_part-no 
-        begin_fg-cat end_fg-cat begin_rm-no end_rm-no td_only-fgitem 
-        td_include-exp percent_chg td_imported rd_i-code lbl_i-code rd_pur-man 
-        lbl_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx 
-        tb_undo fi_file tbAutoClose 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-17 begin_cust end_cust begin_date end_date begin_part-no 
-        end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no 
-        td_only-fgitem td_include-exp percent_chg td_imported rd_i-code 
-        rd_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx 
-        tb_undo fi_file tbAutoClose btn-process btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_cust end_cust begin_date end_date begin_part-no end_part-no 
+          begin_fg-cat end_fg-cat begin_rm-no end_rm-no td_only-fgitem 
+          td_include-exp percent_chg td_imported rd_i-code lbl_i-code rd_pur-man 
+          lbl_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx 
+          tb_undo fi_file tbAutoClose 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-17 begin_cust end_cust begin_date end_date begin_part-no 
+         end_part-no begin_fg-cat end_fg-cat begin_rm-no end_rm-no 
+         td_only-fgitem td_include-exp percent_chg td_imported rd_i-code 
+         rd_pur-man rd_round-EA tb_RoundDownEA rd_round tb_RoundDown tb_prmtx 
+         tb_undo fi_file tbAutoClose btn-process btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -901,7 +928,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-params C-Win 
 PROCEDURE get-params :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -956,7 +983,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE round-up C-Win 
 PROCEDURE round-up :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -993,7 +1020,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-    /* ------------------------------------------------- cec/quoprchg.p 08/96 FWK */
+/* ------------------------------------------------- cec/quoprchg.p 08/96 FWK */
     /* Global Price Change for Quote Sell Price                                   */
     /* -------------------------------------------------------------------------- */
 
@@ -1398,8 +1425,7 @@ PROCEDURE run-process :
     SESSION:SET-WAIT-STATE("").  
 
     MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-
-    APPLY "close" TO THIS-PROCEDURE.
+       
 
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 

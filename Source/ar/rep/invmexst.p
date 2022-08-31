@@ -109,6 +109,7 @@ DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
     
     find first company where company.company = cocode no-lock no-error.
 IF company.company EQ '004' THEN 
@@ -129,40 +130,7 @@ IF company.company EQ '004' THEN
             cTaxCode = 'Sales Tax'
             cCompanyID = ''
             .
-  RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-            OUTPUT cRtnChar, OUTPUT lRecFound).
- IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.           
-END.
-IF cRtnChar NE "" THEN DO:
-    ASSIGN 
-        lChkImage = YES
-        ls-full-img1 = SEARCH(ls-full-img1)
-        ls-full-img1 = cRtnChar + ">".
-END.
-ELSE DO:
-    ASSIGN 
-        ls-image1 = SEARCH("images\premierinv.jpg")
-        FILE-INFO:FILE-NAME = ls-image1.
-    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-END.
-
+  
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
 
     for each report where report.term-id eq v-term-id no-lock,
@@ -172,6 +140,7 @@ END.
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
+      
       IF ar-inv.sold-name <> "" THEN
          assign  v-shipto-name = ar-inv.sold-name
               v-shipto-addr[1] = ar-inv.sold-addr[1]
@@ -356,6 +325,37 @@ END.
                   lv-bol-no = ar-invl.bol-no.
                   .
         END.
+        
+      FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
+           FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
+              oe-boll.b-no = oe-bolh.b-no AND
+              oe-boll.i-no = ar-invl.i-no AND
+              oe-boll.ord-no = ar-invl.ord-no:
+
+                                      
+              ASSIGN cLocation     = oe-boll.loc .
+           END. /* each oe-boll */   
+      END. /* each oe-bolh */
+      
+      RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      	      
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      
+      IF cRtnChar NE "" THEN DO:
+          ASSIGN 
+              lChkImage = YES
+              ls-full-img1 = SEARCH(ls-full-img1)
+              ls-full-img1 = cRtnChar + ">".
+      END.
+      ELSE DO:
+          ASSIGN 
+              ls-image1 = SEARCH("images\premierinv.jpg")
+              FILE-INFO:FILE-NAME = ls-image1.
+          ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+      END.
 
  {ar/rep/invmexst.i}  /* xprint form */
 
@@ -440,7 +440,8 @@ END.
             PUT v-price  format "->>,>>9.99999"                
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 ar-invl.i-no SPACE(1)
                 v-i-dscr2  SPACE(11)
                 v-pc  FORM "x" SPACE(7)

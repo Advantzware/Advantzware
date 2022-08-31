@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolfibrex.p          */
 /* PRINT BOLfmt15 BOL                                                           */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.                */
 /* -------------------------------------------------------------------------- */
 {sys/inc/var.i shared}
 {sys/form/r-top.i}    
@@ -30,7 +31,7 @@ DEFINE VARIABLE v-part-comp         AS   CHARACTER FORMAT "x" NO-UNDO.
 DEFINE VARIABLE v-part-qty          AS   DECIMAL NO-UNDO.
 DEFINE VARIABLE v-ord-no            LIKE oe-boll.ord-no NO-UNDO.
 DEFINE VARIABLE v-po-no             LIKE oe-bolh.po-no NO-UNDO.
-DEFINE VARIABLE v-job-no            AS   CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job-no            AS   CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-phone-num         AS   CHARACTER FORMAT "x(13)" NO-UNDO.
 
 DEFINE VARIABLE v-ship-name  LIKE shipto.ship-name NO-UNDO.
@@ -87,6 +88,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 FIND FIRST tt-bolx NO-ERROR.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 IF AVAILABLE tt-bolx AND tt-bolx.print-logo THEN
    ls-full-img1 = tt-bolx.logo-file + ">".
@@ -95,31 +97,6 @@ ELSE IF NOT AVAILABLE tt-bolx THEN
       ls-image1 = "images\fibrelog.bmp"
       FILE-INFO:FILE-NAME = ls-image1
       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEFINE VARIABLE v-tel AS cha FORM "x(30)" NO-UNDO.
 DEFINE VARIABLE v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -233,7 +210,18 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       AND cust.cust-no EQ oe-bolh.cust-no
     NO-LOCK
     BREAK BY oe-bolh.bol-no:
-      
+    
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN ASSIGN cLocation = oe-boll.loc .
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+    
     IF FIRST-OF(oe-bolh.bol-no) THEN DO:
     FIND FIRST carrier
         WHERE carrier.company EQ oe-bolh.company
@@ -339,8 +327,9 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       ASSIGN
          v-salesman = TRIM(v-salesman)
          v-po-no = oe-boll.po-no
-         v-job-no = IF oe-boll.job-no = "" THEN ""
-                    ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+         v-job-no = IF oe-boll.job-no = "" THEN "" ELSE 
+                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+         
 
       IF v-salesman GT '' THEN
         IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN

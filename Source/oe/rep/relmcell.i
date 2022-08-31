@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relmcell.i  */
 /* Print OE Release/Picking tickets    for Multicell Xprint             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.     */
 /* ----------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -55,13 +56,13 @@ DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6    FORMAT ">>>>>9"
-       w-par                            AT 8    FORMAT "x(30)" "</B>"
-       v-bin                            AT 45   format "x(23)" 
-       w-x                              at 68   format "X/"
-       w-pal                            TO 74   format "->>>>"
-       w-cas                            to 81   format "->>>>"
-       w-c-c                            to 91   format "->>>>>>>>"
+format w-oe-rell.ord-no                 to 8    FORMAT ">>>>>>>9"
+       w-par                            AT 10    FORMAT "x(30)" "</B>"
+       v-bin                            AT 47   format "x(23)" 
+       w-x                              AT 70   format "X/"
+       w-pal                            TO 76   format "->>>>"
+       w-cas                            TO 82.5   format "->>>>"
+       w-c-c                            to 92   format "->>>>>>>>"
        w-qty[1]                         to 103   format "->>>>>>>>"
     
     with down frame rel-mid no-box no-label STREAM-IO width 103.
@@ -131,7 +132,7 @@ IF ll-display-comp THEN DO:
 
 format
   tt-rell.ord-no
-  tt-rell.po-no at 8 
+  tt-rell.po-no AT 8 
   tt-rell.loc-bin  AT 23  FORM "x(5)"
   tt-rell.i-no at 29  oe-ordl.i-name at 44
   oe-ordl.qty format "->>>>>>>9" to 83
@@ -185,8 +186,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -470,17 +471,17 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           
                IF  first(w-qty[2]) THEN
                     DO:
-                        PUT {2} "<R+1><C1>" w-oe-rell.ord-no            FORMAT ">>>>>9"  SPACE(1)  .
-                        PUT {2} "<R+1><C1>" w-oe-rell.job-no FORMAT "x(6)" "-" w-oe-rell.job-no2 FORMAT "99" SPACE(1)  .
+                        PUT {2} "<R+1><C1>" w-oe-rell.ord-no            FORMAT ">>>>>>>9"  SPACE(1)  .
+                        PUT {2} "<R+1><C1>" TRIM(w-oe-rell.job-no) + "-" + STRING(w-oe-rell.job-no2,"999") FORMAT "X(13)" SPACE(1)  .
                     END.
                PUT {2}
-                   "<C10>" w-par                                   FORMAT "x(33)" "</B>"
-                   "<C36>" v-bin                                   format "x(20)"          
-                   "<C55>" w-x                                     format "X/"             
-                   "<C56>" w-pal                                   format "->>>>"          
-                   "<C60>" w-cas                                   format "->>>>"          
-                   "<C64>" w-c-c                                   format "->>>>>>>>"      
-                   "<C72>" w-qty[1]                                format "->>>>>>>>"   SKIP.  
+                   "<C12>" w-par                                   FORMAT "x(33)" "</B>"
+                   "<C38>" v-bin                                   FORMAT "x(20)"          
+                   "<C57>" w-x                                     FORMAT "X/"             
+                   "<C57.5>" w-pal                                 FORMAT "->>>>"          
+                   "<C62>" w-cas                                   FORMAT "->>>>"          
+                   "<C65>" w-c-c                                   FORMAT "->>>>>>>>"      
+                   "<C72>" w-qty[1]                                FORMAT "->>>>>>>>"   SKIP.  
 
                v-printline = v-printline + 1.
                

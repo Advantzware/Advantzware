@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -28,7 +29,8 @@ DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 DEFINE TEMP-TABLE tt-mch-srt NO-UNDO LIKE mch-srt 
     FIELD i-no       LIKE mch-srt.job-no
     FIELD start-time AS INTEGER
-    FIELD start-date AS DATE .
+    FIELD start-date AS DATE 
+    FIELD start-date-sort AS DATE.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -59,18 +61,21 @@ DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "M Code,FG Item,Job #,Cust#,MR Std,MR Acl,MR Eff%,RUN Std,RUN Acl," +
                            "RUN Eff%,MR&RUN Std,MR&RUN Acl,MR&RUN Eff%,D/T Acl,D/T Eff%,Acl Qty,Exptd Qty,MR-C,RUNC," +
                            "Total Machine Hours,Total Labor Hours,Pieces per Hour,MSF,MSF per Hour,Number On," +
-                           "Kicks per Hour,Pieces per Man Hour,MR Waste,Run Waste,Total Waste,% Waste,Date,User ID" 
+                           "Kicks per Hour,Pieces per Man Hour,MR Waste,Run Waste,Total Waste,% Waste,Date,User ID,Shift" 
     cFieldListToSelect = "m-cod,ino,job,cust-no,mr-stn,mr-acl,mr-eff,run-stnd,run-acl," +
                             "run-eff,mr&-stnd,mr&-acl,mr&-eff,dt-acl,dt-eff,acl-qty,exp-qty,mr-comp,run-comp," +
                             "ttl-mch-hrs,ttl-lbr-hrs,pic-per-hrs,msf,msf-per-hrs,nbr-on," +
-                            "kik-per-hrs,pic-per-man-hrs,mr-wst,run-wst,ttl-wst,%wst,date,user-id"
-    cFieldLength       = "6,15,10,8,8,8,8,8,8," + "8,10,10,11,8,8,11,11,4,4," + "19,17,15,9,12,10," + "14,19,9,9,11,9,10,10"
-    cFieldType         = "c,c,c,c,i,i,i,i,i," + "i,i,i,i,i,i,i,i,c,c," + "i,i,i,i,i,i," + "i,i,i,i,i,i,c,c"
+                            "kik-per-hrs,pic-per-man-hrs,mr-wst,run-wst,ttl-wst,%wst,date,user-id,shift"
+    cFieldLength       = "6,15,13,8,8,8,8,8,8," + "8,10,10,11,8,8,11,11,4,4," + "19,17,15,9,12,10," + "14,19,9,9,11,9,10,10,5"
+    cFieldType         = "c,c,c,c,i,i,i,i,i," + "i,i,i,i,i,i,i,i,c,c," + "i,i,i,i,i,i," + "i,i,i,i,i,i,c,c,i"
     .
 
 {sys/inc/ttRptSel.i}
@@ -488,6 +493,8 @@ ON END-ERROR OF C-Win /* Productivity By Machine */
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
            application would exit. */
+        IF VALID-HANDLE(hdOutputProcs) THEN  
+        DELETE PROCEDURE hdOutputProcs.   
         IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
     END.
 
@@ -498,7 +505,9 @@ ON END-ERROR OF C-Win /* Productivity By Machine */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Productivity By Machine */
     DO:
-        /* This event will close the window and terminate the procedure.  */
+        /* This event will close the window and terminate the procedure.  */ 
+        IF VALID-HANDLE(hdOutputProcs) THEN  
+            DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -588,7 +597,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                 fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
             RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
             fi_file:SCREEN-VALUE =  cFileName.
+            tb_excel = YES.
         END.
+        ELSE  tb_excel = NO.
 
         RUN GetSelectionList.
         RUN run-report. 
@@ -611,7 +622,10 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
-                    END.
+                    END. /* IF NOT tb_OpenCSV THEN */
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END. /* ELSE DO: */
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
                 DO:
@@ -1446,6 +1460,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-runwaste     AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE dt-date        AS DATE      NO-UNDO .
     DEFINE VARIABLE cUserId        AS CHARACTER NO-UNDO .
+    DEFINE VARIABLE iShift         AS INTEGER  NO-UNDO .
 
     DEFINE VARIABLE cDisplay       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cExcelDisplay  AS CHARACTER NO-UNDO.
@@ -1651,10 +1666,11 @@ PROCEDURE run-report :
             (mch-srt.blank-no EQ mch-act.blank-no OR
             mach.p-type NE "B" OR
             mch-act.blank-no EQ 0) AND
-            mch-srt.pass EQ mch-act.pass
+            mch-srt.pass EQ mch-act.pass AND 
+            mch-srt.op-date EQ mch-act.op-date
             NO-ERROR.
         IF NOT AVAILABLE mch-srt THEN
-        DO:
+        DO:              
             CREATE mch-srt.
             ASSIGN 
                 mch-srt.dept     = mch-act.dept
@@ -1666,7 +1682,8 @@ PROCEDURE run-report :
                 mch-srt.blank-no = IF mach.p-type EQ "B"    AND
                                      mch-act.blank-no EQ 0 THEN 1
                                                            ELSE mch-act.blank-no
-                mch-srt.pass     = mch-act.pass.
+                mch-srt.pass     = mch-act.pass
+                mch-srt.op-date = mch-act.op-date.
         
         END.
         FIND job-code WHERE job-code.code EQ mch-act.code
@@ -1815,10 +1832,7 @@ PROCEDURE run-report :
 
         IF mch-srt.run-std-hr EQ ? THEN mch-srt.run-std-hr = 0.
                                     
-        a = FILL(" ",6 - length(TRIM(mch-srt.job-no))) +
-            trim(mch-srt.job-no) + "-" +
-            string(mch-srt.job-no2,"99").
-
+        a = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', mch-srt.job-no, mch-srt.job-no2)) .
      
         /*  if not v-prt-job AND NOT v-prt-both then
           for each job-hdr
@@ -1861,13 +1875,13 @@ PROCEDURE run-report :
         BUFFER-COPY mch-srt TO tt-mch-srt .
         ASSIGN
             tt-mch-srt.i-no = b
-            /*         tt-mch-srt.job-no = FILL(" ",6 - LENGTH(TRIM(tt-mch-srt.job-no))) + TRIM(tt-mch-srt.job-no) */
-            .
+            tt-mch-srt.start-date = mch-srt.op-date
+            .  
         IF rd-job-timedt EQ "2" THEN 
         DO:  
             IF AVAILABLE job-mch THEN
                 ASSIGN
-                    tt-mch-srt.start-date = job-mch.start-date
+                    tt-mch-srt.start-date-sort = job-mch.start-date
                     tt-mch-srt.start-time = job-mch.start-time . 
         END. 
     END.
@@ -1885,6 +1899,7 @@ PROCEDURE run-report :
         BREAK BY tt-mch-srt.dept
         BY tt-mch-srt.m-code
         BY tt-mch-srt.start-date
+        BY tt-mch-srt.start-date-sort
         BY tt-mch-srt.start-time
         BY tt-mch-srt.job-no :
 
@@ -1902,7 +1917,7 @@ PROCEDURE run-report :
 
         FIND FIRST job WHERE 
             job.company EQ cocode AND
-            job.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6) AND
+            job.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
             job.job-no2 EQ tt-mch-srt.job-no2 NO-LOCK NO-ERROR .
         ASSIGN 
             v-cust-no = "" .
@@ -1937,8 +1952,8 @@ PROCEDURE run-report :
 
         FIND FIRST job-mch WHERE job-mch.company  = cocode  AND
             job-mch.job      EQ tt-mch-srt.job  AND 
-            job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6)  AND
-            job-mch.job-no2 EQ tt-mch-srt.job-no2  AND 
+            job-mch.job-no   EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen)  AND
+            job-mch.job-no2  EQ tt-mch-srt.job-no2  AND 
             job-mch.frm      = tt-mch-srt.frm AND 
             (job-mch.blank-no = tt-mch-srt.blank-no OR
             mch-srt.blank-no = 0) AND              
@@ -1948,8 +1963,8 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job      EQ tt-mch-srt.job AND
-                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6) AND
-                job-mch.job-no2 EQ tt-mch-srt.job-no2 AND 
+                job-mch.job-no   EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
+                job-mch.job-no2  EQ tt-mch-srt.job-no2 AND 
                 job-mch.frm      EQ tt-mch-srt.frm AND
                 (job-mch.blank-no = tt-mch-srt.blank-no OR
                 mch-srt.blank-no = 0) AND
@@ -1958,7 +1973,7 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job     EQ tt-mch-srt.job AND
-                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6) AND
+                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
                 job-mch.job-no2 EQ tt-mch-srt.job-no2 AND 
                 job-mch.frm     EQ tt-mch-srt.frm AND
                 job-mch.m-code  EQ tt-mch-srt.m-code AND
@@ -1967,7 +1982,7 @@ PROCEDURE run-report :
         IF NOT AVAILABLE job-mch THEN
             FIND FIRST job-mch WHERE job-mch.company EQ cocode AND
                 job-mch.job     EQ tt-mch-srt.job AND 
-                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,6)  AND
+                job-mch.job-no  EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen)  AND
                 job-mch.job-no2 EQ tt-mch-srt.job-no2 AND  
                 job-mch.frm     EQ tt-mch-srt.frm AND
                 job-mch.m-code  EQ tt-mch-srt.m-code        
@@ -1985,20 +2000,24 @@ PROCEDURE run-report :
             v-mrwaste      = 0 
             v-act-lab-cost = 0
             dt-date        = ? 
-            cUserId        = "".
+            cUserId        = ""
+            iShift         = 0.
             
         FOR EACH bf-mch-act WHERE
             bf-mch-act.company EQ cocode AND
             bf-mch-act.dept EQ tt-mch-srt.dept AND
             bf-mch-act.m-code EQ tt-mch-srt.m-code AND
+            bf-mch-act.op-date GE v-date[1] AND
+            bf-mch-act.op-date LE v-date[2] AND
             bf-mch-act.job EQ tt-mch-srt.job AND 
-            bf-mch-act.job-no EQ SUBSTRING(tt-mch-srt.job-no,1,6) AND
+            bf-mch-act.job-no EQ SUBSTRING(tt-mch-srt.job-no,1,iJobLen) AND
             bf-mch-act.job-no2 EQ tt-mch-srt.job-no2 AND
             bf-mch-act.frm EQ tt-mch-srt.frm AND
             (bf-mch-act.blank-no = tt-mch-srt.blank-no  OR
             mach.p-type NE "B" OR
             bf-mch-act.blank-no EQ 0) AND
-            bf-mch-act.pass EQ tt-mch-srt.pass  NO-LOCK:
+            bf-mch-act.pass EQ tt-mch-srt.pass AND 
+            bf-mch-act.op-date EQ tt-mch-srt.start-date  NO-LOCK:
 
             FIND job-code WHERE job-code.code EQ bf-mch-act.CODE NO-LOCK NO-ERROR.
 
@@ -2013,6 +2032,7 @@ PROCEDURE run-report :
             v-act-lab-cost = v-act-lab-cost + (bf-mch-act.hours * bf-mch-act.crew) .
             dt-date = bf-mch-act.op-date .
             cUserId = IF AVAILABLE bf-mch-act THEN  bf-mch-act.USER-ID ELSE "".
+            iShift  = IF AVAILABLE bf-mch-act THEN  bf-mch-act.shift ELSE 0.
 
         END. /* FOR EACH bf-mch-act W */
 
@@ -2125,9 +2145,11 @@ PROCEDURE run-report :
                         WHEN "%wst"              THEN 
                             cVarValue =  IF v-wst NE ? THEN STRING(v-wst,"->,>>9.99") ELSE "".
                         WHEN "date"              THEN 
-                            cVarValue =  IF dt-date NE ? THEN STRING(dt-date) ELSE "".
+                            cVarValue =  IF tt-mch-srt.start-date NE ? THEN STRING(tt-mch-srt.start-date) ELSE "".
                         WHEN "user-id"           THEN 
                             cVarValue = IF cUserId NE "" THEN STRING(cUserId,"x(10)") ELSE "" .
+                        WHEN "shift"             THEN 
+                            cVarValue = IF iShift NE 0 THEN STRING(iShift,">9") ELSE "" .
                          
                     END CASE.
                       
@@ -2145,15 +2167,18 @@ PROCEDURE run-report :
                 END.
             END.
 
-            ASSIGN 
-                mch-mr-std     = mch-mr-std + job-mr-std
+            IF first-of(tt-mch-srt.m-code) THEN
+            ASSIGN
+              mch-mr-std     = mch-mr-std + job-mr-std
+              dpt-mr-std     = dpt-mr-std + job-mr-std.
+              
+            ASSIGN    
                 mch-run-std    = mch-run-std + job-run-std
                 mch-mr-act     = mch-mr-act + job-mr-act
                 mch-run-act    = mch-run-act + job-run-act
                 mch-dt-act     = mch-dt-act + job-dt-act
                 mch-qty-prod   = mch-qty-prod + job-qty-prod
-                mch-qty-expect = mch-qty-expect + job-qty-expect
-                dpt-mr-std     = dpt-mr-std + job-mr-std
+                mch-qty-expect = mch-qty-expect + job-qty-expect                  
                 dpt-run-std    = dpt-run-std + job-run-std
                 dpt-mr-act     = dpt-mr-act + job-mr-act
                 dpt-run-act    = dpt-run-act + job-run-act
@@ -2254,6 +2279,8 @@ PROCEDURE run-report :
                         cVarValue =  "" .
                     WHEN "user-id"           THEN 
                         cVarValue = "" .
+                    WHEN "shift"             THEN 
+                        cVarValue = "" .
                          
                 END CASE.
                       
@@ -2264,6 +2291,12 @@ PROCEDURE run-report :
             END.
 
             PUT UNFORMATTED "* " + (IF AVAILABLE mach THEN STRING(mach.m-dscr,"x(10)") ELSE "") + substring(cDisplay,13,350) SKIP(1).
+            IF tb_excel THEN 
+            DO:         
+                PUT STREAM excel UNFORMATTED  
+                    (IF AVAILABLE mach THEN DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, STRING(mach.m-dscr,"x(14)"))  ELSE "") +  " - Totals" +
+                    SUBSTRING(cExcelDisplay,3,250) SKIP.
+            END.
 
             ASSIGN 
                 mch-mr-std     = 0
@@ -2360,6 +2393,8 @@ PROCEDURE run-report :
                         cVarValue =  "" .
                     WHEN "user-id"           THEN 
                         cVarValue = "" .
+                    WHEN "shift"           THEN 
+                        cVarValue = "" .
                          
                 END CASE.
                       
@@ -2370,6 +2405,12 @@ PROCEDURE run-report :
             END.
 
             PUT UNFORMATTED "** " + (IF AVAILABLE dept THEN STRING(dept.dscr,"x(10)") ELSE "") + substring(cDisplay,14,350) SKIP.
+            IF tb_excel THEN 
+            DO:  
+                PUT STREAM excel UNFORMATTED 
+                    (IF AVAILABLE dept THEN STRING(dept.dscr,"x(15)") ELSE "") +  " - Totals" +
+                    SUBSTRING(cExcelDisplay,3,250) SKIP(1).
+            END.
 
             ASSIGN 
                 dpt-mr-std     = 0
@@ -2387,12 +2428,7 @@ PROCEDURE run-report :
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
-    IF tb_excel THEN 
-    DO:
-        OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-    END.
+    OUTPUT STREAM excel CLOSE.
 
     SESSION:SET-WAIT-STATE ("").
 

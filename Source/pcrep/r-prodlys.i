@@ -1,3 +1,4 @@
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 DEF    VAR      iTotalUp    AS INT     NO-UNDO.
 DEF    VAR      v-checkcust AS CHAR    NO-UNDO .
 DEFINE VARIABLE dMSF        AS DECIMAL NO-UNDO.
@@ -360,7 +361,7 @@ for each tt-srt use-index dept-idx
 
     FIND FIRST job where 
         job.company eq cocode and
-        job.job-no  eq SUBSTRING(tt-srt.job-no,1,6) and
+        job.job-no  eq tt-srt.job-no and
         job.job-no2 eq tt-srt.job-no2 NO-LOCK NO-ERROR .
     ASSIGN 
         v-cust-no = "" .
@@ -538,7 +539,7 @@ for each tt-srt use-index dept-idx
 
     find first job-mch where job-mch.company  = cocode  and
         job-mch.job      eq tt-srt.job  and 
-        job-mch.job-no  EQ SUBSTRING(tt-srt.job-no,1,6)  and
+        job-mch.job-no   EQ tt-srt.job-no  and
         job-mch.job-no2 eq tt-srt.job-no2  and 
         job-mch.frm      = tt-srt.frm and 
         (job-mch.blank-no = tt-srt.blank-no or
@@ -549,7 +550,7 @@ for each tt-srt use-index dept-idx
     if not avail job-mch then
         find first job-mch where job-mch.company eq cocode and
             job-mch.job      eq tt-srt.job and
-            job-mch.job-no  eq SUBSTRING(tt-srt.job-no,1,6) and
+            job-mch.job-no   eq tt-srt.job-no and
             job-mch.job-no2 eq tt-srt.job-no2 and 
             job-mch.frm      eq tt-srt.frm and
             (job-mch.blank-no = tt-srt.blank-no or
@@ -559,7 +560,7 @@ for each tt-srt use-index dept-idx
     if not avail job-mch then
         find first job-mch where job-mch.company eq cocode and
             job-mch.job     eq tt-srt.job and
-            job-mch.job-no  eq SUBSTRING(tt-srt.job-no,1,6) and
+            job-mch.job-no  eq tt-srt.job-no and
             job-mch.job-no2 eq tt-srt.job-no2 and 
             job-mch.frm     eq tt-srt.frm and
             job-mch.m-code  eq tt-srt.m-code and
@@ -568,7 +569,7 @@ for each tt-srt use-index dept-idx
     if not avail job-mch then
         find first job-mch where job-mch.company eq cocode and
             job-mch.job     eq tt-srt.job and 
-            job-mch.job-no  eq SUBSTRING(tt-srt.job-no,1,6)  and
+            job-mch.job-no  eq tt-srt.job-no  and
             job-mch.job-no2 eq tt-srt.job-no2 and  
             job-mch.frm     eq tt-srt.frm and
             job-mch.m-code  eq tt-srt.m-code        
@@ -591,7 +592,7 @@ for each tt-srt use-index dept-idx
         bf-mch-act.dept EQ tt-srt.dept AND
         bf-mch-act.m-code EQ tt-srt.m-code AND
         bf-mch-act.job EQ tt-srt.job AND 
-        bf-mch-act.job-no EQ SUBSTRING(tt-srt.job-no,1,6) AND
+        bf-mch-act.job-no EQ tt-srt.job-no AND
         bf-mch-act.job-no2 EQ tt-srt.job-no2 AND
         bf-mch-act.frm EQ tt-srt.frm AND
         (bf-mch-act.blank-no = tt-srt.blank-no  OR

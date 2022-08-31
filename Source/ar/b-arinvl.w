@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -218,7 +219,7 @@ DEFINE BROWSE Browser-Table
       ar-invl.s-pct[3] COLUMN-LABEL "% of Sale" FORMAT ">>9.99":U
       ar-invl.s-comm[3] COLUMN-LABEL "Comm%" FORMAT ">>9.99":U
       ar-invl.bol-no COLUMN-LABEL "Bol #" FORMAT ">>>>>>>9":U
-      ar-invl.ord-no FORMAT ">>>>>9":U
+      ar-invl.ord-no FORMAT ">>>>>>>9":U
       ar-invl.po-no COLUMN-LABEL "PO #" FORMAT "x(15)":U
   ENABLE
       ar-invl.line
@@ -1322,11 +1323,13 @@ PROCEDURE printInv :
 ------------------------------------------------------------------------------*/
   IF AVAILABLE ar-inv THEN DO:
     RUN custom/setUserPrint.p (ar-inv.company,'ar-inv_.',
-                               'begin_inv,end_inv,begin_cust,end_cust,begin_date,end_date,tb_reprint,tb_posted',
+                               'begin_inv,end_inv,begin_cust,end_cust,begin_date,end_date,tb_reprint,tb_posted,begin_inv-id,end_inv-id',
                                STRING(ar-inv.inv-no) + ',' + STRING(ar-inv.inv-no) + ',' +
                                ar-inv.cust-no + ',' + ar-inv.cust-no + ',' +
                                STRING(ar-inv.inv-date) + ',' + STRING(ar-inv.inv-date) + ',' +
-                               STRING(ar-inv.printed) + ',' + STRING(ar-inv.posted)).
+                               STRING(ar-inv.printed) + ',' + STRING(ar-inv.posted) + ',' + 
+                               STRING(ar-inv.x-no) + ',' + STRING(ar-inv.x-no))
+                               .
     RUN listobjs/ar-inv_.w.
   END.
 

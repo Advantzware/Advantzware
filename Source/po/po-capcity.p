@@ -111,38 +111,14 @@ DEFINE        VARIABLE cShiptoCustomer AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (
-    INPUT  cocode, 
-    INPUT  "BusinessFormLogo", 
-    INPUT  "C" /* Logical */, 
-    INPUT  NO /* check by cust */, 
-    INPUT  YES /* use cust not vendor */, 
-    INPUT  "" /* cust */, 
-    INPUT  "" /* ship-to*/,
-    OUTPUT cRtnChar, 
-    OUTPUT lRecFound
-    ).
-    
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
+RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
 
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
+IF NOT lValid THEN
+DO:
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
 END.
 
-ls-full-img1 = cRtnChar + ">".
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 v-dash-line = FILL ("_",80).
 
@@ -373,9 +349,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     v-num-add = 0.
 
                 FIND FIRST job WHERE job.company EQ cocode 
-                    AND job.job-no EQ string(FILL(" ",6 - length(
-                    TRIM(po-ordl.job-no)))) +
-                    trim(po-ordl.job-no) 
+                    AND job.job-no EQ po-ordl.job-no 
                     AND job.job-no2 EQ po-ordl.job-no2
                     NO-LOCK NO-ERROR.
                 IF AVAILABLE job THEN
@@ -438,7 +412,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
           
         END. /* avail item and item.mat-type eq "B" */
        
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) +
             (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
             ELSE "").
 
@@ -463,7 +437,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             "<C16>" po-ordl.pr-qty-uom 
             "<C21>" po-ordl.i-no FORM "x(20)"
             v-adder[1] 
-            "<C52>" v-job-no FORM "x(12)" SPACE(1).
+            "<C52>" v-job-no FORM "x(16)" SPACE(1).
 
         IF lPrintPrice THEN
             PUT
@@ -637,8 +611,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
         IF po-ordl.ord-no NE 0 THEN 
         DO:
-            PUT "<C21>Order#:" STRING(po-ordl.ord-no,">>>>>9").
-            PUT "<C33>Cust PO#:" cCustPo           /*Task# 10041302*/
+            PUT "<C21>Order#:" STRING(po-ordl.ord-no,">>>>>>>9").
+            PUT "<C35>Cust PO#:" cCustPo           /*Task# 10041302*/
                 SKIP.
             lv-add-line = NO.
             v-line-number = v-line-number + 1.

@@ -45,6 +45,8 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+{sys/inc/var.i}
+
 DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
@@ -256,11 +258,11 @@ DEFINE VARIABLE cb-formno AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 9.8 BY 1
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
-DEFINE VARIABLE cb-jobno2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cb-jobno2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "00" 
+     LIST-ITEMS "000" 
      DROP-DOWN-LIST
-     SIZE 9.8 BY 1
+     SIZE 12 BY 1
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 DEFINE VARIABLE cb-machine AS CHARACTER FORMAT "X(256)":U 
@@ -370,7 +372,7 @@ DEFINE BROWSE br-table
     ttBrowseInventory.quantityOriginal WIDTH 25 COLUMN-LABEL "Qty Original" LABEL-BGCOLOR 14
     ttBrowseInventory.locationID WIDTH 25 COLUMN-LABEL "Location" FORMAT "X(12)" LABEL-BGCOLOR 14
     ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)" LABEL-BGCOLOR 14
-    ttBrowseInventory.jobID WIDTH 20 COLUMN-LABEL "Job #" FORMAT "X(20)" LABEL-BGCOLOR 14
+    ttBrowseInventory.jobID WIDTH 25 COLUMN-LABEL "Job #" FORMAT "X(20)" LABEL-BGCOLOR 14
     ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(15)" LABEL-BGCOLOR 14
     ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
@@ -1214,9 +1216,9 @@ DO:
         APPLY "LEAVE":U TO SELF.
                     
         ASSIGN
-            cb-jobno2:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 6 AND
-                                         INDEX(cb-jobno2:LIST-ITEMS, STRING(INTEGER(ENTRY(6,cFieldsValue,"|")),"99")) GT 0 THEN
-                                          ENTRY(6,cFieldsValue,"|")
+            cb-jobno2:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 9 AND
+                                         INDEX(cb-jobno2:LIST-ITEMS, STRING(INTEGER(ENTRY(9,cFieldsValue,"|")),"999")) GT 0 THEN
+                                          ENTRY(9,cFieldsValue,"|")
                                       ELSE
                                           ENTRY(1,cb-jobno2:LIST-ITEMS)
             cb-formno:SCREEN-VALUE  = IF NUM-ENTRIES(cFieldsValue,"|") GE 8 AND
@@ -1291,14 +1293,14 @@ DO:
         ).
 
     cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, 6, TRUE
+                      "fAddSpacesToString" IN hdJobProcs, ls-jobno:SCREEN-VALUE, iJobLen, TRUE
                       ).                                  
 
     IF lParse THEN
         ASSIGN
-            SELF:SCREEN-VALUE = cJobNo    
+            SELF:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))    
             cFormattedJobno = DYNAMIC-FUNCTION (
-                              "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                              "fAddSpacesToString" IN hdJobProcs, cJobNo, iJobLen, TRUE
                               ).
 
     IF cMessage NE "" THEN DO:
@@ -1310,7 +1312,7 @@ DO:
     RUN updateComboBoxes.
 
     IF lParse THEN
-        IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0) OR
+        IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"999")) LE 0) OR
            (cFormNo NE "" AND INDEX(cFormnoListItems,STRING(INTEGER(cFormNo),"99")) LE 0) OR
            (cBlankNo NE "" AND INDEX(cBlanknoListitems,STRING(INTEGER(cBlankNo),"99")) LE 0) THEN DO:
             RUN pStatusMessage ("INVALID JOB SCAN, PLEASE SCAN A VALID JOB NUMBER.", 3). 
@@ -1319,11 +1321,11 @@ DO:
                 cFormattedJobNo         = ""
                 cValidateJobno          = ""
                 SELF:SCREEN-VALUE       = ""
-                cb-jobno2:LIST-ITEMS    = "00"
+                cb-jobno2:LIST-ITEMS    = "000"
                 cb-formno:LIST-ITEMS    = "00"
                 cb-blankno:LIST-ITEMS   = "00"
                 cb-machine:LIST-ITEMS   = ""
-                cb-jobno2:SCREEN-VALUE  = "00"
+                cb-jobno2:SCREEN-VALUE  = "000"
                 cb-formno:SCREEN-VALUE  = "00"
                 cb-blankno:SCREEN-VALUE = "00"
                 cb-machine:SCREEN-VALUE = ""
@@ -1338,7 +1340,7 @@ DO:
                 cb-jobno2:SCREEN-VALUE  = IF cJobNo2 EQ "" THEN 
                                               ENTRY(1,cJobno2ListItems)
                                           ELSE
-                                              STRING(INTEGER(cJobNo2),"99")
+                                              STRING(INTEGER(cJobNo2),"999")
                 cb-formno:SCREEN-VALUE  = IF cFormNo EQ "" THEN
                                               ENTRY(1,cFormnoListItems)
                                           ELSE
@@ -1390,9 +1392,10 @@ DO:
             SELF:SCREEN-VALUE = ""
             cValidateJobno    = ""
             .
-        
+        SESSION:SET-WAIT-STATE("").
         RETURN NO-APPLY.
     END.
+    ELSE RUN pStatusMessage ("", 0).
 
     btJobDetails:SENSITIVE = TRUE.
                             
@@ -1782,15 +1785,15 @@ PROCEDURE jobScan :
     END.    
 
     ASSIGN
-        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ipcJobno
-        cFormattedJobno = ipcJobno.
+        ls-jobno:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipcJobno))
+        cFormattedJobno = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipcJobno)).
     
     RUN updateComboBoxes.
        
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             cb-jobno2:LIST-ITEMS    = cJobno2ListItems
-            cb-jobno2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
+            cb-jobno2:SCREEN-VALUE  = STRING(ipiJobno2,"999")
             .
             
         APPLY "VALUE-CHANGED" to cb-jobno2.
@@ -2199,15 +2202,15 @@ PROCEDURE pUpdateRMDetails :
     
     IF lValidTag THEN DO:
         ASSIGN
-            ls-jobno:SCREEN-VALUE = cJobNo
-            cFormattedJobno       = cJobNo
+            ls-jobno:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))
+            cFormattedJobno       = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))
             .
         
         RUN updateComboBoxes.
         
         ASSIGN 
-            cValidateJobno          = cJobNo
-            cb-jobno2:SCREEN-VALUE  = STRING(iJobNo2,"99")
+            cValidateJobno          = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cJobNo))
+            cb-jobno2:SCREEN-VALUE  = STRING(iJobNo2,"999")
             .
             
         APPLY "VALUE-CHANGED" to cb-jobno2.
@@ -2478,7 +2481,7 @@ PROCEDURE tagScan :
         
         ASSIGN 
             cValidateJobno          = cJobNo
-            cb-jobno2:SCREEN-VALUE  = STRING(iJobNo2,"99")
+            cb-jobno2:SCREEN-VALUE  = STRING(iJobNo2,"999")
             .
             
         APPLY "VALUE-CHANGED" to cb-jobno2.
@@ -2572,9 +2575,9 @@ PROCEDURE updateComboBoxes :
     
     IF cJobno2ListItems EQ "" THEN
         ASSIGN 
-            cJobno2ListItems                              = "00"
+            cJobno2ListItems                              = "000"
             cb-jobno2:LIST-ITEMS IN FRAME {&FRAME-NAME}   = cJobno2ListItems 
-            cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "00".
+            cb-jobno2:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "000".
     ELSE
         cb-jobno2:LIST-ITEMS IN FRAME {&FRAME-NAME} = cJobno2ListItems.
         

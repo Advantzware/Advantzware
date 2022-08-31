@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolacpi.p 05/18 RES */
-/* PRINT ACPI BOL (from Elite)                                                */ 
+/* PRINT ACPI BOL (from Elite)                                                */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -29,7 +30,7 @@ DEFINE VARIABLE v-part-comp         AS   CHARACTER FORMAT "x" NO-UNDO.
 DEFINE VARIABLE v-part-qty          AS   DECIMAL NO-UNDO.
 DEFINE VARIABLE v-ord-no            LIKE oe-boll.ord-no NO-UNDO.
 DEFINE VARIABLE v-po-no             LIKE oe-bolh.po-no NO-UNDO.
-DEFINE VARIABLE v-job-no            AS   CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job-no            AS   CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-phone-num         AS   CHARACTER FORMAT "x(13)" NO-UNDO.
 
 DEFINE VARIABLE v-ship-name  LIKE shipto.ship-name NO-UNDO.
@@ -303,7 +304,8 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
       ASSIGN
       v-salesman = TRIM(v-salesman)
       v-po-no = oe-boll.po-no
-      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE
+      TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
       IF v-salesman GT '' THEN
         IF substr(v-salesman,LENGTH(TRIM(v-salesman)),1) EQ "," THEN
           substr(v-salesman,LENGTH(TRIM(v-salesman)),1) = "".
@@ -507,8 +509,7 @@ PROCEDURE create-tt-boll.
    tt-boll.cases  = tt-boll.cases + ip-cases
    tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
    tt-boll.qty-sum = tt-boll.qty-sum + (ip-qty-case * ip-cases)
-   tt-boll.weight = tt-boll.weight + 
-                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight)
+   tt-boll.weight = oe-boll.weight
    tt-boll.partial = tt-boll.partial + oe-boll.partial 
    tt-boll.unitCount =  tt-boll.unitCount + ip-cases
    v-tot-palls = v-tot-palls + ip-cases

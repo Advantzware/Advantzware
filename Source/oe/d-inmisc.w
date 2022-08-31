@@ -206,13 +206,13 @@ DEFINE FRAME Dialog-Frame
     SIZE 23.6 BY 1
     BGCOLOR 15 FONT 1
     inv-misc.inv-i-no AT ROW 4.81 COL 29.8 COLON-ALIGNED
-    LABEL "Job Number" FORMAT "x(6)"
+    LABEL "Job Number" FORMAT "x(9)"
     VIEW-AS FILL-IN 
     SIZE 19.2 BY 1
     BGCOLOR 15 FONT 1
-    inv-misc.inv-line AT ROW 4.81 COL 50.2 COLON-ALIGNED NO-LABELS FORMAT "99"
+    inv-misc.inv-line AT ROW 4.81 COL 50.2 COLON-ALIGNED NO-LABELS FORMAT "999"
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1
+    SIZE 6 BY 1
     BGCOLOR 15 FONT 1
     inv-misc.po-no-po AT ROW 4.81 COL 79 COLON-ALIGNED
     LABEL "Vendor PO#" FORMAT ">>>>>>"
@@ -308,7 +308,7 @@ DEFINE FRAME Dialog-Frame
     inv-misc.ord-no AT ROW 11.67 COL 65.8 COLON-ALIGNED
     LABEL "Order/Line# " FORMAT ">>>>>>>>"
     VIEW-AS FILL-IN 
-    SIZE 11 BY 1
+    SIZE 12 BY 1
     BGCOLOR 15 FONT 1
     inv-misc.spare-int-3 AT ROW 11.67 COL 77.8 COLON-ALIGNED NO-LABELS FORMAT "->,>>>,>>9"
     VIEW-AS FILL-IN 
@@ -1789,14 +1789,14 @@ PROCEDURE valid-inv-i-no :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             lv-job-no                      = inv-misc.inv-i-no:SCREEN-VALUE
-            lv-job-no                      = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+            lv-job-no                      = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
             inv-misc.inv-i-no:SCREEN-VALUE = lv-job-no.
 
         IF lv-job-no NE "" THEN 
         DO:
             FIND FIRST job NO-LOCK
                 WHERE job.company EQ cocode
-                AND job.job-no  EQ lv-job-no
+                AND job.job-no    EQ lv-job-no
                 NO-ERROR.
             IF NOT AVAILABLE job THEN 
             DO:
@@ -1827,7 +1827,7 @@ PROCEDURE valid-inv-line :
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
             lv-job-no                      = inv-misc.inv-i-no:SCREEN-VALUE
-            lv-job-no                      = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+            lv-job-no                      = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no))
             inv-misc.inv-i-no:SCREEN-VALUE = lv-job-no.
 
         IF lv-job-no NE "" THEN 

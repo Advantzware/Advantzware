@@ -343,9 +343,7 @@ v-printline = 0.
             assign v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -406,7 +404,7 @@ v-printline = 0.
           
         end. /* avail item and item.mat-type eq "B" */
        
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) +
                    (IF po-ordl.s-num NE ? THEN "-" + string(po-ordl.s-num,"99")
                     ELSE "").
 
@@ -593,8 +591,8 @@ v-printline = 0.
                 ASSIGN v-cut-po = oe-ord.po-no .
 
         IF po-ordl.ord-no NE 0 THEN DO:
-            put "<C21>Order#:" string(po-ordl.ord-no,">>>>>9").
-            PUT "<C33>Cust PO#:" v-cut-po           /*Task# 10041302*/
+            put "<C21>Order#:" string(po-ordl.ord-no,">>>>>>>9").
+            PUT "<C35>Cust PO#:" v-cut-po           /*Task# 10041302*/
                 skip.
             lv-add-line = NO.
             v-line-number = v-line-number + 1.

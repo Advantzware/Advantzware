@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolxprt2.p 10/02 YSK */
 /* PRINT Xprint BOL 2 like Dayton                                             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -29,7 +30,7 @@ DEFINE VARIABLE v-part-comp  AS CHARACTER FORMAT "x".
 DEFINE VARIABLE v-part-qty   AS DECIMAL.
 DEFINE VARIABLE v-ord-no     LIKE oe-boll.ord-no.
 DEFINE VARIABLE v-po-no      LIKE oe-bolh.po-no.
-DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(9)" NO-UNDO.
+DEFINE VARIABLE v-job-no     AS CHARACTER FORMAT "x(13)" NO-UNDO.
 DEFINE VARIABLE v-phone-num  AS CHARACTER FORMAT "x(13)" NO-UNDO.
 
 DEFINE VARIABLE v-ship-name  LIKE shipto.ship-name.
@@ -107,31 +108,7 @@ DEFINE VARIABLE lBroker        AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lv-tot-pg      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 FORM w2.i-no                         FORMAT "x(15)"
     w2.job-po                       AT 17 FORMAT "x(15)"
@@ -214,7 +191,18 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     AND cust.cust-no EQ oe-bolh.cust-no
     NO-LOCK
     BREAK BY oe-bolh.bol-no:
-      
+    
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN ASSIGN cLocation = oe-boll.loc .
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+    
     IF FIRST-OF(oe-bolh.bol-no) THEN 
     DO:
         FIND FIRST carrier
@@ -351,7 +339,8 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
             ASSIGN
                 v-salesman = TRIM(v-salesman)
                 v-po-no    = oe-boll.po-no
-                v-job-no   = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>"))
+                v-job-no   = IF oe-boll.job-no = "" THEN "" ELSE 
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))
                 v-fob      = IF oe-ord.fob-code BEGINS "ORIG" THEN "Origin" ELSE "Destination".
 
             IF v-salesman GT '' THEN

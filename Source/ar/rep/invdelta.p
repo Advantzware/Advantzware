@@ -117,33 +117,7 @@ DEFINE SHARED VARIABLE lPrintQtyAll    AS LOGICAL   NO-UNDO .
 DEFINE BUFFER bf-cust FOR cust .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN 
-DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath",
-        cRtnChar
-        ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN 
-    DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
     AND sys-ctrl.name    EQ "INVPRINT" NO-LOCK NO-ERROR.
@@ -189,7 +163,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     BREAK BY (IF v-print-fmt EQ "ASIXprnt" THEN "" ELSE ar-inv.cust-no)
     BY ar-inv.inv-no:
-     
+    
     FIND FIRST carrier WHERE carrier.company EQ cocode
         AND carrier.carrier EQ ar-inv.carrier NO-LOCK NO-ERROR.
     IF AVAILABLE carrier THEN ASSIGN v-shipvia = carrier.dscr.
@@ -269,15 +243,16 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             cPo-No = cPo-No + ar-invl.po-no + ",". 
         END.
         
-        FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no AND
-            oe-bolh.ord-no = ar-invl.ord-no:
+        FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
             FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
                 oe-boll.b-no = oe-bolh.b-no AND
-                oe-boll.i-no = ar-invl.i-no:
+                oe-boll.i-no = ar-invl.i-no AND
+                oe-boll.ord-no = ar-invl.ord-no:
 
                 /** Bill Of Lading TOTAL CASES **/
                 ASSIGN 
-                    v-bol-cases = v-bol-cases + oe-boll.cases.
+                    v-bol-cases = v-bol-cases + oe-boll.cases
+                    cLocation   = oe-boll.loc .
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
             END. /* each oe-boll */
@@ -391,6 +366,14 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
      view frame invhead-comp.  /* Print headers */  */
     IF v-salesman = "" THEN v-salesman = cust.sman.
     v-inv-date = ar-inv.inv-date.
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    	      
+        IF NOT lValid THEN
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.
+        ASSIGN ls-full-img1 = cRtnChar + ">" .
         
     {ar/rep/invdelta.i}
 
@@ -510,8 +493,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             ar-invl.ship-qty FORMAT  "->>>>>>9" SPACE(1)
             ar-invl.inv-qty  FORMAT "->>>>>>9" SPACE(1)
             /*v-bo-qty  format "->>>>>9" SPACE(1) */
-            ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-            v-i-no  FORMAT "x(15)" SPACE(3)
+            ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+            v-i-no  FORMAT "x(15)" SPACE(2)
             v-i-dscr  FORMAT "x(25)" SPACE(3)
             v-price  FORMAT "$->>>,>>9.99" /*"$->,>>9.99<<"*/ SPACE(1)
             v-price-head SPACE(1)
@@ -533,11 +516,11 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
                     IF LENGTH(ar-invl.po-no) LE 8 THEN 
                     DO:
-                        PUT  SPACE(18) ar-invl.po-no FORMAT "x(8)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                        PUT  SPACE(18) ar-invl.po-no FORMAT "x(8)" SPACE(2)   ar-invl.part-no SPACE(2) v-part-info SKIP.
                     END.
                     ELSE 
                     DO: 
-                        PUT SPACE(11) ar-invl.po-no FORMAT "x(15)" SPACE(1)   ar-invl.part-no SPACE(3) v-part-info SKIP.
+                        PUT SPACE(11) ar-invl.po-no FORMAT "x(15)" SPACE(2)   ar-invl.part-no SPACE(2) v-part-info SKIP.
                     END.                     
                 END.
                 ELSE 

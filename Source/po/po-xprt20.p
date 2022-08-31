@@ -61,33 +61,11 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
-/*ASSIGN ls-image1 = "images\pacific1.bmp"
-       ls-image2 = "images\pacific2.bmp"
-       FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">"
-       FILE-INFO:FILE-NAME = ls-image2
-       ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".*/
+RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
+IF NOT lValid THEN
+DO:
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
 END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
@@ -358,9 +336,7 @@ v-printline = 0.
             assign v-num-add = 0.
 
             find first job where job.company eq cocode 
-                             and job.job-no eq string(fill(" ",6 - length(
-                                                trim(po-ordl.job-no)))) +
-                                                trim(po-ordl.job-no) 
+                             and job.job-no eq po-ordl.job-no 
                              and job.job-no2 eq po-ordl.job-no2
                            no-lock no-error.
             if avail job then
@@ -428,8 +404,8 @@ v-printline = 0.
           */
         end. /* avail item and item.mat-type eq "B" */
        /* v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,">>").*/
-        v-job-no = po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99") +
-                   "-" + string(po-ordl.s-num,"99").
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2) +
+                   "-" + string(po-ordl.s-num,"99"))).
 
         IF po-ordl.job-no = "" THEN v-job-no = "".
 
@@ -444,12 +420,12 @@ v-printline = 0.
         PUT po-ordl.LINE FORM ">>9"
             po-ordl.ord-qty SPACE(2)
             po-ordl.pr-qty-uom SPACE(1)
-            po-ordl.i-no FORM "x(20)".
+            po-ordl.i-no FORM "x(18)".
                
         IF v-adder[1] NE "" THEN 
-        PUT "<C46>" "YES" .
+        PUT "<C45>" "YES" .
        
-        PUT "<C50.5>" v-job-no FORM "x(12)" SPACE(1)
+        PUT "<C49>" v-job-no FORM "x(16)" SPACE(1)
             po-ordl.cost FORM "->>>>9.99<<" SPACE(1)
             po-ordl.pr-uom FORMAT "x(3)" 
             po-ordl.t-cost FORM "->>>>>9.99"              

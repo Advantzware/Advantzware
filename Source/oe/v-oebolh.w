@@ -275,8 +275,8 @@ DEFINE VARIABLE tgSigned AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnTags AT ROW 7.00 COL 139.6 WIDGET-ID 34
-     btnTags1 AT ROW 5.00 COL 139.6 WIDGET-ID 34
+     btnTags AT ROW 7.62 COL 139.6 WIDGET-ID 34
+     btnTags1 AT ROW 5.62 COL 139.6 WIDGET-ID 34
      oe-bolh.bol-no AT ROW 1.24 COL 8 COLON-ALIGNED
           LABEL "BOL#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
@@ -315,12 +315,12 @@ DEFINE FRAME F-Main
           "Enter customer number."
           LABEL "Customer#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1 
-     oe-bolh.loc AT ROW 4.52 COL 38 COLON-ALIGNED
+          SIZE 15 BY 1
+     oe-bolh.loc AT ROW 4.52 COL 78.6 COLON-ALIGNED
           LABEL "Loc" FORMAT "x(5)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1 
-     oe-bolh.trailer AT ROW 4.52 COL 69.6 COLON-ALIGNED
+          SIZE 15 BY 1
+     oe-bolh.trailer AT ROW 4.52 COL 108.6 COLON-ALIGNED
           LABEL "Trailer#"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1      
@@ -331,8 +331,8 @@ DEFINE FRAME F-Main
      oe-bolh.cwt AT ROW 5.57 COL 69.6 COLON-ALIGNED
           LABEL "Rate/100 Wt"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1   
-     oe-bolh.quotedFreight AT ROW 5.95 COL 122.4 COLON-ALIGNED
+          SIZE 16 BY 1
+     oe-bolh.quotedFreight AT ROW 6.57 COL 122.4 COLON-ALIGNED
           LABEL "Quoted Freight"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
@@ -340,15 +340,15 @@ DEFINE FRAME F-Main
           LABEL "Total Weight" FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     oe-bolh.freight AT ROW 7 COL 122.4 COLON-ALIGNED
+     oe-bolh.freight AT ROW 7.62 COL 122.4 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     oe-bolh.freightCalculationAmount AT ROW 4.95 COL 122.4 COLON-ALIGNED
+     oe-bolh.freightCalculationAmount AT ROW 5.57 COL 122.4 COLON-ALIGNED
           LABEL "Calculated Freight" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     cust_name AT ROW 6.48 COL 58 COLON-ALIGNED NO-LABEL
+     cust_name AT ROW 4.52 COL 29.8 COLON-ALIGNED NO-LABEL
      ship_name AT ROW 6.43 COL 14 COLON-ALIGNED NO-LABEL
      cust_addr1 AT ROW 7.43 COL 58 COLON-ALIGNED NO-LABEL      
      ship_addr1 AT ROW 7.38 COL 14 COLON-ALIGNED NO-LABEL
@@ -389,7 +389,7 @@ DEFINE FRAME F-Main
      cOrderBy AT ROW 1.24 COL 71.4 COLON-ALIGNED
      btnCalendar-1 AT ROW 1.24 COL 54
      cBillFreightDscr AT ROW 2.33 COL 121.2 COLON-ALIGNED NO-LABEL WIDGET-ID 300
-     dBillableFreight AT ROW 8.05 COL 122.4 COLON-ALIGNED WIDGET-ID 302
+     dBillableFreight AT ROW 8.67 COL 122.4 COLON-ALIGNED WIDGET-ID 302
      "@" VIEW-AS TEXT
           SIZE 1.8 BY .62 AT ROW 1.33 COL 134.2 WIDGET-ID 298
      RECT-2 AT ROW 1 COL 1
@@ -489,9 +489,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN cust_name IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-       cust_name:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* SETTINGS FOR FILL-IN cust_state IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -2662,7 +2659,7 @@ PROCEDURE valid-loc :
          AND loc.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
     IF NOT AVAIL loc THEN DO:
         MESSAGE 
-                "Invalid location . Presss F1 for a list of valid location." 
+                "Invalid location . Press F1 for a list of valid location." 
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-bolh.loc.
             oplReturnError = YES.
@@ -2695,7 +2692,7 @@ PROCEDURE valid-carrier :
             NO-LOCK NO-ERROR.
         IF NOT AVAIL carrier THEN DO:
             MESSAGE 
-                "Invalid Carrier. Presss F1 for a list of valid carriers." 
+                "Invalid Carrier. Press F1 for a list of valid carriers." 
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-bolh.carrier.
             RETURN ERROR.
@@ -2703,7 +2700,7 @@ PROCEDURE valid-carrier :
         ELSE DO:
             MESSAGE 
                 "The carrier you entered is valid, but is not available" SKIP 
-                "for this shipto. Presss F1 for a list of valid carriers." 
+                "for this shipto. Press F1 for a list of valid carriers." 
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-bolh.carrier.
             RETURN ERROR.

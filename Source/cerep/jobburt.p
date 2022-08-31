@@ -24,12 +24,13 @@ FIND FIRST users WHERE
 {sys/inc/var.i shared}
 {jcrep/r-ticket.i "shared"}
 
-DEFINE VARIABLE v-job           AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE VARIABLE v-job2          AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE VARIABLE v-job           AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE VARIABLE v-job2          AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE VARIABLE v-reprint       AS LOG.
 DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lIsAPIActive    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE li              AS INTEGER   NO-UNDO.
 
 DEFINE BUFFER bf-job-hdr FOR job-hdr.
@@ -43,21 +44,30 @@ ASSIGN
     .
 
 DEFINE TEMP-TABLE ttEstCostHeaderID NO-UNDO
-    FIELD estCostHeaderID AS int64
+    FIELD estCostHeaderID AS INT64
     FIELD riJobHeader     AS ROWID
     .
+
+RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+
+RUN Outbound_IsApiClientAndScopeActive IN hdOutboundProcs (cocode, "", "JobTicket", v-format, "", "", "PrintJob", OUTPUT lIsAPIActive).
+IF NOT lIsAPIActive THEN DO:
+    MESSAGE "'JobTicket' API is not configured for '" + v-format + "' format"  
+        VIEW-AS ALERT-BOX ERROR.
+    RETURN ERROR.
+END.
 
 /* build tt-reftable */
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND FILL (" ",6 - length(TRIM(job-hdr.job-no))) +
-    TRIM (job-hdr.job-no) +
-    STRING (job-hdr.job-no2,"99")  GE fjob-no
-    AND FILL (" ",6 - length(TRIM(job-hdr.job-no))) +
-    TRIM (job-hdr.job-no) +
-    STRING (job-hdr.job-no2,"99")  LE tjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (production OR
     job-hdr.ftick-prnt           EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -73,7 +83,6 @@ FOR EACH job-hdr NO-LOCK
     FIRST est
     WHERE est.company  EQ job-hdr.company
     AND est.est-no   EQ job-hdr.est-no
-    AND est.est-type LE 4  
     NO-LOCK
 
     BREAK BY job-hdr.job
@@ -150,12 +159,15 @@ FOR EACH job-hdr NO-LOCK
         END.
     END.
     
-    FIND FIRST estCostHeader NO-LOCK
-         WHERE estCostHeader.company    = job-hdr.company
-           AND estCostHeader.estimateNo = job-hdr.est-no
-           AND estCostHeader.jobID      = job-hdr.job-no
-           AND estCostHeader.jobid2     = job-hdr.job-no2
-         NO-ERROR.
+    /* Need to be re-factored later */
+    FOR EACH estCostHeader NO-LOCK
+         WHERE estCostHeader.company    EQ job-hdr.company
+           AND estCostHeader.estimateNo EQ job-hdr.est-no
+           AND estCostHeader.jobID      EQ job-hdr.job-no
+           AND estCostHeader.jobid2     EQ job-hdr.job-no2
+         BY estCostHeader.calcDateTime DESCENDING:
+        LEAVE.
+    END.
     IF NOT AVAILABLE estCostHeader THEN
         NEXT.
     
@@ -171,8 +183,6 @@ FOR EACH job-hdr NO-LOCK
     END.
 END.
 /* end of building tt-reftable */
-
-RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
 
 RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
     INPUT  cocode,                             /* Company Code (Mandatory) */
@@ -199,8 +209,10 @@ IF AVAILABLE ttAPIOutboundEvent THEN DO:
     IF AVAILABLE apiOutboundEvent THEN
         oplcRequestData = apiOutboundEvent.requestData.
 END.    
-                                
-DELETE PROCEDURE hdOutboundProcs.
+
+FINALLY:
+    DELETE PROCEDURE hdOutboundProcs.
+END FINALLY.                                
 
 
 /* **********************  Internal Procedures  *********************** */

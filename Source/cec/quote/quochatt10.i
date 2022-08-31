@@ -1,6 +1,7 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* cec/quote/quochatt10.i */
   
-PUT "<C2><R2><#1><R+11><C+50><IMAGE#1=" ls-full-img1  SKIP
+PUT "<C2><R2><#1><R+11><C+45><IMAGE#1=" ls-full-img1  SKIP
     "<FCourier New>"
     "Bill To:"  space(40) "Ship To:"  xquo.shipto[5] SKIP
     SPACE(5) bill[1]  xquo.shipto[1] AT 55 skip
@@ -40,14 +41,14 @@ PUT "<FArial><=4><R+1> Quote Date         FOB                     Ship Via      
     terms.dscr FORM "x(15)" space(1) sman.sname space(2) v-over-under SKIP.
 
 PUT "<|10><R25><C1><#5><FROM><R27><C80><RECT>" SKIP    
-    "<R25><C7><FROM><R27><C7><LINE>" SKIP
-    "<R25><C20><FROM><R27><C20><LINE>" SKIP
+    "<R25><C8><FROM><R27><C8><LINE>" SKIP
+    "<R25><C21><FROM><R27><C21><LINE>" SKIP
     "<R25><C45><FROM><R27><C45><LINE>" SKIP
     "<R25><C56><FROM><R27><C56><LINE>" SKIP
     "<R25><C63><FROM><R27><C63><LINE>" SKIP
     "<R25><C73><FROM><R27><C73><LINE>" SKIP.
   
-PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                             Quantity      Release             Price           UOM " SKIP.
+PUT "<FArial><=5><R+1> Est#/Qt#     Part#/Description               Item/Style/Color/Board                             Quantity      Release             Price           UOM " SKIP.
 PUT "<FCourier New>".
 
 lv-pg-num = PAGE-NUMBER.

@@ -69,7 +69,7 @@ DEFINE VARIABLE hMsgImage AS HANDLE NO-UNDO EXTENT 23.
 DEFINE VARIABLE hMsgText AS HANDLE NO-UNDO EXTENT 23.
 
 /* buildGridArray & buildPixel Array vars */
-DEFINE VARIABLE dateTimePixel AS DECIMAL NO-UNDO EXTENT 2000.
+DEFINE VARIABLE dateTimePixel AS DECIMAL NO-UNDO EXTENT 4000.
 DEFINE VARIABLE intColor AS INTEGER NO-UNDO EXTENT 25.
 DEFINE VARIABLE intDate AS DATE NO-UNDO EXTENT 25.
 DEFINE VARIABLE intEtime AS INTEGER NO-UNDO EXTENT 25.
@@ -3843,6 +3843,8 @@ PROCEDURE pFromPending :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdtAsOfDate AS DATE NO-UNDO.
+    
     DEFINE VARIABLE priorEndDate  AS DATE NO-UNDO.
     DEFINE VARIABLE priorEndTime  AS INTEGER NO-UNDO.
     DEFINE VARIABLE priorDateTime AS INTEGER NO-UNDO INITIAL ?.
@@ -3854,8 +3856,8 @@ PROCEDURE pFromPending :
           BY bPendingJob.resourceSequence
         :
       ASSIGN
-        bPendingJob.startDate = TODAY
-        bPendingJob.startTime = TIME
+        bPendingJob.startDate = ipdtAsOfDate
+        bPendingJob.startTime = IF ipdtAsOfDate EQ TODAY THEN TIME ELSE 0
         .
       RUN newEnd (bPendingJob.timeSpan,bPendingJob.startDate,bPendingJob.startTime,
                   OUTPUT bPendingJob.endDate,OUTPUT bPendingJob.endTime).
@@ -3943,8 +3945,15 @@ PROCEDURE pFromPendingByDueDate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipdtAsOfDate AS DATE NO-UNDO.
+
     DEFINE BUFFER bPendingJob FOR pendingJob.
 
+    FOR EACH bPendingJob
+        WHERE bPendingJob.dueDate LT ipdtAsOfDate + pendingDays
+        :
+        bPendingJob.dueDate = ipdtAsOfDate + pendingDays.
+    END. // each bpendingjob
     FOR EACH bPendingJob
         BREAK BY bPendingJob.dueDate
               BY bPendingJob.job
@@ -3954,6 +3963,11 @@ PROCEDURE pFromPendingByDueDate :
           ASSIGN
             bPendingJob.startDate = bPendingJob.dueDate - pendingDays
             bPendingJob.startTime = 0
+            .
+          IF bPendingJob.startDate LT ipdtAsOfDate THEN
+          ASSIGN
+            bPendingJob.startDate = ipdtAsOfDate
+            bPendingJob.startTime = IF ipdtAsOfDate EQ TODAY THEN TIME ELSE 0
             .
           RUN newEnd (bPendingJob.timeSpan,bPendingJob.startDate,bPendingJob.startTime,
                       OUTPUT bPendingJob.endDate,OUTPUT bPendingJob.endTime).

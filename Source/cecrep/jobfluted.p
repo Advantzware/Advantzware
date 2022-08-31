@@ -2,6 +2,7 @@
 /*  factory ticket                                                            */
 /* -------------------------------------------------------------------------- */
 /*  YSK 06/08/01  change local var v-out1-id, v-out2-id to shared var for despr~nt1.p  */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -625,7 +626,7 @@ do v-local-loop = 1 to v-local-copies:
 
             PUT UNFORMATTED                  
                 "<#12><C1><FROM><C81><R+52><RECT><||3><C81>" /*v-qa-text*/ SKIP 
-                "<=12><R+1></b><C5>Job #: " (job-hdr.job-no + "-" + string(job-hdr.job-no2))   
+                "<=12><R+1></b><C5>Job #: " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
                 "<C25> Our Order #: " STRING(job-hdr.ord-no) "<C45>Ord Date: " v-ord-date  
                 "<=12><R+2><C5>Est #:" STRING(job-hdr.est-no) "<C25> FG Item: " itemfg.i-no FORMAT "x(15)" "<C45>Due Date: " v-due-date "</b>"
                 "<=12><R+3><C15>MASTER WORKSHEET: "

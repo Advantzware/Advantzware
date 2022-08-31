@@ -24,6 +24,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -35,7 +36,7 @@ DEF VAR ip-post AS LOG INIT NO NO-UNDO.
 &ELSE
 DEF INPUT PARAMETER ip-post AS LOG NO-UNDO.
 &ENDIF*/
-
+   
 DEFINE VARIABLE ip-post AS LOG NO-UNDO.
 
 IF INDEX(PROGRAM-NAME(1),"rm/r-rmtpst") NE 0 OR
@@ -102,7 +103,7 @@ DEFINE TEMP-TABLE tt-rctd NO-UNDO LIKE rm-rctd
 
 DEFINE TEMP-TABLE tt-mat NO-UNDO 
     FIELD frm LIKE job-mat.frm
-    FIELD qty LIKE job-mat.qty
+    FIELD qty AS DECIMAL FORMAT ">>>>>>>>9.99<<" 
     INDEX frm frm.
 
 DEFINE TEMP-TABLE tt-email NO-UNDO
@@ -260,20 +261,20 @@ DEFINE BUTTON Btn_OK AUTO-GO
     SIZE 16 BY 1.29
     BGCOLOR 8 .
 
-DEFINE VARIABLE begin_job-no2  AS INTEGER   FORMAT ">9":U INITIAL 0 
+DEFINE VARIABLE begin_job-no2  AS INTEGER   FORMAT ">>9":U INITIAL 0 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 4.4 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_userid   AS CHARACTER FORMAT "X(8)":U 
     LABEL "Beginning User ID" 
     VIEW-AS FILL-IN 
     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS INTEGER   FORMAT ">9":U INITIAL 99 
+DEFINE VARIABLE end_job-no2    AS INTEGER   FORMAT ">>9":U INITIAL 999 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 4.6 BY 1 NO-UNDO.
+    SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_userid     AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
     LABEL "Ending User ID" 
@@ -300,7 +301,7 @@ DEFINE VARIABLE ldt-to         AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 55 
+DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
     LABEL "Lines Per Page" 
     VIEW-AS FILL-IN 
     SIZE 4 BY 1 NO-UNDO.
@@ -329,7 +330,7 @@ DEFINE VARIABLE v-post-date    AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/
     VIEW-AS FILL-IN 
     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE v-to-job       AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE v-to-job       AS CHARACTER FORMAT "X(256)":U INITIAL "zzzzzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1 NO-UNDO.
@@ -416,9 +417,9 @@ DEFINE FRAME FRAME-F
     v-post-date AT ROW 3.14 COL 22 COLON-ALIGNED
     tran-period AT ROW 3.14 COL 65 COLON-ALIGNED
     v-from-job AT ROW 4.33 COL 22 COLON-ALIGNED
-    begin_job-no2 AT ROW 4.33 COL 42.2 COLON-ALIGNED
+    begin_job-no2 AT ROW 4.33 COL 41.8 COLON-ALIGNED
     v-to-job AT ROW 4.33 COL 65 COLON-ALIGNED
-    end_job-no2 AT ROW 4.33 COL 85.2 COLON-ALIGNED
+    end_job-no2 AT ROW 4.33 COL 84.8 COLON-ALIGNED
     ldt-from AT ROW 5.52 COL 22 COLON-ALIGNED HELP
     "Enter the Beginning Date"
     ldt-to AT ROW 5.52 COL 65 COLON-ALIGNED HELP
@@ -663,7 +664,7 @@ ON CHOOSE OF Btn_OK IN FRAME FRAME-F /* OK */
             IF begin_job-no2:SCREEN-VALUE EQ "??" THEN
                 begin_job-no2:SCREEN-VALUE = "0".
             IF end_job-no2:SCREEN-VALUE EQ "??" THEN
-                end_job-no2:SCREEN-VALUE = "99".
+                end_job-no2:SCREEN-VALUE = "999".
             ASSIGN {&DISPLAYED-OBJECTS}.    
         END.
 
@@ -704,10 +705,10 @@ ON CHOOSE OF Btn_OK IN FRAME FRAME-F /* OK */
         END.
 
         ASSIGN
-            v-from-job = FILL(" ",6 - length(TRIM(INPUT v-from-job))) +
-                trim(INPUT v-from-job) 
-            v-to-job   = FILL(" ",6 - length(TRIM(INPUT v-to-job))) +
-                trim(INPUT v-to-job) 
+            v-from-job:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-from-job)) 
+            v-to-job:SCREEN-VALUE IN FRAME {&FRAME-NAME}    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-to-job)) 
+            v-from-job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-from-job)) 
+            v-to-job   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', v-to-job))
             v-types    = (IF t-receipt THEN "R" ELSE "") +
                 (IF t-issue   THEN "I" ELSE "") +
                 (IF t-trans   THEN "T" ELSE "") +
@@ -1155,7 +1156,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     ll-auto = IF v-autoissue = ? THEN NO ELSE v-autoissue.
 
-    iLastJob2 = 99.
+    iLastJob2 = 999.
     iFirstJob2 = 0.
     lFromSS = DYNAMIC-FUNCTION('is-run-from-ss':U).
     FOR EACH rm-rctd
@@ -1992,8 +1993,7 @@ PROCEDURE post-rm :
 
         FIND FIRST job NO-LOCK
             WHERE job.company EQ rm-rctd.company
-            AND job.job-no  EQ FILL(" ",6 - LENGTH(TRIM(rm-rctd.job-no))) +
-            TRIM(rm-rctd.job-no)
+            AND job.job-no  EQ rm-rctd.job-no
             AND job.job-no2 EQ rm-rctd.job-no2
             NO-ERROR.
 
@@ -2078,7 +2078,7 @@ PROCEDURE post-rm :
                     DO:
                         BELL.
                         MESSAGE " Job Mat Record not found for "
-                            STRING(job.job-no + "-" + string(job.job-no2,"99") +
+                        STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job.job-no, job.job-no2) +
                             "  " + rm-rctd.i-no)
                             VIEW-AS ALERT-BOX.
                         UNDO transblok, NEXT transblok.
@@ -2335,8 +2335,8 @@ PROCEDURE post-rm :
     FOR EACH rm-rctd
         WHERE rm-rctd.company   EQ cocode
         AND rm-rctd.rita-code EQ "ADDER"
-        AND rm-rctd.job-no    GE v-from-job
-        AND rm-rctd.job-no    LE v-to-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
         AND rm-rctd.job-no2   GE begin_job-no2
         AND rm-rctd.job-no2   LE end_job-no2
         AND ((begin_userid    LE "" AND
@@ -2486,17 +2486,17 @@ PROCEDURE run-report :
         tt-rctd.po-no                      LABEL "P.O.#"
         tt-rctd.po-line                    LABEL "Line"
         po-ord.vend-no                     LABEL "VENDOR"
-        tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
-        tt-rctd.job-no2                    LABEL ""
+        tt-rctd.job-no FORMAT "x(9)"       LABEL "Job #" SPACE(0) "-" SPACE(0)
+        tt-rctd.job-no2 FORMAT ">>9"       LABEL ""
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
-        tt-rctd.qty FORMAT "->>>>9.99<<"   LABEL "QUANTITY" 
+        tt-rctd.qty FORMAT "->>>>>>>>9.99<<" LABEL "QUANTITY" 
         tt-rctd.loc-bin                    LABEL "BIN"
         tt-rctd.pur-uom                    LABEL "UOM"    
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
         v-ext-cost                         LABEL "TOTAL COST"
 
-        WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 138.
+        WITH NO-BOX FRAME itemx  DOWN STREAM-IO WIDTH 148.
 
     FORM tt-rctd.rct-date                   LABEL "DATE"
         tt-rctd.i-no                       LABEL "ITEM"
@@ -2504,18 +2504,18 @@ PROCEDURE run-report :
         tt-rctd.po-no                      LABEL "P.O.#"
         tt-rctd.po-line                    LABEL "Line"
         po-ord.vend-no                     LABEL "VENDOR"
-        tt-rctd.job-no                     LABEL "Job #" SPACE(0) "-" SPACE(0)
-        tt-rctd.job-no2                    LABEL ""
+        tt-rctd.job-no FORMAT "x(9)"       LABEL "Job #" SPACE(0) "-" SPACE(0)
+        tt-rctd.job-no2 FORMAT ">>9"       LABEL ""
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
         tt-rctd.vend-tag                   LABEL "VENDOR TAG#" FORM "x(20)"
-        tt-rctd.qty FORMAT "->>>>9.99<<"   LABEL "QUANTITY" 
+        tt-rctd.qty FORMAT "->>>>>>>>9.99<<" LABEL "QUANTITY" 
         tt-rctd.loc-bin                    LABEL "BIN"
         tt-rctd.pur-uom                    LABEL "UOM"    
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
         v-ext-cost                         LABEL "TOTAL COST"
 
-        WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 168.
+        WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 178.
 
     FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         v-dscr        LABEL "DESCRIPTION"
@@ -2533,8 +2533,8 @@ PROCEDURE run-report :
 
     FOR EACH rm-rctd 
         WHERE rm-rctd.company   EQ cocode
-        AND rm-rctd.job-no    GE v-from-job
-        AND rm-rctd.job-no    LE v-to-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) GE v-from-job
+        AND FILL(" ", iJobLen - length(TRIM(rm-rctd.job-no))) + trim(rm-rctd.job-no) LE v-to-job
         AND rm-rctd.job-no2   GE begin_job-no2
         AND rm-rctd.job-no2   LE end_job-no2
         AND rm-rctd.rct-date  GE ldt-from
@@ -2798,7 +2798,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                 work-gl.actnum = costtype.inv-asset.
             
             work-gl.debits = work-gl.debits + v-ext-cost.
-            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"999") ELSE "")
                                          + (IF tt-rctd.po-no NE "" THEN " PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
                                          + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
             
@@ -2808,7 +2808,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                 work-gl.actnum = costtype.ap-accrued.
             
             work-gl.credits = work-gl.credits + v-ext-cost.
-            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE "")
+            work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"999") ELSE "")
                                          + (IF tt-rctd.po-no NE "" THEN " PO:" + STRING(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
                                          + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
         END.
@@ -2830,7 +2830,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                 END.
 
                 FOR EACH job-hdr
-                    WHERE job-hdr.company     EQ cocode
+                    WHERE job-hdr.company   EQ cocode
                     AND job-hdr.job-no      EQ tt-rctd.job-no
                     AND job-hdr.job-no2     EQ tt-rctd.job-no2
                     AND ((job-hdr.frm       EQ tt-rctd.s-num AND
@@ -2864,7 +2864,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                     /* Debit FG Wip Material */
                     FIND FIRST work-gl
                         WHERE work-gl.job     EQ job-hdr.job
-                        AND work-gl.job-no  EQ job-hdr.job-no
+                        AND work-gl.job-no    EQ job-hdr.job-no
                         AND work-gl.job-no2 EQ job-hdr.job-no2
                         AND work-gl.actnum  EQ prod.wip-mat 
                         NO-LOCK NO-ERROR.
@@ -2878,7 +2878,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                             work-gl.actnum  = prod.wip-mat.
                     END.
                     work-gl.debits = work-gl.debits + ld.
-                    work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                    work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"999") ELSE IF 
                                     tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
                                     + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
 
@@ -2899,7 +2899,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                             work-gl.actnum  = costtype.inv-asset.
                     END.
                     work-gl.credits = work-gl.credits + ld.
-                    work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"99") ELSE IF 
+                    work-gl.cDesc = work-gl.cDesc + (IF tt-rctd.job-no NE "" THEN "Job:" + tt-rctd.job-no + "-" + STRING(tt-rctd.job-no2,"999") ELSE IF 
                                     tt-rctd.po-no NE "" THEN "PO:" + string(tt-rctd.po-no,"999999") + "-" + STRING(tt-rctd.po-line,"999") ELSE "") + " " 
                                     + " Cost $" + string(tt-rctd.cost) + " / " + tt-rctd.cost-uom NO-ERROR.
                 END.
@@ -2986,7 +2986,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                 tt-rctd.po-line                                           ","
                 (IF AVAILABLE po-ord THEN po-ord.vend-no ELSE "")             ","
                 (IF tt-rctd.job-no <> "" THEN tt-rctd.job-no ELSE "" )    ","
-                (IF tt-rctd.job-no EQ "" THEN tt-rctd.job-no2 ELSE 0 ) FORMAT "99"  ","
+                (IF tt-rctd.job-no EQ "" THEN tt-rctd.job-no2 ELSE 0 ) FORMAT "999"  ","
                 tt-rctd.rita-code                                  ","
                 tt-rctd.tag                                        ","
                 tt-rctd.vend-tag                                   ","
@@ -3006,7 +3006,7 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
                 tt-rctd.po-line                                           ","
                 (IF AVAILABLE po-ord THEN po-ord.vend-no ELSE "")             ","
                 (IF tt-rctd.job-no <> "" THEN tt-rctd.job-no ELSE "" )    ","
-                (IF tt-rctd.job-no EQ "" THEN tt-rctd.job-no2 ELSE 0 ) FORMAT "99"  ","
+                (IF tt-rctd.job-no EQ "" THEN tt-rctd.job-no2 ELSE 0 ) FORMAT "999"  ","
                 tt-rctd.rita-code                                  ","
                 tt-rctd.tag                                        ","
                 tt-rctd.qty                                        ","
@@ -3042,16 +3042,16 @@ FOR EACH tt-rctd WHERE INDEX(v-types,tt-rctd.rita-code) GT 0
         DO:
 
             PUT "---------"                           AT 90
-                "---------"                           AT 113 SKIP.
+                "---------"                           AT 117 SKIP.
 
             IF t-receipt THEN 
                 PUT "Total for Receipts and Adjustments:" TO 59
                     v-tot-qty                             TO 98
-                    v-tot-cost                            TO 121 SKIP.
+                    v-tot-cost                            TO 125 SKIP.
             IF t-issue   THEN 
                 PUT "Total for Issues:                  " TO 59
                     v-tot-qtyI                            TO 98
-                    v-tot-costI                           TO 121 SKIP.
+                    v-tot-costI                           TO 125 SKIP.
 
             PUT "Total Number of Lines to Post:     " TO 59
                 v-itmcnt                              TO 98  SKIP(1). 
@@ -3073,15 +3073,15 @@ END. /* each tt-rctd */
 IF v-pr-tots THEN 
 DO:
     PUT "-----------"                               AT 90
-        "----------"                                AT 113 SKIP.
+        "----------"                                AT 117 SKIP.
     IF t-receipt THEN 
         PUT "Grand Total for Receipts and Adjustments:" TO 59
             v-grd-qty                                   TO 98
-            v-grd-cost                                  TO 121 SKIP.
+            v-grd-cost                                  TO 125 SKIP.
     IF t-issue   THEN
         PUT "Grand Total for Issues:                  " TO 59
             v-grd-qtyI                                  TO 98
-            v-grd-costI                                 TO 121 SKIP.
+            v-grd-costI                                 TO 125 SKIP.
     PUT "Grand Total Number of Lines to Post:     " TO 59          
         v-gitmcnt                                  TO 98 SKIP(2).
 END.

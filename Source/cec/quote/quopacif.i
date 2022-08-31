@@ -1,5 +1,6 @@
 /* ------------------------------------------- cec/quote/quofibre.i 11/00 JLF */
 /* print quote items in Fibre format                                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
@@ -66,7 +67,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
     IF i EQ 1 THEN DO:
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
-      put trim(lv-est-no) FORM "x(6)" SPACE(1) 
+      put trim(lv-est-no) FORM "x(8)" SPACE(1) 
           xqitm.part-no space(1) xqitm.part-dscr1.           
     END.
     ELSE IF i EQ 2 THEN DO:
@@ -93,18 +94,18 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
          ASSIGN trim-size = ""
                 style-dscr = "".
 
-      PUT     trim-size AT 8 FORM "x(21)"
+      PUT     trim-size AT 10 FORM "x(21)"
               /*xqitm.style*/  style-dscr   .
     END.
     ELSE IF i EQ 3 THEN DO:
-         PUT "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)".
-         IF NOT s-print-comp OR est.est-type EQ 5 THEN PUT xqitm.i-coldscr  AT 29 FORM "x(30)".
-         ELSE PUT "                              " AT 29.
+         PUT "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)".
+         IF NOT s-print-comp OR est.est-type EQ 5 THEN PUT xqitm.i-coldscr  AT 31 FORM "x(30)".
+         ELSE PUT "                              " AT 31.
     END.
     ELSE IF i EQ 4 THEN DO:      
-       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)"         .
-       IF AVAIL ef AND est.est-type NE 6 THEN PUT ef.brd-dscr AT 29 FORMAT "x(30)".
-       ELSE PUT "                              " AT 29.
+       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)"         .
+       IF AVAIL ef AND est.est-type NE 6 THEN PUT ef.brd-dscr AT 31 FORMAT "x(30)".
+       ELSE PUT "                              " AT 31.
     END.
     ELSE IF i EQ 5 /* AND numfit GE 5 */ THEN DO:
        v-board = IF AVAIL ef THEN
@@ -130,7 +131,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
        lv-fg# = IF est.est-type EQ 6 AND AVAIL bf-eb THEN bf-eb.stock-no
                 ELSE IF AVAIL eb THEN eb.stock-no ELSE xqitm.part-no.
 
-       put "FG#: " + lv-fg# AT 8 FORM "x(21)"
+       put "FG#: " + lv-fg# AT 10 FORM "x(21)"
            v-board FORM "x(30)".                                           
     END.
     IF i > 5 THEN PUT SPACE(58) .
@@ -152,9 +153,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
       ELSE*/ 
                 
            lv-uom = /*IF est.est-type = 6 AND NOT lv-two-box THEN "SET" ELSE ??? Task# 03240607*/ xqqty.uom.
-           put xqqty.qty xqqty.rels space(5)
-               xqqty.price FORM "->>,>>9.99" space(6)
-               lv-uom .  
+           put "<C52>" xqqty.qty "<C60>" xqqty.rels 
+               "<C66>" xqqty.price FORM "->>,>>9.99" 
+               "<C77>" lv-uom .  
       
 
       v-line-total = v-line-total + xqqty.price.
@@ -225,8 +226,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
           NO-LOCK NO-ERROR.
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.
 
-      put eb.part-no AT 8 FORM "x(21)" eb.part-dscr1 AT 29 SKIP.
-      PUT temp-trim-size AT 8 FORM "X(21)" style-dscr AT 29 SKIP.
+      put eb.part-no AT 10 FORM "x(21)" eb.part-dscr1 AT 31 SKIP.
+      PUT temp-trim-size AT 10 FORM "X(21)" style-dscr AT 31 SKIP.
       
       v-board = /*IF AVAIL ef THEN*/
                   ef.board    + " - " +
@@ -248,9 +249,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
                        item.i-dscr.
       END.
     
-      PUT eb.part-dscr2 AT 8 FORM "X(21)" v-board AT 29 FORM "X(50)" SKIP.
+      PUT eb.part-dscr2 AT 10 FORM "X(21)" v-board AT 31 FORM "X(50)" SKIP.
       
-      put eb.i-coldscr   AT 30 SKIP.
+      put eb.i-coldscr   AT 31 SKIP.
       IF LINE-COUNTER > PAGE-SIZE - 11 THEN DO:
          page.  
          {cec/quote/quopaci2.i}

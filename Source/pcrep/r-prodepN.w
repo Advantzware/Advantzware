@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -66,6 +67,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "M Code,Job#,##,Shift,MR Std,MR Act,MR Eff%," + 
@@ -76,7 +80,7 @@ ASSIGN
                                         "run-hrs-std,run-hrs-act,run-hrs-eff," +
                                         "mr-rn-hrs-std,mr-rn-hrs-act,mr-rn-hrs-eff," +
                                         "dt-hrs-act,dt-hrs-eff,act-qty,act-ton,act-msf,exp-qty,i-no"
-    cFieldLength       = "6,6,2,5,8,8,8," + "8,8,8," + "10,10,11," + "7,7,10,10,10,12,15" 
+    cFieldLength       = "6,9,3,5,8,8,8," + "8,8,8," + "10,10,11," + "7,7,10,10,10,12,15" 
     cFieldType         = "c,c,c,c,i,i,i," + "i,i,i," + "i,i,i," + "i,i,i,i,i,i,c"
     .
 {sys/inc/ttRptSel.i}
@@ -515,6 +519,8 @@ ON END-ERROR OF C-Win /* Productivity By Department (D-R-3) */
 ON WINDOW-CLOSE OF C-Win /* Productivity By Department (D-R-3) */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        IF VALID-HANDLE(hdOutputProcs) THEN  
+            DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.

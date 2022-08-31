@@ -82,6 +82,7 @@ DEFINE VARIABLE iCount                  AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cValidateJobno          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFilterBy               AS CHARACTER NO-UNDO.
 
+{sys/inc/var.i}
 {system/sysconst.i}
 {Inventory/ttInventory.i}
 {Inventory/ttBrowseInventory.i}
@@ -234,9 +235,9 @@ DEFINE VARIABLE cbFormNo AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 10 BY 1
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cbJobNo2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "00" 
+     LIST-ITEMS "000" 
      DROP-DOWN-LIST
      SIZE 10.2 BY 1
      FONT 37 NO-UNDO.
@@ -866,7 +867,7 @@ DO:
     DEFINE VARIABLE cBlankNo   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lParse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValidJob  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iJobFormat AS INTEGER   NO-UNDO INITIAL 6.
+    DEFINE VARIABLE iJobFormat AS INTEGER   NO-UNDO INITIAL 9.
         
     IF VALID-HANDLE(hKeyboard) THEN
         DELETE OBJECT hKeyboard.
@@ -908,7 +909,7 @@ DO:
     END.
     
     cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, SELF:SCREEN-VALUE, 6, TRUE
+                      "fAddSpacesToString" IN hdJobProcs, SELF:SCREEN-VALUE, iJobLen, TRUE
                       ).                                  
 
     IF lParse THEN
@@ -916,7 +917,7 @@ DO:
             ipcJobNo             = cJobNo
             fiJobNo:SCREEN-VALUE = cJobNo   
             cFormattedJobno      = DYNAMIC-FUNCTION (
-                                       "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                                       "fAddSpacesToString" IN hdJobProcs, cJobNo, iJobLen, TRUE
                                    )
             .
             
@@ -944,9 +945,9 @@ DO:
 
     IF cJobno2ListItems EQ "" THEN
         ASSIGN 
-            cJobno2ListItems      = "00"
+            cJobno2ListItems      = "000"
             cbJobno2:LIST-ITEMS   = cJobno2ListItems 
-            cbJobno2:SCREEN-VALUE = "00"
+            cbJobno2:SCREEN-VALUE = "000"
             .
     ELSE
         cbJobNo2:LIST-ITEMS = cJobno2ListItems.
@@ -970,7 +971,7 @@ DO:
         cbBlankNo:LIST-ITEMS = cBlanknoListItems.
 
     IF lParse THEN
-        IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"99")) LE 0) OR
+        IF (cJobNo2 NE "" AND INDEX(cJobno2ListItems,STRING(INTEGER(cJobNo2),"999")) LE 0) OR
            (cFormNo NE "" AND INDEX(cFormnoListItems,STRING(INTEGER(cFormNo),"99")) LE 0) OR
            (cBlankNo NE "" AND INDEX(cBlanknoListitems,STRING(INTEGER(cBlankNo),"99")) LE 0) THEN DO:
             MESSAGE "Invalid Job Scan, please scan a valid Job Number." 
@@ -980,10 +981,10 @@ DO:
                 cFormattedJobNo        = ""
                 cValidateJobno         = ""
                 SELF:SCREEN-VALUE      = ""
-                cbjobno2:LIST-ITEMS    = "00"
+                cbjobno2:LIST-ITEMS    = "000"
                 cbformno:LIST-ITEMS    = "00"
                 cbblankno:LIST-ITEMS   = "00"
-                cbjobno2:SCREEN-VALUE  = "00"
+                cbjobno2:SCREEN-VALUE  = "000"
                 cbformno:SCREEN-VALUE  = "00"
                 cbblankno:SCREEN-VALUE = "00"
                 .           
@@ -997,7 +998,7 @@ DO:
                 cbjobno2:SCREEN-VALUE  = IF cJobNo2 EQ "" THEN 
                                              ENTRY(1,cJobno2ListItems)
                                          ELSE
-                                             STRING(INTEGER(cJobNo2),"99")
+                                             STRING(INTEGER(cJobNo2),"999")
                 cbformno:SCREEN-VALUE  = IF cFormNo EQ "" THEN
                                              ENTRY(1,cFormnoListItems)
                                          ELSE
@@ -1398,7 +1399,7 @@ PROCEDURE pJobScan :
     DEFINE VARIABLE lValidJob AS LOGICAL NO-UNDO.
     
     ASSIGN 
-        cJobno2ListItems  = STRING(ipiJobno2,"99")
+        cJobno2ListItems  = STRING(ipiJobno2,"999")
         cFormnoListItems  = STRING(ipiFormno,"99")
         cBlanknoListitems = STRING(ipiBlankno,"99")
         .            
@@ -1409,7 +1410,7 @@ PROCEDURE pJobScan :
         cbJobNo2:LIST-ITEMS    = cJobno2ListItems
         cbFormNo:LIST-ITEMS    = cFormnoListItems
         cbBlankNo:LIST-ITEMS   = cBlanknoListItems
-        cbJobNo2:SCREEN-VALUE  = STRING(ipiJobno2,"99")
+        cbJobNo2:SCREEN-VALUE  = STRING(ipiJobno2,"999")
         cbFormNo:SCREEN-VALUE  = STRING(ipiFormno,"99")
         cbBlankNo:SCREEN-VALUE = STRING(ipiBlankno,"99")
         fiJobNo:SCREEN-VALUE   = ipcJobno
@@ -1652,7 +1653,7 @@ PROCEDURE pTagScan :
                 .
   
         IF fiJobno:SCREEN-VALUE   NE cJobNo OR
-           cbJobno2:SCREEN-VALUE  NE STRING(iJobNo2,"99") OR
+           cbJobno2:SCREEN-VALUE  NE STRING(iJobNo2,"999") OR
            cbFormno:SCREEN-VALUE  NE STRING(iFormNo,"99") OR
            cbBlankno:SCREEN-VALUE NE STRING(iBlankNo,"99") THEN DO:
             MESSAGE "Tag belongs to different Job context. Do you want to switch Job?"

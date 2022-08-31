@@ -10,8 +10,8 @@ def input parameter v-format like sys-ctrl.char-fld.
 
 def new shared var save_id as RECID .
 def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
+def new shared var v-job as char format "x(9)" extent 2 init [" ","zzzzzzzzz"].
+def new shared var v-job2 as int format "999" extent 2 init [000,999].
 def new shared var v-stypart like style.dscr.
 def new shared var v-dsc like oe-ordl.part-dscr1 extent 2.
 def new shared var v-size as char format "x(26)" extent 2.
@@ -274,14 +274,14 @@ EMPTY TEMP-TABLE tt-fgitm.
 
 for each job-hdr NO-LOCK
         where job-hdr.company               eq cocode
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
           and (production OR
                job-hdr.ftick-prnt           eq v-reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -972,11 +972,11 @@ for each job-hdr NO-LOCK
       IF LAST(job-hdr.frm) THEN DO:
           /*PUT UNFORMATTED
                 "~t~t~t~tFACTORY TICKET" SKIP(2)
-     "JOB #:~t" v-job-no space(0) "-" space(0) v-job-no2 format "99" "~t"
+     "JOB #:~t" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "~t"
      "~tPREVIOUS JOB#:~t~t" vPrevJob "~t~t~tESTIMATE#:~t" vEstno   SKIP(1).   
             */
           
-          RUN BuildExcelDataSheet (1,2,v-job-no + "-" + string(v-job-no2,"99")).
+          RUN BuildExcelDataSheet (1,2,STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
           RUN BuildExcelDataSheet (2,2,vPrevJob).
           RUN BuildExcelDataSheet (3,2,vEstNo).          
 
@@ -1207,27 +1207,6 @@ for each job-hdr NO-LOCK
            RUN BuildExcelDataSheet (67,2,v-dept-inst[17]). 
            RUN BuildExcelDataSheet (68,2,v-dept-inst[18]).                     
            
-         /*            
-         PUT STREAM st2nd UNFORMATTED
-                   "~t       BREAKOUT-JOB#:  " job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") 
-                   "~t~t~t~t~t~t~t~t~t        INK & ROTATION " SKIP
-                   "CUSTOMER PART# ~t DESCRIPTION ~t PP# ~t ORDER QTY: ~t#UP~t#PO# ~t RFQ# ~t SHEET QTY. ~t DELIVERY DATE ~t UNIT 1 ~t UNIT 2 ~t UNIT 3 ~t UNIT 4 ~t UNIT 5 ~t UNIT 6 ~t COATING" SKIP
-                   .
-          */         
-         /*===
-         i = 1.
-         for each wrk-ink /*WHERE wrk-ink.form-no = job-hdr.frm*/
-                break /*by wrk-ink.i-pass*/
-                   BY wrk-ink.i-code
-                      /*BY wrk-ink.blank-no*/: 
-             IF LAST-OF(wrk-ink.i-code) THEN DO:                
-                FIND first ITEM {sys/look/itemivW.i} and item.i-no eq wrk-ink.i-code NO-LOCK NO-ERROR.
-                IF AVAIL ITEM AND ITEM.mat-type = "V" THEN ASSIGN v-ink1[7] = wrk-ink.i-dscr.
-                ELSE IF i < 7 THEN ASSIGN v-ink1[i] = wrk-ink.i-dscr
-                                          i = i + 1.
-             END.             
-         END. /* each wrk-ink */
-         =====*/
          iExcelRowCount = 2.
          FOR EACH tt-fgitm BY tt-fgitm.seq.
              ASSIGN i = 0

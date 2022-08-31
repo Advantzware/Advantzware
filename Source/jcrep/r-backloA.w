@@ -1078,7 +1078,7 @@ display "" with frame r-top.
      IF tb_excel THEN
         EXPORT STREAM excel DELIMITER ","
                tt-job-mch.m-code 
-               tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"99")
+               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-job-mch.job-no, tt-job-mch.job-no2)))
                tt-job-mch.cust-no
                tt-job-mch.die
                tt-job-mch.style
@@ -1086,7 +1086,7 @@ display "" with frame r-top.
                SKIP.
 
      DISPLAY SPACE(5)
-             tt-job-mch.job-no + "-" + STRING(tt-job-mch.job-no2,"99") FORMAT "X(9)" COLUMN-LABEL "Job #"
+             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-job-mch.job-no, tt-job-mch.job-no2))) FORMAT "X(13)" COLUMN-LABEL "Job #"
              tt-job-mch.cust-no FORMAT "X(8)" COLUMN-LABEL "Cust #"
              tt-job-mch.die FORMAT "X(15)" COLUMN-LABEL "Die#"
              tt-job-mch.style FORMAT "X(6)" COLUMN-LABEL "Style"

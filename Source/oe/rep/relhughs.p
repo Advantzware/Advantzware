@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relfibre.i 09/00 JLF */
 /* Print OE Release/Picking tickets (Fibre Container)                         */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 {oe/rep/oe-pick1.i}
 
@@ -118,30 +119,30 @@ format header
        skip(1)
          
        "Order#"                         to 6
-       "Item / Descrip"                 at 8
+       "Item / Descrip"                 at 10
 
        /* gdm - 10240805 */      
-       "Blank Size/Style"               AT 39
-       "Whs  / Bin"                     AT 57
+       "Blank Size/Style"               AT 41
+       "Whs  / Bin"                     AT 59
        
-       "Rel Qty"                        to 80
+       "Rel Qty"                        to 81
        
        "------"                         to 6
-       "--------------"                 at 8
+       "--------------"                 at 10
        
        /* gdm - 10240805 */      
-       "----------------"               AT 39
-       "------------"                   AT 57
+       "----------------"               AT 41
+       "------------"                   AT 59
 
-       "---------"                      to 80
+       "---------"                      to 81
        
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(47)"
-       v-bin                            at 57   format "x(14)"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(47)"
+       v-bin                            at 59   format "x(14)"
 
-       v-rel-qty                        to 80   format "->>>>>>>>"
+       v-rel-qty                        to 81   format "->>>>>>>>"
     
     with down frame rel-mid no-box no-label STREAM-IO width 85.
    
@@ -194,8 +195,8 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
           WHEN "B" THEN v-rel-type = "BILL AND SHIP".
           WHEN "T" THEN v-rel-type = "  TRANSFER".
         END CASE.
-
-        CASE oe-ord.frt-pay:
+        v-frt-pay-dscr = IF oe-rell.frt-pay NE "" THEN oe-rell.frt-pay ELSE oe-ord.frt-pay.
+        CASE v-frt-pay-dscr:
           WHEN "P" THEN v-frt-pay-dscr = "Prepaid".
           WHEN "C" THEN v-frt-pay-dscr = "Collect".
           WHEN "B" THEN v-frt-pay-dscr = "Bill".

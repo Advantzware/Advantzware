@@ -185,12 +185,12 @@ DEFINE FRAME F-Main
           SIZE 18 BY 1
      vend-whse-trans-hist.vend-job-no AT ROW 13.52 COL 31 COLON-ALIGNED HELP
           "" WIDGET-ID 34
-          LABEL "Suppliers Job#" FORMAT "x(6)"
+          LABEL "Suppliers Job#" FORMAT "x(9)"
           VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     vend-whse-trans-hist.vend-job-no2 AT ROW 13.52 COL 42 COLON-ALIGNED WIDGET-ID 36
+          SIZE 15 BY 1
+     vend-whse-trans-hist.vend-job-no2 AT ROW 13.52 COL 46 COLON-ALIGNED WIDGET-ID 36
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 5.4 BY 1
      vend-whse-trans-hist.sell-price AT ROW 14.62 COL 31 COLON-ALIGNED HELP
           "" WIDGET-ID 22
           LABEL "Suppliers Item Sell Price" FORMAT ">,>>>,>>9.99<<<<"

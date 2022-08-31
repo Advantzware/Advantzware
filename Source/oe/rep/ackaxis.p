@@ -39,32 +39,8 @@ DEFINE VARIABLE cRtnChar  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN
-ls-full-img1 = cRtnChar + ">".
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 FILE-INFO:FILE-NAME = ls-image2.
 ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
@@ -168,7 +144,22 @@ find first company where company.company eq cocode no-lock no-error.
   
   FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       FIRST oe-ord WHERE RECID(oe-ord) EQ report.rec-id BREAK BY oe-ord.ord-no:
-
+      
+      FIND FIRST cust
+           WHERE cust.company EQ cocode
+             AND cust.cust-no EQ oe-ord.cust-no
+             NO-LOCK NO-ERROR.
+      IF AVAIL cust THEN 
+      ASSIGN cCustomerNo = cust.cust-no
+       cCustomerLocation = cust.loc .
+      
+      RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      ASSIGN ls-full-img1 = cRtnChar + ">" .
+      
       /* gdm - 05270902 */
       FIND FIRST est NO-LOCK 
         WHERE est.company EQ oe-ord.company
@@ -345,7 +336,7 @@ ASSIGN lv-prt-sts = /*IF NOT oe-ord.ack-prnt THEN "ORIGINAL" ELSE "REVISED"*/
                                       ELSE "<FGCOLOR=BLACK>ORIGINAL<FGCOLOR=BLACK>" 
        lv-prt-date = TODAY
        lv-prt-time = STRING(TIME,"hh:mm am").
-PUT "[@startPage" + trim(STRING(oe-ord.ord-no,">>>>>9")) + "]" FORMAT "x(20)".
+PUT "[@startPage" + trim(STRING(oe-ord.ord-no,">>>>>>>9")) + "]" FORMAT "x(20)".
 {oe/rep/ackaxis.i}
 
       for each oe-ordl
@@ -808,7 +799,7 @@ PUT "[@startPage" + trim(STRING(oe-ord.ord-no,">>>>>9")) + "]" FORMAT "x(20)".
             assign v-printline = 20.          
       end.
 */
-      PUT "[@endPage" + trim(STRING(oe-ord.ord-no,">>>>>9")) + "]" FORMAT "x(20)".
+      PUT "[@endPage" + trim(STRING(oe-ord.ord-no,">>>>>>>9")) + "]" FORMAT "x(20)".
       PUT "<R53><C1><#10><P12><B> Comments </B> <P10> " 
         "<R54><C1>" v-billinst[1] 
         "<R55><C1>" v-billinst[2] 

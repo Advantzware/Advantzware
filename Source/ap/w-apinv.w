@@ -39,6 +39,8 @@ DEFINE VARIABLE cImportAPIRoute AS CHARACTER NO-UNDO INITIAL "/api/810APInvoice"
 DEFINE VARIABLE hdInboundProcs AS HANDLE    NO-UNDO.
 RUN api/InboundProcs.p PERSISTENT SET hdInboundProcs.
 
+RUN spSetSettingContext.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -98,6 +100,7 @@ DEFINE VARIABLE h_vp-aphld AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-poordl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-porec AS HANDLE NO-UNDO. 
 DEFINE VARIABLE h_movecol-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_setting AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -303,6 +306,14 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_smartmsg ( 1.00 , 72.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.14 , 32.00 ) */
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/setting.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_setting ).
+       RUN set-position IN h_setting ( 1.00 , 28.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.60 ) */
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/attachvinv.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
@@ -1007,6 +1018,19 @@ PROCEDURE select_attvinv :
       END.
    END.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE OpenSetting W-Win
+PROCEDURE OpenSetting:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN windows/setting-dialog.w.
 
 END PROCEDURE.
 

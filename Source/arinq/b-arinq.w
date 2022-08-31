@@ -23,6 +23,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -296,7 +297,7 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
@@ -362,9 +363,9 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       ar-invl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 20
             LABEL-BGCOLOR 14
-      ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
+      ar-invl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(30)":U
             WIDTH 20 LABEL-BGCOLOR 14
-      ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 9 LABEL-BGCOLOR 14
+      ar-invl.ord-no FORMAT ">>>>>>>>":U WIDTH 11 LABEL-BGCOLOR 14
       ar-invl.po-no COLUMN-LABEL "Cust PO#" FORMAT "x(15)":U WIDTH 20
             LABEL-BGCOLOR 14
       ar-invl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
@@ -518,7 +519,7 @@ ASSIGN
      _FldNameList[7]   > ASI.ar-invl.part-no
 "ar-invl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.ar-invl.ord-no
-"ar-invl.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ar-invl.ord-no" ? ">>>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.ar-invl.po-no
 "ar-invl.po-no" "Cust PO#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.ar-invl.est-no
@@ -1760,6 +1761,9 @@ FUNCTION pGetSortCondition RETURNS CHARACTER
             IF ipcSortBy EQ 'inv-no'    THEN "STRING(ar-invl.inv-no,'9999999999')"        ELSE ~
             IF ipcSortBy EQ 'bol-no'    THEN "STRING(ar-invl.bol-no,'9999999999')"        ELSE ~
             IF ipcSortBy EQ 'po-no'     THEN "ar-invl.po-no"                              ELSE ~
+            IF ipcSortBy EQ 'i-name'    THEN "ar-invl.i-name"                             ELSE ~
+            IF ipcSortBy EQ 'gross'     THEN "ar-inv.gross"                               ELSE ~
+            IF ipcSortBy EQ 'due'       THEN "ar-inv.due"                                 ELSE ~
             IF ipcSortBy EQ 'part-no'   THEN "ar-invl.part-no"                            ELSE ~                      
                                              "STRING(YEAR(ar-inv.inv-date),'9999')
                                              + STRING(MONTH(ar-inv.inv-date),'99')

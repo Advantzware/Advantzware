@@ -79,7 +79,7 @@ ASSIGN cTextListToSelect = "Customer,Customer Name,Order#,FG Item#,Description,O
                            "Shipped Qty,On Hand Qty,Date,PO #,Job Number,Customer Part#"
        cFieldListToSelect = "cust,cust-name,ord,fg-itm,dscr,ort-qty," +
                             "ship-qty,oh-qty,date,po,job,part-no"
-       cFieldLength = "8,30,8,15,30,11," + "12,11,10,15,10,15"
+       cFieldLength = "8,30,8,15,30,11," + "12,11,10,15,13,15"
        cFieldType = "c,c,c,c,c,i," + "i,i,c,c,c,c" 
     .
 
@@ -1573,7 +1573,7 @@ display "" with frame r-top.
             RUN oe/ordlsqty.p (ROWID(oe-ordl), OUTPUT v-inv-qty, OUTPUT v-ship-qty).
 
             v-job-no = trim(string(oe-ord.job-no) + "-" + STRING(oe-ord.job-no2)) .
-            v-job-no = IF v-job-no EQ "-0" OR v-job-no EQ "-00" THEN "" ELSE TRIM(v-job-no)  .
+            v-job-no = IF v-job-no EQ "-0" OR v-job-no EQ "-00" OR v-job-no EQ "-000" THEN "" ELSE TRIM(v-job-no)  .
            /* display oe-ord.ord-no oe-ordl.i-no v-dscr 
                     v-qty v-ship-qty v-q-onh 
                     oe-ord.ord-date oe-ord.po-no oe-ord.job-no oe-ord.job-no2

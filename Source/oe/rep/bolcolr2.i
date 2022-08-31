@@ -51,7 +51,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
                            w2.qty    = oe-ordl.qty.
          ELSE IF i = 2 THEN 
             ASSIGN w2.dscr = oe-ordl.i-name
-                   w2.i-no = STRING(oe-ordl.ord-no,">>>>>9").
+                   w2.i-no = STRING(oe-ordl.ord-no,">>>>>>>9").
          else if i eq 3 then ASSIGN w2.i-no = oe-rel.carrier
                                  w2.dscr = oe-ordl.part-dscr1.
          else if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.
@@ -82,7 +82,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
 
        IF i = 2 THEN 
           ASSIGN w2.dscr = oe-ordl.i-name
-                 w2.i-no = STRING(oe-ordl.ord-no,">>>>>9").
+                 w2.i-no = STRING(oe-ordl.ord-no,">>>>>>>9").
 
        else if i eq 3 then ASSIGN w2.i-no = oe-rel.carrier
                                   w2.dscr = oe-ordl.part-dscr1.
@@ -122,7 +122,7 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        IF i = 2 THEN 
           ASSIGN 
                  w2.dscr = oe-ordl.i-name
-                 w2.i-no = STRING(oe-ordl.ord-no,">>>>>9").
+                 w2.i-no = STRING(oe-ordl.ord-no,">>>>>>>9").
        else if i eq 3 then ASSIGN w2.i-no = oe-rel.carrier
                                   w2.dscr = oe-ordl.part-dscr1.
        else if i eq 4 then ASSIGN w2.dscr = oe-ordl.part-dscr2.

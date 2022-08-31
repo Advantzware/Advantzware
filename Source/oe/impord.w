@@ -11,6 +11,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -787,7 +788,7 @@ PROCEDURE CreateJob :
                     AND eb.cust-no  EQ oe-ord.cust-no NO-LOCK NO-ERROR.
             IF AVAILABLE eb THEN 
                 v-prod-cat = eb.procat.
-            v-job-no = FILL(" ",6 - length(TRIM(STRING(oe-ordl.ord-no)))) + string(oe-ordl.ord-no).
+            v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.ord-no)) .
             RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                 INPUT-OUTPUT v-job-no2,
                 INPUT v-prod-cat, 
@@ -950,6 +951,7 @@ PROCEDURE CreateOrder :
             oe-ord.sman[1]   = cust.sman
             oe-ord.s-pct[1]  = 100.00
             oe-ord.carrier   = cust.carrier
+            oe-ord.csrUser_id = cust.csrUser_id
             .
         /*IF cust.cr-hold THEN oe-ord.stat = "H".*/
 
@@ -1047,6 +1049,25 @@ PROCEDURE CreateOrder :
                 .
             RUN GetCostForFGItem IN hdCostProcs(oe-ordl.company,oe-ordl.i-no, OUTPUT dCostPerUOMTotal, OUTPUT dCostPerUOMDL,OUTPUT dCostPerUOMFO,
                 OUTPUT dCostPerUOMVO,OUTPUT dCostPerUOMDM, OUTPUT cCostUOM , OUTPUT lFound) .
+
+            IF cCostUOM NE "M" THEN DO:                 
+                RUN Conv_ValueFromUOMtoUOM (
+                        INPUT  oe-ordl.company, 
+                        INPUT  oe-ordl.i-no, 
+                        INPUT  "FG", 
+                        INPUT  dCostPerUOMTotal, 
+                        INPUT  cCostUOM, 
+                        INPUT  "M", 
+                        INPUT  0, 
+                        INPUT  0,
+                        INPUT  0,
+                        INPUT  0, 0, 
+                        OUTPUT dCostPerUOMTotal, 
+                        OUTPUT lError, 
+                        OUTPUT cMessage
+                        ).    
+            END.
+      
             oe-ordl.cost = dCostPerUOMTotal .
             oe-ordl.t-cost = oe-ordl.cost * oe-ordl.qty / 1000 .          
 

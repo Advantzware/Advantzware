@@ -32,8 +32,8 @@ ELSE
 {cecrep/jc-soule.i}
 DEFINE NEW SHARED VARIABLE save_id       AS RECID.
 DEFINE NEW SHARED VARIABLE v-today       AS DATE      INIT TODAY.
-DEFINE NEW SHARED VARIABLE v-job         AS CHARACTER FORMAT "x(6)" EXTENT 2 INIT [" ","zzzzzz"].
-DEFINE NEW SHARED VARIABLE v-job2        AS INTEGER   FORMAT "99" EXTENT 2 INIT [00,99].
+DEFINE NEW SHARED VARIABLE v-job         AS CHARACTER FORMAT "x(9)" EXTENT 2 INIT [" ","zzzzzzzzz"].
+DEFINE NEW SHARED VARIABLE v-job2        AS INTEGER   FORMAT "999" EXTENT 2 INIT [000,999].
 DEFINE NEW SHARED VARIABLE v-stypart     LIKE style.dscr.
 DEFINE NEW SHARED VARIABLE v-dsc         LIKE oe-ordl.part-dscr1 EXTENT 2.
 DEFINE NEW SHARED VARIABLE v-size        AS CHARACTER FORMAT "x(26)" EXTENT 2.
@@ -163,14 +163,14 @@ ASSIGN
 /* build tt-reftable */
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (production OR
     job-hdr.ftick-prnt           EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -230,14 +230,14 @@ END.
 
 FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company               EQ cocode
-    AND job-hdr.job-no                GE substr(fjob-no,1,6)
-    AND job-hdr.job-no                LE substr(tjob-no,1,6)
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  GE fjob-no
-    AND fill(" ",6 - length(TRIM(job-hdr.job-no))) +
-    trim(job-hdr.job-no) +
-    string(job-hdr.job-no2,"99")  LE tjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  GE fjob-no
+    AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+        TRIM(job-hdr.job-no) +
+        STRING(job-hdr.job-no2,"999")  LE tjob-no
+    AND job-hdr.job-no2 GE fjob-no2
+    AND job-hdr.job-no2 LE tjob-no2
     AND (production OR
     job-hdr.ftick-prnt           EQ v-reprint OR
     PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -412,10 +412,10 @@ FOR EACH job-hdr NO-LOCK
                 v-fill SKIP.
 
         PUT "<C2><B>Customer:<P10>" v-cust-name  "<P10>"
-            "<B><C39>Delivery Date: " ( IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  "<C68>Order # :" TRIM(STRING(iOrderNo,">>>>>>9")) FORMAT "x(8)" SKIP
+            "<B><C39>Delivery Date: " ( IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  "<C68>Order # :" TRIM(STRING(iOrderNo,">>>>>>>9")) FORMAT "x(8)" SKIP
             "<C2>" cLabelSetItem FORMAT "x(14)" cSetItemName FORMAT "x(15)"  .
        
-        PUT "<C68>Job #: </B>" v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" SKIP
+        PUT "<C68>Job #: </B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" SKIP
             "<C2><b>" cLabelSetPart FORMAT "x(18)" cSetPartNo FORMAT "x(15)" SKIP
             v-fill SKIP .
         PUT "<R4.8><P20><C24>" IF lFSC THEN "FSC" ELSE "" "<C40>" cNewOrderValue FORMAT "x(13)" "<P10><R6></b>" SKIP  .
@@ -1062,18 +1062,21 @@ PROCEDURE pGetBlankQtys PRIVATE:
     DEFINE OUTPUT PARAMETER opiQtyYield AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER opiQtyRequest AS INTEGER NO-UNDO.
     
-    FOR FIRST estCostHeader NO-LOCK
+    /* Query needs to be FOR EACH with BY estCostHeader.calcDateTime DESCENDING to fetch the latest estCostHeader (If a job re-build is made) */    
+    FOR EACH estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
-        AND estCostHeader.jobID EQ ipcJobID
-        AND estCostHeader.jobID2 EQ ipiJobID2,
+          AND estCostHeader.jobID   EQ ipcJobID
+          AND estCostHeader.jobID2  EQ ipiJobID2,
         FIRST estCostBlank NO-LOCK
         WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
-        AND estCostBlank.formNo EQ ipiFormNo
-        AND estCostBlank.blankNO EQ ipiBlankNo:
+          AND estCostBlank.formNo          EQ ipiFormNo
+          AND estCostBlank.blankNO         EQ ipiBlankNo
+        BY estCostHeader.calcDateTime DESCENDING:
         ASSIGN 
             opiQtyYield   = estCostBlank.quantityYielded
             opiQtyRequest = estCostBlank.quantityRequired
             .
+        LEAVE.
     END.
 
 END PROCEDURE.
@@ -1190,17 +1193,19 @@ PROCEDURE pGetFormQtys PRIVATE:
       opiReturnReqQty = opiReturnReqQty + (IF AVAIL bff-oe-ordl THEN bff-oe-ordl.qty ELSE bff-job-hdr.qty ) .
       
     END. 
-    
-    FOR FIRST estCostHeader NO-LOCK
+
+    /* Query needs to be FOR EACH with BY estCostHeader.calcDateTime DESCENDING to fetch the latest estCostHeader (If a job re-build is made) */    
+    FOR EACH estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
-        AND estCostHeader.jobID EQ ipcJobID
-        AND estCostHeader.jobID2 EQ ipiJobID2,
-        EACH estCostBlank NO-LOCK
-        WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
-        AND estCostBlank.formNo EQ ipiFormNo:
-            ASSIGN             
-            opiOut = opiOut + estCostBlank.numOut
-            .
+          AND estCostHeader.jobID   EQ ipcJobID
+          AND estCostHeader.jobID2  EQ ipiJobID2
+        BY estCostHeader.calcDateTime DESCENDING:
+        FOR EACH estCostBlank NO-LOCK
+            WHERE estCostBlank.estCostHeaderID EQ estCostHeader.estCostHeaderID
+              AND estCostBlank.formNo          EQ ipiFormNo:
+            opiOut = opiOut + estCostBlank.numOut.
+        END.
+        LEAVE.
     END.
 
 END PROCEDURE.
@@ -1217,9 +1222,9 @@ PROCEDURE pPrintHeader :
         "<C65>Report Date: "  TODAY /*"  PRINTED DATE:" TODAY*/  "</B><P10>" SKIP
         v-fill SKIP
         "<C2><B>Customer: <P10>" v-cust-name  "<P10>"
-        "<B><C39>Delivery Date: "  (IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  " <C68>Order #: " TRIM(STRING(iOrderNo,">>>>>>9"))  SKIP
+        "<B><C39>Delivery Date: "  (IF dtRelDate NE ? THEN STRING(dtRelDate) ELSE "")  " <C68>Order #: " TRIM(STRING(iOrderNo,">>>>>>>9"))  SKIP
         "  " cLabelSetItem FORMAT "x(14)" cSetItemName FORMAT "x(15)"
-        "<C68>Job #: " v-job-no SPACE(0) "-" SPACE(0) v-job-no2 FORMAT "99" SKIP
+        "<C68>Job #: " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" SKIP
         "  " cLabelSetPart FORMAT "x(18)" cSetPartNo FORMAT "x(15)" SKIP
         v-fill SKIP
         "<R4><C40><P20>" cNewOrderValue FORMAT "x(13)" "</B><P10><R6.5>" SKIP .
@@ -1524,40 +1529,44 @@ PROCEDURE pPrintOperationsForForm PRIVATE:
         RUN pPrintHeader .
     END.
 
-    FOR FIRST estCostHeader NO-LOCK
+    /* Query needs to be FOR EACH with BY estCostHeader.calcDateTime DESCENDING to fetch the latest estCostHeader (If a job re-build is made) */
+    FOR EACH estCostHeader NO-LOCK
         WHERE estCostHeader.company EQ ipcCompany
-        AND estCostHeader.jobID EQ ipcJobID
-        AND estCostHeader.jobID2 EQ ipiJobID2,
-        EACH estCostOperation NO-LOCK
-        WHERE estCostOperation.estCostHeaderID EQ estCostHeader.estCostHeaderID
-        AND estCostOperation.formNo EQ ipiFormNo,
-        FIRST job-mch NO-LOCK 
-        WHERE job-mch.company EQ estCostOperation.company
-        AND job-mch.job-no EQ estCostHeader.jobID
-        AND job-mch.job-no2 EQ estCostHeader.jobID2
-        AND job-mch.m-code EQ estCostOperation.operationID
-        AND job-mch.frm EQ estCostOperation.formNo 
+          AND estCostHeader.jobID   EQ ipcJobID
+          AND estCostHeader.jobID2  EQ ipiJobID2
+        BY estCostHeader.calcDateTime DESCENDING:
+        FOR EACH estCostOperation NO-LOCK
+            WHERE estCostOperation.estCostHeaderID EQ estCostHeader.estCostHeaderID
+              AND estCostOperation.formNo          EQ ipiFormNo,
+            FIRST job-mch NO-LOCK 
+            WHERE job-mch.company EQ estCostOperation.company
+              AND job-mch.job-no  EQ estCostHeader.jobID
+              AND job-mch.job-no2 EQ estCostHeader.jobID2
+              AND job-mch.m-code  EQ estCostOperation.operationID
+              AND job-mch.frm     EQ estCostOperation.formNo 
             BY estCostOperation.sequence:
-        IF s-prt-mstandard THEN
-            PUT "<C2>" estCostOperation.operationName   SPACE(1)
-                "<C20>" estCostOperation.crewSizeRun FORMAT ">>>9.99"   
-                "<C27>" estCostOperation.hoursRun FORMAT ">>>9.99"   
-                "<C34>" estCostOperation.crewSizeSetup FORMAT ">>>9.99"   
-                "<C41>" estCostOperation.hoursSetup FORMAT ">>>9.99"         
-                "<C48>" estCostOperation.speed FORMAT ">>>>>>9"
-                "<C55>" estCostOperation.quantityInSetupWaste  FORMAT ">>>>>>9" 
-                "<C62>" estCostOperation.quantityInRunWaste FORMAT ">>>>>>9" 
-                "<C69>" estCostOperation.quantityIn FORMAT ">>>>>>>9"   
-                "<C76>" estCostOperation.quantityOut FORMAT ">>>>>>>9" SKIP.
-        ELSE 
-            PUT "<C2>" estCostOperation.operationName SPACE(3) SKIP .      
-                                                 
-        IF LINE-COUNTER > 70 THEN 
-        DO:
-            PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
-            PAGE.
-            RUN pPrintHeader .
+            IF s-prt-mstandard THEN
+                PUT "<C2>" estCostOperation.operationName   SPACE(1)
+                    "<C20>" estCostOperation.crewSizeRun FORMAT ">>>9.99"   
+                    "<C27>" estCostOperation.hoursRun FORMAT ">>>9.99"   
+                    "<C34>" estCostOperation.crewSizeSetup FORMAT ">>>9.99"   
+                    "<C41>" estCostOperation.hoursSetup FORMAT ">>>9.99"         
+                    "<C48>" estCostOperation.speed FORMAT ">>>>>>9"
+                    "<C55>" estCostOperation.quantityInSetupWaste  FORMAT ">>>>>>9" 
+                    "<C62>" estCostOperation.quantityInRunWaste FORMAT ">>>>>>9" 
+                    "<C69>" estCostOperation.quantityIn FORMAT ">>>>>>>9"   
+                    "<C76>" estCostOperation.quantityOut FORMAT ">>>>>>>9" SKIP.
+            ELSE 
+                PUT "<C2>" estCostOperation.operationName SPACE(3) SKIP .      
+                                                     
+            IF LINE-COUNTER > 70 THEN 
+            DO:
+                PUT "<C74><R64>Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" .
+                PAGE.
+                RUN pPrintHeader .
+            END.
         END.
+        LEAVE.
     END.
     
 

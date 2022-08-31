@@ -438,7 +438,7 @@ DEFINE BROWSE BROWSE-1
     oe-rel.spare-char-1 COLUMN-LABEL "From" FORMAT "x(8)":U
     oe-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
     LABEL-BGCOLOR 14
-    oe-ordl.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+    oe-ordl.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
     oe-rel.tot-qty COLUMN-LABEL "Release!Qty" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
     oe-rel.stat  COLUMN-LABEL "Rel. Status"      FORMAT "X(15)":U LABEL-BGCOLOR 14     WIDTH 18
     VIEW-AS COMBO-BOX INNER-LINES 8 

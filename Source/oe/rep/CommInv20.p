@@ -1,5 +1,6 @@
-/* ---------------------------------------------- oe/rep/CommInv20.p  */
-/* PRINT INVOICE   Xprint Standard Form             */
+/* ---------------------------------------------- oe/rep/CommInv20.p          */
+/* PRINT INVOICE   Xprint Standard Form                                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 DEFINE INPUT PARAMETER ipiBolNo AS INTEGER NO-UNDO .
@@ -130,32 +131,7 @@ DEFINE VARIABLE cFobCode     AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cCurrCode    AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.    
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
-
+DEFINE VARIABLE dTotalPrice    AS DECIMAL   NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 FUNCTION fnGetFOB RETURNS CHARACTER 
@@ -205,6 +181,15 @@ FIND FIRST cust WHERE cust.company = oe-bolh.company
     AND cust.cust-no = oe-bolh.cust-no NO-LOCK NO-ERROR.
 cCurrCode = IF AVAILABLE cust AND cust.curr-code NE "" THEN cust.curr-code ELSE "USD" .
 v-del-no = 0.
+
+RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, oe-boll.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+
       
 IF AVAILABLE oe-bolh THEN 
 DO:
@@ -551,29 +536,38 @@ DO TRANSACTION:
         END.
             
         v-price-head = oe-ordl.pr-uom.
+        
+        RUN Conv_CalcTotalPrice(cocode, 
+            oe-ordl.i-no,
+            DECIMAL(v-ship-qty),
+            DECIMAL(oe-ordl.price),
+            oe-ordl.pr-uom,
+            DECIMAL(oe-ordl.disc),
+            DECIMAL(oe-ordl.cas-cnt),    
+            OUTPUT dTotalPrice).
   
         IF NOT lPrintQtyAll THEN 
         DO:
             PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" SPACE(1)
                 v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
-                oe-ordl.ord-no FORMAT ">>>>>>9" SPACE(2)
+                TRIM(STRING(oe-ordl.ord-no,">>>>>>>9")) SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
                 v-price-head 
-                oe-ordl.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
+                dTotalPrice  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
                 SKIP.
         END.
         ELSE 
         DO:
             PUT SPACE(1)v-ord-qty  FORMAT "->>>>>>9" SPACE(1)
                 v-inv-qty  FORMAT "->>>>>>9" SPACE(1)
-                oe-ordl.ord-no FORMAT ">>>>>>9" SPACE(3)
+                TRIM(STRING(oe-ordl.ord-no,">>>>>>>9")) SPACE(2)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
                 v-price-head 
-                oe-ordl.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
+                dTotalPrice  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
                 SKIP.
 
         END.

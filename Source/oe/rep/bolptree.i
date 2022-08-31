@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolptree.i 01/11 btr */
 /* PRINT PEACHTREE                         */
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 assign
  v-tot-wt    = 0
  v-tot-cases = 0
@@ -152,8 +153,7 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-    v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
+    v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
   IF v-printline >= 36 THEN DO:
     v-printline = 0.
@@ -168,99 +168,6 @@ for each report where report.term-id eq v-term-id,
          v-weight   = v-weight + oe-boll.weight
          v-ord-qty = v-ord-qty + oe-ordl.qty.
                                                                        
-/*   IF lv-bolfmt-int = 1 THEN DO:  /* show summary per item */                                     */
-/*     IF LAST-OF(report.key-02) THEN DO:                                                           */
-/*       i = 0.                                                                                     */
-/*       FOR EACH w2 BREAK BY w2.cases * w2.cas-cnt DESC:                                           */
-/*         i = i + 1.                                                                               */
-/*         IF i eq 1 THEN ASSIGN v-part-dscr = oe-ordl.part-no                                      */
-/*                               v-job-po    = oe-boll.po-no.                                       */
-/*         ELSE                                                                                     */
-/*         if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1 /*i-name*/                        */
-/*                               v-job-po    = if oe-ordl.job-no eq "" then "" else                 */
-/*                                 (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")).     */
-/*         ELSE                                                                                     */
-/*         if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.                                         */
-/*         ELSE                                                                                     */
-/*         if i eq 4 then v-part-dscr = oe-ordl.part-dscr2.                                         */
-/*                                                                                                  */
-/*         IF v-printline >= 38 THEN DO:                                                            */
-/*           v-printline = 0.                                                                       */
-/*           PAGE {1}.                                                                              */
-/*           {oe/rep/bolxprn2.i}                                                                    */
-/*         END.                                                                                     */
-/*                                                                                                  */
-/*         IF FIRST(w2.cases * w2.cas-cnt) THEN                                                     */
-/*           PUT {1} oe-ordl.part-no                                                                */
-/*                   v-job-po  AT 17 FORM "x(15)"                                                   */
-/*                   oe-boll.i-no AT 33                                                             */
-/*                   oe-ordl.i-name FORM "x(22)"                                                    */
-/*                   w2.cases    AT 71 FORM "->>>9" " @"                                            */
-/*                   w2.cas-cnt    FORM "->>>>>9"                                                   */
-/*                   SKIP.                                                                          */
-/*         ELSE PUT {1}                                                                             */
-/*                  oe-ordl.ord-no                                                                  */
-/*                  oe-ordl.part-dscr1 FORM "x(30)" AT 33                                           */
-/*                  w2.cases  AT 71 FORM "->>>9" " @"                                               */
-/*                  w2.cas-cnt FORM "->>>>>9" SKIP.                                                 */
-/*         v-printline = v-printline + 1.                                                           */
-/*                                                                                                  */
-/*         IF LAST(w2.cases * w2.cas-cnt) THEN DO:                                                  */
-/*           IF FIRST(w2.cases * w2.cas-cnt) THEN DO:                                               */
-/*             PUT {1}                                                                              */
-/*                 oe-ordl.ord-no                                                                   */
-/*                 oe-ordl.part-dscr1 FORM "x(30)" AT 33                                            */
-/*                 SKIP.                                                                            */
-/*             v-printline = v-printline + 1.                                                       */
-/*           END.                                                                                   */
-/*                                                                                                  */
-/*           PUT {1}                                                                                */
-/*               "====================" AT 68 SKIP                                                  */
-/*               v-tot-pkgs AT 71 FORM "->>>9"  " ="                                                */
-/*               v-ship-qty FORM "->>>>>z" SPACE(2)                                                 */
-/*               oe-boll.p-c SPACE(1)                                                               */
-/*               v-weight  FORM "->>>,>>9" SKIP.                                                    */
-/*                                                                                                  */
-/*           ASSIGN                                                                                 */
-/*              v-printline = v-printline + 2                                                       */
-/*              v-tot-pkgs  = 0.                                                                    */
-/*                                                                                                  */
-/*           IF v-print-dept THEN                                                                   */
-/*           DO:                                                                                    */
-/*              FOR EACH notes WHERE                                                                */
-/*                  notes.rec_key EQ oe-ordl.rec_key AND                                            */
-/*                  CAN-DO(v-depts,notes.note_code)                                                 */
-/*                  NO-LOCK                                                                         */
-/*                  BY notes.note_code:                                                             */
-/*                                                                                                  */
-/*                  v-tmp-lines = LENGTH(NOTES.NOTE_TEXT) / 80.                                     */
-/*                  {SYS/INC/ROUNDUP.I v-tmp-lines}                                                 */
-/*                                                                                                  */
-/*                  IF notes.note_text <> "" THEN                                                   */
-/*                     DO i = 1 TO v-tmp-lines:                                                     */
-/*                                                                                                  */
-/*                        IF v-printline >= 38 THEN DO:                                             */
-/*                           v-printline = 0.                                                       */
-/*                           PAGE {1}.                                                              */
-/*                           {oe/rep/bolxprn2.i}                                                    */
-/*                        END.                                                                      */
-/*                                                                                                  */
-/*                        PUT substring(NOTES.NOTE_TEXT,(1 + 80 * (i - 1)), 80) FORM "x(80)" SKIP.  */
-/*                        v-printline = v-printline + 1.                                            */
-/*                     END.                                                                         */
-/*              END.                                                                                */
-/*           END.                                                                                   */
-/*         END.                                                                                     */
-/*         v-tot-cases = v-tot-cases + w2.cases.                                                    */
-/*         DELETE w2.                                                                               */
-/*       END.                                                                                       */
-/*       PUT {1} SKIP(1).                                                                           */
-/*       v-printline = v-printline + 1.                                                             */
-/*     END.                                                                                         */
-/*   END.  /* IF lv-bolfmt-int = 1 THEN DO */                                                       */
-/*   /* end of summary mods */                                                                      */
-/*   ELSE DO:                                                                                       */
-/*   /* btr - End */                                                                                */
 
       DISPLAY  {1}
               oe-ordl.part-no   WHEN AVAIL oe-ordl 

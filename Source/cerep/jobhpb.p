@@ -255,10 +255,10 @@ END. /* PROCEDURE PR-ink: */
 /***********************************************/
 
 FOR EACH job NO-LOCK USE-INDEX job
-             WHERE job.company                   eq cocode
-          and job.job-no                ge substr(fjob-no,1,6)
-          and job.job-no                le substr(tjob-no,1,6)
-          and job.stat                      ne "H",
+             WHERE job.company                eq cocode
+          and job.job-no                      ge substr(fjob-no,1,iJobLen)
+          and job.job-no                      le substr(tjob-no,1,iJobLen)
+          and job.stat                        ne "H",
           
    FIRST est NO-LOCK USE-INDEX est-no2
          where est.company = job.company
@@ -273,16 +273,14 @@ FOR EACH job NO-LOCK USE-INDEX job
                     where job-hdr.company               = job.company
                       and (job-hdr.ftick-prnt           eq reprint OR
                           PROGRAM-NAME(2) MATCHES "*r-tickt2*"  )
-                      and job-hdr.job-no                ge substr(fjob-no,1,6)
-                      and job-hdr.job-no                le substr(tjob-no,1,6)
-            
-                      and fill(" ",6 - length(trim(job-hdr.job-no))) +
-                          trim(job-hdr.job-no) +
-                          string(job-hdr.job-no2,"99")  ge fjob-no
-            
-                      and fill(" ",6 - length(trim(job-hdr.job-no))) +
-                          trim(job-hdr.job-no) +
-                          string(job-hdr.job-no2,"99")  le tjob-no
+                      AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+                          TRIM(job-hdr.job-no) +
+                          STRING(job-hdr.job-no2,"999")  GE fjob-no
+                      AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+                          TRIM(job-hdr.job-no) +
+                          STRING(job-hdr.job-no2,"999")  LE tjob-no
+                      AND job-hdr.job-no2 GE fjob-no2
+                          AND job-hdr.job-no2 LE tjob-no2
                     USE-INDEX job-no:
                    
       ACCUM 1 (COUNT).
@@ -315,8 +313,8 @@ FOR EACH job NO-LOCK USE-INDEX job
 
          PUT "<P10></PROGRESS>" SKIP "<FCourier New><C2>" SKIP      
              "<#1><C1><FROM><C106><R+70><RECT><||3><C80><P10>"       
-             "<=1><R-2><C33><B><P18>JOB #: " job-hdr.job-no "-" 
-                       STRING(job.job-no2,"99") "    FORM #: " job-hdr.frm 
+             "<=1><R-2><C33><B><P18>JOB #: " TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job.job-no2))) FORM "x(13)"
+             "    FORM #: " job-hdr.frm 
                        "</B><P10>" 
              "<=1><C2>DATE:" TODAY "<C20>CUSTOMER:" v-cus[1]
                        "<C70>SHIPPING DATE:" STRING(job-hdr.due-date,"99/99/99") SKIP

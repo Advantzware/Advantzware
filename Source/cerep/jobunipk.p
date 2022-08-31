@@ -11,8 +11,8 @@ def input parameter v-format like sys-ctrl.char-fld.
 
 def new shared var save_id as recid.
 def new shared var v-today as date init today.
-def new shared var v-job as char format "x(6)" extent 2 init [" ","zzzzzz"].
-def new shared var v-job2 as int format "99" extent 2 init [00,99].
+def new shared var v-job as char format "x(9)" extent 2 init [" ","zzzzzzzzz"].
+def new shared var v-job2 as int format "999" extent 2 init [000,999].
 def new shared var v-stypart like style.dscr.
 def new shared var v-dsc like oe-ordl.part-dscr1 extent 2.
 def new shared var v-size as char format "x(26)" extent 2.
@@ -253,7 +253,7 @@ format HEADER
        "<C40>Ship To:" v-shipto[1] "<C80>" lv-prt-date space(1) lv-prt-time SPACE(5) lv-prt-sts  SKIP
        "CSR:<B>" cCsr    "<c40>" "Address:" v-shipto[2] "</B>" 
        /*"<C80>JOB START DATE:"  v-start-date*/ skip
-       "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
+       "JOB NUMBER:<B>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) FORM "x(13)" "</B>"
        "<C40>" v-shipto[4]
        "<B><P14></B><P12>" /*"<C80>  PROMISE DATE:" dPromDate*/ skip
        v-fill
@@ -277,14 +277,14 @@ ASSIGN
 
 for each job-hdr NO-LOCK
         where job-hdr.company               eq cocode
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
           and (production OR
                job-hdr.ftick-prnt           eq v-reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
@@ -461,7 +461,8 @@ for each job-hdr NO-LOCK
                         AND eb.est-no      eq job-hdr.est-no
                         and eb.form-no     eq reftable-frm-int
                         AND eb.blank-no > 0 NO-LOCK NO-ERROR.
-        v-bar-no = IF AVAIL eb AND eb.spc-no NE "" THEN eb.spc-no ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
+        v-bar-no = IF AVAIL eb AND eb.spc-no NE "" THEN eb.spc-no 
+        	   ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
 
 
        if not first(job-hdr.job-no) THEN 

@@ -15,6 +15,7 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 
 /* ***************************  Definitions  ************************** */
 
@@ -140,6 +141,9 @@ RUN copyOrder (
 ipfil_id = fil_id.
 ipv-qty-mod = v-qty-mod.
 ipnufile = nufile.
+
+g_company = ipFromCompany.
+RUN spSetSessionParam ("Company", g_company).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -534,13 +538,9 @@ PROCEDURE copyEst :
                     b-est-qty.company = b-est.company
                     b-est-qty.est-no  = v-est-no.
             END.
-
-            FOR EACH notes WHERE notes.rec_key EQ est.rec_key NO-LOCK:
-               CREATE b-notes.
-               BUFFER-COPY notes TO b-notes
-               ASSIGN b-notes.rec_key = lv-rec_key.
-            END.
-
+            
+            RUN Notes_CopyNotes(est.rec_key, b-est.rec_key, "", "").
+            
             FOR EACH reftable
                 WHERE reftable.reftable EQ "est/getqty.w"
                 AND reftable.company  EQ est.company              
@@ -609,7 +609,6 @@ PROCEDURE copyFG :
   DEF BUFFER b-ref           FOR reftable.
   DEF BUFFER b-notes         FOR notes.
 
-  DEF VAR lv-rec_key LIKE itemfg.rec_key NO-UNDO.
   DEF VAR x AS INT NO-UNDO.
   DEF VAR y AS INT NO-UNDO.
   
@@ -633,13 +632,7 @@ PROCEDURE copyFG :
       NO-LOCK NO-ERROR.
                       
     IF AVAIL itemfg THEN DO:    
-
-        lv-rec_key = DYNAMIC-FUNCTION("sfGetNextRecKey").
-/*        CREATE rec_key.                    */
-/*        ASSIGN                             */
-/*            rec_key.rec_key    = lv-rec_key*/
-/*            rec_key.table_name = "ITEMFG". */
-      
+        
         CREATE b-itemfg.
         BUFFER-COPY itemfg EXCEPT rec_key est-no TO b-itemfg
         ASSIGN
@@ -766,16 +759,8 @@ PROCEDURE copyFG :
             b-itemfgdtl.i-no    = b-itemfg.i-no
             b-itemfgdtl.est-no  = ipEstno.
         END.
-
-
-
         
-
-        FOR EACH notes WHERE notes.rec_key EQ itemfg.rec_key NO-LOCK:
-          CREATE b-notes.
-          BUFFER-COPY notes TO b-notes
-          ASSIGN b-notes.rec_key = lv-rec_key.
-        END.
+        RUN Notes_CopyNotes(itemfg.rec_key, b-itemfg.rec_key,"","").
 
         cocode = b-itemfg.company.
         RUN fg/fg-reset.p (RECID(b-itemfg)).
@@ -828,17 +813,17 @@ PROCEDURE copyJob :
 
     cocode     = ipToCompany.
 
-    v-job-no = FILL(" ",6 - length(TRIM(STRING(ipOrdno)))) + string(ipOrdno).
+    v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipOrdno)) .
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, 
                          INPUT-OUTPUT v-job-no2,
                          INPUT v-prod-cat,
-                         FILL(" ",6 - length(TRIM(ipEstno))) + trim(ipEstno)).
+                         STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipEstno)) ).
    
    IF ipcOrderHeaderEstimate NE "" THEN
     v-job-no2 = 0.
          
     IF v-job-no EQ "" THEN
-      v-job-no = FILL(" ",6 - length(TRIM(ipEstno))) + trim(ipEstno).
+      v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipEstno)) .
 
     IF v-job-no NE "" THEN DO:
           FIND FIRST job NO-LOCK
@@ -1069,6 +1054,8 @@ PROCEDURE copyOrder :
       b-oe-ord.due-date  = b-oe-ord.last-date 
       b-oe-ord.posted    = no
       b-oe-ord.stat      = "N"  
+      b-oe-ord.user-id    = USERID(LDBNAME(1))
+      b-oe-ord.entered-id = USERID(LDBNAME(1))
       .
       
        IF  lastship-cha = "Stock/Custom" THEN DO:
@@ -1664,7 +1651,7 @@ PROCEDURE create-rel :
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4]
                         oe-rel.spare-char-1 = shipto.loc.
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                 END.
                 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                     AND sys-ctrl.NAME    EQ "OECARIER"
@@ -1743,7 +1730,7 @@ PROCEDURE create-rel :
                         oe-rel.ship-i[3]    = shipto.notes[3]
                         oe-rel.ship-i[4]    = shipto.notes[4]
                         oe-rel.spare-char-1 = shipto.loc.
-                    RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                 END.
                 /* check that itemfg-loc exists */
                 IF oe-rel.spare-char-1 GT "" THEN
@@ -1807,7 +1794,7 @@ PROCEDURE create-rel :
                     oe-rel.ship-i[3]    = shipto.notes[3]
                     oe-rel.ship-i[4]    = shipto.notes[4]
                     oe-rel.spare-char-1 = shipto.loc.
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
             END.
             FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                 AND sys-ctrl.NAME    EQ "OECARIER"
@@ -2218,8 +2205,8 @@ END PROCEDURE.
 
 &ENDIF
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -2227,12 +2214,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-DELETE OBJECT hNotesProcs.   
+RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
     

@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */          
 
 CREATE WIDGET-POOL.
 
@@ -242,8 +243,8 @@ DEFINE BROWSE Browser-Table
       fg-rctd.loc-bin2 COLUMN-LABEL "To!Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       fg-rctd.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             WIDTH 12
-      fg-rctd.job-no FORMAT "x(6)":U WIDTH 10.4
-      fg-rctd.job-no2 FORMAT "99":U WIDTH 3.2
+      fg-rctd.job-no FORMAT "x(9)":U WIDTH 14.4
+      fg-rctd.job-no2 FORMAT "999":U WIDTH 5.6
       fg-rctd.i-no FORMAT "x(15)":U WIDTH 22
       fg-rctd.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       fg-rctd.created-by COLUMN-LABEL "User!Created" FORMAT "x(8)":U
@@ -388,9 +389,9 @@ fg-rctd.created-by = USERID(""ASI"")"
      _FldNameList[11]   > asi.fg-rctd.cust-no
 "fg-rctd.cust-no" "Customer#" ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.fg-rctd.job-no
-"fg-rctd.job-no" ? ? "character" ? ? ? ? ? ? no ? no no "10.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.job-no" ? ? "character" ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.fg-rctd.job-no2
-"fg-rctd.job-no2" ? ? "integer" ? ? ? ? ? ? no ? no no "3.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-rctd.job-no2" ? ? "integer" ? ? ? ? ? ? no ? no no "5.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > asi.fg-rctd.i-no
 "fg-rctd.i-no" ? "x(15)" "character" ? ? ? ? ? ? no ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > asi.fg-rctd.i-name
@@ -1023,7 +1024,7 @@ PROCEDURE auto-post :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-
+               
     /* IF no rows are selected and this is run, it will return an error */
     IF lPostAuto-log AND BROWSE Browser-Table:NUM-SELECTED-ROWS GT 0 THEN 
     DO:
@@ -1109,9 +1110,7 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
 
     RUN windows/l-fgibn2.w (gcompany, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
 
@@ -1933,13 +1932,12 @@ PROCEDURE new-bin :
 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
-
+        STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
+        
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1949,7 +1947,7 @@ PROCEDURE new-bin :
     IF AVAIL fg-bin THEN
       ASSIGN
        fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.case-count)
-       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = fg-bin.job-no
+       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-bin.job-no))
        fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(fg-bin.job-no2)
        fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}      = CAPS(fg-bin.loc)
        fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  = CAPS(fg-bin.loc-bin)
@@ -2229,7 +2227,7 @@ PROCEDURE valid-job-loc-bin-tag :
 
      ASSIGN
       li-fieldc = TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
-      li-fieldc = FILL(" ",6 - LENGTH(li-fieldc)) + li-fieldc
+      li-fieldc = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', li-fieldc))
       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = li-fieldc
 
       li-field# = LOOKUP(FOCUS:NAME IN BROWSE {&browse-name},lv-fields).
@@ -2287,7 +2285,7 @@ PROCEDURE valid-job-loc-bin-tag :
     FIND FIRST fg-bin
         WHERE fg-bin.company  EQ cocode
           AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND fg-bin.job-no   EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND trim(fg-bin.job-no)   EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
           AND (fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                li-field#      LT 2)
           AND (fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}          OR

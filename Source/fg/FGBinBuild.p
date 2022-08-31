@@ -122,9 +122,11 @@ FOR EACH ttFGBins
         fg-rdtlh.cost = ttFGBins.std-tot-cost
         fg-rdtlh.qty = ttFGBins.qty
         fg-rdtlh.stacks-unit  = ttFGBins.units-pallet /* Stacks-Units = Units/Pallet */
-        fg-rdtlh.cases        = TRUNCATE(ttFGBins.qty / ttFGBins.case-count, 0)
+        /* The next line calculates #cases if case-count not zero, else makes #cases zero */
+        fg-rdtlh.cases        = TRUNCATE(ttFGBins.qty / (IF ttFGBins.case-count GT 0 THEN ttFGBins.case-count ELSE ttFGBins.qty * 999), 0)
         fg-rdtlh.qty-case     = ttFGBins.case-count
-        fg-rdtlh.partial      = ttFGBins.qty MODULO ttFgBins.case-count       
+        /* The next line calculates partial value unless case-count is zero, in which case full qty goes on partial */
+        fg-rdtlh.partial      = ttFGBins.qty MODULO (IF ttFgBins.case-count GT 0 THEN ttFgBins.case-count ELSE 1)
         fg-rdtlh.std-fix-cost = ttFGBins.std-fix-cost
         fg-rdtlh.std-lab-cost = ttFGBins.std-lab-cost
         fg-rdtlh.std-mat-cost = ttFGBins.std-mat-cost
@@ -474,25 +476,10 @@ PROCEDURE pBuildBinsForItem PRIVATE:
             WHERE fg-rcpth.company    EQ itemfg.company
             AND fg-rcpth.i-no       EQ itemfg.i-no
             AND fg-rcpth.trans-date LE ipdtAsOf
-            /*
-            AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
-                TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"99"))
-             GE ""
-            AND STRING(FILL(" ",6 - LENGTH(TRIM(fg-rcpth.job-no))) +
-                TRIM(fg-rcpth.job-no) + STRING(fg-rcpth.job-no2,"99"))
-             LE "ZZZZZZZZZZZZ"
-            */
             USE-INDEX tran,
             EACH fg-rdtlh NO-LOCK
             WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
             AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code
-              /*
-              AND fg-rdtlh.loc       GE ""
-              AND fg-rdtlh.loc       LE "ZZZZZZZZZZZ"
-              AND fg-rdtlh.loc-bin   GE ""
-              AND fg-rdtlh.loc-bin   LE "ZZZZZZZZZZZ"
-              AND fg-rdtlh.cust-no   EQ ""
-              */
             BY fg-rcpth.trans-date
             BY fg-rdtlh.trans-time
             BY fg-rcpth.r-no
@@ -532,6 +519,7 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                     ttFGBins.itemFGINo    = itemfg.i-no
                     ttFGBins.itemFGPartNo = itemfg.part-no
                     ttFGBins.itemFGIName  = itemfg.i-name
+                    ttFGBins.qty-case     = IF fg-rdtlh.qty-case NE 0 THEN fg-rdtlh.qty-case ELSE itemfg.case-count
                     .
                 FIND FIRST uom NO-LOCK
                     WHERE uom.uom  EQ itemfg.prod-uom
@@ -582,8 +570,10 @@ PROCEDURE pBuildBinsForItem PRIVATE:
                 ttFGBins.qty = ttFGBins.qty + fg-rdtlh.qty.
             END CASE.
             
-            IF ttFGBins.case-count LE 0 AND fg-rdtlh.qty-case GT 0 THEN
+            IF ttFGBins.case-count LE 0 AND fg-rdtlh.qty-case GT 0 THEN ASSIGN 
                 ttFGBins.case-count = fg-rdtlh.qty-case.
+            ELSE ASSIGN 
+                ttFGBins.case-count = itemfg.case-count.
             IF ttFGBins.units-pallet LE 0 AND fg-rdtlh.stacks-unit GT 0 THEN
                 ttFGBins.units-pallet = fg-rdtlh.stacks-unit.
             IF ttFGBins.cases LE 0 AND fg-rdtlh.cases GT 0 THEN

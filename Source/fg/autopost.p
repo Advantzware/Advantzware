@@ -1,4 +1,4 @@
-
+/*  Mod: Ticket - 103137  Format Change for Order No. and Job No.       */     
 DEF INPUT  PARAM ip-rowid   AS   ROWID          NO-UNDO.
 DEF INPUT  PARAM ip-job-no  LIKE fg-bin.job-no  NO-UNDO.
 DEF INPUT  PARAM ip-job-no2 LIKE fg-bin.job-no2 NO-UNDO.

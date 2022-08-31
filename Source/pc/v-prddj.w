@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -124,11 +125,13 @@ DEFINE RECTANGLE RECT-5
 
 DEFINE FRAME F-Main
      pc-prdd.job-no AT ROW 1.71 COL 20 COLON-ALIGNED
+          FORMAT "x(9)"
           VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-     pc-prdd.job-no2 AT ROW 1.71 COL 34 COLON-ALIGNED NO-LABEL
+          SIZE 15 BY 1
+     pc-prdd.job-no2 AT ROW 1.71 COL 35 COLON-ALIGNED NO-LABEL
+          FORMAT "999"
           VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 5.4 BY 1
      pc-prdd.op-date AT ROW 1.71 COL 51 COLON-ALIGNED
           LABEL "Date"
           VIEW-AS FILL-IN 
@@ -201,6 +204,10 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN pc-prdd.op-date IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN pc-prdd.job-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN pc-prdd.job-no2 IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -253,9 +260,8 @@ ON LEAVE OF pc-prdd.job-no IN FRAME F-Main /* Job Number */
 DO:
     IF LASTKEY = -1  THEN RETURN.
 
-    IF length(pc-prdd.job-no:SCREEN-VALUE ) < 6 THEN
-        pc-prdd.job-no:SCREEN-VALUE = FILL(" ",6 - length(pc-prdd.job-no:SCREEN-VALUE)) + 
-                                      TRIM(pc-prdd.job-no:SCREEN-VALUE).
+    IF length(pc-prdd.job-no:SCREEN-VALUE ) < 9 THEN
+        pc-prdd.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no:SCREEN-VALUE)) .
 
     FIND FIRST job WHERE job.company = g_company AND
                          job.job-no = pc-prdd.job-no:SCREEN-VALUE
@@ -296,7 +302,7 @@ DO:
         ELSE li-help-job = job.job.
 
     FIND FIRST job-hdr WHERE job-hdr.company = g_company 
-                   AND job-hdr.job-no = pc-prdd.job-no:SCREEN-VALUE 
+                   AND job-hdr.job-no = pc-prdd.job-no:SCREEN-VALUE
                    AND job-hdr.job-no2 = int(pc-prdd.job-no2:SCREEN-VALUE)
                NO-LOCK NO-ERROR.
    IF NOT AVAIL job-hdr THEN DO:
@@ -418,7 +424,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
-   old-job-no  = pc-prdd.job-no
+   old-job-no  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no))
    old-job-no2 = pc-prdd.job-no2
    old-op-date = pc-prdd.op-date
    old-shift   = pc-prdd.shift.
@@ -427,7 +433,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  pc-prdd.job-no = FILL(" ",6 - LENGTH(TRIM(pc-prdd.job-no))) + TRIM(pc-prdd.job-no).
+  pc-prdd.job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', pc-prdd.job-no)) .
 
   ll-new-record = pc-prdd.job-no  NE old-job-no  OR
                   pc-prdd.job-no2 NE old-job-no2 OR
@@ -435,17 +441,18 @@ PROCEDURE local-assign-record :
                   pc-prdd.shift   NE old-shift.
 
   FIND FIRST job WHERE job.company = pc-prdd.company
-                   AND job.job-no = pc-prdd.job-no
+                   AND job.job-no  = pc-prdd.job-no
                    AND job.job-no2 = pc-prdd.job-no2
                  NO-LOCK NO-ERROR.
   IF AVAIL job THEN pc-prdd.job = job.job.
                            
   IF ll-new-record THEN DO:
       FIND FIRST job WHERE job.company = pc-prdd.company
-                       AND job.job-no = pc-prdd.job-no
+                       AND job.job-no  = pc-prdd.job-no
                        AND job.job-no2 = pc-prdd.job-no2
                        NO-LOCK NO-ERROR.
-      IF AVAIL job THEN pc-prdd.rec_key = job.rec_key.
+      IF AVAIL job THEN 
+        RUN Notes_CopyNotes(job.rec_key, pc-prdd.rec_key, "", "").
   END.
  
   FOR EACH bf-prdd
@@ -530,7 +537,7 @@ PROCEDURE local-update-record :
  ll-new-record = adm-new-record.
  DO WITH FRAME {&FRAME-NAME} :
  FIND FIRST job WHERE job.company = pc-prdd.company
-                   AND job.job-no = pc-prdd.job-no:SCREEN-VALUE
+                   AND job.job-no  = pc-prdd.job-no:SCREEN-VALUE
                    AND job.job-no2 = INT(pc-prdd.job-no2:SCREEN-VALUE)
                  NO-LOCK NO-ERROR.
   if avail job and job.stat = "H" then do:

@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -108,7 +109,7 @@ ASSIGN
                             "per-1,per-2,per-3,cust-po,job,bol,inv-note,coll-note,per-4," +
                             "currency,tot-due,arclass"    
 
-    cFieldLength       = "8,30,25,25,15,25,25,10,5,10,14,13,12,12," + "8,4,8,8,15,15,4,4," + "15,15,15,15,9,8,30,30,14," + "10,13,8" 
+    cFieldLength       = "8,30,25,25,15,25,25,10,5,10,14,13,12,12," + "8,4,8,8,15,15,4,4," + "15,15,15,15,13,8,30,30,14," + "10,13,8" 
     cFieldType         = "c,c,c,c,c,c,c,c,c,c,c,c,c,c," + "i,c,i,c,i,i,i,i," + "i,i,i,c,c,c,c,c,i," + "c,i,i" 
     .
 
@@ -346,8 +347,9 @@ DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "InvDate"
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Due Date", "DueDate",
-"Invoice Date", "InvDate"
-     SIZE 32 BY .86 NO-UNDO.
+"Invoice Date", "InvDate",
+"G/L Posting", "GLPosting"
+     SIZE 48 BY .86 NO-UNDO.
 
 DEFINE VARIABLE rs_detail AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -2080,6 +2082,7 @@ PROCEDURE run-report :
                 sPrtInvNote = YES.
             IF ttRptSelected.TextList = "COLLECTION NOTE"  THEN
                 sPrtCollectionNote = YES.
+            IF NOT v-export THEN
             NEXT.
         END.
 
@@ -2182,9 +2185,8 @@ PROCEDURE run-report :
                         RUN ar/ar-agng5N.p. 
     END.
 
-    ELSE 
-    DO:
-        IF v-sort2 BEGINS "InvD" THEN
+    ELSE IF v-sort2 BEGINS "InvD" THEN 
+    DO:       
             IF v-sort EQ "Name" THEN
                 RUN ar/ar-agng3N.p.
 
@@ -2198,6 +2200,21 @@ PROCEDURE run-report :
                             RUN ar/ar-agng10N.p.   
                         ELSE
                             RUN ar/ar-agng6N.p. 
+    END.
+    ELSE IF v-sort2 BEGINS "GLPosting" THEN 
+    DO:       
+            IF v-sort EQ "Name" THEN
+                RUN ar/ar-agng11N.p.
+            ELSE
+                IF v-sort EQ "#Number" THEN
+                    RUN ar/ar-agng12N.p.
+
+                ELSE IF v-sort EQ "SalesRep#" THEN
+                        RUN ar/ar-agng13N.p.
+                    ELSE IF v-sort EQ "ArClass" THEN
+                            RUN ar/ar-agng14N.p.   
+                        ELSE
+                            RUN ar/ar-agng15N.p. 
     END.
 
     IF tb_excel THEN 

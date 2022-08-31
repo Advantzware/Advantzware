@@ -1,0 +1,4 @@
+PO1*$LineNum$*$OrdQty$*EA*$itemPrice$**BP*$PartNo$*UP*$PartNo$*UP*$PartNo$~
+PID*F*08***$itemDescription$~
+SAC*C*D240***$Freight$**********Enter Freight Description~
+ACK*DR*$OrdQty$*EA*068*$OrdDate|YYYYMMDD|Date|$~

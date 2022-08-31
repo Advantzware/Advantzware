@@ -3,6 +3,7 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   warehouseID                  AS      CHARACTER 
     FIELD   locationID                   AS      CHARACTER  
     FIELD   tag                          AS      CHARACTER FORMAT "X(30)"
+    FIELD   vendorTag                    AS      CHARACTER
     FIELD   rfidTag                      AS      CHARACTER
     FIELD   orderID                      LIKE    oe-ord.ord-no       
     FIELD   jobID                        LIKE    oe-ordl.job-no      
@@ -20,7 +21,8 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   custPhone                    LIKE    cust.phone
     FIELD   custEmail                    LIKE    cust.email
     FIELD   custFax                      LIKE    cust.fax       
-    FIELD   itemID                       LIKE    oe-ordl.i-no        
+    FIELD   itemID                       LIKE    oe-ordl.i-no
+    FIELD   itemType                     AS      CHARACTER        
     FIELD   custPartNo                   LIKE    oe-ordl.part-no     
     FIELD   custPONO                     LIKE    oe-ordl.po-no   
     FIELD   quantity                     AS      DECIMAL
@@ -70,6 +72,9 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   tareWeight                   AS      DECIMAL FORMAT  ">>>>9.99"
     FIELD   netWeight                    AS      DECIMAL FORMAT  ">>>>9.99"
     FIELD   sheetWeight                  AS      DECIMAL FORMAT  ">>>9.99"
+    FIELD   sheetLength                  AS      DECIMAL FORMAT  ">>>9.99<<<"
+    FIELD   sheetWidth                   AS      DECIMAL FORMAT  ">>>9.99<<<"
+    FIELD   sheetDepth                   AS      DECIMAL FORMAT  ">>>9.99<<<"
     FIELD   uom                          LIKE    oe-ordl.pr-uom      
     FIELD   partial                      AS      INTEGER FORMAT  ">>>,>>9"
     FIELD   dontRunSet                   AS      LOGICAL
@@ -106,6 +111,7 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   broker                       AS      LOGICAL     
     FIELD   ipReturn                     AS      LOGICAL
     FIELD   extCost                      AS      DECIMAL
+    FIELD   poCost                       AS      DECIMAL
     FIELD   tagStatus                    AS      CHARACTER
     FIELD   isChild                      AS      LOGICAL
     FIELD   recordSource                 AS      CHARACTER
@@ -124,5 +130,15 @@ DEFINE TEMP-TABLE ttLoadTag
     FIELD   errorMessage                 AS      CHARACTER
     FIELD   isError                      AS      LOGICAL
     FIELD   emptyColumn                  AS      CHARACTER
+    FIELD   consumptionCost              AS      DECIMAL
+    FIELD   consumptionQuantity          AS      DECIMAL
+    FIELD   consumptionUOM               AS      CHARACTER
+    FIELD   poType                       AS      CHARACTER
+    FIELD   poSetup                      AS      DECIMAL
+    FIELD   poAddSetup                   AS      LOGICAL
+    FIELD   purchaseQuantityUOM          AS      CHARACTER
+    FIELD   purchaseUOM                  AS      CHARACTER
+    FIELD   poReceiptQuantity            AS      DECIMAL
+    FIELD   basisWeight                  AS      DECIMAL               
     INDEX   recordID IS PRIMARY UNIQUE recordID
     .                   

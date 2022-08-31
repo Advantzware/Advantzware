@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolcrdbc.p  11/09 GDM */
-/* N-K BOLFMT = Loylang - FORM for Carded                                    */
-/* -------------------------------------------------------------------------- */
+/* N-K BOLFMT = Loylang - FORM for Carded                                      */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.               */
+/* --------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
@@ -32,7 +33,7 @@ def var v-part-comp         as   char format "x".
 def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 def var v-cntct-nam         as   CHAR format "x(25)" no-undo.
 
@@ -90,38 +91,9 @@ DEFINE VARIABLE ls-full-img2 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE ls-full-img3 AS CHARACTER FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cLocation    AS CHARACTER               NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
 DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
-
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN
-    ls-full-img1 = cRtnChar + ">" 
-    ls-full-img2 = cRtnChar + ">" 
-    ls-full-img3 = cRtnChar + ">" 
-    .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -252,7 +224,22 @@ for each xxreport where xxreport.term-id eq v-term-id,
       and cust.cust-no eq oe-bolh.cust-no
     NO-LOCK
     break by oe-bolh.bol-no:
-      
+    
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN ASSIGN cLocation = oe-boll.loc .
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN
+        ls-full-img1 = cRtnChar + ">" 
+        ls-full-img2 = cRtnChar + ">" 
+        ls-full-img3 = cRtnChar + ">" 
+        .
+    
     if first-of(oe-bolh.bol-no) then do:
 
         IF AVAIL sys-ctrl AND NOT v-printed THEN DO:
@@ -382,8 +369,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
       
       v-salesman = trim(v-salesman).
       v-po-no = oe-boll.po-no.
-      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
-      
+      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE 
+                 TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+            
       if v-salesman gt '' then
         if substr(v-salesman,length(trim(v-salesman)),1) eq "," then
           substr(v-salesman,length(trim(v-salesman)),1) = "".

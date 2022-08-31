@@ -52,7 +52,7 @@ IF AVAILABLE dynParamValue THEN DO:
                     dynSubject.subjectTitle,
                     Task.user-id,
                     hAppSrvBin,
-                    Task.rec_key,
+                    REPLACE(Task.rec_key,":","_"),
                     OUTPUT cJasperFile,
                     OUTPUT cRecipient
                     ).

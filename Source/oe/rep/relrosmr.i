@@ -1,5 +1,6 @@
 /* ------------------------------------------ oe/rep/relrosmr.i 10080912 GDM */
 /* RELEASE PRINT  Program for N-K-1 RELPRINT = Rosmar                        */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* ------------------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -104,17 +105,17 @@ IF ll-display-comp THEN DO:
 
 format
   tt-rell.ord-no
-  tt-rell.po-no at 8
-  tt-rell.loc-bin  AT 23  FORM "x(5)"
-  tt-rell.i-no at 29  oe-ordl.i-name at 44
+  tt-rell.po-no AT 10
+  tt-rell.loc-bin  AT 25  FORM "x(5)"
+  tt-rell.i-no AT 31  oe-ordl.i-name at 46
   oe-ordl.qty format "->>>>>>>9" to 83
   tt-rell.qty format "->>>>>>>9" SKIP
-  tt-rell.tag AT 29 FORM "x(15)"
-  oe-ordl.part-dscr1 at 44 format "x(30)" 
+  tt-rell.tag AT 31 FORM "x(15)"
+  oe-ordl.part-dscr1 at 46 format "x(30)" 
   tt-rell.partial  TO 83 
   lv-partial FORM ">>>" TO 93  skip
-  oe-ordl.part-no AT 29
-  oe-ordl.part-dscr2 at 44 format "x(30)"
+  oe-ordl.part-no AT 31
+  oe-ordl.part-dscr2 at 46 format "x(30)"
   
   with down frame relprint no-box no-label STREAM-IO width 110.
 
@@ -160,8 +161,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -398,7 +399,7 @@ PROCEDURE inner-loop-proc:
           locbin[4]  when xx ge 4 */
           tt-rell.i-no
           /*tt-rell.cases    when v-units-hdr[1] ne ""*/
-          tt-rell.qty-case @ oe-ordl.qty
+          tt-rell.qty-case @ oe-ordl.qty  TO 83
           tt-rell.cases @ tt-rell.qty      /*when avail oe-ordl*/
           
           oe-ordl.i-name   when avail oe-ordl  SKIP
@@ -418,10 +419,10 @@ PROCEDURE inner-loop-proc:
       else do:
         display
           tt-rell.ord-no
-          tt-rell.po-no  AT 8
-          tt-rell.i-no   AT 29
+          tt-rell.po-no  AT 10
+          tt-rell.i-no   AT 31
           /*tt-rell.cases    when v-units-hdr[1] ne "" */
-          tt-rell.qty-case @ oe-ordl.qty
+          tt-rell.qty-case @ oe-ordl.qty  TO 83
           tt-rell.cases @ tt-rell.qty SKIP
           /*tt-rell.qty-case */
           with frame ln-s-comp STREAM-IO NO-BOX NO-LABELS WIDTH 120.
@@ -436,9 +437,9 @@ PROCEDURE inner-loop-proc:
                         else   oe-ordl.part-dscr2.
           IF i = 1 THEN 
             IF trim(tt-rell.tag) NE ""
-              THEN PUT SUBSTR(TRIM(tt-rell.tag),LENGTH(TRIM(tt-rell.tag)) - 5) AT 29.
-              ELSE IF s-print-part-no THEN PUT oe-ordl.part-no AT 29.
-          if v-part-dscr ne "" then put v-part-dscr at 44 FORM "x(25)" .
+              THEN PUT SUBSTR(TRIM(tt-rell.tag),LENGTH(TRIM(tt-rell.tag)) - 5) AT 31.
+              ELSE IF s-print-part-no THEN PUT oe-ordl.part-no AT 31.
+          if v-part-dscr ne "" then put v-part-dscr at 46 FORM "x(25)" .
           IF lv-partial > 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
           IF s-print-part-no OR lv-partial > 0 OR v-part-dscr <> "" THEN DO: 
              PUT SKIP.
@@ -450,10 +451,10 @@ PROCEDURE inner-loop-proc:
     else do:
       display
         tt-rell.ord-no
-        tt-rell.po-no       AT 8
-        tt-rell.loc-bin     AT 23   FORMAT "x(5)"   WHEN v-p-bin
-        tt-rell.i-no        AT 29
-        tt-rell.qty-case @ oe-ordl.qty
+        tt-rell.po-no       AT 10
+        tt-rell.loc-bin     AT 25   FORMAT "x(5)"   WHEN v-p-bin
+        tt-rell.i-no        AT 31
+        tt-rell.qty-case @ oe-ordl.qty   TO 83
         tt-rell.cases @ tt-rell.qty   SKIP        
         with frame ln-s.
       down with frame ln-s STREAM-IO NO-BOX NO-LABELS WIDTH 120.
@@ -467,9 +468,9 @@ PROCEDURE inner-loop-proc:
                         else   oe-ordl.part-dscr2.
           IF i = 1 THEN 
            IF trim(tt-rell.tag) NE ""
-            THEN PUT SUBSTR(TRIM(tt-rell.tag),LENGTH(TRIM(tt-rell.tag)) - 5) AT 29.
-            ELSE IF s-print-part-no THEN PUT oe-ordl.part-no AT 29.
-          if v-part-dscr ne "" then put v-part-dscr at 44 FORM "x(25)" .
+            THEN PUT SUBSTR(TRIM(tt-rell.tag),LENGTH(TRIM(tt-rell.tag)) - 5) AT 31.
+            ELSE IF s-print-part-no THEN PUT oe-ordl.part-no AT 31.
+          if v-part-dscr ne "" then put v-part-dscr at 46 FORM "x(25)" .
           IF lv-partial > 0 THEN PUT tt-rell.partial TO 83 lv-partial TO 93.              
           IF s-print-part-no OR lv-partial > 0 OR v-part-dscr <> "" THEN DO: 
              PUT SKIP.
@@ -509,20 +510,20 @@ PROCEDURE inner-loop-proc:
    
         {sys/inc/part-qty.i v-part-qty fg-set}
         IF AVAIL fg-bin THEN DO:
-           put lv-comp-unit AT 15  FORM "->>9" " "
+           put lv-comp-unit AT 17  FORM "->>9" " "
                fg-bin.case-count FORM ">>>>9"
-               v-part-dscr              at 40 format "x(40)"
+               v-part-dscr              at 42 format "x(40)"
                /*lv-relqty /*tt-rell.qty*/ * v-part-qty*/
                fg-bin.qty TO 94 format "->>>>>>>9"
 	           skip.
            v-printline = v-printline + 1.
            IF fg-bin.partial-count <> 0 THEN DO:
-              PUT "  1" AT 16 "@" fg-bin.partial-count FORM ">>>>9" SKIP.          
+              PUT "  1" AT 18 "@" fg-bin.partial-count FORM ">>>>9" SKIP.          
               v-printline = v-printline + 1.
            END.
         END.
         ELSE do:
-            PUT v-part-dscr AT 40 FORM "x(40)" SKIP.
+            PUT v-part-dscr AT 42 FORM "x(40)" SKIP.
             v-printline = v-printline + 1.
         END.
         IF LINE-COUNTER > 63 THEN DO:

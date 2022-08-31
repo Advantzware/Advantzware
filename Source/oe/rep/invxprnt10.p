@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invxprnt10.p  */
 /* PRINT INVOICE   Xprint Standard Form             */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -124,30 +124,7 @@ DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrintPOLot    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPrintLot      AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "INVPRINT" no-lock no-error.
@@ -317,7 +294,8 @@ find first company where company.company eq cocode NO-LOCK.
                                           oe-boll.ord-no = xinv-line.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                       cLocation   = oe-boll.loc .
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
@@ -439,6 +417,14 @@ find first company where company.company eq cocode NO-LOCK.
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
                 */
+                
+        RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+        IF NOT lValid THEN
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.
+        ASSIGN ls-full-img1 = cRtnChar + ">" .
         {oe/rep/invxprnt10.i}
 
         v-subtot-lines = 0.
@@ -600,7 +586,7 @@ find first company where company.company eq cocode NO-LOCK.
           IF NOT lPrintQtyAll THEN do:
             PUT space(1) v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  format "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(25)" SPACE(3)
                 v-price  format "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
@@ -611,7 +597,7 @@ find first company where company.company eq cocode NO-LOCK.
           ELSE DO:
               PUT space(1)v-ord-qty  format "->>>>>>9" SPACE(1)
                 v-inv-qty  format "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(2)
                 v-i-no  format "x(15)" SPACE(3)
                 v-i-dscr  format "x(25)" SPACE(2)
                 v-price  format "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)

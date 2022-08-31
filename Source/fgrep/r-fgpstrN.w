@@ -80,15 +80,15 @@ ASSIGN
                            "CUSTOMER PART#,DIE#,# UP,CAD#,PLATE#,NUM OF COLORS,SHEET SIZE,CALIPER,USER-ID,WHSE,WT/100,REC TIME,POSTED," +
                            "CATGY,UNIT COST,UNIT SELL,SUOM,PROMISE DATE,ORD DUE DATE,START DATE,SHIPTO,SHIPTO NAME,ORDER#," +
                            "BEFORE QTY,BIN CHANGE,BOL#,REASON,REASON CODE,REASON DESCRIPTION,CUSTOMER NAME," + 
-                           "ITEM MAT COST,ITEM DL COS,ITEM VOH COST,ITEM FOH COST,BIN MAT COST,BIN DL COST,BIN VOH COST,BIN FOH COST"
+                           "ITEM MAT COST,ITEM DL COS,ITEM VOH COST,ITEM FOH COST,BIN MAT COST,BIN DL COST,BIN VOH COST,BIN FOH COST,STYLE CODE"
     cFieldListToSelect = "fg-rcpth.trans-date,fg-rcpth.i-no,fg-rcpth.i-name,fg-rcpth.po-no,fg-rcpth.job-no," +
                             "po-ord.vend-no,v-tran-type,v-tag,v-rfid#,v-cases,v-qty-case,fg-rdtlh.loc-bin,lv-cost-uom,v-fg-qty,v-fg-cost,v-fg-value," +
                             "itemfg.part-no,itemfg.die-no,v-numUp,itemfg.cad-no,itemfg.plate-no,v-numColors,v-SheetSize,v-Caliper,fg-rcpth.user-id,loc,wt-h,rec-time,fg-rcpth.post-date," +
                             "itemfg.procat,unt-cst,unt-sel,suom,prom-date,due-date,job-start,shipto,shipname,order-no," +
                             "bef-qty,bin-qty,bol-no,Reason,Reason-cd,Reason-dscr,itemfg.cust-name," + 
-                            "itemfg.std-mat-cost,itemfg.std-lab-cost,itemfg.std-var-cost,itemfg.std-fix-cost,bin-mat-cost,bin-dl-cost,bin-voh-cost,bin-foh-cost"
+                            "itemfg.std-mat-cost,itemfg.std-lab-cost,itemfg.std-var-cost,itemfg.std-fix-cost,bin-mat-cost,bin-dl-cost,bin-voh-cost,bin-foh-cost,itemfg.style"
     cFieldLength       = "9,16,11,9,13,11,1,20,24,8," + "8,9,9,10,10,13," + "15,15,4,15,15,13,15,7,10,10,9,8,8," +
-                      "5,11,14,4,12,12,10,8,30,7," + "10,10,8,30,11,25,30," + "11,15,15,15,15,15,15,15"
+                      "5,11,14,4,12,12,10,8,30,7," + "10,10,8,30,11,25,30," + "11,15,15,15,15,15,15,15,10"
     .
 
 {sys/inc/ttRptSel.i}
@@ -2532,7 +2532,7 @@ PROCEDURE run-report_Save :
         fg-rcpth.i-no   FORMAT "x(15)" LABEL "ITEM"
         fg-rcpth.i-name FORMAT "x(9)"  LABEL "DESCRIPTN"
         fg-rcpth.po-no                 LABEL "P.O. #"
-        fg-rcpth.job-no                LABEL "Job" FORMAT "x(11)"
+        fg-rcpth.job-no                LABEL "Job" FORMAT "x(13)"
         v-tran-type                    LABEL "T"
         fg-rdtlh.tag                   LABEL "TAG #"
         v-cases                        LABEL "UNITS"   FORMAT "->>,>>9"
@@ -2566,7 +2566,7 @@ PROCEDURE run-report_Save :
         fg-rcpth.i-no   FORMAT "x(15)" LABEL "ITEM"
         fg-rcpth.i-name FORMAT "x(9)"  LABEL "DESCRIPTN"
         fg-rcpth.po-no                 LABEL "P.O. #"
-        fg-rcpth.job-no                LABEL "Job" FORMAT "x(11)"
+        fg-rcpth.job-no                LABEL "Job" FORMAT "x(13)"
         v-tran-type                    LABEL "T"
         rfidtag.rfidtag                COLUMN-LABEL "RFID!TAG #"
         v-cases                        LABEL "UNITS"   FORMAT "->>,>>9"

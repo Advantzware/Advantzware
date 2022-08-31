@@ -1,7 +1,7 @@
 /* ------------------------------------------ oe/rep/invrfcx.p 11200902 GDM */
 /* INVOICE PRINT  Program for N-K-1-INVPRINT = Loylang & LoylangBSF                      */
 /* ------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -134,35 +134,12 @@ DEF VAR ld-bsf LIKE eb.t-sqin INIT 1 NO-UNDO. /* store bsf for price/bsf calcula
 DEF VAR ld-price-per-m AS DEC INIT 1 NO-UNDO. /*for calculating BSF*/
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 FIND FIRST sys-ctrl where sys-ctrl.company = cocode
                       and sys-ctrl.NAME = "INVPRINT" NO-LOCK NO-ERROR.
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "LoylangBSF" THEN lv-print-bsf = YES.
     ELSE lv-print-bsf = NO.  /* controls the switch between Loylang and LoylangBSF at main level*/
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
@@ -324,7 +301,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                       v-bol-cases = v-bol-cases + oe-boll.cases
                      v-tot-pallets = v-tot-pallets + oe-boll.cases +
                                      (IF oe-boll.partial GT 0 
-                                        THEN 1 ELSE 0).
+                                        THEN 1 ELSE 0)
+                     cLocation = oe-boll.loc .
 
                     IF oe-boll.p-c THEN v-pc = "C". /*complete*/
                 END.  /* each oe-boll */
@@ -521,6 +499,14 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                  v-addr3          = inv-head.city + ", " + 
                                     inv-head.state + "  " + inv-head.zip.
         END.
+
+        RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+                          
+            IF NOT lValid THEN
+            DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            END.
+            ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 
         {oe/rep/invrfcx.i}  /* xprint form */
@@ -766,8 +752,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             SPACE(4)               
              inv-line.t-price  FORMAT "->>>,>>9.99"                
            SKIP
-            SPACE(1)  v-ord-no 
-            SPACE(10) v-i-dscr FORMAT "x(30)"
+            SPACE(1)  TRIM(STRING(v-ord-no,">>>>>>>9")) 
+            SPACE(8) v-i-dscr FORMAT "x(30)"
             SPACE(2) /*inv-line.qty FORMAT "->>>>>9"*/
           /*  SPACE(21) v-pc  */
             SPACE(27)  v-price-head 

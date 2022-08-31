@@ -92,36 +92,8 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
-/*ASSIGN
-   
-   ls-image1 = "images\Peachtree_logo_2018.png"
-   FILE-INFO:FILE-NAME = ls-image1
-   ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -422,6 +394,25 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
             v-addr3          = ar-inv.city + ", " + 
                                ar-inv.state + "  " + ar-inv.zip.
    END.
+   
+   FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
+       FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
+          oe-boll.b-no = oe-bolh.b-no AND
+          oe-boll.i-no = ar-invl.i-no AND
+          oe-boll.ord-no = ar-invl.ord-no:
+
+                                  
+          ASSIGN cLocation     = oe-boll.loc .
+       END. /* each oe-boll */   
+   END. /* each oe-bolh */
+      
+   RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+          
+   IF NOT lValid THEN
+   DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+   END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
  
  {ar/rep/invptreelot.i}  /* xprint form */
 
@@ -635,7 +626,8 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
                 v-price  format "->>,>>9.9999"                
                 (IF v-ship-qty1i > 0 THEN v-price2 ELSE ar-invl.amt)  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 ar-invl.i-no SPACE(1)
                 
                 (IF v-tailgate <> "" THEN v-i-dscr ELSE "") FORM "x(30)"

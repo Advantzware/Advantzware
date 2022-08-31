@@ -149,51 +149,19 @@ DEFINE OUTPUT PARAMETER opiQtyP LIKE est-prep.qty NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 DEFINE VARIABLE iCount AS INTEGER     NO-UNDO.
 
+DEFINE VARIABLE iInkPerForm      AS INTEGER NO-UNDO.
+DEFINE VARIABLE iInkPassPerForm  AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCoatPerForm     AS INTEGER NO-UNDO.
+DEFINE VARIABLE iCoatPassPerForm AS INTEGER NO-UNDO.
+DEFINE VARIABLE inkCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEstimateType AS CHARACTER NO-UNDO.
+
 IF AVAIL ipbf-est AND AVAIL ipbf-ef THEN DO:
     
-    /*If not a combo*/
-    IF ipbf-est.est-type NE 4 
-        AND ipbf-est.est-type NE 8 THEN
-        FOR EACH bf-eb 
-            WHERE bf-eb.company EQ ipbf-ef.company
-              AND bf-eb.est-no  EQ ipbf-ef.est-no
-              AND bf-eb.form-no EQ ipbf-ef.form-no
-        NO-LOCK 
-        BREAK BY bf-eb.form-no:
-            /*sum up the coating and color counts for blanks*/
-            opiQtyP = opiQtyP + 
-                (IF ipbf-est.est-type NE 3 OR FIRST(bf-eb.form-no) THEN
-                   bf-eb.i-coat + bf-eb.i-col ELSE bf-eb.yld-qty).
-        END. /*each bf-eb*/
-    ELSE /*If a combo just add form coating and form color fields*/
-        opiQtyP = opiQtyP + ipbf-ef.f-coat + ipbf-ef.f-col.
-
-    /*subtract out any aqueous ink types from the count*/
-    FOR EACH bf-eb 
-        WHERE bf-eb.company EQ ipbf-ef.company 
-          AND bf-eb.est-no EQ ipbf-ef.est-no
-          AND bf-eb.form-no  eq ipbf-ef.form-no
-        NO-LOCK 
-        BREAK BY bf-eb.form-no:
-            IF bf-eb.est-type LE 4 THEN
-                DO iCount = 1 to 20:
-                    IF CAN-FIND(FIRST item 
-                                    WHERE item.company  EQ bf-eb.company
-                                      AND item.i-no     EQ bf-eb.i-code2[iCount]
-                                      AND item.ink-type EQ 'A') THEN 
-                        opiQtyP = opiQtyP - 1.
-                END.
-            ELSE
-                DO iCount = 1 to 10:
-                    IF CAN-FIND(FIRST item 
-                                    WHERE item.company  EQ bf-eb.company
-                                      AND item.i-no     EQ bf-eb.i-code[iCount]
-                                      AND item.ink-type EQ "A") THEN 
-                        opiQtyP = opiQtyP - 1.
-                END.
-    END. /*each bf-eb*/
-    IF opiQtyP LT 0 THEN opiQtyP = 0.
-
+    RUN Estimate_CalcFormInksAndCoats (ipbf-ef.company, ipbf-ef.est-no, ipbf-ef.form-no, OUTPUT iInkPerForm, OUTPUT iInkPassPerForm, OUTPUT iCoatPerForm, OUTPUT iCoatPassPerForm).
+        
+    opiQtyP = iInkPerForm.
+        
 END. /*avail ipbf-est and ipbf-ef*/
 
 END PROCEDURE.

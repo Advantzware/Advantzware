@@ -1035,17 +1035,17 @@ RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
 FORM HEADER
         "JOB NO" AT 1
-        "ITEM NO" AT 11
-        "ITEM NAME" AT 27
-        "VEND NO" AT 50
-        "P/O#" TO 66
-        "P/O DATE" AT 68
-        "UOM" AT 77
-        "QTY ORDER" TO 98
-        "QTY RECEIVED" TO 115
-        "REQ DATE" AT 117
-        "CARRIER" AT 126
-        FILL("-",132) FORMAT "x(132)"
+        "ITEM NO" AT 13
+        "ITEM NAME" AT 29
+        "VEND NO" AT 52
+        "P/O#" TO 68
+        "P/O DATE" AT 70
+        "UOM" AT 79
+        "QTY ORDER" TO 100
+        "QTY RECEIVED" TO 117
+        "REQ DATE" AT 119
+        "CARRIER" AT 128
+        FILL("-",134) FORMAT "x(134)"
     WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP
          FRAME sch-head-job.
 
@@ -1082,15 +1082,15 @@ FORM HEADER
     WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP
          FRAME sch-head-vend.
 
-  FORM lv-job-no FORMAT "x(9)"
-       tt-sched.i-no AT 11
-       tt-sched.i-name AT 27 FORMAT "x(22)"
-       tt-sched.vend-no AT 51
-       tt-sched.po-no TO 66
-       tt-sched.po-date AT 68 FORMAT "99/99/99"
-       tt-sched.cons-uom AT 77
-       tt-sched.cons-qty TO 98 FORMAT "->>>,>>>,>>9.99"
-       tt-sched.t-rec-qty TO 115 FORMAT "->>>,>>>,>>9.99"
+  FORM lv-job-no FORMAT "x(13)"
+       tt-sched.i-no AT 13
+       tt-sched.i-name AT 29 FORMAT "x(22)"
+       tt-sched.vend-no AT 52
+       tt-sched.po-no TO 68
+       tt-sched.po-date AT 70 FORMAT "99/99/99"
+       tt-sched.cons-uom AT 79
+       tt-sched.cons-qty TO 100 FORMAT "->>>,>>>,>>9.99"
+       tt-sched.t-rec-qty TO 117 FORMAT "->>>,>>>,>>9.99"
        tt-sched.due-date FORMAT "99/99/99" AT 117
        tt-sched.carrier AT 126
        WITH DOWN STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE FRAME sch-rcts-job.
@@ -1098,21 +1098,21 @@ FORM HEADER
   FORM tt-sched.i-no AT 1
        tt-sched.i-name AT 17 FORMAT "x(23)"
        tt-sched.vend-no AT 41
-       lv-job-no AT 50 FORMAT "x(9)"
+       lv-job-no AT 50 FORMAT "x(13)"
        tt-sched.po-no TO 66
        tt-sched.po-date AT 68 FORMAT "99/99/99"
        tt-sched.cons-uom AT 77
        tt-sched.cons-qty TO 98 FORMAT "->>>,>>>,>>9.99"
        tt-sched.t-rec-qty TO 115 FORMAT "->>>,>>>,>>9.99"
-       tt-sched.due-date FORMAT "99/99/99" AT 117
-       tt-sched.carrier AT 126
+       tt-sched.due-date FORMAT "99/99/99" AT 119
+       tt-sched.carrier AT 128
        WITH DOWN STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE FRAME sch-rcts-item.
 
   FORM tt-sched.vend-no AT 1
        tt-sched.vend-name AT 10 FORMAT "x(25)" SKIP
        tt-sched.i-no AT 7
        tt-sched.i-name AT 23 FORMAT "x(24)"
-       lv-job-no AT 48 FORMAT "x(9)"
+       lv-job-no AT 48 FORMAT "x(13)"
        tt-sched.po-no TO 63
        tt-sched.po-date AT 65
        tt-sched.cons-qty TO 89 FORMAT "->>>,>>>,>>9.99"
@@ -1344,7 +1344,7 @@ DISPLAY "" WITH FRAME r-top.
       {custom/statusMsg.i " 'Processing PO#  '  + string(tt-sched.po-no) "}
 
      lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-                 ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+                 ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
      DISPLAY lv-job-no
              tt-sched.i-no
@@ -1385,7 +1385,7 @@ DISPLAY "" WITH FRAME r-top.
   IF v-sort EQ "I" THEN
   FOR EACH tt-sched USE-INDEX i-no BREAK BY tt-sched.i-no:
      lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-                 ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+                 ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
      DISPLAY lv-job-no
              tt-sched.i-no
@@ -1425,7 +1425,7 @@ DISPLAY "" WITH FRAME r-top.
   ELSE
   FOR EACH tt-sched USE-INDEX vend BREAK BY tt-sched.vend-no:
      lv-job-no = IF tt-sched.job-no EQ "" THEN ""
-                 ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+                 ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-sched.job-no, tt-sched.job-no2))).
 
      IF FIRST-OF(tt-sched.vend-no) THEN DO:
         PUT SKIP(1).

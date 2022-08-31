@@ -1,3 +1,4 @@
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */ 
  /* cec/quote/quoxprm2.i */
  
 RUN XMLOutput (lXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05181205 */
@@ -45,13 +46,13 @@ PUT "<FArial><=4><R+1> Quote Date         FOB                     Ship Via      
 
 
 PUT "<|10><R23><C1><#5><FROM><R25><C80><RECT>" SKIP    
-  "<R23><C7><FROM><R25><C7><LINE>" SKIP
-  "<R23><C20><FROM><R25><C20><LINE>" SKIP
-  "<R23><C45><FROM><R25><C45><LINE>" SKIP
-  "<R23><C56><FROM><R25><C56><LINE>" SKIP
-  "<R23><C63><FROM><R25><C63><LINE>" SKIP
-  "<R23><C74><FROM><R25><C74><LINE>" SKIP
+  "<R23><C8><FROM><R25><C8><LINE>" SKIP
+  "<R23><C25.5><FROM><R25><C25.5><LINE>" SKIP
+  "<R23><C51.5><FROM><R25><C51.5><LINE>" SKIP
+  "<R23><C59><FROM><R25><C59><LINE>" SKIP
+  "<R23><C66><FROM><R25><C66><LINE>" SKIP
+  "<R23><C75><FROM><R25><C75><LINE>" SKIP
 .
 
-PUT "<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                             Quantity      Release             Price             UOM " SKIP(1).
+PUT "<FArial><=5><R+1> Est#/Qt#            Part#/Description                        Item/Style/Color/Board                    Quantity      Release         Price           UOM " SKIP(1).
 PUT "<FCourier New>".

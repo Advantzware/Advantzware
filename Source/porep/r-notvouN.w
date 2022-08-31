@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -129,7 +130,7 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
 
 ASSIGN 
     cTextListToSelect  = "Vendor,G/L Account,PO#,PO Line,Date Rec,Item Number,Description,Cat," +
-                           "Inv Qty,Whse,Cost Each,Invoice Amt," +
+                           "Qty to Be Invoiced,Whse,Cost Each,Amt to Invoice," +
                            "Receipt Date,Job#,location,Bin,Rec Quantity,Qty Uom,Cost,Cost Uom,Extended Value," +
                            "Invoice #,Invoice Date,Inv Quantity,Inv Qty Uom,Price,Price Uom,Inv line Amount"
 
@@ -137,14 +138,14 @@ ASSIGN
                             "inv-qty,whse,cost,inv-amt," +
                             "rec-date,rec-job,rec-loc,rec-bin,rec-qty,rec-qty-uom,rec-cost,rec-cost-uom,rec-ext-value," +
                             "inv-no,inv-date,inv-qty2,inv-qty-uom,inv-price,inv-price-uom,inv-line-amount"
-    cFieldLength       = "8,25,6,8,8,15,25,6," + "13,5,10,14," + "12,10,8,8,12,10,14,10,14," + "20,12,12,11,13,10,15"
+    cFieldLength       = "8,25,6,8,8,15,25,6," + "18,5,10,14," + "12,13,8,8,12,10,14,10,14," + "20,12,12,11,13,10,15"
     cFieldType         = "c,c,i,c,c,c,c,c," + "i,c,i,i," + "c,c,c,c,i,c,i,c,i," + "c,c,i,c,i,c,i"
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
     cTextListToDefault = "Vendor,G/L Account,PO#,Date Rec,Item Number,Description,Cat," +
-                           "Inv Qty,Whse,Cost Each,Invoice Amt" .
+                           "Qty to Be Invoiced,Whse,Cost Each,Amt to Invoice" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -691,6 +692,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                          OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1619,9 +1623,6 @@ PROCEDURE run-report :
     {sys/form/r-top5DL3.f} 
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
     DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-//DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-
-//RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
     
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     
@@ -1655,10 +1656,13 @@ PROCEDURE run-report :
     FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
         IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-            THEN ASSIGN str-tit4    = str-tit4 + ttRptSelected.TextList + " "
-                str-tit5    = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-                excelheader = excelHeader + ttRptSelected.TextList + "," .        
-        ELSE 
+            AND (LOGICAL(tb_show-details)
+            OR LOOKUP(ttRptSelected.TextList,"Receipt Date,Job#,location,Bin,Rec Quantity,Qty Uom,Cost,Cost Uom,Extended Value,Invoice #,Invoice Date,Inv Quantity,Inv Qty Uom,Price,Price Uom,Inv line Amount") EQ 0 ) THEN
+            ASSIGN str-tit4    = str-tit4 + ttRptSelected.TextList + " "
+                   str-tit5    = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+                   excelheader = excelHeader + ttRptSelected.TextList + "," .        
+        ELSE IF (LOGICAL(tb_show-details)
+            OR LOOKUP(ttRptSelected.TextList,"Receipt Date,Job#,location,Bin,Rec Quantity,Qty Uom,Cost,Cost Uom,Extended Value,Invoice #,Invoice Date,Inv Quantity,Inv Qty Uom,Price,Price Uom,Inv line Amount") EQ 0 ) THEN
             ASSIGN str-tit4    = str-tit4 + 
             (IF ttRptSelected.HeadingFromLeft THEN
                 ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
@@ -1668,7 +1672,7 @@ PROCEDURE run-report :
                 .        
         cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "Inv Qty,Invoice Amt") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Qty to Be Invoiced,Amt to Invoice") <> 0    THEN
             ASSIGN
                 str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
@@ -1736,6 +1740,7 @@ PROCEDURE run-report :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -1769,6 +1774,7 @@ PROCEDURE run-report :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -1910,8 +1916,6 @@ PROCEDURE run-report :
 
 
     OUTPUT STREAM excel CLOSE.
-    IF tb_OpenCSV THEN
-        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     /*END.*/
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1952,11 +1956,8 @@ PROCEDURE run-report-2 :
     {sys/form/r-top5DL3.f} 
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
     DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cFileName2  LIKE fi_file NO-UNDO .
     
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-    
-    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
     ASSIGN 
         v-grand-tot-qty = 0
@@ -1989,10 +1990,13 @@ PROCEDURE run-report-2 :
     FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
         IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-            THEN ASSIGN str-tit4    = str-tit4 + ttRptSelected.TextList + " "
-                str-tit5    = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
-                excelheader = excelHeader + ttRptSelected.TextList + "," .        
-        ELSE 
+            AND (LOGICAL(tb_show-details)
+            OR LOOKUP(ttRptSelected.TextList,"Receipt Date,Job#,location,Bin,Rec Quantity,Qty Uom,Cost,Cost Uom,Extended Value,Invoice #,Invoice Date,Inv Quantity,Inv Qty Uom,Price,Price Uom,Inv line Amount") EQ 0 ) THEN 
+            ASSIGN str-tit4    = str-tit4 + ttRptSelected.TextList + " "
+                   str-tit5    = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+                   excelheader = excelHeader + ttRptSelected.TextList + "," .        
+        ELSE IF (LOGICAL(tb_show-details)
+            OR LOOKUP(ttRptSelected.TextList,"Receipt Date,Job#,location,Bin,Rec Quantity,Qty Uom,Cost,Cost Uom,Extended Value,Invoice #,Invoice Date,Inv Quantity,Inv Qty Uom,Price,Price Uom,Inv line Amount") EQ 0 ) THEN
             ASSIGN str-tit4    = str-tit4 + 
             (IF ttRptSelected.HeadingFromLeft THEN
                 ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
@@ -2002,7 +2006,7 @@ PROCEDURE run-report-2 :
                 .        
         cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "Inv Qty,Invoice Amt") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Qty to Be Invoiced,Amt to Invoice") <> 0    THEN
             ASSIGN
                 str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
@@ -2015,7 +2019,7 @@ PROCEDURE run-report-2 :
 
     IF rd-dest = 3 THEN 
     DO:
-        OUTPUT STREAM excel TO VALUE(cFileName2).
+        OUTPUT STREAM excel TO VALUE(cFileName).
         /*excelheader = "Vendor,G/L Account,P.O. Number,Date Received,Item Number,"
                     + "Description,Prod Cat,Quantity To Invoice,Whse,Cost Each,"
                     + "Amt To Invoice".*/
@@ -2054,6 +2058,7 @@ PROCEDURE run-report-2 :
             rm-rcpth.company    EQ cocode
             AND rm-rcpth.i-no       EQ po-ordl.i-no
             AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+            AND rm-rcpth.po-line    EQ po-ordl.LINE
             AND rm-rcpth.job-no     EQ po-ordl.job-no
             AND rm-rcpth.job-no2    EQ po-ordl.job-no2
             AND rm-rcpth.trans-date GE frdat
@@ -2065,6 +2070,7 @@ PROCEDURE run-report-2 :
                 fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat) THEN
@@ -2090,6 +2096,7 @@ PROCEDURE run-report-2 :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -2114,6 +2121,7 @@ PROCEDURE run-report-2 :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -2135,10 +2143,11 @@ PROCEDURE run-report-2 :
                    tt-neg-po-line.i-no EQ po-ordl.i-no and
                    tt-neg-po-line.item-type EQ po-ordl.item-type AND
                    tt-neg-po-line.qty EQ rm-rdtlh.qty) THEN
-                   DO:*/
+                   DO:*/      
                 CREATE tt-neg-po-line.
                 ASSIGN 
                     tt-neg-po-line.po-no     = po-ordl.po-no
+                    tt-neg-po-line.po-line   = po-ordl.LINE
                     tt-neg-po-line.i-no      = po-ordl.i-no
                     tt-neg-po-line.item-type = po-ordl.item-type
                     tt-neg-po-line.qty       = rm-rdtlh.qty
@@ -2161,6 +2170,7 @@ PROCEDURE run-report-2 :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -2177,6 +2187,7 @@ PROCEDURE run-report-2 :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -2195,6 +2206,7 @@ PROCEDURE run-report-2 :
                 CREATE tt-neg-po-line.
                 ASSIGN 
                     tt-neg-po-line.po-no     = po-ordl.po-no
+                    tt-neg-po-line.po-line   = po-ordl.LINE
                     tt-neg-po-line.i-no      = po-ordl.i-no
                     tt-neg-po-line.item-type = po-ordl.item-type
                     tt-neg-po-line.qty       = fg-rdtlh.qty
@@ -2242,6 +2254,7 @@ PROCEDURE run-report-2 :
                 DO:
                     FOR EACH tt-neg-po-line WHERE
                         tt-neg-po-line.po-no = po-ordl.po-no AND
+                        tt-neg-po-line.po-line = po-ordl.LINE AND
                         tt-neg-po-line.i-no = po-ordl.i-no AND
                         tt-neg-po-line.item-type = po-ordl.item-type
                         /*                     NO-ERROR.               */
@@ -2271,8 +2284,8 @@ PROCEDURE run-report-2 :
                         LEAVE.
                     END.
 
-                    IF ll-neg-inv-found = NO THEN
-                    DO:
+                    IF ll-neg-inv-found = YES THEN
+                    DO:           
                         CREATE temp-po-rec.
                         ASSIGN
                             temp-po-rec.vend-no    = v-vend-no
@@ -2299,10 +2312,11 @@ PROCEDURE run-report-2 :
         DO:
             FIND FIRST tt-neg-po-line WHERE
                 tt-neg-po-line.po-no = po-ordl.po-no AND
+                tt-neg-po-line.po-line = po-ordl.LINE AND
                 tt-neg-po-line.i-no = po-ordl.i-no AND
                 tt-neg-po-line.item-type = po-ordl.item-type
                 NO-ERROR.
-
+                          
             IF AVAILABLE tt-neg-po-line THEN
             DO:
                 ll-neg-inv-found = NO.
@@ -2326,9 +2340,9 @@ PROCEDURE run-report-2 :
                 ll-neg-inv-found = YES.
                 LEAVE.
             END.
-
-            IF ll-neg-inv-found = NO THEN
-            DO:
+            
+            IF ll-neg-inv-found = YES THEN
+            DO:                 
                 CREATE temp-po-rec.
                 ASSIGN
                     temp-po-rec.vend-no    = v-vend-no
@@ -2383,8 +2397,8 @@ DO:
     LEAVE.
 END.
 
-IF ll-neg-inv-found = NO THEN
-DO:
+IF ll-neg-inv-found = YES THEN
+DO:                
     CREATE temp-po-rec.
     ASSIGN
         temp-po-rec.vend-no    = v-vend-no
@@ -2497,8 +2511,7 @@ DO:
         ' Grand Totals ,'
         SUBSTRING(cExcelDisplay,4,300) SKIP.
     OUTPUT STREAM excel CLOSE.
-    IF tb_OpenCSV THEN
-        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
+    
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2559,7 +2572,7 @@ PROCEDURE pPrintDetail :
             NO-LOCK:
              
             IF rm-rcpth.job-no NE "" THEN
-                cJobNo =  rm-rcpth.job-no + "-" + STRING(rm-rcpth.job-no2,"99") .        
+                cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', rm-rcpth.job-no, rm-rcpth.job-no2))) .        
             ELSE 
                 cJobNo = "".
                
@@ -2576,7 +2589,7 @@ PROCEDURE pPrintDetail :
                     WHEN "rec-date"    THEN 
                         cVarValue = STRING(rm-rcpth.trans-date,"99/99/9999") .
                     WHEN "rec-job"   THEN 
-                        cVarValue = STRING(cJobNo,"x(10)").
+                        cVarValue = STRING(cJobNo,"x(13)").
                     WHEN "rec-loc"   THEN 
                         cVarValue = STRING(rm-rdtlh.loc,"x(8)").
                     WHEN "rec-bin"   THEN 
@@ -2628,7 +2641,7 @@ PROCEDURE pPrintDetail :
             NO-LOCK:
                   
             IF fg-rcpth.job-no NE "" THEN
-                cJobNo =  fg-rcpth.job-no + "-" + STRING(fg-rcpth.job-no2,"99") .        
+                cJobNo = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))).        
             ELSE 
                 cJobNo = "".
                 
@@ -2668,7 +2681,7 @@ PROCEDURE pPrintDetail :
                     WHEN "rec-date"    THEN 
                         cVarValue = STRING(fg-rcpth.trans-date,"99/99/9999") .
                     WHEN "rec-job"   THEN 
-                        cVarValue = STRING(cJobNo,"x(10)").
+                        cVarValue = STRING(cJobNo,"x(13)").
                     WHEN "rec-loc"   THEN 
                         cVarValue = STRING(fg-rdtlh.loc,"x(8)").
                     WHEN "rec-bin"   THEN 
@@ -2701,23 +2714,15 @@ PROCEDURE pPrintDetail :
             END.                 
         END.        
     END.
-  
-    FOR EACH reftable
-        {ap/ap-reftbW.i bf-po-ordl.po-no}
-        NO-LOCK,
-               each ap-inv WHERE
-                    ap-inv.company eq cocode AND
-                    ap-inv.i-no    eq int(reftable.code2) AND
-                    ap-inv.vend-no eq bf-po-ord.vend-no AND
-                    (ap-inv.po-no  eq bf-po-ordl.po-no or ap-inv.po-no eq 0) AND
-                    ap-inv.posted  eq yes
-                    use-index i-no no-lock,
-               each ap-invl WHERE
-                    ap-invl.i-no       eq ap-inv.i-no AND
-                    (ap-invl.po-no     eq bf-po-ordl.po-no or ap-inv.po-no ne 0) AND
-                    {ap/invlline.i -1} eq bf-po-ordl.LINE 
-                    use-index i-no no-lock:
-
+         
+    FOR EACH ap-invl NO-LOCK
+        WHERE ap-invl.company EQ cocode 
+          AND ap-invl.po-no EQ bf-po-ordl.po-no 
+          AND (ap-invl.line + (ap-invl.po-no * -1000)) eq bf-po-ordl.LINE,           
+        EACH ap-inv NO-LOCK
+        WHERE ap-inv.i-no eq ap-invl.i-no
+          AND ap-inv.company EQ cocode:
+                      
     ASSIGN 
         cDisplay       = ""
         cTmpField      = ""

@@ -25,20 +25,20 @@ IF v-job-meth EQ "YYMMSEQ#" THEN DO:
   IF ERROR-STATUS:ERROR THEN io-job-no2 = 0.
 
   ASSIGN
-   io-job-no  = io-job-no + STRING(io-job-no2 + 1,"99")
+   io-job-no  = io-job-no + STRING(io-job-no2 + 1,"999")
    io-job-no2 = 0.
 END.
 ELSE IF v-job-meth EQ "Order#" OR v-job-meth EQ "" THEN DO:  END.
 ELSE IF v-job-meth = "PLine&Order#" AND
-     LENGTH(trim(io-job-no)) < 6 THEN 
+     LENGTH(trim(io-job-no)) < 9 THEN 
      DO: 
         FIND FIRST prodl WHERE prodl.procat = ip-prod-cat NO-LOCK NO-ERROR.
         IF AVAIL prodl THEN 
-           io-job-no =  FILL(" ",6 - LENGTH( SUBSTRING(prodl.prolin,1,1) + trim(io-job-no)))
+           io-job-no =  FILL(" ", iJobLen - LENGTH( SUBSTRING(prodl.prolin,1,1) + trim(io-job-no)))
                      + SUBSTRING(prodl.prolin,1,1) + trim(io-job-no) .
         
      END.
-ELSE IF v-job-meth EQ "Estimate#" THEN io-job-no = ipcEstNo.  
+ELSE IF v-job-meth EQ "Estimate#" THEN io-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ipcEstNo)).  
 
     IF v-job-meth EQ "Estimate#" THEN DO:
               FOR EACH job-hdr NO-LOCK WHERE job-hdr.company EQ cocode

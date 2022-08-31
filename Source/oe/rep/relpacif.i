@@ -1,7 +1,7 @@
 /* ----------------------------------------------- oe/rep/oe-pick.i 03/98 JLF */
 /* Print OE Release/Picking tickets                                           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {oe/rep/oe-pick1.i}
     
 {sys/FORM/r-top.i}
@@ -147,8 +147,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -288,7 +288,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               and oe-ordl.line    eq oe-rell.line
             no-lock no-error.
 
-        lv-job-no = IF oe-rell.job-no <> "" THEN (trim(oe-rell.job-no) + "-" + STRING(oe-rell.job-no2,"99"))
+        lv-job-no = IF oe-rell.job-no <> "" THEN 
+                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-rell.job-no, oe-rell.job-no2)))
                     ELSE "" .
 
         if v-headers then do:
@@ -337,7 +338,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                        ASSIGN locbin[xx] = fg-bin.loc-bin
                               locunit[xx] = trunc((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) 
                               loccount[xx] = fg-bin.case-count
-                              locjob[xx] = IF fg-bin.job-no <> "" THEN (trim(fg-bin.job-no) + "-" + STRING(fg-bin.job-no2,">>"))
+                              locjob[xx] = IF fg-bin.job-no <> "" THEN
+                                           TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-bin.job-no, fg-bin.job-no2)))
                                            ELSE ""
                               locpartial[xx] = fg-bin.qty - (locunit[xx] * loccount[xx])
                                            .

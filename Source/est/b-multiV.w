@@ -739,13 +739,33 @@ DO:
 
     IF eb.form-no NE multbl.val[1] THEN 
     DO:
-    {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+        RUN Estimate_UpdateEstDependencies(
+            INPUT eb.company,
+            INPUT eb.loc,
+            INPUT eb.est-no,
+            INPUT eb.form-no,
+            INPUT 0,
+            INPUT eb.eqty,
+            INPUT eb.est-type,
+            INPUT multbl.val[1],
+            INPUT 0
+            ).        
     END.
 
     multbl.val[2] = (multbl.val[2] * 1000) +
         (1 * (IF multbl.val[2] LT eb.blank-no THEN -1 ELSE 1)).
 
-    {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.val[1]" "multbl.val[2] * 1000"}
+    RUN Estimate_UpdateEstDependencies(
+        INPUT eb.company,
+        INPUT eb.loc,
+        INPUT eb.est-no,
+        INPUT eb.form-no,
+        INPUT eb.blank-no,
+        INPUT eb.eqty,
+        INPUT eb.est-type,
+        INPUT multbl.val[1],
+        INPUT multbl.val[2] * 1000
+        ).
 
     ASSIGN
         eb.form-no  = multbl.val[1]
@@ -1535,15 +1555,33 @@ PROCEDURE new-forms :
                 ASSIGN
                 b-ef.form-no   = multbl.val[1]
                 b-ef.blank-qty = 1.
-
-        {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+            RUN Estimate_UpdateEstDependencies(
+                INPUT eb.company,
+                INPUT eb.loc,
+                INPUT eb.est-no,
+                INPUT eb.form-no,
+                INPUT 0,
+                INPUT eb.eqty,
+                INPUT eb.est-type,
+                INPUT multbl.val[1],
+                INPUT 0
+                ).
         END.
 
         ELSE 
         DO:
 
-
-        {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+            RUN Estimate_UpdateEstDependencies(
+                INPUT eb.company,
+                INPUT eb.loc,
+                INPUT eb.est-no,
+                INPUT eb.form-no,
+                INPUT 0,
+                INPUT eb.eqty,
+                INPUT eb.est-type,
+                INPUT multbl.val[1],
+                INPUT 0
+                ).
 
             ef.form-no  = multbl.val[1].
 
@@ -1591,13 +1629,33 @@ PROCEDURE process-new-forms :
     
             IF eb.form-no NE multbl.val[1] THEN 
             DO:
-                {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+                RUN Estimate_UpdateEstDependencies(
+                    INPUT eb.company,
+                    INPUT eb.loc,
+                    INPUT eb.est-no,
+                    INPUT eb.form-no,
+                    INPUT 0,
+                    INPUT eb.eqty,
+                    INPUT eb.est-type,
+                    INPUT multbl.val[1],
+                    INPUT 0
+                    ).                
             END.
         
             multbl.val[2] = (multbl.val[2] * 1000) +
                 (1 * (IF multbl.val[2] LT eb.blank-no THEN -1 ELSE 1)).
-        
-              {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.val[1]" "multbl.val[2] * 1000"}
+
+            RUN Estimate_UpdateEstDependencies(
+                INPUT eb.company,
+                INPUT eb.loc,
+                INPUT eb.est-no,
+                INPUT eb.form-no,
+                INPUT eb.blank-no,
+                INPUT eb.eqty,
+                INPUT eb.est-type,
+                INPUT multbl.val[1],
+                INPUT multbl.val[2] * 1000
+                ).        
         
             ASSIGN
                 eb.form-no  = multbl.val[1]
@@ -2159,7 +2217,17 @@ DO:
 
         IF eb.form-no NE multbl.val[1] THEN 
         DO:
-            {sys/inc/xeb-form.i "eb." "0" "multbl.val[1]" "0"}
+            RUN Estimate_UpdateEstDependencies(
+                INPUT eb.company,
+                INPUT eb.loc,
+                INPUT eb.est-no,
+                INPUT eb.form-no,
+                INPUT 0,
+                INPUT eb.eqty,
+                INPUT eb.est-type,
+                INPUT multbl.val[1],
+                INPUT 0
+                ).             
         END.
     
         multbl.val[2] = (multbl.val[2] * 1000) +
@@ -2167,8 +2235,17 @@ DO:
     
          /* Assigns blank-no below, but this gets reset by est/resetf&b */
          /* Updates est-flm and xeb-form-ef */
-          {sys/inc/xeb-form.i "eb." "eb.blank-no" "multbl.val[1]" "multbl.val[2] * 1000"}
-          
+        RUN Estimate_UpdateEstDependencies(
+            INPUT eb.company,
+            INPUT eb.loc,
+            INPUT eb.est-no,
+            INPUT eb.form-no,
+            INPUT eb.blank-no,
+            INPUT eb.eqty,
+            INPUT eb.est-type,
+            INPUT multbl.val[1],
+            INPUT multbl.val[2] * 1000
+            ).          
           
         ASSIGN
             eb.form-no  = multbl.val[1]

@@ -373,7 +373,7 @@ PROCEDURE job-no:
            /* List of field labels to override the default database field label */
            INPUT "Job #,Job #2,Item #,,Order #,,,Status",
            /* List of field formats to override the default database field format */
-           INPUT "x(9),>9,X(20),X(10),>>>>>9,X(10)",
+           INPUT "x(9),>>9,X(20),X(10),>>>>>>>9,X(10)",
            /* List of browse column width values to override the default column width in browse */
            INPUT "9,8,20,10,,10,12",
            /* List of fields for which field level search is enabled */

@@ -32,6 +32,7 @@
 /* Local Variable Definitions ---                                       */
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY maillist.list-no
 &scoped-define SORTBY-2 BY maillist.list-name

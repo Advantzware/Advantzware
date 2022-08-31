@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relmidwest.i */
 /* Print OE Release/Picking tickets    for St Clair Xprint          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* -----------------------------------------------------------------*/
 
 {oe/rep/oe-pick1.i}
@@ -9,7 +10,7 @@
 DEF BUFFER ref-lot-no FOR reftable.
 
 def TEMP-TABLE w-oe-rell NO-UNDO
-   FIELD ord-no AS INT FORMAT "ZZZZZ9"
+   FIELD ord-no AS INT FORMAT "ZZZZZZZ9"
    FIELD i-no AS CHAR
    FIELD qty AS INT
    FIELD LINE AS INT
@@ -131,15 +132,15 @@ DEF VAR iPallets AS INT NO-UNDO.
 DEF VAR iPalletsPartial AS INT NO-UNDO.
 DEFINE VARIABLE cSalRepName AS CHARACTER  NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
-       w-bin.w-par                      at 8    format "x(30)"
-       v-bin                            at 38   format "x(20)"
-       cDate                            AT 59   FORMAT "x(10)"
-       w-bin.w-units                    to 76   format "->>>>>"
-       w-bin.w-unit-count               to 83   format "->>>>>"
-       v-partial AT 89                          format "->>>>>"
+format w-oe-rell.ord-no                 TO 8
+       w-bin.w-par                      AT 10   FORMAT "X(30)"
+       v-bin                            AT 40   FORMAT "X(20)"
+       cDate                            AT 61   FORMAT "X(10)"
+       w-bin.w-units                    TO 77   FORMAT "->>>>>"
+       w-bin.w-unit-count               TO 84   FORMAT "->>>>>"
+       v-partial                        AT 89   FORMAT "->>>>>"
        s-tot-rqty                       AT 97   FORMAT "X(26)"
-       cPallet                          AT 123  format "X(20)"
+       cPallet                          AT 123  FORMAT "X(20)"
        
        /*v-rs                             AT 97   FORM "x(2)"*/
       
@@ -223,8 +224,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -763,13 +764,13 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                  WHEN 3 THEN do:
                      lvTransDate = ?.
                      IF v-bin = "" AND lOHAvail = NO THEN DO:
-                        v-bin = "Job:" + string(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99").
+                        v-bin = "Job:" + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
                         IF oe-ordl.job-no = "" THEN DO:
                             FIND FIRST job-hdr WHERE job-hdr.company = oe-ordl.company
                                 AND job-hdr.i-no = oe-ordl.i-no
                                 AND job-hdr.opened NO-LOCK NO-ERROR.
                             IF AVAIL job-hdr THEN 
-                                ASSIGN v-bin = "Job:" + string(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+                                ASSIGN v-bin = "Job:" + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)))
                                        ldtJobDate = job-hdr.due-date
                                        .                            
                         END.

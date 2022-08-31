@@ -117,6 +117,8 @@ DEF BUFFER bf-eb FOR eb.
 DEF BUFFER bf-est FOR est.*/
 
 DEFINE VARIABLE cadcamValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+
 
 RUN Get-Company  (OUTPUT gcompany).
 RUN Get-location (OUTPUT gloc).
@@ -158,6 +160,7 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 
 {cec/tt-eb-set-part.i "new"}
 {est/ttInputEst.i NEW}
+{api/ttAPIOutboundEvent.i}
 
 DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
@@ -203,10 +206,10 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
 
+RUN pGetSettingValue(cocode).
 RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
-    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR. 
-
+    lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -354,9 +357,9 @@ DEFINE BROWSE br-estitm
   QUERY br-estitm NO-LOCK DISPLAY
       est.est-no FORMAT "99999999":U WIDTH 12 
       eb.cust-no FORMAT "x(8)":U 
-      eb.part-no FORMAT "x(15)":U 
+      eb.part-no FORMAT "x(30)":U 
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
-      eb.part-dscr1 COLUMN-LABEL "Item Name" FORMAT "x(30)":U 
+      eb.part-dscr1 FORMAT "x(30)":U 
       eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U 
       eb.bl-qty COLUMN-LABEL "Qty" FORMAT ">>>,>>>,>>>":U WIDTH 15
       eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 
@@ -369,8 +372,8 @@ DEFINE BROWSE br-estitm
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
-      eb.form-no COLUMN-LABEL "Form" FORMAT ">>>":U WIDTH 6.5
-      eb.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U WIDTH 6.5
+      eb.form-no COLUMN-LABEL "Form" FORMAT ">>>":U WIDTH 6.6
+      eb.blank-no COLUMN-LABEL "Blank" FORMAT ">>>":U WIDTH 6.6
       eb.num-wid FORMAT ">9":U
       eb.num-len FORMAT ">9":U
       eb.num-up COLUMN-LABEL "# Up" FORMAT ">>>,>>9":U
@@ -503,7 +506,7 @@ ASSIGN
      _FldNameList[2]   > ASI.eb.cust-no
 "eb.cust-no" ? ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.eb.part-no
-"eb.part-no" ? ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.part-no" ? "x(30)" "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.eb.ship-id
 "eb.ship-id" "Ship To" ? "character" ? ? 2 ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.eb.part-dscr1
@@ -533,9 +536,9 @@ ASSIGN
      _FldNameList[17]   > ASI.eb.i-coat
 "eb.i-coat" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.form-no
-"eb.form-no" "Form" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.form-no" "Form" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.eb.blank-no
-"eb.blank-no" "Blank" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.blank-no" "Blank" ">>>" "integer" ? ? ? ? ? ? no ? no no "6.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   = ASI.eb.num-wid
      _FldNameList[21]   = ASI.eb.num-len
      _FldNameList[22]   > ASI.eb.num-up
@@ -1502,6 +1505,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME eb.dep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.dep br-estitm _BROWSE-COLUMN B-table-Win
 ON LEAVE OF eb.dep IN BROWSE br-estitm /* Depth */
@@ -1511,6 +1515,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME eb.cust-%
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cust-% br-estitm _BROWSE-COLUMN B-table-Win
@@ -1717,6 +1722,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+{est/ShareEstimate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1935,7 +1941,8 @@ DEF BUFFER bf FOR ef.
 
 FIND bf WHERE RECID(bf) EQ ip-recid.
 
-RUN ce/newblank.p (ROWID(bf), OUTPUT lv-rowid).
+/*RUN ce/newblank.p (ROWID(bf), OUTPUT lv-rowid).*/
+RUN est/NewEstimateBlank.p(ROWID(bf), OUTPUT lv-rowid).
 
 FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
 lv-eb-recid = RECID(eb).
@@ -2915,106 +2922,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateSetEstimate B-table-Win 
-PROCEDURE pCreateSetEstimate :
-/*------------------------------------------------------------------------------
- Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
- Notes:
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.   
-  DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
-  
-  DEFINE BUFFER bff-eb FOR eb.
-  DEF BUFFER bf-eb FOR eb.
-  
-  ASSIGN
-    ll-new-record = YES
-    iCount = 0
-    .
-
-  FOR EACH ttInputEst:
-      iCount = iCount + 1.
-  END.
-  
-  RUN est/BuildEstimate.p ("F", OUTPUT riEb).
-
-  FIND FIRST bff-eb NO-LOCK
-      WHERE bff-eb.company EQ cocode
-        AND ROWID(bff-eb) EQ riEb NO-ERROR .
-        
-  IF AVAIL bff-eb THEN
-  FOR EACH tt-eb-set BREAK BY tt-eb-set.company:
-      IF FIRST(tt-eb-set.company) THEN DO:  
-         CREATE bf-eb.
-         BUFFER-COPY tt-eb-set TO bf-eb
-         ASSIGN
-            bf-eb.est-no  = bff-eb.est-no 
-            bf-eb.form-no = 0
-            bf-eb.company = cocode
-            bf-eb.cust-no = bff-eb.cust-no.
-       END.
-  END.    
-  
-  IF iCount > 0 THEN DO:
-     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-     RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
-  END. 
-  
-  
-  EMPTY TEMP-TABLE tt-eb-set.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateMoldEstimate B-table-Win 
-PROCEDURE pCreateMoldEstimate :
-/*------------------------------------------------------------------------------
- Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
- Notes:
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
-  DEFINE VARIABLE iEstReleaseID AS INTEGER NO-UNDO .
-  DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
-  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO .
-  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
-  DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
-  DEFINE BUFFER bff-eb FOR eb.
-
-  RUN system/FreightProcs.p PERSISTENT SET hftp.
-  THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
-
-  ASSIGN
-    ll-new-record = YES
-    iCount = 0
-    .
-
-  FOR EACH ttInputEst:
-      iCount = iCount + 1.
-  END.
-  
-  RUN est/BuildEstimate.p ("F", OUTPUT riEb).
-
-  FIND FIRST bff-eb NO-LOCK
-      WHERE bff-eb.company EQ cocode
-        AND ROWID(bff-eb) EQ riEb NO-ERROR .  
-  
-  IF iCount > 0 THEN DO:
-     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-     RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
-  END. 
-  
-  THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE crt-est-childrecord B-table-Win 
 PROCEDURE crt-est-childrecord :
 /*------------------------------------------------------------------------------
@@ -3064,7 +2971,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE crt-new-est B-table-Win 
 PROCEDURE crt-new-est :
@@ -3334,7 +3240,7 @@ DEF VAR prev-board LIKE ef.board NO-UNDO.
 
 DEF BUFFER bf FOR ef.
 DEF BUFFER bf-est FOR est.
-
+DEFINE BUFFER bf-eb FOR eb.
 
 FIND bf-est WHERE RECID(bf-est) = ip-recid.
 
@@ -3344,6 +3250,9 @@ IF bf-est.est-type NE 2 THEN
 DO:
     bf-est.est-type = 4.
     RUN pReSetEstQty(rowid(est-qty)). 
+    FOR EACH bf-eb OF bf-est:  
+      RUN set-yld-qty (ROWID(bf-eb)).
+    END.
 END.
            
 FIND LAST bf 
@@ -3579,6 +3488,7 @@ PROCEDURE local-assign-record :
   DEF VAR ld-markup AS DEC NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAIL eb THEN FIND eb WHERE RECID(eb) = lv-eb-recid NO-LOCK NO-ERROR.
@@ -3851,7 +3761,9 @@ PROCEDURE local-assign-record :
      eb.i-ps2   = 0
      eb.i-code2 = ""
      eb.i-dscr2 = ""
-     eb.i-%2    = 0.
+     eb.i-%2    = 0
+     eb.unitno  = 0
+     .
 
     FOR EACH inks BY inks.iv:
       li = li + 1.
@@ -3861,9 +3773,17 @@ PROCEDURE local-assign-record :
          eb.i-code2[li] = inks.cd[1]
          eb.i-dscr2[li] = inks.ds[1]
          eb.i-%2[li]    = inks.pc[1].
+              
     END.
 
     {ce/updunit#.i eb}
+  END.
+
+  /* Run logic only if NK1 is set */
+  IF glAssignUnitsForInk = YES THEN
+  DO iExt = 1 TO EXTENT(eb.i-code2):
+      IF eb.i-code2[iExt] NE '' THEN
+          RUN est/GetInksUnitNo.p (BUFFER eb, iExt, eb.i-code2[iExt], OUTPUT eb.unitno[iExt]).
   END.
 
   RUN ce/com/istandem.p (ROWID(est), OUTPUT ll-tandem).
@@ -3873,6 +3793,9 @@ PROCEDURE local-assign-record :
         RUN set-yld-qty (
             INPUT ROWID(eb)
             ).
+  
+  RUN pSetFormColors (INPUT eb.company, INPUT eb.est-no, INPUT eb.form-no).
+  
 
   RUN Prep_ValidateAndDeletePlatePrep IN hPrepProcs (ROWID(eb)).
 
@@ -4892,56 +4815,107 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win 
-PROCEDURE pGetDefaultShipID :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateMoldEstimate B-table-Win 
+PROCEDURE pCreateMoldEstimate :
 /*------------------------------------------------------------------------------
- Purpose:
+ Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
  Notes:
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCustNo AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opcShipID AS CHARACTER NO-UNDO.
-    
-    DEFINE VARIABLE riShipto AS ROWID NO-UNDO.
-    
-    FIND FIRST cust NO-LOCK 
-         WHERE cust.company EQ cocode
-           AND cust.cust-no EQ ipcCustNo
-         NO-ERROR.
-    IF AVAILABLE cust THEN DO:
-             
-        RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
-            INPUT  cocode,
-            INPUT  cust.cust-no,
-            OUTPUT riShipTo
-            ).
-        FIND FIRST shipto NO-LOCK 
-             WHERE ROWID(shipto) EQ riShipTo
-             NO-ERROR.
-             
-        IF AVAILABLE shipto THEN 
-            opcShipID = shipto.ship-id.
-    END.            
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
+  DEFINE VARIABLE iEstReleaseID AS INTEGER NO-UNDO .
+  DEFINE VARIABLE lError AS LOGICAL NO-UNDO .
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+  DEFINE VARIABLE hftp            AS HANDLE    NO-UNDO.
+  DEFINE BUFFER bff-eb FOR eb.
+
+  RUN system/FreightProcs.p PERSISTENT SET hftp.
+  THIS-PROCEDURE:ADD-SUPER-PROCEDURE(hftp).
+
+  ASSIGN
+    ll-new-record = YES
+    iCount = 0
+    .
+
+  FOR EACH ttInputEst:
+      iCount = iCount + 1.
+  END.
+  
+  RUN est/BuildEstimate.p ("F", OUTPUT riEb).
+
+  FIND FIRST bff-eb NO-LOCK
+      WHERE bff-eb.company EQ cocode
+        AND ROWID(bff-eb) EQ riEb NO-ERROR .  
+  
+  IF iCount > 0 THEN DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
+  END. 
+  
+  THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE(hftp).
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateSetEstimate B-table-Win 
+PROCEDURE pCreateSetEstimate :
+/*------------------------------------------------------------------------------
+ Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.   
+  DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
+  
+  DEFINE BUFFER bff-eb FOR eb.
+  DEF BUFFER bf-eb FOR eb.
+  
+  ASSIGN
+    ll-new-record = YES
+    iCount = 0
+    .
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstRowid B-table-Win 
-PROCEDURE pGetEstRowid :
-  DEFINE OUTPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
-  IF AVAIL eb THEN iprwRowid = ROWID(eb).
+  FOR EACH ttInputEst:
+      iCount = iCount + 1.
+  END.
+  
+  RUN est/BuildEstimate.p ("F", OUTPUT riEb).
+
+  FIND FIRST bff-eb NO-LOCK
+      WHERE bff-eb.company EQ cocode
+        AND ROWID(bff-eb) EQ riEb NO-ERROR .
+        
+  IF AVAIL bff-eb THEN
+  FOR EACH tt-eb-set BREAK BY tt-eb-set.company:
+      IF FIRST(tt-eb-set.company) THEN DO:  
+         CREATE bf-eb.
+         BUFFER-COPY tt-eb-set TO bf-eb
+         ASSIGN
+            bf-eb.est-no  = bff-eb.est-no 
+            bf-eb.form-no = 0
+            bf-eb.company = cocode
+            bf-eb.cust-no = bff-eb.cust-no.
+       END.
+  END.    
+  
+  IF iCount > 0 THEN DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (riEb).
+  END. 
+  
+  
+  EMPTY TEMP-TABLE tt-eb-set.
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOperation1 B-table-Win
-PROCEDURE pEstimateCleanUp:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEstimateCleanUp B-table-Win 
+PROCEDURE pEstimateCleanUp :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -5143,15 +5117,216 @@ PROCEDURE pEstimateCleanUp:
     RUN valid-eb-reckey.
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetDefaultShipID B-table-Win 
+PROCEDURE pGetDefaultShipID :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCustNo AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcShipID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE riShipto AS ROWID NO-UNDO.
+    
+    FIND FIRST cust NO-LOCK 
+         WHERE cust.company EQ cocode
+           AND cust.cust-no EQ ipcCustNo
+         NO-ERROR.
+    IF AVAILABLE cust THEN DO:
+             
+        RUN Customer_GetDefaultShipTo IN hdCustomerProcs(
+            INPUT  cocode,
+            INPUT  cust.cust-no,
+            OUTPUT riShipTo
+            ).
+        FIND FIRST shipto NO-LOCK 
+             WHERE ROWID(shipto) EQ riShipTo
+             NO-ERROR.
+             
+        IF AVAILABLE shipto THEN 
+            opcShipID = shipto.ship-id.
+    END.            
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFormColors B-table-Win
+PROCEDURE pSetFormColors PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Set Form level colors and Coats etc
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iInkPerForm      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iInkPassPerForm  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatPerForm     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatPassPerForm AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-ef   FOR ef. 
+    DEFINE BUFFER bfEx-ef FOR ef. 
+
+    RUN Estimate_CalcFormInksAndCoats (ipcCompany, ipcEstimate, ipiFormNo, OUTPUT iInkPerForm, OUTPUT iInkPassPerForm, OUTPUT iCoatPerForm, OUTPUT iCoatPassPerForm).
+    
+    FIND FIRST bf-ef NO-LOCK
+        WHERE bf-ef.Company = ipcCompany
+          AND bf-ef.Est-no  = ipcEstimate
+          AND bf-ef.form-no = ipiFormNo NO-ERROR.
+          
+    IF AVAIL bf-ef 
+    AND (bf-ef.f-col NE iInkPerForm OR bf-ef.f-pass NE iInkPassPerForm 
+    OR bf-ef.f-coat NE iCoatPerForm OR bf-ef.f-coat-p NE iCoatPassPerForm) THEN 
+    DO TRANSACTION:
+         
+        FIND FIRST bfEx-ef EXCLUSIVE-LOCK 
+            WHERE ROWID(bfEx-ef) = ROWID(bf-ef) NO-ERROR.
+            
+        IF AVAILABLE bfEx-ef THEN
+            ASSIGN
+                bfEx-ef.f-col    = iInkPerForm
+                bfEx-ef.f-pass   = iInkPassPerForm
+                bfEx-ef.f-coat   = iCoatPerForm
+                bfEx-ef.f-coat-p = iCoatPassPerForm.
+    END.
+    
+END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettingValue B-table-Win
+PROCEDURE pGetSettingValue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PValidSalesRep B-table-Win
-PROCEDURE pValidSalesRep PRIVATE:
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
+    
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstRowid B-table-Win 
+PROCEDURE pGetEstRowid :
+DEFINE OUTPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+  IF AVAIL eb THEN iprwRowid = ROWID(eb).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSetEstQty B-table-Win 
+PROCEDURE pReSetEstQty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
+ DEFINE BUFFER bf-est-qty FOR est-qty.
+ FIND FIRST bf-est-qty EXCLUSIVE-LOCK
+      WHERE ROWID(bf-est-qty) EQ ROWID(est-qty) NO-ERROR.
+      
+ IF AVAIL bf-est-qty THEN
+     ASSIGN
+         bf-est-qty.qty = 0
+         bf-est-qty.qty[1] = est-qty.eqty.
+ RELEASE bf-est-qty.
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetQtySet B-table-Win 
+PROCEDURE pResetQtySet :
+DEFINE INPUT PARAMETER iprwRowid as ROWID NO-UNDO.
+    DEFINE VARIABLE iBlankCount AS INTEGER NO-UNDO.
+    DEFINE BUFFER bf-est FOR est.
+    DEFINE BUFFER bf-eb FOR eb.
+    
+    FIND FIRST bf-est no-lock
+         WHERE bf-est.company eq cocode
+         and rowid(bf-est) eq iprwRowid NO-ERROR.
+    
+    IF AVAIL bf-est THEN
+    DO:
+        FOR EACH bf-eb NO-LOCK
+            WHERE bf-eb.company eq cocode
+            and bf-eb.est-no eq bf-est.est-no
+            and bf-eb.form-no NE 0:
+            iBlankCount = iBlankCount + 1.
+        END.
+        IF iBlankCount EQ 1 and bf-est.est-type EQ 2 THEN
+        DO:
+          FIND FIRST bf-eb EXCLUSIVE-LOCK
+            WHERE bf-eb.company eq cocode
+            and bf-eb.est-no eq bf-est.est-no
+            and bf-eb.form-no NE 0 NO-ERROR.
+          IF AVAIL bf-eb THEN
+                bf-eb.cust-%  = 1.
+          RELEASE bf-eb.      
+        END.    
+    END.      
+            
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
+PROCEDURE pUpdateRecord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+   DEF VAR char-hdl AS cha NO-UNDO.   
+   RUN get-link-handle IN adm-broker-hdl
+      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+   phandle = WIDGET-HANDLE(char-hdl).
+      
+   IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       RUN est/dAddMoldEst.w(INPUT "Edit" , "F", INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetMold"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEstMold.w(INPUT "Edit" , "F", INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE
+       RUN new-state IN phandle ('update-begin':U).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidSalesRep B-table-Win 
+PROCEDURE pValidSalesRep PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -5180,11 +5355,9 @@ PROCEDURE pValidSalesRep PRIVATE:
         END.     
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 
 PROCEDURE redisplay-blanks :
@@ -5664,98 +5837,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReSetEstQty B-table-Win 
-PROCEDURE pReSetEstQty :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEFINE INPUT PARAMETER iprwRowid AS ROWID NO-UNDO.
- DEFINE BUFFER bf-est-qty FOR est-qty.
- FIND FIRST bf-est-qty EXCLUSIVE-LOCK
-      WHERE ROWID(bf-est-qty) EQ ROWID(est-qty) NO-ERROR.
-      
- IF AVAIL bf-est-qty THEN
-     ASSIGN
-         bf-est-qty.qty = 0
-         bf-est-qty.qty[1] = est-qty.eqty.
- RELEASE bf-est-qty.
- 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecord B-table-Win 
-PROCEDURE pUpdateRecord :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
-   DEF VAR char-hdl AS cha NO-UNDO.   
-   RUN get-link-handle IN adm-broker-hdl
-      (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
-   phandle = WIDGET-HANDLE(char-hdl).
-      
-   IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
-       EMPTY TEMP-TABLE ttInputEst .
-       RUN est/dAddMoldEst.w(INPUT "Edit" , "F", INPUT ROWID(eb)) .
-       RUN local-open-query.
-   END.
-   ELSE IF AVAIL est AND  est.estimateTypeID = "SetMold"  THEN do:
-       EMPTY TEMP-TABLE ttInputEst .
-       EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEstMold.w(INPUT "Edit" , "F", INPUT ROWID(eb)) .
-       RUN local-open-query.
-   END.
-   ELSE
-       RUN new-state IN phandle ('update-begin':U).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetQtySet B-table-Win 
-PROCEDURE pResetQtySet:
-    DEFINE INPUT PARAMETER iprwRowid as ROWID NO-UNDO.
-    DEFINE VARIABLE iBlankCount AS INTEGER NO-UNDO.
-    DEFINE BUFFER bf-est FOR est.
-    DEFINE BUFFER bf-eb FOR eb.
-    
-    FIND FIRST bf-est no-lock
-         WHERE bf-est.company eq cocode
-         and rowid(bf-est) eq iprwRowid NO-ERROR.
-    
-    IF AVAIL bf-est THEN
-    DO:
-        FOR EACH bf-eb NO-LOCK
-            WHERE bf-eb.company eq cocode
-            and bf-eb.est-no eq bf-est.est-no
-            and bf-eb.form-no NE 0:
-            iBlankCount = iBlankCount + 1.
-        END.
-        IF iBlankCount EQ 1 and bf-est.est-type EQ 2 THEN
-        DO:
-          FIND FIRST bf-eb EXCLUSIVE-LOCK
-            WHERE bf-eb.company eq cocode
-            and bf-eb.est-no eq bf-est.est-no
-            and bf-eb.form-no NE 0 NO-ERROR.
-          IF AVAIL bf-eb THEN
-                bf-eb.cust-%  = 1.
-          RELEASE bf-eb.      
-        END.    
-    END.      
-            
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME  
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-e-itemfg-vend B-table-Win 
 PROCEDURE update-e-itemfg-vend :

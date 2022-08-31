@@ -172,34 +172,37 @@ RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb, est-qty, ef.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS est.highlight eb.cust-no eb.ship-id ~
-est.csrUser_id eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ~
-ef.cad-image eb.sman eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no ~
-eb.upc-no eb.style eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len ~
-eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid ~
-eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout 
-&Scoped-define ENABLED-TABLES est eb ef
-&Scoped-define FIRST-ENABLED-TABLE est
-&Scoped-define SECOND-ENABLED-TABLE eb
+&Scoped-Define ENABLED-FIELDS eb.receiveAsRMItemID est.highlight eb.cust-no ~
+eb.ship-id est.csrUser_id eb.part-no eb.stock-no eb.part-dscr1 ~
+eb.part-dscr2 eb.die-no ef.cad-image eb.sman eb.comm eb.cad-no eb.plate-no ~
+eb.procat eb.spc-no eb.upc-no eb.style eb.flute eb.test est.metric ef.board ~
+ef.brd-dscr eb.lockLayout eb.len eb.wid eb.dep eb.adhesive eb.dust ~
+eb.fpanel eb.lock eb.gluelap eb.k-wid eb.k-len eb.tuck eb.lin-in eb.t-wid ~
+eb.t-len eb.t-sqin eb.loc 
+&Scoped-define ENABLED-TABLES eb est ef
+&Scoped-define FIRST-ENABLED-TABLE eb
+&Scoped-define SECOND-ENABLED-TABLE est
 &Scoped-define THIRD-ENABLED-TABLE ef
-&Scoped-Define ENABLED-OBJECTS tb-set bt-new-die btn_qty-msf bt-new-plate ~
-btn_fgitem btn_style btn_board btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
-&Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
-eb.blank-no est.mod-date eb.ord-no est.ord-date est.highlight eb.cust-no ~
-eb.ship-id eb.ship-name eb.ship-addr[1] eb.ship-addr[2] eb.ship-city ~
-eb.ship-state eb.ship-zip est.csrUser_id est-qty.eqty eb.part-no ~
-eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.sman ~
-eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no eb.style ~
-eb.flute eb.test est.metric ef.board ef.brd-dscr eb.len eb.wid eb.dep ~
-eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-wid eb.k-len eb.tuck ~
-eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc eb.lockLayout 
-&Scoped-define DISPLAYED-TABLES est eb est-qty ef
-&Scoped-define FIRST-DISPLAYED-TABLE est
-&Scoped-define SECOND-DISPLAYED-TABLE eb
+&Scoped-Define ENABLED-OBJECTS tb-set bt-new-die btn_qty-msf fi_lf-blank ~
+bt-new-plate btn_fgitem btn_style btn_board btn_cust RECT-18 RECT-19 ~
+RECT-23 RECT-24 
+&Scoped-Define DISPLAYED-FIELDS eb.receiveAsRMItemID est.est-no eb.form-no ~
+est.form-qty eb.blank-no est.mod-date eb.ord-no est.ord-date est.highlight ~
+eb.cust-no eb.ship-id eb.ship-name eb.ship-addr[1] eb.ship-addr[2] ~
+eb.ship-city eb.ship-state eb.ship-zip est.csrUser_id est-qty.eqty ~
+eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image ~
+eb.sman eb.comm eb.cad-no eb.plate-no eb.procat eb.spc-no eb.upc-no ~
+eb.style eb.flute eb.test est.metric ef.board ef.brd-dscr eb.lockLayout ~
+eb.len eb.wid eb.dep eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap ~
+eb.k-wid eb.k-len eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.loc 
+&Scoped-define DISPLAYED-TABLES eb est est-qty ef
+&Scoped-define FIRST-DISPLAYED-TABLE eb
+&Scoped-define SECOND-DISPLAYED-TABLE est
 &Scoped-define THIRD-DISPLAYED-TABLE est-qty
 &Scoped-define FOURTH-DISPLAYED-TABLE ef
-&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_lf-blank fi_tot-lf-blank fi_per-set fi_from-est-no ~
-fi_blank-qty sman_sname procat_desc style_dscr tab-inout 
+&Scoped-Define DISPLAYED-OBJECTS tb-set fi_msf fi_per-set fi_lf-blank ~
+fi_tot-lf-blank fi_from-est-no fi_blank-qty sman_sname procat_desc ~
+style_dscr tab-inout 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -282,7 +285,7 @@ DEFINE BUTTON btn_fgitem
 
 DEFINE BUTTON btn_qty-msf 
      LABEL "" 
-     SIZE 79.3 BY 1.
+     SIZE 79.4 BY 1.
 
 DEFINE BUTTON btn_style 
      LABEL "" 
@@ -297,6 +300,11 @@ DEFINE VARIABLE fi_from-est-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 11 BY 1.
 
+DEFINE VARIABLE fi_lf-blank AS DECIMAL FORMAT "->,>>>,>>9.9":U INITIAL 0 
+     LABEL "Linear Feet" 
+     VIEW-AS FILL-IN 
+     SIZE 15.4 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_msf AS DECIMAL FORMAT "->,>>>,>>9.999":U INITIAL 0 
      LABEL "MSF" 
      VIEW-AS FILL-IN 
@@ -306,16 +314,11 @@ DEFINE VARIABLE fi_per-set AS DECIMAL FORMAT "->>>9.9<<<":U INITIAL 0
      LABEL "PerSet" 
      VIEW-AS FILL-IN 
      SIZE 11 BY 1 NO-UNDO.
-     
-DEFINE VARIABLE fi_lf-blank AS DECIMAL FORMAT "->,>>>,>>9.9":U INITIAL 0 
-     LABEL "Linear Feet" 
-     VIEW-AS FILL-IN 
-     SIZE 15.4 BY 1 NO-UNDO.
-     
+
 DEFINE VARIABLE fi_tot-lf-blank AS DECIMAL FORMAT "->,>>>,>>9.99":U INITIAL 0 
      LABEL "TLF" 
      VIEW-AS FILL-IN 
-     SIZE 15.4 BY 1 NO-UNDO.     
+     SIZE 15.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE procat_desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
@@ -359,6 +362,10 @@ DEFINE VARIABLE tb-set AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Corr
+     eb.receiveAsRMItemID AT ROW 4.95 COL 129 COLON-ALIGNED WIDGET-ID 18
+          LABEL "RM Item #"
+          VIEW-AS FILL-IN 
+          SIZE 21 BY 1
      tb-set AT ROW 11.71 COL 132 WIDGET-ID 12
      bt-new-die AT ROW 6.95 COL 80 WIDGET-ID 8
      btn_qty-msf AT ROW 2.67 COL 73.2
@@ -450,16 +457,6 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
           FONT 6
-     eb.part-dscr1 AT ROW 5.05 COL 90 COLON-ALIGNED
-          LABEL "Item Name"
-          VIEW-AS FILL-IN 
-          SIZE 50 BY 1
-          FONT 6
-     eb.part-dscr2 AT ROW 6 COL 90 COLON-ALIGNED
-          LABEL "Description"
-          VIEW-AS FILL-IN 
-          SIZE 50 BY 1
-          FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -467,6 +464,16 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
+     eb.part-dscr1 AT ROW 5.05 COL 90 COLON-ALIGNED
+          LABEL "Item Name"
+          VIEW-AS FILL-IN 
+          SIZE 25 BY 1
+          FONT 6
+     eb.part-dscr2 AT ROW 6 COL 90 COLON-ALIGNED
+          LABEL "Description"
+          VIEW-AS FILL-IN 
+          SIZE 50 BY 1
+          FONT 6
      btnDieLookup AT ROW 6.95 COL 75
      eb.die-no AT ROW 6.95 COL 90 COLON-ALIGNED HELP
           ""
@@ -518,7 +525,7 @@ DEFINE FRAME Corr
      style_dscr AT ROW 10.52 COL 35 COLON-ALIGNED NO-LABEL
      eb.flute AT ROW 10.52 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 8.3 BY 1
+          SIZE 8.4 BY 1
      eb.test AT ROW 10.52 COL 103.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.2 BY 1
@@ -532,9 +539,9 @@ DEFINE FRAME Corr
      ef.brd-dscr AT ROW 11.71 COL 45 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 61 BY 1
-     eb.lockLayout AT ROW 11.71 COL 108 COLON-ALIGNED 
-          VIEW-AS TOGGLE-BOX 
-          SIZE 20 BY 1     
+     eb.lockLayout AT ROW 11.71 COL 110
+          VIEW-AS TOGGLE-BOX
+          SIZE 20 BY 1
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
           LABEL "Length" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
@@ -543,7 +550,7 @@ DEFINE FRAME Corr
           LABEL "Width" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.dep AT ROW 12.91 COL 88 COLON-ALIGNED
+     eb.dep AT ROW 12.91 COL 91 COLON-ALIGNED
           LABEL "Depth" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -551,6 +558,13 @@ DEFINE FRAME Corr
           LABEL "Joint Material"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME Corr
      eb.dust AT ROW 13.86 COL 26 COLON-ALIGNED
           LABEL "Top/Dust Flap" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
@@ -559,14 +573,7 @@ DEFINE FRAME Corr
           LABEL "Bottom Flap" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME Corr
-     eb.lock AT ROW 13.86 COL 88 COLON-ALIGNED
+     eb.lock AT ROW 13.86 COL 91 COLON-ALIGNED
           LABEL "Lock Tab" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -582,7 +589,7 @@ DEFINE FRAME Corr
           LABEL "Scores on Length" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.tuck AT ROW 14.81 COL 88 COLON-ALIGNED
+     eb.tuck AT ROW 14.81 COL 91 COLON-ALIGNED
           LABEL "Tuck" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -727,12 +734,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        fi_per-set:HIDDEN IN FRAME Corr           = TRUE.
-       
-       
+
 /* SETTINGS FOR FILL-IN fi_tot-lf-blank IN FRAME Corr
    NO-ENABLE                                                            */
 ASSIGN 
-       fi_tot-lf-blank:HIDDEN IN FRAME Corr           = TRUE.       
+       fi_tot-lf-blank:HIDDEN IN FRAME Corr           = TRUE.
 
 /* SETTINGS FOR FILL-IN eb.form-no IN FRAME Corr
    NO-ENABLE EXP-LABEL                                                  */
@@ -772,6 +778,8 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN procat_desc IN FRAME Corr
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN eb.receiveAsRMItemID IN FRAME Corr
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.ship-addr[1] IN FRAME Corr
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN eb.ship-addr[2] IN FRAME Corr
@@ -1069,6 +1077,20 @@ DO:
          run windows/l-users.w (est.csrUser_id:SCREEN-VALUE in frame {&frame-name}, output char-val).
            if char-val <> "" then 
               assign est.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).           
+       END.
+       WHEN "receiveAsRMItemID" THEN DO:
+           RUN system/openlookup.p (
+               "",  /* company */ 
+               "",  /* lookup field */
+               26, /* Subject ID */
+               "",  /* User ID */
+               0,   /* Param value ID */
+               OUTPUT cFieldsValue, 
+               OUTPUT cFoundValue, 
+               OUTPUT recFoundRecID
+               ).
+           IF cFoundValue <> "" AND cFoundValue NE eb.receiveAsRMItemID:SCREEN-VALUE THEN
+               eb.receiveAsRMItemID:SCREEN-VALUE = cFoundValue.
        END.
   end case.
   APPLY "ENTRY":U TO lw-focus.
@@ -2417,7 +2439,6 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
-
 find first sys-ctrl where sys-ctrl.company eq cocode
                         and sys-ctrl.name    eq "CE W>L"
        no-lock no-error.
@@ -2939,25 +2960,27 @@ find first cust  where cust.company eq cocode
 
 create itemfg.
 assign
- itemfg.company    = cocode
- itemfg.loc        = locode
- itemfg.i-no       = v-item
- itemfg.i-name     = xeb.part-dscr1
- itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.part-no    = xeb.part-no
- itemfg.cust-no    = xeb.cust-no
- itemfg.cust-name  = if avail cust then cust.name else ""
- itemfg.die-no     = xeb.die-no
- itemfg.plate-no   = xeb.plate-no
- itemfg.style      = xeb.style
- itemfg.procat     = xeb.procat
- itemfg.cad-no     = xeb.cad-no
- itemfg.upc-no     = xeb.upc-no
- itemfg.spc-no     = xeb.spc-no
- itemfg.isaset     = (xest.est-type eq 2 or xest.est-type eq 6) and
-                     xeb.form-no eq 0
- itemfg.pur-man    = xeb.pur-man  
- itemfg.alloc      = xeb.set-is-assembled
+ itemfg.company           = cocode
+ itemfg.loc               = locode
+ itemfg.i-no              = v-item
+ itemfg.i-name            = xeb.part-dscr1
+ itemfg.part-dscr1        = xeb.part-dscr2
+ itemfg.part-no           = xeb.part-no
+ itemfg.cust-no           = xeb.cust-no
+ itemfg.cust-name         = if avail cust then cust.name else ""
+ itemfg.die-no            = xeb.die-no
+ itemfg.plate-no          = xeb.plate-no
+ itemfg.style             = xeb.style
+ itemfg.procat            = xeb.procat
+ itemfg.cad-no            = xeb.cad-no
+ itemfg.upc-no            = xeb.upc-no
+ itemfg.spc-no            = xeb.spc-no
+ itemfg.isaset            = (xest.est-type eq 2 or xest.est-type eq 6) and
+                            xeb.form-no eq 0
+ itemfg.pur-man           = xeb.pur-man  
+ itemfg.alloc             = xeb.set-is-assembled
+ itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+ itemfg.trno              = xeb.tr-no
  .
 
  IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
@@ -3637,6 +3660,8 @@ PROCEDURE local-assign-statement :
   DEFINE VARIABLE v-orig-style LIKE eb.style NO-UNDO.
   DEFINE VARIABLE cOldFGItem   AS CHARACTER NO-UNDO.
   
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND CURRENT ef EXCLUSIVE-LOCK.
   FIND CURRENT est EXCLUSIVE-LOCK.
@@ -3667,7 +3692,16 @@ PROCEDURE local-assign-statement :
     IF avail(style) AND style.qty-per-set NE 0 THEN
       eb.quantityPerSet = style.qty-per-set.
   END.
-
+  
+  IF eb.stock-no NE "" THEN DO:
+      FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+           WHERE bf-itemfg.company EQ eb.company
+             AND bf-itemfg.i-no    EQ eb.stock-no
+           NO-ERROR.
+      IF AVAILABLE bf-itemfg THEN
+          bf-itemfg.receiveAsRMItemID = eb.receiveAsRMItemID.
+  END.
+  
   IF eb.pur-man AND cOldFGItem NE eb.stock-no THEN DO:
       RUN VendCost_UpdateItemFGVend(
           INPUT cocode,
@@ -3754,6 +3788,7 @@ PROCEDURE local-display-fields :
   DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
   DEFINE VARIABLE iCount  AS INTEGER     NO-UNDO.  
   DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+  DEFINE VARIABLE dTotalScoreAllowance AS DECIMAL NO-UNDO.
   
   DEF BUFFER b-ef FOR ef.
   DEF BUFFER b-eb FOR eb.
@@ -3769,19 +3804,32 @@ PROCEDURE local-display-fields :
   FIND FIRST bf-style NO-LOCK
        WHERE bf-style.company EQ eb.company
          AND bf-style.style   EQ eb.style
-       NO-ERROR.
-  IF AVAILABLE bf-style AND bf-style.type EQ "B" AND bf-style.formula[20] EQ "" THEN DO:
+       NO-ERROR.            
+       
+  IF AVAILABLE bf-style AND bf-style.type EQ "B" THEN DO:      
+     RUN pGetTotalScoreAllowance (
+        INPUT  bf-style.company,
+        INPUT  bf-style.style, 
+        INPUT  eb.flute,
+        INPUT  "POBlankWidth",
+        OUTPUT dTotalScoreAllowance
+        ).           
       DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
           phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
-          IF VALID-HANDLE(phandle) AND LOOKUP("DisablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
+          IF VALID-HANDLE(phandle) AND LOOKUP("DisablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN
+          do: 
+              IF dTotalScoreAllowance NE 0 AND bf-style.formula[20] NE "" THEN
+              RUN EnablePOScores IN pHandle NO-ERROR.
+              ELSE
               RUN DisablePOScores IN pHandle NO-ERROR.
+          END.    
       END.
   END.
   ELSE DO:
       DO iCount = 1 TO NUM-ENTRIES(cWidgethandles):
           phandle = WIDGET-HANDLE(ENTRY(iCount, cWidgethandles)).
           IF VALID-HANDLE(phandle) AND LOOKUP("EnablePOScores", pHandle:INTERNAL-ENTRIES) GT 0 THEN 
-              RUN EnablePOScores IN pHandle NO-ERROR.
+              RUN DisablePOScores IN pHandle NO-ERROR.
       END.
   END.
   
@@ -3789,7 +3837,8 @@ DO WITH FRAME {&FRAME-NAME}:
 
   ASSIGN tb-set:SENSITIVE = FALSE
          bt-new-die:SENSITIVE = FALSE
-         bt-new-plate:SENSITIVE = FALSE.
+         bt-new-plate:SENSITIVE = FALSE
+         fi_lf-blank:SENSITIVE = FALSE.
 
   IF v-cecscrn-char EQ "Decimal" THEN do:
      iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .     
@@ -4039,7 +4088,7 @@ END.
     IF AVAIL b-style AND lookup(b-style.TYPE,'P,R') > 0 THEN
     DO:
        ASSIGN
-          eb.dep:LABEL = "Slot Hei"
+          eb.dep:LABEL = "Slot Height"
           eb.gluelap:LABEL = "Slot Width"
           eb.wid:LABEL = "Height"
           eb.t-wid:LABEL = "Height"
@@ -4116,7 +4165,8 @@ PROCEDURE local-update-record :
   DO WITH frame {&frame-name}:
       ASSIGN tb-set:SENSITIVE = FALSE
              bt-new-die:SENSITIVE = FALSE
-             bt-new-plate:SENSITIVE = FALSE.
+             bt-new-plate:SENSITIVE = FALSE
+             fi_lf-blank:SENSITIVE = FALSE.
   END.
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -4241,6 +4291,9 @@ PROCEDURE local-update-record :
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     RUN valid-custcsr NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
+    RUN valid-rm-item NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     IF eb.ord-no NE 0 AND eb.cust-no:SCREEN-VALUE NE eb.cust-no AND
@@ -4545,7 +4598,8 @@ PROCEDURE proc-enable :
   DO WITH frame {&frame-name}:
       ASSIGN tb-set:SENSITIVE = TRUE
              bt-new-die:SENSITIVE = TRUE
-             bt-new-plate:SENSITIVE = TRUE.
+             bt-new-plate:SENSITIVE = TRUE
+             fi_lf-blank:SENSITIVE = TRUE.
   END.
 
   ASSIGN
@@ -4607,6 +4661,11 @@ PROCEDURE proc-enable :
     ENABLE btnDieLookup btnCadLookup.
 
     ef.cad-image:SCREEN-VALUE = ef.cad-image.
+    IF est.estimateTypeID EQ "WOOD" THEN
+    ASSIGN  
+      eb.test:SCREEN-VALUE = ""
+      eb.test:HIDDEN      = YES
+      eb.test:SENSITIVE   = NO.
   END.
 
   RUN set-hold-values.
@@ -4978,29 +5037,27 @@ PROCEDURE valid-board :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  
+  
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
-
-    IF NOT lWoodStyle AND NOT CAN-FIND(FIRST item
+    IF ef.board:SCREEN-VALUE EQ "" THEN DO:
+            MESSAGE "Board cannot be blank" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ef.board.
+            RETURN ERROR. 
+        END.
+    ELSE IF NOT lWoodStyle AND  NOT CAN-FIND(FIRST item
                     {sys/look/itemb1W.i}
-                      AND item.i-no EQ ef.board:SCREEN-VALUE) OR
-       ef.board:SCREEN-VALUE EQ ""                            THEN DO:
-      MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ef.board.
-      RETURN ERROR.
-    END.    
-    IF lWoodStyle AND NOT CAN-FIND(FIRST item
-        WHERE item.company   EQ cocode
-        AND   item.materialType   EQ "Wood"          
-        AND  (item.i-code eq lv-i-code OR lv-i-code eq "B")
-        AND  item.industry EQ lv-industry
-        AND item.i-no EQ ef.board:SCREEN-VALUE) OR
-        ef.board:SCREEN-VALUE EQ "" THEN DO:
-        
-       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
-       APPLY "entry" TO ef.board.
-       RETURN ERROR.        
-    END.
+                      AND item.i-no EQ ef.board:SCREEN-VALUE) THEN DO:
+            MESSAGE "Board is not a valid item" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ef.board.
+            RETURN ERROR.
+        END.    
+    ELSE IF lWoodStyle AND NOT DYNAMIC-FUNCTION ("fIsMatlGroup",cocode, ef.board:SCREEN-VALUE, "Wood") THEN DO:
+            MESSAGE "Board must be Wood material type" VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ef.board.
+            RETURN ERROR.
+        END.        
 
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
@@ -5340,7 +5397,7 @@ PROCEDURE valid-test :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  IF NOT lv-foam THEN DO:
+  IF NOT lv-foam AND NOT lWoodStyle THEN DO:
     {est/valtest.i "eb.flute" "eb.test" ":SCREEN-VALUE"}
   END.
 
@@ -5394,6 +5451,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win
+PROCEDURE valid-rm-item PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF eb.receiveAsRMItemID:SCREEN-VALUE EQ "" THEN
+        RETURN.
+        
+    IF NOT CAN-FIND(FIRST item
+                    WHERE item.company  EQ cocode
+                      AND item.i-no     EQ eb.receiveAsRMItemID:SCREEN-VALUE) THEN DO:
+        MESSAGE "Invalid RM Item #, try help..." VIEW-AS ALERT-BOX ERROR.
+        
+        APPLY "ENTRY" TO eb.receiveAsRMItemID.
+        
+        RETURN ERROR.
+    END.
+    
+    {methods/lValidateError.i NO}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE was-modified V-table-Win 
 PROCEDURE was-modified :
 /*------------------------------------------------------------------------------
@@ -5409,6 +5499,37 @@ IF lc-new-values = lc-previous-values THEN DO:
 END.
 ELSE
   opl-was-modified = YES.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTotalScoreAllowance V-table-Win 
+PROCEDURE pGetTotalScoreAllowance PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyle               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFlute               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreSet            AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalScoreAllowance AS DECIMAL   NO-UNDO.
+    
+    RUN GetTotalScoreAllowanaceForStyle IN hdFormulaProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcStyle, 
+        INPUT  ipcFlute,
+        INPUT  ipcScoreSet,
+        OUTPUT opdTotalScoreAllowance
+        ).
+
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (
+        INPUT-OUTPUT opdTotalScoreAllowance
+        ).
+       
+    opdTotalScoreAllowance = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632", ipcCompany, opdTotalScoreAllowance).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

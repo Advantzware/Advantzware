@@ -452,7 +452,7 @@ FUNCTION display-gp RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDirectMatPctSellPrice B-table-Win 
 FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
-  ( INPUT ip-type AS INTEGER ) FORWARD.
+  ( INPUT ip-type AS INT ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -783,12 +783,20 @@ DO:
    /*{src/adm/template/brsleave.i} */
      {est/brsleave.i}   /* same but update will be LIKE add */
      
-     IF KEYFUNCTION(LASTKEY) EQ "return" THEN REPOSITION {&browse-name} FORWARD 0.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ALT-O OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
+DO:
+    IF AVAILABLE probe AND INT64(probe.spare-char-2) NE 0 THEN
+        RUN est/dViewEstCost.w (INT64(probe.spare-char-2)).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
@@ -2178,6 +2186,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+PROCEDURE edit-quantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+RUN est/estEditQuantity.p (RECID(eb)).
+
+END PROCEDURE.
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE est-summ B-table-Win 
 PROCEDURE est-summ :
 /*------------------------------------------------------------------------------
@@ -2806,6 +2824,9 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE li AS INTEGER NO-UNDO.
+   DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.   
+  
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
@@ -2837,23 +2858,21 @@ PROCEDURE local-update-record :
   IF vmclean THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
 
   IF probe.spare-char-2 NE "" THEN
-    RUN pCalculatePricing(BUFFER probe).
-              
-  IF lAutoUpdate THEN
-  DO:          
-     lAutoUpdate = NO.
-     QUERY br_table:GET-NEXT().     
-     APPLY "default-action" TO BROWSE {&browse-name}.
-     RETURN NO-APPLY.        
-  END.  
-    
-/*
-  DO WITH FRAME {&FRAME-NAME}:
-    DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
-      APPLY "cursor-left" TO {&BROWSE-NAME}.
-    END.
-  END.
-  */
+  DO: 
+    RUN pCalculatePricing(BUFFER probe). 
+    RUN dispatch ("open-query").
+  END.   
+
+    IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
+    QUERY br_table:GET-NEXT().
+    IF QUERY br_table:QUERY-OFF-END THEN RUN dispatch ('cancel-record':U).
+    ELSE DO:
+        RUN get-link-handle IN adm-broker-hdl
+            (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
+        phandle = WIDGET-HANDLE(char-hdl).
+        RUN new-state IN phandle ('update-begin':U).
+    END. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3077,7 +3096,10 @@ PROCEDURE print-box :
      ls-outfile = lv-cebrowse-dir + TRIM(est.est-no) + '.x' + STRING(probe.line,'999').
 
   OUTPUT TO VALUE(ls-outfile).
-  PUT '</PROGRESS><PREVIEW><P11>'.
+  IF NOT lBussFormModle THEN
+  PUT '</PROGRESS><PREVIEW><MODAL=NO><P11>'.
+  ELSE
+  PUT '</PROGRESS><PREVIEW><P11>'.  
   OUTPUT CLOSE.
 
   RUN printBoxImage.

@@ -85,7 +85,7 @@ ELSE DO:
     else
     if i eq 2 then
       assign
-       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>9")
+       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>>>9")
        v-part-dscr = oe-ordl.i-name.       
                                
     else
@@ -124,7 +124,7 @@ ELSE DO:
     else
     if i eq 2 then
       assign
-       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>9")
+       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>>>9")
        v-part-dscr = oe-ordl.i-name.
 
     else if i eq 3 then assign v-vfgord    = oe-rel.carrier
@@ -174,7 +174,7 @@ ELSE DO:
     else
     if i eq 2 then
       assign
-       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>9")
+       v-vfgord    = STRING(oe-ordl.ord-no,">>>>>>>9")
        v-part-dscr = oe-ordl.i-name.
 
     else if i eq 3 then assign v-vfgord    = oe-rel.carrier

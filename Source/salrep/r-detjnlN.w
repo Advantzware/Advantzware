@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -77,7 +78,7 @@ ASSIGN
                            "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name,Job#"
     cFieldListToSelect = "cust,name,bol,ct,inv-date,ord,inv," +
                             "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name,job-no"
-    cFieldLength       = "8,30,7,3,8,7,7," + "13,9,11,10,5,14,30,9"
+    cFieldLength       = "8,30,7,3,8,8,7," + "13,9,11,10,5,14,30,13"
     cFieldType         = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c,c" 
     .
 
@@ -1586,11 +1587,11 @@ PROCEDURE run-report :
                                  STRING(MONTH(ar-inv.inv-date),"99")  +
                                  STRING(DAY(ar-inv.inv-date),"99")
                         tt-report2.key-03 = IF tb_summary THEN ""
-                                 ELSE STRING(ar-invl.ord-no,"999999")
+                                 ELSE STRING(ar-invl.ord-no,"99999999")
                         tt-report2.key-04 = STRING(ar-inv.inv-no,"9999999999")
                         tt-report2.key-05 = "3"
                         tt-report2.key-06 = cust.cust-no
-                        tt-report2.key-07 = STRING(ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99"))
+                        tt-report2.key-07 = STRING(ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "999"))
                         tt-report2.rec-id = RECID(ar-inv).
                 END.
             END.
@@ -1610,10 +1611,10 @@ PROCEDURE run-report :
                                string(MONTH(ar-inv.inv-date),"99")  +
                                string(DAY(ar-inv.inv-date),"99")
                     tt-report.key-03  = IF tb_summary THEN ""
-                               ELSE STRING(ar-invl.ord-no,"999999")
+                               ELSE STRING(ar-invl.ord-no,"99999999")
                     tt-report.key-04  = STRING(ar-invl.inv-no,"9999999999")
                     tt-report.key-05  = "1"
-                    tt-report.key-07  = STRING(ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99")) 
+                    tt-report.key-07  = STRING(ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "999")) 
                     tt-report.key-06  = cust.cust-no.
             END.
         END.
@@ -1663,12 +1664,12 @@ PROCEDURE run-report :
                              string(DAY(ar-cash.check-date),"99")
                 tt-report.key-03  = IF tb_summary THEN ""
                              ELSE STRING(IF AVAILABLE oe-retl THEN oe-retl.ord-no
-                                         ELSE 0,"999999")
+                                         ELSE 0,"99999999")
                 tt-report.key-04  = STRING(ar-cashl.inv-no,"9999999999")
                 tt-report.key-05  = "2"
                 tt-report.key-06  = cust.cust-no
                 tt-report.key-07  = IF AVAILABLE oe-retl THEN 
-                                STRING(oe-retl.job-no + "-" + STRING(oe-retl.job-no2, "99")) ELSE "".
+                                STRING(oe-retl.job-no + "-" + STRING(oe-retl.job-no2, "999")) ELSE "".
         END.
     END.
 
@@ -1865,7 +1866,7 @@ PROCEDURE run-report :
                     WHEN "inv-date"   THEN 
                         cVarValue = STRING(w-data.w-inv-date,"99/99/99") .
                     WHEN "ord"  THEN 
-                        cVarValue = STRING(w-data.w-ord-no,">>>>>>>") .
+                        cVarValue = STRING(w-data.w-ord-no,">>>>>>>>") .
                     WHEN "inv"   THEN 
                         cVarValue = STRING(w-data.w-inv-no,">>>>>>>>") .
                     WHEN "qty-ship"  THEN 
@@ -1883,7 +1884,7 @@ PROCEDURE run-report :
                     WHEN "i-name"   THEN 
                         cVarValue = STRING(cItemName,"x(30)").
                     WHEN "job-no"  THEN 
-                        cVarValue = STRING(w-data.w-job-no) .
+                        cVarValue = IF TRIM(w-data.w-job-no) BEGINS "-" THEN "" ELSE STRING(w-data.w-job-no) .
                 END CASE.
 
                 cExcelVarValue = cVarValue.

@@ -1,5 +1,6 @@
 /* ---------------------------------- oe/rep/oehots2.i <= schdrel.i 12/05 YSK */
 /* Schedule Release Report                                                    */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 IF v-first THEN 
@@ -266,7 +267,8 @@ IF AVAIL itemfg THEN DO:
       lv-vend-no = po-ord.vend-no.
    END.
      /*IF w-ord.ord-no NE 0 THEN STRING(w-ord.ord-no) ELSE*/
-   v-ord-no-text = IF w-ord.job-no <> "" THEN TRIM(w-ord.job-no + "-" + STRING(w-ord.job-no2,"99")) ELSE "".
+   v-ord-no-text = IF w-ord.job-no <> "" THEN 
+                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))) ELSE "".
    /* ====
    IF tb_exp-po THEN
       DISPLAY  
@@ -368,8 +370,12 @@ IF AVAIL itemfg THEN DO:
                  IF hField <> ? THEN DO:                 
                      cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
                      IF ENTRY(i,cSelectedList) = "Job#" THEN
-                        cTmpField = cTmpField + IF cTmpField <> "" THEN "-" + string(fg-rcpth.job-no2,"99") ELSE "".                  
+                        cTmpField = IF cTmpField <> "" THEN 
+                                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', cTmpField, fg-rcpth.job-no2))) ELSE "".                  
                      IF cFieldName = "w-ord.rel-no" THEN cTmpField = STRING(INT(cTmpField),">>>>>>9").
+                     IF cFieldName = "w-ord.ord-no" THEN cTmpField = STRING(INT(cTmpField),">>>>>>>9").
+                     IF cFieldName = "w-ord.ord-qty" THEN cTmpField = STRING(INT(cTmpField),"->>>>>>>9").
+                     IF cFieldName = "w-ord.onh-qty" THEN cTmpField = STRING(INT(cTmpField),"->>>>>>>9").
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
@@ -395,7 +401,7 @@ IF AVAIL itemfg THEN DO:
                  WHEN "v-comp-qty" THEN cVarValue = string(v-comp-qty,"->>>>>9").
                  WHEN "v-ship-city" THEN cVarValue = string(v-ship-city).
                  WHEN "lv-text" THEN cVarValue = SUBSTRING(lv-text,1,26).                 
-                 WHEN "v-qtyAvail" THEN cVarValue = STRING(itemfg.q-onh + (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono) - itemfg.q-alloc).
+                 WHEN "v-qtyAvail" THEN cVarValue = STRING((itemfg.q-onh + (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono) - itemfg.q-alloc), "->>>>>>>9").
                  WHEN "skids" THEN cVarValue = STRING(w-ord.palls,"->>>,>>9").
                  WHEN "ship-zip" THEN cVarValue = string(cShipZip,"x(10)").
                  WHEN "lot-no"   THEN cVarValue = string(w-ord.lot-no,"x(15)").

@@ -26,16 +26,19 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
+USING System.SharedConfig.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 DEFINE VARIABLE lFlag AS LOGICAL NO-UNDO.
-    IF PROGRAM-NAME(2) MATCHES "*est/dAddEditComp*" THEN ASSIGN lFlag = TRUE.
+DEFINE VARIABLE cAction AS CHARACTER NO-UNDO.
+    cAction = SharedConfig:Instance:GetValue("StyleLookup_TypeValue").
+    IF cAction EQ "Wood" THEN ASSIGN lFlag = TRUE.
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.

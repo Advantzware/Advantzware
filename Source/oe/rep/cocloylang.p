@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/cocprempkg.p */
 /* Print Premiere COC (Certificate of Compliance)                     */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.      */
 /* -------------------------------------------------------------------*/
 
 DEFINE INPUT PARAMETER ip-bol-recid AS RECID NO-UNDO.
@@ -175,7 +176,7 @@ for each report where report.term-id eq v-term-id NO-LOCK,
       
           IF AVAIL oe-ordl AND oe-ordl.job-no NE "" THEN
               ASSIGN 
-              v-job-no = (STRING(oe-ordl.job-no) + "-" + STRING(oe-ordl.job-no2,"99")) .
+              v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
           ELSE
               ASSIGN 
               v-job-no = "" .

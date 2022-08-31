@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/bolcapcin.i  */
 /* PRINT Capitol City BOL                                             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.      */
 /* ------------------------------------------------------------------ */
 /*DEF VAR v-jb-nts AS CHAR NO-UNDO.*/
 
@@ -100,9 +101,8 @@ for each report where report.term-id eq v-term-id,
 
   v-job-no = "".
   if avail oe-ordl and oe-ordl.job-no ne "" then
-     v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")).
-
+     v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
+     
   ASSIGN v-ship-qty = v-ship-qty + oe-boll.qty
          v-weight   = v-weight + oe-boll.weight.
   IF AVAIL oe-ordl THEN
@@ -116,15 +116,15 @@ ASSIGN  j = 1.
          i = i + 1.
          IF i eq 1 THEN ASSIGN v-part-dscr = (IF avail(oe-ordl) THEN oe-ordl.part-no ELSE "")
                                v-job-po    = oe-boll.po-no
-                               v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")). 
-                               /*v-jb-nts    = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")).*/
+                               v-job-var   = if oe-boll.job-no eq "" then "" ELSE 
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+                                             
             
          ELSE
          if i eq 2 THEN ASSIGN v-part-dscr = (IF AVAIL(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "")
-                               v-job-var   = if oe-boll.job-no eq "" then "" else
-                                             (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")).
+                               v-job-var   = if oe-boll.job-no eq "" then "" ELSE 
+                                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
+                                             
          ELSE
          if i eq 3 then ASSIGN v-part-dscr = (IF AVAIL(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "")
                                v-job-var = "".
@@ -141,18 +141,18 @@ ASSIGN  j = 1.
       
          IF FIRST(w2.cases * w2.cas-cnt) THEN 
            PUT {1} (IF avail(oe-ordl) THEN oe-ordl.part-no ELSE "") FORM "x(14)"
-                   v-job-po  AT 17 FORM "x(15)" 
-                   oe-ordl.e-num AT 34 
-                   oe-ordl.i-name FORM "x(30)" AT 43
+                   v-job-po  AT 16 FORM "x(15)" 
+                   oe-ordl.e-num AT 32 
+                   oe-ordl.i-name FORM "x(28)" AT 45
                    w2.cases    AT 73 FORM "->>>9" " @ "
                    w2.cas-cnt  FORM "->>>>>9"
                   SKIP.   
          ELSE PUT {1} 
-                  (IF AVAIL(oe-ordl) THEN oe-ordl.ord-no ELSE 0) FORMAT ">>>>>9"
-                  oe-boll.i-no  AT 17 FORM "x(15)"
-                  v-job-var AT 34 FORM "x(9)"
-                  IF avail(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "" FORM "x(30)" AT 43
-                  w2.cases  AT 73 FORM "->>>9" " @ "
+                  (IF AVAIL(oe-ordl) THEN oe-ordl.ord-no ELSE 0) FORMAT ">>>>>>>9"
+                  oe-boll.i-no  AT 16 FORM "x(15)"
+                  v-job-var AT 32 FORM "x(13)"
+                  IF avail(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "" FORM "x(28)" AT 45
+                  w2.cases  AT 75 FORM "->>>9" " @ "
                   w2.cas-cnt FORM "->>>>>9"
                   SKIP.
          v-printline = v-printline + 1.
@@ -160,10 +160,10 @@ ASSIGN  j = 1.
          IF LAST(w2.cases * w2.cas-cnt) THEN DO:
            IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
              PUT {1} 
-                 IF AVAIL(oe-ordl) THEN oe-ordl.ord-no ELSE 0 FORMAT ">>>>>9"
-                 oe-boll.i-no  AT 17 FORM "x(15)" 
-                 v-job-var AT 32
-                 IF AVAIL(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "" FORM "x(30)" AT 43
+                 IF AVAIL(oe-ordl) THEN oe-ordl.ord-no ELSE 0 FORMAT ">>>>>>>9"
+                 oe-boll.i-no  AT 16 FORM "x(15)" 
+                 v-job-var AT 32 FORM "x(13)"
+                 IF AVAIL(oe-ordl) THEN oe-ordl.part-dscr1 ELSE "" FORM "x(28)" AT 45
                  SKIP.
              v-printline = v-printline + 1.
            END.
@@ -186,7 +186,6 @@ ASSIGN  j = 1.
                      job-hdr.company eq cocode
                     AND job-hdr.job-no EQ oe-ordl.job-no 
                     AND job-hdr.job-no2 EQ oe-ordl.job-no2
-                    /*AND (trim(job-hdr.job-no) + "-" + string(job-hdr.job-no2,"99")) EQ v-jb-nts*/
                     NO-LOCK NO-ERROR.
             
               IF AVAIL job-hdr THEN
@@ -257,16 +256,16 @@ ASSIGN  j = 1.
   ELSE DO:
      DISPLAY  {1}
           oe-ordl.part-no   WHEN AVAIL oe-ordl 
-          oe-boll.po-no AT 17
-          oe-ordl.e-num  WHEN AVAIL oe-ordl AT 33
-          oe-ordl.i-name WHEN AVAIL oe-ordl AT 43 FORM "x(30)"
+          oe-boll.po-no AT 16
+          oe-ordl.e-num  WHEN AVAIL oe-ordl AT 32
+          oe-ordl.i-name WHEN AVAIL oe-ordl AT 45 FORM "x(28)"
           oe-boll.cases FORM "->>>>>" AT 73 "@"
           oe-boll.qty-case FORM "->>>>>Z" SKIP
           oe-ordl.ord-no WHEN AVAIL oe-ordl
-          oe-boll.i-no AT 17 FORM "x(15)"
-          (if oe-boll.job-no eq "" then "" else
-           (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99")))  AT 33 
-          oe-ordl.part-dscr1 WHEN AVAIL oe-ordl AT 43 FORM "x(30)"
+          oe-boll.i-no AT 16 FORM "x(15)"
+          (if oe-boll.job-no eq "" then "" ELSE 
+          TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2)))) AT 32 FORM "x(13)"
+          oe-ordl.part-dscr1 WHEN AVAIL oe-ordl AT 45 FORM "x(28)"
           v-1    FORM "->>>>9"  when oe-boll.partial gt 0 AT 73  "@"
           oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP
      with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
@@ -334,7 +333,7 @@ ASSIGN  j = 1.
     
     put {1}
         xitemfg.part-no
-        fg-set.part-no                  AT 33
+        fg-set.part-no                  AT 32
         xitemfg.i-name                        FORMAT "x(22)"
         oe-boll.qty * v-part-qty        TO 80 FORMAT "->>>,>>9"
         skip(1).

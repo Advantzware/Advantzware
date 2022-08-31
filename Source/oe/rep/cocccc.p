@@ -15,7 +15,7 @@
   ----------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* ***************************  Definitions  ************************** */
 
 {sys/inc/var.i shared}
@@ -37,6 +37,7 @@ DEF VAR lv-print-img AS LOG NO-UNDO.
 DEFINE VARIABLE cCertFormat AS CHARACTER NO-UNDO .
 DEF VAR cBolcert-char AS CHAR FORMAT "X(200)" NO-UNDO.
 DEFINE VARIABLE lChackNotes AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lPrintLot AS LOGICAL NO-UNDO.
 
 DEFINE NEW SHARED TEMP-TABLE tt-filelist
     FIELD tt-FileCtr         AS INT
@@ -170,7 +171,7 @@ DEFINE VARIABLE xQtyPerCasePartial LIKE oe-boll.qty-case NO-UNDO.
 DEFINE VARIABLE xQtyPerCaseTail LIKE oe-boll.qty-case NO-UNDO.
 DEFINE VARIABLE iNoteLine AS INTEGER     NO-UNDO.
 DEFINE VARIABLE iInkCount AS INTEGER     NO-UNDO.
-DEFINE VARIABLE v-ord-fb  AS CHAR FORMAT "x(13)" NO-UNDO.
+DEFINE VARIABLE v-ord-fb  AS CHAR FORMAT "x(15)" NO-UNDO.
 
 DEFINE BUFFER bf-oe-boll FOR oe-boll.
 DEFINE BUFFER bf-job-mat FOR job-mat.
@@ -531,6 +532,11 @@ FOR EACH report
                 "Code Grade for UPC and 2D as 'C' or higher ".
 
          END.
+        IF lPrintLot AND cCertFormat EQ "CCC" THEN
+        do:
+             iNoteLine = iNoteLine + 1.
+             gchWorkSheet:Range("D" + TRIM(STRING(iNoteLine,">9"))):VALUE = "Lot #: " + oe-boll.lot-no.
+        END.
         
         IF NOT lChackNotes THEN
         FOR EACH notes 
@@ -607,6 +613,7 @@ FOR EACH report
             AND sys-ctrl-shipto.NAME EQ "BOLCERT"
             AND sys-ctrl-shipto.cust-vend-no = oe-bolh.cust-no NO-ERROR.
         IF AVAIL sys-ctrl-shipto THEN do:
+            lPrintLot = sys-ctrl-shipto.int-fld EQ 1.
             cBolcert-char = sys-ctrl-shipto.char-fld .
             IF sys-ctrl-shipto.char-fld = "CCCWPP" THEN
                 lv-print-img = YES.

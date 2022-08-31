@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invknight.p */
 /* PRINT INVOICE   Xprint form for Knight Pkg           */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
  DEF INPUT PARAM ip-copy-title AS cha NO-UNDO. 
 
 {sys/inc/var.i shared}
@@ -81,30 +81,7 @@ DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
     
     find first company where company.company = cocode no-lock no-error.
 
@@ -117,6 +94,7 @@ ASSIGN ls-full-img1 = cRtnChar + ">" .
 
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
+      
       assign v-shipto-name = xinv-head.sold-name
              v-shipto-addr[1] = xinv-head.sold-addr[1]
              v-shipto-addr[2] = xinv-head.sold-addr[2]
@@ -206,7 +184,8 @@ ASSIGN ls-full-img1 = cRtnChar + ">" .
                  oe-boll.b-no = oe-bolh.b-no AND
                  oe-boll.i-no = xinv-line.i-no AND
                  oe-boll.ord-no = xinv-line.ord-no:
-             
+                 
+                ASSIGN cLocation = oe-boll.loc.
                 IF oe-boll.p-c THEN v-pc = "C". /*complete*/
                 
              END. /* each oe-boll */
@@ -238,6 +217,13 @@ ASSIGN ls-full-img1 = cRtnChar + ">" .
           else
             assign v-price-head = inv-line.pr-uom.
         end.
+      
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              IF NOT lValid THEN
+              DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              ASSIGN ls-full-img1 = cRtnChar + ">" .
         
         {oe/rep/invknight.i}  /* xprint form */
 
@@ -330,7 +316,8 @@ ASSIGN ls-full-img1 = cRtnChar + ">" .
               v-price  format ">>>,>>9.9999"                
               inv-line.t-price  format "->>>,>>9.99"             
               SKIP
-              v-ord-no FORMAT ">>>>>9" SPACE(10)
+              SPACE(1)
+              TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
               inv-line.i-no FORMAT "X(15)"
               inv-line.part-dscr1 FORMAT "x(30)" SPACE(13)
               v-pc  FORMAT "x" SPACE(6)

@@ -12,6 +12,7 @@
 
   Created           : 04/23/02
 
+  Mod: Ticket - 103137 (Format Change for Order No. and Job No). 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -127,6 +128,7 @@ DEFINE            VARIABLE lValid              AS LOGICAL   NO-UNDO.
 
 DEFINE            VARIABLE hdOutboundProcs     AS HANDLE    NO-UNDO.
 DEFINE            VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
+DEFINE            VARIABLE cMultiPdfName       AS CHARACTER NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
@@ -190,7 +192,7 @@ DEFINE NEW SHARED TEMP-TABLE w-comm-bol NO-UNDO
     
 /*** Temp Table to store Bols which will not post ***/   
 DEFINE TEMP-TABLE ttExceptionBOL NO-UNDO
-    FIELD ordNo   AS INTEGER   FORMAT ">>>>>9"
+    FIELD ordNo   AS INTEGER   FORMAT ">>>>>>>9"
     FIELD bolDate AS DATE      FORMAT "99/99/9999"
     FIELD bolNo   AS INTEGER   FORMAT ">>>>>>9"
     FIELD relNo   AS INTEGER   FORMAT ">>>>>9"
@@ -279,6 +281,10 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
     FIELD trailer AS CHARACTER
     FIELD bolNo   AS INTEGER
     INDEX ediOutFile IS PRIMARY custNo bolNo carrier trailer.
+    
+DEFINE TEMP-TABLE tt-list
+    FIELD rec-row AS ROWID
+    FIELD BolNo AS INTEGER.    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2394,7 +2400,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
         ASSIGN 
             begin_ord#:SCREEN-VALUE = "0"
-            end_ord#:SCREEN-VALUE   = "999999"
+            end_ord#:SCREEN-VALUE   = "99999999"
             .
 
         APPLY "entry" TO begin_cust.
@@ -2980,7 +2986,7 @@ PROCEDURE barcode-proc :
             "~"" removeChars(STRING(oe-bolh.tot-pallets)) "~","
             "~"" removeChars(STRING(oe-bolh.tot-wt)) "~","
             "~"" removeChars(STRING(oe-boll.ord-no)) "~","
-            "~"" removeChars(TRIM(oe-boll.job-no)) + "-" + removeChars(STRING(oe-boll.job-no2,"99")) "~",".
+            "~"" removeChars(TRIM(oe-boll.job-no)) + "-" + removeChars(STRING(oe-boll.job-no2,"999")) "~",".
 
         FIND FIRST oe-ord WHERE
             oe-ord.company EQ oe-boll.company AND
@@ -3041,6 +3047,7 @@ PROCEDURE build-work :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ic2ndKey  AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRowid  AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE reportKey10 AS LOGICAL NO-UNDO. /* 05291402 */
   
@@ -3057,6 +3064,7 @@ PROCEDURE build-work :
         AND oe-bolh.bol-date  LE v-e-date
         AND oe-bolh.printed EQ v-printed
         AND oe-bolh.posted  EQ tb_posted
+        AND (ROWID(oe-bolh) EQ TO-ROWID(ipcRowid) OR ipcRowid EQ "")
         AND CAN-FIND (FIRST oe-boll
         WHERE oe-boll.company EQ oe-bolh.company
         AND oe-boll.b-no    EQ oe-bolh.b-no
@@ -3110,7 +3118,7 @@ PROCEDURE build-work :
             END.
 
         IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX" OR v-print-fmt = "PremierCX" OR 
-            v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker"  THEN 
+            v-print-fmt = "PremierPX" OR v-print-fmt =  "PremierBroker" OR v-print-fmt =  "Portugese" THEN 
         DO:
             IF AVAILABLE oe-bolh THEN 
             DO:
@@ -3690,7 +3698,8 @@ PROCEDURE GenerateMail :
         RUN run-report-mail (INPUT ic1stKey,
             INPUT ic2ndKey,
             INPUT iiMode,
-            INPUT YES).
+            INPUT YES,
+            "").
 
         IF NOT vcBOLNums GT '' THEN RETURN.
 
@@ -3728,7 +3737,8 @@ PROCEDURE GenerateMail :
         RUN run-report-mail (INPUT ic1stKey,
             INPUT ic2ndKey,
             INPUT iiMode,
-            INPUT YES).
+            INPUT YES,
+            "").
 
         IF NOT vcBOLNums GT '' THEN RETURN.
 
@@ -3966,6 +3976,7 @@ PROCEDURE output-to-mail :
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
     DEFINE INPUT PARAMETER ip-ship-id AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lSplitPDF AS LOGICAL NO-UNDO.
 
     ASSIGN
         v-s-bol             = begin_bol#
@@ -4019,74 +4030,123 @@ PROCEDURE output-to-mail :
         AND b1-oe-boll.ord-no  GE v-s-ord
         AND b1-oe-boll.ord-no  LE v-e-ord)
         USE-INDEX post:
-
+            
         ASSIGN  
+            cMultiPdfName = ''
             vcBOLNums   = '' 
             lv-pdf-file = init-dir + '\BOL'
             vcMailMode  = IF tb_MailBatchMode THEN 'Customer1'  /* Silent Mode */
                                         ELSE 'Customer'.  /* Dialog Box */
-        /* XPrint */
-        IF is-xprint-form THEN 
+        EMPTY TEMP-TABLE tt-list.  
+              
+        RUN build-temp-table(b1-cust.cust-no). 
+        
+        IF b1-cust.emailPreference EQ 0 THEN
         DO:
-
-            RUN run-report-mail (INPUT b1-cust.cust-no,
-                INPUT '',
-                INPUT 1,
-                INPUT v-printed).
-
-            IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" OR v-print-fmt = "Mclean-Excel"  THEN 
-            DO:
-                ASSIGN 
-                    lv-pdf-file = init-dir + "\bol" + ".pdf".
-            /* RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  */
-            END.
-
-            ELSE 
-            DO:    
-                lv-pdf-file = lv-pdf-file + vcBOLNums + '.pdf'.
-                IF list-name NE ? AND
-                    list-name NE ''
-                    THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
-
-            /*          IF tb_posted AND lCopyPdfFile THEN DO:                                                                                      */
-            /*              IF rd-dest EQ 5 THEN DO:                                                                                                */
-            /*                  IF v-s-bol EQ v-e-bol THEN                                                                                          */
-            /*                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf").                            */
-            /*                  ELSE OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + "_To_" + STRING(v-e-bol) + ".pdf").*/
-            /*              END.                                                                                                                    */
-            /*          END.                                                                                                                        */
-            END.
-
-            IF vcMailMode = 'Customer1' THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
-            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
-
+            MESSAGE "Would you like print combined(yes) or Sparate(No) pdf for customer:" + b1-cust.cust-no
+                      VIEW-AS ALERT-BOX QUESTION 
+                      BUTTONS YES-NO UPDATE lcheckflg as logical .
+            IF lcheckflg THEN  lSplitPDF = NO. 
+            ELSE lSplitPDF = YES.
         END.
-
-        /* Not XPrint */
-        ELSE 
-        DO:
-
-            RUN run-report-mail (INPUT b1-cust.cust-no,
-                INPUT '',
-                INPUT 1,
-                INPUT v-printed).
-
-            IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt EQ "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5" OR v-coc-fmt EQ "CCCEss" AND v-coc-fmt <> "CCCRev") THEN
+        ELSE IF b1-cust.emailPreference EQ 1 THEN
+        lSplitPDF = NO.
+        ELSE   lSplitPDF = YES. 
+        
+        IF lSplitPDF THEN 
+        do:
+        
+           FOR EACH tt-list:
+             
+              vcBOLNums = ''.
+              lv-pdf-file = init-dir + '\BOL'.
+              
+               RUN run-report-mail (INPUT b1-cust.cust-no,
+                    INPUT '',
+                    INPUT 1,
+                    INPUT v-printed,
+                    string(tt-list.rec-row)).
+                    
+                lv-pdf-file = init-dir + '\BOL' + vcBOLNums + '.pdf'.
+                cMultiPdfName = cMultiPdfName + lv-pdf-file + ",".                   
+                    IF list-name NE ? AND
+                        list-name NE ''
+                THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22"). 
+                                
+           END.
+           IF vcMailMode = 'Customer1' THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
+            ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
+        
+        END.
+        
+        ELSE do:
+         
+            /* XPrint */
+            IF is-xprint-form THEN 
             DO:
-                lv-pdf-file = init-dir + "\cofc.pdf".
 
-                CASE vcMailMode:
-                    WHEN 'Customer1':U  THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer1').
-                    WHEN 'Customer':U   THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer'). 
-                END CASE.
+                RUN run-report-mail (INPUT b1-cust.cust-no,
+                    INPUT '',
+                    INPUT 1,
+                    INPUT v-printed,
+                    "").
+
+                IF v-print-fmt = "SouthPak-XL" OR v-print-fmt = "Prystup-Excel" OR v-print-fmt = "Mclean-Excel"  THEN 
+                DO:
+                    ASSIGN 
+                        lv-pdf-file = init-dir + "\bol" + ".pdf".
+                /* RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  */
+                END.
+
+                ELSE 
+                DO:    
+                    lv-pdf-file = lv-pdf-file + vcBOLNums + '.pdf'.
+                    IF list-name NE ? AND
+                        list-name NE ''
+                        THEN RUN printPDF (list-name,   "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                    ELSE RUN printPDF (lv-pdf-file, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").  
+
+                /*          IF tb_posted AND lCopyPdfFile THEN DO:                                                                                      */
+                /*              IF rd-dest EQ 5 THEN DO:                                                                                                */
+                /*                  IF v-s-bol EQ v-e-bol THEN                                                                                          */
+                /*                      OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + ".pdf").                            */
+                /*                  ELSE OS-COPY  VALUE(lv-pdf-file) VALUE(cCopyPdfFile + "Bol_" + string(v-s-bol) + "_To_" + STRING(v-e-bol) + ".pdf").*/
+                /*              END.                                                                                                                    */
+                /*          END.                                                                                                                        */
+                END.
+
+                IF vcMailMode = 'Customer1' THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', b1-oe-bolh.ship-id). /* Silent Mode */
+                ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer', b1-oe-bolh.ship-id).  /* Dialog Box */
+
             END.
-            ELSE
-                CASE vcMailMode:
 
-                    WHEN 'Customer1':U  THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer1').
-                    WHEN 'Customer':U   THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer').
-                END CASE.
+            /* Not XPrint */
+            ELSE 
+            DO:
+
+                RUN run-report-mail (INPUT b1-cust.cust-no,
+                    INPUT '',
+                    INPUT 1,
+                    INPUT v-printed,
+                    "").
+
+                IF NOT v-print-bol AND (v-coc-fmt EQ "Unipak-XL" OR v-coc-fmt EQ "PrystupXLS" OR v-coc-fmt EQ "CCC" OR v-coc-fmt EQ "CCCWPP" OR v-coc-fmt EQ "CCC3" OR v-coc-fmt EQ "CCC2" OR v-coc-fmt EQ "CCC4" OR v-coc-fmt EQ "CCC5" OR v-coc-fmt EQ "CCCEss" AND v-coc-fmt <> "CCCRev") THEN
+                DO:
+                    lv-pdf-file = init-dir + "\cofc.pdf".
+
+                    CASE vcMailMode:
+                        WHEN 'Customer1':U  THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer1').
+                        WHEN 'Customer':U   THEN RUN send-mail-uni-xl(b1-cust.cust-no,'Customer'). 
+                    END CASE.
+                END.
+                ELSE
+                    CASE vcMailMode:
+
+                        WHEN 'Customer1':U  THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer1').
+                        WHEN 'Customer':U   THEN RUN SendMail-2 (b1-cust.cust-no, 'Customer').
+                    END CASE.
+            END.
         END.
     END. /* each cust */
 
@@ -4845,7 +4905,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN END_bol#:HIDDEN IN FRAME {&FRAME-NAME}    = NO
                 END_bol#:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
-        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell,Henry") LE 0 THEN 
+        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell,Henry,Ruffino") LE 0 THEN 
         DO:
             tb_print-component:SCREEN-VALUE = "no".
             DISABLE tb_print-component.
@@ -4886,7 +4946,7 @@ PROCEDURE pRunFormatValueChanged :
         ELSE
             tb_print_ship:HIDDEN       = NO .
 
-        IF v-coc-fmt EQ "BOLCERT10" THEN 
+        IF v-coc-fmt EQ "BOLCERT10" OR v-coc-fmt EQ "Altex" THEN 
         DO:
             ASSIGN
                 tb_per-bol-line:HIDDEN       = NO
@@ -4919,7 +4979,7 @@ PROCEDURE pRunFormatValueChanged :
                 tb_print-unassemble-component:HIDDEN = YES.
 
                 
-        IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "bolfmt 30" OR v-print-fmt = "LancoYork" THEN  /* task 01121601 */
+        IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" OR v-print-fmt = "bolfmt 30" OR v-print-fmt = "LancoYork" OR v-print-fmt = "Ruffino" THEN  /* task 01121601 */
             ASSIGN
                 lbl_bolsort:HIDDEN = NO
                 rd_bol-sort:HIDDEN = NO .
@@ -5016,7 +5076,7 @@ PROCEDURE run-packing-list :
 
     v-term-id = v-term.
 
-    RUN build-work ('').
+    RUN build-work ('', '').
     FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
     IF NOT AVAILABLE report THEN LEAVE.
 
@@ -5080,7 +5140,7 @@ PROCEDURE run-packing-list :
                 DO:
                     IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                         PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" OR v-print-fmt EQ "Harwell" OR v-print-fmt EQ "Portugese" THEN
                             PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -5227,7 +5287,7 @@ PROCEDURE run-report :
     v-term-id = v-term.
     /* If iplPdfONly, report records already created */
     IF NOT iplPdfOnly THEN 
-        RUN build-work ('').
+        RUN build-work ('','').
     ELSE 
     DO:
         FOR EACH report EXCLUSIVE-LOCK 
@@ -5342,7 +5402,7 @@ PROCEDURE run-report :
                 DO:
                     IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                         PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" OR v-print-fmt EQ "Harwell" OR v-print-fmt EQ "Portugese" THEN
                             PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                         ELSE IF v-print-fmt EQ "CCC" OR  v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -5393,6 +5453,8 @@ PROCEDURE run-report :
                 RUN oe/rep/cocprempkg.p (?).
             IF v-program = "oe/rep/cocloylang.p" THEN
                 RUN oe/rep/cocloylang.p (?).
+            ELSE IF v-program = "oe/rep/cocport.p" THEN
+                RUN oe/rep/cocport.p (?).
             ELSE IF v-program = "oe/rep/cocprempkgu.p" THEN
                     RUN oe/rep/cocprempkgu.p (?).
                 ELSE IF v-program = "oe/rep/cocprempkgm.p" THEN
@@ -5407,6 +5469,8 @@ PROCEDURE run-report :
                                         RUN oe/rep/bolcardgp.p (v-print-fmt).
                                     ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
                                             RUN oe/rep/bolcrdbc.p (v-print-fmt).
+                                        ELSE IF v-program = "oe/rep/cocAltex.p" THEN
+                                                RUN oe/rep/cocAltex.p (?).
                                         ELSE RUN VALUE(v-program).
         END.
     END.
@@ -5634,7 +5698,7 @@ PROCEDURE run-report-ci :
                 DO:
                     IF v-print-fmt = "Century" THEN /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                         PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+                    ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" OR v-print-fmt EQ "Harwell" OR v-print-fmt EQ "Portugese" THEN
                             PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                         ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCCW" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                             ELSE IF v-print-fmt EQ "Carded" OR v-print-fmt = "GPI2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(6 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
@@ -5733,6 +5797,7 @@ PROCEDURE run-report-mail :
     DEFINE INPUT PARAMETER ic2ndKey AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iiMode   AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER iLprinted AS LOG NO-UNDO.
+    DEFINE INPUT PARAMETER cRowid    AS CHARACTER NO-UNDO.
 
     {sys/form/r-top.i}
 
@@ -5781,7 +5846,7 @@ PROCEDURE run-report-mail :
 
     v-term-id = v-term.
 
-    RUN build-work (ic2ndKey).
+    RUN build-work (ic2ndKey,cRowid).
     FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
     IF NOT AVAILABLE report THEN LEAVE.
 
@@ -5800,7 +5865,7 @@ PROCEDURE run-report-mail :
         DO:
             IF v-print-fmt = "Century"                     /*<PDF-LEFT=5mm><PDF-TOP=10mm>*/
                 THEN PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(2.5 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-            ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
+            ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremCAN" OR v-print-fmt EQ "PREMDSG" OR v-print-fmt EQ "BOLFMT-Mex" OR v-print-fmt EQ "PremierXFooter" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" OR v-print-fmt EQ "Harwell" OR v-print-fmt EQ "Portugese" THEN
                     PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=" + trim(STRING(5 + d-print-fmt-dec)) + "mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
                 ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
                     ELSE IF v-print-fmt EQ "CCC" OR v-print-fmt EQ "CCCWPP" OR v-print-fmt EQ "CCC2" THEN PUT "<PREVIEW><LEFT=" + trim(STRING(4 + d-print-fmt-dec)) + "mm><PDF-LEFT=" + trim(STRING(2 + d-print-fmt-dec)) + "mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
@@ -5824,6 +5889,8 @@ PROCEDURE run-report-mail :
             DO:
                 IF v-program EQ "oe/rep/cocprempkg.p" THEN
                     RUN oe/rep/cocprempkg.p (?).
+                ELSE IF v-program EQ "oe/rep/cocport.p" THEN
+                        RUN oe/rep/cocport.p (?).
                 ELSE IF v-program EQ "oe/rep/cocloylang.p" THEN
                         RUN oe/rep/cocloylang.p (?).
                     ELSE IF v-program EQ "oe/rep/cocbcert10.p" THEN
@@ -5836,6 +5903,8 @@ PROCEDURE run-report-mail :
                                         RUN oe/rep/bolcardgp.p (v-print-fmt).
                                     ELSE IF v-program = "oe/rep/bolcrdbc.p" THEN
                                             RUN oe/rep/bolcrdbc.p (v-print-fmt).
+                                        ELSE IF v-program = "oe/rep/cocAltex.p" THEN
+                                                RUN oe/rep/cocAltex.p (?).
                                         ELSE
                                             RUN value(v-program).
             END.
@@ -5938,7 +6007,7 @@ PROCEDURE SendMail-1 :
         vcMailBody = "Please review attached Bill of Lading(s) for BOL #: " + vcBOLNums.
 
     IF icShipId <> "" THEN icRecType = icRecType + "|" + icShipId. /* cust# + shipto */     
-
+        IF cMultiPdfName ne "" then lv-pdf-file = cMultiPdfName . 
     RUN custom/xpmail2.p   (INPUT   icRecType,
         INPUT   cBolCocEmail,
         INPUT   lv-pdf-file,
@@ -6045,6 +6114,11 @@ PROCEDURE SetBOLForm :
                     is-xprint-form = YES
                     v-program      = "oe/rep/cocprempkg.p".
 
+            WHEN "Portugese" THEN
+                ASSIGN
+                    is-xprint-form = YES
+                    v-program      = "oe/rep/cocport.p".
+
             WHEN "BOLCERT-Mex" THEN
                 ASSIGN
                     is-xprint-form = YES
@@ -6112,6 +6186,10 @@ PROCEDURE SetBOLForm :
                 ASSIGN 
                     is-xprint-form = NO
                     v-program      = "oe/rep/cocpryst-xl.p". 
+            WHEN "Altex" THEN
+                ASSIGN 
+                    is-xprint-form = YES
+                    v-program      = "oe/rep/cocAltex.p". 
 
             OTHERWISE
             ASSIGN
@@ -6225,6 +6303,51 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-temp-table C-Win 
+PROCEDURE build-temp-table :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+     DEFINE BUFFER bf-cust FOR cust.
+     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+     DEFINE BUFFER bf-oe-boll FOR oe-boll.
+     
+     FOR EACH bf-cust NO-LOCK
+        WHERE bf-cust.company EQ cocode
+        AND bf-cust.cust-no EQ ipcCustomer,
+
+        EACH bf-oe-bolh NO-LOCK
+        WHERE bf-oe-bolh.company EQ cocode
+        AND bf-oe-bolh.bol-no  GE v-s-bol
+        AND bf-oe-bolh.bol-no  LE v-e-bol
+        AND bf-oe-bolh.cust-no EQ bf-cust.cust-no
+        AND bf-oe-bolh.bol-date  GE v-s-date
+        AND bf-oe-bolh.bol-date  LE v-e-date
+        AND bf-oe-bolh.printed EQ v-printed
+        AND bf-oe-bolh.posted  EQ tb_posted
+        AND CAN-FIND (FIRST bf-oe-boll
+        WHERE bf-oe-boll.company EQ bf-oe-bolh.company
+        AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no
+        AND bf-oe-boll.ord-no  GE v-s-ord
+        AND bf-oe-boll.ord-no  LE v-e-ord)
+        USE-INDEX post:
+        
+            CREATE tt-list.
+            tt-list.rec-row = ROWID(bf-oe-bolh).
+            tt-list.BolNo = bf-oe-bolh.bol-no.        
+        END.
+                
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME    
+    
 
 /* ************************  Function Implementations ***************** */
 

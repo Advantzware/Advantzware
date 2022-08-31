@@ -3,7 +3,7 @@ Invoice format for HOP.
 Written by Randal Lanning
 05/03/1999
 */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 DEF BUFFER xinv-head FOR inv-head.
@@ -26,7 +26,7 @@ def var v-fob as char format "x(11)" no-undo.
 def var v-ship-date as date format "99/99/9999" no-undo init today.
 def var v-invoice-date as date format "99/99/9999" no-undo.
 def var v-bol-no as int format ">>>>>>" no-undo.
-def var v-order-no as int format ">>>>>>" no-undo.
+def var v-order-no as int format ">>>>>>>>" no-undo.
 def var v-unit-price as dec format "$>>,>>9.99" no-undo.
 def var v-terms as char format "x(20)" no-undo.
 def var v-salesman as char format "x(11)" no-undo.
@@ -55,7 +55,7 @@ def var v-if-paid-amt like inv-head.t-inv-cost no-undo.
 def var v-misc-charges like inv-head.t-inv-cost no-undo.
 def var v-billinst as char extent 2 no-undo.
 def var v-lines as int.
-def var v-job-no as char format "x(9)" no-undo.
+def var v-job-no as char format "x(13)" no-undo.
 def var v-frt-des          as char format "x(14)"    no-undo.
 def var v-slsmn-name   as char format "x(20)"   no-undo.                       
 

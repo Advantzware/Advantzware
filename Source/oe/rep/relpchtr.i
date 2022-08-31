@@ -1,5 +1,6 @@
 /* ---------------------------------------------- oe/rep/relpchtr.i  */
 /* Print OE Release/Picking tickets    for Peachtree Xprint             */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.     */
 /* ----------------------------------------------------------------- */
 
 {oe/rep/oe-pick1.i}
@@ -55,13 +56,13 @@ DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6    FORMAT ">>>>>9"
-       w-par                            AT 8    FORMAT "x(20)" "</B>"
-       v-bin                            AT 35   format "x(24)" 
-       w-x                              at 68   format "X/"
-       w-pal                            TO 74   format "->>>>"
-       w-cas                            to 81   format "->>>>"
-       w-c-c                            to 91   format "->>>>>>>>"
+format w-oe-rell.ord-no                 to 8    FORMAT ">>>>>>>9"
+       w-par                            AT 10    FORMAT "x(20)" "</B>"
+       v-bin                            AT 37   format "x(24)" 
+       w-x                              AT 70   format "X/"
+       w-pal                            TO 76   format "->>>>"
+       w-cas                            to 80.5   format "->>>>"
+       w-c-c                            to 92   format "->>>>>>>>"
        w-qty[1]                         to 103   format "->>>>>>>>"
     
     with down frame rel-mid no-box no-label STREAM-IO width 103.
@@ -185,8 +186,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".
@@ -465,19 +466,19 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           
                IF  first(w-qty[2]) THEN
                     DO:
-                        PUT {2} "<R+1><C1>" w-oe-rell.ord-no            FORMAT ">>>>>9"  SPACE(1)  .
+                        PUT {2} "<R+1><C1>" w-oe-rell.ord-no            FORMAT ">>>>>>>9"  SPACE(1)  .
                         IF w-oe-rell.job-no NE "" THEN
-                            PUT {2} "<R+1><C1>" w-oe-rell.job-no FORMAT "x(6)" "-" w-oe-rell.job-no2 FORMAT "99" SPACE(1) "<R-1>" .
+                            PUT {2} "<R+1><C1>" TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-oe-rell.job-no, w-oe-rell.job-no2))) FORMAT "X(13)" SPACE(1) "<R-1>" .
                     END.
 
                PUT {2}
-                   "<C10>"  w-par                                   FORMAT "x(20)" "</B>"
-                   "<C26>" v-bin                                   format "x(20)"          
-                   "<C50>" w-x                                     format "X/"             
-                   "<C52>" w-pal                                   format "->>>>"          
-                   "<C58>" w-cas                                   format "->>>>"          
-                   "<C62>" w-c-c                                   format "->>>>>>>>"      
-                   "<C72>" w-qty[1]                                format "->>>>>>>>"   SKIP.  
+                   "<C12>"  w-par                                  FORMAT "x(20)" "</B>"
+                   "<C28>" v-bin                                   FORMAT "x(20)"          
+                   "<C52>" w-x                                     FORMAT "X/"             
+                   "<C54>" w-pal                                   FORMAT "->>>>"          
+                   "<C59.5>" w-cas                                 FORMAT "->>>>"          
+                   "<C63>" w-c-c                                   FORMAT "->>>>>>>>"      
+                   "<C72>" w-qty[1]                                FORMAT "->>>>>>>>"   SKIP.  
 
                v-printline = v-printline + 1.
                

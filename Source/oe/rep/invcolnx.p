@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/invcolnx.p */
 /* PRINT INVOICE   Xprint form for Colonial Carton           */
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 
 {sys/inc/var.i shared}
@@ -74,7 +75,7 @@ def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like inv-line.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
 def var v-ord-no like oe-ord.ord-no no-undo.
-def var v-job-no AS CHAR FORMAT "x(13)" no-undo.
+def var v-job-no AS CHAR FORMAT "x(15)" no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
@@ -108,30 +109,7 @@ DEFINE VARIABLE cRtnChar       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 DEF VAR v-tel           AS CHARACTER FORM "x(30)" NO-UNDO.
 DEF VAR v-fax           AS CHARACTER FORM "x(30)" NO-UNDO.
@@ -172,6 +150,7 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
       
       FIND FIRST cust WHERE cust.company = xinv-head.company
                         AND cust.cust-no = xinv-head.cust-no NO-LOCK NO-ERROR.
+      
       assign  v-shipto-name = xinv-head.sold-name
                     v-shipto-addr[1] = xinv-head.sold-addr[1]
                     v-shipto-addr[2] = xinv-head.sold-addr[2]
@@ -297,7 +276,8 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
                                       /** Bill Of Lading TOTAL CASES **/
               ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
                      v-tot-pallets = v-tot-pallets + oe-boll.cases +
-                                     (if oe-boll.partial gt 0 then 1 else 0).
+                                     (if oe-boll.partial gt 0 then 1 else 0)
+                         cLocation = oe-boll.loc.
               IF oe-boll.p-c THEN v-pc = "C". /*complete*/
               
            END. /* each oe-boll */
@@ -414,6 +394,13 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
                 v-billto-id = soldto.sold-id.
         v-billto-addr3 = v-billto-city + ", " + v-billto-state +
               "  " + v-billto-zip.
+      
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              IF NOT lValid THEN
+              DO:
+                MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              ASSIGN ls-full-img1 = cRtnChar + ">" .
  {oe/rep/invcolnx.i}  /* xprint form */
 
         ASSIGN
@@ -530,22 +517,21 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
                 AND job-hdr.job-no2 EQ inv-line.job-no2
                 AND job-hdr.i-no EQ inv-line.i-no NO-LOCK NO-ERROR.
             
-            v-job-no = fill(" ",6 - length(trim(inv-line.job-no))) +
-               trim(inv-line.job-no) .
+            v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', inv-line.job-no))).
 
             IF AVAIL job-hdr THEN
                 v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
 
             PUT 
                 v-po-no space(1)
-                inv-line.part-no  SPACE(1)
+                inv-line.part-no FORMAT "x(15)" SPACE(1)
                 v-i-dscr FORM "x(30)" 
                 v-ship-qty  format "->>>>>>9" SPACE(2)
                 v-price  format ">>>,>>9.9999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-job-no SPACE(3)
-                inv-line.i-no SPACE(1)
+                v-job-no
+                inv-line.i-no AT 17 SPACE(1)
                 inv-line.part-dscr1  SPACE(11)
                 v-pc  FORM "x" SPACE(7)
                 v-price-head SKIP.

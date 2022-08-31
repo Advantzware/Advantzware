@@ -10,8 +10,10 @@
 
 
 PROCEDURE pApplyCRM:
-    DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE cPhone    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAreaCode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPhoneNo  AS CHARACTER NO-UNDO.
+    
     FOR EACH ttCRMCustomers:
         IF ttCRMCustomers.xxApplyAction EQ NO THEN NEXT.
         IF ttCRMCustomers.action EQ "" THEN NEXT.
@@ -23,15 +25,27 @@ PROCEDURE pApplyCRM:
             cPhone = REPLACE(cPhone,")","")
             cPhone = REPLACE(cPhone,"x","")
             cPhone = REPLACE(cPhone,".","")
-            ttCRMCustomers.custName      = ttCRMCustomers.crmName
-            ttCRMCustomers.custAreaCode  = SUBSTR(cPhone,1,3)
-            ttCRMCustomers.custPhone     = SUBSTR(cPhone,4,7)
-            ttCRMCustomers.custStreet    = ttCRMCustomers.crmStreet
-            ttCRMCustomers.custStreet2   = ttCRMCustomers.crmStreet2
-            ttCRMCustomers.custCity      = ttCRMCustomers.crmCity
-            ttCRMCustomers.custState     = ttCRMCustomers.crmState
-            ttCRMCustomers.custCode      = ttCRMCustomers.crmCode
-            ttCRMCustomers.saveAction    = ttCRMCustomers.action
+            .
+
+        /* If country begins with country code, trim the country code */
+        IF LENGTH(cPhone) GT 10 THEN
+            cPhone = SUBSTRING(cPhone, LENGTH(cPhone) - 9, 10).
+                            
+        ASSIGN    
+            cAreaCode = IF ttCRMCustomers.crmPhone EQ "null" THEN "" ELSE SUBSTR(cPhone,1,3)
+            cPhoneNo  = IF ttCRMCustomers.crmPhone EQ "null" THEN "" ELSE SUBSTR(cPhone,4,7)
+            .
+        
+        ASSIGN
+            ttCRMCustomers.custName      = IF ttCRMCustomers.crmName    EQ "null" THEN "" ELSE ttCRMCustomers.crmName
+            ttCRMCustomers.custAreaCode  = IF cAreaCode                 EQ "null" THEN "" ELSE cAreaCode
+            ttCRMCustomers.custPhone     = IF cPhoneNo                  EQ "null" THEN "" ELSE cPhoneNo
+            ttCRMCustomers.custStreet    = IF ttCRMCustomers.crmStreet  EQ "null" THEN "" ELSE ttCRMCustomers.crmStreet
+            ttCRMCustomers.custStreet2   = IF ttCRMCustomers.crmStreet2 EQ "null" THEN "" ELSE ttCRMCustomers.crmStreet2
+            ttCRMCustomers.custCity      = IF ttCRMCustomers.crmCity    EQ "null" THEN "" ELSE ttCRMCustomers.crmCity
+            ttCRMCustomers.custState     = IF ttCRMCustomers.crmState   EQ "null" THEN "" ELSE ttCRMCustomers.crmState
+            ttCRMCustomers.custCode      = IF ttCRMCustomers.crmCode    EQ "null" THEN "" ELSE ttCRMCustomers.crmCode
+            ttCRMCustomers.saveAction    = IF ttCRMCustomers.action     EQ "null" THEN "" ELSE ttCRMCustomers.action
             ttCRMCustomers.action        = ""
             ttCRMCustomers.xxApplyAction = NO
             .
@@ -93,19 +107,23 @@ PROCEDURE pBuildCustomersHubSpot PRIVATE:
             IF NOT VALID-OBJECT(joProperties) THEN
                 NEXT.
             
+            IF joProperties:GetJsonText("customer_number") EQ "null" THEN
+                NEXT.
+            
             CREATE ttCRMCustomers.
+            ttCRMCustomers.crmID      = joCustomer:GetJsonText("id") NO-ERROR.
             ttCRMCustomers.crmCity    = joProperties:GetJsonText("city") NO-ERROR.
             ttCRMCustomers.crmState   = joProperties:GetJsonText("state") NO-ERROR.
             ttCRMCustomers.crmName    = joProperties:GetJsonText("name") NO-ERROR.
             ttCRMCustomers.crmPhone   = joProperties:GetJsonText("phone") NO-ERROR.
             ttCRMCustomers.crmStreet  = joProperties:GetJsonText("address") NO-ERROR.
             ttCRMCustomers.crmStreet2 = joProperties:GetJsonText("address2") NO-ERROR.
+            ttCRMCustomers.crmCode    = joProperties:GetJsonText("zip") NO-ERROR.
             ttCRMCustomers.tickerSymbol = joProperties:GetJsonText("customer_number") NO-ERROR.
-
+            
             RELEASE ttCRMCustomers. 
         END. 
     END.
-    
 END PROCEDURE.
 
 PROCEDURE pHubspotCRM PRIVATE:
@@ -125,6 +143,17 @@ PROCEDURE pHubspotCRM PRIVATE:
     DEFINE VARIABLE lcResponseData   AS LONGCHAR  NO-UNDO.
     DEFINE VARIABLE cNextpageLinkID  AS CHARACTER NO-UNDO INITIAL "0".
     DEFINE VARIABLE cPhone           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAreaCode        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPhoneNo         AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cTempName     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempAreaCode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempPhoneNo  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempAddress1 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempAddress2 AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempCity     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempState    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTempZip      AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-APIOutboundEvent FOR APIOutboundEvent.
     
@@ -224,29 +253,58 @@ PROCEDURE pHubspotCRM PRIVATE:
                 ttCRMCustomers.xxCustRowID   = ROWID(cust)
                 ttCRMCustomers.xxApplyAction = NO
                 .
-
+            
             ASSIGN
-                cPhone = REPLACE(ttCRMCustomers.crmPhone," ","")
-                cPhone = REPLACE(cPhone,"+","")
-                cPhone = REPLACE(cPhone,"-","")
-                cPhone = REPLACE(cPhone,"(","")
-                cPhone = REPLACE(cPhone,")","")
-                cPhone = REPLACE(cPhone,"x","")
-                cPhone = REPLACE(cPhone,".","")
+                cPhone    = REPLACE(ttCRMCustomers.crmPhone," ","")
+                cPhone    = REPLACE(cPhone,"+","")
+                cPhone    = REPLACE(cPhone,"-","")
+                cPhone    = REPLACE(cPhone,"(","")
+                cPhone    = REPLACE(cPhone,")","")
+                cPhone    = REPLACE(cPhone,"x","")
+                cPhone    = REPLACE(cPhone,".","")
                 .
-                                            
-            IF cust.name      NE ttCRMCustomers.crmName     OR
-               cust.area-code NE SUBSTR(cPhone,1,3)         OR
-               cust.phone     NE SUBSTR(cPhone,4,7)         OR
-               cust.addr[1]   NE ttCRMCustomers.crmStreet   OR
-               cust.addr[2]   NE ttCRMCustomers.crmStreet2  OR
-               cust.city      NE ttCRMCustomers.crmCity     OR
-               cust.state     NE ttCRMCustomers.crmState    OR
-               cust.zip       NE ttCRMCustomers.crmCode THEN
-                ASSIGN
-                    ttCRMCustomers.action        = "Update"
-                    ttCRMCustomers.xxApplyAction = YES
-                    . 
+            
+            /* If country begins with country code, trim the country code */
+            IF LENGTH(cPhone) GT 10 THEN
+                cPhone = SUBSTRING(cPhone, LENGTH(cPhone) - 9, 10).
+                
+            ASSIGN
+                cAreaCode = IF ttCRMCustomers.crmPhone EQ "null" THEN "null" ELSE SUBSTR(cPhone,1,3)
+                cPhoneNo  = IF ttCRMCustomers.crmPhone EQ "null" THEN "null" ELSE SUBSTR(cPhone,4,7)  
+                .
+            
+            ASSIGN
+                cTempName     = IF ttCRMCustomers.crmName    EQ "null" THEN "" ELSE ttCRMCustomers.crmName
+                cTempAreaCode = IF cAreaCode                 EQ "null" THEN "" ELSE cAreaCode
+                cTempPhoneNo  = IF cPhoneNo                  EQ "null" THEN "" ELSE cPhoneNo
+                cTempAddress1 = IF ttCRMCustomers.crmStreet  EQ "null" THEN "" ELSE ttCRMCustomers.crmStreet
+                cTempAddress2 = IF ttCRMCustomers.crmStreet2 EQ "null" THEN "" ELSE ttCRMCustomers.crmStreet2
+                cTempCity     = IF ttCRMCustomers.crmCity    EQ "null" THEN "" ELSE ttCRMCustomers.crmCity
+                cTempState    = IF ttCRMCustomers.crmState   EQ "null" THEN "" ELSE ttCRMCustomers.crmState
+                cTempZip      = IF ttCRMCustomers.crmCode    EQ "null" THEN "" ELSE ttCRMCustomers.crmCode
+                .
+                                                                                                
+            IF cust.name      NE cTempName     OR
+               cust.area-code NE cTempAreaCode OR
+               cust.phone     NE cTempPhoneNo  OR
+               cust.addr[1]   NE cTempAddress1 OR
+               cust.addr[2]   NE cTempAddress2 OR
+               cust.city      NE cTempCity     OR
+               cust.state     NE cTempState    OR
+               cust.zip       NE cTempZip THEN DO:
+                ttCRMCustomers.action = "Update".
+
+                IF ttCRMCustomers.crmName    EQ "null" OR
+                   ttCRMCustomers.crmPhone   EQ "null" OR
+                   ttCRMCustomers.crmStreet  EQ "null" OR
+                   ttCRMCustomers.crmStreet2 EQ "null" OR
+                   ttCRMCustomers.crmCity    EQ "null" OR
+                   ttCRMCustomers.crmState   EQ "null" OR
+                   ttCRMCustomers.crmCode    EQ "null" THEN                
+                    ttCRMCustomers.xxApplyAction = NO.
+                ELSE 
+                    ttCRMCustomers.xxApplyAction = YES.
+            END.
             ELSE
                 DELETE ttCRMCustomers.      
         END. /* avail cust */
@@ -255,8 +313,62 @@ PROCEDURE pHubspotCRM PRIVATE:
 END PROCEDURE.
 
 PROCEDURE pSave:
+    DEFINE VARIABLE cCRMCustomerID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cCustomerID    AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hdOutboundProcs  AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cUser            AS CHARACTER NO-UNDO.
+    
+    RUN spGetSessionParam ("UserID", OUTPUT cUser).
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    RUN spGetSettingByName("CRMCustomerID", OUTPUT cCRMCustomerID).
+    
+    EMPTY TEMP-TABLE ttCustomer.
+    
+    IF cCRMCustomerID EQ "Prompt" THEN DO:
+        FOR EACH ttCRMCustomers
+            WHERE ttCRMCustomers.saveAction EQ "Add"
+            USE-INDEX crmID:
+            RUN CRM/d-addCust.w (
+                INPUT  ttCRMCustomers.tickerSymbol,
+                INPUT  ttCRMCustomers.crmName,
+                INPUT  ttCRMCustomers.crmStreet,
+                INPUT  ttCRMCustomers.crmStreet2,
+                OUTPUT cCustomerID,
+                OUTPUT lValid
+                ).
+            IF lValid AND cCustomerID NE ttCRMCustomers.tickerSymbol THEN DO:
+                FIND FIRST ttCustomer 
+                     WHERE ttCustomer.customerID EQ cCustomerID
+                     NO-ERROR.
+                /* Prevent from updating the customerid for multiple records */
+                IF NOT AVAILABLE ttCustomer THEN DO:
+                    CREATE ttCustomer.
+                    ASSIGN
+                        ttCustomer.company       = ipcCompany
+                        ttCustomer.customerID    = cCustomerID            
+                        ttCustomer.crmCustomerID = ttCRMCustomers.crmID
+                        .
+                    
+                    ttCRMCustomers.tickerSymbol = cCustomerID.
+                END.
+                ELSE
+                    ttCRMCustomers.saveAction = "".
+            END.
+            
+            IF NOT lValid THEN
+                ttCRMCustomers.saveAction = "".
+        END.
+    END.
+    
     FOR EACH ttCRMCustomers:
         IF ttCRMCustomers.saveAction EQ "" THEN NEXT.
+        IF ttCRMCustomers.tickerSymbol EQ "" THEN NEXT.
         IF ttCRMCustomers.saveAction EQ "Update" THEN
         FIND cust EXCLUSIVE-LOCK WHERE ROWID(cust) EQ ttCRMCustomers.xxCustRowID.
         ELSE DO:
@@ -264,17 +376,34 @@ PROCEDURE pSave:
             cust.cust-no = ttCRMCustomers.TickerSymbol.
         END. /* add */
         ASSIGN
-            cust.name      = ttCRMCustomers.custName
-            cust.area-code = ttCRMCustomers.custAreaCode
-            cust.phone     = ttCRMCustomers.custPhone
-            cust.addr[1]   = ttCRMCustomers.custStreet
-            cust.addr[2]   = ttCRMCustomers.custStreet2
-            cust.city      = ttCRMCustomers.custCity
-            cust.state     = ttCRMCustomers.custState
-            cust.zip       = ttCRMCustomers.custCode
+            cust.name      = IF ttCRMCustomers.custName     EQ 'null' THEN '' ELSE ttCRMCustomers.custName     
+            cust.area-code = IF ttCRMCustomers.custAreaCode EQ 'null' THEN '' ELSE ttCRMCustomers.custAreaCode 
+            cust.phone     = IF ttCRMCustomers.custPhone    EQ 'null' THEN '' ELSE ttCRMCustomers.custPhone    
+            cust.addr[1]   = IF ttCRMCustomers.custStreet   EQ 'null' THEN '' ELSE ttCRMCustomers.custStreet   
+            cust.addr[2]   = IF ttCRMCustomers.custStreet2  EQ 'null' THEN '' ELSE ttCRMCustomers.custStreet2  
+            cust.city      = IF ttCRMCustomers.custCity     EQ 'null' THEN '' ELSE ttCRMCustomers.custCity     
+            cust.state     = IF ttCRMCustomers.custState    EQ 'null' THEN '' ELSE ttCRMCustomers.custState    
+            cust.zip       = IF ttCRMCustomers.custCode     EQ 'null' THEN '' ELSE ttCRMCustomers.custCode     
             .
         RELEASE cust.
     END. /* each ttCRMCustomers */
+    
+    IF TEMP-TABLE ttCustomer:HAS-RECORDS THEN DO:
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ipcCompany,                             /* Company Code (Mandatory) */
+            INPUT  "",                                     /* Location Code (Mandatory) */
+            INPUT  "SendCustomers",                        /* API ID (Mandatory) */
+            INPUT  "",                                     /* Scope ID */
+            INPUT  "",                                     /* Scope Type */
+            INPUT  "CRMUpdate",                            /* Trigger ID (Mandatory) */
+            INPUT  "TTCustomerHandle",                     /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(TEMP-TABLE ttCustomer:HANDLE),   /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cUser,                                  /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Update CRM customers",                 /* Event's description (Optional) */
+            OUTPUT lSuccess,                               /* Success/Failure flag */
+            OUTPUT cMessage                                /* Status message */
+            ) NO-ERROR.
+    END.
 END PROCEDURE.
 
 PROCEDURE pXML:

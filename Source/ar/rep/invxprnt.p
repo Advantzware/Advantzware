@@ -420,8 +420,8 @@ ELSE lv-comp-color = "BLACK".
                 v-inv-qty format "->>>>>>9" SPACE(1)
                 v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
                 /*v-bo-qty  format "->>>>>9" SPACE(1) */
-                ar-invl.ord-no FORM ">>>>>>9" SPACE(1)
-                v-i-no  format "x(15)" SPACE(2)
+                ar-invl.ord-no FORM ">>>>>>>9" SPACE(1)
+                v-i-no  format "x(15)" SPACE(1)
                 v-i-dscr  format "x(25)" SPACE(4)
                 v-price  format "->>>>,>>9.99" /*"->,>>9.99<<"*/ SPACE(1)
                 v-price-head SPACE(1)
@@ -436,7 +436,7 @@ ELSE lv-comp-color = "BLACK".
                             else           trim(lv-inv-list).
 
               if v-part-info ne "" OR (v = 1 AND ar-invl.part-no <> "") then do:
-                 IF v = 1 THEN PUT SPACE(27) ar-invl.part-no SPACE(2) v-part-info SKIP.
+                 IF v = 1 THEN PUT SPACE(28) ar-invl.part-no SPACE(1) v-part-info SKIP.
                  ELSE
                  IF v = 2 THEN PUT SPACE(44) v-part-info SKIP.
                  ELSE          PUT SPACE(23) "Previous Invoice(s): " v-part-info SKIP.

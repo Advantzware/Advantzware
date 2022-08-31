@@ -1,14 +1,14 @@
     
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company               EQ cocode
-          AND job-hdr.job-no                GE SUBSTR(fjob-no,1,6)
-          AND job-hdr.job-no                LE SUBSTR(tjob-no,1,6)
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  GE fjob-no
-          AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
-              TRIM(job-hdr.job-no) +
-              STRING(job-hdr.job-no2,"99")  LE tjob-no
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2
           AND job-hdr.ftick-prnt            EQ reprint
           and (production OR
                job-hdr.ftick-prnt           eq v-reprint OR

@@ -492,7 +492,7 @@ PROCEDURE pProcessRecord PRIVATE:
                 bf-oe-rel.ship-i[2]    = shipto.notes[2]
                 bf-oe-rel.ship-i[3]    = shipto.notes[3]
                 bf-oe-rel.ship-i[4]    = shipto.notes[4].
-            RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
+            RUN pCopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
         END.
         ELSE 
             ASSIGN 
@@ -525,7 +525,7 @@ PROCEDURE pProcessRecord PRIVATE:
                         bf-oe-rel.ship-i[2]    = shipto.notes[2]
                         bf-oe-rel.ship-i[3]    = shipto.notes[3]
                         bf-oe-rel.ship-i[4]    = shipto.notes[4].
-                    RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
+                    RUN pCopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
                 END.
                 LEAVE .
             END.
@@ -534,7 +534,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RELEASE bf-oe-rel.
 END PROCEDURE.
 
-PROCEDURE CopyShipNote PRIVATE:
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -542,13 +542,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-    
-    RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-    RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-    DELETE OBJECT hNotesProcs.   
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 

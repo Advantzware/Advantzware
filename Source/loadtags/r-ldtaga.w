@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -54,7 +55,7 @@ DEF var v-po-no-source AS char FORMAT "!" init "R".
 def var v-stat as char format "!" init "O".
 
 DEF var v-out AS char FORMAT "x(40)" NO-UNDO.
-DEF var v-job AS char FORMAT "x(9)" NO-UNDO.
+DEF var v-job AS char FORMAT "x(13)" NO-UNDO.
 DEF var num-rec AS int init 0 NO-UNDO.
 DEF var by-release AS log init NO NO-UNDO.
 
@@ -165,15 +166,15 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job AS CHARACTER FORMAT "X(9)":U 
      LABEL "From Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE begin_job2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_labels AS INTEGER FORMAT ">>>>":U INITIAL 2 
      LABEL "# of Labels/Pallet" 
@@ -190,15 +191,15 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE end_job AS CHARACTER FORMAT "X(9)":U 
      LABEL "To Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job2 AS INTEGER FORMAT "99":U INITIAL 99 
+DEFINE VARIABLE end_job2 AS INTEGER FORMAT "999":U INITIAL 999 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "To Order#" 
@@ -259,11 +260,11 @@ DEFINE FRAME FRAME-A
           "Enter Ending Order Number"
      begin_job AT ROW 9.1 COL 21 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job2 AT ROW 9.1 COL 36 COLON-ALIGNED HELP
+     begin_job2 AT ROW 9.1 COL 38 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job AT ROW 9.1 COL 65 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job2 AT ROW 9.1 COL 80 COLON-ALIGNED HELP
+     end_job2 AT ROW 9.1 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      begin_i-no AT ROW 10.05 COL 21 COLON-ALIGNED HELP
           "Enter Beginning Order Number"
@@ -1182,7 +1183,7 @@ DEF VAR lv-job-no2 LIKE job.job-no NO-UNDO.
 DEF VAR ll AS LOG NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR choice AS LOG NO-UNDO.
-DEF VAR lv-middlesex-job AS CHAR FORMAT "x(9)" NO-UNDO.
+DEF VAR lv-middlesex-job AS CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR lv-middlesex-po AS CHAR FORMAT "x(9)" NO-UNDO.
 
 DEF BUFFER b-itemfg FOR itemfg.
@@ -1251,8 +1252,7 @@ ASSIGN
       IF ll THEN lv-job-no = lv-job-no + SUBSTR(ENTRY(i,v-job-list),li,1).
             ELSE lv-job-no2 = lv-job-no2 + SUBSTR(ENTRY(i,v-job-list),li,1).
     END.
-    lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no) +
-                STRING(INT(lv-job-no2),"99") NO-ERROR.
+    lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', lv-job-no, lv-job-no2))  NO-ERROR.
 
     IF NOT ERROR-STATUS:ERROR AND
        lv-job-no NE ""        THEN RUN temp-job (lv-job-no).
@@ -1264,14 +1264,14 @@ ASSIGN
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND job.job-no  GE FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job)
-        AND job.job-no  LE FILL(" ",6 - LENGTH(TRIM(end_job)))   + TRIM(end_job)
-        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) GE STRING(DYNAMIC-FUNCTION('begin_job', begin_job)) 
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no)))   + TRIM(job.job-no) LE STRING(DYNAMIC-FUNCTION('begin_job', end_job)) 
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         GE
-            FILL(" ",6 - LENGTH(TRIM(begin_job))) + TRIM(begin_job) + STRING(begin_job2,"99")
-        AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"99")
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2)) 
+        AND FILL(" ", iJobLen - LENGTH(TRIM(job.job-no))) + TRIM(job.job-no) + STRING(job.job-no2,"999")
                         LE
-            FILL(" ",6 - LENGTH(TRIM(end_job))) + TRIM(end_job) + STRING(end_job2,"99")
+            STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
       NO-LOCK:
     RUN from-job (ROWID(job)).
   END.
@@ -1429,7 +1429,7 @@ if td-show-parm then run show-param.
         end.
 
         FOR EACH w-ord:
-           v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+           v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"999").
            IF v-job BEGINS "-" or v-job = ? /* 9901 CAH */
                 THEN v-job = string(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
 
@@ -1535,14 +1535,14 @@ if td-show-parm then run show-param.
 
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt.
 
-        v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+        v-job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)) .
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
          lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
          lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
          lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -1806,8 +1806,8 @@ PROCEDURE temp-job :
 
   FOR EACH job
       WHERE job.company EQ cocode
-        AND job.job-no  EQ SUBSTR(ip-job-no,1,6)
-        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,7,2))
+        AND job.job-no  EQ SUBSTR(ip-job-no,1,iJobLen)
+        AND job.job-no2 EQ INT(SUBSTR(ip-job-no,(iJobLen + 1),3))
       NO-LOCK:
     RUN temp-create (ROWID(job)).
   END.

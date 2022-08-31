@@ -84,6 +84,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_cstattch AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_cstattch-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-attach AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
@@ -324,6 +325,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/f-add.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_f-add ).
+       RUN set-position IN h_f-add ( 1.00 , 26.20 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/cstattch.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -336,8 +345,11 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_cstattch-2. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_cstattch-2 ).
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_cstattch-2 ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_cstattch-2 ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
@@ -502,6 +514,23 @@ PROCEDURE local-exit :
    
    RETURN.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Add W-Win
+PROCEDURE Select_Add :
+/*------------------------------------------------------------------------------
+  Purpose:
+  Parameters:  <none>
+  Notes:
+------------------------------------------------------------------------------*/
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
+   RUN add-item IN WIDGET-HANDLE(char-hdl).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

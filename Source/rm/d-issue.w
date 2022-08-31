@@ -28,6 +28,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -300,11 +301,11 @@ DEFINE FRAME F-Main
     BGCOLOR 15 FONT 1
     rm-rctd.job-no AT ROW 3.62 COL 29.8 COLON-ALIGNED HELP
     ""
-    LABEL "Job" FORMAT "x(6)"
+    LABEL "Job" FORMAT "x(9)"
     VIEW-AS FILL-IN 
     SIZE 23.2 BY 1
     BGCOLOR 15 FONT 1
-    rm-rctd.job-no2 AT ROW 3.62 COL 53.4 COLON-ALIGNED NO-LABELS FORMAT "99"
+    rm-rctd.job-no2 AT ROW 3.62 COL 53.4 COLON-ALIGNED NO-LABELS FORMAT "999"
     VIEW-AS FILL-IN 
     SIZE 5.8 BY 1
     BGCOLOR 15 FONT 1
@@ -515,8 +516,7 @@ ON HELP OF FRAME F-Main
         /* gdm - 08070907 */
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN 
-                lv-job-no              = FILL(" ", 6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE ))) +
-               TRIM(rm-rctd.job-no:SCREEN-VALUE)
+                lv-job-no              = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE)) 
                 char-val               = ""
                 v-number-rows-selected = 0
                 look-recid             = 0.
@@ -2141,7 +2141,7 @@ PROCEDURE lookup-job-mat :
             FOR EACH job-mat
                 WHERE job-mat.company    EQ cocode
                 AND job-mat.job        EQ job.job 
-                AND job-mat.job-no     EQ INPUT rm-rctd.job-no
+                AND job-mat.job-no     EQ rm-rctd.job-no:SCREEN-VALUE
                 AND job-mat.job-no2    EQ INPUT rm-rctd.job-no2 
                 AND (ip-for-item-only OR
                 (job-mat.frm      EQ INT(rm-rctd.s-num:SCREEN-VALUE) AND
@@ -2518,7 +2518,7 @@ PROCEDURE new-job-no :
         DO:
             ASSIGN
                 lv-job-no = rm-rctd.job-no:SCREEN-VALUE 
-                lv-job-no = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no).
+                lv-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) .
 
             RELEASE job-hdr.
 
@@ -2931,7 +2931,7 @@ PROCEDURE valid-job-no :
         DO:
             ASSIGN
                 lv-job-no                   = rm-rctd.job-no:SCREEN-VALUE 
-                rm-rctd.job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(lv-job-no))) + TRIM(lv-job-no)
+                rm-rctd.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', lv-job-no)) 
                 lv-po-no                    = INT(rm-rctd.po-no:SCREEN-VALUE ).
 
             IF NOT CAN-FIND(FIRST job
@@ -3449,8 +3449,7 @@ PROCEDURE validate-jobmat :
         
             /* gdm - */
             ASSIGN 
-                lv-job-no              = FILL(" ", 6 - LENGTH(TRIM(rm-rctd.job-no:SCREEN-VALUE ))) +
-                  TRIM(rm-rctd.job-no:SCREEN-VALUE)
+                lv-job-no              = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', rm-rctd.job-no:SCREEN-VALUE)) 
                 char-val               = ""
                 v-number-rows-selected = 0
                 look-recid             = 0.

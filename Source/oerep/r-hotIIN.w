@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */     
 
 CREATE WIDGET-POOL.
 
@@ -97,22 +98,22 @@ RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
 
 ASSIGN 
     cTextListToSelect  = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
-                           "Order #,Sales,Rel Qty,Rel Date,Rel#,Order Line Prom Date,Style," +
+                           "Order #,Unit Price,Rel Qty,Rel Date,Rel#,Order Line Prom Date,Style," +
                            "Line Promise Date Change Reason,Last Machine,Job#,Job Promise Date,Order Promise Date," +
                            "Order LINE Promise Date Priority,LastActionOnJob,Full Job Number"
     cFieldListToSelect = "qty-hand,cust-name,item,desc,cat,po," +
-                            "order,sales,rel-qty,rel-date,rel,pro-date,style," +
+                            "order,unitPrice,rel-qty,rel-date,rel,pro-date,style," +
                             "pro-date-reason,last-mch,job-no,job-prom-date,ord-prom-date," + 
                             "prom-code,LastActionOnJob,full-job-no"
                             
-    cFieldLength       = "12,30,15,30,5,15," + "7,15,11,8,10,10,6," + "32,12,9,11,13," + "18,15,15"
+    cFieldLength       = "12,30,15,30,5,15," + "8,15,11,8,10,10,6," + "32,12,13,11,13," + "18,15,19"
     cFieldType         = "i,c,c,c,c,c," + "i,i,i,c,i,c,c," + "c,c,c,c,c," + "c,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
     cTextListToDefault = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
-                           "Order #,Sales,Rel Qty,Rel Date,Rel#" .
+                           "Order #,Unit Price,Rel Qty,Rel Date,Rel#" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

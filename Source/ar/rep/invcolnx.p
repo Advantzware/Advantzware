@@ -72,7 +72,7 @@ def var v-t-price as dec format ">>>>>>9.99" no-undo.
 def var v-po-no like ar-invl.po-no no-undo.
 def var v-bill-i as char format "x(25)" no-undo.
 def var v-ord-no like oe-ord.ord-no no-undo.
-def var v-job-no AS CHAR FORMAT "x(13)" no-undo.
+def var v-job-no AS CHAR FORMAT "x(15)" no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
@@ -97,29 +97,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 DEF VAR cTermsImage1  AS CHARACTER FORM "x(200)" NO-UNDO.
 DEF VAR cTermsImage2  AS CHARACTER FORM "x(200)" NO-UNDO.
@@ -168,6 +146,7 @@ ASSIGN
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
+      
       IF ar-inv.sold-name <> "" THEN
          assign  v-shipto-name = ar-inv.sold-name
               v-shipto-addr[1] = ar-inv.sold-addr[1]
@@ -365,6 +344,25 @@ ASSIGN
              lv-bol-no = ar-invl.bol-no.
              .
    END.
+   
+   FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no:
+           FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
+              oe-boll.b-no = oe-bolh.b-no AND
+              oe-boll.i-no = ar-invl.i-no AND
+              oe-boll.ord-no = ar-invl.ord-no:
+
+                                      
+              ASSIGN cLocation     = oe-boll.loc .
+           END. /* each oe-boll */   
+   END. /* each oe-bolh */
+      
+   RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+          
+        IF NOT lValid THEN
+        DO:
+            MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.
+        ASSIGN ls-full-img1 = cRtnChar + ">" .
 
  {ar/rep/invcolnx.i}  /* xprint form */
 
@@ -475,26 +473,25 @@ ASSIGN
                 AND job-hdr.i-no EQ ar-invl.i-no NO-LOCK NO-ERROR.
             END.
             
-            v-job-no = fill(" ",6 - length(trim(ar-invl.job-no))) +
-               trim(ar-invl.job-no) .
+            v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', ar-invl.job-no))).
             
             IF v-job-no EQ "" AND AVAIL job-hdr THEN
-                v-job-no = fill(" ",6 - length(trim(job-hdr.job-no))) +
-                          trim(job-hdr.job-no) .
+                v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', job-hdr.job-no))).
+                
             IF AVAIL job-hdr THEN
                 v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
 
             PUT space(1)
                 v-po-no 
-                ar-invl.part-no  SPACE(1)
+                ar-invl.part-no FORMAT "x(15)" SPACE(1)
                 v-i-dscr FORM "x(30)" 
                 v-ship-qty  format "->>>>>>9" SPACE(2)
                 v-price  format "->>,>>9.9999"                
                 ar-invl.amt  format "->>>,>>9.99"                
                 SKIP
                 SPACE(1)
-                v-job-no /*v-ord-no*/ SPACE(2)
-                ar-invl.i-no SPACE(1)
+                v-job-no /*v-ord-no*/ 
+                ar-invl.i-no AT 17 SPACE(1)
                 v-i-dscr2  SPACE(11)
                 v-pc  FORM "x" SPACE(7)
                 v-price-head 

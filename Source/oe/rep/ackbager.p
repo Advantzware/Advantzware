@@ -78,30 +78,8 @@ def var v-duelist as cha init "AM,ASAP,BY,CPU,CR,DOS,HFR,HOLD,HOT,INK,MH,MUST,NB
 def var v-duedscr as cha init "AM Delivery,As Soon As Possible,BY,Customer P/U,Credit Hold,On Due Date or Sooner,Hold For Release,Hold,Hot,W/F Ink,Make & Hold,Must,Not Before,Or Earlier,On,Partial Production Run,Rework,Rush,Tooling,Work Order,$$$" no-undo.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "ACKHEAD" no-lock no-error.
@@ -194,6 +172,21 @@ find first company where company.company eq cocode no-lock no-error.
   
   FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       FIRST oe-ord WHERE RECID(oe-ord) EQ report.rec-id:
+
+      FIND FIRST cust
+           WHERE cust.company EQ cocode
+             AND cust.cust-no EQ oe-ord.cust-no
+             NO-LOCK NO-ERROR.
+      IF AVAIL cust THEN 
+      ASSIGN cCustomerNo = cust.cust-no
+       cCustomerLocation = cust.loc .
+      
+      RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      ASSIGN ls-full-img1 = cRtnChar + ">" .
 
       if oe-ord.sman[2] eq "" and oe-ord.sman[3] eq "" then
         v-salesman = oe-ord.sman[1].

@@ -28,7 +28,7 @@ def var v-due-date         like ar-inv.due-date no-undo.
 def VAR v-halfp            as log.
 def var v-x as char format "x(4)" initial "" no-undo.
 def var v-uom like inv-line.pr-uom no-undo.
-def var v-job as char format "x(9)" no-undo.
+def var v-job as char format "x(13)" no-undo.
 def var v-bol-no like inv-head.bol-no no-undo.
 def var v as INT NO-UNDO.
 def var v-tot-sqft as dec format ">,>>>,>>9.99" no-undo.
@@ -63,7 +63,7 @@ form ar-invl.qty           format ">>>>>>9-"
 
 form ar-invl.inv-qty           format ">>>>>>9-"
      v-x               at 10   format "x(4)"
-     v-job             at 15   format "x(9)"
+     v-job             at 15   format "x(13)"
      ar-invl.i-no      at 29   format "x(15)"
      ar-invl.unit-pr   to 67   format ">>>>9.99"
      v-uom             AT 68   FORMAT "x(2)"
@@ -333,9 +333,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     "   X" else "X   ".
     end.
     ASSIGN v-uom     = ar-invl.pr-uom
-           v-job     = fill(" ",6 - length(trim(ar-invl.job-no))) +
-                       trim(ar-invl.job-no) + "-" +
-                       trim(string(ar-invl.job-no2,"99"))
+           v-job     = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2)))
            v-bol-no  = ar-invl.bol-no.
 
     if v-print-fmt eq "TriState" then

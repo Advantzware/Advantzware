@@ -98,7 +98,7 @@ DEFINE BROWSE BROWSE-5
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-5 Dialog-Frame _FREEFORM
   QUERY BROWSE-5 DISPLAY
       probeit.cust-no FORMAT "x(8)":U WIDTH 12
-      probeit.part-no COLUMN-LABEL "Part Number" FORMAT "x(20)":U
+      probeit.part-no COLUMN-LABEL "Part Number" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       probeit.bl-qty COLUMN-LABEL "Requested Qty" FORMAT ">>>,>>>,>>>":U
       probeit.yld-qty FORMAT ">>>,>>>,>>>":U

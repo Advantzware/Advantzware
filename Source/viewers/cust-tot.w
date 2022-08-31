@@ -39,6 +39,7 @@ CREATE WIDGET-POOL.
 {custom/gperiod.i}
 {custom/persist.i}
 DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
+{sys/inc/custpass.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -753,9 +754,9 @@ PROCEDURE lyytd-tot :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
+  IF NOT ll-secure AND v-custpass THEN RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
       
-  IF ll-secure THEN DO:
+  IF ll-secure OR NOT v-custpass THEN DO:
     RUN ar/d-ytdbal.w (ROWID(cust)).
 
     FIND CURRENT cust NO-LOCK.
@@ -774,9 +775,9 @@ PROCEDURE recalc-tot :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
+  IF NOT ll-secure AND v-custpass THEN RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
       
-  IF ll-secure THEN DO:
+  IF ll-secure OR NOT v-custpass THEN DO:
     RUN ar/d-rectot.w (ROWID(cust)).
 
     FIND CURRENT cust NO-LOCK.

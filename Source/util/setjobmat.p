@@ -23,9 +23,9 @@ FOR EACH company NO-LOCK,
     NO-LOCK:
 
   DISPLAY job-mat.company LABEL "Company"
-          TRIM(job-mat.job-no) + STRING(job-mat.job-no2,"99")
+          TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-mat.job-no, job-mat.job-no2)))
                           LABEL "Job#"
-                          FORMAT "x(9)"
+                          FORMAT "x(13)"
           job-mat.rm-i-no LABEL "RM Item#"
                           FORMAT "X(20)".
 

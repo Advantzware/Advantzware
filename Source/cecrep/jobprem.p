@@ -3,7 +3,7 @@
 /*  factory ticket                                                            */
 /* -------------------------------------------------------------------------- */
 /*  YSK 06/08/01  change local var v-out1-id, v-out2-id to shared var for despr~nt1.p  */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
@@ -120,16 +120,14 @@ do v-local-loop = 1 to v-local-copies:
         where job-hdr.company               eq cocode
           and job-hdr.ftick-prnt            eq reprint
 
-          and job-hdr.job-no                ge substr(fjob-no,1,6)
-          and job-hdr.job-no                le substr(tjob-no,1,6)
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  ge fjob-no
-
-          and fill(" ",6 - length(trim(job-hdr.job-no))) +
-              trim(job-hdr.job-no) +
-              string(job-hdr.job-no2,"99")  le tjob-no,
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  GE fjob-no
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
+	      TRIM(job-hdr.job-no) +
+	      STRING(job-hdr.job-no2,"999")  LE tjob-no
+	  AND job-hdr.job-no2 GE fjob-no2
+          AND job-hdr.job-no2 LE tjob-no2,
 
         first job
         where job.company                   eq cocode
@@ -215,7 +213,7 @@ do v-local-loop = 1 to v-local-copies:
 /*                         and eb.form-no     eq job-hdr.frm                          */
 /*                         AND eb.blank-no > 0 NO-LOCK NO-ERROR.                      */
         ASSIGN
-          v-bar-no = /*IF AVAIL eb THEN eb.spc-no ELSE */ trim(job-hdr.job-no) + "-" + trim(STRING(job-hdr.job-no2,"99")).
+          v-bar-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))).
           /* v-bar-no = barCode(v-bar-no).*/
 
 
@@ -419,6 +417,28 @@ do v-local-loop = 1 to v-local-copies:
                 xeb.plate-no when avail xeb
                 "<=#7> DIE CUTTING, SLIT, & SAW"                
             with no-box no-labels frame m2 width 145 NO-ATTR-SPACE STREAM-IO.
+            
+        /* PREMIER logic to show each ink on estimate - start */
+        FOR EACH w-i:
+          DELETE w-i.
+        END.
+
+        DO i = 1 TO EXTENT(xeb.i-code):
+          IF xeb.i-code[i] NE "" THEN DO:
+            CREATE w-i.
+            ASSIGN
+             w-i.i-code = xeb.i-code[i]
+             w-i.i-dscr = xeb.i-dscr[i]
+             .
+             FOR EACH job-mat NO-LOCK
+                 WHERE job-mat.company EQ cocode
+                   AND job-mat.job     EQ job-hdr.job
+                   AND job-mat.frm     EQ xeb.form-no
+                   AND job-mat.i-no    EQ xeb.i-code[i]:
+                 w-i.i-qty  = job-mat.qty.    
+             END.      
+          END.
+        END.     
 
         i = 0.
         for each w-i:
@@ -527,9 +547,9 @@ do v-local-loop = 1 to v-local-copies:
 
         j = 0.
         v-xg-flag = (xef.xgrain eq "S" AND xef.est-type GE 5) OR
-                     xef.xgrain eq "B".
+                     xef.xgrain eq "B".  
         IF CAN-FIND(FIRST ttScoreLine) THEN
-            RUN pGetScores(v-xg-flag, OUTPUT v-len-score). 
+            RUN pGetScores(v-xg-flag, OUTPUT v-len-score, OUTPUT v-score-type). 
         ELSE DO:
             v-len-score2 = "".
             IF v-len-score <> "" THEN DO:
@@ -542,8 +562,8 @@ do v-local-loop = 1 to v-local-copies:
                      j = j + 1.
                      v-tmp-stype = IF v-xg-flag THEN xeb.k-len-scr-type2[j]
                                    ELSE xeb.k-wid-scr-type2[j].
-                     /*SUBSTRING(v-len-score,i,1) = v-tmp-stype.*/
-                     v-len-score2[j] = v-tmp-score + v-tmp-stype.
+                      
+                     v-len-score2[j] = (IF J EQ 1 THEN " " ELSE "") + v-tmp-stype + v-tmp-score .                      
                      v-tmp-score = "".
                   END.
                   ELSE v-tmp-score = v-tmp-score + " " /*SUBSTRING(v-len-score,i,1)*/.
@@ -554,10 +574,10 @@ do v-local-loop = 1 to v-local-copies:
                   IF v-len-score2[i] <> "" THEN v-score-type = v-score-type + v-len-score2[i] .
                END.
             END.
-        END.
+        END.    
         /* 6th Line 2nd Row of boxes */ 
         display "<=#5><R+4> Score:"
-                 v-len-score     WHEN xstyle.TYPE <> "F"  format "x(32)"
+                 v-len-score     WHEN xstyle.TYPE <> "F"  format "x(37)"
                 "<=#6><R-2> Ink 3:"
                 w-i.i-dscr
                 w-i.i-qty when w-i.i-qty ne 0
@@ -613,7 +633,7 @@ do v-local-loop = 1 to v-local-copies:
           
         ELSE v-qty-or-sup = "Qty Received: " + fill("_",24).
           
-        display "<=#5><R+5>" v-score-type FORM "x(32)" /*v-qty-or-sup*/
+        display "<=#5><R+5>" v-score-type FORM "x(44)" /*v-qty-or-sup*/
                      "<=#6><R-1> Color Desc:"
                      "<=#6><R-1><C+12> " xeb.i-coldscr when avail xeb
                      "<=#7><R+5> D/C Style:"                             
@@ -1100,18 +1120,23 @@ PROCEDURE pGetScores PRIVATE:
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER iplLength AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcScores AS CHARACTER NO-UNDO.
-
+DEFINE OUTPUT PARAMETER opcScoresType AS CHARACTER NO-UNDO.
+        
 IF iplLength THEN DO: 
     FIND FIRST ttScoreLine NO-LOCK
         WHERE ttScoreLine.PanelType = "L" NO-ERROR.
     IF AVAILABLE ttScoreLine THEN 
-        opcScores = ttScoreLine.ScoreLine.
+        ASSIGN
+        opcScores = ttScoreLine.ScoreLine
+        opcScoresType = "Type :  " + ttScoreLine.ScoreType.
 END.    
 ELSE DO:
+    opcScoresType = "Type : ".
     FOR EACH ttScoreLine NO-LOCK
         WHERE ttScoreLine.PanelType = "W"
-        AND TRIM(ttScoreLine.ScoreLine) NE "":
+        AND TRIM(ttScoreLine.ScoreLine) NE "":   
         opcScores = opcScores + " " + ttScoreLine.ScoreLine.
+        opcScoresType = opcScoresType +  FILL(" ",LENGTH(ttScoreLine.ScoreLine)) + ttScoreLine.ScoreType.
     END.
 END.            
 

@@ -71,7 +71,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef),OUTPUT opriEb).
                     
             END.
         END.        
@@ -94,7 +95,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -118,7 +120,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /* RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -142,7 +145,8 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
               FIND eb WHERE ROWID(eb) EQ opriEb NO-LOCK NO-ERROR.
               FIND FIRST ef OF eb NO-LOCK NO-ERROR.
          
-                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).
+                /*                RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).*/
+                RUN est/NewEstimateBlank.p(ROWID(ef), OUTPUT opriEb).
                     
             END.
         END.        
@@ -421,29 +425,36 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
         lCalcLayoutDim /*Recalc dimensions - Refactor - should be no if Style is foam*/).       
     
     RUN pCalcPacking(ROWID(eb)).
+    
+    FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+    FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+    
+    IF ttInputEst.cEstType EQ "SetSubAssembly" OR ttInputEst.cEstType EQ "MiscEstimate" THEN
+      ASSIGN
+          eb.sourceEstimate  = ttInputEst.cSourceEst
+          eb.flute           = IF ttInputEst.cEstType EQ "MiscEstimate" THEN ttInputEst.cFlute ELSE eb.flute
+          eb.test            = IF ttInputEst.cEstType EQ "MiscEstimate" THEN ttInputEst.cTest ELSE eb.test 
+          eb.cad-no          = ttInputEst.cCadID
+          eb.spc-no          = ttInputEst.cProject
+          ef.cost-msh        = ttInputEst.dMSF
+          ef.fr-msh          = ttInputEst.dForceFrt
+          ef.fr-uom          = ttInputEst.cForceFrtUom
+          ef.adder[7]        = ttInputEst.cAddersDscr1
+          ef.adder[8]        = ttInputEst.cAddersDscr2
+          ef.adder[9]        = ttInputEst.cAddersDscr3
+          ef.nc              = IF ttInputEst.cEstType EQ "SetSubAssembly" THEN NOT ttInputEst.lPurchased ELSE YES
+          eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
+          eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
+          .         
+    ASSIGN
+         ef.flute = eb.flute
+         ef.test  = eb.test.
+         
     IF ttInputEst.cEstType EQ "MiscEstimate" THEN DO:
         ASSIGN  
             est.estimateTypeID = "MISC" 
-            eb.pur-man         = YES 
-            eb.sourceEstimate  = ttInputEst.cSourceEst
-            eb.flute           = ttInputEst.cFlute
-            eb.test            = ttInputEst.cTest
-            eb.cad-no          = ttInputEst.cCadID
-            eb.spc-no          = ttInputEst.cProject
-            ef.cost-msh        = ttInputEst.dMSF
-            ef.fr-msh          = ttInputEst.dForceFrt
-            ef.fr-uom          = ttInputEst.cForceFrtUom
-            ef.adder[7]        = ttInputEst.cAddersDscr1
-            ef.adder[8]        = ttInputEst.cAddersDscr2
-            ef.adder[9]        = ttInputEst.cAddersDscr3
-            ef.nc              = YES
-            eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
-            eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
-            .
-             
-      FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
-      FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
-      
+            eb.pur-man         = YES                       
+            .                   
       IF eb.sourceEstimate NE "" THEN
       DO:
            FIND FIRST xeb EXCLUSIVE-LOCK
@@ -468,15 +479,43 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
       RUN cec/mach-seq.p (eb.form-no, eb.eqty, NO).
     END.
     
-    IF ttInputEst.cEstType EQ "NewSetEstimate" THEN DO:
+    IF ttInputEst.cEstType EQ "NewSetEstimate" OR ttInputEst.cEstType EQ "SetSubAssembly" THEN DO:
+      IF ttInputEst.cEstType EQ "NewSetEstimate" THEN
       ASSIGN
          est.estimateTypeID = "WOOD" .
+      ELSE do: 
+         est.estimateTypeID = "SetSubAssembly" .
+         FIND FIRST style NO-LOCK
+              WHERE style.company = est.company 
+                AND style.style = eb.style NO-ERROR.
+         IF AVAIL style THEN DO:
+            ASSIGN eb.adhesive = style.material[7]
+                   eb.gluelap = style.dim-gl
+                   eb.fpanel = style.dim-pan5
+                   eb.lock = style.dim-fit
+                   eb.tuck = style.dim-tk.
+            FIND FIRST ITEM NO-LOCK
+                 WHERE ITEM.company = eb.company 
+                   AND ITEM.i-no = eb.adhesive NO-ERROR.
+            IF AVAIL ITEM AND index("G,S,T",ITEM.mat-type) > 0 AND ITEM.i-no <> "No Joint"
+            THEN eb.lin-in = eb.dep.
+            FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+            {est/u2estc.i eb.gluelap 1}
+         END.  /* avail style */          
+         ASSIGN
+           eb.i-col = ttInputEst.iColor
+           eb.i-coat = ttInputEst.iCoating
+           eb.k-wid-array2 = 0
+           eb.k-len-array2 = 0.
+         RUN Estmate_DefaultAssignInks (BUFFER eb).
+         RUN est/BuildBoxDesign.p ("B", ROWID(eb)).
+      END. /*est.estimateTypeID = "SetSubAssembly" */  
+         
       IF NOT CAN-FIND(FIRST itemfg
                   WHERE itemfg.company EQ eb.company
                     AND itemfg.i-no    EQ eb.stock-no) THEN DO:                   
         RUN fg/ce-addfg.p (eb.stock-no).
-      END.
-         
+      END.       
     END.     
     ELSE IF ttInputEst.cEstType EQ "MoldTandem" THEN
     DO: 

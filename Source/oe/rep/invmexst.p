@@ -1,6 +1,7 @@
 /* ---------------------------------------------- oe/rep/invmexst.p */
 /* PRINT INVOICE   Xprint form for Premier Pkg  (PremierX and PremierS)       */
 /* -------------------------------------------------------------------------- */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
 DEF INPUT PARAM ip-print-s AS LOG NO-UNDO. /* for PremierS */
 {sys/inc/var.i shared}
@@ -112,6 +113,7 @@ DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 
 /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &XMLOutput=XMLInvoice &Company=cocode}
@@ -148,41 +150,6 @@ RUN XMLOutput (lXMLOutput,'','','Header').
             cTaxCode = 'Sales Tax'
             cCompanyID = ''
             .
-  RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-            OUTPUT cRtnChar, OUTPUT lRecFound).
-  IF lRecFound AND cRtnChar NE "" THEN DO:
-      cRtnChar = DYNAMIC-FUNCTION (
-                     "fFormatFilePath",
-                     cRtnChar
-                     ).
-                     
-      /* Validate the N-K-1 BusinessFormLogo image file */
-      RUN FileSys_ValidateFile(
-          INPUT  cRtnChar,
-          OUTPUT lValid,
-          OUTPUT cMessage
-          ) NO-ERROR.
-  
-      IF NOT lValid THEN DO:
-          MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-              VIEW-AS ALERT-BOX ERROR.
-      END.
-  END.
-
-IF cRtnChar NE "" THEN DO:
-    ASSIGN 
-        lChkImage = YES
-        ls-full-img1 = SEARCH(ls-full-img1)
-        ls-full-img1 = cRtnChar + ">".
-END.
-ELSE DO:
-    ASSIGN 
-        ls-image1 = SEARCH("images\premierinv.jpg")
-        FILE-INFO:FILE-NAME = ls-image1.
-    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-END.
-
     
     ASSIGN v-comp-add1 = ""
            v-comp-add2 = ""
@@ -339,7 +306,7 @@ END.
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = xinv-line.b-no 
                 /*oe-bolh.ord-no = xinv-line.ord-no*/ :
            v-pc = "P". /* partial*/ 
-           FOR EACH oe-boll fields(cases partial p-c) NO-LOCK WHERE
+           FOR EACH oe-boll fields(cases partial p-c loc) NO-LOCK WHERE
               oe-boll.company = oe-bolh.company AND
               oe-boll.b-no = oe-bolh.b-no AND
               oe-boll.i-no = xinv-line.i-no AND
@@ -348,7 +315,8 @@ END.
                                       /** Bill Of Lading TOTAL CASES **/
               ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
                      v-tot-pallets = v-tot-pallets + oe-boll.cases +
-                                     (if oe-boll.partial gt 0 then 1 else 0).
+                                     (if oe-boll.partial gt 0 then 1 else 0)
+                     cLocation     = oe-boll.loc.
               IF oe-boll.p-c THEN v-pc = "C". /*complete*/
               
            END. /* each oe-boll */
@@ -580,6 +548,24 @@ END.
         XMLPage = NO.
         /* rstark 05291402 */
 
+      RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      IF cRtnChar NE "" THEN DO:
+          ASSIGN 
+              lChkImage = YES
+              ls-full-img1 = SEARCH(ls-full-img1)
+              ls-full-img1 = cRtnChar + ">".
+      END.
+      ELSE DO:
+          ASSIGN 
+              ls-image1 = SEARCH("images\premierinv.jpg")
+              FILE-INFO:FILE-NAME = ls-image1.
+          ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+      END.
+
         {oe/rep/invmexst.i}  /* xprint form */
 
         ASSIGN
@@ -710,7 +696,8 @@ END.
             PUT v-price  format ">>>,>>9.99999"                
                 inv-line.t-price  format "->>>,>>9.99"                
                 SKIP
-                v-ord-no SPACE(10)
+                SPACE(1)
+                TRIM(STRING(v-ord-no,">>>>>>>9")) SPACE(7)
                 inv-line.i-no SPACE(1)
                 inv-line.part-dscr1  SPACE(11)
                 v-pc  FORM "x" SPACE(7)

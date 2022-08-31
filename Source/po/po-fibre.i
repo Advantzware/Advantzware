@@ -31,8 +31,7 @@ for each po-ordl WHERE
        
   assign
    v-print-lines = 5 + int(avail item)
-   v-job         = fill(" ",6 - length(trim(po-ordl.job-no))) +
-                   trim(po-ordl.job-no)
+   v-job         = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', po-ordl.job-no))
    xg-flag       = no.
    
   if v-job ne "" then
@@ -146,8 +145,7 @@ for each po-ordl WHERE
   if avail item and item.mat-type eq "B" then do:
     find first job
         where job.company eq cocode
-          and job.job-no  eq fill(" ",6 - length(trim(po-ordl.job-no))) +
-                                  trim(po-ordl.job-no)
+          and job.job-no  eq po-ordl.job-no
           and job.job-no2 eq po-ordl.job-no2
         no-lock no-error.
         
@@ -212,7 +210,7 @@ for each po-ordl WHERE
                else string(po-ordl.ord-qty,">>>>>9")
    v-ord-qty = fill(" ",6 - length(trim(v-ord-qty))) + trim(v-ord-qty).
   
-  if v-job ne "" then v-job = trim(v-job) + "-" + string(po-ordl.job-no2,"99").
+  if v-job ne "" then v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job, po-ordl.job-no2))).
     
   {po/po-fibr1.i v-mach[1] v-mach[2] v-mach[3] v-mach[4]}
     

@@ -257,7 +257,7 @@ PURPOSE:
 
       if last-of(tt-rdtlh.tag) /*and (zbal or v-qoh ne 0)*/ then do:
         if tt-fg-bin.job-no ne "" then
-          v-job-no = trim(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"99").
+          v-job-no = trim(tt-fg-bin.job-no) + "-" + string(tt-fg-bin.job-no2,"999").
         else
           v-job-no = "".
 
@@ -376,140 +376,6 @@ PURPOSE:
                            cExcelDisplay SKIP.
                  END.
         
-       /* if v-prt-cpn then do:
-
-          display itemfg.cust-no when v-first[2]
-                  itemfg.i-no    when v-first[1]
-                  itemfg.part-no when v-first[1] format "x(15)"  
-                  itemfg.i-name  when v-first[1] format "x(25)"
-                  tt-fg-bin.loc
-                  tt-fg-bin.loc-bin
-                  tt-fg-bin.tag
-                    SUBSTR(tt-fg-bin.tag,16,8)
-                                 WHEN SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no
-                                 @ tt-fg-bin.tag
-                  v-job-no
-                  v-qoh-s
-                  tt-fg-bin.pur-uom
-                  v-cost1   when v-prt-c
-                  v-tot-sum when v-prt-c
-                  v-ext-sum when v-prt-p
-                  v-gsl-sum when v-prt-c
-                  v-gsm-sum when v-prt-c
-                  v-all-sum when v-prt-c
-              with frame item-cost1 no-labels no-box down stream-io width 183.
-          down with frame item-cost1.
-
-          IF logExcelDump THEN DO: /* rdb 02/05/07  01090713 */
-            ASSIGN
-              chrCust = ""
-              chrINo  = ""
-              chrPart = "" 
-              chrName = ""
-              chrTag  = ""
-              decCost = 0
-              decTot  = 0
-              decExt  = 0
-              decGsl  = 0
-              decGsm  = 0
-              decAll  = 0.
-
-            IF v-first[2] THEN
-              chrCust = itemfg.cust-no.
-
-            IF v-first[1] THEN
-              ASSIGN
-                chrINo  = itemfg.i-no
-                chrPart = itemfg.part-no 
-                chrName = itemfg.i-name.
-
-            IF SUBSTR(tt-fg-bin.tag,1 , 15) EQ tt-fg-bin.i-no THEN
-              chrTag = SUBSTR(tt-fg-bin.tag, 16, 8).
-
-            IF v-prt-p THEN
-              decExt  = v-ext-sum.
-
-            IF v-prt-c THEN
-              ASSIGN
-                decCost = v-cost1
-                decTot  = v-tot-sum
-                decGsl  = v-gsl-sum
-                decGsm  = v-gsm-sum
-                decAll  = v-all-sum.
-
-            EXPORT STREAM excel DELIMITER "," 
-               chrCust chrINo chrPart chrName tt-fg-bin.loc tt-fg-bin.loc-bin
-               chrTag v-job-no v-qoh-s tt-fg-bin.pur-uom decCost decTot decExt 
-               decGsl decGsm decAll.
-          END.
-
-        end.
-        else do:
-          display itemfg.cust-no when v-first[2]
-                  itemfg.i-no    when v-first[1]
-                  itemfg.i-name  when v-first[1] format "x(25)"
-                  tt-fg-bin.loc
-                  tt-fg-bin.loc-bin
-                  tt-fg-bin.tag
-                    SUBSTR(tt-fg-bin.tag,16,8)
-                                 WHEN SUBSTR(tt-fg-bin.tag,1,15) EQ tt-fg-bin.i-no
-                                 @ tt-fg-bin.tag
-                  v-job-no
-                  v-qoh-s
-                  tt-fg-bin.pur-uom
-                  v-cost1   when v-prt-c
-                  v-tot-sum when v-prt-c
-                  v-ext-sum when v-prt-p
-                  v-gsl-sum when v-prt-c
-                  v-gsm-sum when v-prt-c
-                  v-all-sum when v-prt-c
-              with frame item-cost2 no-labels no-box down stream-io width 183.
-          down with frame item-cost2.
-
-          IF logExcelDump THEN DO: /* rdb 02/05/07  01090713 */
-            ASSIGN
-              chrCust = ""
-              chrINo  = ""
-              chrPart = "" 
-              chrName = ""
-              chrTag  = ""
-              decCost = 0
-              decTot  = 0
-              decExt  = 0
-              decGsl  = 0
-              decGsm  = 0
-              decAll  = 0.
-
-            IF v-first[2] THEN
-              chrCust = itemfg.cust-no.
-
-            IF v-first[1] THEN
-              ASSIGN
-                chrINo  = itemfg.i-no
-                chrPart = itemfg.part-no.
-                
-
-            IF SUBSTR(tt-fg-bin.tag,1 , 15) EQ tt-fg-bin.i-no THEN
-              chrTag = SUBSTR(tt-fg-bin.tag, 16, 8).
-
-            IF v-prt-p THEN
-              decExt  = v-ext-sum.
-
-            IF v-prt-c THEN
-              ASSIGN
-                decCost = v-cost1
-                decTot  = v-tot-sum
-                decGsl  = v-gsl-sum
-                decGsm  = v-gsm-sum
-                decAll  = v-all-sum.
-
-            EXPORT STREAM excel DELIMITER "," 
-               chrCust chrINo chrName tt-fg-bin.loc tt-fg-bin.loc-bin
-               chrTag v-job-no v-qoh-s tt-fg-bin.pur-uom decCost decTot decExt 
-               decGsl decGsm decAll.
-          
-          END.
-        end.*/
         
         assign
          v-prnt  = yes

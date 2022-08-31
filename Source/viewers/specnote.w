@@ -35,10 +35,14 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEF SHARED VAR v-prg-2 AS CHAR NO-UNDO.
 DEFINE SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEFINE VARIABLE saveNoteCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ip-rec_key AS CHARACTER NO-UNDO.
 {custom/globdefs.i}
+{sys/inc/var.i new shared}
+
+DEFINE BUFFER bjob-notes FOR notes.
 
 DEF TEMP-TABLE tt-notes LIKE notes.
 
@@ -446,6 +450,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteNote V-table-Win
+PROCEDURE deleteNote:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR lv-header-value AS CHAR NO-UNDO.
+
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+    RUN get-header-value IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-header-value).
+    
+    IF ENTRY(2,v-prg-2," ") EQ "oe/wOrderEntryMaster.w" THEN DO: 
+        FIND FIRST oe-ordl NO-LOCK WHERE 
+            oe-ordl.company EQ g_company AND 
+            oe-ordl.ord-no EQ INTEGER(ENTRY(1,lv-header-value,"-")) AND 
+            oe-ordl.line EQ INTEGER(ENTRY(2,lv-header-value,"-"))
+            NO-ERROR.
+             
+        IF AVAIL oe-ordl THEN DO:
+            FIND FIRST job NO-LOCK WHERE 
+                job.company EQ oe-ordl.company AND 
+                job.job-no EQ oe-ordl.job-no
+                NO-ERROR.
+            IF AVAIL job THEN DO:
+                FIND FIRST bjob-notes EXCLUSIVE WHERE 
+                    bjob-notes.rec_key EQ job.rec_key AND
+                    bjob-notes.note_code EQ notes.note_code AND 
+                    bjob-notes.note_form_no EQ notes.note_form_no AND 
+                    bjob-notes.note_title EQ notes.note_title
+                    NO-ERROR.
+                IF AVAIL bjob-notes THEN 
+                    DELETE bjob-notes.
+            END.
+        END.
+    END.
+    
+    IF ENTRY(2,v-prg-2," ") EQ "jc/w-jobcst.w" THEN DO: 
+        FIND FIRST job NO-LOCK WHERE 
+            job.company EQ g_company AND 
+            job.job-no EQ substring(lv-header-value,1,iJobLen)
+            NO-ERROR.
+        IF AVAIL job THEN DO:
+            FOR EACH oe-ordl NO-LOCK WHERE 
+                oe-ordl.company EQ job.company AND 
+                oe-ordl.job-no EQ job.job-no: 
+                FIND FIRST bjob-notes EXCLUSIVE WHERE 
+                    bjob-notes.rec_key EQ oe-ordl.rec_key AND
+                    bjob-notes.note_code EQ notes.note_code AND 
+                    bjob-notes.note_form_no EQ notes.note_form_no AND 
+                    bjob-notes.note_title EQ notes.note_title
+                    NO-ERROR.
+                IF AVAIL bjob-notes THEN 
+                    DELETE bjob-notes.
+            END.
+        END.    
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -504,14 +573,11 @@ PROCEDURE local-create-record :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN get-header-value IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-header-value).
   IF lv-header-value BEGINS "Estimate:" THEN DO:
-    /* RUN get-reckey2 IN Persistent-Handle (OUTPUT lv-reckey2).     */
      lv-reckey2 = SUBSTRING(lv-header-value,10,16).
      FIND FIRST eb WHERE eb.rec_key = lv-reckey2 NO-LOCK NO-ERROR.
-     IF AVAIL eb THEN ASSIGN notes.note_form_no = eb.form-no
-                              notes.note_form_no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(eb.form-no).     
-    /* MESSAGE lv-reckey2 SKIP
-         lv-header-value SKIP
-         eb.part-no VIEW-AS ALERT-BOX. */
+     IF AVAIL eb THEN ASSIGN 
+        notes.note_form_no = eb.form-no
+        notes.note_form_no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(eb.form-no).     
   END.
 
   {methods/run_link.i "CONTAINER-SOURCE" "pGetChargeCode" "(OUTPUT cChargeCode)"}
@@ -549,8 +615,10 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  
   DEFINE VARIABLE ll AS LOGICAL NO-UNDO.
-
+  DEF VAR lv-header-value AS CHAR NO-UNDO.
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   saveNoteCode = notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
   RUN valid-note_code NO-ERROR.
@@ -572,6 +640,63 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   BUFFER-COMPARE notes TO tt-notes SAVE RESULT IN ll.
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
+  
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+    RUN get-header-value IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-header-value).
+
+    IF ENTRY(2,v-prg-2," ") EQ "oe/wOrderEntryMaster.w" THEN DO: 
+        FIND FIRST oe-ordl NO-LOCK WHERE 
+            oe-ordl.company EQ g_company AND 
+            oe-ordl.ord-no EQ INTEGER(ENTRY(1,lv-header-value,"-")) AND 
+            oe-ordl.line EQ INTEGER(ENTRY(2,lv-header-value,"-"))
+            NO-ERROR.
+             
+        IF AVAIL oe-ordl THEN DO:
+            FIND FIRST job NO-LOCK WHERE 
+                job.company EQ oe-ordl.company AND 
+                job.job-no EQ oe-ordl.job-no
+                NO-ERROR.
+            IF AVAIL job THEN DO:
+                FIND FIRST bjob-notes EXCLUSIVE WHERE 
+                    bjob-notes.rec_key EQ job.rec_key AND
+                    bjob-notes.note_code EQ notes.note_code AND 
+                    bjob-notes.note_form_no EQ notes.note_form_no AND 
+                    bjob-notes.note_title EQ notes.note_title
+                    NO-ERROR.
+                IF NOT AVAIL bjob-notes THEN DO:
+                    CREATE bjob-notes.
+                END.
+                BUFFER-COPY notes TO bjob-notes
+                ASSIGN 
+                    bjob-notes.rec_key = job.rec_key.
+            END.
+        END.
+    END.
+    
+    IF ENTRY(2,v-prg-2," ") EQ "jc/w-jobcst.w" THEN DO: 
+        FIND FIRST job NO-LOCK WHERE 
+            job.company EQ g_company AND 
+            job.job-no EQ substring(lv-header-value,1,iJobLen)
+            NO-ERROR.
+        IF AVAIL job THEN DO:
+            FOR EACH oe-ordl NO-LOCK WHERE 
+                oe-ordl.company EQ job.company AND 
+                oe-ordl.job-no EQ job.job-no: 
+                FIND FIRST bjob-notes EXCLUSIVE WHERE 
+                    bjob-notes.rec_key EQ oe-ordl.rec_key AND
+                    bjob-notes.note_code EQ notes.note_code AND 
+                    bjob-notes.note_form_no EQ notes.note_form_no AND 
+                    bjob-notes.note_title EQ notes.note_title
+                    NO-ERROR.
+                IF NOT AVAIL bjob-notes THEN DO:
+                    CREATE bjob-notes.
+                END.
+                BUFFER-COPY notes TO bjob-notes
+                ASSIGN 
+                    bjob-notes.rec_key = job.rec_key.
+            END.
+        END.    
+    END.
   
 END PROCEDURE.
 
@@ -674,56 +799,56 @@ PROCEDURE valid-note_form_no PRIVATE :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR ls-header   AS CHAR NO-UNDO.
-  DEF VAR ls-header1  AS CHAR NO-UNDO.
-  DEF VAR char-hdl    AS CHAR NO-UNDO.
+    DEF VAR ls-header   AS CHAR NO-UNDO.
+    DEF VAR ls-header1  AS CHAR NO-UNDO.
+    DEF VAR char-hdl    AS CHAR NO-UNDO.
+    DEF VAR cNoteRecKey AS CHAR NO-UNDO.
+    DEF VAR cTestString AS CHAR NO-UNDO.
 
-  DEFINE BUFFER b1-job  FOR job.
+    DEFINE BUFFER b1-job  FOR job.
 
-  {methods/lValidateError.i YES}
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
-  RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).
+    {methods/lValidateError.i YES}
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
+    RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT cNoteRecKey).
+    RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).
 
-  IF LENGTH (ls-header) < 8 THEN
-    ASSIGN  ls-header1  = ls-header /* save original job-no / est-no */
-            ls-header   = fill(" ",8 - LENGTH(TRIM(ls-header))) +
-                                              TRIM(ls-header).
-  DO WITH FRAME {&FRAME-NAME}:
+    IF LENGTH (ls-header) < 8 THEN ASSIGN  
+        ls-header1  = ls-header /* save original job-no / est-no */
+        ls-header   = fill(" ",8 - LENGTH(TRIM(ls-header))) + TRIM(ls-header).
+  
+    DO WITH FRAME {&FRAME-NAME}:
+        IF INT(notes.note_form_no:SCREEN-VALUE) NE 0 
+        AND NOT CAN-FIND (FIRST ef WHERE ef.company EQ g_company
+                          AND ef.est-no  EQ ls-header
+                          AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
 
-    IF INT(notes.note_form_no:SCREEN-VALUE) NE 0 AND
-       NOT CAN-FIND (FIRST ef WHERE ef.company EQ g_company
-                                AND ef.est-no  EQ ls-header
-                                AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
-
-      /* Check if ls-header is a job-no (not an est-no). */
-      FIND FIRST b1-job NO-LOCK
-           WHERE b1-job.company = g_company
-             AND b1-job.job-no  = STRING (ls-header1, 'x(6)') NO-ERROR.
-
-      /* If it is a job-no: */
-      IF AVAIL b1-job THEN DO:
-
-        /* Reformat the job's est-no to 8 chars. */
-        ASSIGN  ls-header1   = fill(" ",8 - LENGTH(TRIM(b1-job.est-no))) +
-                                                   TRIM(b1-job.est-no).
-
-        /* See if we can find it this time. If so, we're good. */
-        IF CAN-FIND (FIRST ef WHERE ef.company EQ g_company
-                                AND ef.est-no  EQ ls-header1
-                                AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
-            RETURN.
+            /* Check if ls-header is a job-no (not an est-no). */
+            FIND FIRST b1-job NO-LOCK
+                WHERE b1-job.company = g_company
+                AND b1-job.est-no EQ ls-header
+                NO-ERROR.
+            
+            /* If it is a job-no: */
+            IF AVAIL b1-job THEN DO:
+                /* Reformat the job's est-no to 8 chars. */
+                ASSIGN  ls-header1   = fill(" ",8 - LENGTH(TRIM(b1-job.est-no))) +
+                                                       TRIM(b1-job.est-no).
+                /* See if we can find it this time. If so, we're good. */
+                IF CAN-FIND (FIRST ef WHERE ef.company EQ g_company
+                                    AND ef.est-no  EQ ls-header1
+                                    AND ef.form-no EQ INT(notes.note_form_no:SCREEN-VALUE)) THEN DO:
+                    {methods/lValidateError.i NO}
+                    RETURN.
+                END.
+            END.
+            MESSAGE 'Invalid Form.'
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            APPLY "entry" TO notes.note_form_no.
+            RETURN ERROR.
         END.
-      END.
-
-      MESSAGE 'Invalid Form.'
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
-      APPLY "entry" TO notes.note_form_no.
-      RETURN ERROR.
     END.
-  END.
 
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

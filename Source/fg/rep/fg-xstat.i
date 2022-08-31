@@ -177,7 +177,7 @@ FOR EACH ttCustList
                         DO:
                             v-job-no = "".
                             IF oe-ordl.job-no NE "" THEN
-                              v-job-no = STRING(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99").
+                              v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 
 /*XXX*/
                             v-disp-item = YES.
@@ -431,7 +431,7 @@ FOR EACH ttCustList
 
                 v-job-no = "".
                 IF oe-ordl.job-no NE "" THEN
-                  v-job-no = STRING(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99").
+                  v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))).
 /*XXX*/
                 v-disp-item = YES.
 /*              if (v-qty-onh eq 0) and (itemfg.q-ship gt oe-ordl.qty) then do: */

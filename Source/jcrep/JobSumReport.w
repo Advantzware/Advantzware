@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -103,30 +104,30 @@ DEFINE VARIABLE begin_job-closeDate AS DATE FORMAT "99/99/9999":U INITIAL 01/01/
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_close-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Close Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 12 BY 1 NO-UNDO.
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_jobstat AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -144,13 +145,13 @@ DEFINE RECTANGLE RECT-7
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_job-no AT ROW 2.67 COL 24 COLON-ALIGNED HELP
+     begin_job-no AT ROW 2.67 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      begin_job-no2 AT ROW 2.67 COL 36 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
      end_job-no AT ROW 2.67 COL 63 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 2.67 COL 74 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 2.67 COL 79 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd_jobstat AT ROW 4.48 COL 26 NO-LABEL WIDGET-ID 2
      begin_job-closeDate AT ROW 6 COL 23.8 COLON-ALIGNED HELP
@@ -557,7 +558,7 @@ PROCEDURE pFillData :
 
         IF FIRST-OF(ttJob.iJobNo2) THEN
         DO:           
-            RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iRowCount), STRING(TRIM(ttJob.cJobNo) + "-" + STRING(ttJob.iJobNo2,"99"))).
+            RUN Excel_SetCellValue IN ghExcelProcs ("B" + STRING(iRowCount), STRING(TRIM(ttJob.cJobNo) + "-" + STRING(ttJob.iJobNo2,"999"))).
             RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iRowCount), (IF ttJob.dtCloseDate EQ ? THEN " " ELSE STRING(ttJob.dtCloseDate,"99/99/9999"))).
             
             iRowCount = iRowCount + 1. 
@@ -618,16 +619,23 @@ PROCEDURE pPrintDepartment :
             
             RUN pPrintOperation (INPUT-OUTPUT iopiRowCount, BUFFER ttOperation).
         END.
-        RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  "Variance").                                                  
-        RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttDepartment.dRunQtyVar)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("C" + STRING(iopiRowCount),  "Efficiency").                                                  
         RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupHrsVar)).
         RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttDepartment.dRunHrsVar)).
         RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttDepartment.dSpeedVar)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ttDepartment.dCostVar)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("L" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupWasteVar)).
-        RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ttDepartment.dRunWasteVar)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ttDepartment.dCostVar)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("N" + STRING(iopiRowCount),  STRING(ttDepartment.dSetupWasteVar)).
+        RUN Excel_SetCellValue IN ghExcelProcs ("O" + STRING(iopiRowCount),  STRING(ttDepartment.dRunWasteVar)).
         iopiRowCount = iopiRowCount + 1.                     
         RUN Excel_InsertRowsAbove IN ghExcelProcs (iopiRowCount, 2).
+        //Set formatting after adding the row to avoid copying formatting down to next cells.
+        RUN Excel_SetCellFormat IN ghExcelProcs ("F" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("G" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("H" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("M" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("N" + STRING(iopiRowCount - 1),  "0.00%").
+        RUN Excel_SetCellFormat IN ghExcelProcs ("O" + STRING(iopiRowCount - 1),  "0.00%").
+
         iopiRowCount = iopiRowCount + 1. 
     END.      
     iopiRowCount = iopiRowCount + 1.
@@ -694,10 +702,12 @@ PROCEDURE pPrintMaterial :
         RUN Excel_SetCellValue IN ghExcelProcs ("D" + STRING(iopiRowCount),  STRING(ttMaterial.cStdUom)).
         RUN Excel_SetCellValue IN ghExcelProcs ("E" + STRING(iopiRowCount),  STRING(ttMaterial.dQtyAct)).
         RUN Excel_SetCellValue IN ghExcelProcs ("F" + STRING(iopiRowCount),  STRING(ttMaterial.cActUom)).
+        RUN Excel_SetCellFormat IN ghExcelProcs ("G" + STRING(iopiRowCount), STRING("0.00%")). 
         RUN Excel_SetCellValue IN ghExcelProcs ("G" + STRING(iopiRowCount),  STRING(ttMaterial.dQtyVar)). 
         RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ttMaterial.dCostStd)).         
         RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ttMaterial.dCostAct)).         
-        RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttMaterial.dCostVar)).           
+        RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ttMaterial.dCostVar)). 
+        RUN Excel_SetCellFormat IN ghExcelProcs ("J" + STRING(iopiRowCount), STRING("0.00%")).
             
         iopiRowCount = iopiRowCount + 1.      
         RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount).                        
@@ -731,12 +741,13 @@ PROCEDURE pPrintOperation :
     RUN Excel_SetCellValue IN ghExcelProcs ("H" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSpeed)).
     RUN Excel_SetCellValue IN ghExcelProcs ("I" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dMRCrew)).
     RUN Excel_SetCellValue IN ghExcelProcs ("J" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunCrew)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dCost)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("L" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSetupWaste)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunWaste)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("N" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTChargeable)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("O" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTNotChargeable)).
-    RUN Excel_SetCellValue IN ghExcelProcs ("P" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dDownTimeHrs)).        
+    RUN Excel_SetCellValue IN ghExcelProcs ("K" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dCost - ipbf-ttOperation.dDTCost)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("L" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dDTCost)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("M" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dCost)).     
+    RUN Excel_SetCellValue IN ghExcelProcs ("N" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dSetupWaste)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("O" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dRunWaste)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("P" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.cDTChargeable)).
+    RUN Excel_SetCellValue IN ghExcelProcs ("Q" + STRING(iopiRowCount),  STRING(ipbf-ttOperation.dDownTimeHrs)).             
     iopiRowCount = iopiRowCount + 1.
     RUN Excel_InsertRowAbove IN ghExcelProcs (iopiRowCount).   
     
@@ -781,8 +792,8 @@ PROCEDURE run-report :
     EMPTY TEMP-TABLE ttItem.    
     
     
-    DO WITH FRAME {&FRAME-NAME}:    
-        RUN jc/jobSumReport.p(cocode, begin_job-no:SCREEN-VALUE, STRING(begin_job-no2:SCREEN-VALUE,"99"), end_job-no:SCREEN-VALUE, STRING(begin_job-no2,"99"),
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN jc/jobSumReport.p(cocode, begin_job-no:SCREEN-VALUE, STRING(begin_job-no2,"999"), end_job-no:SCREEN-VALUE, STRING(end_job-no2,"999"),
             rd_jobstat:SCREEN-VALUE, begin_job-closeDate:SCREEN-VALUE, end_close-date:SCREEN-VALUE, 
             OUTPUT table ttJob,
             OUTPUT table ttDepartment,

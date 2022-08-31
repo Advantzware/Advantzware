@@ -27,6 +27,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -107,14 +108,14 @@ DEFINE VARIABLE begin_item AS CHARACTER FORMAT "X(10)":U
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending History Date" 
@@ -126,14 +127,14 @@ DEFINE VARIABLE end_item AS CHARACTER FORMAT "X(10)":U INITIAL "zzzzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      VIEW-AS FILL-IN 
-     SIZE 5 BY 1 NO-UNDO.
+     SIZE 5.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lbl_corr AS CHARACTER FORMAT "X(256)":U INITIAL "Corrugated?" 
      VIEW-AS FILL-IN 
@@ -510,7 +511,7 @@ def var purge-history# as logical format "Yes/No"  init yes  no-undo.
 def var v-b-date as date                                     no-undo.                        
 def var v-e-date as date                                     no-undo.                        
 def var v-job-no like job.job-no extent 2 initial [" ", " "] no-undo.
-def var v-job-no2 like job.job-no2 extent 2 initial [00, 99] no-undo.
+def var v-job-no2 like job.job-no2 extent 2 initial [000, 999] no-undo.
 
 session:set-wait-state("General").
 
@@ -521,10 +522,8 @@ assign
  purge-history# = tb_hist
  v-b-date       = begin_date
  v-e-date       = end_date
- v-job-no[1]    = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                  TRIM(begin_job-no) + STRING(INT(begin_job-no2),"99")
- v-job-no[2]    = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                  TRIM(end_job-no)   + STRING(INT(end_job-no2),"99").
+ v-job-no[1]    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
+ v-job-no[2]    = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) .
 
 EMPTY TEMP-TABLE tt-po.
 

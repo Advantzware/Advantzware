@@ -78,6 +78,7 @@ ll-sort-asc = NO /*oeinq*/  .
      FIRST ASI.oe-ordl NO-LOCK WHERE oe-ordl.company EQ oe-boll.company ~
                                AND oe-ordl.ord-no    EQ oe-boll.ord-no ~
                                AND oe-ordl.i-no    EQ oe-boll.i-no    ~
+                               AND oe-ordl.line    EQ oe-boll.line    ~
                                AND oe-ordl.part-no BEGINS fi_part-no  ~
                                AND oe-ordl.i-name  BEGINS fi_i-name 
 
@@ -95,6 +96,7 @@ ll-sort-asc = NO /*oeinq*/  .
 &SCOPED-DEFINE for-each31                                            ~
      EACH ASI.oe-ordl NO-LOCK WHERE oe-ordl.company EQ oe-boll.company ~
                                AND oe-ordl.i-no    EQ oe-boll.i-no   ~
+                               AND oe-ordl.line    EQ oe-boll.line   ~
                                AND oe-ordl.ord-no    EQ oe-boll.ord-no   ~
                                AND oe-ordl.part-no BEGINS fi_part-no
 
@@ -157,8 +159,9 @@ oe-boll.po-no oe-bolh.cust-no oe-ordl.part-no oe-boll.i-no oe-ordl.i-name ~
 oe-bolh.ship-id oe-boll.bol-date get-release() @ lv-release oe-bolh.stat 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-bolh.bol-no ~
 oe-boll.ord-no oe-boll.po-no oe-bolh.cust-no oe-boll.i-no oe-ordl.i-name ~
-oe-bolh.ship-id
-&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-bolh oe-boll oe-ordl
+oe-bolh.ship-id oe-bolh.stat 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table oe-bolh oe-boll ~
+oe-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-bolh
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-boll
 &Scoped-define THIRD-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ordl
@@ -181,12 +184,11 @@ oe-bolh.ship-id
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fi_bol-no fi_ord-no fi_i-no fi_po-no ~
-fi_cust-no fi_i-name tb_posted btn_go btn_show Browser-Table fi_part-no ~
-RECT-1 
+&Scoped-Define ENABLED-OBJECTS Browser-Table fi_bol-no fi_ord-no fi_i-no ~
+fi_po-no fi_cust-no fi_i-name tb_posted btn_go btn_show fi_part-no RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS fi_bol-no fi_ord-no fi_i-no fi_po-no ~
-fi_cust-no fi_i-name tb_posted fi_sort-by  fi_part-no 
-//FI_moveCol
+fi_cust-no fi_i-name tb_posted fi_sort-by fi_part-no 
+
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 
@@ -238,11 +240,6 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
-/*DEFINE VARIABLE FI_moveCol AS CHARACTER FORMAT "X(4)":U 
-     VIEW-AS FILL-IN 
-     SIZE 9 BY 1
-     BGCOLOR 14 FONT 6 NO-UNDO.*/
-
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1
@@ -286,23 +283,22 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       oe-bolh.bol-no COLUMN-LABEL "BOL#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-      oe-boll.ord-no FORMAT ">>>>>9":U LABEL-BGCOLOR 14
+      oe-boll.ord-no FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
       oe-boll.po-no COLUMN-LABEL "Customer's PO" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-bolh.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.part-no FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-boll.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      oe-ordl.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(15)":U
+      oe-ordl.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(28)":U
             WIDTH 22 LABEL-BGCOLOR 14
       oe-bolh.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 10
             LABEL-BGCOLOR 14
       oe-boll.bol-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       get-release() @ lv-release COLUMN-LABEL "Release" WIDTH 10.2
-      oe-bolh.stat COLUMN-LABEL "Status" FORMAT "x(10)":U WIDTH 14
-      VIEW-AS COMBO-BOX INNER-LINES 2
-          LIST-ITEM-PAIRS "H-Hold","H",
-                     "R-Released","R"
-          DROP-DOWN-LIST
+      oe-bolh.stat COLUMN-LABEL "Status" FORMAT "!":U WIDTH 2 VIEW-AS COMBO-BOX INNER-LINES 5
+                      LIST-ITEM-PAIRS "H-Hold","H",
+                                      "R-Released","R"
+                      DROP-DOWN-LIST 
   ENABLE
       oe-bolh.bol-no
       oe-boll.ord-no
@@ -311,6 +307,7 @@ DEFINE BROWSE Browser-Table
       oe-boll.i-no
       oe-ordl.i-name
       oe-bolh.ship-id
+      oe-bolh.stat
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 146 BY 16.48
@@ -320,6 +317,8 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     Browser-Table AT ROW 4.81 COL 1 HELP
+          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_bol-no AT ROW 1.95 COL 5 NO-LABEL
      fi_ord-no AT ROW 1.95 COL 21 NO-LABEL
      fi_i-no AT ROW 1.95 COL 36 COLON-ALIGNED NO-LABEL
@@ -330,19 +329,10 @@ DEFINE FRAME F-Main
      btn_go AT ROW 3.14 COL 6
      btn_show AT ROW 3.14 COL 22
      fi_sort-by AT ROW 3.14 COL 76.4 COLON-ALIGNED NO-LABEL
-  //   FI_moveCol AT ROW 3.14 COL 132.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     Browser-Table AT ROW 4.81 COL 1 HELP
-          "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      fi_part-no AT ROW 3.1 COL 36 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      "BOL#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 6
           FGCOLOR 9 FONT 6
-   /*  "Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 3.33 COL 111.8 WIDGET-ID 6
-          FONT 6*/
-    /* "Sorted By:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.14 COL 66.2
-          FONT 6 */
      "Order#" VIEW-AS TEXT
           SIZE 10 BY .71 AT ROW 1.24 COL 23
           FGCOLOR 9 FONT 6
@@ -417,15 +407,13 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
-/* BROWSE-TAB Browser-Table FI_moveCol F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_bol-no IN FRAME F-Main
    ALIGN-L                                                              */
-/* SETTINGS FOR FILL-IN FI_moveCol IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_ord-no IN FRAME F-Main
    ALIGN-L                                                              */
 /* SETTINGS FOR FILL-IN fi_sort-by IN FRAME F-Main
@@ -451,11 +439,11 @@ ASSIGN
      _FldNameList[4]   > ASI.oe-bolh.cust-no
 "oe-bolh.cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.part-no" ? "x(30)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-boll.i-no
 "oe-boll.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-ordl.i-name
-"oe-ordl.i-name" "FG Item Name" "x(15)" "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.i-name" "FG Item Name" "x(28)" "character" ? ? ? 14 ? ? yes ? no no "22" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-bolh.ship-id
 "oe-bolh.ship-id" "Ship To" ? "character" ? ? ? 14 ? ? yes ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-boll.bol-date
@@ -463,7 +451,7 @@ ASSIGN
      _FldNameList[10]   > "_<CALC>"
 "get-release() @ lv-release" "Release" ? ? ? ? ? ? ? ? no ? no no "10.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-bolh.stat
-"oe-bolh.stat" "Status" "!" "character" ? ? ? ? ? ? yes "" no no "2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-bolh.stat" "Status" "!" "character" ? ? ? ? ? ? yes "" no no "2" yes no no "U" "" "" "DROP-DOWN-LIST" "," ? "H-Hold,H,R-Released,R" 5 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -475,7 +463,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -635,6 +623,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME fi_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON LEAVE OF fi_cust-no IN FRAME F-Main
@@ -645,7 +634,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fi_cust-no
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
@@ -739,6 +728,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
    Hiding this widget for now, as browser's column label should be indicating the column which is sorted by */
 fi_sort-by:HIDDEN  = TRUE.
 fi_sort-by:VISIBLE = FALSE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1036,6 +1026,7 @@ PROCEDURE local-initialize :
       oe-boll.i-no:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-ordl.i-name:READ-ONLY IN BROWSE {&browse-name} = YES
       oe-bolh.ship-id:READ-ONLY IN BROWSE {&browse-name} = YES
+      oe-bolh.stat:READ-ONLY IN BROWSE {&browse-name} = YES
       .
 
  /* FI_moveCol = "Sort".

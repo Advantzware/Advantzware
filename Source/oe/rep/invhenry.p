@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/invhenry.p  */
 /* PRINT INVOICE   Henry  Form                         */
 /* -------------------------------------------------------------------------- */
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -122,6 +122,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation      AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dExchangeRate  AS DECIMAL EXTENT 3 NO-UNDO.
 DEFINE VARIABLE cCurrency      AS CHARACTER NO-UNDO.
 
@@ -142,30 +143,6 @@ ASSIGN
 {methods/pPrintImageOnBack.i v-print-fmt "first"}
 /* v-print-fmt => ".\custfiles\Images\<FormatName>BackImage.pdf" */
 /* After which Page- Image will print  (First, All) */
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "INVPRINT" NO-LOCK NO-ERROR.
@@ -335,7 +312,8 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                                           oe-boll.ord-no = xinv-line.ord-no:
 
                                       /** Bill Of Lading TOTAL CASES **/
-                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases.
+                ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
+                         cLocation = oe-boll.loc.
                 RUN oe/pallcalc.p (ROWID(oe-boll), OUTPUT v-int).
                 v-tot-pallets = v-tot-pallets + v-int.
            END. /* each oe-boll */
@@ -457,7 +435,14 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
         /* display heder info 
          view frame invhead-comp.  /* Print headers */
                 */
-        {oe/rep/invhenry.i}
+
+          RUN FileSys_GetBusinessFormLogo(cocode, xinv-head.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+              IF NOT lValid THEN
+              DO:
+                  MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+              END.
+              ASSIGN ls-full-img1 = cRtnChar + ">" .
+            {oe/rep/invhenry.i}
 
         v-subtot-lines = 0.
         v-t-tax = 0.
@@ -619,23 +604,23 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
           IF NOT lPrintQtyAll THEN DO:
             PUT SPACE(1) v-inv-qty FORMAT "->>>>>>9" SPACE(1)
                 v-ship-qty  FORMAT "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(2)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(1)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(3)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(1)
-                v-price-head 
-                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"*/                     
+                //v-price-head 
+                inv-line.t-price  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99"*/                     
                 SKIP.
           END.
           ELSE DO:
               PUT SPACE(1)v-ord-qty  FORMAT "->>>>>>9" SPACE(1)
                 v-inv-qty  FORMAT "->>>>>>9" SPACE(1)
-                inv-line.ord-no FORMAT ">>>>>>9" SPACE(3)
+                inv-line.ord-no FORMAT ">>>>>>>9" SPACE(2)
                 v-i-no  FORMAT "x(15)" SPACE(3)
                 v-i-dscr  FORMAT "x(25)" SPACE(2)
                 v-price  FORMAT "$->>>,>>9.99" /*"$->>,>>9.99<<"*/ SPACE(2)
-                v-price-head 
-                inv-line.t-price  FORMAT "$->>>>,>>9.99" /*"$->>>,>>9.99"                     */
+                //v-price-head 
+                inv-line.t-price  FORMAT "$->>>,>>>,>>9.99" /*"$->>>,>>9.99"                     */
                 SKIP.
 
           END.
@@ -664,18 +649,18 @@ FIND FIRST company WHERE company.company EQ cocode NO-LOCK.
                    IF lPrintQtyAll THEN DO:
                       PUT SPACE(1) v-ship-qty FORMAT "->>>>>>9" .
                      IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(11) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(11) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(2) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(2) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                    END.
                    ELSE DO:
                         IF LENGTH(inv-line.po-no) LE 8 THEN DO:
-                         PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(19) inv-line.po-no FORMAT "x(8)" SPACE(1)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                      ELSE DO: 
-                         PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no SPACE(3) v-part-info SKIP.
+                         PUT  SPACE(10) inv-line.po-no FORMAT "x(15)" SPACE(3)   inv-line.part-no FORMAT "X(15)" SPACE(3) v-part-info SKIP.
                      END.
                    END. /* else do*/
 

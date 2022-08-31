@@ -12,7 +12,7 @@
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
-
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
@@ -190,6 +190,7 @@ DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAckDateAllowEdit AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lEDIOrderChanged         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE oSetting                  AS system.Setting NO-UNDO.
 
@@ -284,10 +285,20 @@ RUN system/CustomerProcs.p PERSISTENT SET hdCustomerProcs.
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
-
 DEFINE VARIABLE hdSalesManProcs AS HANDLE NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
+RUN methods/prgsecur.p
+    (INPUT "AckDateEdit.",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lAckDateAllowEdit, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -323,7 +334,7 @@ oe-ord.priceHoldReason oe-ord.sman[1] oe-ord.s-pct[1] oe-ord.s-comm[1] ~
 oe-ord.sman[2] oe-ord.s-pct[2] oe-ord.s-comm[2] oe-ord.sman[3] ~
 oe-ord.s-pct[3] oe-ord.s-comm[3] oe-ord.frt-pay oe-ord.carrier ~
 oe-ord.fob-code oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 ~
-oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-2 
+oe-ord.cc-num oe-ord.cc-auth oe-ord.spare-char-2 oe-ord.ack-prnt-date
 &Scoped-define ENABLED-TABLES oe-ord
 &Scoped-define FIRST-ENABLED-TABLE oe-ord
 &Scoped-Define ENABLED-OBJECTS fiStatDesc btnCalendar-1 btnCalendar-2 ~
@@ -498,7 +509,7 @@ DEFINE VARIABLE fiText2 AS CHARACTER FORMAT "X(256)":U INITIAL "FOB:"
      VIEW-AS FILL-IN 
      SIZE 6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_prev_order AS CHARACTER FORMAT "X(8)":U 
      LABEL "Previous Order #" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1.
@@ -574,23 +585,23 @@ DEFINE FRAME F-Main
      fiStatDesc AT ROW 9.33 COL 87 COLON-ALIGNED NO-TAB-STOP 
      fiShipName AT ROW 6.86 COL 23.8 COLON-ALIGNED NO-LABEL WIDGET-ID 28
      fiText1 AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED
+     oe-ord.ord-no AT ROW 1.24 COL 10 COLON-ALIGNED FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 14 BY 1
      fiText2 AT ROW 13.95 COL 109 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     fi_type AT ROW 1.24 COL 29 COLON-ALIGNED HELP
+     fi_type AT ROW 1.24 COL 31.4 COLON-ALIGNED HELP
           "Enter Order Type (O)riginal, (R)epeat, repeat with (C)hange"
-     oe-ord.est-no AT ROW 1.24 COL 47.2 COLON-ALIGNED FORMAT "x(8)"
+     oe-ord.est-no AT ROW 1.24 COL 49 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     oe-ord.job-no AT ROW 1.24 COL 76.8 COLON-ALIGNED
-          LABEL "Job Number" FORMAT "x(6)"
+     oe-ord.job-no AT ROW 1.24 COL 78 COLON-ALIGNED
+          LABEL "Job Number" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
-     oe-ord.job-no2 AT ROW 1.24 COL 93.8 COLON-ALIGNED NO-LABEL
+     oe-ord.job-no2 AT ROW 1.24 COL 95 COLON-ALIGNED NO-LABEL FORMAT ">>9"
           VIEW-AS FILL-IN 
-          SIZE 4.8 BY 1
-     oe-ord.priority AT ROW 1.24 COL 111 COLON-ALIGNED
+          SIZE 7 BY 1
+     oe-ord.priority AT ROW 1.24 COL 112 COLON-ALIGNED
           LABEL "Priority" FORMAT "9"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
@@ -873,7 +884,7 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN oe-ord.ack-prnt-date IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+   EXP-LABEL EXP-FORMAT                                                */
 /* SETTINGS FOR FILL-IN oe-ord.approved-date IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-HELP                                         */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
@@ -953,16 +964,20 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_type IN FRAME F-Main
    NO-ENABLE 2 5                                                        */
+/* SETTINGS FOR FILL-IN oe-ord.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ord.job-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.job-no2 IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.last-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX oe-ord.managed IN FRAME F-Main
    2 5                                                                  */
 /* SETTINGS FOR FILL-IN oe-ord.ord-date IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN oe-ord.ord-no IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-ord.po-no IN FRAME F-Main
    4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.poReceivedDate IN FRAME F-Main
@@ -1303,7 +1318,7 @@ END.
 ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT oe-ord.rec_key,
+        INPUT cocode + STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Reason Code"
         ).
@@ -1318,7 +1333,7 @@ END.
 ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT STRING(oe-ord.ord-no),
+        INPUT cocode + STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Over Percentage"
         ).
@@ -1333,7 +1348,7 @@ END.
 ON CHOOSE OF btnTagsUnder IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT STRING(oe-ord.ord-no),
+        INPUT cocode + STRING(oe-ord.ord-no),
         INPUT "",
         INPUT "Under Percentage"
         ).
@@ -1783,11 +1798,11 @@ DO:
             ASSIGN
                 oe-ordl.over-pct = oe-ord.over-pct:INPUT-VALUE.  
            RUN ClearTagsForGroup(
-                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+                INPUT cocode + STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "Over Percentage"
                 ).
             RUN AddTagInfoForGroup(
-                INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+                INPUT cocode + STRING(oe-ordl.ord-no + oe-ordl.LINE),
                 INPUT "oe-ordl",
                 INPUT "Order no. - " + string(oe-ord.ord-no) ,
                 INPUT "",
@@ -2143,11 +2158,11 @@ DO:
                 ASSIGN 
                     oe-ordl.under-pct = oe-ord.under-pct:INPUT-VALUE .  
                 RUN ClearTagsForGroup(
-                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+                    INPUT cocode + STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "Under Percentage"
                     ).
                 RUN AddTagInfoForGroup(
-                    INPUT STRING(oe-ordl.ord-no + oe-ordl.LINE),
+                    INPUT cocode + STRING(oe-ordl.ord-no + oe-ordl.LINE),
                     INPUT "oe-ordl",
                     INPUT "Order no. - " + string(oe-ord.ord-no) ,
                     INPUT "",
@@ -2641,8 +2656,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote V-table-Win 
-PROCEDURE CopyShipNote PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote V-table-Win 
+PROCEDURE pCopyShipNote PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -2650,12 +2665,7 @@ PROCEDURE CopyShipNote PRIVATE :
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-DELETE OBJECT hNotesProcs.   
+RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -3029,7 +3039,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
-            RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+            RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
          IF v-ship-from GT "" THEN
              oe-rel.spare-char-1 = v-ship-from.
 
@@ -3079,7 +3089,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                IF adm-new-record /* and NOT oe-rel.carrier ENTERED */ THEN DO:
                   FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -3121,7 +3131,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            IF adm-new-record THEN DO:                
                  FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
@@ -3463,14 +3473,10 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         job-hdr.ord-no  EQ 0)
         USE-INDEX enum:
 
-        DO loop-limit = 1 TO 1000:
           FIND del-job-hdr WHERE ROWID(del-job-hdr) EQ ROWID(job-hdr)
-          EXCLUSIVE NO-WAIT NO-ERROR.
-          IF AVAIL del-job-hdr THEN DO:
+          EXCLUSIVE NO-ERROR.
+          IF AVAIL del-job-hdr THEN
             DELETE del-job-hdr.
-            LEAVE.
-          END.
-        END.
       END. /* Each Job-hdr */
 
       FIND FIRST job
@@ -3677,14 +3683,10 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     AND job-hdr.ord-no  EQ oe-ord.ord-no
     AND job-hdr.est-no  EQ oe-ord.est-no:
 
-    DO loop-limit = 1 TO 1000:
       FIND del-job-hdr WHERE ROWID(del-job-hdr) EQ ROWID(job-hdr)
-      EXCLUSIVE NO-WAIT NO-ERROR.
-      IF AVAIL del-job-hdr THEN DO:
+      EXCLUSIVE NO-ERROR.
+      IF AVAIL del-job-hdr THEN
         DELETE del-job-hdr.
-        LEAVE.
-      END.
-    END.
   END.
   RELEASE job.
   RELEASE job-hdr.
@@ -4147,13 +4149,13 @@ IF AVAIL xest THEN DO:
       FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) NO-LOCK.
 
       IF ll-do-job THEN DO:
-          cEstNo = FILL(" ",6 - length(TRIM(oe-ord.est-no:screen-value))) + trim(oe-ord.est-no:screen-value).
-        v-job-no = FILL(" ",6 - length(TRIM(oe-ord.ord-no:screen-value))) + oe-ord.ord-no:screen-value.
+          cEstNo = FILL(" ",8 - length(TRIM(oe-ord.est-no:screen-value))) + trim(oe-ord.est-no:screen-value).
+        v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ord.ord-no:screen-value)).
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, INPUT-OUTPUT v-job-no2,INPUT v-prod-cat,
                          INPUT cEstNo).
 
         IF v-job-no EQ "" THEN
-          v-job-no = cEstNo.
+          v-job-no = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', cEstNo)).
 
       END.
       ELSE
@@ -5000,9 +5002,7 @@ PROCEDURE local-assign-record :
 
             IF cOeShipChar EQ "OEShipto" AND cOldShipTo NE oe-ord.ship-id AND NOT adm-new-record THEN do:
                 IF FIRST(oe-ordl.i-no) THEN
-                   MESSAGE "Do you want to automatically update all releases with the new ship to address?" 
-                    VIEW-AS ALERT-BOX QUESTION 
-                    BUTTONS YES-NO UPDATE lcheckflg  .
+                   RUN displayMessageQuestion("77", OUTPUT lcheckflg).
                 IF lcheckflg EQ YES THEN
                     RUN pUpdateRelShipID .
             END.
@@ -5646,7 +5646,7 @@ PROCEDURE local-display-fields :
             oe-ord.spare-char-2:SCREEN-VALUE = cStatDesc.
             
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT oe-ord.rec_key,
+             INPUT cocode + STRING(oe-ord.ord-no),
              INPUT "oe-ord",
              INPUT "Reason Code",
              OUTPUT lAvailable
@@ -5657,7 +5657,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTags:SENSITIVE = FALSE. 
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT STRING(oe-ord.ord-no),
+             INPUT cocode + STRING(oe-ord.ord-no),
              INPUT "oe-ord",
              INPUT "Over Percentage",
              OUTPUT lAvailable
@@ -5668,7 +5668,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTagsOverrn:SENSITIVE = FALSE.  
          RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT STRING(oe-ord.ord-no),
+            INPUT cocode + STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT "Under Percentage",
             OUTPUT lAvailable
@@ -5690,13 +5690,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */      
+    IF VALID-HANDLE(hdSalesManProcs) THEN
+        DELETE PROCEDURE hdSalesManProcs.    
+            
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
 PROCEDURE local-enable-fields :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT adm-new-record THEN ll-from-tandem = NO.
 
@@ -5754,8 +5774,13 @@ PROCEDURE local-enable-fields :
    IF NOT lCreditAccSec THEN
        DISABLE oe-ord.cc-type oe-ord.cc-expiration oe-ord.spare-char-1 oe-ord.cc-num oe-ord.cc-auth .
     DISABLE oe-ord.entered-id .
+        
+    IF adm-new-record OR NOT lAckDateAllowEdit THEN 
+    DISABLE oe-ord.ack-prnt-date.
+    ELSE ENABLE oe-ord.ack-prnt-date.
   END.
-
+  
+  
   ASSIGN
    ll-est-no-mod  = NO
    ll-valid-po-no = NO.
@@ -6389,18 +6414,18 @@ PROCEDURE pAddTag :
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:          
         RUN ClearTagsForGroup(
-            INPUT STRING(oe-ord.ord-no),
+            INPUT cocode + STRING(oe-ord.ord-no),
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT STRING(oe-ord.ord-no),
+            INPUT cocode + STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT STRING(oe-ord.ord-no),
+            INPUT cocode + STRING(oe-ord.ord-no),
             INPUT "oe-ord",
             INPUT ipcSource,
             OUTPUT lAvailable
@@ -6685,8 +6710,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         FIND FIRST fg-rcpts USE-INDEX cust-no
             WHERE fg-rcpts.company EQ oe-ord.company
                 AND fg-rcpts.cust-no EQ oe-ord.cust-no
-                AND fg-rcpts.job-no  EQ FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-                TRIM(oe-ordl.job-no)
+                AND fg-rcpts.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpts.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpts.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -6694,8 +6718,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
         IF NOT AVAIL fg-rcpts THEN
         FIND FIRST fg-rcpth USE-INDEX job
             WHERE fg-rcpth.company EQ oe-ord.company
-                AND fg-rcpth.job-no  EQ FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-                TRIM(oe-ordl.job-no)
+                AND fg-rcpth.job-no  EQ STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))
                 AND fg-rcpth.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpth.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
@@ -6780,13 +6803,13 @@ DEF VAR op-values AS CHAR NO-UNDO.
 DEF VAR lValid AS LOG NO-UNDO.
 DEF VAR i AS INT.
 DEF VAR ip-parms AS CHAR.
-DEF VAR lcUserPrompt AS CHAR INIT "Enter the order number to use:".
+DEF VAR lcUserPrompt AS CHAR INIT "Enter the order number to add:".
 
 DEF VAR lcNewOrder AS CHAR.
 
 ip-parms = 
    "type=literal,name=fi4,row=4,col=18,enable=false,width=58,scrval=" + lcUserPrompt + ",FORMAT=X(58)"
-    + "|type=fill-in,name=tg2,row=5,col=18,enable=true,width=10"
+    + "|type=fill-in,name=tg2,row=5,col=18,enable=true,width=15,format=X(8)"
     + "|type=image,image=webspeed\images\question.gif,name=im1,row=3,col=4,enable=true " 
     + "|type=win,name=fi3,enable=true,label=Question,FORMAT=X(30),height=11".
 prompt-loop:
@@ -6883,7 +6906,7 @@ DEFINE BUFFER bf-oe-rel FOR oe-rel .
                   bf-oe-rel.ship-i[3] = shipto.notes[3]
                   bf-oe-rel.ship-i[4] = shipto.notes[4]
                   bf-oe-rel.spare-char-1 = shipto.loc.
-              RUN CopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
+              RUN pCopyShipNote (shipto.rec_key, bf-oe-rel.rec_key).
           END.
 
           FIND CURRENT bf-oe-rel NO-LOCK.
@@ -6958,7 +6981,7 @@ PROCEDURE pValidate :
         oe-ord.spare-char-2:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT oe-ord.rec_key,
+        INPUT cocode + STRING(oe-ord.ord-no),
         INPUT "oe-ord",
         INPUT "Reason Code",
         OUTPUT lAvailable
@@ -7632,8 +7655,7 @@ PROCEDURE valid-job-no :
 
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    oe-ord.job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(oe-ord.job-no:SCREEN-VALUE))) +
-                                 TRIM(oe-ord.job-no:SCREEN-VALUE).
+    oe-ord.job-no:SCREEN-VALUE = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ord.job-no:SCREEN-VALUE)).
   END.
 
   {methods/lValidateError.i NO}

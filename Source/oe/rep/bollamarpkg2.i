@@ -1,5 +1,5 @@
  /* oe/rep/bolxprn2.i  */  
- 
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */ 
  RUN XMLOutput (lXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05181205 */
 
  PUT "<C1><R2><#1><R+7><C+65><IMAGE#1=" ls-full-img1 SKIP .
@@ -25,7 +25,7 @@
         "<FCourier New>"
          "Order Date:" SPACE(2) v-orddate "<C50>Ship Date:<C50>" SPACE(12) v-ship-date SKIP(1)
         "Sales Order"  "<C50>Customer<C50>"  SKIP
-        "Number:"  space(2) v-sale-num "<C50>Contact:<C50>" SPACE(10) v-cust-contact SKIP(1)
+        "Number:"  space(2) STRING(v-sale-num) "<C50>Contact:<C50>" SPACE(10) v-cust-contact SKIP(1)
          "Purchase"  "<C50>Customer<C50>"  SKIP
         "Order:"  SPACE(2) v-po-num "<C50>Account:<C50>" SPACE(10) v-cust-account SKIP(1).
        

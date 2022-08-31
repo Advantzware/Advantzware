@@ -1,6 +1,7 @@
 
-/* ---------------------------------------------- oe/rep/bolcccx.i     */
-/* PRINT CCC Box BOL                                                           */
+/* ---------------------------------------------- oe/rep/bolcccx.i            */
+/* PRINT CCC Box BOL                                                          */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 
@@ -134,9 +135,8 @@ for each report where report.term-id eq v-term-id,
           AND job-hdr.i-no EQ oe-ordl.i-no NO-LOCK NO-ERROR.
 
     v-job-no = "".
-    if avail oe-ordl and oe-ordl.job-no ne "" then
-        v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) .
+    if avail oe-ordl and oe-ordl.job-no ne "" THEN 
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-ordl.job-no))) .
     IF AVAIL job-hdr THEN
         v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
 
@@ -146,14 +146,11 @@ for each report where report.term-id eq v-term-id,
           AND job-hdr.job-no2 EQ oe-boll.job-no2
           AND job-hdr.i-no EQ oe-boll.i-no NO-LOCK NO-ERROR.
 
-        v-job-no = fill(" ",6 - length(trim(oe-boll.job-no))) +
-               trim(oe-boll.job-no) .
+        v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', oe-boll.job-no))).
     IF AVAIL job-hdr THEN
         v-job-no = v-job-no + "-" + trim(string(job-hdr.frm)) + trim(string(job-hdr.blank-no)) .
     END.
 
-      /* v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
-               trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")). */
     
     lv-cases = lv-cases-tot.
     IF AVAIL oe-ordl THEN FIND oe-ord OF oe-ordl NO-LOCK NO-ERROR.

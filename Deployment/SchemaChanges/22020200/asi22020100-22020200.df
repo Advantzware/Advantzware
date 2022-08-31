@@ -1,0 +1,14 @@
+ADD FIELD "emailPreference" OF "cust" AS integer
+  FORMAT "9"
+  POSITION 180
+  INITIAL "0"
+  LABEL "Email Preference"
+  COLUMN-LABEL "Email Preference"
+  ORDER 1780
+  MAX-WIDTH 4
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000192

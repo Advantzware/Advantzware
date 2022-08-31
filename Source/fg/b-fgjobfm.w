@@ -26,6 +26,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */     
 
 CREATE WIDGET-POOL.
 
@@ -199,8 +200,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 14
       fg-rctd.i-no FORMAT "X(15)":U
       fg-rctd.i-name FORMAT "x(30)":U
-      fg-rctd.job-no FORMAT "x(6)":U
-      fg-rctd.job-no2 FORMAT "99":U
+      fg-rctd.job-no FORMAT "x(9)":U
+      fg-rctd.job-no2 FORMAT "999":U
       fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
       fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-rctd.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U
@@ -1054,15 +1055,14 @@ PROCEDURE fgbin-help :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
+        .
 
     RUN windows/l-fgibn4.w (fg-rctd.company, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
 
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
-    IF AVAIL fg-bin AND (fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}      NE fg-bin.job-no  OR
+    IF AVAIL fg-bin AND (trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE trim(fg-bin.job-no)  OR
                          INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE fg-bin.job-no2 OR
                          fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}         NE fg-bin.loc     OR
                          fg-rctd.loc-bin:SCREEN-VALUE IN browse {&browse-name}     NE fg-bin.loc-bin OR
@@ -1447,9 +1447,8 @@ PROCEDURE new-bin :
 ------------------------------------------------------------------------------*/
  
   DO WITH FRAME {&FRAME-NAME}:
-    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
+        
     /* ##PN## job# shuold not be used since that's the thing we're assigning with the issue */
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
@@ -1671,10 +1670,8 @@ PROCEDURE valid-job-loc-bin-tag :
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
-
+    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
+        
     IF NOT CAN-FIND(FIRST fg-bin 
                     WHERE fg-bin.company  EQ cocode
                       AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1728,9 +1725,8 @@ PROCEDURE valid-job-no :
   ELSE
       lcRitaCode = "F".
   DO WITH FRAME {&frame-name}:
-    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
+    fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =  STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
+        
     /* In loop since no index on i-no */
    
     lJobFound = NO.    
@@ -1781,10 +1777,8 @@ PROCEDURE valid-job-no2 :
               NO-LOCK NO-ERROR.
       END.  /*Mode 001*/
 
-      fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
-        TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}). /*Mode 001*/
-
+      fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
+        
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
       RUN new-job-no.
@@ -1940,7 +1934,7 @@ PROCEDURE validate-record :
           AND fg-bin.tag EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.job-no GT ""
           NO-LOCK NO-ERROR.
-      IF AVAIL fg-bin AND fg-bin.job-no GT "" AND fg-bin.job-no NE fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
+      IF AVAIL fg-bin AND fg-bin.job-no GT "" AND trim(fg-bin.job-no) NE trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) THEN DO:
         MESSAGE "Tag is already associated with a different job. " SKIP
             "Tag: " fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
             "Bin: " fg-bin.loc fg-bin.loc-bin SKIP

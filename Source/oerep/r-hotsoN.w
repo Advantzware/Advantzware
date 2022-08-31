@@ -15,6 +15,7 @@
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.        */     
 
 CREATE WIDGET-POOL.
 
@@ -131,7 +132,7 @@ ASSIGN
                            "Rel Qty,#/Unit,Rel MSF,Ord MSF"
     cFieldListToSelect = "due-dt,cust,cust-prt,rout,brd,job,shipto,ord-qty," +
                             "rel-qty,unt,rel-msf,ord-msf"
-    cFieldLength       = "10,8,15,20,20,10,7,9," + "9,8,11,11" 
+    cFieldLength       = "10,8,15,20,20,13,7,9," + "9,8,11,11" 
     cFieldType         = "c,c,c,c,c,c,c,i," + "i,i,i,i"
     .
 
@@ -241,15 +242,15 @@ DEFINE VARIABLE begin_i-no     AS CHARACTER FORMAT "X(15)":U
     VIEW-AS FILL-IN 
     SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no   AS CHARACTER FORMAT "X(9)":U 
     LABEL "Beginning Job#" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-99":U INITIAL "00" 
+DEFINE VARIABLE begin_job-no2  AS CHARACTER FORMAT "-999":U INITIAL "000" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_ord-date AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
     LABEL "Beginning Order Date" 
@@ -291,15 +292,15 @@ DEFINE VARIABLE end_i-no       AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzz
     VIEW-AS FILL-IN 
     SIZE 21 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no     AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzz" 
     LABEL "Ending Job#" 
     VIEW-AS FILL-IN 
     SIZE 15 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-99":U INITIAL "99" 
+DEFINE VARIABLE end_job-no2    AS CHARACTER FORMAT "-999":U INITIAL "999" 
     LABEL "" 
     VIEW-AS FILL-IN 
-    SIZE 5 BY 1 NO-UNDO.
+    SIZE 5.5 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_ord-date   AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
     LABEL "Ending Order Date" 
@@ -464,11 +465,11 @@ DEFINE FRAME FRAME-A
     "Enter Ending Customer PO Number"
     begin_job-no AT ROW 3.76 COL 28 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
-    begin_job-no2 AT ROW 3.76 COL 44 COLON-ALIGNED HELP
+    begin_job-no2 AT ROW 3.76 COL 43.4 COLON-ALIGNED HELP
     "Enter Beginning Job Number"
     end_job-no AT ROW 3.76 COL 72 COLON-ALIGNED HELP
     "Enter Ending Job Number"
-    end_job-no2 AT ROW 3.76 COL 88 COLON-ALIGNED HELP
+    end_job-no2 AT ROW 3.76 COL 87.4 COLON-ALIGNED HELP
     "Enter Ending Job Number"
     begin_i-no AT ROW 8.86 COL 33 COLON-ALIGNED HELP
     "Enter Beginning Item Number"
@@ -1757,9 +1758,7 @@ PROCEDURE build-tt :
                            STRING(MONTH(lv-due-date),"99")  +
                            STRING(DAY(lv-due-date),"99")    +
                            STRING(oe-ordl.part-no,"x(15)") + STRING(oe-ord.ord-no,"99999999999"))              
-        tt-report.key-04   = FILL(" ",6 - LENGTH(TRIM(oe-ordl.job-no))) +
-                        TRIM(oe-ordl.job-no) + "-" +
-                        STRING(oe-ordl.job-no2,"99")
+        tt-report.key-04   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-ordl.job-no, oe-ordl.job-no2))
         tt-report.key-05   = STRING(oe-ord.ord-no,"99999999999")
         tt-report.key-06   = oe-ordl.i-no
         tt-report.key-07   = STRING(YEAR(ip-date),"9999") +
@@ -2389,8 +2388,8 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-date       LIKE ar-inv.inv-date FORMAT "99/99/9999"
         EXTENT 2 INITIAL [TODAY, 12/31/9999].
 
-    DEFINE VARIABLE v-job        LIKE oe-ord.job-no EXTENT 2 INITIAL ["","zzzzzz"].
-    DEFINE VARIABLE v-job2       LIKE oe-ord.job-no2 FORMAT "99" EXTENT 2 INITIAL [0,99].
+    DEFINE VARIABLE v-job        LIKE oe-ord.job-no EXTENT 2 INITIAL ["","zzzzzzzzz"].
+    DEFINE VARIABLE v-job2       LIKE oe-ord.job-no2 FORMAT "999" EXTENT 2 INITIAL [0,999].
     DEFINE VARIABLE v-inc        AS LOGICAL   FORMAT "Yes/No" INITIAL YES.
     DEFINE VARIABLE v-ostat      AS CHARACTER FORMAT "!" INITIAL "A".
     DEFINE VARIABLE v-jobq       AS LOGICAL   FORMAT "Yes/No" INITIAL NO.
@@ -2489,10 +2488,8 @@ PROCEDURE run-report :
         v-cust[2]    = end_cust-no
         v-date[1]    = begin_ord-date
         v-date[2]    = end_ord-date
-        v-job[1]     = FILL(" ",6 - LENGTH(TRIM(begin_job-no))) +
-                TRIM(begin_job-no) + STRING(INTEGER(begin_job-no2),"99")
-        v-job[2]     = FILL(" ",6 - LENGTH(TRIM(end_job-no)))   +
-                TRIM(end_job-no)   + STRING(INTEGER(end_job-no2),"99")
+        v-job[1]     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2))
+        v-job[2]     = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2))
 
         v-sort       = SUBSTRING(rd_sort,1,2)
         v-print-line = td-print-line 

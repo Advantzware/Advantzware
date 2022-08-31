@@ -5,20 +5,22 @@
 FOR EACH ap-inv NO-LOCK
     WHERE ap-inv.company   EQ vend.company
       AND ap-inv.vend-no   EQ vend.vend-no
-      AND ap-inv.posted    EQ YES 
-      AND (ap-inv.inv-date LE as_of_date OR NOT v-idate)
+      AND ap-inv.posted    EQ YES         
+      AND ((ap-inv.inv-date LE as_of_date AND cAsOfDate EQ "Invoice") OR cAsOfDate NE "Invoice")
+            AND (((IF ap-inv.glPostDate EQ ? THEN TRUE ELSE ap-inv.glPostDate LE as_of_date) AND cAsOfDate EQ "GLPosting") OR cAsOfDate NE "GLPosting") 
+            AND ((ap-inv.due-date LE as_of_date AND cAsOfDate EQ "due") OR cAsOfDate NE "due")
     USE-INDEX ap-inv ,
     
     FIRST ap-ledger NO-LOCK 
     WHERE ap-ledger.company  EQ vend.company
       AND ap-ledger.vend-no  EQ ap-inv.vend-no
       AND ap-ledger.ref-date EQ ap-inv.inv-date
-      AND ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)
-      AND (ap-ledger.tr-date LE as_of_date OR v-idate)
+      AND ap-ledger.refnum   EQ ("INV# " + ap-inv.inv-no)      
+      AND (((IF ap-inv.glPostDate NE ? THEN TRUE ELSE ap-ledger.tr-date LE as_of_date) AND cAsOfDate EQ "GLPosting") OR cAsOfDate NE "GLPosting")
     USE-INDEX ap-ledger
     
     BREAK BY ap-inv.vend-no
-          BY (IF v-idate THEN ap-inv.inv-date ELSE ap-ledger.tr-date)
+          BY (IF cAsOfDate EQ "Invoice" THEN ap-inv.inv-date ELSE IF cAsOfDate EQ "due" THEN ap-inv.due-date ELSE IF ap-inv.glPostDate NE ? THEN ap-inv.glPostDate ELSE ap-ledger.tr-date)
           BY ap-inv.inv-no:
   
   IF FIRST(ap-inv.vend-no) THEN DO:
@@ -37,7 +39,7 @@ FOR EACH ap-inv NO-LOCK
 
   ASSIGN 
    v-amt  = 0
-   v-date = IF v-idate THEN ap-inv.inv-date ELSE ap-ledger.tr-date.
+   v-date = IF cAsOfDate EQ "Invoice" THEN ap-inv.inv-date ELSE IF ap-inv.glPostDate NE ? THEN ap-inv.glPostDate ELSE ap-ledger.tr-date.
    
   FOR EACH ap-payl NO-LOCK
       WHERE ap-payl.inv-no   EQ ap-inv.inv-no
@@ -78,8 +80,10 @@ FOR EACH ap-inv NO-LOCK
 
        IF v-check-date LE as_of_date THEN DO:
 
-       IF ap-payl.amt-paid NE 0 THEN v-amt = v-amt - ap-payl.amt-paid.
-       IF ap-payl.amt-disc NE 0 THEN DO:
+       IF ap-payl.amt-paid NE 0 
+       AND ap-payl.amt-paid NE ? THEN v-amt = v-amt - ap-payl.amt-paid.
+       IF ap-payl.amt-disc NE 0 
+       AND ap-payl.amt-disc NE ? THEN DO:
           IF NOT ap-payl.memo THEN v-amt = v-amt - ap-payl.amt-disc.
           IF ap-payl.memo THEN v-amt = v-amt + ap-payl.amt-disc.
        END.
@@ -92,7 +96,8 @@ FOR EACH ap-inv NO-LOCK
 
   ASSIGN
    d     = as_of_date - v-date
-   v-amt = v-amt + ap-inv.net + ap-inv.freight
+   v-amt = v-amt + (IF ap-inv.net NE ? THEN ap-inv.net ELSE 0) + (IF ap-inv.freight NE ? THEN ap-inv.freight ELSE 0)
+/*   v-amt = IF ap-inv.net + ap-inv.freight GT 0 THEN (v-amt + ap-inv.net + ap-inv.freight) ELSE v-amt*/
    t1    = t1 + v-amt
    ni    = ni + 1.
 

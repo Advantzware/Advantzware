@@ -34,6 +34,7 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-industry like style.industry no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-rowid as rowid no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 def var lv-first-time as log init yes no-undo.
@@ -316,7 +317,7 @@ DO:
         {srtord2.i 2}
         {srtord2.i 3}
     end.
-        apply "entry" to {&browse-name}.
+    apply "entry" to {&browse-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,8 +340,7 @@ END.
 &Scoped-define SELF-NAME lv-search
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-search Dialog-Frame
 ON LEAVE OF lv-search IN FRAME Dialog-Frame /* Search */
-or return of lv-search
-DO:
+DO:    
     assign rd-sort 
            lv-search.
     &scoped-define IAMWHAT Search

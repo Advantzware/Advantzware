@@ -1,5 +1,6 @@
 /* ------------------------------------------ oe/rep/relloyl1.i 09220907 GDM */
 /* RELEASE PRINT  Program for N-K-1 RELPRINT = LoyLang                       */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.             */
 /* ------------------------------------------------------------------------- */
 
 PUT "<FArial>"                       SKIP
@@ -44,13 +45,13 @@ PUT "<|10><R15><C1><#4><FROM><R19><C80><RECT>" SKIP
     "<FArial><=4><R+1>    Delivery Zone             Weight                    FOB                              Ship Via                                            Freight Terms" SKIP
     "<FCourier New><=4><R+3> " v-zone space(9) v-weight FORM ">>>>>>9" space(7) v-fob SPACE(5) v-carrier space(10) v-frt-terms   SKIP
     "<|10><R20><C1><#5><FROM><R23><C80><RECT>" SKIP    
-    "<R20><C7><FROM><R23><C7><LINE>" SKIP
-    "<R20><C33><FROM><R23><C33><LINE>" SKIP
+    "<R20><C8.5><FROM><R23><C8.5><LINE>" SKIP
+    "<R20><C34.2><FROM><R23><C34.2><LINE>" SKIP
     "<R20><C51><FROM><R23><C51><LINE>" SKIP
     "<R20><C62.5><FROM><R23><C62.5><LINE>" SKIP   
     "<R20><C71><FROM><R23><C71><LINE>" SKIP  
     "<FArial><=5> <C53.7>   Total <C65>Count " 
-    "<=5><R+1>   Order# <C8>Cust Part# / Item Name / Description <C36>Whs / Bin / TAG <C53.7>   Units     <C64>Per Units  <C73.5>Bin Qty" SKIP                                
+    "<=5><R+1>   Order# <C9.5>Cust Part# / Item Name / Description <C36>Whs / Bin / TAG <C53.7>   Units     <C64>Per Units  <C73.5>Bin Qty" SKIP                                
     "<FCourier New><P11>".
              
 

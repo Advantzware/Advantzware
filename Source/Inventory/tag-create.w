@@ -70,6 +70,7 @@ DEFINE VARIABLE rsValue                 AS CHARACTER NO-UNDO INITIAL "FG".
 
 DEFINE VARIABLE gcPathDataFileDefault AS CHARACTER INITIAL "C:\BA\LABEL".
 
+{sys/inc/var.i}
 {system/sysconst.i}
 {Inventory/ttBrowseInventory.i}
 {Inventory/ttInventory.i}
@@ -226,9 +227,9 @@ DEFINE VARIABLE cbFormno AS INTEGER FORMAT "99":U INITIAL 0
      SIZE 9.8 BY 1
      FONT 37 NO-UNDO.
 
-DEFINE VARIABLE cbJobno2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE cbJobno2 AS INTEGER FORMAT "999":U INITIAL 0 
      VIEW-AS COMBO-BOX INNER-LINES 5
-     LIST-ITEMS "00" 
+     LIST-ITEMS "000" 
      DROP-DOWN-LIST
      SIZE 9.8 BY 1
      FONT 37 NO-UNDO.
@@ -981,7 +982,7 @@ DO:
     DEFINE VARIABLE cBlankNo   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lParse     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lValidJob  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iJobFormat AS INTEGER   NO-UNDO INITIAL 6.
+    DEFINE VARIABLE iJobFormat AS INTEGER   NO-UNDO INITIAL 9.
         
     IF VALID-HANDLE(hKeyboard) THEN
         DELETE OBJECT hKeyboard.
@@ -1018,12 +1019,12 @@ DO:
     END.
     
     cFormattedJobno = DYNAMIC-FUNCTION (
-                      "fAddSpacesToString" IN hdJobProcs, SELF:SCREEN-VALUE, 6, TRUE
+                      "fAddSpacesToString" IN hdJobProcs, SELF:SCREEN-VALUE, iJobLen, TRUE
                       ).                                  
 
     IF lParse THEN
         cFormattedJobno = DYNAMIC-FUNCTION (
-                          "fAddSpacesToString" IN hdJobProcs, cJobNo, 6, TRUE
+                          "fAddSpacesToString" IN hdJobProcs, cJobNo, iJobLen, TRUE
                           ).
     
     RUN pUpdateComboBoxes.
@@ -1726,9 +1727,9 @@ PROCEDURE pUpdateComboBoxes :
     
     IF cJobno2ListItems EQ "" THEN
         ASSIGN 
-            cJobno2ListItems       = "00"
+            cJobno2ListItems       = "000"
             cbJobno2:LIST-ITEMS    = cJobno2ListItems 
-            cbJobno2:SCREEN-VALUE  = "00".
+            cbJobno2:SCREEN-VALUE  = "000".
     ELSE
         cbJobno2:LIST-ITEMS  = cJobno2ListItems.
  

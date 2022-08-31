@@ -2,6 +2,7 @@
 /* PRINT Xprint BOL 2 like Dayton                                             */
 /* -------------------------------------------------------------------------- */
 /* Output selection for the report */
+/* Mod: Ticket - 103137 (Format Change for Order No. and Job No). */
 DEFINE SHARED VARIABLE LvOutputSelection AS CHAR NO-UNDO.
 
 {sys/inc/var.i shared}
@@ -31,12 +32,13 @@ def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-ord-date            like oe-ord.ord-date.
 def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(9)" no-undo.
+def var v-job-no            as   char format "x(13)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 
 def var v-ship-id    like shipto.ship-id.
 def var v-ship-name  like shipto.ship-name.
 def var v-ship-addr  like shipto.ship-addr.
+def var cShipAddr3   like shipto.spare-char-3.
 def var v-ship-city  like shipto.ship-city.
 def var v-ship-state like shipto.ship-state.
 def var v-ship-zip   like shipto.ship-zip.
@@ -222,6 +224,7 @@ ASSIGN v-comp-add1 = ""
         v-ship-name = "" 
         v-ship-addr[1] = "" 
         v-ship-addr[2] = "" 
+        cShipAddr3 = "" 
         v-ship-city = "" 
         v-ship-state = "" 
         v-ship-zip = ""  .
@@ -298,6 +301,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
         v-ship-name    = shipto.ship-name
         v-ship-addr[1] = shipto.ship-addr[1]
         v-ship-addr[2] = shipto.ship-addr[2]
+        cShipAddr3     = shipto.spare-char-3
         v-ship-addr3   = shipto.ship-city + ", " +
                          shipto.ship-state + "  " +
                          shipto.ship-zip
@@ -354,9 +358,27 @@ for each xxreport where xxreport.term-id eq v-term-id,
        v-comp-city = ""
        v-comp-state = ""
        v-comp-zip = "" .
-    if v-ship-addr[2] eq "" then
-      assign
+    IF cShipAddr3 EQ "" AND v-ship-addr[2] EQ "" THEN
+      ASSIGN
        v-ship-addr[2] = v-ship-addr3
+       cShipAddr3     = ""
+       v-ship-addr3   = ""
+       v-ship-city = ""
+       v-ship-state = ""
+       v-ship-zip = ""
+       .
+    IF cShipAddr3 EQ "" THEN
+      ASSIGN
+       cShipAddr3     = v-ship-addr3
+       v-ship-addr3   = ""
+       v-ship-city = ""
+       v-ship-state = ""
+       v-ship-zip = ""
+       .
+    IF v-ship-addr[2] EQ "" THEN
+      ASSIGN
+       v-ship-addr[2] = cShipAddr3
+       cShipAddr3     = v-ship-addr3
        v-ship-addr3   = ""
        v-ship-city = ""
        v-ship-state = ""
@@ -421,7 +443,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       
       v-salesman = trim(v-salesman).
       v-po-no = oe-bolh.airway-bill /*oe-boll.po-no*/.
-      v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+      v-job-no = IF oe-boll.job-no = "" THEN "" 
+                 ELSE TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
       if v-salesman gt '' then
         if substr(v-salesman,length(trim(v-salesman)),1) eq "," then
           substr(v-salesman,length(trim(v-salesman)),1) = "".
@@ -489,8 +512,16 @@ for each xxreport where xxreport.term-id eq v-term-id,
      IF v-comp-addr[2] = "" THEN
            ASSIGN v-comp-addr[2] = v-comp-addr3
                   v-comp-addr3 = "".
-     IF v-ship-addr[2] = "" THEN
+     IF v-ship-addr[2] = "" AND cShipAddr3 = "" THEN
            ASSIGN v-ship-addr[2] = v-ship-addr3
+                  cShipAddr3   = ""
+                  v-ship-addr3 = "".
+     IF cShipAddr3 = "" THEN
+           ASSIGN cShipAddr3   = v-ship-addr3
+                  v-ship-addr3 = "".
+     IF v-ship-addr[2] = "" THEN
+           ASSIGN v-ship-addr[2] = cShipAddr3
+                  cShipAddr3   = v-ship-addr3
                   v-ship-addr3 = "".
 
      /*IF lv-bolfmt-int = 1 THEN

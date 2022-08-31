@@ -165,7 +165,7 @@ cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
-cust.tagStatus cust.internal
+cust.tagStatus cust.internal cust.emailPreference
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 RECT-6 
@@ -182,7 +182,7 @@ cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
-cust.tagStatus cust.internal
+cust.tagStatus cust.internal cust.emailPreference
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS cbMatrixPrecision cbMatrixRounding ~
@@ -648,6 +648,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY .81
           BGCOLOR 15 FONT 4
+     cust.emailPreference AT ROW 18.95 COL 135 COLON-ALIGNED
+          LABEL "Email"
+          VIEW-AS COMBO-BOX INNER-LINES 3
+          LIST-ITEM-PAIRS "Ask","0",
+                          "Combined","1",
+                          "Separate","2"
+          DROP-DOWN-LIST
+          SIZE 16 BY 1    
      cust.spare-int-1 AT ROW 13.43 COL 135 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 

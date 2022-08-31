@@ -160,12 +160,14 @@ It also provides for the ability to change the date of a BOL." 900
 "LoadPrep.r" "CE" "EB" "Load Prep / Die file from Estimate Spec Info" "Utility to create Prep and Die file from all estimates." 900
 "loadtag.r" "FG" "IF" "Update Job# on Loadtag FG transactions." "Update the job number on load tags for a range of tag numbers." 900
 "LoadTagReport.r" "" "" "report comparing Item units per pallet to" "Report comparing Item units per pallet to actual load tags created" 900
-"mkfginks.r" "FG" "" "Inks will copy to the I-F-1 colors" "WARNING: This utility will not prompt the user, and will run and delete the ink colors from the Estimate and update the IF1 ink details." 1000
+"MarkPOsAsVouchered.r" "UTIL" "" "Reads specified .CSV file and sets POs Vouchered" "" 900
+"mkfginks.r" "FG" "" "Inks will copy to the I-F-1 colors" "WARNING: This utility will not prompt the user, and will run and delete the ink colors from the FG Item and update the IF1 ink details to match the estimate." 1000
 "module.r" "00" "" "License Modules" "License File - Restricted to ASI user only" 1000
 "MoveEst.r" "EF" "NR" "Move Estimate Files" "Move estimate files rather than deleting them." 900
 "newir12.r" "FG" "IR@" "IR12 New Version" "Custom Version of IR12 reort.
 
 Will be deleted after 16.15.00 release." 1000
+"NotesCleanup.r" "UTIL" "" "Remove selected data from Notes table" "" 900
 "oepostgl.r" "OP" "OB4" "Post OE Invoices to G/L" "Post OE Invoices to G/L accounts." 900
 "ohshiped.r" "FG" "IF1" "Show FG Tag # Shipped and Also On Hand Qty" "Based on item number rangt, set tag number that shippe and alsoupdate quntity on hand." 900
 "OpenOrderPriceRecalc.r" "UTIL" "" "Open Order Price Recalc" "" 900
@@ -269,6 +271,7 @@ If no invoice, it will set BOL to unposted as well as all lines." 900
 It will ask for the run number and the new date to use for this run." 900
 "Updateimagepath.r" "CE" "E" "Update Attachments Disk Drive or Folder" "Update attachment path for CAD dor Die in a range of estimates." 900
 "UpdateOrder.r" "OE" "OU1" "UpdateOrder to Update Release Date and Release" "UpdateOrder to Update Release Date and Release Orders by Range" 900
+"UpdateOrderCost" "OE" "OU1" "Update Order Cost" "" 900
 "UpdateShiptoZones.r" "AR" "AF1" "Update Shipto Zones" "Update ship from warehouse, carrier and delivery zone for a range of customers." 900
 "UpdateStatus.r" "OE" "NM" "Update Status based on line items" "This utility will update the status of Jobs, Orders, Releases and Purchase Orders based on the lines and the calculation of if the record should have a closed status." 900
 "UpdBinPO.r" "FG" "IF1" "Update Vendor PO# on I-F-1 Bin/Jobs Tab" "Update bins with a vendor PO# for a range of item numbers." 900
