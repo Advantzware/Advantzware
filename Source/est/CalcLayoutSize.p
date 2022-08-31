@@ -481,10 +481,39 @@ PROCEDURE pCalcLayoutSizeOnly:
 END PROCEDURE.    
 
 PROCEDURE pCalcLayout:
+    DEFINE VARIABLE lPartitionCalculation AS LOGICAL NO-UNDO.
     
     IF NOT bf-ef.lsh-lock THEN 
     /* Create Temp-table record and populate the fields later */    
     CREATE ttLayoutSize.
+
+    ASSIGN
+        ttLayoutSize.dLayoutSheetLength    = bf-ef.lsh-len     
+        ttLayoutSize.dLayoutSheetWidth     = bf-ef.lsh-wid 
+        ttLayoutSize.dNetSheetLength       = bf-ef.nsh-len 
+        ttLayoutSize.dNetSheetWidth        = bf-ef.nsh-wid 
+        ttLayoutSize.dNetSheetDepth        = bf-ef.nsh-dep 
+        ttLayoutSize.dGrossSheetLength     = bf-ef.gsh-len 
+        ttLayoutSize.dGrossSheetWidth      = bf-ef.gsh-wid 
+        ttLayoutSize.dGrossSheetDepth      = bf-ef.gsh-dep 
+        ttLayoutSize.dDieSizeLength        = bf-ef.trim-l  
+        ttLayoutSize.dDieSizeWidth         = bf-ef.trim-w  
+        ttLayoutSize.dDieSizeDepth         = bf-ef.trim-d  
+        ttLayoutSize.dRollWidth            = bf-ef.roll-wid
+        ttLayoutSize.dDieInchesRequired    = bf-ef.die-in  
+        ttLayoutSize.cBoardItemCode        = bf-ef.i-code  
+        ttLayoutSize.cBoardItemBasisWeight = bf-ef.weight  
+        ttLayoutSize.dBoardItemCaliper     = bf-ef.cal     
+        ttLayoutSize.IsRollMaterial        = bf-ef.roll    
+        ttLayoutSize.iNumOutWidth          = bf-ef.n-out   
+        ttLayoutSize.iNumOutLength         = bf-ef.n-out-l 
+        ttLayoutSize.iNumOutDepth          = bf-ef.n-out-d 
+        ttLayoutSize.iNumberCuts           = bf-ef.n-cuts  
+        ttLayoutSize.iBlankNumUp           = bf-eb.num-up  
+        ttLayoutSize.iBlankNumOnWidth      = bf-eb.num-wid 
+        ttLayoutSize.iBlankNumOnLength     = bf-eb.num-len 
+        ttLayoutSize.iBlankNumOnDepth      = bf-eb.num-dep
+        .    
         
     IF bf-ef.m-code NE "" THEN
     DO:
@@ -642,7 +671,19 @@ PROCEDURE pCalcLayout:
         ttLayoutSize.iNumOutDepth  = MAX(ttLayoutSize.iNumOutDepth,1)
         ttLayoutSize.iNumberCuts   = (ttLayoutSize.iNumOutWidth - 1) + (ttLayoutSize.iNumOutLength - 1) + (ttLayoutSize.iNumOutDepth - 1).
       
-        
+    RUN pGetDecimalSettings(bf-eb.company,  
+            cIndustryType,
+            OUTPUT lDecimal,
+            OUTPUT dDecimalFactor,
+            OUTPUT dDecimalMax, 
+            OUTPUT dConversionFactor,
+            OUTPUT lRound).      
+
+    RUN spGetSettingByName ("CENewPartitionCalc", OUTPUT cCENewPartitionCalc).
+
+    IF cCENewPartitionCalc EQ "YES" THEN
+        RUN pAreBlanksPartitionStyleType (BUFFER bf-ef, OUTPUT lBlanksStyleTypePartition).
+         
     IF cIndustryType = "Folding" THEN
     DO:
         IF bf-ef.xgrain EQ "S" THEN
@@ -654,6 +695,23 @@ PROCEDURE pCalcLayout:
                 dTempLength = ttLayoutSize.dGrossSheetWidth
                 dTempWidth  = ttLayoutSize.dGrossSheetLength.
     END.
+    ELSE IF lBlanksStyleTypePartition AND 
+        DYNAMIC-FUNCTION("fEstimate_IsComboType", DYNAMIC-FUNCTION("fEstimate_GetEstimateType", bf-eb.est-type, "")) THEN DO:
+        ASSIGN
+            dCalcTotalLength      = 0
+            dCalcTotalWidth       = bf-eb.t-wid * bf-eb.num-len
+            lPartitionCalculation = TRUE
+            .
+      
+        RUN pCalculatePartitionStyleDieSize (BUFFER bf-ef, OUTPUT dCalcTotalWidth, OUTPUT dCalcTotalLength). 
+    
+        IF bf-ef.xgrain EQ "B" THEN
+            ASSIGN
+                dSwapDim         = dCalcTotalLength
+                dCalcTotalLength = dCalcTotalWidth
+                dCalcTotalWidth  = dSwapDim
+                .
+    END.    
     ELSE 
     DO:
         ASSIGN 
@@ -672,233 +730,226 @@ PROCEDURE pCalcLayout:
                 dTempLength = dTempWidth
                 dTempWidth  = dSwapDim.
     END. 
-    
-    RUN pGetDecimalSettings(bf-eb.company,  
-            cIndustryType,
-            OUTPUT lDecimal,
-            OUTPUT dDecimalFactor,
-            OUTPUT dDecimalMax, 
-            OUTPUT dConversionFactor,
-            OUTPUT lRound).      
-     
-            
-    RUN pGetFormulaTT (BUFFER bf-eb,
-                       INPUT cIndustryType, 
-                       INPUT lDecimal, 
-                       INPUT dDecimalFactor, 
-                       INPUT dDecimalMax, 
-                       INPUT dConversionFactor, 
-                       INPUT lRound,
-                       OUTPUT TABLE formule).
-    
-    /*formule is populated by CalcStyleFormulae*/
-    FIND FIRST formule NO-LOCK NO-ERROR.
-    
-    
-    IF ceroute-dec EQ 1 THEN 
-    DO:
-        ASSIGN
-            iCalcNumOnWidth            = 1
-            iCalcNumOnLength           = 1
-            ttLayoutSize.iNumOutWidth  = 1
-            ttLayoutSize.iNumOutLength = 1.
-          
-        IF bf-ef.xgrain EQ "B" THEN
-            ASSIGN
-                dCalcTotalLength = formule.formule[1]
-                dCalcTotalWidth  = formule.formule[2].
-        ELSE
-            ASSIGN
-                dCalcTotalWidth  = formule.formule[1]
-                dCalcTotalLength = formule.formule[2].
-    END.
-    ELSE 
-    DO:
-        IF cIndustryType = "Folding" THEN
+
+    IF NOT lPartitionCalculation THEN DO: 
+        RUN pGetFormulaTT (BUFFER bf-eb,
+                           INPUT cIndustryType, 
+                           INPUT lDecimal, 
+                           INPUT dDecimalFactor, 
+                           INPUT dDecimalMax, 
+                           INPUT dConversionFactor, 
+                           INPUT lRound,
+                           OUTPUT TABLE formule).
+        
+        /*formule is populated by CalcStyleFormulae*/
+        FIND FIRST formule NO-LOCK NO-ERROR.
+        
+        
+        IF ceroute-dec EQ 1 THEN 
         DO:
-            IF bf-ef.xgrain = "B" OR bf-ef.xgrain = "S" THEN
-                ASSIGN 
-                    dLengthtoUse = dTempWidth - dTrimLength 
-                    dWidtoUse    = dTempLength - dTrimWidth.
+            ASSIGN
+                iCalcNumOnWidth            = 1
+                iCalcNumOnLength           = 1
+                ttLayoutSize.iNumOutWidth  = 1
+                ttLayoutSize.iNumOutLength = 1.
+              
+            IF bf-ef.xgrain EQ "B" THEN
+                ASSIGN
+                    dCalcTotalLength = formule.formule[1]
+                    dCalcTotalWidth  = formule.formule[2].
             ELSE
                 ASSIGN
-                    dLengthtoUse = dTempLength - dTrimWidth
-                    dWidtoUse    = dTempWidth - dTrimLength. 
+                    dCalcTotalWidth  = formule.formule[1]
+                    dCalcTotalLength = formule.formule[2].
         END.
-        ELSE
+        ELSE 
         DO:
-            IF bf-ef.xgrain = "B" THEN
-                ASSIGN 
-                    dLengthtoUse = dTempWidth - dTrimWidth
-                    dWidtoUse    = dTempLength - dTrimLength.
-            ELSE
-                ASSIGN
-                    dLengthtoUse = dTempLength - dTrimLength
-                    dWidtoUse    = dTempWidth - dTrimWidth.
-        END.
-            
-        /* Calculate Width Size using Panel dimension */    
-        DO iCnt = 1 TO 50:
-            iExt = iCnt.        
-            IF iCnt > 13 THEN 
-                iExt = 13.
-            
             IF cIndustryType = "Folding" THEN
             DO:
                 IF bf-ef.xgrain = "B" OR bf-ef.xgrain = "S" THEN
-                DO: 
-                    IF dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
-                        ASSIGN 
-                            iCalcNumOnWidth = iCnt
-                            dCalcTotalWidth = dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2].
-                        
-                    ELSE 
-                        LEAVE.
-                END.
+                    ASSIGN 
+                        dLengthtoUse = dTempWidth - dTrimLength 
+                        dWidtoUse    = dTempLength - dTrimWidth.
                 ELSE
-                DO:
-                   IF dCalcTotalWidth + formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN 
-                        ASSIGN
-                            iCalcNumOnWidth = iCnt
-                            dCalcTotalWidth = dCalcTotalWidth + formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
-            
-                    ELSE 
-                        LEAVE.
-                END.
+                    ASSIGN
+                        dLengthtoUse = dTempLength - dTrimWidth
+                        dWidtoUse    = dTempWidth - dTrimLength. 
             END.
-            /* Corrugated Industry */
             ELSE
             DO:
                 IF bf-ef.xgrain = "B" THEN
-                DO: 
-                    IF iCnt = 1 OR dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
-                        ASSIGN 
-                            iCalcNumOnWidth = iCnt
-                            dCalcTotalWidth = dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2].
-                        
-                    ELSE 
-                        LEAVE.
-                END.
+                    ASSIGN 
+                        dLengthtoUse = dTempWidth - dTrimWidth
+                        dWidtoUse    = dTempLength - dTrimLength.
                 ELSE
-                DO:
-                    IF dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)] <= dWidtoUse
-                        OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
-                        ASSIGN
-                            iCalcNumOnWidth = iCnt
-                            dCalcTotalWidth = dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)].
-            
-                    ELSE 
-                        LEAVE.
-                END.
+                    ASSIGN
+                        dLengthtoUse = dTempLength - dTrimLength
+                        dWidtoUse    = dTempWidth - dTrimWidth.
             END.
-        END. // DO iCnt = 1 TO 50:
-         
-        /* Calculate Length Size using Panel dimension */    
-        DO iCnt = 1 TO 50:
-            iExt = iCnt.        
-            IF iCnt > 13 THEN 
-                iExt = 13.
-            
-            IF cIndustryType = "Folding" THEN
-            DO:
-                IF bf-ef.xgrain = "B" OR bf-ef.xgrain = "S" THEN
-                DO:
-                    IF dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN
-                        ASSIGN 
-                            iCalcNumOnLength = iCnt
-                            dCalcTotalLength = dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
                 
-                    ELSE 
-                        LEAVE.
+            /* Calculate Width Size using Panel dimension */    
+            DO iCnt = 1 TO 50:
+                iExt = iCnt.        
+                IF iCnt > 13 THEN 
+                    iExt = 13.
+                
+                IF cIndustryType = "Folding" THEN
+                DO:
+                    IF bf-ef.xgrain = "B" OR bf-ef.xgrain = "S" THEN
+                    DO: 
+                        IF dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
+                            ASSIGN 
+                                iCalcNumOnWidth = iCnt
+                                dCalcTotalWidth = dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2].
+                            
+                        ELSE 
+                            LEAVE.
+                    END.
+                    ELSE
+                    DO:
+                       IF dCalcTotalWidth + formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN 
+                            ASSIGN
+                                iCalcNumOnWidth = iCnt
+                                dCalcTotalWidth = dCalcTotalWidth + formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
+                
+                        ELSE 
+                            LEAVE.
+                    END.
                 END.
+                /* Corrugated Industry */
                 ELSE
                 DO:
-                    IF dCalcTotalLength + formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
-                        ASSIGN 
-                            iCalcNumOnLength = iCnt
-                            dCalcTotalLength = dCalcTotalLength + formule[iStyleFormulaOnWid[iExt] * 2].
-                        
-                    ELSE 
-                        LEAVE.
+                    IF bf-ef.xgrain = "B" THEN
+                    DO: 
+                        IF iCnt = 1 OR dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
+                            ASSIGN 
+                                iCalcNumOnWidth = iCnt
+                                dCalcTotalWidth = dCalcTotalWidth + formule.formule[iStyleFormulaOnWid[iExt] * 2].
+                            
+                        ELSE 
+                            LEAVE.
+                    END.
+                    ELSE
+                    DO:
+                        IF dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)] <= dWidtoUse
+                            OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
+                            ASSIGN
+                                iCalcNumOnWidth = iCnt
+                                dCalcTotalWidth = dCalcTotalWidth + formule[iStyleFormulaOnWid[iExt] + (iStyleFormulaOnWid[iExt] - 1)].
+                
+                        ELSE 
+                            LEAVE.
+                    END.
+                END.
+            END. // DO iCnt = 1 TO 50:
+             
+            /* Calculate Length Size using Panel dimension */    
+            DO iCnt = 1 TO 50:
+                iExt = iCnt.        
+                IF iCnt > 13 THEN 
+                    iExt = 13.
+                
+                IF cIndustryType = "Folding" THEN
+                DO:
+                    IF bf-ef.xgrain = "B" OR bf-ef.xgrain = "S" THEN
+                    DO:
+                        IF dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN
+                            ASSIGN 
+                                iCalcNumOnLength = iCnt
+                                dCalcTotalLength = dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
+                    
+                        ELSE 
+                            LEAVE.
+                    END.
+                    ELSE
+                    DO:
+                        IF dCalcTotalLength + formule[iStyleFormulaOnWid[iExt] * 2] <= dWidtoUse THEN 
+                            ASSIGN 
+                                iCalcNumOnLength = iCnt
+                                dCalcTotalLength = dCalcTotalLength + formule[iStyleFormulaOnWid[iExt] * 2].
+                            
+                        ELSE 
+                            LEAVE.
+                    END. 
+                END.
+                
+                /* Corrugated Industry */
+                ELSE
+                DO: 
+                    IF bf-ef.xgrain = "B" THEN
+                    DO:
+                        IF iCnt = 1 OR dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN
+                            ASSIGN 
+                                iCalcNumOnLength = iCnt
+                                dCalcTotalLength = dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
+                    
+                        ELSE 
+                            LEAVE.
+                    END.
+                    ELSE
+                    DO:
+                        IF dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2] <= dLengthtoUse
+                            OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
+                            ASSIGN 
+                                iCalcNumOnLength = iCnt
+                                dCalcTotalLength = dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2].
+                            
+                        ELSE 
+                            LEAVE.
+                    END.
                 END. 
-            END.
+            END. // DO iCnt = 1 TO 50:
             
-            /* Corrugated Industry */
+        END. /* ELSE*/
+        
+        
+        IF NOT bf-ef.lsh-lock THEN /* autocalc */
+        DO: 
+            IF cIndustryType = "Folding" THEN
+            DO:
+                ASSIGN 
+                        ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth 
+                        ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.
+                
+                IF AVAILABLE bf-mach THEN
+                    ASSIGN
+                        dCalcTotalWidth  = MAX(dCalcTotalWidth, bf-mach.min-len)
+                        dCalcTotalLength = MAX(dCalcTotalLength, bf-mach.min-wid).
+            END.
             ELSE
-            DO: 
-                IF bf-ef.xgrain = "B" THEN
+            DO:
+                IF bf-ef.xgrain = "B" THEN 
                 DO:
-                    IF iCnt = 1 OR dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)] <= dLengthtoUse THEN
-                        ASSIGN 
-                            iCalcNumOnLength = iCnt
-                            dCalcTotalLength = dCalcTotalLength + formule.formule[iStyleFormulaOnLen[iExt] + (iStyleFormulaOnLen[iExt] - 1)].
+                    ASSIGN 
+                        ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
+                        ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth.
+                    
+                    IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
+                        dCalcTotalWidth = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
+                    IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
+                        dCalcTotalLength = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.  
+                END.
+                ELSE 
+                DO:
+                    ASSIGN 
+                        ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
+                        ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth 
+                        .   
                 
-                    ELSE 
-                        LEAVE.
-                END.
-                ELSE
-                DO:
-                    IF dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2] <= dLengthtoUse
-                        OR (NOT (avail(bf-item) AND bf-item.i-code = "R" AND bf-ef.xgrain EQ "N") AND iCnt = 1) THEN 
-                        ASSIGN 
-                            iCalcNumOnLength = iCnt
-                            dCalcTotalLength = dCalcTotalLength + formule[iStyleFormulaOnLen[iExt] * 2].
-                        
-                    ELSE 
-                        LEAVE.
-                END.
+                      
+                    IF bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
+                        dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth.
+                    IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
+                        dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength.
+                END. 
             END. 
-        END. // DO iCnt = 1 TO 50:
-        
-    END. /* ELSE*/
-    
-    
-    IF NOT bf-ef.lsh-lock THEN /* autocalc */
-    DO: 
-        IF cIndustryType = "Folding" THEN
-        DO:
-            ASSIGN 
-                    ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnWidth 
-                    ttLayoutSize.iBlankNumOnLength = iCalcNumOnLength.
-            
-            IF AVAILABLE bf-mach THEN
-                ASSIGN
-                    dCalcTotalWidth  = MAX(dCalcTotalWidth, bf-mach.min-len)
-                    dCalcTotalLength = MAX(dCalcTotalLength, bf-mach.min-wid).
         END.
-        ELSE
-        DO:
-            IF bf-ef.xgrain = "B" THEN 
-            DO:
-                ASSIGN 
-                    ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
-                    ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth.
-                
-                IF bf-eb.t-len * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
-                    dCalcTotalWidth = bf-eb.t-len * ttLayoutSize.iBlankNumOnLength.
-                IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
-                    dCalcTotalLength = bf-eb.t-wid * ttLayoutSize.iBlankNumOnWidth.  
-            END.
-            ELSE 
-            DO:
-                ASSIGN 
-                    ttLayoutSize.iBlankNumOnWidth  = iCalcNumOnLength
-                    ttLayoutSize.iBlankNumOnLength = iCalcNumOnWidth 
-                    .   
-            
-                  
-                IF bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth GT dCalcTotalLength THEN  
-                    dCalcTotalLength = bf-eb.t-len * ttLayoutSize.iBlankNumOnWidth.
-                IF bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength GT dCalcTotalWidth THEN  
-                    dCalcTotalWidth = bf-eb.t-wid * ttLayoutSize.iBlankNumOnLength.
-            END. 
-        END. 
-    END.
-    
-    ASSIGN 
-        ttLayoutSize.iBlankNumUp        = ttLayoutSize.iBlankNumOnWidth * ttLayoutSize.iBlankNumOnLength
-        ttLayoutSize.dDieInchesRequired = formule.formule[12] * ttLayoutSize.iBlankNumUp  .
         
+        ASSIGN 
+            ttLayoutSize.iBlankNumUp        = ttLayoutSize.iBlankNumOnWidth * ttLayoutSize.iBlankNumOnLength
+            ttLayoutSize.dDieInchesRequired = formule.formule[12] * ttLayoutSize.iBlankNumUp  .
+    END.
+            
     IF cIndustryType = "Folding" THEN
         RUN pCalcLeafDieInchs (INPUT ttLayoutSize.iBlankNumUp, INPUT-OUTPUT ttLayoutSize.dDieInchesRequired).    
     

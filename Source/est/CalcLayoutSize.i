@@ -185,10 +185,11 @@ PROCEDURE pAreBlanksPartitionStyleType PRIVATE:
         WHERE style.company EQ bf-eb.company
           AND style.style   EQ bf-eb.style:
         IF style.type NE "P" THEN DO:
-            iBlankCount = iBlankCount + 1.              
             oplStyleTypePartition = FALSE.
             LEAVE.
-        END.    
+        END.
+        ELSE IF style.type EQ "P" THEN
+            iBlankCount = iBlankCount + 1.              
     END.
     
     IF iBlankCount LE 1 OR iBlankCount GT 2 THEN
