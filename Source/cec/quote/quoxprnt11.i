@@ -506,7 +506,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
         RUN printHeader (12,OUTPUT v-printline).
     END.
-
+    
+    IF LAST-OF(xqitm.part-no) AND lSpecNotes THEN
+    DO:
+        RUN pPrintSpecNotes(xqitm.i-no).
+    END.
     IF NOT LAST(xqitm.part-no) THEN 
     do:
         PUT SKIP(1).

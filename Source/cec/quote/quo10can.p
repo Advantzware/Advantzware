@@ -511,4 +511,52 @@ else do:
   end. /* for each report */
   
 end.  /* multi */    
+
+PROCEDURE printHeader:
+  DEFINE INPUT PARAMETER ipPageOffSet AS INTEGER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opInitVar AS INTEGER NO-UNDO.
+
+  IF LINE-COUNTER > PAGE-SIZE - ipPageOffSet THEN DO:
+    PAGE.
+    {cec/quote/quo10can2.i}
+    opInitVar = 0.       
+  END.
+END PROCEDURE.
+
+PROCEDURE pPrintSpecNotes:
+  DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
+  
+  DEFINE VARIABLE cInst AS CHARACTER FORM "x(80)" EXTENT 20 NO-UNDO.
+  DEFINE VARIABLE lExistNotes AS LOG NO-UNDO.
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+                      
+  FIND FIRST bf-itemfg NO-LOCK 
+       WHERE bf-itemfg.company EQ cocode
+         AND bf-itemfg.i-no EQ ipcFGItem NO-ERROR.
+       
+  IF AVAILABLE bf-itemfg THEN 
+  DO:               
+       {custom/notesprt.i bf-itemfg cInst 20}
+       DO i = 1 TO 20:
+          IF cInst[i] <> "" THEN DO:
+              IF i = 1 THEN
+              DO:
+                  PUT "Spec Notes:" SKIP.
+                  RUN printHeader (1,OUTPUT v-printline).
+              END.
+              PUT "<C2>" cInst[i] SKIP.
+              RUN printHeader (1,OUTPUT v-printline).
+              lExistNotes = YES.
+          END.
+       END.  
+       IF lExistNotes THEN 
+       DO:
+         PUT SKIP(1).
+         RUN printHeader (1,OUTPUT v-printline).       
+       END.
+  END.
+  
+END PROCEDURE.
+
+
 /* end ---------------------------------- copr. 2000  advanced software, inc. */
