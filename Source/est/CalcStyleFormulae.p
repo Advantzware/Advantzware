@@ -27,9 +27,9 @@ DEFINE INPUT PARAMETER ipdConversionFactor  AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR formule.
 
 
-DEFINE VARIABLE iIndex        AS INTEGER NO-UNDO.
-DEFINE VARIABLE dSquareBoxFit AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dScores       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iIndex         AS INTEGER NO-UNDO.
+DEFINE VARIABLE dSquareBoxFit  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dScoresOrKnife AS DECIMAL NO-UNDO.
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -65,9 +65,9 @@ IF style.type <> "F" THEN /*If Not Foam*/
 /*Calculate all 12 forumlae in the Style file*/        
 DO iIndex = 1 TO 12:
     IF iIndex MOD 2 EQ 1 OR iIndex EQ 12 THEN /*If Width formula (odd value) or Die Rule Formula (12)*/
-        dScores = eb.k-wid.             
+        dScoresOrKnife = eb.k-wid.             
     ELSE /*Length*/
-        dScores = eb.k-len.
+        dScoresOrKnife = eb.k-len.
          
     RUN pCalcFormula(style.formula[iIndex],     /*Style Formula*/
         iIndex,                    /*formula number*/
@@ -77,7 +77,7 @@ DO iIndex = 1 TO 12:
         eb.len,                    /* 'L' - Inner Length*/
         eb.wid,                    /* 'W' - Inner Width*/
         eb.dep,                    /* 'D' - Inner Depth*/
-        dScores,                   /* 'S' - Scores on Width or Length*/
+        dScoresOrKnife,            /* 'S' - Scores on Width or Length, 'K' - Knife on Width or Length*/
         eb.tuck,                   /* 'T' - Tuck*/
         eb.gluelap,                /* 'J' - Joint Tab Width*/
         eb.fpanel,                 /* 'B' - Bottom Flap*/    
