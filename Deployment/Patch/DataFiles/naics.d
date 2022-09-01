@@ -1251,6 +1251,7 @@
 1251 "454310" "Fuel Dealers                                                                                                       " no
 1252 "45439" "Other Direct Selling Establishments                                                                                " no
 1253 "454390" "Other Direct Selling Establishments                                                                                " no
+2198 "459130" "Sewing, Needlework, and Piece Goods Stores" no
 1254 "48-49" "Transportation and Warehousing                                                                                     " no
 1255 "481" "Air Transportation                                                                                                 " no
 1256 "4811" "Scheduled Air Transportation                                                                                       " no
