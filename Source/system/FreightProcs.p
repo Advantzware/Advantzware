@@ -884,10 +884,7 @@ PROCEDURE pCreateEstReleaseBuffer PRIVATE:
         NO-ERROR.
     IF AVAILABLE company THEN 
     DO:
-        ASSIGN 
-            ipiFormNo  = MAXIMUM(ipiFormNo, 1)
-            ipiBlankNo = MAXIMUM(ipiBlankNo, 1)
-            .
+        
         CREATE opbf-estRelease. 
         ASSIGN 
             opbf-estRelease.company          = ipcCompany

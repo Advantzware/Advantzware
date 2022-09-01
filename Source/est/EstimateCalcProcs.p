@@ -2324,15 +2324,36 @@ PROCEDURE pBuildFreightCostDetails PRIVATE:
             WHERE bf-eb.company EQ bf-ttEstCostBlank.company
             AND bf-eb.est-no EQ bf-ttEstCostBlank.estimateNo
             AND bf-eb.form-no EQ bf-ttEstCostBlank.formNo
-            AND bf-eb.blank-no EQ bf-ttEstCostBlank.blankNo,
-            FIRST bfFirstBlank-ttEstCostBlank NO-LOCK
-            WHERE bfFirstBlank-ttEstCostBlank.estCostHeaderID EQ bf-ttEstCostHeader.estCostHeaderID
-            AND bfFirstBlank-ttEstCostBlank.formNo EQ 1
-            AND bfFirstBlank-ttEstCostBlank.blankNo EQ 1
-            :
-            RUN pBuildCostDetailForFreight(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm, 
-                BUFFER bf-ttEstCostBlank, BUFFER bf-ttEstCostItem, BUFFER bf-eb, 
-                bfFirstBlank-ttEstCostBlank.estCostFormID, bfFirstBlank-ttEstCostBlank.estCostBlankID).
+            AND bf-eb.blank-no EQ bf-ttEstCostBlank.blankNo:
+            
+            IF glSeparateSetHeaderAsForm0 THEN DO:
+                    RUN pBuildCostDetailForFreight(
+                        BUFFER bf-ttEstCostHeader, 
+                        BUFFER bf-ttEstCostForm, 
+                        BUFFER bf-ttEstCostBlank, 
+                        BUFFER bf-ttEstCostItem, 
+                        BUFFER bf-eb, 
+                        INPUT  bf-ttEstCostBlank.estCostFormID, 
+                        INPUT  bf-ttEstCostBlank.estCostBlankID
+                        ).            
+            END.
+            ELSE DO: 
+                FIND FIRST bfFirstBlank-ttEstCostBlank NO-LOCK
+                     WHERE bfFirstBlank-ttEstCostBlank.estCostHeaderID EQ bf-ttEstCostHeader.estCostHeaderID
+                       AND bfFirstBlank-ttEstCostBlank.formNo          EQ 1
+                       AND bfFirstBlank-ttEstCostBlank.blankNo         EQ 1
+                     NO-ERROR.
+                IF AVAILABLE bfFirstBlank-ttEstCostBlank THEN
+                    RUN pBuildCostDetailForFreight(
+                        BUFFER bf-ttEstCostHeader, 
+                        BUFFER bf-ttEstCostForm, 
+                        BUFFER bf-ttEstCostBlank, 
+                        BUFFER bf-ttEstCostItem, 
+                        BUFFER bf-eb, 
+                        INPUT  bfFirstBlank-ttEstCostBlank.estCostFormID, 
+                        INPUT  bfFirstBlank-ttEstCostBlank.estCostBlankID
+                        ).
+            END.
         END. /*Set Header Blank*/
     END.
     ELSE 

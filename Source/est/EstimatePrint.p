@@ -822,7 +822,7 @@ PROCEDURE pPrintForm PRIVATE:
         RUN pPrintMiscInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, "Prep", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pPrintMiscInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, "Misc", ipbf-ttCEFormatConfig.SIMONListInclude, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pPrintOperationsInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
-        RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        RUN pPrintFreightWarehousingAndHandlingForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pPrintCostSummaryInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pPrintSeparateChargeInfoForForm(BUFFER bf-estCostHeader, BUFFER bf-estCostForm, BUFFER ipbf-ttCEFormatConfig, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END. //Standard form printing 
@@ -1517,6 +1517,7 @@ PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-estCostHeader FOR estCostHeader.
     DEFINE PARAMETER BUFFER ipbf-estCostForm   FOR estCostForm.
+    DEFINE PARAMETER BUFFER ipbf-ttCEFormatConfig FOR ttCEFormatConfig.
     DEFINE INPUT-OUTPUT PARAMETER iopiPageCount AS INTEGER.
     DEFINE INPUT-OUTPUT PARAMETER iopiRowCount AS INTEGER.
    
@@ -1540,6 +1541,14 @@ PROCEDURE pPrintFreightWarehousingAndHandlingForForm PRIVATE:
             lAllForHeader = YES
             iFormNo = 0
             .
+    IF AVAILABLE ipbf-estCostForm THEN DO:
+        IF ipbf-estCostForm.formNo = 0 AND NOT ipbf-ttCEFormatConfig.printForm0Separately THEN
+            RETURN.
+    
+        IF ipbf-estCostForm.formNo = 1 AND NOT ipbf-ttCEFormatConfig.printForm0Separately THEN
+            iFormNo = 0.  
+    END.
+
     FOR EACH estRelease NO-LOCK 
         WHERE estRelease.company EQ ipbf-estCostHeader.company
         AND estRelease.estimateNo EQ ipbf-estCostHeader.estimateNo
