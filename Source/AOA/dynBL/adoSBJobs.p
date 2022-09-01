@@ -190,12 +190,13 @@ PROCEDURE pCreatettSBJobs:
 
 /*        IF hFields:Item("qty_corr_rcvd"):VALUE GT 0 THEN*/
 /*        EXPORT                                          */
+/*            hFields:Item("job_number"):Value            */
+/*            hFields:Item("part_comp_flg"):Value         */
 /*            hFields:Item("cscode"):Value                */
 /*            hFields:Item("due_date"):Value              */
 /*            hFields:Item("form_no"):Value               */
 /*            hFields:Item("cust_ident"):Value            */
 /*            hFields:Item("item_no"):Value               */
-/*            hFields:Item("job_number"):Value            */
 /*            hFields:Item("stnd_su_hrs"):Value           */
 /*            hFields:Item("pass_no"):Value               */
 /*            hFields:Item("qty_ordered"):Value           */
@@ -203,7 +204,6 @@ PROCEDURE pCreatettSBJobs:
 /*            hFields:Item("qty_to_run"):Value            */
 /*            hFields:Item("mach_seq_no"):Value           */
 /*            hFields:Item("mach_speed"):Value            */
-/*            hFields:Item("qty_sheets_rcvd"):Value       */
 /*            hFields:Item("qty_corr_rcvd"):Value         */
 /*            .                                           */
 
@@ -281,6 +281,30 @@ PROCEDURE pSBJobs:
         bJobMch.run-complete = YES.
         RELEASE bJobMch.
     END. // each job-mch
+
+    iCount = 0.
+    FOR EACH job-hdr NO-LOCK
+        WHERE job-hdr.company EQ cCompany
+          AND job-hdr.opened  EQ YES
+        :
+        IF CAN-FIND(FIRST job-mch
+                    WHERE job-mch.company      EQ job-hdr.company
+                      AND job-mch.job          EQ job-hdr.job
+                      AND job-mch.job-no       EQ job-hdr.job-no
+                      AND job-mch.job-no2      EQ job-hdr.job-no2
+                      AND job-mch.run-complete EQ NO) THEN
+        NEXT.
+        iCount = iCount + 1.
+        IF lProgressBar THEN
+        RUN spProgressBar ("Close Jobs Run Completed", iCount, ?).
+        FIND CURRENT job-hdr EXCLUSIVE-LOCK.
+        FIND FIRST job OF job-hdr EXCLUSIVE-LOCK.
+        ASSIGN
+            job-hdr.opened = NO
+            job.opened     = NO
+            .
+        FIND CURRENT job-hdr NO-LOCK.
+    END. // each job-hdr
 
     iCount = 0.
     FOR EACH ttSBJobs:
@@ -378,11 +402,19 @@ PROCEDURE pSBJobs:
                 job-mch.pass           = ttSBJobs.pass
                 job-mch.est-op_rec_key = "None"
                 job-mch.job            = ttUniqueJob.job
+                job-mch.start-date-su  = ?
+                job-mch.start-time-su  = 0 
+                job-mch.end-date-su    = ?
+                job-mch.end-time-su    = 0
+                job-mch.start-date     = ?
+                job-mch.start-time     = 0 
+                job-mch.end-date       = ?
+                job-mch.end-time       = 0
                 .                    
         END. /* if not avail */
         ASSIGN
             job-mch.i-no    = ttSBJobs.i-no
-            job-mch.i-name  = ttSBJobs.i-name 
+            job-mch.i-name  = ttSBJobs.i-name
             job-mch.run-qty = ttSBJobs.run-qty
             job-mch.mr-hr   = ttSBJobs.mr-hr
             job-mch.run-hr  = ttSBJobs.run-hr
@@ -456,6 +488,7 @@ PROCEDURE pSetSelect:
     /* define sql section statement */
     opcSelect = "Select "
               + "Customer.cscode, "
+              + "Ord_Mach_Ops.part_comp_flg, "
               + "Ord_Mach_Ops.form_no, "
               + "Ord_Mach_Ops.mach_no, "
               + "Ord_Mach_Ops.mach_seq_no, "
@@ -471,7 +504,6 @@ PROCEDURE pSetSelect:
               + "Orders.order_no, "
               + "Orders.plt_no, "
               + "Orders.qty_ordered, "
-/*              + "Ord_Part.qty_sheets_rcvd, "*/
               + "Ord_Part.qty_corr_rcvd, "
               + "Spec_File.cust_ident, "
               + "Spec_File.item_no "
@@ -494,8 +526,10 @@ PROCEDURE pSetSelect:
         :
         IF FIRST-OF(mach.spare-int-2) THEN
         opcSelect = opcSelect
-                  + "Ord_Mach_Ops.mach_no="
+                  + "(Ord_Mach_Ops.mach_no="
                   + STRING(mach.spare-int-2)
+                  + " and "
+                  + "Ord_Mach_Ops.part_comp_flg='O' or Ord_Mach_Ops.part_comp_flg='P')"
                   + " or "
                   .
     END. /* each mach */

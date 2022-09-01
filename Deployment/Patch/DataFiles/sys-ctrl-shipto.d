@@ -363,7 +363,7 @@
 "001" "FGReorderReport" "" 0 0 "" ? no "" "201907124226303617311" yes "COLSCO" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CINVOICE" "" 0 0 "FIBREMEXICO" ? no "" "0901201003588486" yes "DEVPACCO" "DEVPACCO" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "OESALESREP" "" 0 2.5 "BJ" ? yes "" "0405201207849879" yes "DEVPACCO" "DEVPACCO" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "BOLCERT" "" 0 0 "PackSlip" ? yes "OS3" "202003245906004739052" yes "EXE1002" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "BOLCERT" "" 1 0 "PackSlip" ? yes "OS3" "202003245906004739052" yes "EXE1002" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "cXMLOrder" "" 0 0 "078424131" ? yes "" "201812185108102746619" yes "GECP" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "cXMLASN" "" 0 0 ".\CustFiles\XMLfiles\XMLOutput\GECP" ? yes "" "201910225831304389129" yes "GECP" "GECP" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "cXMLInvoice" "" 0 0 "[Identity1]" ? yes "" "201905244821703530869" yes "Goose" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
@@ -407,9 +407,11 @@
 "001" "CINVOICE" "" 0 0 "FibreMexico" ? yes "" "0801200701945068" yes "IBM1000" "IBMMEX" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "LOADTAG" "" 4 0 "ASI" ? no "OU1" "0305201801880154" yes "ibm1000" "ibmmex" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CINVOICE" "" 0 0 "FIBREMEXICO" ? no "" "1005200905020091" yes "iggle01" "iggle01" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "BOLCERT" "" 1 0 "CCC" ? yes "OS3" "20220728_14:36:19_09826582" yes "INT1010" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "QUOIMAGE" "" 0 1 "P:\ASI\Environments\EnvFiles\images\Lagunitas\Advaned Box Company Logo v2.png" ? no "" "0614201700587529" yes "Lag10001" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "ApplyInvoiceApprovals" "" 0 0 "" ? yes "" "202012095760205908616" yes "LTen10" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "CustomerPO" "" 0 0 "INFO" ? yes "VAL" "202201315585108526679" yes "Lten10" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "BOLCERT" "" 1 0 "CCC" ? no "OS3" "202207270064509820006" yes "LTen10" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "STMTPRINT" "" 0 0 "souleexcel" ? yes "AR4" "202006038340205334918" yes "Matt12" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "BOLPOST" "" 0 0 "AutoSelectShipFrom" ? yes "OS5" "1020201610193650" yes "Matt21" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "FGTagValidation" "" 0 0 "ItemMatch" ? yes "" "202010297432205814270" yes "Matt21" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no

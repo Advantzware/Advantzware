@@ -1,7 +1,7 @@
 /* ---------------------------------------------- oe/rep/bolsign.p 06/06 YSK */
 /* PRINT Signed BOL                                                           */
 /* -------------------------------------------------------------------------- */
-
+DEFINE OUTPUT PARAMETER oplXPrint AS LOGICAL NO-UNDO.
 {sys/inc/var.i shared}
 {sys/form/r-top.i}
 def buffer xxreport     for report.
@@ -43,9 +43,9 @@ for each xxreport NO-LOCK where xxreport.term-id eq v-term-id,
           SUBSTRING(ls-image1,LENGTH(ls-image1),1) <> "/"
        THEN ls-image1 = ls-image1 + "\".
       
-       ls-pdf-image = ls-image1 + STRING(oe-bolh.bol-no) + ".pdf".
+       ls-pdf-image = ls-image1 + STRING(oe-bolh.bol-no) + ".pdf". 
        IF SEARCH(ls-pdf-image) <> ? THEN DO:
-          RUN ShellExecuteA(0, "open", ls-pdf-image, "", "", 0, OUTPUT tInt).
+          RUN ShellExecuteA(0, "open", ls-pdf-image, "", "", 0, OUTPUT tInt).  
           IF tInt LE 32 THEN
           DO:
              RUN custom/runapdf.p (OUTPUT lv-cmd).
@@ -53,8 +53,9 @@ for each xxreport NO-LOCK where xxreport.term-id eq v-term-id,
              RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
           END.
        END.
-       ELSE DO:
+       ELSE DO:     
           ASSIGN
+             oplXPrint = YES
              ls-image1 = ls-image1 + STRING(oe-bolh.bol-no) + ".jpg"
              FILE-INFO:FILE-NAME = ls-image1
              ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">"

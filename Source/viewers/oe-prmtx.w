@@ -1625,16 +1625,30 @@ PROCEDURE valid-effective-date :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+   DEFINE VARIABLE dtLastEffectiveDate AS DATE NO-UNDO.
   {methods/lValidateError.i YES}
-   
-   IF NOT adm-new-record AND  oe-prmtx.eff-date LE TODAY THEN DO:     
-       IF DATE(oe-prmtx.eff-date:SCREEN-VALUE in frame {&frame-name}) LT oe-prmtx.eff-date  THEN DO:
-          MESSAGE "Effective Date can not be updated earlier than an existing effective date:" + string(oe-prmtx.eff-date)
+         
+   FOR EACH bf-oe-prmtx NO-LOCK 
+        WHERE bf-oe-prmtx.company EQ g_company
+          AND bf-oe-prmtx.custShipID EQ oe-prmtx.custShipID:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND bf-oe-prmtx.cust-no EQ oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND bf-oe-prmtx.i-no EQ oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND bf-oe-prmtx.custype EQ oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+          AND  ROWID(bf-oe-prmtx) NE ROWID(oe-prmtx) 
+        BREAK BY bf-oe-prmtx.eff-date DESC:           
+          dtLastEffectiveDate = bf-oe-prmtx.eff-date.
+          LEAVE.
+        END.
+        
+        IF dtLastEffectiveDate NE ? AND oe-prmtx.eff-date NE DATE(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}) AND
+           DATE(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}) LE  dtLastEffectiveDate THEN
+        DO:
+           MESSAGE "Effective Date can not be updated earlier than an existing effective date:" + string(dtLastEffectiveDate)
                    VIEW-AS ALERT-BOX ERROR TITLE "Earlier Date Found" .
             APPLY "entry" TO oe-prmtx.eff-date.
             oplReturnError = YES.
-       END.  
-   END.
+        END.
 
   {methods/lValidateError.i NO}
 END PROCEDURE.

@@ -279,7 +279,7 @@ DEFINE FRAME F-Main
           VIEW-AS TOGGLE-BOX
           SIZE 44.2 BY .81
      APIOutbound.userName AT ROW 12.52 COL 21 COLON-ALIGNED WIDGET-ID 24
-          LABEL "Username"
+          LABEL "Username" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 30.8 BY 1
           BGCOLOR 15 FGCOLOR 0 

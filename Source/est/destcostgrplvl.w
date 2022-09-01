@@ -24,15 +24,18 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT  PARAMETER ipcAction              AS CHARACTER NO-UNDO. /* View, Add, Update */
 DEFINE INPUT  PARAMETER ipcestCostGroupLevelID AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
 
 {methods/defines/globdefs.i}
-{sys/inc/var.i shared}
 
 {est/ttEstSysConfig.i}
+  
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -51,7 +54,8 @@ DEFINE INPUT  PARAMETER ipcestCostGroupLevelID AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel fil-estCostGroupLevelDesc 
+&Scoped-Define ENABLED-OBJECTS fil-estCostGroupLevelID btnCancel ~
+fil-estCostGroupLevelDesc 
 &Scoped-Define DISPLAYED-OBJECTS fil-estCostGroupLevelID ~
 fil-estCostGroupLevelDesc 
 
@@ -137,7 +141,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fil-estCostGroupLevelDesc IN FRAME D-Dialog
    1 LIKE = ASI.estCostGroupLevel.estCostGroupLevelDesc EXP-SIZE        */
 /* SETTINGS FOR FILL-IN fil-estCostGroupLevelID IN FRAME D-Dialog
-   NO-ENABLE LIKE = ASI.estCostGroupLevel.estCostGroupLevelID           */
+   LIKE = ASI.estCostGroupLevel.estCostGroupLevelID EXP-SIZE            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -313,7 +317,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fil-estCostGroupLevelID fil-estCostGroupLevelDesc 
       WITH FRAME D-Dialog.
-  ENABLE btnCancel fil-estCostGroupLevelDesc 
+  ENABLE fil-estCostGroupLevelID btnCancel fil-estCostGroupLevelDesc 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -350,22 +354,29 @@ PROCEDURE pDisplayRecord PRIVATE :
     DO WITH FRAME {&FRAME-NAME}:
     END.
     
-    FIND FIRST ttEstCostGroupLevel NO-lOCK
-        WHERE ttEstCostGroupLevel.estCostGroupLevelID = ipcEstGrpLvlId NO-ERROR.
+    IF ipcAction EQ "Update" THEN DO:    
+        FIND FIRST ttEstCostGroupLevel NO-lOCK
+            WHERE ttEstCostGroupLevel.estCostGroupLevelID = ipcEstGrpLvlId NO-ERROR.
+            
+        IF NOT AVAILABLE ttEstCostGroupLevel THEN
+        DO:
+            MESSAGE "Invalid estCostGroupLevelID: " ipcEstGrpLvlId
+            VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
         
-    IF NOT AVAILABLE ttEstCostGroupLevel THEN
-    DO:
-        MESSAGE "Invalid estCostGroupLevelID: " ipcEstGrpLvlId
-        VIEW-AS ALERT-BOX.
-        RETURN.
+        fil-estCostGroupLevelID:SENSITIVE = FALSE.
+        
     END.
-    
+    ELSE IF ipcAction EQ "Add" THEN
+        CREATE ttEstCostGroupLevel.
+        
     ASSIGN
         fil-estCostGroupLevelID:SCREEN-VALUE   = STRING(ttEstCostGroupLevel.estCostGroupLevelID)
         fil-estCostGroupLevelDesc:SCREEN-VALUE = ttEstCostGroupLevel.estCostGroupLevelDesc
         .
        
-      btnSave:SENSITIVE = NO. 
+    btnSave:SENSITIVE = NO. 
 
 END PROCEDURE.
 
@@ -379,20 +390,52 @@ PROCEDURE pSaveRecord PRIVATE:
     
     DEFINE BUFFER bf-estCostGroupLevel       FOR estCostGroupLevel.
     DEFINE BUFFER bf-ExclestCostGroupLevel   FOR estCostGroupLevel.
+    DEFINE BUFFER bf-EstCostGroupLevelSystem FOR estCostGroupLevelSystem.
        
     DO WITH FRAME {&frame-name}:
     END.
     
-    FIND FIRST ttEstCostGroupLevel NO-lOCK
-        WHERE ttEstCostGroupLevel.estCostGroupLevelID = INTEGER(fil-estCostGroupLevelID:SCREEN-VALUE) NO-ERROR.
-        
-    IF NOT AVAILABLE ttEstCostGroupLevel THEN
-    DO:
-        MESSAGE "Invalid estCostGroupLevelID: " fil-estCostGroupLevelID:SCREEN-VALUE
-        VIEW-AS ALERT-BOX.
+    IF fil-estCostGroupLevelDesc:SCREEN-VALUE EQ "" THEN DO:
+        MESSAGE "Description cannot be empty"
+        VIEW-AS ALERT-BOX ERROR.
         RETURN.
     END.
     
+    IF ipcAction EQ "Update" THEN DO:
+        FIND FIRST ttEstCostGroupLevel NO-lOCK
+             WHERE ttEstCostGroupLevel.estCostGroupLevelID = INTEGER(fil-EstCostGroupLevelID:SCREEN-VALUE)
+             NO-ERROR.
+            
+        IF NOT AVAILABLE ttEstCostGroupLevel THEN
+        DO:
+            MESSAGE "Invalid GroupLevelID: " fil-EstCostGroupLevelID:SCREEN-VALUE
+            VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.
+    END.
+    ELSE IF ipcAction EQ "Add" THEN DO:   
+        FIND FIRST bf-EstCostGroupLevel NO-LOCK
+             WHERE bf-EstCostGroupLevel.company             EQ cCompany
+               AND bf-EstCostGroupLevel.estCostGroupLevelID EQ INTEGER(fil-EstCostGroupLevelID:SCREEN-VALUE) 
+             NO-ERROR.
+        IF AVAILABLE bf-EstCostGroupLevel THEN DO:
+            MESSAGE "GroupLevel '" + fil-EstCostGroupLevelID:SCREEN-VALUE + "' already exists. Please enter a different name"
+            VIEW-AS ALERT-BOX ERROR.
+            
+            RETURN.
+        END.
+
+        FIND FIRST bf-EstCostGroupLevelSystem NO-LOCK
+             WHERE bf-EstCostGroupLevelSystem.estCostGroupLevelID EQ INTEGER(fil-EstCostGroupLevelID:SCREEN-VALUE) 
+             NO-ERROR.
+        IF AVAILABLE bf-EstCostGroupLevelSystem THEN DO:
+            MESSAGE "GroupLevel '" + fil-EstCostGroupLevelID:SCREEN-VALUE + "' already exists. Do you want to overwrite the existing GroupLevel?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+            IF NOT lChoice THEN 
+                RETURN.
+        END.
+    END.
+        
     DO TRANSACTION:
         
         FIND FIRST bf-estCostGroupLevel EXCLUSIVE-LOCK
@@ -402,7 +445,9 @@ PROCEDURE pSaveRecord PRIVATE:
         DO:
             CREATE bf-estCostGroupLevel.
             ASSIGN
-                bf-estCostGroupLevel.estCostGroupLevelID = INTEGER(fil-estCostGroupLevelID:SCREEN-VALUE). 
+                bf-estCostGroupLevel.estCostGroupLevelID = INTEGER(fil-estCostGroupLevelID:SCREEN-VALUE)
+                bf-estCostGroupLevel.company             = cCompany
+                . 
         END.
            
         ASSIGN
@@ -436,12 +481,12 @@ PROCEDURE pInit :
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
       
-    RUN Estimate_GetSystemDataForEstimate(INPUT "",
+    RUN Estimate_GetSystemDataForEstimate(
+        INPUT  cCompany,
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
-        OUTPUT TABLE ttEstCostGroupLevel).
-    
-   
+        OUTPUT TABLE ttEstCostGroupLevel
+        ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

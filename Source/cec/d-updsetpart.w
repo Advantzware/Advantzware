@@ -415,6 +415,9 @@ DO:
         ASSIGN 
             eb.set-is-assembled = rd_alloc
             eb.pur-man          = tb_unitize.
+        
+        IF eb.set-is-assembled NE ? THEN
+           eb.set-is-assembled = NOT eb.set-is-assembled.    
 
         FIND CURRENT eb NO-LOCK.
 
@@ -702,6 +705,9 @@ IF eb.est-type GE 5 THEN
                 eb.dep:FORMAT = ">>>9.999999".
    END.
   
+  ASSIGN     
+    rd_alloc   = bf-set.set-is-assembled
+   .         
    IF rd_alloc NE ? THEN
       rd_alloc = NOT rd_alloc.
 
@@ -714,8 +720,7 @@ IF bf-set.stock-no NE "" THEN
         NO-LOCK NO-ERROR.
 
 IF AVAIL itemfg THEN
-   rd_alloc = itemfg.alloc.
-rd_alloc = eb.set-is-assembled.
+   rd_alloc = itemfg.alloc.  
 
 {src/adm/template/dialogmn.i}
 
@@ -853,8 +858,7 @@ PROCEDURE local-initialize :
   ASSIGN
      eb.len:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.len})
      eb.wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.wid})
-     eb.dep:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.dep})
-     rd_alloc   = bf-set.set-is-assembled
+     eb.dep:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING({sys/inc/k16.i eb.dep})     
      tb_unitize = bf-set.pur-man.  
   DISPLAY  
     rd_alloc

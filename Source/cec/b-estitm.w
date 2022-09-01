@@ -731,7 +731,13 @@ DO:
    ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "Wood", INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetSubAssembly"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
@@ -2868,7 +2874,7 @@ PROCEDURE calc-layout :
        xeb.num-len  = 1.
 
         IF lCEUseNewLayoutCalc THEN
-            RUN pCalcDimensions.
+            RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
         ELSE
             RUN cec/calc-dim1.p NO-ERROR.
 
@@ -5186,6 +5192,7 @@ PROCEDURE pEstimateCleanUp PRIVATE:
                 bf-eb.ship-zip     = eb.ship-zip
                 bf-eb.sman         = eb.sman
                 bf-eb.comm         = eb.comm
+                bf-eb.tr-no        = eb.tr-no
                 .
         END.
     END.
@@ -5525,14 +5532,20 @@ PROCEDURE local-add-record :
   ELSE IF ls-add-what = "NewSetEst" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
       EMPTY TEMP-TABLE tt-eb-set.
-      RUN est/dAddSetEst.w("",riRowidEbNew) .
-      RUN pCreateSetEstimate.
+      RUN est/dAddSetEst.w("", "Wood", riRowidEbNew) .
+      RUN pCreateSetEstimate("Wood").
+  END.
+  ELSE IF ls-add-what = "SetWithSubAssembly" THEN DO:
+      EMPTY TEMP-TABLE ttInputEst .
+      EMPTY TEMP-TABLE tt-eb-set.
+      RUN est/dAddSetEst.w("", "SetSubAssembly", riRowidEbNew) .
+      RUN pCreateSetEstimate("SetSubAssembly").
   END.
   ELSE IF ls-add-what = "NewSetEstMold" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
       EMPTY TEMP-TABLE tt-eb-set.
       RUN est/dAddSetEstMold.w("","C",riRowidEbNew) .
-      RUN pCreateSetEstimate.
+      RUN pCreateSetEstimate("NewSetEstMold").
   END.
   ELSE IF ls-add-what = "NewEstMold" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
@@ -7097,7 +7110,7 @@ PROCEDURE pCreateMiscEstimate :
 
   IF AVAIL bff-eb THEN DO:
       IF bff-eb.sourceEstimate NE "" THEN 
-        RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT YES).
+        RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT YES, INPUT NO).
       ELSE 
         RUN est/dNewMiscCost.w( INPUT riEb ) .
   END.
@@ -7162,27 +7175,6 @@ PROCEDURE pCreateMoldEstimate :
       WHERE bff-eb.company EQ cocode
         AND ROWID(bff-eb) EQ riEb NO-ERROR .
 
-
-  /*IF AVAIL bff-eb THEN DO:
-      IF bff-eb.sourceEstimate NE "" THEN 
-        RUN est/BuildFarmForLogistics.p (INPUT riEb,INPUT YES).
-      ELSE 
-        RUN est/dNewMiscCost.w( INPUT riEb ) .
-  END.
-  IF iCount > 0 AND AVAIL bff-eb THEN do:
-      
-      RUN CreateEstReleaseForEstBlank(INPUT riEb,INPUT NO, OUTPUT iEstReleaseID ,
-                                     OUTPUT lError,OUTPUT cMessage) .
-
-      FIND FIRST estRelease NO-LOCK
-          WHERE estRelease.company EQ cocode 
-          AND estRelease.estReleaseID EQ estReleaseID NO-ERROR .
-
-      IF AVAIL estRelease THEN
-          //RUN est/dNewMiscUpd.w (RECID(estRelease), riEb, "Update", OUTPUT lv-rowid) .
-          RUN est/estReleases.w (riEb).
-
-  END.*/
   
   IF iCount > 0 THEN DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -7202,6 +7194,7 @@ PROCEDURE pCreateSetEstimate :
  Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
  Notes:
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcEstType AS CHARACTER NO-UNDO.   /* SetSubAssembly Wood */
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.   
   DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
   
@@ -7222,6 +7215,15 @@ PROCEDURE pCreateSetEstimate :
   FIND FIRST bff-eb NO-LOCK
       WHERE bff-eb.company EQ cocode
         AND ROWID(bff-eb) EQ riEb NO-ERROR .
+        
+  IF AVAIL bff-eb AND ipcEstType EQ "SetSubAssembly" THEN DO:
+      FOR EACH bf-eb NO-LOCK
+          WHERE bf-eb.company EQ cocode
+            AND bf-eb.est-no EQ bff-eb.est-no BY bf-eb.form-no :       
+          
+            RUN est/BuildFarmForLogistics.p (INPUT ROWID(bf-eb),INPUT YES, INPUT YES).            
+      END.  
+  END.      
         
   IF AVAIL bff-eb THEN
   FOR EACH tt-eb-set BREAK BY tt-eb-set.company:
@@ -8405,7 +8407,15 @@ PROCEDURE update-set :
      
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "Wood", INPUT ROWID(eb)) .
+       RUN local-open-query. 
+     
+     END.
+     ELSE IF est.estimateTypeID EQ "SetSubAssembly" then DO:
+     
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
        RUN local-open-query. 
      
      END.
@@ -8888,7 +8898,13 @@ PROCEDURE pUpdateRecord :
    ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit" ,INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "Wood", INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetSubAssembly"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:

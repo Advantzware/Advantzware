@@ -95,16 +95,20 @@
   chExcelApplication:Goto(v-cell) NO-ERROR.
   ASSIGN chExcelApplication:ActiveCell:Value = v-ship-addr[2] .
   
-
   ASSIGN v-cell = "R10C18".
+  chExcelApplication:Goto(v-cell) NO-ERROR.
+  ASSIGN chExcelApplication:ActiveCell:Value = cShipAddr3 .
+  
+
+  ASSIGN v-cell = "R11C18".
   chExcelApplication:Goto(v-cell) NO-ERROR.
   ASSIGN chExcelApplication:ActiveCell:Value = v-ship-city .
   
-  ASSIGN v-cell = "R10C28".
+  ASSIGN v-cell = "R11C28".
   chExcelApplication:Goto(v-cell) NO-ERROR.
   ASSIGN chExcelApplication:ActiveCell:Value = v-ship-state .
     
-  ASSIGN v-cell = "R10C30".
+  ASSIGN v-cell = "R11C30".
   chExcelApplication:Goto(v-cell) NO-ERROR.
   ASSIGN chExcelApplication:ActiveCell:Value = v-ship-zip .
   

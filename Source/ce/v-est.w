@@ -1866,6 +1866,7 @@ assign
  itemfg.pur-man           = xeb.pur-man 
  itemfg.alloc             = xeb.set-is-assembled
  itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+ itemfg.trno              = xeb.tr-no
  .
 
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").

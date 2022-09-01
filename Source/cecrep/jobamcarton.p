@@ -527,7 +527,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<B>"
               "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(20)"
               "</B>"
-              "<=DieLocation>" v-die-loc FORMAT "x(10)"
+              "<=DieLocation>" v-die-loc FORMAT "x(15)"
               "<=Impressions>" TRIM(STRING(v-dc-qty))    FORMAT "x(7)"
               "<=GrossWidth>" TRIM(STRING({sys/inc/k16v.i xef.gsh-wid},">>>>9.99")) FORMAT "x(8)"
               "<=GrossLength>" TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>>9.99")) FORMAT "x(8)"

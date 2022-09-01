@@ -665,12 +665,17 @@ DO:
                                     fg-rctd.po-line:screen-value = ENTRY(6,char-val)
                                     .
                                 RUN pDisplayPO(YES).
+                                APPLY "value-changed" TO FOCUS.
                             END.
                         END.
                         ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN 
                             DO:
                                 RUN windows/l-jobit1.w (fg-rctd.company,fg-rctd.job-no:SCREEN-VALUE,fg-rctd.job-no2:screen-value, FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT rec-val).
-                                IF char-val <> ""  THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val). 
+                                IF char-val <> ""  THEN 
+                                DO:
+                                    ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val). 
+                                    APPLY "value-changed" TO FOCUS.
+                                END.
                                 IF rec-val <> ? THEN 
                                 DO:
                                     FIND tt-job-hdr WHERE RECID(tt-job-hdr) = rec-val NO-LOCK NO-ERROR.
@@ -707,6 +712,7 @@ DO:
                                 fg-rctd.i-no:SCREEN-VALUE    = ENTRY(3,char-val)
                                 .
                             RUN  pGetUnassembledItem(cocode , ENTRY(3,char-val)) .
+                            RUN pGetLocBin .
                         END.
                         IF rec-val <> ? THEN 
                         DO:
@@ -730,12 +736,14 @@ DO:
                 WHEN "job-no2" THEN 
                     DO:
                         RUN windows/l-jobno2.w (fg-rctd.company, fg-rctd.job-no:screen-value,FOCUS:SCREEN-VALUE,OUTPUT char-val, OUTPUT rec-val).
-                        IF char-val <> "" THEN
+                        IF char-val <> "" THEN DO:
                             ASSIGN /*focus:screen-value in frame {&frame-name} = entry(1,char-val)
                        fg-rctd.job-no:screen-value = entry(1,char-val) */
                                 fg-rctd.job-no2:screen-value = ENTRY(2,char-val)
                                 fg-rctd.i-no:SCREEN-VALUE    = ENTRY(3,char-val)
                                 .
+                                RUN pGetLocBin .
+                        END.
                         IF rec-val <> ? THEN 
                         DO:
                             FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.

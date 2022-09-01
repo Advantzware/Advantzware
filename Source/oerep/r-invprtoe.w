@@ -1371,7 +1371,10 @@ DO:
             OUTPUT cMessage) . 
         /*   END. */
         IF tbAutoClose:CHECKED THEN 
-            APPLY "CLOSE":U TO THIS-PROCEDURE. 
+            APPLY "CLOSE":U TO THIS-PROCEDURE.
+        ELSE DO:    
+         RUN refreshCallingBrowse.
+        END.
     
     END.
 
@@ -1655,12 +1658,12 @@ ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch E-Mail */
 DO:
         ASSIGN {&self-name}.
         /*   tb_Override-email:SCREEN-VALUE = IF tb_BatchMail THEN "Yes" ELSE "No". */
-        //IF tb_BatchMail THEN
-          //  ASSIGN 
-         //       tb_splitPDF:HIDDEN    = NO
-         //       tb_splitPDF:SENSITIVE = YES
-        //        .
-        //ELSE
+        IF tb_BatchMail THEN
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = NO
+                tb_splitPDF:SENSITIVE = YES
+                .
+        ELSE
             ASSIGN 
                 tb_splitPDF:HIDDEN    = YES
                 tb_splitPDF:SENSITIVE = NO
@@ -2078,14 +2081,21 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
                 fiEndDateLabel:SCREEN-VALUE   = "Ending Inv Date:"
                 .
-                
+
+
+        IF tb_BatchMail:SCREEN-VALUE = "YES" THEN
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = NO
+                tb_splitPDF:SENSITIVE = YES
+                .
+        ELSE
+            ASSIGN 
+                tb_splitPDF:HIDDEN    = YES
+                tb_splitPDF:SENSITIVE = NO.        
+
         /*IF v-print-fmt EQ "invprint 10" OR v-print-fmt EQ  "invprint 20" OR v-print-fmt EQ "LancoYork" THEN
                ASSIGN tb_qty-all:HIDDEN = NO .
            ELSE tb_qty-all:HIDDEN = YES .*/
-               
-            ASSIGN 
-                tb_splitPDF:HIDDEN    = YES
-                tb_splitPDF:SENSITIVE = NO.           
 
         lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
         IF glPaperless THEN 
@@ -2429,7 +2439,7 @@ PROCEDURE pRunFormatValueChanged :
                 fi_broker-bol:SENSITIVE = NO
                 fi_broker-bol:HIDDEN    = YES.
          
-        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
+        IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "Portugese" OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "Coburn" OR v-print-fmt EQ "PremierS" OR v-print-fmt EQ "Axis" THEN
             ASSIGN
                 tb_prt-zero-qty:SENSITIVE = YES
                 tb_prt-zero-qty:HIDDEN    = NO.
@@ -2444,7 +2454,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN rs_no_PN:HIDDEN    = TRUE
                 rs_no_PN:SENSITIVE = FALSE.
 
-        IF LOOKUP(v-print-fmt,"PremierX,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,PremierS,Carded2") > 0 THEN
+        IF LOOKUP(v-print-fmt,"PremierX,Portugese,InvPrint-Mex,Coburn,Axis,BlueRx,ColoniaX,ABC,Nosco,Nosco1,Central,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCACH,CCCFGL3,Peachtreefgl3,Peachtree,PremierS,Carded2") > 0 THEN
             ASSIGN
                 tb_cust-copy:HIDDEN      = NO
                 tb_cust-copy:SENSITIVE   = YES
@@ -2587,6 +2597,20 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+PROCEDURE refreshCallingBrowse:
+  DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
+   
+  phandle = SESSION:FIRST-PROCEDURE.
+  
+  DO WHILE VALID-HANDLE(phandle):   
+    IF INDEX(phandle:FILE-NAME,'w-oeinv.') NE 0 THEN DO:
+      RUN refreshBrowse IN phandle.
+      RETURN.
+    END.
+    phandle = phandle:NEXT-SIBLING.
+  END. /* do while */
+END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 

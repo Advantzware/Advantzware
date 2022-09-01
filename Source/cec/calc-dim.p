@@ -28,11 +28,16 @@ def var lv-is-foam as log no-undo.
 def var lv-industry as cha no-undo.
 DEF VAR li AS INT NO-UNDO.
 
+DEFINE VARIABLE lBlanksStyleTypePartition AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCENewPartitionCalc       AS CHARACTER NO-UNDO.
+
 DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
 
 {sys/inc/f16to32.i}
 
 {sys/inc/ceroute.i C}
+
+{est/CalcLayoutSize.i}
 
   FIND CURRENT xeb.
   FIND CURRENT xef.
@@ -166,18 +171,18 @@ DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
       llen = min(llen, mach.max-wid)
       lwid = min(lwid, mach.max-len).
 
-  /*IF CAN-DO("P,R",style.type) THEN DO:
+  RUN spGetSettingByName ("CENewPartitionCalc", OUTPUT cCENewPartitionCalc).
+
+  IF cCENewPartitionCalc EQ "YES" THEN
+      RUN pAreBlanksPartitionStyleType (BUFFER xef, OUTPUT lBlanksStyleTypePartition).
+
+  IF lBlanksStyleTypePartition AND 
+    DYNAMIC-FUNCTION("fEstimate_IsComboType", DYNAMIC-FUNCTION("fEstimate_GetEstimateType", xeb.est-type, "")) THEN DO:
     ASSIGN
      num[1] = 0
      num[2] = xeb.t-wid * xeb.num-len.
-
-    FOR EACH eb FIELDS(t-len num-wid) NO-LOCK
-        WHERE eb.company EQ xeb.company
-          AND eb.est-no  EQ xeb.est-no
-          AND eb.eqty    EQ xeb.eqty
-          AND eb.form-no EQ xeb.form-no:
-      num[1] = num[1] + (eb.t-len * eb.num-wid).
-    END.
+    
+    RUN pCalculatePartitionStyleDieSize (BUFFER xef, OUTPUT num[2], OUTPUT num[1]). 
 
     IF xef.xgrain EQ "B" THEN
       ASSIGN
@@ -186,7 +191,7 @@ DEF TEMP-TABLE tt-adder NO-UNDO FIELD tt-adder AS CHAR.
        num[2] = zzz.
   END.
 
-  ELSE*/ 
+  ELSE 
   DO:
     if xef.lam-dscr eq "R" /*or (xef.lam-dscr ne "R" and xef.xgrain eq "S") */ then
        assign  zzz  = llen

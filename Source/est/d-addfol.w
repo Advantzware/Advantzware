@@ -33,14 +33,22 @@ def SHARED var cocode     as   char  format "x(3)"  no-undo.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE lDisplayWood AS LOGICAL  NO-UNDO.
+DEFINE VARIABLE lDisplaySubAssembly AS LOGICAL NO-UNDO.
 
 {sys/inc/cadcam.i}
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEWood", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
+    OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lDisplayWood = LOGICAL(cRtnChar) NO-ERROR.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CESubAssembly", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lDisplaySubAssembly = LOGICAL(cRtnChar) NO-ERROR.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -152,6 +160,11 @@ DEFINE BUTTON Btn_new-set AUTO-GO
      LABEL "&New Wood Set" 
      SIZE 26 BY 2.14
      BGCOLOR 8 .
+     
+DEFINE BUTTON Btn_set-subassembly AUTO-GO 
+     LABEL "&Set With SubAssembly" 
+     SIZE 26 BY 2.14
+     BGCOLOR 8 .     
 
 DEFINE BUTTON Btn_new-set-mold AUTO-GO 
      LABEL "&New Mold Set Estimate" 
@@ -184,12 +197,13 @@ DEFINE FRAME D-Dialog
      Btn_itm AT ROW 1.48 COL 10.4
      Btn_itm-cad AT ROW 1.48 COL 42.4 WIDGET-ID 2
      Btn_new-set AT ROW 1.48 COL 73.8 WIDGET-ID 10
+     Btn_set-subassembly AT ROW 3.86 COL 73.8 
      Btn_tandem AT ROW 3.86 COL 10.4
      Btn_part AT ROW 3.86 COL 42.4 WIDGET-ID 4
-     Btn_est-new-mold AT ROW 3.86 COL 73.8 WIDGET-ID 14
+     Btn_est-new-mold AT ROW 6.24 COL 73.8 WIDGET-ID 14
      Btn_set AT ROW 6.24 COL 10.4
      Btn_frm-out AT ROW 6.24 COL 42.4 WIDGET-ID 6
-     Btn_new-set-mold AT ROW 6.24 COL 73.8 WIDGET-ID 12
+     Btn_new-set-mold AT ROW 8.62 COL 73.8 WIDGET-ID 12
      Btn_est AT ROW 8.62 COL 10.4
      Btn-Copy AT ROW 8.62 COL 42.4
      Btn_est-2 AT ROW 11 COL 10.4
@@ -253,6 +267,11 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        Btn_new-set:HIDDEN IN FRAME D-Dialog           = TRUE.
+       
+/* SETTINGS FOR BUTTON Btn_set-subassembly IN FRAME D-Dialog
+   NO-ENABLE                                                            */       
+ASSIGN 
+       Btn_set-subassembly:HIDDEN IN FRAME D-Dialog           = TRUE.   
 
 /* SETTINGS FOR BUTTON Btn_new-set-mold IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -433,6 +452,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME Btn_set-subassembly
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_set-subassembly D-Dialog
+ON CHOOSE OF Btn_set-subassembly IN FRAME D-Dialog /* Set With SubAssembly */
+DO:
+    assign ls-add-what = "SetWithSubAssembly".
+    apply "window-close" to this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME Btn_new-set-mold
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_new-set-mold D-Dialog
@@ -500,11 +530,19 @@ IF fEnableMisc(cocode) THEN
         btn_est-rel:SENSITIVE = YES
         Btn_new-set:HIDDEN = NO
         Btn_new-set:SENSITIVE = YES
+        Btn_set-subassembly:HIDDEN = NO
+        Btn_set-subassembly:SENSITIVE = YES
         . 
  IF NOT lDisplayWood THEN
  ASSIGN 
     Btn_new-set:HIDDEN = YES
     Btn_new-set:SENSITIVE = NO.
+ 
+ IF NOT lDisplaySubAssembly THEN
+ ASSIGN 
+    Btn_set-subassembly:HIDDEN = YES
+    Btn_set-subassembly:SENSITIVE = NO.
+ 
         
 IF fEnableImportForm(cocode) THEN 
     ASSIGN  

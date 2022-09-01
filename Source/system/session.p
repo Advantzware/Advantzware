@@ -2179,6 +2179,33 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spGetSettingByNameAndLocation) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSettingByNameAndLocation Procedure
+PROCEDURE spGetSettingByNameAndLocation:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSettingValue AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    opcSettingValue = oSetting:GetByNameAndLocation(ipcSettingName, ipcCustomerID, ipcLocation).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 &IF DEFINED(EXCLUDE-spGetSettingByNameAndVendor) = 0 &THEN
 

@@ -19,8 +19,10 @@ def workfile wrk-chk
 
 form
   skip(8)
-  ap-chk.check-no to 6 ap-chk.check-date FORMAT "99/99/99" to 15
-  vend.vend-no to 24 ctot to 77 format "*,***,**9.99"
+  ap-chk.check-no to 8 
+  ap-chk.check-date FORMAT "99/99/99" to 17
+  vend.vend-no to 26 
+  ctot to 77 format "*,***,**9.99"
   skip(2)
   dol at 10
   skip(2)
@@ -36,8 +38,10 @@ form
   
 form
   skip(8)
-  ap-chk.check-no to 6 ap-chk.check-date FORMAT "99/99/99" to 15
-  vend.vend-no to 24 ctot to 77 format "*,***,**9.99"
+  ap-chk.check-no to 8 
+  ap-chk.check-date FORMAT "99/99/99" to 17
+  vend.vend-no to 26 
+  ctot to 77 format "*,***,**9.99"
   skip(2)
   dollar[1]  at 10
   dollar[2]  at 12
@@ -55,13 +59,15 @@ form
 form
   ap-chk.check-date FORMAT "99/99/99" at 7
   "** Check Totals **" at 31
-  ctot to 79
+  ctot to 77
   with frame b3 no-box no-labels no-attr-space.
   
 form
   skip(8)
-  ap-chk.check-no to 6 ap-chk.check-date FORMAT "99/99/99" to 15
-  vend.vend-no to 24 ctot to 77 format "*,***,**9.99"
+  ap-chk.check-no to 8 
+  ap-chk.check-date FORMAT "99/99/99" to 17
+  vend.vend-no to 26 
+  ctot to 77 format "*,***,**9.99"
   skip(2)
   dol at 10
   skip(3)

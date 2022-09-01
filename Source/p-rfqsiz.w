@@ -298,6 +298,7 @@ DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
            btPOScores:SENSITIVE = FALSE.
+           btn-auto-calc:SENSITIVE = FALSE.
         END.
         ELSE 
         DO: /* Save */
@@ -473,6 +474,28 @@ IF Btn-Save:LABEL IN FRAME {&FRAME-NAME} = '&SAVE' THEN
     opl-is-updating = YES.
 ELSE
     opl-is-updating = NO.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE phidePOScores C-WIn 
+PROCEDURE phidePOScores :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN
+        btPOScores:HIDDEN = YES
+        Btn-Save:COL = 5
+        Btn-Cancel:COL = 24
+        btn-auto-calc:COL = 44
+        .
+  END.
 
 END PROCEDURE.
 

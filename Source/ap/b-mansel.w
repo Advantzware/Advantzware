@@ -404,6 +404,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME ap-sel.disc-amt
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-sel.disc-amt Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF ap-sel.disc-amt IN BROWSE Browser-Table /* Discount */
+DO:
+    IF LASTKEY = -1 THEN RETURN.       
+    assign
+       ap-sel.amt-paid:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DECIMAL(ap-sel.inv-bal:SCREEN-VALUE IN BROWSE {&browse-name}) - DECIMAL(ap-sel.disc-amt:SCREEN-VALUE IN BROWSE {&browse-name})) .   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -593,9 +605,13 @@ PROCEDURE display-invoice :
          ap-sel.amt-paid:SCREEN-VALUE = STRING(ap-inv.due)
          .
 
-  IF (ap-sel.pre-date - ap-inv.inv-date) LE ap-inv.disc-days THEN DO:
+  IF (ap-sel.pre-date - ap-inv.inv-date) LE ap-inv.disc-days THEN DO:     
      ap-sel.disc-amt:SCREEN-VALUE = STRING(round(ap-inv.disc-% * ap-inv.net / 100,2)).
-  END.
+     
+     assign
+      ap-sel.amt-paid:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DECIMAL(ap-sel.amt-paid:SCREEN-VALUE) - DECIMAL(ap-sel.disc-amt:SCREEN-VALUE))
+      .
+  END.     
 
   ll-inv-displayed = YES.
 

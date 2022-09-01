@@ -24,6 +24,7 @@
 "299906246224705383534" "mMatProfitSep" "costGroup29" "Misc Material - Profit - Separate Bill" "Misc Material - Profit - Separate Bill" no no no no no "" no no no
 "299906246224705383535" "nfFolding" "costGroup33" "Folding" "Folding" no no no no yes "" no no no
 "299906246224705383536" "nfFreight" "costGroup19" "Freight Charge" "Freight Charge" no no no no yes "" no no no
+"20220726_14:45:08_09812427" "nfFreightInternal" "costGroup19" "Freight Charge Internal" "Freight Charge Internal" no no no no yes "" no no no
 "299906246224705383537" "nfFreightMinDiff" "costGroup19" "Freight Charge - Minimum Difference" "Freight Charge - Minimum Difference" no no no no yes "" no no no
 "299906246224705383538" "nfGSABoard" "costGroup31" "GS&A Board" "GS&A Board" no no no no yes "" no no no
 "299906246224805383539" "nfGSALab" "costGroup18" "GS&A Labor" "GS&A Labor" no no no no yes "" no no no

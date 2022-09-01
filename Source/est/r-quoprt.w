@@ -802,6 +802,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         IF tb_page:CHECKED AND
             (v-print-fmt EQ "CSC-EXCEL"     OR
             v-print-fmt EQ "PREMIER-EXCEL" OR
+            v-print-fmt EQ "Portugese-Excel" OR
             v-print-fmt EQ "QuoPrint-Excel-Mex" OR
             v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
             v-print-fmt EQ "BELL-EXCEL" OR
@@ -1773,6 +1774,7 @@ PROCEDURE batchmail-2-proc :
     IF tb_page:CHECKED AND
         (v-print-fmt EQ "CSC-EXCEL" OR
         v-print-fmt EQ "PREMIER-EXCEL" OR
+        v-print-fmt EQ "Portugese-Excel" OR
         v-print-fmt EQ "QuoPrint-Excel-Mex" OR
         v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
         v-print-fmt EQ "BELL-EXCEL" OR
@@ -1792,6 +1794,7 @@ PROCEDURE batchmail-2-proc :
 
     IF v-print-fmt <> "CSC-EXCEL" AND v-print-fmt <> "TRILAKE-EXCEL" AND
         v-print-fmt <> "PREMIER-EXCEL" AND
+        v-print-fmt <> "Portugese-Excel" AND
         v-print-fmt <> "QuoPrint-Excel-Mex" AND
         v-print-fmt <> "PREMIER-EXCEL-MCI" AND
         v-print-fmt <> "BELL-EXCEL" AND
@@ -1885,6 +1888,7 @@ PROCEDURE GenerateMail :
 
             IF NOT(v-print-fmt EQ "CSC-EXCEL" OR
                 v-print-fmt EQ "PREMIER-EXCEL" OR
+                v-print-fmt EQ "Portugese-Excel" OR
                 v-print-fmt EQ "QuoPrint-Excel-Mex" OR
                 v-print-fmt EQ "PREMIER-EXCEL-MCI" OR
                 v-print-fmt EQ "BELL-EXCEL" OR
@@ -1895,7 +1899,7 @@ PROCEDURE GenerateMail :
                 v-print-fmt EQ "MSPACK-EXCEL") THEN
                 RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
 
-            IF v-print-fmt EQ "PREMIER-EXCEL" OR v-print-fmt EQ "QuoPrint-Excel-Mex" THEN 
+            IF v-print-fmt EQ "PREMIER-EXCEL" OR v-print-fmt EQ "QuoPrint-Excel-Mex" OR v-print-fmt EQ "Portugese-Excel" THEN 
             DO:
                 FIND FIRST tt-filelist NO-LOCK NO-ERROR .
                 IF AVAILABLE tt-filelist THEN 
@@ -1938,6 +1942,7 @@ PROCEDURE GenerateReport :
     DO WITH FRAME {&FRAME-NAME}:
         IF v-print-fmt <> "CSC-EXCEL" AND v-print-fmt <> "TRILAKE-EXCEL" AND
             v-print-fmt <> "PREMIER-EXCEL" AND
+            v-print-fmt <> "Portugese-Excel" AND
             v-print-fmt <> "QuoPrint-Excel-Mex" AND
             v-print-fmt <> "PREMIER-EXCEL-MCI" AND
             v-print-fmt <> "BELL-EXCEL" AND
@@ -2201,7 +2206,7 @@ PROCEDURE pRunFormatValueChanged :
                 tb_terms:SENSITIVE    = YES
                 lv-termFile:SENSITIVE = YES.
 
-        IF v-print-fmt EQ "Premier-Excel" OR v-print-fmt EQ "QuoPrint-Excel-Mex" OR v-print-fmt EQ "Premier-Excel-Mci" 
+        IF v-print-fmt EQ "Premier-Excel" OR v-print-fmt EQ "QuoPrint-Excel-Mex" OR v-print-fmt EQ "Premier-Excel-Mci" OR v-print-fmt EQ "Portugese-Excel" 
             OR v-print-fmt EQ "CCC-Excel" 
             /*OR v-print-fmt EQ "Bell-Excel"*/
             THEN 
@@ -2574,7 +2579,7 @@ PROCEDURE run-report :
     /* Check for XL also */
     IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "NOSCO-EXCEL" 
         OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" OR v-print-fmt = "QuoPrint-Excel-Mex" OR v-print-fmt = "PREMIER-EXCEL-MCI" 
-        OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" THEN.
+        OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" OR v-print-fmt = "Portugese-Excel" THEN.
     ELSE
         IF IS-xprint-form THEN 
         DO:
@@ -2798,7 +2803,7 @@ PROCEDURE run-report-sys-ctrl-shipto :
     /* Check for XL also */
     IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "NOSCO-EXCEL" 
         OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" OR v-print-fmt = "QuoPrint-Excel-Mex" OR v-print-fmt = "PREMIER-EXCEL-MCI" 
-        OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" THEN.
+        OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" OR v-print-fmt = "Portugese-Excel" THEN.
     ELSE
         IF IS-xprint-form THEN 
         DO:
@@ -3053,6 +3058,10 @@ PROCEDURE SetQuoForm :
         WHEN "Premier-Excel" THEN 
             ASSIGN 
                 v-program      = "cec/quote/quoprm-xl.p" 
+                lines-per-page = 66.
+        WHEN "Portugese-Excel" THEN 
+            ASSIGN 
+                v-program      = "cec/quote/quoport-xl.p" 
                 lines-per-page = 66.
         WHEN "QuoPrint-Excel-Mex" THEN 
             ASSIGN 

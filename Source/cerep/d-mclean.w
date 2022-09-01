@@ -531,10 +531,10 @@ PROCEDURE pCreateTempTable :
             ttItemList.blank-no = ipciBlankNo 
             ttItemList.combo = (IF AVAIL est AND est.est-type GE 2 THEN YES ELSE NO )
             ttItemList.itemName = IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE ""
-            ttItemList.lDie = YES
-            ttItemList.lCad = YES 
-            ttItemList.lPlate = YES
-            ttItemList.lImage = YES. 
+            ttItemList.lDie = NO
+            ttItemList.lCad = NO 
+            ttItemList.lPlate = NO
+            ttItemList.lImage = NO. 
 
 
      CREATE ttSoule.

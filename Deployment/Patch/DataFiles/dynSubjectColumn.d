@@ -3114,7 +3114,7 @@
 208 yes 1 "ttDMIJobCodeAnalysis.dmiID" "DMI ID" ">>9" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 1 no yes "" "" no "" "" "202206270212109212576" no no no "" no "" "" 0 0 "" no no "" "" no
 208 yes 6 "ttDMIJobCodeAnalysis.dscr" "Description" "x(45)" "ttDMIJobCodeAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206270212109212578" no no no "" no "" "" 0 0 "" no no "" "" no
 208 yes 3 "ttDMIJobCodeAnalysis.jobCodeDMIID" "Job Code DMI ID" ">>>9" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 2 no no "" "" no "" "" "202206270212109212579" no no no "" no "" "" 0 0 "" no no "" "" no
-208 yes 2 "ttDMIJobCodeAnalysis.totTime" "Total Time" ">,>>>,>>9.99" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 0 no no "" "Report,Sum,[Group] DMI ID,Sum" no "" "" "202206270474009641687" no no no "" no "" "" 0 0 "" no no "" "" no
+208 yes 2 "ttDMIJobCodeAnalysis.totTime" "Total Time" "->,>>>,>>9.99" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 0 no no "" "Report,Sum,[Group] DMI ID,Sum" no "" "" "202206270474009641687" no no no "" no "" "" 0 0 "" no no "" "" no
 209 yes 1 "ttCostByMachine.dmiID" "DMI ID" ">>9" "ttCostByMachine" 0 "integer" "ASI" 1 no no "" "" no "" "" "202206278539709658944" no no no "" no "" "" 0 0 "" no no "" "" no
 209 yes 4 "ttCostByMachine.itemName" "Description" "x(30)" "ttCostByMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206278539709658945" no no no "" no "" "" 0 0 "" no no "" "" no
 209 yes 3 "ttCostByMachine.itemNo" "Item" "x(15)" "ttCostByMachine" 0 "character" "ASI" 2 no yes "" "" no "" "" "202206278539709658946" no no no "" no "" "" 0 0 "" no no "" "" no

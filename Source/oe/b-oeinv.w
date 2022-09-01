@@ -1046,8 +1046,10 @@ PROCEDURE refreshBrowse :
   Notes:       
 ------------------------------------------------------------------------------*/
   IF AVAILABLE inv-head THEN
-  BROWSE {&BROWSE-NAME}:REFRESH().
-
+  do:
+    BROWSE {&BROWSE-NAME}:REFRESH().
+    APPLY "value-changed" TO BROWSE {&browse-name}.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
