@@ -1,0 +1,14 @@
+<C+25><#1><C1><R2>$DisplayCompanyAddress||||IF["yes","<#2><FCourier New><FGCOLOR=$LogoColor$>
+<=2><C3><R+3><P20><B>$CustomerXName$</B><Farial>
+<P10><=2><R+6><C3>$CustomerXAddress1$
+<C3>$CustomerXAddress2$
+<C3>$CustomerXCity$ $CustomerXState$  $CustomerXPostalCode$
+<C3>Phone:  $CustomerXAreaCode|(999)|$$CustomerXPhone|999-9999|$
+<C3>Fax     :  $CustomerXFax|(999)999-9999|$
+<FGCOLOR=BLACK><C3>Email:  $CustomerXEmail$",""]|$<FCourier New><=2><R+14>
+Bill To:                                        Ship To:  $ShipTo5$
+     $BillTo1$<C46>$ShipTo1$
+     $BillTo2$<C46>$ShipTo2$
+     $BillTo3$<C46>$ShipTo3$
+     $BillTo4$<C46>$ShipTo4$</P12>
+<|10><R4><C50><#3><FROM><R8><C80><RECT><R6><C50><FROM><R6><C80><LINE><R4><C62><FROM><R6><C62><LINE><R6><C65><FROM><R8><C65><LINE><FArial><P12><=#3><=#3><R-2> <B>Quotation#: $QuoteID|>>>>>9|INT|$</B>           Page#: $PageNumber$<P10><=#3> Customer ID             Contact<=#3><R+2> Telephone                       Fax <FCourier New><=3><R+1> $CustomerID|X(8)|$      $Contact$<=3><R+3> $AreaCode|(999)|$$Phone|999-9999|$     $Fax|(999) 999-9999|$

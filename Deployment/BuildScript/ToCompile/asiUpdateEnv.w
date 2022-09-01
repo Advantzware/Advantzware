@@ -2878,7 +2878,7 @@ PROCEDURE ipDataFix :
         RUN ipDataFix220105.
     iopiStatus = 68.
     IF iCurrentVersion LT 22020500 THEN
-        RUN ipDataFix220205   
+        RUN ipDataFix220205.   
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
     iopiStatus = 80.

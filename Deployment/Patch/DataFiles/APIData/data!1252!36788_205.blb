@@ -1,0 +1,6 @@
+$PageSeparator$$FormHeader$<R-1><C1.5><FROM><R+1><C12><R-1><C1.5><FROM><R+1><C12><RECT><R-1><P10><B><C2>Form  $FormNo|99|INT|$ </B>
+$OperationAvailable|$OperationGroupHeader$$Operations$$OperationGroupFooter$/|LOG|$$FormMaterialAvailable|$FormMaterialGroupHeader$$FormMaterials$$FormMaterialGroupFooter$/|LOG|$$BlankAvailable|$BlankGroupHeader$$Blanks$$BlankGroupFooter$/|LOG|$$FormFooter$$PageSeparator$$PageBreakByForm||||IF["yes","$formfeed$$linefeed$$linefeed$<B><C2>Burt Rigid Box. </B><P10><C30><B><P11>Factory Order: <P11>Burt<C65>Report Date: $CurrentDate$</B><P10><R+0.20>
+<||3><C1><FROM><C83><LINE><||3>
+<C2><B>Customer: <P10>$CustomerID$ - $CustomerName$<P10><B><C39>Delivery Date: $DueDate$<C68>Order # :$OrderID|INT|>>>>>>9|$
+<C68>Job #: </B>$JobID$-$JobID2|INT|99|$
+<||3><C1><FROM><C83><LINE><||3>",""]|$
