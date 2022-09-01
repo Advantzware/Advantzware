@@ -1705,6 +1705,8 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, ipbf-estCostForm.grossQtyRequiredTotalAreaUOM , YES, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostForm.grossQtyRequiredTotalWeight, 7, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, ipbf-estCostForm.grossQtyRequiredTotalWeightUOM, NO, NO, NO).
+    RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[7] , ROUND(dGrossQtyRequiredTotalWeightInTons,2), 3, 2, NO, YES, NO, NO, YES).
+    RUN pWriteToCoordinates(iopiRowCount, iColumn[7] + 0.5, "Tons", NO, NO, NO).
     
 END PROCEDURE.
 
