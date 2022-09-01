@@ -2417,7 +2417,7 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
         
     IF lFoam THEN
     DO:
-        IF DYNAMIC-FUNCTION("fEstimate_IsCombo", ipbf-ttEstCostHeader.estType) THEN DO:
+        IF fIsComboType(ipbf-ttEstCostHeader.estType) THEN DO:
             ASSIGN
                 opbf-ttEstCostMaterial.dimLength               = ipbf-ttEstCostForm.netLength
                 opbf-ttEstCostMaterial.dimWidth                = ipbf-ttEstCostForm.netWidth
