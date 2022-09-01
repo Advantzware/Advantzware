@@ -27,9 +27,9 @@ DEFINE INPUT PARAMETER ipdConversionFactor  AS DECIMAL NO-UNDO.
 DEFINE OUTPUT PARAMETER TABLE FOR formule.
 
 
-DEFINE VARIABLE iIndex        AS INTEGER NO-UNDO.
-DEFINE VARIABLE dSquareBoxFit AS DECIMAL NO-UNDO.
-DEFINE VARIABLE dScores       AS DECIMAL NO-UNDO.
+DEFINE VARIABLE iIndex         AS INTEGER NO-UNDO.
+DEFINE VARIABLE dSquareBoxFit  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dScoresOrKnife AS DECIMAL NO-UNDO.
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -65,9 +65,9 @@ IF style.type <> "F" THEN /*If Not Foam*/
 /*Calculate all 12 forumlae in the Style file*/        
 DO iIndex = 1 TO 12:
     IF iIndex MOD 2 EQ 1 OR iIndex EQ 12 THEN /*If Width formula (odd value) or Die Rule Formula (12)*/
-        dScores = eb.k-wid.             
+        dScoresOrKnife = eb.k-wid.             
     ELSE /*Length*/
-        dScores = eb.k-len.
+        dScoresOrKnife = eb.k-len.
          
     RUN pCalcFormula(style.formula[iIndex],     /*Style Formula*/
         iIndex,                    /*formula number*/
@@ -77,7 +77,7 @@ DO iIndex = 1 TO 12:
         eb.len,                    /* 'L' - Inner Length*/
         eb.wid,                    /* 'W' - Inner Width*/
         eb.dep,                    /* 'D' - Inner Depth*/
-        dScores,                   /* 'S' - Scores on Width or Length*/
+        dScoresOrKnife,            /* 'S' - Scores on Width or Length, 'K' - Knife on Width or Length*/
         eb.tuck,                   /* 'T' - Tuck*/
         eb.gluelap,                /* 'J' - Joint Tab Width*/
         eb.fpanel,                 /* 'B' - Bottom Flap*/    
@@ -202,7 +202,7 @@ PROCEDURE pCalcFormula:
     /* Remove any blank/space or invalid character in formula */
     DO iIndex = 1 TO LENGTH(ipcFormula):
         IF KEYCODE(SUBSTRING(ipcFormula,iIndex,1)) = 32  /*space character*/ 
-            OR INDEX("0123456789.+-*/LWDTFJBOSI", SUBSTRING(ipcFormula,iIndex,1)) = 0 /*Invalid*/ 
+            OR INDEX("0123456789.+-*/LWDTFJBOSIGK", SUBSTRING(ipcFormula,iIndex,1)) = 0 /*Invalid*/ 
             THEN
             ipcFormula = SUBSTRING(ipcFormula,1,iIndex - 1) + SUBSTRING(ipcFormula,iIndex + 1).
     END.
@@ -223,28 +223,28 @@ PROCEDURE pCalcFormula:
                 iNextOperation              = iNextOperation + 1.
             NEXT.
         END.
-        IF INDEX("LWDJTSFBOIXY",cFormulaCharacter) > 0 AND dCalculations[iNextOperation] = 0 THEN 
+        IF INDEX("LWDJTSFBOIXYGK",cFormulaCharacter) > 0 AND dCalculations[iNextOperation] = 0 THEN 
         DO:
             IF cFormulaCharacter = "L" THEN dCalculations[iNextOperation] = ipdLength .
             IF cFormulaCharacter = "W" THEN dCalculations[iNextOperation] = ipdWidth .
             IF cFormulaCharacter = "D" THEN dCalculations[iNextOperation] = ipdDepth .
-            IF cFormulaCharacter = "J" THEN dCalculations[iNextOperation] = ipdJointTabWidth .
+            IF cFormulaCharacter = "J" OR cFormulaCharacter = "G" THEN dCalculations[iNextOperation] = ipdJointTabWidth .
             IF cFormulaCharacter = "T" THEN dCalculations[iNextOperation] = ipdTuck .
-            IF cFormulaCharacter = "S" THEN dCalculations[iNextOperation] = ipdScores .
+            IF cFormulaCharacter = "S" OR cFormulaCharacter = "K" THEN dCalculations[iNextOperation] = ipdScores .
             IF cFormulaCharacter = "F" THEN dCalculations[iNextOperation] = ipdTopDustFlap .
             IF cFormulaCharacter = "B" THEN dCalculations[iNextOperation] = ipdBottomFlap .
             IF cFormulaCharacter = "O" THEN dCalculations[iNextOperation] = ipdLockTab .
             IF cFormulaCharacter = "I" THEN dCalculations[iNextOperation] = ipdSquareBoxFit .
             NEXT.
         END.
-        ELSE IF INDEX("LWDJTSFBOIXY",cFormulaCharacter) > 0 AND dCalculations[iNextOperation] NE 0 THEN 
+        ELSE IF INDEX("LWDJTSFBOIXYGK",cFormulaCharacter) > 0 AND dCalculations[iNextOperation] NE 0 THEN 
             DO:
                 IF cFormulaCharacter = "L" THEN dCalculations[iNextOperation] = ipdLength * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "W" THEN dCalculations[iNextOperation] = ipdWidth * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "D" THEN dCalculations[iNextOperation] = ipdDepth * dCalculations[iNextOperation].
-                IF cFormulaCharacter = "J" THEN dCalculations[iNextOperation] = ipdJointTabWidth * dCalculations[iNextOperation].
+                IF cFormulaCharacter = "J" OR cFormulaCharacter = "G" THEN dCalculations[iNextOperation] = ipdJointTabWidth * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "T" THEN dCalculations[iNextOperation] = ipdTuck * dCalculations[iNextOperation].
-                IF cFormulaCharacter = "S" THEN dCalculations[iNextOperation] = ipdScores * dCalculations[iNextOperation].
+                IF cFormulaCharacter = "S" OR cFormulaCharacter = "K" THEN dCalculations[iNextOperation] = ipdScores * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "F" THEN dCalculations[iNextOperation] = ipdTopDustFlap * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "B" THEN dCalculations[iNextOperation] = ipdBottomFlap * dCalculations[iNextOperation].
                 IF cFormulaCharacter = "O" THEN dCalculations[iNextOperation] = ipdLockTab * dCalculations[iNextOperation].
@@ -268,6 +268,7 @@ PROCEDURE pCalcFormula:
     END.
     
     /*Process NK1 ROUND*/
+    IF NOT iplDecimal OR iplRound THEN
     DO iIndex = 1 TO EXTENT(dCalculations):
         dCalculations[iIndex] = dCalculations[iIndex] * ipdDecimalFactor /*16 or 32*/.
         IF iplRound THEN
