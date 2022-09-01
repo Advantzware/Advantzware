@@ -456,7 +456,8 @@ DO:
 //                    RUN windows/l-shipt2.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
                     IF char-val <> "" THEN DO: 
                         ASSIGN
-                            estRelease.shipToID:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)                             
+                            FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
+                            estRelease.customerID:SCREEN-VALUE        = ENTRY(4, char-val)
                             .
                     END.
                 END.
