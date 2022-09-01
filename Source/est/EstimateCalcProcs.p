@@ -1760,6 +1760,7 @@ PROCEDURE pBuildCostDetailForFreight PRIVATE:
             OUTPUT dFreightTotal, OUTPUT dFreightMin, OUTPUT lError, OUTPUT cMessage).
         IF ipbf-ttEstCostHeader.releaseCount GT 1 AND dFreightMin GT 0 THEN 
             dFreightTotal = dFreightTotal + (ipbf-ttEstCostHeader.releaseCount - 1) * dFreightMin.
+        dFreightTotalExternal = dFreightTotal.        
     END.
     IF dFreightTotal NE 0 THEN 
     DO:
