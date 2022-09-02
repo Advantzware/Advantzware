@@ -192,7 +192,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 16.2 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.quantity AT ROW 1.29 COL 43.4 COLON-ALIGNED
+     estRelease.quantity AT ROW 1.29 COL 43.4 COLON-ALIGNED FORMAT ">>>>>>>>9"
           VIEW-AS COMBO-BOX INNER-LINES 10
           DROP-DOWN-LIST
           SIZE 20 BY 1
