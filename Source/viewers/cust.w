@@ -354,6 +354,10 @@ DEFINE RECTANGLE RECT-6
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
+          LABEL "Customer"
+          VIEW-AS FILL-IN 
+          SIZE 21 BY 1
      cust.pricingMethod AT ROW 21.48 COL 94 COLON-ALIGNED WIDGET-ID 42
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS " ","Type","Customer","Ship To" 
@@ -362,10 +366,6 @@ DEFINE FRAME F-Main
      cbMatrixPrecision AT ROW 20.29 COL 20 COLON-ALIGNED WIDGET-ID 38
      cbMatrixRounding AT ROW 21.48 COL 20 COLON-ALIGNED WIDGET-ID 40
      btnTags AT ROW 11.57 COL 64 WIDGET-ID 26
-     cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
-          LABEL "Customer"
-          VIEW-AS FILL-IN 
-          SIZE 21 BY 1
      cust.active AT ROW 1 COL 43 COLON-ALIGNED
           LABEL "Status" FORMAT "x(11)"
           VIEW-AS COMBO-BOX INNER-LINES 5
