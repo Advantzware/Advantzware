@@ -90,7 +90,7 @@ RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixU
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
 /* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup /* ttVendItemCost.costSetup */ ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.customerID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup /* ttVendItemCost.costSetup */ ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
@@ -233,6 +233,8 @@ DEFINE BROWSE brVendItemCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS brVendItemCost C-Win _FREEFORM
   QUERY brVendItemCost NO-LOCK DISPLAY
       ttVendItemCost.vendorID           COLUMN-LABEL "Vendor ID"       
+            LABEL-BGCOLOR 14    FORMAT "x(10)"
+      ttVendItemCost.customerID           COLUMN-LABEL "Customer ID"       
             LABEL-BGCOLOR 14    FORMAT "x(10)"
       ttvendItemCost.estimateNo +  
         (IF  ttvendItemCost.formNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.formNo ) )) +
@@ -616,6 +618,7 @@ END.
 
 &Scoped-define sdBrowseName brVendItemCost
 {methods/sortByProc.i "pByVendorID" "ttVendItemCost.vendorID"}
+{methods/sortByProc.i "pByCustomerID" "ttVendItemCost.customerID"}
 {methods/sortByProc.i "pByCostPerVendorUOM" "ttVendItemCost.costPerVendorUOM"}
 {methods/sortByProc.i "pByVendorUOM" "ttVendItemCost.vendorUOM"}
 {methods/sortByProc.i "pByCostSetup" "ttVendItemCost.costSetup"}
@@ -684,6 +687,8 @@ PROCEDURE pReOpenBrowse :
     CASE cColumnLabel:
         WHEN "vendorID" THEN
             RUN pByVendorID.
+        WHEN "customerID" THEN
+            RUN pByCustomerID.
         WHEN "costPerVendorUOM" THEN
             RUN pByCostPerVendorUOM.
         WHEN "vendorUOM" THEN
