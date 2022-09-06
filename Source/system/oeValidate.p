@@ -696,7 +696,7 @@ PROCEDURE ValidateOrder:
             opcMessage = "Error: Invalid Order RowID provided to Validate Order"
             .
         RUN AddTagHold (
-            INPUT bf-oe-ord.company + STRING(bf-oe-ord.ord-no),
+            INPUT bf-oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT opcMessage,
             INPUT "",
@@ -708,7 +708,7 @@ PROCEDURE ValidateOrder:
     RUN pBuildValidationsToRun(bf-oe-ord.company).    
                     
     RUN ClearTagsForGroup (
-        INPUT bf-oe-ord.company + STRING(bf-oe-ord.ord-no), "Reason Code"
+        INPUT bf-oe-ord.rec_key, "Reason Code"
         ).
     iCountHold = 0.
     FOR EACH ttValidation NO-LOCK:
@@ -723,7 +723,7 @@ PROCEDURE ValidateOrder:
             IF ttValidation.cHoldOrInfo EQ "HOLD" THEN 
             DO:
                 RUN AddTagHold (
-                    INPUT bf-oe-ord.company + STRING(bf-oe-ord.ord-no),
+                    INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
                     INPUT ttValidation.cCategory + " - " + ttValidation.cHoldMessage,
                     INPUT ttValidation.cNotes,
@@ -737,7 +737,7 @@ PROCEDURE ValidateOrder:
             ELSE 
             DO:  
                 RUN AddTagInfoForGroup (
-                    INPUT bf-oe-ord.company + STRING(bf-oe-ord.ord-no),
+                    INPUT bf-oe-ord.rec_key,
                     INPUT "oe-ord",
                     INPUT ttValidation.cCategory + " - " + ttValidation.cHoldMessage,
                     INPUT ttValidation.cNotes,

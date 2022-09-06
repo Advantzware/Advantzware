@@ -217,7 +217,7 @@ PROCEDURE os-Process-Hold-Status :
        ASSIGN vcStatus = (IF vcHoldType <> "" THEN "H" ELSE b-oe-ord.stat).
        IF vcHoldType NE "" THEN
         RUN AddTagHold (
-            INPUT b-oe-ord.company + STRING(b-oe-ord.ord-no),
+            INPUT b-oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT getOrdStatDescr(vcHoldType),
             INPUT "",

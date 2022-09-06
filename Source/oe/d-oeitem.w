@@ -2174,7 +2174,7 @@ DO:
 ON CHOOSE OF btnTags IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "",
             INPUT "Price-Source"
             ).
@@ -2189,7 +2189,7 @@ DO:
 ON CHOOSE OF btnTagsOverrn IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT cocode + string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "",
             INPUT "Over Percentage"
             ).
@@ -2204,7 +2204,7 @@ DO:
 ON CHOOSE OF btnTagsTax IN FRAME d-oeitem
 DO:
     RUN system/d-TagViewer.w (
-        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT oe-ordl.rec_key,
         INPUT "",
         INPUT "Tax-Source"
         ).
@@ -2219,7 +2219,7 @@ END.
 ON CHOOSE OF btnTagsUnder IN FRAME d-oeitem
 DO:
         RUN system/d-TagViewer.w (
-            INPUT cocode + string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "",
             INPUT "Under Percentage"
             ).
@@ -2246,19 +2246,19 @@ ON CHOOSE OF Btn_Cancel IN FRAME d-oeitem /* Cancel */
 DO:
         lv-add-mode = NO.
         RUN ClearTagsForGroup(
-            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "Price-Source"
             ).
         RUN ClearTagsForGroup(
-            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "Tax-Source"
             ).
         RUN ClearTagsForGroup(
-            INPUT cocode + string(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "Under Percentage"
             ).
         RUN ClearTagsForGroup(
-            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "Over Percentage"
             ).
         IF ip-type EQ  'Update' THEN       
@@ -3012,7 +3012,7 @@ DO:
 
         END. /* modified */
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "oe-ordl",
             INPUT "Price-Source",
             OUTPUT lAvailable
@@ -7968,7 +7968,7 @@ PROCEDURE getTagsToReset :
     EMPTY TEMP-TABLE ttTag.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT oe-ordl.rec_key,
         INPUT "oe-ordl",
         INPUT "Price-Source",
         OUTPUT lAvailable
@@ -7977,7 +7977,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
+            INPUT  oe-ordl.rec_key, 
             INPUT  "oe-ordl", 
             INPUT  "Price-Source",   
             OUTPUT  TABLE  ttTempTag
@@ -7992,7 +7992,7 @@ PROCEDURE getTagsToReset :
         btnTags:SENSITIVE IN FRAME {&frame-name}  = FALSE.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT oe-ordl.rec_key,
         INPUT "oe-ordl",
         INPUT "Tax-Source",
         OUTPUT lAvailable
@@ -8000,7 +8000,7 @@ PROCEDURE getTagsToReset :
     IF lAvailable THEN DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
+            INPUT  oe-ordl.rec_key, 
             INPUT  "oe-ordl", 
             INPUT  "Tax-Source",   
             OUTPUT  TABLE  ttTempTag
@@ -8015,7 +8015,7 @@ PROCEDURE getTagsToReset :
         btnTagsTax:SENSITIVE IN FRAME {&frame-name} = FALSE.
                 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT oe-ordl.rec_key,
         INPUT "oe-ordl",
         INPUT "Over Percentage",
         OUTPUT lAvailable
@@ -8024,7 +8024,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
+            INPUT  oe-ordl.rec_key, 
             INPUT  "oe-ordl", 
             INPUT  "Over Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -8039,7 +8039,7 @@ PROCEDURE getTagsToReset :
         btnTagsOverrn:SENSITIVE IN FRAME {&frame-name} = FALSE.
         
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+        INPUT oe-ordl.rec_key,
         INPUT "oe-ordl",
         INPUT "Under Percentage",
         OUTPUT lAvailable
@@ -8048,7 +8048,7 @@ PROCEDURE getTagsToReset :
     DO:
         EMPTY TEMP-TABLE ttTempTag.
         RUN GetTags(
-            INPUT  cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE), 
+            INPUT  oe-ordl.rec_key, 
             INPUT  "oe-ordl", 
             INPUT  "Under Percentage",   
             OUTPUT  TABLE  ttTempTag
@@ -9376,18 +9376,18 @@ PROCEDURE pAddTag :
    
     DO WITH FRAME {&frame-name}:   
         RUN ClearTagsForGroup(
-            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "oe-ordl",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT cocode + STRING(oe-ordl.ord-no) + STRING(oe-ordl.LINE),
+            INPUT oe-ordl.rec_key,
             INPUT "oe-ordl",
             INPUT ipcSource,
             OUTPUT lAvailable

@@ -69,7 +69,7 @@ DO:
       v-error = "is on credit hold.".
       IF AVAILABLE oe-ord THEN 
         RUN AddTagHold (
-            INPUT oe-ord.company + STRING(oe-ord.ord-no),
+            INPUT oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT "Customer on credit hold",
             INPUT "",
@@ -204,7 +204,7 @@ DO:
 
                             FIND CURRENT oe-ord NO-LOCK NO-ERROR.
                             RUN AddTagHold (
-                                INPUT oe-ord.company + STRING(oe-ord.ord-no),
+                                INPUT oe-ord.rec_key,
                                 INPUT "oe-ord",
                                 INPUT oe-ord.spare-char-2,
                                 INPUT "",

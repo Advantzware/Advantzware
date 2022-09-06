@@ -1318,7 +1318,7 @@ END.
 ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT cocode + STRING(oe-ord.ord-no),
+        INPUT oe-ord.rec_key,
         INPUT "",
         INPUT "Reason Code"
         ).
@@ -1333,7 +1333,7 @@ END.
 ON CHOOSE OF btnTagsOverrn IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT cocode + STRING(oe-ord.ord-no),
+        INPUT oe-ord.rec_key,
         INPUT "",
         INPUT "Over Percentage"
         ).
@@ -1348,7 +1348,7 @@ END.
 ON CHOOSE OF btnTagsUnder IN FRAME F-Main
 DO:
     RUN system/d-TagViewer.w (
-        INPUT cocode + STRING(oe-ord.ord-no),
+        INPUT oe-ord.rec_key,
         INPUT "",
         INPUT "Under Percentage"
         ).
@@ -5646,7 +5646,7 @@ PROCEDURE local-display-fields :
             oe-ord.spare-char-2:SCREEN-VALUE = cStatDesc.
             
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT cocode + STRING(oe-ord.ord-no),
+             INPUT oe-ord.rec_key,
              INPUT "oe-ord",
              INPUT "Reason Code",
              OUTPUT lAvailable
@@ -5657,7 +5657,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTags:SENSITIVE = FALSE. 
          RUN Tag_IsTagRecordAvailableForGroup(
-             INPUT cocode + STRING(oe-ord.ord-no),
+             INPUT oe-ord.rec_key,
              INPUT "oe-ord",
              INPUT "Over Percentage",
              OUTPUT lAvailable
@@ -5668,7 +5668,7 @@ PROCEDURE local-display-fields :
            ELSE 
                btnTagsOverrn:SENSITIVE = FALSE.  
          RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT cocode + STRING(oe-ord.ord-no),
+            INPUT oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT "Under Percentage",
             OUTPUT lAvailable
@@ -6414,18 +6414,18 @@ PROCEDURE pAddTag :
     DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:          
         RUN ClearTagsForGroup(
-            INPUT cocode + STRING(oe-ord.ord-no),
+            INPUT oe-ord.rec_key,
             INPUT ipcSource
             ).
         RUN AddTagInfoForGroup(
-            INPUT cocode + STRING(oe-ord.ord-no),
+            INPUT oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT ipcDesc,
             INPUT "",
             INPUT ipcSource
             ). /*From TagProcs Super Proc*/ 
         RUN Tag_IsTagRecordAvailableForGroup(
-            INPUT cocode + STRING(oe-ord.ord-no),
+            INPUT oe-ord.rec_key,
             INPUT "oe-ord",
             INPUT ipcSource,
             OUTPUT lAvailable
@@ -6981,7 +6981,7 @@ PROCEDURE pValidate :
         oe-ord.spare-char-2:SCREEN-VALUE IN FRAME {&frame-name} = cStatDesc.
 
     RUN Tag_IsTagRecordAvailableForGroup(
-        INPUT cocode + STRING(oe-ord.ord-no),
+        INPUT oe-ord.rec_key,
         INPUT "oe-ord",
         INPUT "Reason Code",
         OUTPUT lAvailable
