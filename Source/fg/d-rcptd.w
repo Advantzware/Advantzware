@@ -987,8 +987,8 @@ DO:
             END.
 
             IF fg-rctd.tag:SCREEN-VALUE  NE fg-rctd.tag 
-                AND NOT adm-new-record THEN 
-            DO:
+                AND NOT adm-new-record AND NOT ip-set-parts THEN 
+            DO:      
                 /* Note: if adm-new-record, tag will always be different, */
                 /*       and cases will be overriden                      */
                 RUN new-tag.
