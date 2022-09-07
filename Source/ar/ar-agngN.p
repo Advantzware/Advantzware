@@ -767,7 +767,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "inv"       THEN 
                                 cVarValue = STRING(tt-inv.inv-no,">>>>>>>>") .
                             WHEN "inv-date"  THEN 
-                                cVarValue = STRING(tt-inv.inv-date,"99/99/99") .
+                                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-inv.inv-date) .
                             WHEN "amount"    THEN 
                                 cVarValue = STRING(amt,"->>>>>>>>9.99").
                             WHEN "current"   THEN 
@@ -965,7 +965,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                         WHEN "inv"       THEN 
                                             cVarValue = STRING(tt-ar-cashl.inv-no,">>>>>>>>") .
                                         WHEN "inv-date"  THEN 
-                                            cVarValue = STRING(tt-ar-cash.check-date,"99/99/99") .
+                                            cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-ar-cash.check-date) .
                                         WHEN "amount"    THEN 
                                             cVarValue = STRING(v-cr-db-amt,"->>>>>>>>9.99").
                                         WHEN "current"   THEN 
@@ -1061,7 +1061,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                     WHEN "inv"       THEN 
                                         cVarValue = STRING(tt-ar-cashl.inv-no,">>>>>>>>") .
                                     WHEN "inv-date"  THEN 
-                                        cVarValue = STRING(tt-ar-cash.check-date,"99/99/99") .
+                                        cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-ar-cash.check-date) .
                                     WHEN "amount"    THEN 
                                         cVarValue = STRING(v-disc-amt,"->>>>>>>>9.99").
                                     WHEN "current"   THEN 
@@ -1189,7 +1189,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                         WHEN "inv"       THEN 
                                             cVarValue = STRING(tt-ar-cashl.inv-no,">>>>>>>>") .
                                         WHEN "inv-date"  THEN 
-                                            cVarValue = STRING(v-check-date,"99/99/99") .
+                                            cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
                                         WHEN "amount"    THEN 
                                             cVarValue = STRING(v-cr-db-amt,"->>>>>>>>9.99").
                                         WHEN "current"   THEN 
@@ -1522,7 +1522,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "inv"       THEN 
                                 cVarValue = STRING(v-neg-text) .
                             WHEN "inv-date"  THEN 
-                                cVarValue = STRING(v-check-date,"99/99/99") .
+                                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
                             WHEN "amount"    THEN 
                                 cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>>>>>>9.99").
                             WHEN "current"   THEN 
@@ -1655,7 +1655,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "inv"       THEN 
                                 cVarValue = STRING(v-neg-text) .
                             WHEN "inv-date"  THEN 
-                                cVarValue = STRING(v-check-date,"99/99/99") .
+                                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
                             WHEN "amount"    THEN 
                                 cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>>>>>>9.99").
                             WHEN "current"   THEN 

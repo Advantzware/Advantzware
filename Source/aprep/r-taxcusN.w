@@ -1578,7 +1578,8 @@ FOR EACH tt-report
                 WHEN "cust-name"        THEN 
                     cVarValue = tt-report.key-02 .
                 WHEN "date"                 THEN 
-                    cVarValue = ((IF AVAILABLE ar-cash AND ar-cash.check-date NE ? THEN STRING(ar-cash.check-date,"99/99/9999")  ELSE IF AVAILABLE ar-inv AND ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date,"99/99/9999") ELSE "" )) .
+                    cVarValue = ((IF AVAILABLE ar-cash AND ar-cash.check-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date)  
+                                ELSE IF AVAILABLE ar-inv AND ar-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) ELSE "" )) .
                 WHEN "inv"                THEN  
                     cVarValue = (IF AVAILABLE ar-cashl THEN STRING(ar-cashl.inv-no) ELSE IF AVAILABLE ar-inv THEN STRING(ar-inv.inv-no) ELSE "") .
                 WHEN "grs-sal"          THEN 

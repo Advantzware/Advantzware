@@ -1331,7 +1331,7 @@ PROCEDURE run-report :
                     WHEN "ar-inv.cust-name" THEN 
                         cVarValue  = STRING(ar-inv.cust-name). 
                     WHEN "ar-inv.inv-date" THEN 
-                        cVarValue   = IF ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date) ELSE "". 
+                        cVarValue   = IF ar-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) ELSE "". 
                     WHEN "ar-invl.actnum"  THEN 
                         cVarValue   = STRING(ar-invl.actnum). 
                     WHEN "ar-invl.i-no"    THEN 
@@ -1357,7 +1357,7 @@ PROCEDURE run-report :
                     WHEN "ar-inv.terms-d" THEN 
                         cVarValue    = STRING(ar-inv.terms-d).
                     WHEN "ar-inv.due-date" THEN 
-                        cVarValue   = IF ar-inv.due-date NE ? THEN  STRING(ar-inv.due-date) ELSE "" .
+                        cVarValue   = IF ar-inv.due-date NE ? THEN  DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.due-date) ELSE "" .
                     WHEN "ar-inv.disc-%" THEN 
                         cVarValue     = STRING( ar-inv.disc-% ).
                     WHEN "ar-inv.disc-taken" THEN 

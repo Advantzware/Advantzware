@@ -1857,7 +1857,7 @@ FOR EACH tt-report
             WHEN "run"             THEN 
                 cVarValue = STRING(tt-report.trnum).
             WHEN "date"            THEN 
-                cVarValue = STRING(tt-report.tr-date).
+                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-report.tr-date).
             WHEN "amt"             THEN 
                 cVarValue = STRING(tt-report.amt,"->>>,>>>,>>>,>>9.99").
         END CASE.

@@ -147,8 +147,8 @@ FOR EACH ap-inv NO-LOCK
                          WHEN "type"      THEN cVarValue = STRING(vend.TYPE) .
                          WHEN "term"      THEN cVarValue = STRING(v-terms,"x(17)") .
                          WHEN "inv"       THEN cVarValue = IF lAPInvoiceLength THEN STRING(ap-inv.inv-no,"x(20)") ELSE STRING(ap-inv.inv-no,"x(12)").
-                         WHEN "date"      THEN cVarValue = STRING(v-date,"99/99/99") .
-                         WHEN "due-date"  THEN cVarValue = STRING(ap-inv.due-date,"99/99/99") .
+                         WHEN "date"      THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date) .
+                         WHEN "due-date"  THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.due-date) .
                          WHEN "amt"       THEN cVarValue = STRING(v-amt,"->,>>>,>>>,>>9.99") .
                          WHEN "day"       THEN cVarValue = STRING(d,">>>>>>") .
                          

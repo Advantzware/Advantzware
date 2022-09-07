@@ -95,7 +95,7 @@ ASSIGN
 
     cFieldListToSelect = "chk,chk-date,inv,vend,vend-name,due-date,gross-amt,dis,net-amt,bank,status,manual,period,void-date" 
 
-    cFieldLength       = "8,8,12,8,30,8,14,10,14,8,8,8,8,8" /*+ "7,15,7,4,20,6,13,12"*/
+    cFieldLength       = "8,10,12,8,30,10,14,10,14,8,8,8,8,10" /*+ "7,15,7,4,20,6,13,12"*/
     cFieldType         = "i,c,c,c,c,c,i,i,i,c,c,c,i,c" /*+ "c,c,c,i,c,i,i,i" */
     .
 
@@ -1527,7 +1527,7 @@ PROCEDURE print-gl-acct :
                         (ap-inv.freight / (ap-inv.net + ap-inv.freight)).
 
         PUT ap-payl.check-no FORMAT ">>>>>>>>" AT 6
-            ap-inv.inv-date         AT 41   FORMAT "99/99/99"
+            DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date)         AT 41   
             SPACE(1)
             ap-inv.vend-no
             SPACE(1)
@@ -1554,7 +1554,7 @@ PROCEDURE print-gl-acct :
                 '"' v-acct-dscr '",'
                 '"' ap-payl.check-no '",'
                 '"' "" '",'
-                '"' ap-inv.inv-date '",'
+                '"' DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date) '",'
                 '"' ap-inv.vend-no '",'
                 '"' ap-inv.inv-no '",'
                 '"' "" '",'
@@ -1631,7 +1631,7 @@ PROCEDURE print-gl-acct :
         PUT ap-payl.check-no FORMAT ">>>>>>>>" AT 6
             ap-invl.po-no         AT 34
             SPACE(1)
-            ap-inv.inv-date       FORMAT "99/99/99"
+            DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date)
             SPACE(1)
             ap-inv.vend-no
             SPACE(1)
@@ -1663,7 +1663,7 @@ PROCEDURE print-gl-acct :
                 '"' v-acct-dscr '",'
                 '"' ap-payl.check-no '",'
                 '"' ap-invl.po-no '",'
-                '"' ap-inv.inv-date '",'
+                '"' DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date) '",'
                 '"' ap-inv.vend-no '",'
                 '"' ap-inv.inv-no '",'
                 '"' {ap/invlline.i -1} '",'
@@ -2023,7 +2023,7 @@ PROCEDURE run-report :
                         WHEN "chk"    THEN 
                             cVarValue = STRING(tt-report.check-no,">>>>>>>9") .
                         WHEN "chk-date"   THEN 
-                            cVarValue = IF tt-report.check-date <> ? THEN STRING(tt-report.check-date,"99/99/99") ELSE "".
+                            cVarValue = IF tt-report.check-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.check-date) ELSE "".
                         WHEN "inv"   THEN 
                             cVarValue = STRING(tt-report.inv-no,"x(12)").
                         WHEN "vend"  THEN 
@@ -2031,7 +2031,7 @@ PROCEDURE run-report :
                         WHEN "vend-name"   THEN 
                             cVarValue = STRING(tt-report.vend-name,"x(30)") .
                         WHEN "due-date"  THEN 
-                            cVarValue = IF tt-report.due-date <> ? THEN STRING(tt-report.due-date,"99/99/99") ELSE "" .
+                            cVarValue = IF tt-report.due-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.due-date) ELSE "" .
                         WHEN "gross-amt"   THEN 
                             cVarValue = STRING(tt-report.gross-amt,"->>,>>>,>>9.99") .
                         WHEN "dis"  THEN 
@@ -2047,7 +2047,7 @@ PROCEDURE run-report :
                         WHEN "period"    THEN 
                             cVarValue = STRING(tt-report.period) .
                         WHEN "void-date" THEN 
-                            cVarValue = IF tt-report.void-date <> ? THEN STRING(tt-report.void-date,"99/99/99") ELSE "" .
+                            cVarValue = IF tt-report.void-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.void-date) ELSE "" .
                     END CASE.
 
                     cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).

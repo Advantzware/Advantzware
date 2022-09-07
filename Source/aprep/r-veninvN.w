@@ -1454,7 +1454,7 @@ PROCEDURE run-report :
                 WHEN "dscr"            THEN 
                     cVarValue = STRING(ap-invl.dscr,"x(30)").
                 WHEN "date"                   THEN 
-                    cVarValue = STRING(tt-ap-inv.inv-date).
+                    cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-ap-inv.inv-date).
                 WHEN "amt"              THEN 
                     cVarValue = STRING(tt-ap-inv.net,"->>>,>>>,>>>,>>9.99").
                 WHEN "line-amt"           THEN 

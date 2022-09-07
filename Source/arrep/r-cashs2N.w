@@ -72,7 +72,7 @@ ASSIGN
                           
     cFieldListToSelect = "rep,rep-name,cust,cust-name,term,invdate,chk-date,aging,inv," +
                             "inv-amt,amt-paid,disc,bal-af,comm%,comm"
-    cFieldLength       = "5,30,8,30,5,8,10,10,8," + "15,15,12,15,7,14"
+    cFieldLength       = "5,30,8,30,5,10,10,10,8," + "15,15,12,15,7,14"
     cFieldType         = "c,c,c,c,c,c,c,i,i," + "i,i,i,i,i,i" 
     .
 
@@ -1956,9 +1956,9 @@ PROCEDURE run-report :
                 WHEN "term"   THEN 
                     cVarValue = STRING(tt-report.key-08,"x(5)") .
                 WHEN "invdate"  THEN 
-                    cVarValue = IF v-inv-date NE ? THEN STRING(v-inv-date,"99/99/99") ELSE "" .
+                    cVarValue = IF v-inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-inv-date) ELSE "" .
                 WHEN "chk-date"   THEN 
-                    cVarValue = IF v-check-date NE ? THEN STRING(v-check-date,"99/99/99") ELSE "" .
+                    cVarValue = IF v-check-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) ELSE "" .
                 WHEN "aging"  THEN 
                     cVarValue = STRING(v-aging,"->>,>>9.99") .
 

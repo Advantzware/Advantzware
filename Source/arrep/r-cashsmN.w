@@ -67,7 +67,7 @@ ASSIGN
                            "Comm%,Comm"
     cFieldListToSelect = "sman,sman-name,cust,cust-name,date,inv,paid,disc,amt," +
                             "comm%,comm"
-    cFieldLength       = "5,25,8,25,8,8,14,14,14," + "7,14"
+    cFieldLength       = "5,25,8,25,10,8,14,14,14," + "7,14"
     cFieldType         = "c,c,c,c,c,i,i,i,i," + "i,i" 
     .
 
@@ -1861,7 +1861,8 @@ PROCEDURE run-report :
                 WHEN "cust-name"   THEN 
                     cVarValue = STRING(cust.NAME,"x(25)").
                 WHEN "date"  THEN 
-                    cVarValue = IF AVAILABLE ar-cash THEN STRING(ar-cash.check-date,"99/99/99") ELSE IF AVAILABLE ar-inv THEN STRING(ar-inv.inv-date,"99/99/99") ELSE "" .
+                    cVarValue = IF AVAILABLE ar-cash THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date)
+                                ELSE IF AVAILABLE ar-inv THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) ELSE "" .
                 WHEN "inv"   THEN 
                     cVarValue = IF AVAILABLE ar-cash THEN STRING(ar-cashl.inv-no,">>>>>>>>") ELSE IF AVAILABLE ar-inv THEN STRING(ar-inv.inv-no,">>>>>>>>") ELSE "" .
                 WHEN "paid"  THEN 

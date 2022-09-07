@@ -1499,7 +1499,7 @@ SESSION:SET-WAIT-STATE("general").
                          WHEN "bank-act"    THEN cVarValue = IF AVAIL bank THEN  string(bank.actnum,"x(15)") ELSE "No Record Found" .
                          WHEN "rec"    THEN cVarValue = string(ar-mcash.m-no,">>>>>>") .
                          WHEN "name"   THEN cVarValue = string(ar-mcash.payer,"x(20)").
-                         WHEN "date"   THEN cVarValue = STRING(ar-mcash.check-date,"99/99/9999").
+                         WHEN "date"   THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-mcash.check-date).
                          WHEN "amt"  THEN cVarValue = STRING(tt-post.curr-amt,"->,>>>,>>>,>>9.99") .
                          WHEN "gl-dis"   THEN cVarValue = STRING(ar-mcash.actnum) .
 

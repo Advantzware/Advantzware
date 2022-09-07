@@ -73,7 +73,7 @@ IF lRecFound THEN
 ASSIGN 
     cTextListToSelect  = "Vendor,Vendor Name,Invoice#,Inv Date,Due Date,1Gross,1Disc,2Gross,2Disc," +
                             "3Gross,3Disc,Old Gross,Old Disc,Total Gross,Total Disc,Company,Terms,Days Old,CC/ACH"
-    cFieldListToSelect = "ap-inv.vend-no,vend-name,ap-inv.inv-no,ap-inv.inv-date,due-date,inv-t1,inv-d1,inv-t2,inv-d2," +
+    cFieldListToSelect = "ap-inv.vend-no,vend-name,ap-inv.inv-no,inv-date,due-date,inv-t1,inv-d1,inv-t2,inv-d2," +
                             "inv-t3,inv-d3,inv-t4,inv-d4,ws_gross,ws_disc-avail,ap-inv.company,terms,dy-old,cc-ach"
     cFieldType         = "c,c,c,c,c,i,i,i,i," + "i,i,i,i,i,i,c,c,c,c"
     .
@@ -1663,8 +1663,11 @@ PROCEDURE run-report :
                 CASE cTmpField:                                           
                     WHEN "vend-name" THEN 
                         cVarValue = IF AVAILABLE vend THEN STRING(vend.name,"x(30)") ELSE "" .
+                    WHEN "inv-date" THEN 
+                        cVarValue = IF ap-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date) ELSE ""  .    
                     WHEN "due-date" THEN 
-                        cVarValue = IF ws_disc-avail NE 0 AND v-disc THEN STRING(ap-inv.inv-date + ap-inv.disc-days)  ELSE IF ap-inv.due-date NE ? THEN STRING(ap-inv.due-date) ELSE "" .
+                        cVarValue = IF ws_disc-avail NE 0 AND v-disc THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(ap-inv.inv-date + ap-inv.disc-days))  
+                                    ELSE IF ap-inv.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.due-date) ELSE "" .
                     WHEN "inv-t1" THEN 
                         cVarValue = IF inv-t[1] NE 0 THEN  STRING(inv-t[1],"->>>>>>9.99") ELSE ""  .
                     WHEN "inv-d1" THEN 
@@ -1760,7 +1763,7 @@ PROCEDURE run-report :
                         cVarValue =  "" .
                     WHEN "ap-inv.inv-no" THEN 
                         cVarValue =  "" .
-                    WHEN "ap-inv.inv-date" THEN 
+                    WHEN "inv-date" THEN 
                         cVarValue =  "" .
                     WHEN "due-date" THEN 
                         cVarValue =  "" .
@@ -1874,7 +1877,7 @@ PROCEDURE run-report :
                         cVarValue =  "" .
                     WHEN "ap-inv.inv-no" THEN 
                         cVarValue =  "" .
-                    WHEN "ap-inv.inv-date" THEN 
+                    WHEN "inv-date" THEN 
                         cVarValue =  "" .
                     WHEN "due-date" THEN 
                         cVarValue =  "" .
