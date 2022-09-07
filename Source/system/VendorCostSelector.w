@@ -455,6 +455,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bCancel C-Win
 ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
+    ASSIGN 
+        oplError = TRUE 
+        opcMessage = "User cancelled the vendor selection.".
   APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
@@ -468,13 +471,23 @@ ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Ok */
 DO:
     IF AVAILABLE ttVendItemCost THEN
     DO:
-        IF ttVendItemCost.IsValid = FALSE THEN 
+        IF ttVendItemCost.IsValid = FALSE THEN DO:
             MESSAGE "This Vendor cost is invalid." SKIP
                 "Reason: " + ttVendItemCost.Reason SKIP
                 "Please select a valid Vendor Cost."        
-                VIEW-AS ALERT-BOX. 
-        ELSE    
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END. 
+        ELSE IF PROGRAM-NAME(9) EQ "oe/ordfrest.p" THEN 
         DO:
+            MESSAGE 
+                "Creating PO for vendor: " + ttVendItemCost.vendorID + "." skip
+                "Is this correct?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCorrect AS LOG.
+            IF NOT lCorrect THEN RETURN NO-APPLY.
+            ASSIGN 
+                oplError = FALSE  
+                opcMessage = "".
             ttVendItemCost.isSelected = TRUE.
             APPLY 'CLOSE' TO THIS-PROCEDURE.
         END.
@@ -487,6 +500,17 @@ END.
 
 &Scoped-define BROWSE-NAME brVendItemCost
 &Scoped-define SELF-NAME brVendItemCost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
+ON MOUSE-SELECT-DBLCLICK OF brVendItemCost IN FRAME DEFAULT-FRAME
+DO:
+    APPLY 'CHOOSE' TO bOK IN FRAME default-frame.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
 ON START-SEARCH OF brVendItemCost IN FRAME DEFAULT-FRAME
 DO:
