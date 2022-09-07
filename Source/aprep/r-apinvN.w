@@ -1547,9 +1547,9 @@ PROCEDURE run-report :
                 WHEN "ven-nam"      THEN  
                     cVarValue = STRING(tt-ap-inv.NAME,"x(30)").                         
                 WHEN "date"         THEN 
-                    cVarValue = IF tt-ap-inv.inv-date NE ? THEN STRING(tt-ap-inv.inv-date) ELSE "".
+                    cVarValue = IF tt-ap-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date", tt-ap-inv.inv-date) ELSE "".
                 WHEN "due-date"     THEN 
-                    cVarValue = IF tt-ap-inv.due-date NE ? THEN STRING(tt-ap-inv.due-date) ELSE "".
+                    cVarValue = IF tt-ap-inv.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-ap-inv.due-date) ELSE "".
                 WHEN "Tax-code"     THEN 
                     cVarValue = IF tt-ap-inv.tax-gr NE ? THEN STRING(tt-ap-inv.tax-gr) ELSE "".
                 WHEN "discount"     THEN 
@@ -1607,7 +1607,7 @@ PROCEDURE run-report :
                 WHEN "line-amt"     THEN 
                     cVarValue = STRING(ap-invl.amt,"->>>,>>>,>>>,>>9.99") .                         
                 WHEN "PO_ReceiptDate"     THEN 
-                    cVarValue = IF dtRecDate NE ? THEN STRING(dtRecDate,"99/99/9999") ELSE "" .
+                    cVarValue = IF dtRecDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dtRecDate) ELSE "" .
                 WHEN "PO_OrderQty"     THEN 
                     cVarValue = IF AVAILABLE po-ordl THEN STRING(po-ordl.ord-qty,"->>>,>>>,>>9.99") ELSE "" .
                 WHEN "PO_QuantityUOM"     THEN 
