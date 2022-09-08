@@ -90,11 +90,11 @@ RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixU
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
 /* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup /* ttVendItemCost.costSetup */ ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup  ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) AND (ttVendItemCost.estimateNo = ipcEstimateNo OR ttVendItemCost.estimateNo = "" OR cVendorCostMatrixUseEstimate EQ "No") by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
@@ -114,7 +114,6 @@ lSize x x-2 fiQuantity fiUOM lQuantity lShow fiAdders cAdders
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -478,7 +477,8 @@ DO:
                 VIEW-AS ALERT-BOX.
             RETURN NO-APPLY.
         END. 
-        ELSE IF PROGRAM-NAME(9) EQ "oe/ordfrest.p" THEN 
+        ELSE IF PROGRAM-NAME(9) EQ "oe/ordfrest.p" 
+        OR INDEX(PROGRAM-NAME(9),"oe/d-oeitem.w") NE 0 THEN 
         DO:
             MESSAGE 
                 "Creating PO for vendor: " + ttVendItemCost.vendorID + "." skip
@@ -501,14 +501,24 @@ END.
 &Scoped-define BROWSE-NAME brVendItemCost
 &Scoped-define SELF-NAME brVendItemCost
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
-ON MOUSE-SELECT-DBLCLICK OF brVendItemCost IN FRAME DEFAULT-FRAME
+ON MOUSE-SELECT-CLICK OF brVendItemCost IN FRAME DEFAULT-FRAME
 DO:
-    APPLY 'CHOOSE' TO bOK IN FRAME default-frame.
+    APPLY 'value-changed' TO SELF.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
+ON MOUSE-SELECT-DBLCLICK OF brVendItemCost IN FRAME DEFAULT-FRAME
+DO:
+    APPLY 'value-changed' TO SELF.
+    APPLY 'CHOOSE' TO bOK IN FRAME default-frame.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
