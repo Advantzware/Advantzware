@@ -105,6 +105,10 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
                      
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
                      
 
 ASSIGN 
@@ -114,7 +118,7 @@ ASSIGN
     cFieldListToSelect = "cust,name,rep,shipto,ship-zip,inv#,inv-date," +
                             "ord,item-no,item-name,desc,cust-part," +
                             "price,uom,qty,inv-amt,inv-wt"
-    cFieldLength       = "8,30,4,8,8,6,8," + "8,15,30,30,15," + "13,4,11,14,10"
+    cFieldLength       = "8,30,4,8,8,6,10," + "8,15,30,30,15," + "13,4,11,14,10"
     cFieldType         = "c,c,c,c,c,i,c," + "i,c,c,c,c," + "i,c,i,i,i" 
     .
 
@@ -630,6 +634,7 @@ ON END-ERROR OF C-Win /* Sales With Multiple Sorts */
 ON WINDOW-CLOSE OF C-Win /* Sales With Multiple Sorts */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -724,6 +729,7 @@ ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Salesrep# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -2348,7 +2354,7 @@ PROCEDURE run-report :
                 WHEN "inv#"  THEN 
                     cVarValue = STRING(w-data.inv-no,">>>>>>") .
                 WHEN "inv-date"   THEN 
-                    cVarValue = STRING(v-date,"99/99/99") .
+                    cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date) .
                 WHEN "ord"  THEN 
                     cVarValue = STRING(v-ord,">>>>>>>>") .
                 WHEN "item-no"    THEN 
@@ -2372,7 +2378,7 @@ PROCEDURE run-report :
                          
             END CASE.
                       
-            cExcelVarValue = cVarValue.
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

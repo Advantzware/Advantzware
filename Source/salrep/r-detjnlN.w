@@ -71,6 +71,9 @@ DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -78,7 +81,7 @@ ASSIGN
                            "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name,Job#"
     cFieldListToSelect = "cust,name,bol,ct,inv-date,ord,inv," +
                             "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name,job-no"
-    cFieldLength       = "8,30,7,3,8,8,7," + "13,9,11,10,5,14,30,13"
+    cFieldLength       = "8,30,7,3,10,8,7," + "13,9,11,10,5,14,30,13"
     cFieldType         = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c,c" 
     .
 
@@ -494,6 +497,7 @@ ON END-ERROR OF C-Win /* Sales Analysis - Sales Journal */
 ON WINDOW-CLOSE OF C-Win /* Sales Analysis - Sales Journal */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -528,6 +532,7 @@ ON LEAVE OF begin_inv-date IN FRAME FRAME-A /* Beginning Invoice Date */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1864,7 +1869,7 @@ PROCEDURE run-report :
                     WHEN "ct"  THEN 
                         cVarValue = STRING(cust.cr-rating,"x(3)") .
                     WHEN "inv-date"   THEN 
-                        cVarValue = STRING(w-data.w-inv-date,"99/99/99") .
+                        cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",w-data.w-inv-date) .
                     WHEN "ord"  THEN 
                         cVarValue = STRING(w-data.w-ord-no,">>>>>>>>") .
                     WHEN "inv"   THEN 
@@ -1887,7 +1892,7 @@ PROCEDURE run-report :
                         cVarValue = IF TRIM(w-data.w-job-no) BEGINS "-" THEN "" ELSE STRING(w-data.w-job-no) .
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

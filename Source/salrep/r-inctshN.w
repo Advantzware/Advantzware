@@ -99,6 +99,9 @@ DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -108,7 +111,7 @@ ASSIGN
     cFieldListToSelect = "cust,shipto,city,stat,rep,inv,month,year," +
                             "inv-date,fg-item,pro-code,ord,qty-ship,unit-price,uom,inv-amt,bol-whs," +
                             "ship-name,ship-add1,ship-add2,ship-add3,ship-city,ship-st,ship-zip,bol-date"
-    cFieldLength       = "8,8,15,5,20,7,5,4," + "8,15,8,8,12,15,4,17,8," + "30,30,30,30,15,10,12,10"
+    cFieldLength       = "8,8,15,5,20,7,5,4," + "10,15,8,8,12,15,4,17,8," + "30,30,30,30,15,10,12,10"
     cFieldType         = "c,c,c,c,c,i,i,i," + "c,c,c,i,i,i,c,i,c," + "c,c,c,c,c,c,c,c" 
     .
 
@@ -601,6 +604,7 @@ ON END-ERROR OF C-Win /* Sales Analysis - By Inv/Cat/Shipto */
 ON WINDOW-CLOSE OF C-Win /* Sales Analysis - By Inv/Cat/Shipto */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -721,6 +725,7 @@ ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Salesrep# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -2410,7 +2415,7 @@ PROCEDURE run-report :
                 WHEN "year"    THEN 
                     cVarValue = STRING(v-year[2],"9999") .
                 WHEN "inv-date"   THEN 
-                    cVarValue = STRING(v-date,"99/99/99").
+                    cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date).
                 WHEN "fg-item"   THEN 
                     cVarValue = STRING(w-data.i-no,"x(15)").
                 WHEN "pro-code"  THEN 
@@ -2442,11 +2447,11 @@ PROCEDURE run-report :
                 WHEN "ship-zip"  THEN 
                     cVarValue = IF AVAILABLE shipto THEN STRING(shipto.ship-zip) ELSE "" .
                 WHEN "bol-date"  THEN 
-                    cVarValue = IF dtBolDate NE ? THEN STRING(dtBolDate) ELSE "" .                           
+                    cVarValue = IF dtBolDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dtBolDate) ELSE "" .                           
 
             END CASE.
 
-            cExcelVarValue = cVarValue.
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

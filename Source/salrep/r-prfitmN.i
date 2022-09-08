@@ -569,9 +569,9 @@ FOR EACH tt-report
             WHEN "colr"        THEN 
                 cVarValue = x-v-color .
             WHEN "ord-dt"      THEN 
-                cVarValue = v-order-date .
+                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date", DATE(v-order-date)) .
             WHEN "shp-dt"      THEN 
-                cVarValue = v-date .
+                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date", DATE(v-date)) .
             WHEN "inv-amt"     THEN 
                 cVarValue = STRING(v-amt[1],"->>>,>>>,>>9.99") .
             WHEN "est"         THEN 
@@ -599,7 +599,7 @@ FOR EACH tt-report
                                                               
         END CASE.
                       
-        cExcelVarValue = cVarValue.
+        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
         cDisplay = cDisplay + cVarValue +
             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

@@ -545,7 +545,7 @@ IF NOT v-smr THEN
                  WHEN "cust" THEN cVarValue = STRING(v-cust-no).
                  WHEN "custname" THEN cVarValue = IF AVAIL cust THEN STRING(cust.name,"x(15)") ELSE "".
                  WHEN "inv-no" THEN cVarValue = STRING(w-data.inv-no).
-                 WHEN "inv-date" THEN cVarValue = STRING(v-date,"99/99/99").
+                 WHEN "inv-date" THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",DATE(v-date)).
                  WHEN "cust-po" THEN cVarValue = STRING(v-custpo,"x(15)").
                  WHEN "pur-ord" THEN cVarValue = STRING(v-ord-no,">>>>>>>>").
                  WHEN "fg" THEN cVarValue = string(w-data.i-no).
@@ -565,7 +565,7 @@ IF NOT v-smr THEN
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "" .
                  WHEN "cust-lot" THEN cVarValue =  STRING(cCustLot,"x(15)")  .
             END CASE.
-            cExcelVarValue = cVarValue.  
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -650,9 +650,9 @@ IF NOT v-smr THEN
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
        
    END.
-   PUT UNFORMATTED  "        DATE TOTALS FOR "+ substr(tt-report2.key-02,5,2) + "/" +
-                                         substr(tt-report2.key-02,7,2) + "/" +
-                                         substr(tt-report2.key-02,1,4)" " substring(cDisplay,36,300) SKIP.
+   PUT UNFORMATTED  "        DATE TOTALS FOR "+ substr(tt-report2.key-02,1,4) + "-" +
+                                         substr(tt-report2.key-02,5,2) + "-" +
+                                         substr(tt-report2.key-02,7,2)" " substring(cDisplay,36,300) SKIP.
         
 
         assign
@@ -1113,7 +1113,7 @@ IF NOT v-smr THEN
                  WHEN "cust" THEN cVarValue = STRING(v-cust-no).
                  WHEN "custname" THEN cVarValue = IF AVAIL cust THEN STRING(cust.name,"x(30)") ELSE "".
                  WHEN "inv-no" THEN cVarValue = STRING(w-data.inv-no).
-                 WHEN "inv-date" THEN cVarValue = STRING(v-date,"99/99/99").
+                 WHEN "inv-date" THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",DATE(v-date)).
                  WHEN "cust-po" THEN cVarValue = string(v-custpo,"x(15)") . 
                  WHEN "pur-ord" THEN cVarValue = STRING(v-ord-no,">>>>>>>>").
                  WHEN "fg" THEN cVarValue = string(w-data.i-no).
@@ -1133,7 +1133,7 @@ IF NOT v-smr THEN
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "".
                  WHEN "cust-lot" THEN cVarValue =  STRING(cCustLot,"x(15)")  .
             END CASE.
-            cExcelVarValue = cVarValue.  
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 

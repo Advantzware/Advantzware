@@ -590,9 +590,9 @@
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
                          WHEN "inv"           THEN cVarValue = STRING(w-inv.inv-no,">>>>>>>>") .
-                         WHEN "inv-date"      THEN cVarValue = STRING(w-inv.inv-date,"99/99/9999").
-                         WHEN "firstInvDate"  THEN cVarValue = STRING(w-inv.firstInvDate,"99/99/9999") .
-                         WHEN "post-date"     THEN cVarValue = STRING(w-inv.pst-date,"99/99/9999").
+                         WHEN "inv-date"      THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",w-inv.inv-date).
+                         WHEN "firstInvDate"  THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",w-inv.firstInvDate) .
+                         WHEN "post-date"     THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",w-inv.pst-date).
                          WHEN "cust"          THEN cVarValue = STRING(w-inv.cust-no,"x(8)") .
                          WHEN "cust-name"     THEN cVarValue = STRING(w-inv.NAME,"x(30)") .
                          WHEN "net"           THEN cVarValue = STRING(w-inv.amt,"->,>>>,>>9.99") .
@@ -601,7 +601,7 @@
                         
                     END CASE.
                       
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

@@ -1842,7 +1842,7 @@ PROCEDURE run-report :
                              + " - "
                              + STRING(po-ordl.ord-qty)
                              + " due "
-                             + STRING(po-ordl.due-date,"99/99/99")
+                             + DYNAMIC-FUNCTION("sfFormat_Date",po-ordl.due-date)
                              + ";".
             RELEASE tt-po.
         END.

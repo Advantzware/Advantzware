@@ -79,6 +79,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName2         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -86,7 +89,7 @@ ASSIGN
                            "PTD AMT,WGT/MSF"*/
     cFieldListToSelect = "inv,inv-date,firstInvDate,post-date,cust,cust-name,net,msf,msf$" /*+ 
                             "ptd-amt,wgt-msf"*/
-    cFieldLength       = "7,10,19,10,8,30,13,13,13" /*+ "13,13" */
+    cFieldLength       = "8,10,19,10,8,30,13,13,13" /*+ "13,13" */
     cFieldType         = "i,c,c,c,c,c,i,i,i" /*+ "13,13"  */
     .
 
@@ -554,6 +557,7 @@ ON END-ERROR OF C-Win /* Period To Date Sales Report */
 ON WINDOW-CLOSE OF C-Win /* Period To Date Sales Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -599,6 +603,7 @@ ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Salesrep# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 

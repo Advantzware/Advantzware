@@ -73,6 +73,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -81,7 +84,7 @@ ASSIGN
 
     cFieldListToSelect = "cust,cust-name,cont,phone,fax,fgitem,fgname,cust-po," +
                             "ship-to,ship-date,inv,order,uom,qty-ord,qty-ship,price,gp,rep1,name1,rep2,name2,rep3,name3"
-    cFieldLength       = "8,30,15,15,10,15,30,15," + "8,9,8,8,3,14,14,11,12,5,25,5,25,5,25"
+    cFieldLength       = "8,30,15,15,10,15,30,15," + "8,10,8,8,3,14,14,11,12,5,25,5,25,5,25"
     cFieldType         = "c,c,c,c,c,c,c,c," + "c,c,i,i,c,i,i,i,i,c,c,c,c,c,c" 
     .
 
@@ -584,6 +587,7 @@ ON END-ERROR OF C-Win /* Sales Analysis By Cust/Item/PO */
 ON WINDOW-CLOSE OF C-Win /* Sales Analysis By Cust/Item/PO */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -666,6 +670,7 @@ ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Salesrep# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 

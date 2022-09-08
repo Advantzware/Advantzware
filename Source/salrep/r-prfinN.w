@@ -70,7 +70,9 @@ DEFINE VARIABLE v-cust-no          LIKE itemfg.cust-no NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
 
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Rep,Rep Name,Name,Customer,Customer Name,Invoice#,Inv Date,FG Item,Catgy,Qty shipped,Total MSF,Order#," +
@@ -79,7 +81,7 @@ ASSIGN
     cFieldListToSelect = "rep,rep-name,name,cust,custname,inv-no,inv-date,fg,cat,qty,ttl-msf,pur-ord," +
                             "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code,customer-part,bol,sqft," +
                             "cust-lot"
-    cFieldLength       = "3,20,30,8,30,8,8,15,5,14,9,8," +
+    cFieldLength       = "3,20,30,8,30,8,10,15,5,14,9,8," +
                       "8,15,11,11,8,10,3,15,14,15,6,10," + "15"
     cFieldType         = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c,c,i,i," + "c"
     .
@@ -625,6 +627,7 @@ ON END-ERROR OF C-Win /* Sales Analysis - Profit By Invoice */
 ON WINDOW-CLOSE OF C-Win /* Sales Analysis - Profit By Invoice */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -718,6 +721,7 @@ ON LEAVE OF begin_sstate IN FRAME FRAME-A /* Beginning Shipto State */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 

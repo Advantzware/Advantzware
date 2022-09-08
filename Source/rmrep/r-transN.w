@@ -66,6 +66,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-job-hdr FOR job-hdr .
 DEFINE VARIABLE cTextListToDefault AS cha       NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -75,7 +78,7 @@ ASSIGN
     cFieldListToSelect = "trans-date,i-no,i-name,po-no,rita-code,v-job-no,tag,qty,loc,loc-bin,loc2,loc-bin2,cost,v-value," +
                                 "poqty,due,vend,per,form,cust,fgitem,itemdesc,ovrpct,undpct,tons,qty,Reason,Reason-cd,Reason-dscr," +
                                 "sheet-size,vend-tag"
-    cFieldLength       = "8,10,30,8,2,13,20,10,5,8,6,8,10,10," + "12,8,20,12,4,25,15,30,7,7,12,10,30,11,25," + "25,20"
+    cFieldLength       = "10,10,30,8,2,13,20,10,5,8,6,8,10,10," + "12,10,20,12,4,25,15,30,7,7,12,10,30,11,25," + "25,20"
     cFieldType         = "c,c,c,c,c,c,c,i,c,c,c,c,i,i," + "i,c,c,c,i,c,c,c,i,i,i,i,c,c,c," + "c,c"
     .
 
@@ -635,6 +638,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 ON WINDOW-CLOSE OF C-Win /* Transaction History */
 DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -713,6 +717,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 

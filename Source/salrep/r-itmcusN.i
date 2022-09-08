@@ -523,7 +523,7 @@
                          WHEN "fgname"   THEN cVarValue = STRING(v-inam,"x(30)") .
                          WHEN "cust-po"  THEN cVarValue = STRING(tt-report.key-04,"x(15)") .
                          WHEN "ship-to"    THEN cVarValue = string(tt-report.key-05,"x(8)") .
-                         WHEN "ship-date"   THEN cVarValue = string(v-date,"99/99/99").
+                         WHEN "ship-date"   THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date).
                          WHEN "inv"   THEN cVarValue = STRING(w-data.inv-no,">>>>>>>9").
                          WHEN "order"  THEN cVarValue = STRING(v-ord,">>>>>>>>") .
                          WHEN "uom"   THEN cVarValue = STRING(v-uom,"x(3)") .
@@ -540,7 +540,7 @@
                          
                     END CASE.
                       
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
