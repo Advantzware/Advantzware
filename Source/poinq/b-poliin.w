@@ -95,15 +95,13 @@ fPosted() @ lPosted fPriceDesc() @ cPriceDesc
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
       AND ap-invl.company EQ g_company AND ~
-ap-invl.po-no = po-ordl.po-no and ~
-(ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line NO-LOCK, ~
+ap-invl.po-no = po-ordl.po-no NO-LOCK, ~
       EACH ap-inv WHERE TRUE /* Join to ap-invl incomplete */ ~
       AND ap-inv.i-no eq ap-invl.i-no NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
       AND ap-invl.company EQ g_company AND ~
-ap-invl.po-no = po-ordl.po-no and ~
-(ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line NO-LOCK, ~
+ap-invl.po-no = po-ordl.po-no NO-LOCK, ~
       EACH ap-inv WHERE TRUE /* Join to ap-invl incomplete */ ~
       AND ap-inv.i-no eq ap-invl.i-no NO-LOCK ~
     ~{&SORTBY-PHRASE}.
@@ -312,8 +310,7 @@ ASSIGN
      _TblList          = "ASI.ap-inv WHERE ASI.ap-invl ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         =  "ap-invl.company EQ g_company and      
-ap-invl.po-no = po-ordl.po-no and
-(ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line"
+ap-invl.po-no = po-ordl.po-no "
      _Where[2]         = "ap-inv.i-no eq ap-invl.i-no"
      _FldNameList[1]   > ASI.ap-inv.inv-no
 "ap-inv.inv-no" "Invoice#" ? "character" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -592,7 +589,10 @@ DEF BUFFER b-po-ordl FOR po-ordl.
 
 FIND b-ap-inv WHERE ROWID(b-ap-inv) EQ ROWID(ap-inv) NO-LOCK NO-ERROR.
 
-FIND b-po-ordl WHERE ROWID(b-po-ordl) EQ ROWID(po-ordl) NO-LOCK NO-ERROR.
+FIND FIRST b-po-ordl NO-LOCK
+     WHERE b-po-ordl.company EQ po-ordl.company
+       AND b-po-ordl.po-no EQ po-ordl.po-no 
+       AND b-po-ordl.LINE EQ (ap-invl.line + (ap-invl.po-no * -1000)) NO-ERROR.
 
   IF AVAIL b-ap-inv AND 
      AVAIL b-po-ordl AND 
@@ -614,9 +614,7 @@ FUNCTION fPoLine RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  IF AVAIL po-ordl 
-    THEN RETURN po-ordl.LINE.
-    ELSE RETURN 0.        
+   RETURN (ap-invl.line + (ap-invl.po-no * -1000)).        
 
 END FUNCTION.
 
