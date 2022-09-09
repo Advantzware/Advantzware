@@ -226,7 +226,7 @@ ASSIGN
 
 ASSIGN 
        Browser-Table:PRIVATE-DATA IN FRAME F-Main           = 
-                "2".
+                "1".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

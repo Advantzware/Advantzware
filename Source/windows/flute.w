@@ -102,19 +102,19 @@ DEFINE FRAME F-Main
          SIZE 150.2 BY 23.86
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 158 BY 1.91
-         BGCOLOR 21 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
          BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 158 BY 1.91
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -256,6 +256,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
 {custom/initializeprocs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -288,7 +289,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -316,11 +317,14 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_exit ).
        RUN set-position IN h_exit ( 1.00 , 141.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
              h_f-add , 'AFTER':U ).
@@ -357,62 +361,6 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_flute ,
              h_p-updsav , 'AFTER':U ).
     END. /* Page 1 */
-    WHEN 2 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/stack-fl.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_stack-fl ).
-       RUN set-position IN h_stack-fl ( 4.81 , 9.00 ) NO-ERROR.
-       RUN set-size IN h_stack-fl ( 17.86 , 141.00 ) NO-ERROR.
-       /* Position in AB:  ( 4.81 , 9.00 ) */
-       /* Size in UIB:  ( 17.86 , 141.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-navico.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = NAV-ICON,
-                     Right-to-Left = First-On-Left':U ,
-             OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.91 , 19.00 ) NO-ERROR.
-       RUN set-size IN h_p-navico ( 1.52 , 43.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav-2 ).
-       RUN set-position IN h_p-updsav-2 ( 22.91 , 76.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav-2 ( 1.52 , 56.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/q-stackf.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_q-stackf ).
-       RUN set-position IN h_q-stackf ( 12.67 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.05 , 11.60 ) */
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to  h_stack-fl. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_stack-fl ).
-       RUN add-link IN adm-broker-hdl ( h_q-stackf , 'Record':U , h_stack-fl ).
-
-       /* Links to SmartQuery h_q-stackf. */
-       RUN add-link IN adm-broker-hdl ( h_flute , 'Record':U , h_q-stackf ).
-       RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_q-stackf ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-2 ,
-             h_p-navico , 'AFTER':U ).
-    END. /* Page 2 */
 
   END CASE.
   /* Select a Startup page. */
