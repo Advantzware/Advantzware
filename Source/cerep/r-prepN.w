@@ -1254,7 +1254,7 @@ DEFINE VARIABLE ii LIKE i NO-UNDO.
                                             ELSE IF LENGTH(cTmpField) <  int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) THEN
                                                 (FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
                                             ELSE cTmpField
-                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,GetFieldValue(hField))) + ",".   
+                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
                 END.
                 ELSE DO:
                     ASSIGN 
@@ -1296,11 +1296,16 @@ DEFINE VARIABLE ii LIKE i NO-UNDO.
                     WHEN "procat"           THEN cVarValue = IF AVAIL ITEM THEN ITEM.procat ELSE "".
                 END CASE.
                 
-                ASSIGN 
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue)
+                IF cTmpField = "dis-dt" THEN cExcelVarValue = IF prep.disposal-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",prep.disposal-date)  ELSE "" .
+                ELSE IF cTmpField = "lst-dt"         THEN cExcelVarValue = IF prep.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",prep.last-date)  ELSE "".
+                ELSE IF cTmpField = "received-date"  THEN cExcelVarValue = IF prep.received-date <> ?THEN  DYNAMIC-FUNCTION("sfFormat_Date",prep.received-date) ELSE "" .
+                
+                ELSE cExcelVarValue = cVarValue .
+                    
+                ASSIGN    
                     cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)) 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".   
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".   
             END.
         END.
 

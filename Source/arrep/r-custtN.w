@@ -1725,7 +1725,7 @@ PROCEDURE run-report :
                 cDisplay = cDisplay + cTmpField + 
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                     .
-                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs , GetFieldValue(hField))) + ",".       
+                cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".       
             END.
             ELSE 
             DO:            
@@ -1751,10 +1751,17 @@ PROCEDURE run-report :
                     WHEN  "grp" THEN 
                         cVarValue = STRING(cust.spare-char-2,"x(8)").
                 END CASE.
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs , cVarValue).  
+                
+                IF cTmpField = "v-inv-date" THEN 
+                        cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",DATE(v-inv-date)).
+                ELSE IF cTmpField = "date-field[1]"  THEN 
+                        cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",cust.date-field[1]).
+                        
+                ELSE cExcelVarValue = cVarValue.
+                
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs , cExcelVarValue)) + ",". 
             END.
         END.
         PUT UNFORMATTED cDisplay SKIP.

@@ -1599,11 +1599,14 @@ for each eb
                          WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%") .
 
                     END CASE.
+                    
+                    IF cTmpField = "ord-date"  THEN cExcelVarValue = IF est.ord-date NE ?  THEN DYNAMIC-FUNCTION("sfFormat_Date",est.ord-date) ELSE "" .
 
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

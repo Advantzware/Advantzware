@@ -1434,11 +1434,14 @@ SESSION:SET-WAIT-STATE("general").
                          WHEN "date"         THEN cVarValue = STRING(v_quo-dt) .
 
                     END CASE.
+                    
+                    IF cTmpField = "date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v_quo-dt) .
 
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

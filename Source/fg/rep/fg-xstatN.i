@@ -517,11 +517,21 @@ FOR EACH ttCustList
                                                 END.
                                                  
                                         END CASE.
+                                        
+                                        IF cTmpField = "v-relDate" THEN 
+                                                cExcelVarValue = IF AVAILABLE tt-oe-rel THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-oe-rel.rel-date) ELSE "".
+                                        ELSE IF cTmpField = "v-rctDate" THEN 
+                                                cExcelVarValue = IF trans-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",trans-date) ELSE "".
+                                        ELSE IF cTmpField = "ord-date" THEN 
+                                                cExcelVarValue = IF oe-ord.ord-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "" .
+                                        ELSE IF cTmpField = "ship-date" THEN 
+                                                cExcelVarValue = IF ship-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ship-date) ELSE "" .       
 
-                                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+                                        ELSE cExcelVarValue = cVarValue.
+                                        
                                         cDisplay = cDisplay + cVarValue +
                                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",". 
                                     END.
                                 END.
 
@@ -644,10 +654,21 @@ FOR EACH ttCustList
                                                     cVarValue = "".
                                    
                                             END CASE.
-                                            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+                                            
+                                            IF cTmpField = "v-relDate" THEN 
+                                                cExcelVarValue = IF AVAILABLE tt-oe-rel THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-oe-rel.rel-date) ELSE "".
+                                            ELSE IF cTmpField = "v-rctDate" THEN 
+                                                    cExcelVarValue = IF trans-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",trans-date) ELSE "".
+                                            ELSE IF cTmpField = "ord-date" THEN 
+                                                    cExcelVarValue = IF oe-ord.ord-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "" .
+                                            ELSE IF cTmpField = "ship-date" THEN 
+                                                cExcelVarValue = IF ship-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ship-date) ELSE "" .       
+
+                                            ELSE cExcelVarValue = cVarValue.
+                                            
                                             cDisplay = cDisplay + cVarValue +
                                                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                                            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                                            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",". 
                                         END.
                                         PUT UNFORMATTED cDisplay SKIP.
                                         IF rd-dest = 3 THEN 
@@ -871,10 +892,21 @@ FOR EACH ttCustList
                                 END.
 
                         END CASE.
-                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+                        
+                        IF cTmpField = "v-relDate" THEN 
+                            cExcelVarValue = IF AVAILABLE tt-oe-rel THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-oe-rel.rel-date) ELSE "".
+                        ELSE IF cTmpField = "v-rctDate" THEN 
+                                cExcelVarValue = IF trans-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",trans-date) ELSE "".
+                        ELSE IF cTmpField = "ord-date" THEN 
+                                cExcelVarValue = IF oe-ord.ord-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "" .
+                        ELSE IF cTmpField = "ship-date" THEN 
+                            cExcelVarValue = IF ship-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ship-date) ELSE "" .       
+
+                        ELSE cExcelVarValue = cVarValue.
+                          
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",". 
                     END.
                 END.
                 PUT UNFORMATTED cDisplay SKIP.
@@ -968,10 +1000,21 @@ FOR EACH ttCustList
                                     cVarValue = "".
                                    
                             END CASE.
-                            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+                            
+                            IF cTmpField = "v-relDate" THEN 
+                                cExcelVarValue = IF AVAILABLE tt-oe-rel THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-oe-rel.rel-date) ELSE "".
+                            ELSE IF cTmpField = "v-rctDate" THEN 
+                                    cExcelVarValue = IF trans-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",trans-date) ELSE "".
+                            ELSE IF cTmpField = "ord-date" THEN 
+                                    cExcelVarValue = IF oe-ord.ord-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "" .
+                            ELSE IF cTmpField = "ship-date" THEN 
+                                cExcelVarValue = IF ship-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ship-date) ELSE "" .       
+
+                            ELSE cExcelVarValue = cVarValue.
+                              
                             cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",". 
                         END.
 
                         PUT UNFORMATTED cDisplay SKIP.
@@ -1244,10 +1287,21 @@ FOR EACH ttCustList
                                                 END.
                                    
                                         END CASE.
-                                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+                                        
+                                        IF cTmpField = "v-relDate" THEN 
+                                            cExcelVarValue = IF AVAILABLE tt-oe-rel THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-oe-rel.rel-date) ELSE "".
+                                        ELSE IF cTmpField = "v-rctDate" THEN 
+                                                cExcelVarValue = IF trans-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",trans-date) ELSE "".
+                                        ELSE IF cTmpField = "ord-date" THEN 
+                                                cExcelVarValue = IF oe-ord.ord-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "" .
+                                        ELSE IF cTmpField = "ship-date" THEN 
+                                            cExcelVarValue = IF ship-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ship-date) ELSE "" .       
+
+                                        ELSE cExcelVarValue = cVarValue.
+                                                                                 
                                         cDisplay = cDisplay + cVarValue +
                                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",". 
                                     END.
                                 END.
                                 PUT UNFORMATTED cDisplay SKIP.
@@ -1492,10 +1546,21 @@ FOR EACH ttCustList
                                     cVarValue = IF v-job-no <> "" THEN STRING( v-qty-onh / 1000 * vtot-costm,"->,>>>,>>9.99") ELSE ""  .
                                 END.
                         END CASE.
-                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+                        
+                        IF cTmpField = "v-relDate" THEN 
+                            cExcelVarValue = IF AVAILABLE tt-oe-rel THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-oe-rel.rel-date) ELSE "".
+                        ELSE IF cTmpField = "v-rctDate" THEN 
+                                cExcelVarValue = IF trans-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",trans-date) ELSE "".
+                        ELSE IF cTmpField = "ord-date" THEN 
+                                cExcelVarValue = IF oe-ord.ord-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "" .
+                        ELSE IF cTmpField = "ship-date" THEN 
+                            cExcelVarValue = IF ship-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ship-date) ELSE "" .       
+
+                        ELSE cExcelVarValue = cVarValue.
+          
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
                     END.
                 END.
                 PUT UNFORMATTED cDisplay SKIP.
@@ -1606,7 +1671,7 @@ FOR EACH ttCustList
                     cVarValue = "" .
                                    
             END CASE.
-            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+            cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 

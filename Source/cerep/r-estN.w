@@ -1864,7 +1864,7 @@ FOR EACH tt-eb,
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
-                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,GetFieldValue(hField))) + ",".
+                     cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
                  END.
                  ELSE DO:
                     cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
@@ -1894,11 +1894,15 @@ FOR EACH tt-eb,
                  WHEN "eb-ord-no" THEN cVarValue = IF eb.ord-no NE 0 THEN STRING(eb.ord-no) ELSE STRING(iOrder).
                       
             END CASE.
-
-            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cVarValue).
+            
+            IF cTmpField = "ord-date" THEN cExcelVarValue = IF v_ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v_ord-date) ELSE "" .
+            ELSE IF cTmpField = "job-no" THEN cExcelVarValue = IF AVAIL job-hdr THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) ELSE "".
+             
+             ELSE cExcelVarValue = cVarValue.
+             
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
       END.
       PUT UNFORMATTED cDisplay SKIP.

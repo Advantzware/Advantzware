@@ -2917,10 +2917,15 @@ PROCEDURE print_report :
                         WHEN "rep"       THEN 
                             cVarValue = STRING(tt-sman,"x(3)") .
                     END CASE.
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+                    
+                    IF cTmpField = "v-RcptDate" THEN 
+                       cExcelVarValue = IF v-RcpDate <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-rcpDate) ELSE "".
+                    
+                    ELSE cExcelVarValue =cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",". 
                 END.
             END.
             PUT UNFORMATTED cDisplay SKIP.

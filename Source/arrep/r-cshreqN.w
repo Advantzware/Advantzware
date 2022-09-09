@@ -1631,11 +1631,19 @@ PROCEDURE run-report :
                     cVarValue = STRING(ws_disc-avail,'->>>>>>.99') .  
 
             END CASE.
+            
+            IF cTmpField = "inv-dt"     THEN 
+                    cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) .
+            ELSE IF cTmpField = "due-dt"     THEN 
+                    cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-report.due-date) .
+            ELSE IF cTmpField = "dsc-dt"     THEN 
+                    cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",DATE(ar-inv.inv-date + ar-inv.disc-days)) .
 
-            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+            ELSE cExcelVarValue =  cVarValue.
+            
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
 
         PUT UNFORMATTED cDisplay SKIP.
@@ -1730,7 +1738,7 @@ PROCEDURE run-report :
 
                 END CASE.
 
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1842,7 +1850,7 @@ PROCEDURE run-report :
 
                 END CASE.
 
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

@@ -1828,7 +1828,7 @@ PROCEDURE run-report :
 
                     END CASE.
 
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                    cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1906,11 +1906,14 @@ PROCEDURE run-report :
                                 cVarValue = ""  .
 
                         END CASE.
+                        
+                        IF cTmpField = "date"   THEN 
+                           cExcelVarValue = IF tt-glhist.tr-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-glhist.tr-date) ELSE "" .
 
-                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                        ELSE cExcelVarValue = cVarValue.
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
                     END.
 
                     PUT UNFORMATTED cDisplay SKIP.
@@ -1989,7 +1992,7 @@ PROCEDURE run-report :
 
                         END CASE.
 
-                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                        cExcelVarValue = cVarValue.
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -2059,7 +2062,7 @@ PROCEDURE run-report :
 
                 END CASE.
 
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -2118,7 +2121,7 @@ PROCEDURE run-report :
 
         END CASE.
 
-        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+        cExcelVarValue = cVarValue.
         cDisplay = cDisplay + cVarValue +
             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

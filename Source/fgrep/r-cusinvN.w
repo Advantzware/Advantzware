@@ -1630,11 +1630,14 @@ PROCEDURE run-report :
                     cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.req-date,"99/99/99") ELSE "" .
 
             END CASE.
+            
+            IF cTmpField = "date"  THEN 
+               cExcelVarValue = IF AVAILABLE oe-ordl THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "" .
 
-            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+            ELSE cExcelVarValue =cVarValue.
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter( DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
         END.
 
         PUT UNFORMATTED cDisplay SKIP(1).
@@ -1643,22 +1646,6 @@ PROCEDURE run-report :
             PUT STREAM excel UNFORMATTED  
                 cExcelDisplay SKIP.
         END.
-
-        IF rd-dest = 3 THEN 
-            PUT STREAM excel UNFORMATTED
-                '"' itemfg.i-no                                            '",'
-                '"' itemfg.part-no                                         '",'
-                '"' itemfg.i-name                                          '",'
-                '"' STRING(itemfg.ord-level,"->>>,>>>,>>>")                '",'
-                '"' (IF AVAILABLE oe-rel THEN oe-ordl.po-no
-                ELSE "")                                              '",'
-                '"' STRING(itemfg.q-onh,"->>>,>>>,>>>")                    '",'
-                '"' STRING(v-pal-cnt,"->>,>>>")                            '",'
-                '"' "__________"                                           '",'
-                '"' (IF AVAILABLE oe-ordl AND
-                oe-ordl.req-date NE ? THEN STRING(oe-ordl.req-date)
-                ELSE "")                                            '",'
-                SKIP.
     END.
 
     IF rd-dest = 3 THEN 

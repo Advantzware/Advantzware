@@ -1768,11 +1768,16 @@ SESSION:SET-WAIT-STATE("general").
                          WHEN "last-date"        THEN cVarValue = (IF AVAILABLE prep THEN string(prep.last-date,"99/99/9999") ELSE "").
 
                     END CASE.
+                    
+                    IF cTmpField = "est-mod"         THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",est.mod-date) .
+                    ELSE IF cTmpField = "ord-dt"     THEN cExcelVarValue = (IF AVAILABLE oe-ord THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "")  .
+                    ELSE IF cTmpField = "last-date"  THEN cExcelVarValue = (IF AVAILABLE prep THEN DYNAMIC-FUNCTION("sfFormat_Date",prep.last-date) ELSE "").
 
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
