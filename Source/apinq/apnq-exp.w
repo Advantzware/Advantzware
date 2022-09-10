@@ -870,12 +870,15 @@ PROCEDURE GetSelectionList :
 
     DO i = 1 TO sl_selected:NUM-ITEMS IN FRAME {&FRAME-NAME} :
         FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.  
-        CREATE ttRptSelected.
-        ASSIGN 
-            ttRptSelected.TextList  = ENTRY(i,cTmpList)
-            ttRptSelected.FieldList = ttRptList.FieldList
-            /* ttRptSelected.FieldLength */
-            .   
+        IF AVAIL ttRptList THEN
+        DO:
+            CREATE ttRptSelected.
+            ASSIGN 
+                ttRptSelected.TextList  = ENTRY(i,cTmpList)
+                ttRptSelected.FieldList = ttRptList.FieldList
+                /* ttRptSelected.FieldLength */
+                . 
+        END.   
     END.
 
 END PROCEDURE.
