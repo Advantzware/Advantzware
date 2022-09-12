@@ -106,6 +106,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha       NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Vendor,Job#,Qty Ord,Received,Units,Sht W,Sht L,RMItem#," +
@@ -518,6 +521,7 @@ ON END-ERROR OF C-Win /* Receipts Overage for Credit Report */
 ON WINDOW-CLOSE OF C-Win /* Receipts Overage for Credit Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -552,6 +556,7 @@ ON LEAVE OF begin_vend IN FRAME FRAME-A /* Beginning Vendor# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1855,10 +1860,12 @@ PROCEDURE run-report :
 
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "du-dt" THEN
+                     cExcelVarValue = IF tt-report.key-07 NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(tt-report.key-07)) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

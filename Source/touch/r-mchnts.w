@@ -1465,7 +1465,7 @@ PROCEDURE print_data :
             WHEN "mach"    THEN 
                 cVarValue = IF ipmachine NE ? THEN STRING(ipmachine,"x(7)") ELSE "".
             WHEN "date"    THEN 
-                cVarValue = IF ipnotedate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ipnotedate) ELSE "".
+                cVarValue = IF ipnotedate NE ? THEN STRING(ipnotedate,"99/99/9999") ELSE "".
             WHEN "time"    THEN 
                 cVarValue = IF ipnotetime NE 0 THEN STRING(ipnotetime,'hh:mm:ss am') ELSE "" .
             WHEN "dept"    THEN 
@@ -1477,10 +1477,12 @@ PROCEDURE print_data :
 
         END CASE.
 
-        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+        IF  cTmpField = "date" THEN
+             cExcelVarValue = IF ipnotedate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ipnotedate) ELSE "".
+        ELSE cExcelVarValue =  cVarValue.
         cDisplay = cDisplay + cVarValue +
             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
     END.
 
     PUT UNFORMATTED cDisplay SKIP.

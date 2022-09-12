@@ -88,12 +88,16 @@ DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 
 ASSIGN 
     cTextListToSelect  = "Job No,Item No,Item Name,Vend No,Vend Name,P/O#,P/O Date,UOM," +  /*8*/
                                "Qty Order,Qty Received,Req Date,MSF,Carrier,First Resource,Buyer Id,User Id," + /*7*/
                                "Customer#,Order#,Cost Line Item,Cost Uom,Total Cost Line Item"
-    cFieldListToSelect = "lv-job-no,tt-sched.i-no,tt-sched.i-name,tt-sched.vend-no,tt-sched.vend-name,tt-sched.po-no,tt-sched.po-date,tt-sched.cons-uom," +
+    cFieldListToSelect = "lv-job-no,tt-sched.i-no,tt-sched.i-name,tt-sched.vend-no,tt-sched.vend-name,tt-sched.po-no,po-date,tt-sched.cons-uom," +
                                 "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier,tt-sched.m-code,tt-sched.buyer,tt-sched.user-id," +
                                 "tt-sched.custno,tt-sched.ordno,tt-sched.costLine,tt-sched.costUom,tt-sched.totCost"
     cFieldLength       = "13,15,30,8,30,8,10,4," + "15,15,8,13,7,14,10,8,10,8," + "14,8,20"
@@ -627,6 +631,7 @@ ON END-ERROR OF C-Win /* Scheduled Receipts */
 ON WINDOW-CLOSE OF C-Win /* Scheduled Receipts */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -705,6 +710,7 @@ ON LEAVE OF begin_vend-no IN FRAME FRAME-A /* Beginning Vendor# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1862,12 +1868,16 @@ PROCEDURE run-report :
             DO:            
                 CASE cTmpField: 
                     WHEN "lv-job-no" THEN 
-                        cVarValue = lv-job-no.                                                  
+                        cVarValue = lv-job-no.
+                    WHEN "po-date" THEN 
+                        cVarValue = STRING(tt-sched.po-date).                                                  
                 END CASE.
-                cExcelVarValue = cVarValue.  
+                IF  cTmpField = "po-date" THEN
+                     cExcelVarValue = IF tt-sched.po-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-sched.po-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.  
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",INT(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
+                cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
             END.
         END.
         PUT UNFORMATTED cDisplay SKIP.

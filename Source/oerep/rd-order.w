@@ -91,8 +91,8 @@ ASSIGN
                             "Rep Name,Release Date,Carrier,Ship To Code,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
                             "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,# of Pallets"
 
-    cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
-                            "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
+    cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
+                            "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
                             "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet"
@@ -1606,7 +1606,7 @@ PROCEDURE run-report :
                         WHEN "sname" THEN 
                             cVarValue = STRING(vsname).
                         WHEN "reldate" THEN 
-                            cVarValue = STRING(vreldate).
+                            cVarValue = DYNAMIC-FUNCTION("sfFormat_Date", DATE(vreldate)).
                         WHEN "carrier" THEN 
                             cVarValue = STRING(vcarrier) .
                         WHEN "shipid" THEN 
@@ -1618,7 +1618,7 @@ PROCEDURE run-report :
                             ELSE cVarValue = "".
                         END.    
                         WHEN "approved-date" THEN 
-                            cVarValue = IF oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE ""    .
+                            cVarValue = IF oe-ord.approved-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.approved-date) ELSE ""    .
                         WHEN "sch-rel-qty" THEN 
                             cVarValue = STRING(dSchRelQty).
                         WHEN "ship-from" THEN 
@@ -1627,13 +1627,17 @@ PROCEDURE run-report :
                             cVarValue = STRING(cShipName,"x(30)").
 
                         WHEN "post-date" THEN 
-                            cVarValue = IF dtPostedDate NE ? THEN STRING(dtPostedDate) ELSE ""    .
+                            cVarValue = IF dtPostedDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dtPostedDate) ELSE ""    .
                         WHEN "weight-100" THEN 
                             cVarValue = IF AVAILABLE itemfg THEN STRING(itemfg.weight-100) ELSE "".
                         WHEN "tot-wt" THEN 
                             cVarValue =  STRING(itemfg.weight-100 * v-prod-qty / 100 ).
                         WHEN "Pallet" THEN 
                             cVarValue = STRING(itemfg.q-onh / v-pallet-count).                  
+                        WHEN "ord-date" THEN 
+                            cVarValue =  IF oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE ""    .
+                        WHEN "req-date" THEN 
+                            cVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE ""    .
                     END CASE.
 
                     cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue) .
