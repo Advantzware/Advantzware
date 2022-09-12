@@ -81,7 +81,7 @@ ASSIGN
                            "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name,Job#"
     cFieldListToSelect = "cust,name,bol,ct,inv-date,ord,inv," +
                             "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name,job-no"
-    cFieldLength       = "8,30,7,3,10,8,7," + "13,9,11,10,5,14,30,13"
+    cFieldLength       = "8,30,7,3,8,8,7," + "13,9,11,10,5,14,30,13"
     cFieldType         = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c,c" 
     .
 
@@ -1869,7 +1869,7 @@ PROCEDURE run-report :
                     WHEN "ct"  THEN 
                         cVarValue = STRING(cust.cr-rating,"x(3)") .
                     WHEN "inv-date"   THEN 
-                        cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",w-data.w-inv-date) .
+                        cVarValue = STRING(w-data.w-inv-date,"99/99/99") .
                     WHEN "ord"  THEN 
                         cVarValue = STRING(w-data.w-ord-no,">>>>>>>>") .
                     WHEN "inv"   THEN 
@@ -1892,10 +1892,12 @@ PROCEDURE run-report :
                         cVarValue = IF TRIM(w-data.w-job-no) BEGINS "-" THEN "" ELSE STRING(w-data.w-job-no) .
                 END CASE.
 
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                IF  cTmpField = "inv-date" THEN
+                     cExcelVarValue = IF w-data.w-inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-data.w-inv-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

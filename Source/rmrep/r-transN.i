@@ -169,7 +169,7 @@
              cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              
                  CASE cTmpField:               
-                     WHEN "trans-date" THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",rm-rcpth.trans-date) .
+                     WHEN "trans-date" THEN cVarValue = STRING(rm-rcpth.trans-date,"99/99/99") .
                      WHEN "i-no" THEN cvarValue = STRING(rm-rcpth.i-no,"x(10)") .
                      WHEN "i-name" THEN cVarValue = string(rm-rcpth.i-name,"x(30)") .
                      WHEN "po-no" THEN cVarValue = STRING(rm-rcpth.po-no,"x(8)") .
@@ -185,7 +185,7 @@
                      WHEN "v-value" THEN cVarValue = STRING(v-value,"->>,>>>.99").
 
                      WHEN "poqty" THEN cVarValue = IF AVAIL po-ordl THEN STRING(ld-poqty,"->>>>,>>>.99") ELSE "".
-                     WHEN "due" THEN cVarValue = IF AVAIL po-ordl THEN DYNAMIC-FUNCTION("sfFormat_Date",po-ordl.due-date) ELSE "".
+                     WHEN "due" THEN cVarValue = IF AVAIL po-ordl THEN STRING(po-ordl.due-date,"99/99/99") ELSE "".
                      WHEN "vend" THEN cVarValue = STRING(cVender,"x(20)").
                      WHEN "per" THEN cVarValue = IF AVAIL po-ordl THEN STRING(ld-under-per,"->>>,>>9.99%") ELSE "".
 
@@ -203,10 +203,16 @@
                      WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
                  END CASE.
                  
-                 cExcelVarValue = IF cTmpField EQ "v-job-no" THEN trim(cVarValue) ELSE DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).  
+                 IF  cTmpField = "v-job-no" THEN
+                      cExcelVarValue = trim(cVarValue).
+                 ELSE IF  cTmpField = "trans-date" THEN
+                      cExcelVarValue = IF rm-rcpth.trans-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",rm-rcpth.trans-date) ELSE "".
+                 ELSE IF  cTmpField = "due" THEN
+                      cExcelVarValue = IF AVAIL po-ordl AND po-ordl.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",po-ordl.due-date) ELSE "".
+                 ELSE cExcelVarValue = cVarValue.  
                  cDisplay = cDisplay + cVarValue +
                      FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                 cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
          PUT UNFORMATTED cDisplay SKIP.
          IF rd-dest EQ 3 THEN DO:

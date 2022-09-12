@@ -1729,7 +1729,7 @@ PROCEDURE run-report :
                     WHEN "dscr"     THEN 
                         cVarValue = STRING(v-i-name,"x(15)") .
                     WHEN "dat"      THEN 
-                        cVarValue = DYNAMIC-FUNCTION("sfFormat_Date", DATE(v-trans-date)) .
+                        cVarValue = STRING(v-trans-date) .
                     WHEN "po"       THEN 
                         cVarValue = STRING(rm-rcpth.po-no,"x(9)")  .
                     WHEN "vend"     THEN 

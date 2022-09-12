@@ -89,7 +89,7 @@ ASSIGN
                            "PTD AMT,WGT/MSF"*/
     cFieldListToSelect = "inv,inv-date,firstInvDate,post-date,cust,cust-name,net,msf,msf$" /*+ 
                             "ptd-amt,wgt-msf"*/
-    cFieldLength       = "8,10,19,10,8,30,13,13,13" /*+ "13,13" */
+    cFieldLength       = "7,10,19,10,8,30,13,13,13" /*+ "13,13" */
     cFieldType         = "i,c,c,c,c,c,i,i,i" /*+ "13,13"  */
     .
 

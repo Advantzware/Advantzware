@@ -118,7 +118,7 @@ ASSIGN
     cFieldListToSelect = "cust,name,rep,shipto,ship-zip,inv#,inv-date," +
                             "ord,item-no,item-name,desc,cust-part," +
                             "price,uom,qty,inv-amt,inv-wt"
-    cFieldLength       = "8,30,4,8,8,6,10," + "8,15,30,30,15," + "13,4,11,14,10"
+    cFieldLength       = "8,30,4,8,8,6,8," + "8,15,30,30,15," + "13,4,11,14,10"
     cFieldType         = "c,c,c,c,c,i,c," + "i,c,c,c,c," + "i,c,i,i,i" 
     .
 
@@ -2354,7 +2354,7 @@ PROCEDURE run-report :
                 WHEN "inv#"  THEN 
                     cVarValue = STRING(w-data.inv-no,">>>>>>") .
                 WHEN "inv-date"   THEN 
-                    cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date) .
+                    cVarValue = STRING(v-date,"99/99/99") .
                 WHEN "ord"  THEN 
                     cVarValue = STRING(v-ord,">>>>>>>>") .
                 WHEN "item-no"    THEN 
@@ -2378,10 +2378,12 @@ PROCEDURE run-report :
                          
             END CASE.
                       
-            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+            IF  cTmpField = "inv-date" THEN
+                 cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
           
         PUT UNFORMATTED cDisplay SKIP.

@@ -1815,7 +1815,7 @@ PROCEDURE print-coat-wax :
                     WHEN "rm-item"    THEN 
                         cVarValue = STRING(tt-wax-coats.i-no,"x(10)") .
                     WHEN "date"   THEN 
-                        cVarValue =  DYNAMIC-FUNCTION("sfFormat_Date",tt-wax-coats.trans-date).
+                        cVarValue =  STRING(tt-wax-coats.trans-date,"99/99/9999").
                     WHEN "job"   THEN 
                         cVarValue = STRING(tt-wax-coats.job-no,"x(13)").
                     WHEN "board"  THEN 
@@ -1841,10 +1841,12 @@ PROCEDURE print-coat-wax :
                         cVarValue =  STRING(tt-wax-coats.procat,"x(11)") .
                 END CASE.
 
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                IF  cTmpField = "date" THEN
+                     cExcelVarValue = IF tt-wax-coats.trans-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-wax-coats.trans-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

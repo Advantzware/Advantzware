@@ -4061,9 +4061,9 @@ PROCEDURE run-report :
             DO:       
                 CASE cTmpField:                               
                     WHEN "beg-date" THEN 
-                        cVarValue = IF ITEM.beg-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ITEM.beg-date) ELSE "".
+                        cVarValue = IF ITEM.beg-date NE ? THEN STRING(ITEM.beg-date) ELSE "".
                     WHEN "last-date" THEN 
-                        cVarValue = IF ITEM.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ITEM.last-date) ELSE "" .                
+                        cVarValue = IF ITEM.last-date NE ? THEN STRING(ITEM.last-date) ELSE "" .                
                     WHEN "dept-name[1]" THEN 
                         cVarValue = STRING(item.dept-name[1]).  
                     WHEN "speed%[1]" THEN 
@@ -4109,10 +4109,14 @@ PROCEDURE run-report :
                     WHEN "pur-man" THEN 
                         cVarValue = IF item.pur-man EQ YES THEN "P" ELSE "M" .                
                 END CASE.
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                IF  cTmpField = "beg-date" THEN
+                     cExcelVarValue = IF ITEM.beg-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ITEM.beg-date) ELSE "".
+                ELSE IF  cTmpField = "last-date" THEN
+                     cExcelVarValue = IF ITEM.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ITEM.last-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
         END.

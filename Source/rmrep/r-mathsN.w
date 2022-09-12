@@ -1617,7 +1617,7 @@ PROCEDURE run-report :
                 cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
                     WHEN "date"    THEN 
-                        cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",rm-rcpth.trans-date).
+                        cVarValue = STRING(rm-rcpth.trans-date,"99/99/9999").
                     WHEN "rm-item"   THEN 
                         cVarValue =  STRING(rm-rcpth.i-no,"x(16)").
                     WHEN "po"   THEN 
@@ -1637,10 +1637,12 @@ PROCEDURE run-report :
 
                 END CASE.
 
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                IF  cTmpField = "date" THEN
+                     cExcelVarValue = IF rm-rcpth.trans-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",rm-rcpth.trans-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

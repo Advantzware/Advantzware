@@ -81,7 +81,7 @@ ASSIGN
     cFieldListToSelect = "rep,rep-name,name,cust,custname,inv-no,inv-date,fg,cat,qty,ttl-msf,pur-ord," +
                             "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po,board-code,customer-part,bol,sqft," +
                             "cust-lot"
-    cFieldLength       = "3,20,30,8,30,8,10,15,5,14,9,8," +
+    cFieldLength       = "3,20,30,8,30,8,8,15,5,14,9,8," +
                       "8,15,11,11,8,10,3,15,14,15,6,10," + "15"
     cFieldType         = "c,c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c,c,c,i,i," + "c"
     .
@@ -775,6 +775,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+		        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1919,8 +1922,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
 

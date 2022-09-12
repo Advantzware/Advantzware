@@ -65,6 +65,9 @@ DEFINE VARIABLE cFieldType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN cTextListToSelect =  "MACHINE,DUE DATE - JOB,DUE DATE OL,CUSTOMER,CUSTOMER PART #,JOB #,"
@@ -546,6 +549,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Job Backlog by Machine */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -591,6 +595,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1773,10 +1778,20 @@ SESSION:SET-WAIT-STATE ("general").
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF  cTmpField = "st-date" THEN
+                         cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+                    ELSE IF  cTmpField = "due-date" THEN
+                         cExcelVarValue = IF v-due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-due-date) ELSE "".
+                    ELSE IF  cTmpField = "dStartJob" THEN
+                         cExcelVarValue = IF dStartDtJob NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dStartDtJob) ELSE "".
+                    ELSE IF  cTmpField = "dStartOL" THEN
+                         cExcelVarValue = IF dStartDtOL NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dStartDtOL) ELSE "".
+                    ELSE IF  cTmpField = "dProdOH" THEN
+                         cExcelVarValue = IF dProdDtOH NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dProdDtOH) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

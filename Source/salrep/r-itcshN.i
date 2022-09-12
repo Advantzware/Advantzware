@@ -736,7 +736,7 @@ if v-det then do:
                  WHEN "v-part-no" THEN cVarValue = STRING(v-part-no,"X(20)").
                  WHEN "tt-report.key-03" THEN cVarValue = string(tt-report.key-03).
                  WHEN "w-data.inv-no" THEN cVarValue = string(w-data.inv-no,">>>>>>>>").
-                 WHEN "v-date" THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date).
+                 WHEN "v-date" THEN cVarValue = string(v-date).
                  WHEN "v-ord" THEN cVarValue = string(v-ord,">>>>>>>>").
                  WHEN "v-est" THEN cVarValue = string(v-est).
                  WHEN "v-bol" THEN cVarValue = string(v-bol,">>>>>>>>").
@@ -750,10 +750,12 @@ if v-det then do:
                  WHEN "loc" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.loc,"X(9)") ELSE "".
             END CASE.
               
-            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+            IF cTmpField = "v-date" THEN
+                 cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
   END.
 
    PUT UNFORMATTED cDisplay SKIP.

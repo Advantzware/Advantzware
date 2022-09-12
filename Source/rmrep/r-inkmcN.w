@@ -95,7 +95,7 @@ ASSIGN
                                 "qty,ink1,ink2,ink3,ink4,ink5,ink6,ink1rmname,ink2rmname,ink3rmname," +
                                 "ink4rmname,ink5rmname,ink6rmname,ink1rmdscr,ink2rmdscr,ink3rmdscr,ink4rmdscr," +
                                 "ink5rmdscr,ink6rmdscr,qtyperink1,qtyperink2,qtyperink3,qtyperink4,qtyperink5,qtyperink6"
-    cFieldLength       = "13,4,8,20,15,10,10,10,10,7," + "10,11,11,11,11,11,11,30,30,30," + "30,30,30,30,30,30,30," +
+    cFieldLength       = "13,4,8,20,15,10,10,10,8,7," + "10,11,11,11,11,11,11,30,30,30," + "30,30,30,30,30,30,30," +
                           "30,30,12,12,12,12,12,12"
     cFieldType         = "c,i,c,c,c,c,c,c,c,i," + "i,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c"
     .
@@ -1612,7 +1612,7 @@ PROCEDURE run-report :
                             WHEN "addr2" THEN 
                                 cVarValue = STRING(v-adder[2]).
                             WHEN "date" THEN 
-                                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date) . 
+                                cVarValue = STRING(v-date) . 
                             WHEN "cov" THEN 
                                 cVarValue = STRING(v-cov,">>9").
                             WHEN "qty" THEN 
@@ -1669,10 +1669,12 @@ PROCEDURE run-report :
 
                         END CASE.
 
-                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                        IF  cTmpField = "date" THEN
+                             cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+                        ELSE cExcelVarValue = cVarValue.  
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                     END.
                 END.
                 PUT UNFORMATTED cDisplay SKIP.

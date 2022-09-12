@@ -84,7 +84,7 @@ ASSIGN
                            + "UNIT PRICE,TOTAL SALE"
     cFieldListToSelect = "prod,desc,shipto,name,city,st,inv-date,qty-ship," +
                             "unit-pr,tot-sal"
-    cFieldLength       = "15,30,15,20,15,2,10,11," + "10,15"
+    cFieldLength       = "15,30,15,20,15,2,8,11," + "10,15"
     cFieldType         = "c,c,c,c,c,c,c,i," + "i,i" 
     .
 
@@ -627,6 +627,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+		        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1817,7 +1820,7 @@ PROCEDURE run-report :
                     WHEN "st"  THEN 
                         cVarValue = STRING(v-stat,"x(2)") .
                     WHEN "inv-date"   THEN 
-                        cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",bf-ar-inv.inv-date) .
+                        cVarValue = STRING(bf-ar-inv.inv-date,"99/99/99") .
                     WHEN "qty-ship"  THEN 
                         cVarValue = STRING(ar-invl.inv-qty,"->>,>>>,>>9") .
                     WHEN "unit-pr"   THEN 
@@ -1827,10 +1830,12 @@ PROCEDURE run-report :
 
                 END CASE.
 
-                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                IF  cTmpField = "inv-date" THEN
+                     cExcelVarValue = IF bf-ar-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",bf-ar-inv.inv-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
@@ -1997,8 +2002,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

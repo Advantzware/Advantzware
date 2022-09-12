@@ -1606,7 +1606,7 @@ PROCEDURE run-report :
                         WHEN "sname" THEN 
                             cVarValue = STRING(vsname).
                         WHEN "reldate" THEN 
-                            cVarValue = DYNAMIC-FUNCTION("sfFormat_Date", DATE(vreldate)).
+                            cVarValue = STRING(vreldate).
                         WHEN "carrier" THEN 
                             cVarValue = STRING(vcarrier) .
                         WHEN "shipid" THEN 
@@ -1618,7 +1618,7 @@ PROCEDURE run-report :
                             ELSE cVarValue = "".
                         END.    
                         WHEN "approved-date" THEN 
-                            cVarValue = IF oe-ord.approved-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.approved-date) ELSE ""    .
+                            cVarValue = IF oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE ""    .
                         WHEN "sch-rel-qty" THEN 
                             cVarValue = STRING(dSchRelQty).
                         WHEN "ship-from" THEN 
@@ -1627,7 +1627,7 @@ PROCEDURE run-report :
                             cVarValue = STRING(cShipName,"x(30)").
 
                         WHEN "post-date" THEN 
-                            cVarValue = IF dtPostedDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dtPostedDate) ELSE ""    .
+                            cVarValue = IF dtPostedDate NE ? THEN STRING(dtPostedDate) ELSE ""    .
                         WHEN "weight-100" THEN 
                             cVarValue = IF AVAILABLE itemfg THEN STRING(itemfg.weight-100) ELSE "".
                         WHEN "tot-wt" THEN 
@@ -1640,10 +1640,20 @@ PROCEDURE run-report :
                             cVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE ""    .
                     END CASE.
 
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue) .
+                    IF  cTmpField = "reldate" THEN
+                         cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",DATE(vreldate)) .
+                    ELSE IF  cTmpField = "approved-date" THEN
+                         cExcelVarValue = IF oe-ord.approved-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.approved-date) ELSE "".
+                    ELSE IF  cTmpField = "post-date" THEN
+                         cExcelVarValue = IF dtPostedDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dtPostedDate) ELSE "".
+                    ELSE IF  cTmpField = "ord-date" THEN
+                         cExcelVarValue = IF oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "".
+                    ELSE IF  cTmpField = "req-date" THEN
+                         cExcelVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "".
+                    ELSE cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue) .
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                 END.
             END.
       

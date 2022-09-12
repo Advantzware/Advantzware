@@ -2178,7 +2178,7 @@ PROCEDURE run-report :
                         WHEN "cVendTag" THEN 
                             cVarValue = fPrepareCSV(STRING(cVendTag)).
                         WHEN "trans-date" THEN 
-                            cVarValue = DYNAMIC-FUNCTION("sfFormat_Date", DATE(lv-lstdt)) /*string(lv-fistdt)*/ .
+                            cVarValue = STRING(lv-lstdt) /*string(lv-fistdt)*/ .
                         WHEN "loc-bin" THEN 
                             cVarValue = STRING(tt-rm-bin.loc-bin).
                         WHEN "tag" THEN 
@@ -2192,7 +2192,7 @@ PROCEDURE run-report :
                         WHEN "cVendCode" THEN 
                             cVarValue = STRING(cVendor).
                         WHEN "cLstRcd" THEN 
-                            cVarValue = DYNAMIC-FUNCTION("sfFormat_Date", DATE(lv-fistdt))  /*string(lv-lstdt)*/ .
+                            cVarValue = STRING(lv-fistdt)  /*string(lv-lstdt)*/ .
                         WHEN "cali" THEN 
                             cVarValue = STRING(ITEM.cal,"9.99999"). 
                         WHEN "wt-msf" THEN 
@@ -2218,7 +2218,11 @@ PROCEDURE run-report :
                         WHEN "cycle-count" THEN 
                             cVarValue = STRING(item.cc-code,"x(2)").
                     END CASE.
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
+                    IF  cTmpField = "trans-date" THEN
+                         cExcelVarValue = IF lv-lstdt NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(lv-lstdt)) ELSE "".
+                    ELSE IF  cTmpField = "cLstRcd" THEN
+                         cExcelVarValue = IF lv-fistdt NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(lv-fistdt)) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.  
                     IF cTmpField = "tag" OR cTmpField = "cVendTag" THEN 
                     DO:
                         cVarValue = REPLACE(cVarValue,'"','')  .
@@ -2226,7 +2230,7 @@ PROCEDURE run-report :
                     END.
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).
-                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                 END.
             END.
             PUT UNFORMATTED cDisplay SKIP.

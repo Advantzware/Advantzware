@@ -639,6 +639,9 @@ DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
                 DO:
@@ -1479,7 +1482,7 @@ PROCEDURE print_data :
 
         IF  cTmpField = "date" THEN
              cExcelVarValue = IF ipnotedate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ipnotedate) ELSE "".
-        ELSE cExcelVarValue =  cVarValue.
+        ELSE cExcelVarValue = cVarValue.
         cDisplay = cDisplay + cVarValue +
             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
         cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
@@ -1629,8 +1632,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
