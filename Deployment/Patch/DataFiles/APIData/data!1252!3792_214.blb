@@ -1,0 +1,8 @@
+$PageSeparator$$BlankHeader$<C2><B>Blank | </B>$BlankNo|99|INT|$<C10><B># Up: </b>$NumUp$<C20><b>Customer Part: $CustomerPart|X(15)|$</b><C45><b>FG#: </b>$ItemID|X(15)|$
+<C20><b>Descr.: </B>$ItemName|X(30)|$<C45><b>Cad#: </b>$CadNo|X(20)|$<C70>
+<C20><b>Adhesive: </B>$AdhesiveCode|X(15)|$<C45><b>Art#: </b>$PlateNo|X(30)|$<C70><B><P10>Job Qty: </B>$JobHeaderQuantity$$PageSeparator$
+<P10><C20><b>Size: </B>$ItemLength|>9.9999|DEC|$ x $ItemWidth|>9.9999|DEC|$ x $ItemDepth|>9.9999|DEC|$<C45>$SpcNo|X(30)|$
+<P10><C20><b>Blank Size: </B> $BlankLength|>9.9999|DEC|$ x $BlankWidth|>9.9999|DEC|$
+$FormNo||||IF["0","<C19.5><FROM><R+2><C75><RECT><R-2><P10><C20><b>Packing: </B>$CaseNo|X(15)|$<C48><b>Pallet: </b>$PalletNo|X(15)|$
+<P10><C20><b>Case Size: </B>$CaseLength|>9.9999|DEC|$ x $CaseWidth|>9.9999|DEC|$ x $CaseDepth|>9.9999|DEC|$<C48><b>Count: </B>$QuantityPerSubUnit$<C60><b>Ctn/Bdl.Per: </b>$QuantitySubUnitsPerUnit$",""]|$                            
+<R-4><C2><FROM><R+3><C+13><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=$JobID$-$JobID2$-$FormNo$-$BlankNo$>$FormNo||||IF["0","<R+1.5>","<R+0.5>"]|$<||3><C1><FROM><C83><LINE><||3>$BlankFooter$$PageSeparator$$FormNo||||IF["0","$linefeed$$SetComponentGroupHeader$$SetComponents$$SetComponentGroupFooter$",""]|$$PageSeparator$

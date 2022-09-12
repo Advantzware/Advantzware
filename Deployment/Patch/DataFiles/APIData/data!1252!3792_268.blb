@@ -1,0 +1,12 @@
+$QuoteItemHeader$$PageSeparator$$QuoteQuantities$$PageSeparator$<R-$ItemQuantityCount$>$EstimateID||||TRIM|$<C10>$PartID|X(21)|$<C24>$PartDescription1|X(28)|$
+$QuoteID$<C24>$Print2ndItemDescription|$PartDescription2$/|LOG|$
+<C24>$StyleDescription|X(28)|||IF["","","!VALUE!
+"]|$<C24>$ColorDescription|X(28)|||IF["","","!VALUE!
+"]|$<C24>$Metric||||IF["Yes","$LengthMetric|->>,>>>mm|INT|$ x $WidthMetric|->>,>>>mm|INT|$ x $DepthMetric|->>,>>>mm|INT|$","$Length|>>>>>9.99<<<|DEC|$ x $Width|>>>>>9.99<<<|DEC|$ x $Depth|>>>>>9.99<<<|DEC|$"]|$
+<C24>$ItemDescription|X(28)|$
+<C10>FG#: $ItemID|X(30)|$
+<C10>DIE#: $DieNo|X(30)|$
+<C10>CAD#: $CadNo|X(30)|$
+
+$SetComponents$
+$QuoteItemFooter$
