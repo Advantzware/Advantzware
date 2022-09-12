@@ -1584,13 +1584,13 @@ for each mch-act
      v-mr-qty   = 0
      v-mr-waste = 0.
 
-    find job-code where job-code.code eq mch-act.code no-lock.
-    if job-code.cat eq "RUN" then
+    find job-code where job-code.code eq mch-act.code NO-LOCK NO-ERROR.
+    IF AVAILABLE job-code AND job-code.cat eq "RUN" then
       assign
        v-run-qty  = mch-act.qty
        v-wst-qty  = mch-act.waste.
     else
-    if job-code.cat eq "MR" then
+    IF AVAILABLE job-code AND job-code.cat eq "MR" then
       assign
        v-mr-qty   = mch-act.qty
        v-mr-waste = mch-act.waste.
