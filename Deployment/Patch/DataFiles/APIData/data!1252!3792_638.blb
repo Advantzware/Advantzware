@@ -1,0 +1,34 @@
+<FArial>
+<P14><C+48><B>Orden de compra</B> <P10>$POStatus||||IF["U","(CHANGED ORDER ONLY)",""]|$
+<C2><R2><#1><R+10><C+45><IMAGE#1=$BusinessFormLogo$>
+<R4><C50><#3>
+<FArial><P14><=#3>
+<=#3><R+1><B><P12>PO #: $POID|>>>>>>>9|INT|$ </B><P10>
+<=#3><R+2>Fecha: $PODate$
+<=#3><R+3>Fecha cambiada: $POChangeDate$
+<=3><R+4>Fecha requerida: $PODueDate$<R+5>
+<FCourier New><C3>Orden de compra To:<C54>Envie a:
+<C3>$VendorName$<C54>$POShipName$
+<C3>$VendorAddress1$<C54>$POShipAddress1$
+<C3>$VendorAddress2$<C54>$POShipAddress2$
+<C3>$VendorCity$ $VendorState$ $VendorZip$<C54>$POShipCity$ $POShipState$ $POShipZip$
+<|10><R20><C1><#4><FROM><R24><C80><RECT>
+<R22><C1><FROM><R22><C80><LINE>
+<R20><C10><FROM><R24><C10><LINE>
+<R20><C29><FROM><R24><C29><LINE>
+<R20><C49><FROM><R24><C49><LINE>
+<R20><C55><FROM><R24><C55><LINE>
+<R20><C72><FROM><R24><C72><LINE>
+<FArial><=4><C50> Flete
+<=4><R+1><C2>Comprador<C16>Contacto<C37>Condiciones<C50>a bordo<C61>Embarcar vía<C74>Carga
+<FCourier New><=4><R+3><C2>$POBuyer$<C11>$POContact|X(25)|$<C30>$TermsDescription|X(23)|$<C50>$POFOBCode$<C56>$CarrierDescription|X(20)|$<C73>$POFreightPay||||IF["P","Prepaid",""]|$$POFreightPay||||IF["C","Collect",""]|$$POFreightPay||||IF["B","Bill",""]|$
+<|10><R25><C1><#5><FROM><R27><C80><RECT>
+<R25><C6><FROM><R27><C6><LINE>
+<R25><C14><FROM><R27><C14><LINE>
+<R25><C21.5><FROM><R27><C21.5><LINE> 
+<R25><C46.5><FROM><R27><C46.5><LINE>
+<R25><C55.5><FROM><R27><C55.5><LINE>
+<R25><C61.5><FROM><R27><C61.5><LINE>
+<R25><C68.8><FROM><R27><C68.8><LINE>
+<FArial><=5><C14> Unidad<C22> Nuestro articulo/CP #/Descripción/<C47> Fecha de<C62> Unidad<C69> Costo extendido
+<=5><R+1> Línea<C7>Cantidad<C14> de medida<C22>ID de proveedor/Artículo del vendedor#<C47> vencimiento<C56>Costo<C61>  de medida<C70>MSF extendido

@@ -1,0 +1,26 @@
+$formfeed$<C2><R2><#1><R+10><C+45><IMAGE#1=$BusinessFormLogo$>
+<FCourier New><P12>Bill To:                                        Ship To:  $ShipTo5$
+     $BillTo1$<C55>$ShipTo1$
+     $BillTo2$<C55>$ShipTo2$
+     $BillTo3$<C55>$ShipTo3$
+     $BillTo4$<C55>$ShipTo4$</P12>
+<|10><R4><C50><#3><FROM><R8><C80><RECT><R6><C50><FROM><R6><C80><LINE><R4><C62><FROM><R6><C62><LINE><R6><C65><FROM><R8><C65><LINE><FArial><P12><=#3><=#3><R-2> <B>Quotation#: $QuoteID|>>>>>9|INT|$</B>           Page#: $PageNumber$<P10><=#3> Customer ID             Contact<=#3><R+2> Telephone                       Fax <FCourier New><=3><R+1> $CustomerID|X(8)|$      $Contact$<=3><R+3> $AreaCode|(999)|$$Phone|999-9999|$     $Fax|(999) 999-9999|$<|10><R23><C1><#4><FROM><R27><C80><RECT>
+<R25><C1><FROM><R25><C80><LINE> 
+<R23><C11><FROM><R27><C11><LINE>
+<R23><C21.5><FROM><R27><C21.5><LINE>
+<R23><C38><FROM><R27><C38><LINE>
+<R23><C52><FROM><R27><C52><LINE>
+<R23><C70><FROM><R27><C70><LINE>
+<FArial><=4><R+1> Quote Date         FOB                     Ship Via                                  Terms                      Sales Person                       Over-Under %
+<FCourier New><=4><R+3> $QuoteDate|MM-DD-YYYY|DATE|$  $FOBCode|X(11)|$ $CarrierDescription|X(20)|$ $TermsDescription|X(15)|$ $SalesPersonName|X(20)|$  $OverPercent|>>9%|INT|$-$UnderPercent|>>9%|INT|$
+<|10><R28><C1><#5><FROM><R30><C80><RECT>
+<R28><C8><FROM><R30><C8><LINE>
+<R28><C24><FROM><R30><C24><LINE>
+<R28><C48><FROM><R30><C48><LINE>
+<R28><C55><FROM><R30><C55><LINE>
+<R28><C58><FROM><R30><C58><LINE>
+<R28><C66><FROM><R30><C66><LINE>
+<R28><C70><FROM><R30><C70><LINE>  
+<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                          Quantity     Rel         Price      UOM       Extended
+<FCourier New>
+
