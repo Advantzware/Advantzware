@@ -132,7 +132,7 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD setPartSummPricePerEALabel  AS CHARACTER INITIAL "Price/EA" LABEL "Label"
     FIELD setPartSummPricePerEACol    AS DECIMAL INITIAL 67 LABEL "Column Position"
     FIELD setPartSummPricePerEAWidth  AS INTEGER INITIAL 10 LABEL "Width"
-    FIELD showBillablePrep            AS LOGICAL INITIAL YES LABEL "Show Billable Preps?"
+    FIELD showBillablePrep            AS LOGICAL INITIAL NO LABEL "Show Billable Preps?"
     FIELD billablePrepItemIDShow      AS LOGICAL INITIAL YES LABEL "Show Item ID Billable Preps?"
     FIELD billablePrepItemIDLabel     AS CHARACTER INITIAL "Item" LABEL "Label"
     FIELD billablePrepItemIDCol       AS DECIMAL INITIAL 2 LABEL "Column Position"
