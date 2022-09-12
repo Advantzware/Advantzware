@@ -74,6 +74,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Customer,Ship-To,Item,Customer PO,Order,Unit Pr,On Hand,"
@@ -572,6 +575,7 @@ ON END-ERROR OF C-Win /* FG Reorder Advice Report By Ship-To */
 ON WINDOW-CLOSE OF C-Win /* FG Reorder Advice Report By Ship-To */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -639,6 +643,7 @@ ON LEAVE OF begin_ship IN FRAME FRAME-A /* Beginning Ship-To# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1958,10 +1963,15 @@ PROCEDURE run-report :
                         cvarValue = STRING(chrPolicy)  .     
 
                 END CASE.
-                cExcelVarValue = cVarValue.  
+                
+                IF cTmpField = "1st-rec"  THEN 
+                        cExcelVarValue = IF chrRecDate NE "N/A" THEN DYNAMIC-FUNCTION("sfFormat_Date",chrRecDate) ELSE STRING(chrRecDate) .
+                        
+                ELSE cExcelVarValue = cVarValue.
+                
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
             END.
             PUT UNFORMATTED cDisplay SKIP.
             IF rd-dest = 3 THEN 
@@ -2031,10 +2041,14 @@ PROCEDURE run-report :
                         cvarValue = STRING(chrPolicy)  .     
 
                 END CASE.
-                cExcelVarValue = cVarValue.  
+                
+                IF cTmpField = "1st-rec"   THEN 
+                        cExcelVarValue = IF chrRecDate NE "N/A" THEN DYNAMIC-FUNCTION("sfFormat_Date",chrRecDate) ELSE STRING(chrRecDate) .
+                        
+                ELSE cExcelVarValue = cVarValue.  
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
             END.
             PUT UNFORMATTED cDisplay SKIP.
             IF rd-dest = 3 THEN 

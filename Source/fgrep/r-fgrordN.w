@@ -78,6 +78,9 @@ DEFINE VARIABLE dEstDepth          AS DECIMAL   NO-UNDO .
 DEFINE VARIABLE cEstPlate          AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iCount             AS INTEGER   NO-UNDO .
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
   
 
 ASSIGN 
@@ -844,6 +847,7 @@ ON END-ERROR OF C-Win /* FG Reordering Advice Report */
 ON WINDOW-CLOSE OF C-Win /* FG Reordering Advice Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -985,6 +989,7 @@ ON LEAVE OF begin_whse IN FRAME FRAME-A /* Beginning Warehouse */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 

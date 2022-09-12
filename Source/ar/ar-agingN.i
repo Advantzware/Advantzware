@@ -97,6 +97,9 @@ DEFINE VARIABLE dOpeningBalance AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dArClassAmount AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iARClassForReceivablesAccount AS INTEGER NO-UNDO.
 DEFINE VARIABLE cSalesPerson AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
@@ -649,13 +652,15 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      END. /* WHEN "coll-note" THEN DO: */
                     
                 END CASE.
+                
+                IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) .
                   
-                cExcelVarValue = cVarValue.
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 IF cTmpField EQ "cust-name" THEN
                    cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -828,12 +833,14 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          END. /* WHEN "coll-note" THEN DO: */
                      END CASE.
 
-                     cExcelVarValue = cVarValue.
+                     IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) .
+                  
+                     ELSE cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
 
             END.
 
@@ -910,12 +917,15 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          END. /* WHEN "coll-note" THEN DO: */
                      END CASE.
 
-                     cExcelVarValue = cVarValue.
+                     IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) .
+                  
+                     ELSE cExcelVarValue = cVarValue.
+                     
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -1021,12 +1031,14 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          END. /* WHEN "coll-note" THEN DO: */
                      END CASE.
 
-                     cExcelVarValue = cVarValue.
+                     IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
+                  
+                     ELSE cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -1255,12 +1267,14 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                     
                 END CASE.
                   
-                cExcelVarValue = cVarValue.
+                IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
+                  
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -1382,13 +1396,15 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                     
                 END CASE.
                   
-                cExcelVarValue = cVarValue.
+                IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
+                  
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -2147,7 +2163,10 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
             END.
         END.
 
-
+ FINALLY:
+        IF VALID-HANDLE (hdOutputProcs) THEN
+            DELETE PROCEDURE hdOutputProcs.            
+ END FINALLY.
         
 
  END PROCEDURE.

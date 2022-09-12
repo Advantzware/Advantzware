@@ -73,6 +73,9 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN cTextListToSelect = "Customer,Customer Name,Order#,FG Item#,Description,Order Qty, " +
@@ -460,6 +463,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Finished Goods Status Report */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -509,6 +513,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1623,11 +1628,14 @@ display "" with frame r-top.
                                  WHEN "job"       THEN cVarValue = STRING(v-job-no).
                                  WHEN "part-no"   THEN cVarValue = STRING(oe-ordl.part-no,"x(15)").
                             END CASE.
+                            
+                            IF cTmpField = "date" THEN 
+                               cExcelVarValue = IF oe-ord.ord-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "".
 
-                            cExcelVarValue = cVarValue.
+                            ELSE cExcelVarValue = cVarValue.
                             cDisplay = cDisplay + cVarValue +
                                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                     END.
 
                     PUT UNFORMATTED cDisplay SKIP.
