@@ -2793,13 +2793,13 @@ FUNCTION fFormatDimension RETURNS DECIMAL PRIVATE
     ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE dDimension AS DECIMAL NO-UNDO.
 
+    dDimension = ipdDimension.
     IF ipl16ths THEN 
     DO: 
         RUN ConvertDecimalTo16ths IN hdFormulaProcs (INPUT-OUTPUT dDimension).
         dDimension = ROUND(dDimension,2).
     END.
-    ELSE dDimension = ipdDimension.
-
+    
     RETURN dDimension.
 
 		

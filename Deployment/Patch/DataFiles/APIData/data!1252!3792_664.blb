@@ -1,0 +1,18 @@
+$PageSeparator$$linefeed$<LEFT=4.5mm>$PONotes||||IF["","","!VALUE!"]|$<LEFT=0mm>$PageSeparator$
+<R55><C58><#8> 
+<=8><R+1><C+2>Transport: <DECIMAL=C+8>$POTotalFreight|->>,>>9.99|DEC|$
+<=8><R+2><C+8>$PrintGrandTotalMSF||||IF["yes","MSF: <DECIMAL=C+8>$TotalSquareFeet|>>>,>>9.9<<|DEC|$$linefeed$",""]|$
+<=8><R+3>
+<=8><R+4>
+<=8><R+5>GRAND TOTAL: <DECIMAL=C+8>$POTotalCost|->>,>>9.99|DEC|$
+
+<R58><C2> Authorised by
+<R59><C16><FROM><C46><R59><LINE>
+<R59><C2> Administrator
+<R61><C2> Varified by
+<R62><C14><FROM><C46><R62><LINE>
+<R64><C50><P10> QF-38 Purchase Order Rev.2, 10/09
+
+
+
+$LastPurchaseOrder||||IF["yes","","$formfeed$"]|$

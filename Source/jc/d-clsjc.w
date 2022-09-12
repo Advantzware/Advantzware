@@ -383,7 +383,7 @@ DO:
             :
             rm-rctd.rct-date = close_date.
         END.  
-        DISPLAY "Job Closing: " +
+        DISPLAY "Last Job Closed: " +
               TRIM(job.job-no) + "-" +
               STRING(job.job-no2,"999") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
@@ -405,7 +405,7 @@ DO:
         USE-INDEX opened
         :
         RUN jc/jc-reopn.p (ROWID(job)).
-        DISPLAY "Job Opening: " +
+        DISPLAY "Last Job Opened: " +
               TRIM(job.job-no) + "-" +
               STRING(job.job-no2,"999") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
