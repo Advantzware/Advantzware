@@ -485,7 +485,7 @@ DO:
         THEN 
         DO:
             MESSAGE 
-                "Creating PO for vendor: " + ttVendItemCost.vendorID + "." skip
+                "Selected vendor code: " + ttVendItemCost.vendorID + "." skip
                 "Is this correct?"
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCorrect AS LOG.
             IF NOT lCorrect THEN RETURN NO-APPLY.
