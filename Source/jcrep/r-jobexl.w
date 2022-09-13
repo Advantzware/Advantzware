@@ -82,6 +82,10 @@ DEFINE TEMP-TABLE tt-report NO-UNDO
     FIELD row-id   AS ROWID
     FIELD qty      AS INTEGER.
 
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 
 ASSIGN 
     cTextListToSelect  = "Job#,FG Item#,Estimate#,Order#,Customer#,Start Date,Close Date," +
@@ -477,6 +481,7 @@ ON HELP OF FRAME Dialog-Frame /* Job Costing Excel Export */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Job Costing Excel Export */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -521,6 +526,7 @@ ON LEAVE OF begin_item IN FRAME Dialog-Frame /* From FG Item */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1274,10 +1280,18 @@ PROCEDURE run-report :
                         cVarValue = IF job.due-date NE ? THEN STRING(job.due-date) ELSE ""  .
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "start-date" THEN
+                     cExcelVarValue = IF job.start-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.start-date) ELSE "".
+                ELSE IF  cTmpField = "close-date" THEN
+                     cExcelVarValue = IF job.close-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.close-date) ELSE "".
+                ELSE IF  cTmpField = "create-date" THEN
+                     cExcelVarValue = IF job.create-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.create-date) ELSE "".
+                ELSE IF  cTmpField = "due-date" THEN
+                     cExcelVarValue = IF job.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.due-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
         END.
       

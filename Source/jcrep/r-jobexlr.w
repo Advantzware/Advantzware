@@ -82,6 +82,10 @@ DEFINE TEMP-TABLE tt-report NO-UNDO
     FIELD row-id   AS ROWID
     FIELD qty      AS INTEGER.
 
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 
 ASSIGN 
     cTextListToSelect  = "Job#," +
@@ -93,8 +97,8 @@ ASSIGN
     cFieldListToSelect = "job," +
                             "job-mch.frm,job-mch.blank-no,job-mch.pass,job-mch.m-code,i-name,job-mch.lag-time,job-mch.dept,job-mch.mr-hr,job-mch.run-hr,job-mch.speed,job-mch.wst-prct," +
                             "job-mch.mr-rate,job-mch.mr-fixoh,job-mch.mr-varoh,job-mch.run-fixoh,job-mch.run-varoh," +
-                            "job-mch.start-date-su,start-time,job-mch.end-date-su,start-end-time,job-mch.mr-complete,job-mch.start-date," +
-                            "job-mch.end-date,sttime,endtime,job-mch.run-complete,job-mch.run-qty,job-mch.anchored"
+                            "start-date-su,start-time,end-date-su,start-end-time,job-mch.mr-complete,start-date," +
+                            "end-date,sttime,endtime,job-mch.run-complete,job-mch.run-qty,job-mch.anchored"
                             
                             
     cFieldLength       = "13," + "15,15,15,15,15,15,15,15,15,15,15," + 
@@ -469,6 +473,7 @@ ON HELP OF FRAME Dialog-Frame /* Job Costing Routing Excel Export */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Job Costing Routing Excel Export */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -502,6 +507,7 @@ ON LEAVE OF begin_item IN FRAME Dialog-Frame /* From FG Item */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1168,12 +1174,28 @@ PROCEDURE run-report :
                         cVarValue = cvt-time-to-string('',job-mch.start-time,0.00) .
                     WHEN "endtime"  THEN 
                         cVarValue = cvt-time-to-string('',job-mch.end-time,0.00) .
+                    WHEN "start-date-su"  THEN 
+                        cVarValue = IF job-mch.start-date-su NE ? THEN STRING(job-mch.start-date-su) ELSE "".
+                    WHEN "end-date-su"  THEN 
+                        cVarValue = IF job-mch.end-date-su NE ? THEN STRING(job-mch.end-date-su) ELSE "".
+                    WHEN "start-date"  THEN 
+                        cVarValue = IF job-mch.start-date NE ? THEN STRING(job-mch.start-date) ELSE "".
+                    WHEN "end-date"  THEN 
+                        cVarValue = IF job-mch.end-date NE ? THEN STRING(job-mch.end-date) ELSE "".
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "start-date-su" THEN
+                     cExcelVarValue = IF job-mch.start-date-su NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job-mch.start-date-su) ELSE "".
+                ELSE IF  cTmpField = "end-date-su" THEN
+                     cExcelVarValue = IF job-mch.end-date-su NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job-mch.end-date-su) ELSE "".
+                ELSE IF  cTmpField = "start-date" THEN
+                     cExcelVarValue = IF job-mch.start-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job-mch.start-date) ELSE "".
+                ELSE IF  cTmpField = "end-date" THEN
+                     cExcelVarValue = IF job-mch.end-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job-mch.end-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
         END.
       

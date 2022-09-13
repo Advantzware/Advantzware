@@ -113,6 +113,10 @@ RUN sys/ref/ordtypes.p(
     OUTPUT cOrdName
     ).     
                       
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.                      
+                      
 
 ASSIGN cTextListToSelect = "Job#,Job#2,Item Code,Description,Cust. #,Customer Name,Qty Ordered,QTY Produced,MAT. Act Cost," +
                        "MAT Stnd cost,MAT Var,MAT %Var,Board Act Cost,Other Act Cost,Board Stnd Cost,Other Stnd Cost,Board Var," +
@@ -605,6 +609,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Job Analysis Report */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -678,6 +683,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -2393,10 +2399,18 @@ FOR EACH tt-report,
                                                                                                                                                                                                                                                      
                     END CASE.                                                                                                                                                                                                                                  
                                                                                                                                                                                                                                                                  
-                    cExcelVarValue = cVarValue.                                                                                                                                                                                                         
+                    IF  cTmpField = "job-cls-date" THEN
+                         cExcelVarValue = IF job.close-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.close-date) ELSE "".
+                    ELSE IF  cTmpField = "rel-date" THEN
+                         cExcelVarValue = IF cRelDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",cRelDate) ELSE "".
+                    ELSE IF  cTmpField = "prd-cmp-date" THEN
+                         cExcelVarValue = IF cProdDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",cProdDate) ELSE "".
+                    ELSE IF  cTmpField = "mfg-date" THEN
+                         cExcelVarValue = IF AVAILABLE oe-ordl AND oe-ordl.prom-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.prom-date) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.                                                                                                                                                                                                         
                     cDisplay = cDisplay + cVarValue +                                                                                                                                                                                                                                                        
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).                                                                                                                                           
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".                                                                                                                                                                                                                      
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.                                                                                                                                                                                                                                                                        
                                                                                                                                                                                                                                                                                                 
             PUT UNFORMATTED cDisplay skip(1) .                                                                                                                                                                                                                                                        
