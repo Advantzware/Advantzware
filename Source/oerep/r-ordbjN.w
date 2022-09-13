@@ -107,6 +107,9 @@ DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cColumnInit        AS LOG       INIT YES NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Rep,Sales Rep Name,Cust #,Cust Name,Order PO,Item PO,Release PO," +
@@ -821,6 +824,7 @@ ON END-ERROR OF C-Win /* Order Balance by PO# / Job */
 ON WINDOW-CLOSE OF C-Win /* Order Balance by PO# / Job */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -921,6 +925,7 @@ ON LEAVE OF begin_slmn IN FRAME FRAME-A /* Beginning Sales Rep# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
