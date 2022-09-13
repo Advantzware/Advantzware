@@ -204,12 +204,12 @@
     &ENDIF
   &ENDIF
 &ELSE
-  IF {&c}lXMLOutput THEN DO:
+  IF {&c}lXMLOutput THEN DO:    
     RUN {&c}XMLOutput ({&c}lXMLOutput,'','','Close').
-    OUTPUT STREAM {&c}XMLOutput CLOSE.
-    OS-RENAME VALUE({&c}XMLTemp) VALUE({&c}cXMLOutput + {&c}XMLFile).
+    OUTPUT STREAM {&c}XMLOutput CLOSE.      
+    OS-RENAME VALUE({&c}XMLTemp) VALUE({&c}cXMLOutput + {&c}XMLFile).      
     &IF '{&c}' EQ 'c' &THEN
-    OUTPUT STREAM cXMLOutput TO 'XMLOutput/{&sysCtrlcXML}.log' APPEND.
+    OUTPUT STREAM cXMLOutput TO VALUE(string({&c}cXMLOutput) + '/XMLOutput/{&sysCtrlcXML}.log') APPEND.  
     PUT STREAM cXMLOutput UNFORMATTED
       'Transmitted ' TODAY ' @ ' STRING(TIME,'hh:mm:ss am')
       ' File: ' ccXMLOutput + cXMLFile SKIP.
