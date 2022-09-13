@@ -481,6 +481,7 @@ DO:
         OR INDEX(PROGRAM-NAME(9),"oe/d-oeitem.w") NE 0 
         OR INDEX(PROGRAM-NAME(9),"panels/p-job.w") NE 0 
         OR INDEX(PROGRAM-NAME(9),"browsers/probe.w") NE 0 
+        OR INDEX(PROGRAM-NAME(7),"oe/p-oehold.w") NE 0 
         THEN 
         DO:
             MESSAGE 
