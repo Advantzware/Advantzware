@@ -59,6 +59,9 @@ DEFINE VARIABLE v-counted-date     AS DATE      NO-UNDO.
 DEFINE VARIABLE v-cust-no          LIKE itemfg.cust-no NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Account Number,Account Description,Run #,Journal," +
@@ -455,6 +458,7 @@ ON END-ERROR OF C-Win /* G L  Account History */
 ON WINDOW-CLOSE OF C-Win /* G L  Account History */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -489,6 +493,7 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1707,10 +1712,14 @@ PROCEDURE run-report :
                             cVarValue =  "" .
 
                     END CASE.
-                    cExcelVarValue = cVarValue.  
+                    
+                    IF cTmpField = "date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",glhist.tr-date) .
+            
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
+                    cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
 
                 END.
                 PUT UNFORMATTED cDisplay SKIP.
@@ -1855,10 +1864,13 @@ PROCEDURE run-report :
                             WHEN "bal"     THEN 
                                 cVarValue =  "" .
                         END CASE.
-                        cExcelVarValue = cVarValue.  
+                        
+                        IF cTmpField = "date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",glhist.tr-date) .
+                        
+                        ELSE cExcelVarValue = cVarValue.  
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                        cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
+                        cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
 
                     END.
                     PUT UNFORMATTED cDisplay SKIP.

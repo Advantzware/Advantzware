@@ -67,6 +67,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -457,6 +460,7 @@ ON END-ERROR OF C-Win /* Reference Date vs Posting Date */
 ON WINDOW-CLOSE OF C-Win /* Reference Date vs Posting Date */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -505,6 +509,7 @@ ON HELP OF begin_run-no IN FRAME FRAME-A /* Beginning Run# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1446,11 +1451,15 @@ PROCEDURE run-report :
                     cVarValue = STRING(ar-ledger.amt,"->>>,>>>,>>9.99") .
 
             END CASE.
+            
+            IF cTmpField = "pst-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-ledger.tr-date) .
+            ELSE IF cTmpField = "ref-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-ledger.ref-date) .
 
-            cExcelVarValue = cVarValue.
+            ELSE cExcelVarValue = cVarValue.
+            
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
 
         PUT UNFORMATTED cDisplay SKIP.
@@ -1654,8 +1663,11 @@ PROCEDURE run-report :
                     cVarValue = STRING(ap-ledger.amt,"->>>,>>>,>>9.99") .
 
             END CASE.
+            
+            IF cTmpField = "pst-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ap-ledger.tr-date) .
+            ELSE IF cTmpField = "ref-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ap-ledger.ref-date) .
 
-            cExcelVarValue = cVarValue.
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

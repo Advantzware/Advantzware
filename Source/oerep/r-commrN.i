@@ -418,6 +418,7 @@ v-comm = 0.
                  WHEN "qty" THEN cVarValue = IF AVAIL tt-report THEN string(tt-report.qty,"->>>>>>>9") ELSE "".            
                  WHEN "amt" THEN cVarValue = IF AVAIL tt-report THEN string(tt-report.amt,"->>>>>>>9.99") ELSE "".            
                  WHEN "cash-date" THEN cVarValue = IF AVAIL tt-report AND tt-report.cash-date NE ? THEN STRING(tt-report.cash-date) ELSE "".
+                 WHEN "inv-date" THEN cVarValue = IF AVAIL ar-inv AND ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date) ELSE "".
                  WHEN "amtp" THEN cVarValue = IF AVAIL tt-report THEN string(tt-report.amtp,"->>>>>>>9.99") ELSE "". 
                  WHEN "delta" THEN cVarValue = IF AVAIL tt-report THEN string(tt-report.delta,"->>>>>>>9.99") ELSE "".
                  WHEN "v-gp" THEN cVarValue = string(v-gp,"->>>>>>>9.99").
@@ -428,10 +429,14 @@ v-comm = 0.
 
             END CASE.
             
-            cExcelVarValue = REPLACE(cVarValue,",","").
+            IF cTmpField = "cash-date" THEN cExcelVarValue = IF AVAIL tt-report AND tt-report.cash-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.cash-date) ELSE "" .
+            ELSE IF cTmpField = "inv-date" THEN cExcelVarValue = IF AVAIL ar-inv AND ar-inv.inv-date NE ?  THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) ELSE "" .
+            
+            ELSE cExcelVarValue = REPLACE(cVarValue,",","").
+            
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END. 
       END.
       PUT UNFORMATTED cDisplay SKIP.
@@ -519,7 +524,7 @@ v-comm = 0.
                    WHEN "sman" THEN cVarValue = IF NOT tb_detailed THEN string(p-sman) ELSE "".
                    WHEN "cust-no" THEN cVarValue = IF NOT tb_detailed THEN string(ar-inv.cust-no) ELSE "".
                    WHEN "inv-no" THEN cVarValue = "" .
-                   WHEN "ar-inv.inv-date" THEN cVarValue = "" .
+                   WHEN "inv-date" THEN cVarValue = "" .
                    WHEN "i-no" THEN cVarValue = "" .
                    WHEN "ord-no" THEN cVarValue = "" .
                    WHEN "qty" THEN cVarValue = "".
@@ -560,7 +565,7 @@ v-comm = 0.
                    WHEN "sman" THEN cVarValue = string(p-sman) .
                    WHEN "cust-no" THEN cVarValue = string(ar-inv.cust-no) .
                    WHEN "inv-no" THEN cVarValue = "" .
-                   WHEN "ar-inv.inv-date" THEN cVarValue = "" .
+                   WHEN "inv-date" THEN cVarValue = "" .
                    WHEN "i-no" THEN cVarValue = "" .
                    WHEN "ord-no" THEN cVarValue = "" .
                    WHEN "qty" THEN cVarValue = "".
@@ -652,7 +657,7 @@ v-comm = 0.
                    WHEN "sman" THEN cVarValue = "".
                    WHEN "cust-no" THEN cVarValue = "" .
                    WHEN "inv-no" THEN cVarValue = "" .
-                   WHEN "ar-inv.inv-date" THEN cVarValue = "" .
+                   WHEN "inv-date" THEN cVarValue = "" .
                    WHEN "i-no" THEN cVarValue = "" .
                    WHEN "ord-no" THEN cVarValue = "" .
                    WHEN "qty" THEN cVarValue = "".
@@ -745,7 +750,7 @@ v-comm = 0.
                    WHEN "sman" THEN cVarValue = "".
                    WHEN "cust-no" THEN cVarValue = "" .
                    WHEN "inv-no" THEN cVarValue = "" .
-                   WHEN "ar-inv.inv-date" THEN cVarValue = "" .
+                   WHEN "inv-date" THEN cVarValue = "" .
                    WHEN "i-no" THEN cVarValue = "" .
                    WHEN "ord-no" THEN cVarValue = "" .
                    WHEN "qty" THEN cVarValue = "".
