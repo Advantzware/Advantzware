@@ -3744,6 +3744,23 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix230310 C-Win
+PROCEDURE ipDataFix230310:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 230310...").
+    
+    RUN ipFixStyleAddToLengthAndWidth.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
 /*------------------------------------------------------------------------------
@@ -4583,6 +4600,31 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixStyleAddToLengthAndWidth C-Win
+PROCEDURE ipFixStyleAddToLengthAndWidth PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Converting Style Add To Length and Width to Decimals").
+    
+    
+    DEFINE VARIABLE k_frac AS DECIMAL NO-UNDO INITIAL 6.25.
+    
+    FOR EACH style EXCLUSIVE-LOCK:
+        ASSIGN
+            style.sqft-len-trim = style.sqft-len-trim / k_frac
+            style.sqft-wid-trim = style.sqft-wid-trim / k_frac
+            .
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win 
 PROCEDURE ipFixUserPrint :

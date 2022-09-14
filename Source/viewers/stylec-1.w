@@ -72,33 +72,33 @@ DEFINE QUERY external_tables FOR style, flute.
 &Scoped-Define ENABLED-FIELDS style.formula[1] style.formula[2] ~
 style.formula[3] style.formula[4] style.formula[5] style.formula[6] ~
 style.formula[7] style.formula[8] style.kdf-width style.kdf-length ~
-style.formula[20] style.balecount style.sqft-len-trim style.sqft-wid-trim ~
-style.formula[12] style.use-w[2] style.use-w[3] style.use-w[4] ~
-style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
-style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
-style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
-style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] 
+style.formula[20] style.balecount style.formula[12] style.use-w[2] ~
+style.use-w[3] style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] ~
+style.use-w[8] style.use-w[9] style.use-w[10] style.use-w[11] ~
+style.use-w[12] style.use-w[13] style.use-l[2] style.use-l[3] ~
+style.use-l[4] style.use-l[5] style.use-l[6] style.use-l[7] style.use-l[8] ~
+style.use-l[9] style.use-l[10] style.use-l[11] style.use-l[12] ~
+style.use-l[13] 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
-&Scoped-Define ENABLED-OBJECTS RECT-16 
+&Scoped-Define ENABLED-OBJECTS fiSqft-len-trim fiSqft-wid-trim RECT-16 
 &Scoped-Define DISPLAYED-FIELDS style.formula[1] style.formula[2] ~
 style.formula[3] style.formula[4] style.formula[5] style.formula[6] ~
 style.formula[7] style.formula[8] style.kdf-width style.kdf-length ~
-style.formula[20] style.balecount style.sqft-len-trim style.sqft-wid-trim ~
-style.formula[12] style.use-w[2] style.use-w[3] style.use-w[4] ~
-style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
-style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
-style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
-style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] 
+style.formula[20] style.balecount style.formula[12] style.use-w[2] ~
+style.use-w[3] style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] ~
+style.use-w[8] style.use-w[9] style.use-w[10] style.use-w[11] ~
+style.use-w[12] style.use-w[13] style.use-l[2] style.use-l[3] ~
+style.use-l[4] style.use-l[5] style.use-l[6] style.use-l[7] style.use-l[8] ~
+style.use-l[9] style.use-l[10] style.use-l[11] style.use-l[12] ~
+style.use-l[13] 
 &Scoped-define DISPLAYED-TABLES style
 &Scoped-define FIRST-DISPLAYED-TABLE style
-&Scoped-Define DISPLAYED-OBJECTS ld-box-fit 
+&Scoped-Define DISPLAYED-OBJECTS ld-box-fit fiSqft-len-trim fiSqft-wid-trim 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS style.sqft-len-trim style.sqft-wid-trim 
+&Scoped-define ADM-ASSIGN-FIELDS fiSqft-len-trim fiSqft-wid-trim 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -130,6 +130,16 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE fiSqft-len-trim AS DECIMAL FORMAT ">>>9.99" INITIAL 0 
+     LABEL "Add to Length" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1.
+
+DEFINE VARIABLE fiSqft-wid-trim AS DECIMAL FORMAT ">>>9.99" INITIAL 0 
+     LABEL "Add to Width" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1.
+
 DEFINE VARIABLE ld-box-fit AS DECIMAL FORMAT ".99":U INITIAL 0 
      LABEL "Sq Box Fit" 
      VIEW-AS FILL-IN 
@@ -202,14 +212,10 @@ DEFINE FRAME F-Main
      style.balecount AT ROW 12.71 COL 67.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     style.sqft-len-trim AT ROW 13.91 COL 24.4 COLON-ALIGNED HELP
-          "Enter inches added to length for sell price based on PerMSF" WIDGET-ID 2 FORMAT ">>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
-     style.sqft-wid-trim AT ROW 13.91 COL 62 COLON-ALIGNED HELP
-          "Enter inches added to width for sell price based on PerMSF" WIDGET-ID 4 FORMAT ">>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
+     fiSqft-len-trim AT ROW 13.91 COL 24.4 COLON-ALIGNED HELP
+          "Enter inches added to length for sell price based on PerMSF" WIDGET-ID 2
+     fiSqft-wid-trim AT ROW 13.91 COL 62 COLON-ALIGNED HELP
+          "Enter inches added to width for sell price based on PerMSF" WIDGET-ID 4
      style.formula[12] AT ROW 9.57 COL 87 COLON-ALIGNED
           LABEL "Die Rule" FORMAT "x(25)"
           VIEW-AS FILL-IN 
@@ -321,8 +327,12 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      "5" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 103
-     "10" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 122
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 134
+     "9" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 119
+     "7" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 111
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -330,26 +340,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 91
-     "8" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 115
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 130
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 126
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 91
-     "4" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 99
-     "# On Wid" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.67 COL 77
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 134
-     "9" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 119
-     "7" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 111
      "# On Len" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 10.76 COL 77
      "3" VIEW-AS TEXT
@@ -364,6 +354,8 @@ DEFINE FRAME F-Main
           SIZE 3 BY .62 AT ROW 12.67 COL 122
      "12" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 12.67 COL 130
+     "10" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 122
      "8" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 115
      "Nesting Formula" VIEW-AS TEXT
@@ -380,6 +372,20 @@ DEFINE FRAME F-Main
           SIZE 3 BY .62 AT ROW 12.67 COL 95
      "6" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 12.67 COL 107
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 91
+     "8" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 115
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 130
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 126
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 91
+     "4" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 99
+     "# On Wid" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 12.67 COL 77
      RECT-16 AT ROW 8.86 COL 75
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -443,6 +449,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN fiSqft-len-trim IN FRAME F-Main
+   2                                                                    */
+/* SETTINGS FOR FILL-IN fiSqft-wid-trim IN FRAME F-Main
+   2                                                                    */
 /* SETTINGS FOR FILL-IN style.formula[12] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[1] IN FRAME F-Main
@@ -469,10 +479,6 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ld-box-fit IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN style.sqft-len-trim IN FRAME F-Main
-   2 EXP-FORMAT EXP-HELP                                                */
-/* SETTINGS FOR FILL-IN style.sqft-wid-trim IN FRAME F-Main
-   2 EXP-FORMAT EXP-HELP                                                */
 /* SETTINGS FOR FILL-IN style.use-l[2] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.use-w[2] IN FRAME F-Main
@@ -512,37 +518,37 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiSqft-len-trim
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSqft-len-trim V-table-Win
+ON LEAVE OF fiSqft-len-trim IN FRAME F-Main /* Add to Length */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-dim (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiSqft-wid-trim
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSqft-wid-trim V-table-Win
+ON LEAVE OF fiSqft-wid-trim IN FRAME F-Main /* Add to Width */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-dim (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME ld-box-fit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ld-box-fit V-table-Win
 ON LEAVE OF ld-box-fit IN FRAME F-Main /* Sq Box Fit */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-dim (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME style.sqft-len-trim
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.sqft-len-trim V-table-Win
-ON LEAVE OF style.sqft-len-trim IN FRAME F-Main /* Add to Length */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-dim (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME style.sqft-wid-trim
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.sqft-wid-trim V-table-Win
-ON LEAVE OF style.sqft-wid-trim IN FRAME F-Main /* Add to Width */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-dim (FOCUS) NO-ERROR.
@@ -984,7 +990,7 @@ PROCEDURE enable-style-formular :
 ------------------------------------------------------------------------------*/
   /* callled in methods/viewers/enable/style.i */
 
-  enable ld-box-fit with frame {&frame-name}.
+  enable ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
 
 END PROCEDURE.
 
@@ -1016,8 +1022,12 @@ PROCEDURE local-assign-record :
             reftable.loc = flute.code
             reftable.code = "DIM-FIT".
   end.
-  reftable.val[1] = dec( ld-box-fit:screen-value in frame {&frame-name}) * k_frac. 
-
+  
+  ASSIGN
+      reftable.val[1]     = dec( ld-box-fit:screen-value in frame {&frame-name}) * k_frac
+      style.sqft-len-trim = fiSqft-len-trim * k_frac
+      style.sqft-wid-trim = fiSqft-wid-trim * k_frac
+      . 
 
 END PROCEDURE.
 
@@ -1064,9 +1074,15 @@ PROCEDURE local-display-fields :
                         and reftable.code = "DIM-FIT"
                         no-lock no-error.
   ld-box-fit = (if avail reftable then reftable.val[1]
-                            else style.dim-fit) / k_frac.        
-  disable ld-box-fit with frame {&frame-name}.
-  display ld-box-fit with frame {&frame-name}.
+                            else style.dim-fit) / k_frac.
+  
+  ASSIGN
+      fiSqft-len-trim = style.sqft-len-trim / k_frac
+      fiSqft-wid-trim = style.sqft-wid-trim / k_frac
+      .
+
+  disable ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
+  display ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
 
 END PROCEDURE.
 
@@ -1093,10 +1109,10 @@ PROCEDURE local-update-record :
     RUN valid-dim (ld-box-fit:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    RUN valid-dim (style.sqft-len-trim:HANDLE) NO-ERROR.
+    RUN valid-dim (fiSqft-len-trim:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    RUN valid-dim (style.sqft-wid-trim:HANDLE) NO-ERROR.
+    RUN valid-dim (fiSqft-wid-trim:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
     RUN valid-formula ("W", style.use-w[2]:HANDLE, 2, OUTPUT lError) NO-ERROR.
@@ -1177,7 +1193,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  disable ld-box-fit with frame {&frame-name}.
+  disable ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
