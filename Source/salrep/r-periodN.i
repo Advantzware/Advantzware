@@ -677,7 +677,7 @@
             END.
            PUT str-line SKIP.
             PUT UNFORMATTED "           Total " substring(cDisplay,18,350) SKIP(2).
-            IF tb_excel THEN DO:
+            IF tb_excel AND tb_detailed THEN DO:
                  PUT STREAM excel UNFORMATTED  'Total ,'
                        substring(cExcelDisplay,4,350) SKIP.
              END.

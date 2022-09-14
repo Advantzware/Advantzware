@@ -956,6 +956,9 @@ DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
                 DO:
@@ -2664,8 +2667,6 @@ PROCEDURE run-report :
     IF rd-dest EQ 3 THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
     SESSION:SET-WAIT-STATE ("").
 
