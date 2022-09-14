@@ -545,6 +545,9 @@ DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
               END.
+              ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+              END.
            END. /* WHEN 3 THEN DO: */
   END CASE. 
 
@@ -1600,8 +1603,6 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
-  IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

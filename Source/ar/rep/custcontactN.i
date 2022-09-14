@@ -8,7 +8,7 @@
       v-page-break = NO.
 
    IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+      OUTPUT STREAM excel TO VALUE(cFileName).
 
     /*  IF tb_contact-sort EQ NO THEN
       DO:

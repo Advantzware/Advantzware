@@ -780,6 +780,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
                 DO:
@@ -1897,8 +1900,6 @@ PROCEDURE run-report PRIVATE :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1938,9 +1939,6 @@ PROCEDURE run-report-contact :
     DEFINE VARIABLE lSelected   AS LOG       INIT YES NO-UNDO.
     DEFINE VARIABLE fcust       AS ch        INIT "".
     DEFINE VARIABLE tcust       LIKE fcust INIT "zzzzzzzz".
-    DEFINE VARIABLE cFileName2  LIKE fi_file NO-UNDO .
-
-    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
     ASSIGN  
         lSelected = tb_cust-list
@@ -2024,8 +2022,6 @@ PROCEDURE run-report-contact :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

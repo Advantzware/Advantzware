@@ -548,6 +548,9 @@ ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
             END.
         END.
+        ELSE DO:
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+        END.
         IF tbAutoClose:CHECKED THEN 
             APPLY "END-ERROR":U TO SELF.
   
@@ -1211,9 +1214,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
