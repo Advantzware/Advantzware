@@ -3722,11 +3722,11 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
                          + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "    + QUOTER(fi_est-no)   ELSE "")
                          + (IF fi_job-no  NE "" THEN " AND " + 'FILL(" ",' + STRING(iJobLen) + ' - length(TRIM(oe-ordl.job-no))) +' + " trim(oe-ordl.job-no) BEGINS "    + QUOTER(fi_job-no)   ELSE "")
                          + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "    + QUOTER (fi_i-no)    ELSE "")
-                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "   + QUOTER(fi_part-no)  ELSE "")
-                         + (IF fiItemPo   NE "" THEN " AND oe-ordl.po-no BEGINS "     + QUOTER(fiItemPo)    ELSE "")
+                         + (IF INDEX(fi_i-no,'*') NE 0 THEN " AND oe-ordl.i-no MATCHES "   + QUOTER(fi_i-no) ELSE IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "    + QUOTER (fi_i-no)    ELSE "")
+                         + (IF INDEX(fi_part-no,'*') NE 0 THEN " AND oe-ordl.part-no MATCHES "   + QUOTER(fi_part-no) ELSE IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "   + QUOTER(fi_part-no)  ELSE "")
+                         + (IF INDEX(fiItemPo,'*') NE 0 THEN " AND oe-ordl.po-no MATCHES "   + QUOTER(fiItemPo) ELSE IF fiItemPo   NE "" THEN " AND oe-ordl.po-no BEGINS "     + QUOTER(fiItemPo)    ELSE "")
                          + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "    + QUOTER(fi_i-name)   ELSE "") . 
+                         + (IF INDEX(fi_i-name,'*') NE 0 THEN " AND oe-ordl.i-name MATCHES "   + QUOTER(fi_i-name) ELSE IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "    + QUOTER(fi_i-name)   ELSE "") . 
      
     END.     
     RETURN cWhereCriteria.      
