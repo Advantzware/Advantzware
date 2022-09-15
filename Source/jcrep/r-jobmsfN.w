@@ -71,6 +71,9 @@ DEFINE VARIABLE cFieldType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN cTextListToSelect = "FG Item#,Mach#,Charge,Start Date,End Date,Total Time,"
@@ -477,6 +480,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* MSF by Job */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -534,6 +538,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1682,10 +1687,14 @@ IF td-show-parm THEN RUN show-param.
 
             END CASE.  
 
-            cExcelVarValue = cVarValue.
+            IF cTmpField = "strt-dt" THEN cExcelVarValue = IF mch-act.op-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",mch-act.op-date) ELSE "" .
+            ELSE IF cTmpField = "end-dt" THEN cExcelVarValue = IF mch-act.op-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",mch-act.op-date) ELSE "" .
+            
+            ELSE cExcelVarValue = cVarValue.
+            
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
     END.
 
     PUT UNFORMATTED cDisplay SKIP.

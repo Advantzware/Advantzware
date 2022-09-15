@@ -63,6 +63,10 @@ DEFINE VARIABLE cstat              AS CHARACTER NO-UNDO.
 DEFINE VARIABLE vstatus            AS CHARACTER INITIAL "A,N,H,C,D,Z,P,O,R,W,X" NO-UNDO .
 DEFINE VARIABLE vstatus-desc       AS CHARACTER INITIAL "Approve,New,Hold,Close,Close,Close,Partial,Open,Re-Open,Web,Stock" NO-UNDO .
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 
 ASSIGN 
     cTextListToSelect  = "JOB#,F,B,DUE DATE,CUSTOMER ID,BOARD CODE,SHEET WIDTH,SHEET LENGTH,SHEETS,LBS,LF," +
@@ -518,6 +522,7 @@ ON END-ERROR OF C-Win /* Board/Paper To Order */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Board/Paper To Order */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -564,6 +569,7 @@ ON LEAVE OF begin_job-no2 IN FRAME FRAME-A
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 

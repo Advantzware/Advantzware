@@ -37,7 +37,9 @@ DEFINE VARIABLE cFieldType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
 
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 
@@ -494,6 +496,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Prep Charge Cost Report */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -551,6 +554,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1234,7 +1238,7 @@ ASSIGN cDisplay = ""
                          WHEN "prep"   THEN cVarValue = "" .
                          WHEN "code-desc"  THEN cVarValue = "" .
                          WHEN "qty"   THEN cVarValue = STRING(v-qty,">>,>>>,>>9") .
-                         WHEN "cost"  THEN cVarValue = STRING(v-cost,">>>,>>9.99") .
+                         WHEN "cost"  THEN cVarValue = IF v-cost NE ? THEN STRING(v-cost,">>>,>>9.99") ELSE "0".
                          WHEN "extended"  THEN cVarValue = STRING(v-tot-cost,"->>,>>>,>>9.99") .
 
                     END CASE.
@@ -1543,15 +1547,18 @@ for EACH ASI.job-prep WHERE job-prep.company eq cocode
                          WHEN "prep"   THEN cVarValue = STRING(job-prep.CODE,"x(15)") .
                          WHEN "code-desc"  THEN cVarValue = STRING(cPrepDscr,"x(30)") .
                          WHEN "qty"   THEN cVarValue = STRING(liQty,">>,>>>,>>9") .
-                         WHEN "cost"  THEN cVarValue = STRING(ldExtCost / liQty,">>>,>>9.99") .
+                         WHEN "cost"  THEN cVarValue = IF (ldExtCost / liQty) NE ? THEN STRING(ldExtCost / liQty,">>>,>>9.99") ELSE "0" .
                          WHEN "extended"  THEN cVarValue = STRING(ldExtCost,"->>,>>>,>>9.99") .
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF cTmpField = "due-date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",job-hdr.due-date) .
+                    
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
@@ -1643,12 +1650,15 @@ ELSE /* prep code */
                          WHEN "prep"   THEN cVarValue = STRING(job-prep.CODE,"x(15)") .
                          WHEN "code-desc"  THEN cVarValue = STRING(cPrepDscr,"x(30)") .
                          WHEN "qty"   THEN cVarValue = STRING(liQty,">>,>>>,>>9") .
-                         WHEN "cost"  THEN cVarValue = STRING(ldExtCost / liQty,">>>,>>9.99") .
+                         WHEN "cost"  THEN cVarValue = IF (ldExtCost / liQty) NE ? THEN STRING(ldExtCost / liQty,">>>,>>9.99") ELSE "0".
                          WHEN "extended"  THEN cVarValue = STRING(ldExtCost,"->>,>>>,>>9.99") .
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF cTmpField = "due-date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",job-hdr.due-date) .
+                    
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

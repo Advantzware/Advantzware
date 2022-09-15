@@ -69,6 +69,9 @@ DEFINE VARIABLE cFieldType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 DEFINE BUFFER b-itemfg FOR itemfg .
   
 
@@ -459,6 +462,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* W.I.P. Job Audit Trail */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -494,6 +498,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    APPLY "close" TO THIS-PROCEDURE.
 END.
 
@@ -1525,12 +1530,15 @@ DISPLAY "" WITH FRAME r-top.
                                     WHEN "vc"               THEN cVarValue =  STRING(work-aud.complete)    .
                                     WHEN "trns-tym"         THEN cVarValue =  STRING(work-aud.tran-time,"hh:mmam")    .
                     
-                               END CASE.  
+                               END CASE.
+                               
+                               IF cTmpField = "trns-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",work-aud.tran-date) .
                                  
-                               cExcelVarValue = cVarValue.
+                               ELSE cExcelVarValue = cVarValue.
+                               
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                        END.
                        
                        PUT UNFORMATTED cDisplay SKIP.
@@ -1575,12 +1583,15 @@ DISPLAY "" WITH FRAME r-top.
                                     WHEN "vc"               THEN cVarValue =  ""    .
                                     WHEN "trns-tym"         THEN cVarValue =  STRING(work-aud.tran-time,"hh:mmam")    .
                     
-                               END CASE.  
+                               END CASE.
+                               
+                               IF cTmpField = "trns-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",work-aud.tran-date) .
                                  
-                               cExcelVarValue = cVarValue.
+                               ELSE cExcelVarValue = cVarValue.
+                               
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                        END.
                        
                        PUT UNFORMATTED cDisplay SKIP.
@@ -1619,12 +1630,15 @@ DISPLAY "" WITH FRAME r-top.
                                     WHEN "vc"               THEN cVarValue =  ""    .
                                     WHEN "trns-tym"         THEN cVarValue =  STRING(work-aud.tran-time,"hh:mmam")    .
                     
-                               END CASE.  
+                               END CASE.
+                               
+                               IF cTmpField = "trns-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",work-aud.tran-date) .
                                  
-                               cExcelVarValue = cVarValue.
+                               ELSE cExcelVarValue = cVarValue.
+                               
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                        END.
                        
                        PUT UNFORMATTED cDisplay SKIP.

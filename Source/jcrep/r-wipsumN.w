@@ -56,6 +56,9 @@ DEFINE VARIABLE cFieldType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength       AS INTEGER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 DEFINE BUFFER b-itemfg FOR itemfg .
   
 ASSIGN cTextListToSelect = "Trans Type,Trans Date,Job No.,F,B,Item Number,"
@@ -419,6 +422,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* W.I.P. Daily Summary */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -465,6 +469,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1383,7 +1388,7 @@ display "" with frame r-top.
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING(item.procat) .
-                                    WHEN "trns-dt"      THEN cVarValue =  STRING(mat-act.mat-date) .
+                                    WHEN "trns-dt"      THEN cVarValue =  IF mat-act.mat-date  NE ? THEN STRING(mat-act.mat-date) ELSE "" .
                                     WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(mat-act.s-num) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(mat-act.b-num) .
@@ -1397,11 +1402,14 @@ display "" with frame r-top.
                                     WHEN "vc"               THEN cVarValue =  "".
                     
                                END CASE.  
-                                 
-                               cExcelVarValue = cVarValue.
+                               
+                               IF cTmpField = "trns-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",mat-act.mat-date) .
+                               
+                               ELSE cExcelVarValue = cVarValue.
+                               
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                        END.
                        
                        PUT UNFORMATTED cDisplay SKIP.
@@ -1440,7 +1448,7 @@ display "" with frame r-top.
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("HRS") .
-                                    WHEN "trns-dt"      THEN cVarValue =  STRING(mch-act.op-date) .
+                                    WHEN "trns-dt"      THEN cVarValue = IF mch-act.op-date  NE ? THEN STRING(mch-act.op-date) ELSE "" .
                                     WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(mch-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(mch-act.blank-no) .
@@ -1454,11 +1462,14 @@ display "" with frame r-top.
                                     WHEN "vc"               THEN cVarValue =  STRING(mch-act.COMPLETE).
                     
                                END CASE.  
-                                 
-                               cExcelVarValue = cVarValue.
+                               
+                               IF cTmpField = "trns-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",mch-act.op-date) .
+                               
+                               ELSE cExcelVarValue = cVarValue.
+                               
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                        END.
                        
                        PUT UNFORMATTED cDisplay SKIP.
@@ -1490,7 +1501,7 @@ display "" with frame r-top.
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("F.G.") .
-                                    WHEN "trns-dt"      THEN cVarValue =  STRING(fg-act.fg-date) .
+                                    WHEN "trns-dt"      THEN cVarValue = IF fg-act.fg-date NE ? THEN STRING(fg-act.fg-date) ELSE "" .
                                     WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(fg-act.s-num) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(fg-act.b-num) .
@@ -1503,12 +1514,15 @@ display "" with frame r-top.
                                     WHEN "job-cd"           THEN cVarValue =   "" .
                                     WHEN "vc"               THEN cVarValue =  "" .
                     
-                               END CASE.  
-                                 
-                               cExcelVarValue = cVarValue.
+                               END CASE.   
+                               
+                               IF cTmpField = "trns-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",fg-act.fg-date) .
+                               
+                               ELSE cExcelVarValue = cVarValue.
+                               
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                        END.
                        
                        PUT UNFORMATTED cDisplay SKIP.
@@ -1539,7 +1553,7 @@ display "" with frame r-top.
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("MSC-M") .
-                                    WHEN "trns-dt"      THEN cVarValue =  STRING(misc-act.misc-date) .
+                                    WHEN "trns-dt"      THEN cVarValue =  IF misc-act.misc-date NE ? THEN STRING(misc-act.misc-date) ELSE "" .
                                     WHEN "job-no"           THEN cVarValue =  STRING(work-dly.job-no + "-" + STRING(work-dly.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(misc-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(misc-act.blank-no) .
@@ -1553,11 +1567,14 @@ display "" with frame r-top.
                                     WHEN "vc"               THEN cVarValue =  "" .
                     
                                END CASE.  
-                                 
-                               cExcelVarValue = cVarValue.
+                               
+                               IF cTmpField = "trns-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",misc-act.misc-date).
+                               
+                               ELSE cExcelVarValue = cVarValue.
+                               
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                        END.
                        
                        PUT UNFORMATTED cDisplay SKIP.
@@ -1578,7 +1595,7 @@ display "" with frame r-top.
                           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                                CASE cTmpField:             
                                     WHEN "trns-typ"         THEN cVarValue =  STRING("MSC-H") .
-                                    WHEN "trns-dt"      THEN cVarValue =  STRING(misc-act.misc-date) .
+                                    WHEN "trns-dt"      THEN cVarValue =  IF misc-act.misc-date NE ? THEN STRING(misc-act.misc-date)  ELSE ""  .
                                     WHEN "job-no"           THEN cVarValue =  STRING(misc-act.job-no + "-" + STRING(misc-act.job-no2,"999")) .
                                     WHEN "frm"              THEN cVarValue =  STRING(misc-act.frm) .
                                     WHEN "blnk"             THEN cVarValue =  STRING(misc-act.blank-no) .
@@ -1591,12 +1608,15 @@ display "" with frame r-top.
                                     WHEN "job-cd"           THEN cVarValue =   IF AVAIL mch-act THEN mch-act.CODE ELSE ""  .
                                     WHEN "vc"               THEN cVarValue =  IF AVAIL mch-act THEN STRING(mch-act.COMPLETE) ELSE ""  .
                     
-                               END CASE.  
-                                 
-                               cExcelVarValue = cVarValue.
+                               END CASE. 
+                               
+                               IF cTmpField = "trns-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",misc-act.misc-date) .
+                               
+                               ELSE cExcelVarValue = cVarValue.
+                               
                                cDisplay = cDisplay + cVarValue +
                                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                               cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                        END.
                        
                        PUT UNFORMATTED cDisplay SKIP.

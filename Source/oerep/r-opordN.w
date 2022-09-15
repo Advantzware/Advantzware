@@ -87,6 +87,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -728,6 +731,7 @@ ON END-ERROR OF C-Win /* Hots Report by Open Order */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Hots Report by Open Order */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -840,6 +844,7 @@ ON LEAVE OF begin_userid IN FRAME FRAME-A /* Beginning User ID */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
