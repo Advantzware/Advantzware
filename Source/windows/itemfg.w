@@ -1611,6 +1611,9 @@ PROCEDURE pUpdateBinBrowser :
 ------------------------------------------------------------------------------*/
     IF VALID-HANDLE(h_fgijob) THEN    
     RUN local-open-query IN h_fgijob.
+    
+    IF VALID-HANDLE(h_locw) THEN    
+    RUN local-open-query IN h_locw.
 
 END PROCEDURE.
 
