@@ -82,6 +82,8 @@ DEFINE {1} SHARED TEMP-TABLE ttInputEst
     FIELD dCaliper AS DECIMAL /* Optional*/
     FIELD iPalletRestore AS INTEGER /* Optional*/
     FIELD iQtyRestore AS INTEGER /* Optional*/
+    FIELD iColor AS INTEGER /* Optional*/
+    FIELD iCoating AS INTEGER /* Optional*/
     .
 
 

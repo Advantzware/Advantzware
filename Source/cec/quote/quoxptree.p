@@ -100,39 +100,11 @@ DEFINE VARIABLE logPrint       AS LOGICAL    NO-UNDO.
 DEFINE VARIABLE intPageNum     AS INTEGER    NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
-
-/*ASSIGN tmpstore = fill("-",130)
-       ls-image1 = "images\Peachtree_logo_2018.png"
-       FILE-INFO:FILE-NAME = ls-image1
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 /*
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -184,7 +156,19 @@ find first est where est.company = xquo.company
       where cust.company eq xquo.company
         and cust.cust-no eq xquo.cust-no
       no-lock no-error.
-
+  
+  IF AVAIL cust THEN ASSIGN cCustomerNo       = cust.cust-no
+                              cCustomerLocation = cust.loc .
+        
+    RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+          	      
+    IF NOT lValid THEN
+    DO:
+       MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+        
+  ASSIGN ls-full-img1 = cRtnChar + ">" .
+  
   if avail cust then
      v-over-under = trim(string(cust.over-pct,">>9%")) + "-" +
                     trim(string(cust.under-pct,">>9%")).

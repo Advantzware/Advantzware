@@ -71,22 +71,22 @@ DEF VAR v-fob-code AS CHAR NO-UNDO FORM "x(12)".
 /* gdm - 07070908 */
 DEF VAR v-rel-qty1 LIKE v-rel-qty NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(26)"
-       v-bin                            at 36   format "x(20)"
-       w-pal                            to 61   format "->>>"
-       w-cas                            to 67   format "->>>>>"
-       w-c-c                            to 76   format "->>>>>>>>"
-       w-qty[1]                         to 86   FORMAT "->>>>>>>>"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(26)"
+       v-bin                            at 38   format "x(20)"
+       w-pal                            to 63   format "->>>"
+       w-cas                            to 69   format "->>>>>"
+       w-c-c                            to 78   format "->>>>>>>>"
+       w-qty[1]                         to 88   FORMAT "->>>>>>>>"
     with down frame rel-mid no-box no-label STREAM-IO width 97.
 
-format w-oe-rell.ord-no                 to 6
-       w-par                            at 8    format "x(26)"
-       v-bin                            at 36   format "x(20)"
-       w-pal                            to 61   format "->>>>"
-       w-cas                            to 67   format "->>>>>"
-       w-c-c                            to 76   format "->>>>>>>>"
-       w-qty[1]                         to 86   FORMAT "->>>>>>>>"
+format w-oe-rell.ord-no                 to 8
+       w-par                            at 10    format "x(26)"
+       v-bin                            at 38   format "x(20)"
+       w-pal                            to 63   format "->>>>"
+       w-cas                            to 69   format "->>>>>"
+       w-c-c                            to 78   format "->>>>>>>>"
+       w-qty[1]                         to 88   FORMAT "->>>>>>>>"
        /*w-descr                          at 8    format "x(100)"*/
     with down frame consol no-box no-label STREAM-IO width 120.
 

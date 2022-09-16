@@ -491,7 +491,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
+DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzzzzz"] NO-UNDO.
 
 DEF BUFFER b-loadtag FOR loadtag.
 
@@ -510,9 +510,9 @@ FOR EACH loadtag
       AND loadtag.tag-no   LE end_tag
       AND loadtag.tag-date GE begin_date
       AND loadtag.tag-date LE end_date      
-      AND FILL(" ",9 - LENGTH(TRIM(loadtag.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(loadtag.job-no))) +
           TRIM(loadtag.job-no) + STRING(INT(loadtag.job-no2),"999") GE v-job-no[1]
-      AND FILL(" ",9 - LENGTH(TRIM(loadtag.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(loadtag.job-no))) +
           TRIM(loadtag.job-no) + STRING(INT(loadtag.job-no2),"999") LE v-job-no[2]
       AND loadtag.job-no2 GE int(begin_job-no2)
       AND loadtag.job-no2 LE int(end_job-no2)    :

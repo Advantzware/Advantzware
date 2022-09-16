@@ -82,7 +82,7 @@ def input parameter ipcDateToUse as char no-undo.
     DEF        VAR v-check-date         AS DATE    NO-UNDO.
     DEF        VAR v-gltrans-desc       AS CHAR    FORMAT "X(60)" NO-UNDO.
     DEF        VAR cPoNo                LIKE ar-inv.po-no NO-UNDO.
-    DEF        VAR cJobStr              AS CHAR    FORMAT "x(9)" NO-UNDO.
+    DEF        VAR cJobStr              AS CHAR    FORMAT "x(13)" NO-UNDO.
     DEF TEMP-TABLE tt-cust NO-UNDO 
         FIELD curr-code LIKE cust.curr-code
         FIELD sorter    LIKE cust.cust-no
@@ -440,7 +440,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                 USE-INDEX ar-cash,                                                                                               
                 EACH ar-cashl                                           
     FIELDS(check-no c-no posted inv-no company                     
-                cust-no memo amt-disc amt-paid on-account rec_key)        
+                cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
                 NO-LOCK                                                 
                 WHERE ar-cashl.c-no       EQ ar-cash.c-no                 
                 AND ar-cashl.posted     EQ YES                        
@@ -575,7 +575,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                 IF ar-invl.po-no GT "" THEN
                     ASSIGN cPoNo = ar-invl.po-no.
                 IF ar-invl.job-no GT "" THEN
-                    cJobStr = ar-invl.job-no + "-" + STRING(ar-invl.job-no2, "99").
+                    cJobStr = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ar-invl.job-no, ar-invl.job-no2))).
             END.
 
 
@@ -781,7 +781,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "cust-po"   THEN 
                                 cVarValue = STRING(cPoNo,"x(15)") .
                             WHEN "job"       THEN 
-                                cVarValue = STRING(cJobStr,"x(9)")  .
+                                cVarValue = STRING(cJobStr,"x(13)")  .
                             WHEN "inv-note"  THEN 
                                 cVarValue = "".
                             WHEN "coll-note" THEN 
@@ -979,7 +979,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                         WHEN "cust-po"   THEN 
                                             cVarValue = STRING(cPoNo,"x(15)") .
                                         WHEN "job"       THEN 
-                                            cVarValue = STRING(cJobStr,"x(10)")  .
+                                            cVarValue = STRING(cJobStr,"x(13)")  .
                                         WHEN "inv-note"  THEN 
                                             cVarValue = "".
                                         WHEN "coll-note" THEN 
@@ -1075,7 +1075,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                     WHEN "cust-po"   THEN 
                                         cVarValue = STRING(cPoNo,"x(15)") .
                                     WHEN "job"       THEN 
-                                        cVarValue = STRING(cJobStr,"x(10)")  .
+                                        cVarValue = STRING(cJobStr,"x(13)")  .
                                     WHEN "inv-note"  THEN 
                                         cVarValue = "".
                                     WHEN "coll-note" THEN 
@@ -1203,7 +1203,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                         WHEN "cust-po"   THEN 
                                             cVarValue = STRING(cPoNo,"x(15)") .
                                         WHEN "job"       THEN 
-                                            cVarValue = STRING(cJobStr,"x(10)")  .
+                                            cVarValue = STRING(cJobStr,"x(13)")  .
                                         WHEN "inv-note"  THEN 
                                             cVarValue = "".
                                         WHEN "coll-note" THEN 
@@ -1251,7 +1251,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                                                                                   
             EACH tt-ar-cashl                                           
          FIELDS(check-no c-no posted inv-no company                     
-            cust-no memo amt-disc amt-paid on-account rec_key)        
+            cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
             NO-LOCK                                                 
             WHERE tt-ar-cashl.c-no       EQ tt-ar-cash.c-no                 
             AND tt-ar-cashl.posted     EQ YES                        
@@ -1325,7 +1325,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                                                               
             EACH tt-ar-cashl                                           
          FIELDS(check-no c-no posted inv-no company                     
-            cust-no memo amt-disc amt-paid on-account rec_key)        
+            cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
             NO-LOCK                                                
             WHERE tt-ar-cashl.c-no       EQ tt-ar-cash.c-no                
             AND tt-ar-cashl.posted     EQ YES                        
@@ -1536,7 +1536,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "cust-po"   THEN 
                                 cVarValue = STRING(cPoNo,"x(15)") .
                             WHEN "job"       THEN 
-                                cVarValue = STRING(cJobStr,"x(10)")  .
+                                cVarValue = STRING(cJobStr,"x(13)")  .
                             WHEN "inv-note"  THEN 
                                 cVarValue = "".
                             WHEN "coll-note" THEN 
@@ -1669,7 +1669,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "cust-po"   THEN 
                                 cVarValue = STRING(cPoNo,"x(15)") .
                             WHEN "job"       THEN 
-                                cVarValue = STRING(cJobStr,"x(10)")  .
+                                cVarValue = STRING(cJobStr,"x(13)")  .
                             WHEN "inv-note"  THEN 
                                 cVarValue = "".
                             WHEN "coll-note" THEN 

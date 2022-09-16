@@ -297,7 +297,7 @@ END.
 IF DYNAMIC-FUNCTION('UseReleasesForFreightAndWarehousing' IN hFreightProcs, xeb.company) 
     AND DYNAMIC-FUNCTION('HasReleases' IN hFreightProcs, ROWID(xeb)) THEN DO:
     RUN GetFreightForEstimateBlank IN hFreightProcs (xeb.company, xeb.est-no, qty, xeb.form-no, xeb.blank-no, 
-            OUTPUT fr-tot).
+            OUTPUT fr-tot, OUTPUT dFreightTotalInternal, OUTPUT dFreightTotalExternal).
             
 END.
 ELSE DO:   

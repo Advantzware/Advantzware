@@ -20,7 +20,7 @@ form "--------------"   to 46
     with frame b3 no-box no-labels stream-io no-attr-space.
 
 form skip(6)
-     ap-chk.check-no    to 75
+     ap-chk.check-no format "99999999"   to 75
      dol                at 10          
      skip(1)
      ap-chk.check-date  to 61
@@ -143,7 +143,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
               "DATE"                                    at 35
               ap-chk.check-date
               "CHECK #"                                 at 55
-              trim(string(ap-chk.check-no,">>>>>>"))            format "x(6)"
+              trim(string(ap-chk.check-no,">>>>>>>>"))            format "x(8)"
               skip(1)
 
           with no-labels stream-io no-box frame xyz.
@@ -207,7 +207,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 
       dol = trim(dol) + fill("*",70) .                                    
     
-      display ap-chk.check-no
+      display ap-chk.check-no format "99999999"
               caps(dol)         @ dol
               ap-chk.check-date
               ctot

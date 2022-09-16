@@ -48,7 +48,7 @@ DEFINE VARIABLE hJobChecklist AS HANDLE NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Change_Company RECT-1 
+&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Change_Company 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -315,7 +315,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN pCreateINIObjects ("Login,Logout,DataCollection,EmployeeStatus,MachineStatus,JobCheckList").
+  RUN pCreateINIObjects ("SharpShooter,Login,Logout,DataCollection,EmployeeStatus,MachineStatus,JobCheckList").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -402,10 +402,9 @@ PROCEDURE pClick :
         WHEN "JobCheckList" THEN DO:
             IF VALID-HANDLE(hJobChecklist) EQ NO THEN
             RUN touch/transactions.w PERSISTENT SET hJobChecklist.
-/*
-            RUN adm-initialize IN hJobChecklist.
-            RUN Disable-Folder-Tabs IN hJobChecklist (INPUT THIS-PROCEDURE).
-*/
+        END.
+        WHEN "SharpShooter" THEN DO:
+            {methods/run_link.i "CONTAINER" "open_sharp-shooter"}
         END.
     END CASE.
 

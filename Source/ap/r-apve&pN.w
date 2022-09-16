@@ -29,6 +29,9 @@ DEFINE VARIABLE lv-comp-curr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ll-secure    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAPSecure    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAPSecure    AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cAPPostingUserId      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPPostingPassword    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAPPostingPeriodRules AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-chk FOR ap-chk.
 
@@ -79,7 +82,7 @@ DEFINE TEMP-TABLE tt-report NO-UNDO LIKE report
 
 DEFINE VARIABLE v-fgpostgl    AS LOG       NO-UNDO.
 DEFINE VARIABLE lv-audit-dir  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lv-fgpost-dir AS LOG       NO-UNDO.
+
 
 DO TRANSACTION :
     {sys/inc/fgpostgl.i}
@@ -110,32 +113,14 @@ DO TRANSACTION :
 
     RELEASE sys-ctrl.
 END.
-DO TRANSACTION:
-
-    FIND FIRST sys-ctrl
-        WHERE sys-ctrl.company EQ cocode
-        AND sys-ctrl.name    EQ "GLPOST"
-        NO-LOCK NO-ERROR.
-
-
-    IF NOT AVAILABLE sys-ctrl THEN 
-    DO:
-        CREATE sys-ctrl.
-        ASSIGN
-            sys-ctrl.company  = cocode
-            sys-ctrl.name     = "GLPOST"
-            sys-ctrl.log-fld  = NO
-            sys-ctrl.descrip  = "Post AP Invoices within current period only? Default to NO "
-            sys-ctrl.char-fld = "User Defined Password to be entered when Logical Value = YES ".
-    END.
-END.      
-lv-fgpost-dir = sys-ctrl.log-fld .
 
 DEFINE VARIABLE lRecFound           AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE lAccessClose        AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cAccessList         AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE hPgmSecurity        AS HANDLE           NO-UNDO.
+DEFINE VARIABLE lCheckAdmin         AS LOGICAL          NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -168,6 +153,9 @@ RUN methods/prgsecur.p
              OUTPUT lAccessClose, /* used in template/windows.i  */
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+RUN "system/PgmMstrSecur.p" PERSISTENT SET hPgmSecurity.
+RUN epCanAccess IN hPgmSecurity ("ap/r-apve&pN.w", "", OUTPUT lCheckAdmin).              
+             
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -501,6 +489,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 ON WINDOW-CLOSE OF C-Win /* Vendor Invoices Edit/Post Register */
 DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE OBJECT hPgmSecurity.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -558,23 +547,19 @@ DO:
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO: 
   DEF VAR lv-post AS LOG NO-UNDO.
-
-  run check-date.
-  if v-invalid then return no-apply. 
+  v-postable = NO.
   
-  RUN pCheckInvDatePeriod(begin_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply. 
-  
-  RUN pCheckInvDatePeriod(end_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply.
-
-  IF lv-fgpost-dir THEN DO:
-  RUN check-inv-date(begin_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply. 
-  RUN check-inv-date(end_date:SCREEN-VALUE).
-  if v-invalid-inv then return no-apply.
+  IF NOT lCheckAdmin THEN
+  DO:   
+      RUN check-inv-date(begin_date:SCREEN-VALUE, cAPPostingPeriodRules).
+      if v-invalid-inv then return no-apply. 
+      RUN check-inv-date(end_date:SCREEN-VALUE, cAPPostingPeriodRules).
+      if v-invalid-inv then return no-apply.
   END.
-
+  
+  RUN pCheckUser.
+  if v-invalid-inv then return no-apply.
+  
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
@@ -808,9 +793,7 @@ DO:
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:  
         IF LASTKEY NE -1 THEN 
-        DO:
-            RUN check-date.
-            IF v-invalid THEN RETURN NO-APPLY.
+        DO:               
             RUN valid-date.
             IF v-invalid THEN RETURN NO-APPLY.
         END.
@@ -888,18 +871,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&frame-name}:
         {custom/usrprint.i}
-           
-        IF NOT lAPSecure THEN
-            ASSIGN
-                begin_user:SCREEN-VALUE = USERID("ASI")
-                end_user:SCREEN-VALUE   = USERID("ASI")
-                begin_user:SENSITIVE    = NO
-                end_user:SENSITIVE      = NO
-                .
+        
+        RUN spGetSettingByName ("APPostingPassword", OUTPUT cAPPostingPassword).
+        RUN spGetSettingByName ("APPostingPeriodRules", OUTPUT cAPPostingPeriodRules).        
+        RUN spGetSettingByName ("APPostingUserId", OUTPUT cAPPostingUserId).
+        
+        ASSIGN
+             begin_user:SCREEN-VALUE = USERID("ASI")
+             end_user:SCREEN-VALUE   = USERID("ASI").
+        IF cAPPostingUserId EQ "No" AND NOT lAPSecure THEN
+           ASSIGN
+               begin_user:SENSITIVE    = NO
+               end_user:SENSITIVE      = NO .
+               
         IF postdate-log THEN 
         DO:
-            tran-date:SCREEN-VALUE = STRING(TODAY).
-            RUN check-date.
+            tran-date:SCREEN-VALUE = STRING(TODAY).            
         END.
         ELSE
             ASSIGN
@@ -919,42 +906,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-date C-Win 
-PROCEDURE check-date :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lv-period LIKE period.pnum NO-UNDO.
-    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lSuccess  AS LOGICAL   NO-UNDO.
-
-    DO WITH FRAME {&FRAME-NAME}:
-        RUN sys/inc/valtrndt.p (cocode,
-            DATE(tran-date:SCREEN-VALUE),
-            OUTPUT lv-period) NO-ERROR.
-        v-invalid = ERROR-STATUS:ERROR.
-        IF v-invalid THEN APPLY "entry" TO tran-date.
-        ELSE tran-period:SCREEN-VALUE = STRING(lv-period).
-    
-        IF NOT v-invalid THEN
-        DO:
-            RUN GL_CheckModClosePeriod(INPUT cocode, INPUT DATE(tran-date:SCREEN-VALUE), INPUT "AP", OUTPUT cMessage, OUTPUT lSuccess ) .  
-            IF NOT lSuccess THEN 
-            DO:
-                MESSAGE cMessage VIEW-AS ALERT-BOX INFORMATION.
-                v-invalid = YES.
-            END.           
-        END.
-    
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-inv-date C-Win 
 PROCEDURE check-inv-date :
 /*------------------------------------------------------------------------------
@@ -964,6 +915,7 @@ PROCEDURE check-inv-date :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-period LIKE period.pnum NO-UNDO.
     DEFINE INPUT PARAMETER ip-date AS CHARACTER.
+    DEFINE INPUT PARAMETER ipcAPPostingPeriodRules AS CHARACTER.
     DEFINE VARIABLE lv-msg  AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE v-month AS CHARACTER . 
@@ -971,13 +923,16 @@ PROCEDURE check-inv-date :
         lv-msg        = ""
         v-invalid-inv = NO 
         v-month       = SUBSTRING(STRING(TODAY),1,2) .
-
-    FIND FIRST period                   
-        WHERE period.company EQ cocode
-        AND period.pst     LE date(ip-date)
-        AND period.pend    GE date(ip-date)
-        AND period.pnum   EQ INT(v-month)
-        NO-LOCK NO-ERROR.
+                
+    FIND FIRST period NO-LOCK                 
+         WHERE period.company EQ cocode
+           AND period.pst     LE date(ip-date)
+           AND period.pend    GE date(ip-date)
+           AND ((period.pnum  EQ INT(v-month) AND ipcAPPostingPeriodRules EQ "CurrentPeriodOnly")
+           OR ipcAPPostingPeriodRules EQ "OpenPeriodOnly")
+           AND ((period.yr     EQ YEAR(TODAY) AND ipcAPPostingPeriodRules EQ "CurrentPeriodOnly")
+           OR ipcAPPostingPeriodRules EQ "OpenPeriodOnly")   
+         NO-ERROR.          
 
     IF NOT AVAILABLE period THEN
     DO:
@@ -991,22 +946,15 @@ PROCEDURE check-inv-date :
             ELSE
                 lv-msg = "".
 
-    IF lv-msg NE "" THEN 
+    IF lv-msg NE "" AND cAPPostingPassword NE "" THEN 
     DO:
         IF NOT ll-secure THEN 
         DO:
             MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
-        END.
-    END.
-
-    IF lv-msg NE "" THEN 
-    DO:
-        IF NOT ll-secure THEN 
-        DO:  
-            RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
+            RUN sys/ref/dCheckPasswd.w (cAPPostingPassword, OUTPUT ll-secure). 
             IF NOT ll-secure THEN v-invalid-inv = YES .
         END.
-    END.
+    END.    
 
 END PROCEDURE.
 
@@ -1329,38 +1277,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckInvDatePeriod C-Win 
-PROCEDURE pCheckInvDatePeriod :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- 
-  DEFINE INPUT PARAMETER ip-date AS CHAR.    
-  DEFINE BUFFER bf-period FOR period. 
-  
-  ASSIGN 
-      v-invalid-inv = NO 
-      .                 
-      FIND FIRST bf-period                   
-         WHERE bf-period.company EQ cocode
-         AND bf-period.pst     LE date(ip-date)
-         AND bf-period.pend    GE date(ip-date)
-          AND bf-period.pnum   EQ INTEGER(tran-period:SCREEN-VALUE IN FRAME {&frame-name})
-       NO-LOCK NO-ERROR.
-             
-       IF NOT AVAIL bf-period THEN
-       DO:
-           v-invalid-inv = YES .
-           MESSAGE "Invoice date must be in posted date period." VIEW-AS ALERT-BOX ERROR.
-           RETURN.
-       END.
-       
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
@@ -1405,6 +1321,7 @@ PROCEDURE post-gl :
             ap-inv.postedDate = tran-date
             ap-inv.runNumber  = v-trnum
             ap-inv.glYear     = YEAR(tran-date)
+            ap-inv.glPostdate = tran-date
             .
         total-msf     = 0
             .
@@ -1424,6 +1341,13 @@ PROCEDURE post-gl :
                 total-msf      = total-msf + ap-invl.amt-msf
                 ap-invl.posted = YES.
        
+FIND FIRST currency NO-LOCK
+      WHERE currency.company     EQ ap-inv.company
+        AND currency.c-code      EQ ap-inv.curr-code[1]
+        AND currency.ar-ast-acct NE ""
+        AND currency.ex-rate     GT 0
+      NO-ERROR.
+            
       RUN GL_SpCreateGLHist(cocode,
                 tt-ap-invl.actnum,
                 "ACPAY",
@@ -1441,7 +1365,7 @@ PROCEDURE post-gl :
                  "ACPAY",
                  vend.name  + "  " + string(ap-inv.inv-date),
                  tran-date,
-                 tt-ap-invl.amt * -1,
+                 tt-ap-invl.amt * -1 / (IF AVAIL currency THEN currency.ex-rate ELSE 1),
                  v-trnum,
                  tran-period,
                  "A",
@@ -1488,6 +1412,7 @@ PROCEDURE post-gl :
                     FOR EACH rm-rcpth NO-LOCK
                         WHERE rm-rcpth.company   EQ po-ordl.company
                         AND rm-rcpth.po-no     EQ STRING(po-ordl.po-no)
+                        AND rm-rcpth.po-line   EQ po-ordl.LINE
                         AND rm-rcpth.i-no      EQ po-ordl.i-no
                         AND rm-rcpth.rita-code EQ "R",
                         EACH rm-rdtlh NO-LOCK
@@ -2133,9 +2058,50 @@ PROCEDURE valid-date :
             IF AVAIL bf-period THEN
             ASSIGN
                 begin_date:SCREEN-VALUE = STRING(bf-period.pst)
-                end_date:SCREEN-VALUE = STRING(bf-period.pend).
+                end_date:SCREEN-VALUE = STRING(bf-period.pend)
+                tran-period:SCREEN-VALUE = STRING(bf-period.pnum,"99").
 
             ll-warned = YES.
+        END.
+    END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckUser C-Win 
+PROCEDURE pCheckUser :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lv-period LIKE period.pnum NO-UNDO.
+    DEFINE VARIABLE lv-msg  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE v-month AS CHARACTER . 
+    ASSIGN  
+        lv-msg        = ""
+        v-invalid-inv = NO 
+       .
+    DO WITH FRAME {&FRAME-NAME}:   
+        IF cAPPostingUserId EQ "Yes" THEN
+        DO:
+            IF begin_user:SCREEN-VALUE NE USERID(LDBNAME(1)) OR end_user:SCREEN-VALUE NE USERID(LDBNAME(1)) THEN
+            DO:
+                lv-msg = "CAN NOT POST OUT OF USER, ENTER SECURITY PASSWORD OR  ENTER TO RETURN".
+            END.             
+        END.
+    END.
+
+    IF lv-msg NE "" AND cAPPostingPassword NE "" THEN 
+    DO:
+        IF NOT ll-secure THEN          
+        DO:
+            MESSAGE TRIM(lv-msg) + "..." VIEW-AS ALERT-BOX ERROR.
+            RUN sys/ref/dCheckPasswd.w (cAPPostingPassword, OUTPUT ll-secure). 
+            IF NOT ll-secure THEN v-invalid-inv = YES .
         END.
     END.
     

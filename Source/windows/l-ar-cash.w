@@ -35,6 +35,7 @@ DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ip-cur-val AS cha NO-UNDO.
 DEFINE OUTPUT PARAMETER op-char-val AS cha NO-UNDO. 
 DEFINE OUTPUT PARAMETER op-rec-id AS RECID NO-UNDO.     /* recid output */
+{sys/inc/var.i}
 
 &scoped-define SORTBY-1 BY ar-cash.check-no descending
 

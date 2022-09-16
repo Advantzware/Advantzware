@@ -896,7 +896,7 @@ def var v-scraps    as   dec format "->>>>,>>>,>>9" extent 4.
 def var v-job-qty   as   dec format "->>>>,>>>,>>9".
 def var v-pct       as   dec format "->>,>>9.999"       extent 2.
 def var v-forms     as   int.
-def var v-first-24  as   char format "x(24)".
+def var v-first-24  as   char format "x(28)".
 
 def var v-lab       as   char format "x(13)" extent 4.
 
@@ -932,7 +932,7 @@ form header skip(1)
 
             "Machine#"
             "Shift"
-            "Job#     "
+            "Job#         "
             "Form#"
             "     Received"
             " Sht"
@@ -946,7 +946,7 @@ form header skip(1)
 
             "--------"
             "-----"
-            "---------"
+            "-------------"
             "-----"
             "-------------"
             "----"
@@ -1198,7 +1198,7 @@ end.
       v-first-24 = string(mch-act.m-code,"x(8)") + " "         +
                    string(mch-act.shift,">>")    + fill(" ",4) +
                    string(trim(job.job-no) + "-" +
-                          string(job.job-no2,"99"),"x(9)").
+                          string(job.job-no2,"999"),"x(13)").
 
       display v-first-24
               mch-act.frm                                       format ">>>>>"
@@ -1217,7 +1217,7 @@ end.
       if tb_excel then do:
         str_buffa = trim(mch-act.m-code)                                + "," +
                     trim(string(mch-act.shift,">>"))                    + "," + 
-                    trim(job.job-no) + "-" + string(job.job-no2,"99")   + "," +
+                    trim(job.job-no) + "-" + string(job.job-no2,"999")   + "," +
                     trim(string(mch-act.frm))                           + "," +
                     trim(string(v-sheets[1]))                           + "," +
                     trim(string(v-sheetup))                                  + "," +

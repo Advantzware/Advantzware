@@ -137,7 +137,7 @@ ASSIGN
           AND {system/brMatches.i oe-ordl.part-no fi_part-no} ~
           AND {system/brMatches.i oe-ordl.po-no fi_po-no-2} ~
           AND oe-ordl.est-no    BEGINS fi_est-no    ~
-          AND FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no)    BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) + TRIM(oe-ordl.job-no)    BEGINS fi_job-no    ~
           AND (oe-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
 
 &SCOPED-DEFINE for-each2                              ~
@@ -509,7 +509,7 @@ DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0
      SIZE 14 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -604,7 +604,7 @@ DEFINE BROWSE Browser-Table
       get-extended-price() @ ld-t-price COLUMN-LABEL "Extended!Price" FORMAT "->>,>>>,>>9.99":U
             WIDTH 20
       oe-ordl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      oe-ordl.part-no FORMAT "x(30)":U LABEL-BGCOLOR 14
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       get-ord-po-no() @ lc-ord-po COLUMN-LABEL "Order PO#" FORMAT "X(15)":U
                  WIDTH 21 LABEL-BGCOLOR 14

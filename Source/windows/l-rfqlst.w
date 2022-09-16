@@ -33,6 +33,7 @@
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 &scoped-define fld-name-1 rfqitem.rfq-no
@@ -147,7 +148,7 @@ DEFINE BROWSE BROWSE-1
       rfq.cust-no FORMAT "X(8)":U
       rfqitem.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
       rfqitem.i-name FORMAT "x(60)":U
-      rfqitem.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
+      rfqitem.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(30)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 92 BY 11.19

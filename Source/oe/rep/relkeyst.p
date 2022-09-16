@@ -130,7 +130,7 @@ format header
        "Count"                          to 72
        "Bin Qty"                        to 82
        "Job#"                           TO 6
-       "--------"                       to 6
+       "--------"                       to 8
        "--------------"                 at 10
        "----------"                     at 31
        "-"                              at 52
@@ -141,7 +141,7 @@ format header
        
     with frame rel-top no-box no-labels STREAM-IO width 85 page-top.
         
-format w-oe-rell.ord-no                 to 6
+format w-oe-rell.ord-no                 to 8
        w-par                            at 10    format "x(20)"
        v-bin                            at 31   format "x(20)"
        w-x                              at 52   format "X/"
@@ -199,8 +199,8 @@ find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
           where oe-ord.company eq oe-rell.company
             and oe-ord.ord-no  eq oe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-pay-dscr = IF oe-rell.frt-pay NE "" THEN oe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-pay-dscr:
              when "P" THEN v-frt-pay-dscr = "Prepaid".
              when "C" THEN v-frt-pay-dscr = "Collect".
              when "B" THEN v-frt-pay-dscr = "Bill".

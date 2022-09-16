@@ -206,10 +206,10 @@ DEFINE VARIABLE ls-i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ls-part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE ls-part-no AS CHARACTER FORMAT "X(30)":U 
      LABEL "Cust Part" 
      VIEW-AS FILL-IN 
-     SIZE 39 BY 1 NO-UNDO.
+     SIZE 50 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND

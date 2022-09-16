@@ -50,8 +50,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
                            w2.qty = oe-ordl.qty.
       ELSE IF i = 2 THEN 
           ASSIGN w2.job-po = tt-boll.job-no
-/*                  w2.job-po = if oe-ordl.job-no eq "" then "" else                        */
-/*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
       else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -73,8 +71,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        w2.i-no = "".
        IF i = 2 THEN 
           ASSIGN w2.job-po = tt-boll.job-no
-/*            if oe-ordl.job-no eq "" then "" else                                          */
-/*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                 w2.dscr = oe-ordl.i-name
                 w2.i-no = oe-ordl.i-no.
        else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -94,8 +90,6 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
        w2.i-no = "".
        IF i = 2 THEN
           ASSIGN w2.job-po = tt-boll.job-no
-/*            if oe-ordl.job-no eq "" then "" else                                          */
-/*                              (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                  w2.dscr = oe-ordl.i-name
                  w2.i-no = oe-ordl.i-no.
        else if i eq 3 then ASSIGN w2.dscr = oe-ordl.part-dscr1.
@@ -238,8 +232,6 @@ find first oe-ordl
       assign
        v-part-dscr = oe-ordl.i-name
        v-job-po    = tt-boll.job-no
-/*         if oe-ordl.job-no eq "" then "" else                                    */
-/*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                    .
     
     else
@@ -273,8 +265,6 @@ find first oe-ordl
       assign
        v-part-dscr = oe-ordl.i-name
        v-job-po    = tt-boll.job-no
-/*         if oe-ordl.job-no eq "" then "" else                                    */
-/*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                         .
 
     else if i eq 3 then v-part-dscr = oe-ordl.part-dscr1.
@@ -326,8 +316,6 @@ find first oe-ordl
       assign
        v-part-dscr = oe-ordl.i-name
        v-job-po    = tt-boll.job-no
-/*         if oe-ordl.job-no eq "" then "" else                                    */
-/*                     (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99")) */
                         .
 
     else
@@ -342,7 +330,6 @@ find first oe-ordl
                  
     if v-part-dscr ne "" or v-job-po ne "" or i le 2 then do:
       display {1}
-/*               oe-ordl.i-no                            when i eq 2 */
               v-job-po
               v-part-dscr              
               1  WHEN tt-boll.partial > 0  @ w2.cases

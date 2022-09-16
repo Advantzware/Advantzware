@@ -1013,7 +1013,7 @@ PROCEDURE crt-transfer :
 
   FOR EACH fg-bin WHERE fg-bin.company EQ cocode 
                       AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND trim(fg-bin.job-no) = trim(fg-rctd.job-no)
+                      AND fg-bin.job-no  = fg-rctd.job-no
                       AND fg-bin.job-no2 = fg-rctd.job-no2 
                       AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
                       AND fg-bin.qty   NE 0  NO-LOCK:
@@ -1179,7 +1179,7 @@ PROCEDURE get-def-values :
   /*if fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  eq "" then do:*/
      find first fg-bin where fg-bin.company eq cocode
                 and fg-bin.i-no    eq fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                and trim(fg-bin.job-no)  eq trim(fg-rctd.job-no:SCREEN-VALUE)
+                and fg-bin.job-no  eq fg-rctd.job-no:SCREEN-VALUE
                 and ((fg-rctd.job-no:SCREEN-VALUE ne " " and
                     fg-bin.job-no2 eq int(fg-rctd.job-no2:SCREEN-VALUE) ) or
                     (fg-rctd.job-no:SCREEN-VALUE eq " "))
@@ -1301,7 +1301,7 @@ PROCEDURE local-assign-record :
    FIND FIRST fg-bin 
       WHERE fg-bin.company EQ fg-rctd.company
         AND fg-bin.i-no    EQ fg-rctd.i-no
-        AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no)
+        AND fg-bin.job-no  EQ fg-rctd.job-no
         AND fg-bin.job-no2 EQ fg-rctd.job-no2
         AND fg-bin.loc     EQ fg-rctd.loc
         AND fg-bin.loc-bin EQ fg-rctd.loc-bin
@@ -1556,7 +1556,7 @@ DO:
                         WHERE fg-bin.company EQ cocode 
                           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                           AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-                          AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no)
+                          AND fg-bin.job-no  EQ fg-rctd.job-no
                           AND fg-bin.job-no2 EQ fg-rctd.job-no2
                           AND (fg-bin.loc     NE fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                                OR  fg-bin.loc-bin NE fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name})
@@ -1606,7 +1606,7 @@ PROCEDURE new-bin :
     FIND FIRST fg-bin 
         WHERE fg-bin.company EQ cocode
           AND fg-bin.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          AND trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
           AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1643,7 +1643,7 @@ PROCEDURE new-job-no :
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FIND FIRST job-hdr
           WHERE job-hdr.company EQ fg-rctd.company
-            AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
             AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
@@ -1766,91 +1766,68 @@ PROCEDURE trans-count :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR lv-wh-list AS cha  NO-UNDO.
-  DEF BUFFER b-fg-rctd FOR fg-rctd.
-  DEF BUFFER b2-fg-rctd FOR fg-rctd.
+    DEFINE VARIABLE lv-wh-list    AS CHARACTER      NO-UNDO.
+    DEFINE VARIABLE lv-rno        LIKE fg-rctd.r-no NO-UNDO.
+    DEFINE VARIABLE lv-rctd-rowid AS ROWID          NO-UNDO.
 
-  lv-wh-list = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} + "," +
-               fg-rctd.loc-bin:SCREEN-VALUE + "," +
-               fg-rctd.loc:SCREEN-VALUE + "," +
-               fg-rctd.loc-bin:SCREEN-VALUE .
-             
-  RUN fg/d-phys.w (INPUT-OUTPUT lv-wh-list).
-  IF lv-wh-list <> "" THEN DO:
-     MESSAGE "Are you sure you want to transfer all physical counts for item "
-          fg-rctd.i-no:SCREEN-VALUE "?" SKIP
-         lv-wh-list
-         VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
-     IF ll-ans THEN DO:
+    DEFINE BUFFER b-fg-rctd  FOR fg-rctd.
+    DEFINE BUFFER b2-fg-rctd FOR fg-rctd.
 
-        DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
-        DEF VAR lv-rctd-rowid AS ROWID NO-UNDO.
-        
-        lv-rno = 0.
-        FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
-        IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
+    lv-wh-list = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} + ","
+               + fg-rctd.loc-bin:SCREEN-VALUE + ","
+               + fg-rctd.loc:SCREEN-VALUE + ","
+               + fg-rctd.loc-bin:SCREEN-VALUE
+               .             
+    RUN fg/d-phys.w (INPUT-OUTPUT lv-wh-list).
+    IF lv-wh-list NE "" AND
+      (ENTRY(1,lv-wh-list) NE ENTRY(3,lv-wh-list) OR
+       ENTRY(2,lv-wh-list) NE ENTRY(4,lv-wh-list)) THEN DO:
+        MESSAGE
+            "Are you sure you want to transfer all physical counts for item "
+            fg-rctd.i-no:SCREEN-VALUE "?" SKIP
+            lv-wh-list
+        VIEW-AS ALERT-BOX WARNING BUTTON YES-NO
+        UPDATE ll-ans AS LOGICAL.
+        IF ll-ans THEN DO:        
+            lv-rno = 0.
+            FIND LAST b-fg-rctd NO-LOCK USE-INDEX fg-rctd NO-ERROR.
+            IF AVAILABLE b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN
+            lv-rno = b-fg-rctd.r-no.
     
-        FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
-        IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
+            FIND LAST fg-rcpth NO-LOCK USE-INDEX r-no NO-ERROR.
+            IF AVAILABLE fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN
+            lv-rno = fg-rcpth.r-no.
     
-        DO WHILE TRUE:
-          lv-rno = lv-rno + 1.
-          FIND FIRST fg-rcpth WHERE fg-rcpth.r-no EQ lv-rno USE-INDEX r-no NO-LOCK NO-ERROR.
-          IF AVAIL fg-rcpth THEN NEXT.
-          FIND FIRST b-fg-rctd WHERE b-fg-rctd.r-no EQ lv-rno USE-INDEX fg-rctd NO-LOCK NO-ERROR.
-          IF AVAIL b-fg-rctd THEN NEXT.
-          LEAVE.
-        END.
-    
-        /*FOR EACH b-fg-rctd WHERE recid(b-fg-rctd) <> RECID(fg-rctd) 
-                           AND b-fg-rctd.i-no = fg-rctd.i-no
-                           AND b-fg-rctd.tag = fg-rctd.tag:
-          DELETE b-fg-rctd.
-        END.
-        */
-        FOR EACH b-fg-rctd WHERE b-fg-rctd.company = g_company 
-                             AND b-fg-rctd.rita-code = "C" 
-                             AND b-fg-rctd.i-no = fg-rctd.i-no
-                             AND b-fg-rctd.loc = ENTRY(1,lv-wh-list)
-                             AND b-fg-rctd.loc-bin = ENTRY(2,lv-wh-list)
-                      :
-            /*,
-          EACH fg-bin WHERE fg-bin.company EQ cocode 
-                          AND fg-bin.i-no    EQ b-fg-rctd.i-no
-                          AND fg-bin.job-no = b-fg-rctd.job-no
-                          AND fg-bin.job-no2 = b-fg-rctd.job-no2 
-                          AND fg-bin.tag     EQ b-fg-rctd.tag
-                          /*AND fg-bin.qty > 0*/  NO-LOCK:  
-         IF fg-bin.loc NE b-fg-rctd.loc OR  fg-bin.loc-bin NE b-fg-rctd.loc-bin
-         THEN DO:
-         
-             CREATE b2-fg-rctd.
-             BUFFER-COPY b-fg-rctd EXCEPT b-fg-rctd.r-no TO b2-fg-rctd.
-             ASSIGN b2-fg-rctd.r-no = lv-rno
-                    b2-fg-rctd.loc = fg-bin.loc
-                    b2-fg-rctd.loc-bin = fg-bin.loc-bin
-                    b2-fg-rctd.cases = 0
-                    b2-fg-rctd.qty-case = 0
-                    b2-fg-rctd.cases-unit = 0
-                    b2-fg-rctd.partial = 0
-                    b2-fg-rctd.t-qty = 0.
-             lv-rno = lv-rno + 1.
-             
-         END. */
-             CREATE b2-fg-rctd.
-             BUFFER-COPY b-fg-rctd EXCEPT b-fg-rctd.r-no TO b2-fg-rctd.
-             ASSIGN b2-fg-rctd.r-no = lv-rno
-                    b2-fg-rctd.loc = entry(3,lv-wh-list)
+            DO WHILE TRUE:
+                lv-rno = lv-rno + 1.
+                FIND FIRST fg-rcpth NO-LOCK WHERE fg-rcpth.r-no EQ lv-rno USE-INDEX r-no NO-ERROR.
+                IF AVAILABLE fg-rcpth THEN NEXT.
+                FIND FIRST b-fg-rctd NO-LOCK WHERE b-fg-rctd.r-no EQ lv-rno USE-INDEX fg-rctd NO-ERROR.
+                IF AVAILABLE b-fg-rctd THEN NEXT.
+                LEAVE.
+            END.
+            FOR EACH b-fg-rctd
+                WHERE b-fg-rctd.company   EQ g_company 
+                  AND b-fg-rctd.rita-code EQ "C" 
+                  AND b-fg-rctd.i-no      EQ fg-rctd.i-no
+                  AND b-fg-rctd.loc       EQ ENTRY(1,lv-wh-list)
+                  AND b-fg-rctd.loc-bin   EQ ENTRY(2,lv-wh-list)
+                :
+                CREATE b2-fg-rctd.
+                BUFFER-COPY b-fg-rctd EXCEPT b-fg-rctd.r-no TO b2-fg-rctd.
+                ASSIGN
+                    b2-fg-rctd.r-no    = lv-rno
+                    b2-fg-rctd.loc     = ENTRY(3,lv-wh-list)
                     b2-fg-rctd.loc-bin = ENTRY(4,lv-wh-list)
-                    b-fg-rctd.cases = 0
-                    b-fg-rctd.partial = 0
-                    b-fg-rctd.t-qty = 0.
-             lv-rno = lv-rno + 1.
-            
-        END.  /* for each fg-bin*/
-        RUN repo-query (ROWID(fg-rctd)).
-     END. /* ll-ans */
-  END. /*lv-wh-list <> ""*/
+                    b-fg-rctd.cases    = 0
+                    b-fg-rctd.partial  = 0
+                    b-fg-rctd.t-qty    = 0
+                    lv-rno             = lv-rno + 1
+                    .            
+            END.  /* for each fg-bin*/
+            RUN repo-query (ROWID(fg-rctd)).
+        END. /* ll-ans */
+    END. /*lv-wh-list <> ""*/
   
 END PROCEDURE.
 
@@ -1901,7 +1878,7 @@ PROCEDURE valid-job-loc-bin-tag :
     IF NOT CAN-FIND(FIRST fg-bin 
                     WHERE fg-bin.company  EQ cocode
                       AND fg-bin.i-no     EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND (trim(fg-bin.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})       OR ip-int LT 1)
+                      AND (fg-bin.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}       OR ip-int LT 1)
                       AND (fg-bin.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR ip-int LT 2)
                       AND (fg-bin.loc     EQ fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}          OR ip-int LT 3)
                       AND (fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}      OR ip-int LT 4)
@@ -1941,21 +1918,21 @@ PROCEDURE valid-job-no :
         STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))
         .
 
-    IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
+    IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE lv-job-no  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
       RUN new-job-no.
 
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FIND FIRST job-hdr
           WHERE job-hdr.company EQ g_company
-            AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE)
+            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job-hdr THEN DO:
 
          IF fg-rctd.i-no:SCREEN-VALUE = "" THEN DO:
             FIND FIRST job-hdr WHERE job-hdr.company EQ g_company
-                         AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE) NO-LOCK NO-ERROR.
+                         AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE NO-LOCK NO-ERROR.
             IF NOT AVAIL job-hdr THEN do:
                MESSAGE "Invalid Job#. Try Help..." fg-rctd.i-no:SCREEN-VALUE VIEW-AS ALERT-BOX ERROR.
                RETURN ERROR.
@@ -1964,7 +1941,7 @@ PROCEDURE valid-job-no :
 
          ELSE do:   /* components*/
              FIND FIRST job-hdr WHERE job-hdr.company EQ g_company
-                  AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE) NO-LOCK NO-ERROR.
+                  AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE NO-LOCK NO-ERROR.
              IF AVAIL job-hdr THEN
                 FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "jc/jc-calc.p"
                               AND reftable.company  EQ g_company
@@ -2004,7 +1981,7 @@ PROCEDURE valid-job-no2 :
     IF fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
       FIND FIRST job-hdr
           WHERE job-hdr.company EQ g_company
-            AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE)
+            AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE
             AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
             AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE
           NO-LOCK NO-ERROR.
@@ -2013,7 +1990,7 @@ PROCEDURE valid-job-no2 :
 
       IF NOT AVAIL job-hdr THEN DO:
          FIND FIRST job-hdr WHERE job-hdr.company EQ g_company
-                AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE) 
+                AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE 
                 AND job-hdr.job-no2 EQ INT(fg-rctd.job-no2:SCREEN-VALUE)
                NO-LOCK NO-ERROR.
          IF AVAIL job-hdr THEN
@@ -2151,7 +2128,7 @@ PROCEDURE valid-tag :
                                 ,"->>>,>>>,>>9.99").
 
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
-        FILL(" ",9 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
+        FILL(" ", iJobLen - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 /*
       FIND FIRST fg-bin WHERE fg-bin.company EQ cocode 
@@ -2262,7 +2239,7 @@ PROCEDURE validate-record :
   END.
   FIND FIRST job-hdr
       WHERE job-hdr.company EQ fg-rctd.company
-      AND trim(job-hdr.job-no)  EQ trim(fg-rctd.job-no:SCREEN-VALUE)
+      AND job-hdr.job-no    EQ fg-rctd.job-no:SCREEN-VALUE
       NO-LOCK NO-ERROR.
   IF AVAIL job-hdr AND job-hdr.opened = NO THEN 
   DO:

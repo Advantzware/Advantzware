@@ -639,9 +639,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     END.
                     NEXT.
                 END.
-
+                    
                 IF v-excel OR NOT rd-dest = 5 THEN
                     RUN run-report(b-cust.cust-no, TRUE).
+                     
+                IF NOT CAN-FIND (FIRST tt-inv) THEN NEXT.    
 
                 IF NOT v-excel THEN
                     RUN GenerateReport(b-cust.cust-no,b-cust.cust-no).
@@ -660,7 +662,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             END. /*each b-cust*/
 
         END. /*if sys-ctrl-shipto found*/
-        ELSE IF rd-dest = 5 AND tb_BatchMail:CHECKED THEN  /*if no sys-ctrl-shipto found*/
+        ELSE IF rd-dest = 5 THEN  /*if no sys-ctrl-shipto found*/
             DO:
                 FOR EACH ttCustList NO-LOCK  :
   
@@ -713,13 +715,13 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             v-cust-mode = IF NOT tb_HideDialog:CHECKED THEN "Customer"
                             ELSE "Customer1".
-                            RUN SendMail-1 (begin_cust-no, v-cust-mode, v-dir + "\stmt.pdf").
+                            RUN SendMail-1 (ttCustList.cust-no, v-cust-mode, v-dir + "\stmt.pdf").
                         END.
                 END. /* cust */
             END. /*end sys-ctrl-shipto not found*/
 
 
-        IF CAN-FIND(FIRST ttCustList WHERE
+        IF rd-dest NE 5 AND CAN-FIND(FIRST ttCustList WHERE
             ttCustList.cust-no NE "" AND ttCustList.log-fld = YES ) THEN
         DO: 
 
@@ -1719,32 +1721,13 @@ PROCEDURE run-asistmt :
     DEFINE VARIABLE ls-image1    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE ls-full-img1 AS cha       FORM "x(200)" NO-UNDO.
 
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "RFC" OR v-stmt-char EQ "Badger" THEN 
     DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
-        END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.   
     END.
 
     FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
@@ -2572,32 +2555,12 @@ PROCEDURE run-asistmt-mail :
             + v-inv-type-array[xx] + ' '.
     END.
 
-
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "RFC" OR v-stmt-char EQ "Badger" THEN 
     DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         END.
     END.
 
@@ -3450,31 +3413,12 @@ PROCEDURE run-protagonstmt :
 
     v-asi-excel = IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN TRUE ELSE FALSE.
 
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "StdStatement10" OR v-stmt-char EQ "StdStatement2" OR v-stmt-char EQ "ARStmt3C" THEN 
-    DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+    DO:                                 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         END.
     END.
 
@@ -3634,7 +3578,7 @@ PROCEDURE run-protagonstmt :
         v-detail    = tb_detailed
         v-past-due  = tb_past-due.
 
-    IF ip-sys-ctrl-shipto THEN
+    IF ip-sys-ctrl-shipto OR ipl-email THEN
         ASSIGN
             v-lo-cust = ip-cust-no
             v-hi-cust = ip-cust-no.

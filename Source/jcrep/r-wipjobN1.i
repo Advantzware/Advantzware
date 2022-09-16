@@ -107,7 +107,7 @@
             ELSE DO: 
               cVarValue = "".
               CASE cTmpField:               
-                 WHEN "v-job-no" THEN cVarValue = string(tt-job-mch.job-no + "-" + string(tt-job-mch.job-no2,"99")).
+                 WHEN "v-job-no" THEN cVarValue = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', tt-job-mch.job-no, tt-job-mch.job-no2))).
                  WHEN "v-vendor" THEN cVarValue = STRING(v-vendor,"X(20)").
                  WHEN "v-machine" THEN cVarValue = STRING(tt-job-mch.m-code).
                  WHEN "v-cust" THEN cVarValue = STRING(tt-job-mch.cust-no).

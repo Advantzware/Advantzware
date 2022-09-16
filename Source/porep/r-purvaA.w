@@ -115,7 +115,7 @@ DEFINE BUTTON btn-ok
      LABEL "&OK" 
      SIZE 15 BY 1.14.
 
-DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -145,7 +145,7 @@ DEFINE VARIABLE begin_vend-no AS CHARACTER FORMAT "X(8)":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
@@ -1227,7 +1227,7 @@ def var v-e-vend like v-s-vend init "zzzzzzzz".
 def var v-s-item like po-ordl.i-no.
 def var v-tt-ei like v-s-item init "zzzzzzzzzzzzzzz".
 def var v-s-job like po-ordl.job-no.
-def var v-e-job like v-s-job init "zzzzzz".
+def var v-e-job like v-s-job init "zzzzzzzzz".
 def var v-stat   as   char format "!" init "A".
 def var v-type   as   char format "!" init "B".
 def var v-sort   as   char format "!" init "V".
@@ -1262,7 +1262,7 @@ def var v-grand-bght as dec format "->>>>>>,>>9.99" no-undo.
 
 def var ii as int.
 def var ld as DEC NO-UNDO.
-def var v-bld-job as char format "x(9)".
+def var v-bld-job as char format "x(13)".
 DEF VAR v-inv-cost AS DEC NO-UNDO.
 DEF VAR v-po-cost  AS DEC NO-UNDO.
 DEF VAR v-mpv      AS DEC NO-UNDO.
@@ -1400,15 +1400,15 @@ for each po-ord
          and po-ordl.item-type
        no-lock no-error.
    assign v-bld-job = "".
-   do ii = 1 to 6: 
+   do ii = 1 to iJobLen: 
       if substring(po-ordl.job-no,ii,1) ne " " then
                assign v-bld-job  = trim(v-bld-job +
            substring(po-ordl.job-no,ii,1)).
    end. 
    if v-bld-job ne "      " then
    assign v-bld-job =
-            string(fill(" ",6 - length(v-bld-job))) +
-            (trim(v-bld-job)) +  "-" + string(po-ordl.job-no2,"99").
+            string(FILL(" ", iJobLen - length(v-bld-job))) +
+            (trim(v-bld-job)) +  "-" + string(po-ordl.job-no2,"999").
      if po-ordl.pr-qty-uom eq "MSF" then
      v-tot-msf = po-ordl.ord-qty.
    else

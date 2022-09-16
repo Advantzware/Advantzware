@@ -85,7 +85,8 @@ ASSIGN
                             "Customer #,Order #,Customer # From Order,FG Item # From Job,Cust Part#,Adder," +
                             "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID,Po Line," +
                             "ShipTo Customer,Drop Shipment Type,RM Category,RM Category description,FG Category,FG Category description,Required Date," +
-                            "PoDate Change Notes,Required Date Change Notes,Last Ship Date Change Notes,Due Date Change Notes".
+                            "PoDate Change Notes,Required Date Change Notes,Last Ship Date Change Notes,Due Date Change Notes," +
+                            "Ordered PO Line Cost,Received PO Line Cost,Balance PO Line Cost".
 cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
     "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
     "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
@@ -101,7 +102,8 @@ cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-
     "po-ordl.cust-no,po-ordl.ord-no,po-ordl.dfuncCustfromOrder,po-ordl.dfuncFGFromJob,cust-part,adders," +
     "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id,po-ordl.line," +
     "shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-ord.due-date," +
-    "po-date-notes,required-date-note,lastShip-date-notes,due-date-notes".
+    "po-date-notes,required-date-note,lastShip-date-notes,due-date-notes," +
+    "ord-po-line-cost,rec-po-line-cost,bal-po-line-cost".
 
 /*vend.name
        lv_vend-add1:SCREEN-VALUE  = vend.add1
@@ -1390,6 +1392,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-adder              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFGItem              AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cNotes               AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dReceivedCost        AS DECIMAL   NO-UNDO.
     DEFINE BUFFER xjob-mat  FOR job-mat.
     DEFINE BUFFER xitem     FOR item.
 
@@ -1415,8 +1418,8 @@ PROCEDURE run-report :
         AND po-ordl.i-no LE end_item
         AND po-ordl.vend-i-no GE begin_vend-i-no
         AND po-ordl.vend-i-no LE end_vend-i-no
-        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) GE begin_job
-        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) LE end_job
+        AND FILL(" ", iJobLen - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) GE begin_job
+        AND FILL(" ", iJobLen - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) LE end_job
         AND po-ordl.job-no2 GE begin_job2
         AND po-ordl.job-no2 LE end_job2
         AND po-ordl.due-date  GE begin_date
@@ -1457,7 +1460,7 @@ PROCEDURE run-report :
     
         FOR EACH ttRptSelected:
 
-            IF LOOKUP(ttRptSelected.FieldList,"po-ordl.job-no,cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-date-notes,required-date-note,lastShip-date-notes,due-date-notes") EQ 0 THEN 
+            IF LOOKUP(ttRptSelected.FieldList,"po-ordl.job-no,cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-date-notes,required-date-note,lastShip-date-notes,due-date-notes,ord-po-line-cost,rec-po-line-cost,Bal-po-line-cost") EQ 0 THEN 
             DO:
                 v-excel-detail-lines = v-excel-detail-lines + 
                     appendXLLine(getValue(BUFFER po-ordl,BUFFER po-ord,BUFFER vend,ttRptSelected.FieldList)).
@@ -1471,7 +1474,7 @@ PROCEDURE run-report :
                         END.
                     WHEN "po-ordl.job-no" THEN 
                         DO:
-                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"99")).
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(po-ordl.job-no + "-" + STRING(po-ordl.job-no2,"999")).
                         END.
              
                     WHEN "dropshipment" THEN 
@@ -1596,14 +1599,30 @@ PROCEDURE run-report :
                         DO:
                             RUN pGetNotes(INPUT po-ordl.rec_key, "D", OUTPUT cNotes).
                             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(cNotes)).  
-                        END.    
+                        END.  
+                    WHEN "ord-po-line-cost" THEN 
+                        DO:                            
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(po-ordl.t-cost)).  
+                        END.  
+                    WHEN "rec-po-line-cost" THEN 
+                        DO:
+                            RUN pGetRecCost(po-ordl.item-type,po-ordl.po-no, po-ordl.LINE, po-ordl.i-no, OUTPUT dReceivedCost).
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dReceivedCost)).  
+                        END.  
+                    WHEN "Bal-po-line-cost" THEN 
+                        DO:
+                            RUN pGetRecCost(INPUT po-ordl.item-type, po-ordl.po-no, po-ordl.LINE, po-ordl.i-no, OUTPUT dReceivedCost).
+                            dReceivedCost = po-ordl.t-cost - dReceivedCost.
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dReceivedCost)).  
+                        END.      
+                     
                     WHEN "adders" THEN 
                         DO:
 
                             v-adder = "" .
 
                             FIND FIRST job WHERE job.company EQ cocode 
-                                AND job.job-no EQ STRING(FILL(" ",6 - 
+                                AND job.job-no EQ STRING(FILL(" ", iJobLen - 
                                 LENGTH(TRIM(po-ordl.job-no)))) +
                                 TRIM(po-ordl.job-no) 
                                 AND job.job-no2 EQ po-ordl.job-no2 NO-LOCK NO-ERROR.
@@ -1793,6 +1812,55 @@ PROCEDURE pGetNotes :
         opcNotes = bf-notes.note_title + " - " + bf-notes.note_text .  
     END.                                                            
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetRecCost rd-poexp 
+PROCEDURE pGetRecCost :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iplItemType AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiPoNo AS INTEGER NO-UNDO. 
+    DEFINE INPUT PARAMETER ipiPoLine AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItem AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdCost AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE dRecCost AS DECIMAL NO-UNDO. 
+    IF iplItemType THEN
+    DO:
+        FOR EACH rm-rcpth fields(r-no rita-code i-no)NO-LOCK
+            WHERE rm-rcpth.company  EQ cocode 
+            AND rm-rcpth.po-no      EQ string(ipiPoNo)
+            AND rm-rcpth.po-line    EQ ipiPoLine
+            AND rm-rcpth.i-no       EQ ipcItem
+            AND rm-rcpth.rita-code  EQ "R",
+            EACH rm-rdtlh FIELDS(qty cost )NO-LOCK
+            WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no 
+            AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code:
+            
+             dRecCost = dRecCost + (rm-rdtlh.qty * rm-rdtlh.cost).
+        END.          
+    END.
+    ELSE DO:
+      FOR EACH  fg-rcpth FIELDS(r-no rita-code i-no po-line pur-uom vend-no) NO-LOCK
+          WHERE fg-rcpth.company EQ cocode 
+            AND fg-rcpth.po-no   EQ string(ipiPoNo)
+            AND fg-rcpth.i-no    EQ ipcItem
+            AND fg-rcpth.po-line EQ ipiPoLine
+            AND LOOKUP(fg-rcpth.rita-code,"R,E") GT 0
+            ,
+          EACH  fg-rdtlh FIELDS(cost qty) NO-LOCK
+          WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no 
+            AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code :  
+            dRecCost = dRecCost +  fg-rdtlh.cost * (fg-rdtlh.qty / IF fg-rcpth.pur-uom EQ "M" THEN 1000 ELSE 1) .
+      END.      
+    END.
+    opdCost = IF dRecCost NE ? THEN dRecCost ELSE 0.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

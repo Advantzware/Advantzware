@@ -98,7 +98,7 @@ form HEADER
      SKIP(1)
      "Order#  Est#      Job#     Date     Bill To#   " +
      "Name                           Sold  To#     Order Total"
-     fill("=",128) format "x(128)"
+     fill("=",132) format "x(132)"
 
     WITH frame r-top.
 
@@ -787,7 +787,7 @@ DEFINE VARIABLE dTaxAmount     AS DECIMAL format ">,>>9.99<<<" NO-UNDO.
 
 form
   xoe-ord.ord-no xoe-ord.est-no xoe-ord.job-no space(0) "-" space(0)
-  xoe-ord.job-no2 format "99"
+  xoe-ord.job-no2 format "999"
   space(2) xoe-ord.due-date
   space(2) xoe-ord.cust-no
   space(3) xoe-ord.cust-name xoe-ord.sold-id space(3) v-tot-ord

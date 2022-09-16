@@ -170,7 +170,7 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      job.job-no + '-' + STRING(job.job-no2) @ job-number COLUMN-LABEL "Job" FORMAT "X(9)"
+      job.job-no + '-' + STRING(job.job-no2) @ job-number COLUMN-LABEL "Job" FORMAT "X(13)"
       job.est-no COLUMN-LABEL "Estimate"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -254,7 +254,7 @@ ASSIGN
      _TblOptList       = "USED"
      _Where[1]         = "NOT CAN-DO('c,z',asi.job.stat)"
      _FldNameList[1]   > "_<CALC>"
-"job.job-no + '-' + STRING(job.job-no2) @ job-number" "Job" "X(9)" ? ? ? ? ? ? ? no ?
+"job.job-no + '-' + STRING(job.job-no2) @ job-number" "Job" "X(13)" ? ? ? ? ? ? ? no ?
      _FldNameList[2]   > asi.job.est-no
 "job.est-no" "Estimate" ? "character" ? ? ? ? ? ? no ?
      _Query            is NOT OPENED

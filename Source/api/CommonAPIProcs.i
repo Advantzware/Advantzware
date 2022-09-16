@@ -24,6 +24,51 @@ FUNCTION fGetClientTransactionCounter RETURNS INTEGER PRIVATE
 
 /* **********************  Internal Procedures  *********************** */
 
+PROCEDURE pGetContentValue PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcContentKey    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcContentValue  AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
+
+    FIND FIRST bf-APIOutboundContent NO-LOCK
+         WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID
+           AND bf-APIOutboundContent.contentType   EQ "User"
+           AND bf-APIOutboundContent.contentKey    EQ ipcContentKey
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutboundContent THEN
+        opcContentValue = bf-APIOutboundContent.contentValue.
+
+END PROCEDURE.
+
+PROCEDURE pGetNumLinesInPage PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiAPIOutboundID AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiNumLines      AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER bf-APIOutboundContent FOR APIOutboundContent.
+
+    opiNumLines = 62.
+        
+    FIND FIRST bf-APIOutboundContent NO-LOCK
+         WHERE bf-APIOutboundContent.apiOutboundID EQ ipiAPIOutboundID
+           AND bf-APIOutboundContent.contentType   EQ "User"
+           AND bf-APIOutboundContent.contentKey    EQ "NumberOfLinesInPage"
+         NO-ERROR.
+    IF AVAILABLE bf-APIOutboundContent THEN
+        opiNumLines = INTEGER(bf-APIOutboundContent.contentValue).
+    
+    IF opiNumLines EQ 0 THEN
+        opiNumLines = 62.
+END PROCEDURE.
+
 PROCEDURE pSetRequestDataType PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose:
@@ -98,10 +143,12 @@ PROCEDURE pUpdateDelimiterAndTrim PRIVATE:
         ioplcRequestData = REPLACE(ioplcRequestData, "$linefeed$", "~n")    /* Replaces $linefeed$ with carriage return character */
         ioplcRequestData = REPLACE(ioplcRequestData, "$formfeed$", CHR(12)) /* Replaces $formfeed$ with Form Feed character (PAGE keyword) */
         .
-
+    
+    IF ipcRequestDataType EQ "JSON" THEN
+        ioplcRequestData = TRIM(ioplcRequestData, ",").
+    
     IF iplTrim THEN
         ASSIGN
-            ioplcRequestData = TRIM(ioplcRequestData, ",")
             ioplcRequestData = TRIM(ioplcRequestData, "~n")
             ioplcRequestData = TRIM(ioplcRequestData, CHR(12))
             .
@@ -171,3 +218,45 @@ FUNCTION fGetClientTransactionCounter RETURNS INTEGER PRIVATE
     RETURN 0.
 END FUNCTION.
 
+PROCEDURE pInsertPageHeaderFooter:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT         PARAMETER ipiNumLinesInPage AS INTEGER  NO-UNDO.
+    DEFINE INPUT-OUTPUT  PARAMETER ioplcRequestData  AS LONGCHAR NO-UNDO.
+    DEFINE INPUT         PARAMETER iplcHeader        AS LONGCHAR NO-UNDO.
+    DEFINE INPUT         PARAMETER iplcFooter        AS LONGCHAR NO-UNDO.
+    
+    DEFINE VARIABLE iLineCount     AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE iIndex         AS INTEGER  NO-UNDO.
+    DEFINE VARIABLE lcData         AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE iLastIndex     AS INTEGER  NO-UNDO INITIAL 1.
+    DEFINE VARIABLE lcRequestData1 AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcRequestData2 AS LONGCHAR NO-UNDO.
+    
+    DO WHILE ioplcRequestData MATCHES "*" + "$PageSeparator$" + "*":
+        iIndex = INDEX (ioplcRequestData, "$PageSeparator$").
+        IF iIndex LE 0 THEN
+            LEAVE.
+            
+        lcData = SUBSTRING(ioplcRequestData, iLastIndex, iIndex - iLastIndex - 1).
+        
+        lcData = ENTRY(NUM-ENTRIES(lcData, CHR(12)), lcData, CHR(12)).
+        
+        iLineCount = NUM-ENTRIES (lcData, CHR(10)).
+
+        lcRequestData1 = SUBSTRING(ioplcRequestData, 1, iIndex - 1).
+        lcRequestData2 = SUBSTRING(ioplcRequestData, iIndex + LENGTH("$PageSeparator$")).
+        
+        IF iLineCount GE ipiNumLinesInPage THEN
+            ASSIGN
+                ioplcRequestData = lcRequestData1 + iplcFooter + iplcHeader + lcRequestData2
+                iLastIndex       = iIndex + LENGTH("$PageSeparator$")
+                .
+        ELSE
+            ioplcRequestData = lcRequestData1 + lcRequestData2.
+        
+        RUN pUpdateDelimiterWithoutTrim (INPUT-OUTPUT ioplcRequestData, "").
+    END. 
+END PROCEDURE.

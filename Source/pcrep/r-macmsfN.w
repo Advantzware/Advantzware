@@ -170,12 +170,12 @@ DEFINE BUTTON btn_Up
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
      LABEL "Beginning Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no AS CHARACTER FORMAT "X(9)":U 
      LABEL "Beginning Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000" 
      LABEL "" 
@@ -185,17 +185,17 @@ DEFINE VARIABLE begin_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "000"
 DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "X(6)" 
      LABEL "Beginning Machine" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1 NO-UNDO.
+     SIZE 20.4 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no AS CHARACTER FORMAT "X(9)":U INITIAL "zzzzzzzzz" 
      LABEL "Ending Job#" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999" 
      LABEL "" 
@@ -205,7 +205,7 @@ DEFINE VARIABLE end_job-no2 AS CHARACTER FORMAT "-999":U INITIAL "999"
 DEFINE VARIABLE end_mach AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
      LABEL "Ending Machine" 
      VIEW-AS FILL-IN 
-     SIZE 18.4 BY 1.
+     SIZE 20.4 BY 1.
 
 DEFINE VARIABLE fi-styles AS CHARACTER FORMAT "X(256)":U 
      LABEL "Selected styles" 
@@ -301,18 +301,18 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      begin_mach AT ROW 2.33 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Machine"
-     end_mach AT ROW 2.33 COL 64 COLON-ALIGNED HELP
+     end_mach AT ROW 2.33 COL 67 COLON-ALIGNED HELP
           "Enter Ending Machine"
      begin_job-no AT ROW 3.38 COL 26 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 2
-     begin_job-no2 AT ROW 3.38 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 3.38 COL 41 COLON-ALIGNED HELP
           "Enter Beginning Job Number" WIDGET-ID 4
-     end_job-no AT ROW 3.38 COL 64 COLON-ALIGNED HELP
+     end_job-no AT ROW 3.38 COL 67 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 6
-     end_job-no2 AT ROW 3.38 COL 77 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 3.38 COL 82 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 8
      begin_date AT ROW 4.43 COL 26 COLON-ALIGNED
-     end_date AT ROW 4.43 COL 64 COLON-ALIGNED HELP
+     end_date AT ROW 4.43 COL 67 COLON-ALIGNED HELP
           "Enter Ending Due Date"
      rsQty AT ROW 5.52 COL 28 NO-LABEL WIDGET-ID 10
      tb_styles AT ROW 6.76 COL 24 WIDGET-ID 20
@@ -1441,10 +1441,10 @@ IF rsQty = "A" THEN DO:
       WHERE mch-act.company EQ cocode
         AND mch-act.m-code  GE begin_mach
         AND mch-act.m-code  LE end_mach
-        AND fill(" ",9 - length(trim(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
           trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                           GE cFjob
-        AND fill(" ",9 - length(trim(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(mch-act.job-no))) +
           trim(mch-act.job-no) + string(mch-act.job-no2,"999")
                          LE cTjob
         AND mch-act.job-no2 GE int(begin_job-no2)
@@ -1630,7 +1630,7 @@ IF rsQty = "A" THEN DO:
 
       lv-out =
           TRIM(STRING(mch-act.op-date,"99/99/99"))                      + "," +
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
+          TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")             + "," +
           TRIM(mch-act.m-code)                                          + "," +
           TRIM(string(eb.form-no))                                      + "," +
           TRIM(ef.board)                                               + "," +
@@ -1664,10 +1664,10 @@ ELSE DO:   /* rsQty = "E" */
 
       FOR EACH job-mch NO-LOCK
       WHERE job-mch.company EQ cocode
-        AND fill(" ",9 - length(trim(job-mch.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(job-mch.job-no))) +
           trim(job-mch.job-no) + string(job-mch.job-no2,"999")
                           GE cFjob
-        AND fill(" ",9 - length(trim(job-mch.job-no))) +
+        AND FILL(" ", iJobLen - length(trim(job-mch.job-no))) +
           trim(job-mch.job-no) + string(job-mch.job-no2,"999")
                          LE cTjob
         AND job-mch.job-no2 GE int(begin_job-no2)
@@ -1779,7 +1779,7 @@ ELSE DO:   /* rsQty = "E" */
      /*IF rd-dest EQ 3 THEN DO:
       lv-out =
           TRIM(STRING(job.close-date,"99/99/99"))                      + "," +
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
+          TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")             + "," +
           TRIM(job-mch.m-code)                                          + "," +
           TRIM(string(eb.form-no))                                     + "," +
           TRIM(ef.board)                                               + "," +

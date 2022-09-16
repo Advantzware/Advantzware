@@ -98,7 +98,7 @@ DEFINE VARIABLE tb_posted AS LOGICAL NO-UNDO.
     IF lv-sort-by EQ "i-no"      THEN oe-rell.i-no                                                                                                      ELSE ~
     IF lv-sort-by EQ "po-no"     THEN oe-rell.po-no                                                                                                     ELSE ~
     IF lv-sort-by EQ "rel-date"  THEN STRING(oe-relh.rel-date)                                                                             ELSE ~
-    IF lv-sort-by EQ "job-no"    THEN STRING(oe-rell.job-no,"x(6)") + STRING(oe-rell.job-no2,"99")                                                      ELSE ~
+    IF lv-sort-by EQ "job-no"    THEN STRING(oe-rell.job-no,"x(9)") + STRING(oe-rell.job-no2,"999")                                                      ELSE ~
                                       STRING(oe-relh.printed)
 
 &SCOPED-DEFINE sortby BY oe-relh.release# BY oe-rell.i-no
@@ -212,15 +212,15 @@ DEFINE VARIABLE fi_i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(6)":U 
+DEFINE VARIABLE fi_job-no AS CHARACTER FORMAT "X(9)":U 
      VIEW-AS FILL-IN 
-     SIZE 10 BY 1
+     SIZE 15 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "99":U INITIAL 0 
+DEFINE VARIABLE fi_job-no2 AS INTEGER FORMAT "999":U INITIAL 0 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 4 BY 1
+     SIZE 5.4 BY 1
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE fi_ord-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
@@ -272,9 +272,9 @@ DEFINE BROWSE Browser-Table
             WIDTH 22 LABEL-BGCOLOR 14
       oe-relh.rel-date COLUMN-LABEL "Release Date" FORMAT "99/99/9999":U
             WIDTH 15 LABEL-BGCOLOR 14
-      oe-rell.job-no COLUMN-LABEL "Job #" FORMAT "x(6)":U WIDTH 9
+      oe-rell.job-no COLUMN-LABEL "Job #" FORMAT "x(9)":U WIDTH 15
             LABEL-BGCOLOR 14
-      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "99":U LABEL-BGCOLOR 14
+      oe-rell.job-no2 COLUMN-LABEL "" FORMAT "999":U LABEL-BGCOLOR 14
       oe-relh.printed FORMAT "Y/N":U LABEL-BGCOLOR 14
   ENABLE
       oe-relh.release#
@@ -301,7 +301,7 @@ DEFINE FRAME F-Main
      fi_i-no AT ROW 2.19 COL 50 COLON-ALIGNED NO-LABEL
      fi_po-no AT ROW 2.19 COL 72 COLON-ALIGNED NO-LABEL
      fi_job-no AT ROW 2.19 COL 94 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COL 106 COLON-ALIGNED
+     fi_job-no2 AT ROW 2.19 COL 110 COLON-ALIGNED
      btn_go AT ROW 3.62 COL 2
      fi_sort-by AT ROW 3.62 COL 70 COLON-ALIGNED NO-LABEL
      btn_prev AT ROW 3.62 COL 17
@@ -432,7 +432,7 @@ use-index r-no"
      _FldNameList[7]   > ASI.oe-relh.rel-date
 "oe-relh.rel-date" "Release Date" ? "date" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-rell.job-no
-"oe-rell.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-rell.job-no" "Job #" ? "character" ? ? ? 14 ? ? yes ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-rell.job-no2
 "oe-rell.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-relh.printed

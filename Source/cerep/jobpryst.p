@@ -274,10 +274,10 @@ EMPTY TEMP-TABLE tt-fgitm.
 
 for each job-hdr NO-LOCK
         where job-hdr.company               eq cocode
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  GE fjob-no
-	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  LE tjob-no
 	  AND job-hdr.job-no2 GE fjob-no2
@@ -1207,27 +1207,6 @@ for each job-hdr NO-LOCK
            RUN BuildExcelDataSheet (67,2,v-dept-inst[17]). 
            RUN BuildExcelDataSheet (68,2,v-dept-inst[18]).                     
            
-         /*            
-         PUT STREAM st2nd UNFORMATTED
-                   "~t       BREAKOUT-JOB#:  " job-hdr.job-no + "-" + string(job-hdr.job-no2,"99") 
-                   "~t~t~t~t~t~t~t~t~t        INK & ROTATION " SKIP
-                   "CUSTOMER PART# ~t DESCRIPTION ~t PP# ~t ORDER QTY: ~t#UP~t#PO# ~t RFQ# ~t SHEET QTY. ~t DELIVERY DATE ~t UNIT 1 ~t UNIT 2 ~t UNIT 3 ~t UNIT 4 ~t UNIT 5 ~t UNIT 6 ~t COATING" SKIP
-                   .
-          */         
-         /*===
-         i = 1.
-         for each wrk-ink /*WHERE wrk-ink.form-no = job-hdr.frm*/
-                break /*by wrk-ink.i-pass*/
-                   BY wrk-ink.i-code
-                      /*BY wrk-ink.blank-no*/: 
-             IF LAST-OF(wrk-ink.i-code) THEN DO:                
-                FIND first ITEM {sys/look/itemivW.i} and item.i-no eq wrk-ink.i-code NO-LOCK NO-ERROR.
-                IF AVAIL ITEM AND ITEM.mat-type = "V" THEN ASSIGN v-ink1[7] = wrk-ink.i-dscr.
-                ELSE IF i < 7 THEN ASSIGN v-ink1[i] = wrk-ink.i-dscr
-                                          i = i + 1.
-             END.             
-         END. /* each wrk-ink */
-         =====*/
          iExcelRowCount = 2.
          FOR EACH tt-fgitm BY tt-fgitm.seq.
              ASSIGN i = 0

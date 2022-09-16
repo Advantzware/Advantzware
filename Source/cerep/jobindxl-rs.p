@@ -399,8 +399,8 @@ PROCEDURE CreateSheets :
 
   FOR  EACH job-hdr NO-LOCK
       WHERE job-hdr.company    = cocode
-        AND TRIM(job-hdr.job-no)    >= TRIM(SUBSTRING(icBegJobNo,1,9))
-        AND TRIM(job-hdr.job-no)    <= TRIM(SUBSTRING(icEndJobNo,1,9))
+        AND job-hdr.job-no    >= SUBSTRING(icBegJobNo,1,iJobLen)
+        AND job-hdr.job-no    <= SUBSTRING(icEndJobNo,1,iJobLen)
         AND job-hdr.job-no2   >= iiBegJobNo2
         AND job-hdr.job-no2   <= iiEndJobNo2
       BREAK
@@ -590,7 +590,7 @@ PROCEDURE DieData :
       RUN SetCellValue ("F" + STRING (viLine + 3), b-prep.received-date)       NO-ERROR.
       RUN SetCellVAlue ("H" + STRING (viLine + 3), b-prep.no-of-impressions)   NO-ERROR.
       RUN SetCellValue ("J" + STRING (viLine + 3), b-prep.last-date)           NO-ERROR. 
-      vcJobNum = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', b-prep.last-job-no, b-prep.last-job-no2)))
+      vcJobNum = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', b-prep.last-job-no, b-prep.last-job-no2))).
       RUN SetCellValue ("M" + STRING (viLIne + 3), vcJobNum)                   NO-ERROR.
   END. /*IF AVAIL b-prep THEN DO:*/
 
@@ -1370,8 +1370,8 @@ PROCEDURE ProcessJobs :
   /* For each jobs within selected range: */
   FOR  EACH job-hdr NO-LOCK
       WHERE job-hdr.company    = cocode
-        AND TRIM(job-hdr.job-no)    >= TRIM(SUBSTRING(icBegJobNo,1,9))
-        AND TRIM(job-hdr.job-no)    <= TRIM(SUBSTRING(icEndJobNo,1,9))
+        AND job-hdr.job-no    >= SUBSTRING(icBegJobNo,1,iJobLen)
+        AND job-hdr.job-no    <= SUBSTRING(icEndJobNo,1,iJobLen)
         AND job-hdr.job-no2   >= iiBegJobNo2
         AND job-hdr.job-no2   <= iiEndJobNo2,
       FIRST eb NO-LOCK

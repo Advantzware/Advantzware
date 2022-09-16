@@ -51,7 +51,7 @@ DEFINE            VARIABLE lv-part-no     AS cha       FORM "x(15)" NO-UNDO.
 DEFINE            VARIABLE v-loop-cnt     AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-note-cnt     AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE v-note-length  AS INTEGER   NO-UNDO.
-DEFINE            VARIABLE v-die-loc      AS cha       FORM "x(15)" NO-UNDO.
+DEFINE            VARIABLE v-die-loc      AS cha       FORM "x(20)" NO-UNDO.
 DEFINE            VARIABLE v-plate-loc    AS CHARACTER FORM "X(8)" NO-UNDO.
 DEFINE            VARIABLE cImagePath     AS CHARACTER FORMAT "x(100)" NO-UNDO.
 
@@ -81,9 +81,6 @@ DEFINE VARIABLE lJobCardPrntScor-Log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
-DEFINE VARIABLE hNotesProc AS HANDLE NO-UNDO.
-
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProc.
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -507,9 +504,9 @@ DO v-local-loop = 1 TO v-local-copies:
              /* "<=CustomerName>" cust.NAME FORMAT "x(30)"*/
               "</B><FGColor=Black>"
               "<=OrderQuantity>"  IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE 0 
-              "<=OrderDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-date) ELSE "" 
+              "<=OrderDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.ord-date) ELSE IF AVAILABLE job THEN STRING(job.create-date) ELSE  ""
               "<FGColor=Blue><B>"
-              "<=OrderDueDate>"   IF AVAILABLE xoe-ord THEN STRING(xoe-ord.due-code) + "  " + STRING(xoe-ord.due-date) ELSE "" FORMAT "x(15)"
+              "<=OrderDueDate>" IF AVAILABLE xoe-ord THEN STRING(xoe-ord.due-code) + "  " + STRING(xoe-ord.due-date) ELSE IF AVAILABLE job THEN STRING(job.due-date) ELSE "" FORMAT "x(15)"
               "</B><FGColor=Black>"
               "<B>"
               "<=Board>" v-form-dscr FORMAT "x(20)" 
@@ -528,9 +525,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" 
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
               "<B>"
-              "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(15)"
+              "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(20)"
               "</B>"
-              "<=DieLocation>" v-die-loc FORMAT "x(10)"
+              "<=DieLocation>" v-die-loc FORMAT "x(15)"
               "<=Impressions>" TRIM(STRING(v-dc-qty))    FORMAT "x(7)"
               "<=GrossWidth>" TRIM(STRING({sys/inc/k16v.i xef.gsh-wid},">>>>9.99")) FORMAT "x(8)"
               "<=GrossLength>" TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>>9.99")) FORMAT "x(8)"
@@ -697,12 +694,12 @@ DO v-local-loop = 1 TO v-local-copies:
            v-dept-note     = "" .
         IF NOT v-dept-log THEN v-dept-codes = "".   
         
-        RUN GetNotesArrayForObject IN hNotesProc (INPUT job.rec_key, "", v-dept-codes, 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).   
+        RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, "", 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).   
                         
         ASSIGN          
         v-spec-note   = "" .
         
-        RUN GetNotesArrayForObject IN hNotesProc (INPUT bf-itemfg.rec_key, "", spec-list, 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
+        RUN Notes_GetNotesArrayForObject (INPUT bf-itemfg.rec_key, "", spec-list, "", 100, NO,0, OUTPUT v-spec-note, OUTPUT opiArraySize).
                 
          PUT  "<=NotesStart><FROM><C108><LINE><|1>"
               "<=NotesStart><C+1><R+1><B>Department Notes</B><#Notes>"
@@ -1081,7 +1078,7 @@ DO v-local-loop = 1 TO v-local-copies:
             ELSE IF AVAILABLE xeb THEN xeb.ship-id
             ELSE IF AVAILABLE xoe-ord THEN xoe-ord.sold-id 
             ELSE "".
-            FIND FIRST tt-prem WHERE TRIM(tt-prem.tt-job-no)  EQ TRIM(job-hdr.job-no)
+            FIND FIRST tt-prem WHERE tt-prem.tt-job-no  EQ job-hdr.job-no
                 AND tt-prem.tt-job-no2  EQ job-hdr.job-no2 NO-LOCK NO-ERROR.
             IF NOT AVAILABLE tt-prem THEN CREATE tt-prem.
         
@@ -1126,9 +1123,6 @@ END.  /* each job */
 END.  /* end v-local-loop  */
  
 HIDE ALL NO-PAUSE.
-
-IF VALID-HANDLE(hNotesProc) THEN  
-  DELETE OBJECT hNotesProc.
 
 PROCEDURE stackImage:
     DEFINE BUFFER pattern      FOR reftable.

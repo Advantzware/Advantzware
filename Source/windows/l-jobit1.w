@@ -25,7 +25,7 @@ def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-val as recid no-undo.
 def var lv-type-dscr as cha no-undo.
-
+{sys/inc/var.i new shared}
 {pc/pcprdd4u.i}
 
 &scoped-define SORTBY-1 BY tt-job-hdr.frm BY tt-job-hdr.blank-no
@@ -207,7 +207,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-job-hdr ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "ASI.job-hdr.company = ip-company and
-TRIM(job-hdr.job-no) = TRIM(ip-job-no) and
+job-hdr.job-no = ip-job-no and
 job-hdr.job-no2 = int(ip-job-no2)"
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -347,7 +347,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
   FRAME dialog-frame:TITLE = TRIM(FRAME dialog-frame:TITLE) + " Job: " +
-                             TRIM(ip-job-no) + "-" + STRING(INT(ip-job-no2),"999").
+                             TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', ip-job-no, ip-job-no2))).
 
   RUN build-table.
 
@@ -364,7 +364,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           
     FOR EACH tt-job-hdr
         WHERE tt-job-hdr.company EQ ip-company
-          AND TRIM(tt-job-hdr.job-no)  EQ TRIM(ip-job-no)
+          AND tt-job-hdr.job-no  EQ ip-job-no
           AND tt-job-hdr.job-no2 EQ INT(ip-job-no2)
           AND STRING(tt-job-hdr.frm,"9999999999")      +
               STRING(tt-job-hdr.blank-no,"9999999999") +
@@ -408,7 +408,7 @@ END.
 
 FOR EACH job
     WHERE job.company EQ ip-company
-      AND TRIM(job.job-no)  EQ TRIM(ip-job-no)
+      AND job.job-no  EQ ip-job-no
       AND job.job-no2 EQ INT(ip-job-no2)
     NO-LOCK:
 

@@ -33,6 +33,7 @@
 def input param ip-company as cha no-undo.
 def input param ip-est-no as cha no-undo.
 def output param op-char-val as cha no-undo.
+{sys/inc/var.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -111,7 +112,7 @@ DEFINE FRAME Dialog-Frame
      SPACE(44.39) SKIP(0.09)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Flute Code Information".
+         TITLE "Estimate Forms".
 
 
 /* *********************** Procedure Settings ************************ */

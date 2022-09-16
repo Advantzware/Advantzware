@@ -51,7 +51,7 @@ DEF VAR is-xprint-form AS LOG NO-UNDO.
 def {1} SHARED var v-print-fmt  as char NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 
-DEF VAR v-ord-no-text AS CHAR FORMAT "x(9)" NO-UNDO.
+DEF VAR v-ord-no-text AS CHAR FORMAT "x(13)" NO-UNDO.
 
 DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.

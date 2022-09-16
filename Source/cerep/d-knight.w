@@ -302,7 +302,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    AND est.est-no  = eb.est-no NO-ERROR.
   FIND FIRST job-hdr WHERE job-hdr.company = cocode
                        AND job-hdr.est-no  = eb.est-no
-                       AND TRIM(job-hdr.job-no)  = TRIM(ip-job-no)
+                       AND job-hdr.job-no  = ip-job-no
                        AND job-hdr.job-no2 = ip-job-no2
                        AND job-hdr.frm     = asi.eb.form-no
                        AND job-hdr.blank-no = asi.eb.blank-no NO-LOCK NO-ERROR. 

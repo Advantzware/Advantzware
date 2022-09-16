@@ -28,6 +28,7 @@
 /* Parameters Definitions ---                                           */
 DEFINE INPUT PARAMETER  ip-type       AS CHAR NO-UNDO.
 DEFINE OUTPUT PARAMETER op-char-val   AS CHAR NO-UNDO.
+{sys/inc/var.i}
 
 /* Local Variable Definitions ---                                       */
 DEF VAR vi AS INT NO-UNDO INIT 0.

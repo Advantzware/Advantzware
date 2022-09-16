@@ -1358,9 +1358,9 @@ ASSIGN
       WHERE mch-act.company EQ cocode
         AND mch-act.m-code  GE begin_mach
         AND mch-act.m-code  LE end_mach         
-        AND FILL(" ",9 - LENGTH(TRIM(mch-act.job-no))) +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no))) +
               TRIM(mch-act.job-no) + STRING(INT(mch-act.job-no2),"999") GE begin_job-no
-        AND FILL(" ",9 - LENGTH(TRIM(mch-act.job-no)))   +
+        AND FILL(" ", iJobLen - LENGTH(TRIM(mch-act.job-no)))   +
               TRIM(mch-act.job-no) + STRING(INT(mch-act.job-no2),"999") LE END_job-no
         AND mch-act.job-no2 GE int(begin_job-no2)
         AND mch-act.job-no2 LE int(end_job-no2)      

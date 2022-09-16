@@ -100,7 +100,7 @@ END.
           AND {system/brMatches.i  job-hdr.cust-no fi_cust-no}   ~
           AND {system/brMatches.i  job-hdr.i-no fi_i-no}   ~
           AND job-hdr.est-no    BEGINS fi_est-no    ~
-          AND fill(" ",9 - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) BEGINS fi_job-no    ~
+          AND FILL(" ", iJobLen - length(TRIM(job-hdr.job-no))) + trim(job-hdr.job-no) BEGINS fi_job-no    ~
           AND (job-hdr.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "") ~
           AND (job-hdr.due-date GE fiBeginDate OR fiBeginDate EQ ?) ~
           AND (job-hdr.due-date LE fiEndDate OR fiEndDate EQ ?)
@@ -762,7 +762,7 @@ DO:
          ELSE do:
              FIND FIRST bf-job-hdr NO-LOCK WHERE bf-job-hdr.company = cocode 
                  AND (bf-job-hdr.cust-no BEGINS fi_cust-no OR fi_cust-no = "")
-                 AND (trim(bf-job-hdr.job-no) BEGINS trim(fi_job-no) OR fi_job-no = "")
+                 AND (bf-job-hdr.job-no BEGINS fi_job-no OR fi_job-no = "")
                  AND (bf-job-hdr.i-no BEGINS fi_i-no OR fi_i-no = "")
                  AND (bf-job-hdr.est-no BEGINS fi_est-no OR fi_est-no = "")
                  AND (bf-job-hdr.ord-no = fi_ord-no OR fi_ord-no = 0)  NO-ERROR. 

@@ -1,7 +1,7 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME wWin
-
+{adecomm/appserv.i}
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wWin 
 /*------------------------------------------------------------------------
 
@@ -54,6 +54,7 @@ DEF VAR lWarned AS LOG NO-UNDO.
 DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO .
 {src/adm2/widgetprto.i}
+{util/ttPurge.i NEW}
 
 ASSIGN
     cocode = g_company
@@ -71,8 +72,6 @@ ASSIGN
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-CONTAINER WINDOW
-
-&Scoped-define ADM-SUPPORTED-LINKS Data-Target,Data-Source,Page-Target,Update-Source,Update-Target,Filter-target,Filter-Source
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME fMain
@@ -138,12 +137,12 @@ DEFINE VARIABLE fiAnalyzingYear AS INTEGER FORMAT "9999":U INITIAL 0
      SIZE 8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiEndPeriod AS INTEGER FORMAT ">9":U INITIAL 0 
-     LABEL "Period" 
+     LABEL "From Period 1 through Period" 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiEndYear AS INTEGER FORMAT "9999":U INITIAL 0 
-     LABEL "Consolidate/Purge GL Records Through...Year" 
+     LABEL "Consolidate/Purge GL Records in Year" 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1 NO-UNDO.
 
@@ -162,7 +161,7 @@ DEFINE VARIABLE fiOutputDir AS CHARACTER FORMAT "X(256)":U
 DEFINE FRAME fMain
      bExit AT ROW 1.95 COL 116
      fiEndYear AT ROW 1.71 COL 48 COLON-ALIGNED
-     fiEndPeriod AT ROW 1.71 COL 66 COLON-ALIGNED
+     fiEndPeriod AT ROW 1.71 COL 87 COLON-ALIGNED
      fiOutputDir AT ROW 3.14 COL 48 COLON-ALIGNED
      fiAnalyzingYear AT ROW 4.57 COL 48 COLON-ALIGNED NO-TAB-STOP 
      fiAnalyzingPeriod AT ROW 4.57 COL 66 COLON-ALIGNED NO-TAB-STOP 
@@ -184,7 +183,6 @@ DEFINE FRAME fMain
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Container Links: Data-Target,Data-Source,Page-Target,Update-Source,Update-Target,Filter-target,Filter-Source
    Other Settings: APPSERVER
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -202,14 +200,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 148
          VIRTUAL-HEIGHT     = 28.81
          VIRTUAL-WIDTH      = 148
-         RESIZE             = NO
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -255,7 +253,7 @@ ASSIGN
        fiInstructionsLabel:READ-ONLY IN FRAME fMain        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
-THEN wWin:HIDDEN = YES.
+THEN wWin:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -456,7 +454,7 @@ END.
 
 &Scoped-define SELF-NAME fiEndPeriod
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndPeriod wWin
-ON LEAVE OF fiEndPeriod IN FRAME fMain /* Period */
+ON LEAVE OF fiEndPeriod IN FRAME fMain /* From Period 1 through Period */
 DO:
     IF INTEGER(SELF:SCREEN-VALUE) LT 1
     OR INTEGER(SELF:SCREEN-VALUE) GT company.num-per THEN DO:
@@ -473,7 +471,7 @@ END.
 
 &Scoped-define SELF-NAME fiEndYear
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndYear wWin
-ON LEAVE OF fiEndYear IN FRAME fMain /* Consolidate/Purge GL Records Through...Year */
+ON LEAVE OF fiEndYear IN FRAME fMain /* Consolidate/Purge GL Records in Year */
 DO:     
     IF LASTKEY = 617 THEN RETURN.  /* User pressed Exit button */
     RUN valid-year(OUTPUT lReturnError) NO-ERROR.
@@ -565,7 +563,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     ASSIGN 
         eInstructions:SCREEN-VALUE IN FRAME {&frame-name} = 
-            "This function will review GL transactions from the earliest record through the Year/Period specified above, and allows " +
+            "This function will review GL transactions in the Year/Period specified above, and allows " +
             "the user to created 'consolidated' records (one per year/period/account) for these transactions." + CHR(10) + CHR(10) +
             "When 'TEST' is selected, the program will generate a list of records to be consolidated, as well as the proposed " +
             "consolidated entries.  This list, as a .CSV file, can be found in the directory specified below." + CHR(10) + CHR(10) +
@@ -675,13 +673,26 @@ PROCEDURE valid-year :
   
     {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:        
-        IF INTEGER(fiEndYear:SCREEN-VALUE) GT (YEAR(TODAY) - 7) THEN DO:         
-            MESSAGE 
-                "Advantzware requires the last 7 years for prior period comparison purposes. Process not allowed.."
-                VIEW-AS ALERT-BOX .
-            IF USERID("ASI") NE "ASI" THEN DO:
+        IF INTEGER(fiEndYear:SCREEN-VALUE) GT (YEAR(TODAY) - 7) THEN DO:   
+            FIND FIRST users NO-LOCK WHERE 
+                users.user_id EQ USERID("ASI")
+                NO-ERROR.       
+            IF NOT AVAIL users 
+            OR users.securityLevel LT 900 THEN DO:
+                MESSAGE 
+                    "Advantzware requires the last 7 years for prior period comparison purposes. Process not allowed.."
+                    VIEW-AS ALERT-BOX .
                 oplReturn = YES.
                 APPLY "entry" TO fiEndYear.
+            END.
+            ELSE DO:
+                MESSAGE 
+                    "Warning: Deleting/consolidating GL history records less than 7 years old is NOT recommended. Are you sure?"
+                    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue2 AS LOG.
+                IF NOT lContinue2 THEN DO:
+                    oplReturn = YES.
+                    APPLY 'entry' TO fiEndYear.
+                END.
             END.
         END. 
     END. 

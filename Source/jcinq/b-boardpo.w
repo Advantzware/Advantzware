@@ -325,7 +325,7 @@ PROCEDURE build-po-table :
 
    FOR EACH po-ordl FIELDS(po-no i-no s-num b-num ord-qty pr-qty-uom) WHERE
        po-ordl.company EQ cocode AND
-       trim(po-ordl.job-no) EQ trim(ip-job-no) AND
+       po-ordl.job-no  EQ ip-job-no AND
        po-ordl.job-no2 EQ ip-job-no2
        NO-LOCK:
 
@@ -362,7 +362,7 @@ PROCEDURE build-set-table :
 
   FIND FIRST job WHERE
        job.company EQ cocode AND
-       trim(job.job-no) EQ trim(ip-job-no) AND
+       job.job-no  EQ ip-job-no AND
        job.job-no2 EQ ip-job-no2
        NO-LOCK NO-ERROR.
 
@@ -396,7 +396,7 @@ PROCEDURE build-set-table :
       job-mat-loop:
       FOR EACH job-mat FIELDS(i-no job-no job-no2 frm blank-no) WHERE
           job-mat.company EQ cocode AND
-          trim(job-mat.job-no) EQ trim(ip-job-no) AND
+          job-mat.job-no  EQ ip-job-no AND
           job-mat.job-no2 EQ ip-job-no2 AND
           job-mat.frm EQ eb.form-no
           NO-LOCK,
@@ -526,7 +526,7 @@ FUNCTION poNum RETURNS INTEGER
    main-loop:
    FOR EACH job-mat FIELDS(i-no job-no job-no2 frm blank-no) WHERE
        job-mat.company EQ cocode AND
-       trim(job-mat.job-no) EQ trim(ip-job-no) AND
+       job-mat.job-no  EQ ip-job-no AND
        job-mat.job-no2 EQ ip-job-no2 AND
        job-mat.frm EQ eb.form-no AND
        (job-mat.blank-no EQ eb.blank-no OR

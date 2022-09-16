@@ -37,6 +37,8 @@ def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output parameter op-city-val as cha no-undo.
 def output parameter op-state-val as cha no-undo.
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
+
 /*&scoped-define SORTBY-1 BY zipcode.zipcode
 &scoped-define SORTBY-2 BY zipcode.city */
 &scoped-define fld-name-1 zipcode.zipcode

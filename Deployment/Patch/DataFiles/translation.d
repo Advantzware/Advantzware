@@ -86,6 +86,7 @@
 "Sequence" "Sequence" "Secuencia" "Séquence" "" "" "" "" "" "" "" "0914201802399734"
 "Session Information" "Session Information" "Información de la sesión" "Informations sur la session" "" "" "" "" "" "" "" "0914201802399735"
 "Set Time" "Set Time" "Fije la Hora" "Régler l'heure" "" "" "" "" "" "" "" "0914201802399736"
+"Sharp Shooter" "Sharp Shooter" "Tirador Agudo" "Tireur Pointu" "" "" "" "" "" "" "" "202204260669309195929"
 "Shift" "Shift" "Turno" "Maj" "" "" "" "" "" "" "" "0914201802399737"
 "Sort" "Sort" "Clase" "Sorte" "" "" "" "" "" "" "" "0914201802399738"
 "Sort / Job" "Sort / Job" "Trabajo de la Clase" "Trier/travail" "" "" "" "" "" "" "" "0914201802399739"

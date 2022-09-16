@@ -39,7 +39,13 @@ IF  VALID-HANDLE({&WINDOW-NAME}) AND
                         bf-userWindow.winYpos   = {&WINDOW-NAME}:Y           
                         bf-userWindow.sessionWidth  = SESSION:WIDTH-PIXELS
                         bf-userWindow.sessionHeight = SESSION:HEIGHT-PIXELS
-                    . 
+                    .
+                
+                IF bf-userWindow.winXpos LT 1 THEN
+                    bf-userWindow.winXpos = 1.
+                
+                IF bf-userWindow.winYpos LT 1 THEN
+                    bf-userWindow.winYpos = 1.
             // If window size is changes and it is not maximized then dave the window state as custom             
                 IF (deOrigWinWidth  NE {&WINDOW-NAME}:WIDTH OR
                     deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT)  AND
@@ -62,6 +68,12 @@ IF  VALID-HANDLE({&WINDOW-NAME}) AND
                 bf-userWindow.winXpos       = {&WINDOW-NAME}:X
                 bf-userWindow.winYpos       = {&WINDOW-NAME}:Y  
                 .
+
+            IF bf-userWindow.winXpos LT 1 THEN
+                bf-userWindow.winXpos = 1.
+            
+            IF bf-userWindow.winYpos LT 1 THEN
+                bf-userWindow.winYpos = 1.                
        // If window size is changes and it is not maximized then dave the window state as custom         
                 IF (deOrigWinWidth  NE {&WINDOW-NAME}:WIDTH OR
                     deOrigWinHeight NE {&WINDOW-NAME}:HEIGHT)  AND

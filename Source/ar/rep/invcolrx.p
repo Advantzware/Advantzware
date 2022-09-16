@@ -96,20 +96,12 @@ DEF VAR v-notes-line AS INT NO-UNDO.
 DEF VAR v-inv-total AS DEC NO-UNDO.
 
 /* === with xprint ====*/
-DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-image2 AS cha NO-UNDO.
-
-DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
-
-ASSIGN ls-image1 = "images\CCC.jpg"
-       ls-image2 = "".
-
-FILE-INFO:FILE-NAME = ls-image1.
-ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-
-FILE-INFO:FILE-NAME = ls-image2.
-ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
+DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE cLocation    AS CHARACTER               NO-UNDO.
+DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
+DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -142,6 +134,7 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
 
       FIND FIRST cust WHERE cust.company = ar-inv.company
                         AND cust.cust-no = ar-inv.cust-no NO-LOCK NO-ERROR.
+      
       IF ar-inv.sold-name <> "" THEN
         assign v-shipto-code = STRING(ar-inv.ship-id)
                v-shipto-name = ar-inv.sold-name
@@ -242,27 +235,18 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                               ar-invl.qty, 2) * ar-invl.inv-qty).
          v-tot-pallets = 0.
          v-pc = "C". /* complete*/
-         /*
-         FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no 
-             /*oe-bolh.ord-no = ar-invl.ord-no*/ :
-           v-pc = "P". /* partial*/ 
+         
+         FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = ar-invl.b-no: 
            FOR EACH oe-boll NO-LOCK WHERE oe-boll.company = oe-bolh.company AND
               oe-boll.b-no = oe-bolh.b-no AND
               oe-boll.i-no = ar-invl.i-no AND
-              oe-boll.ord-no = ar-invl.ord-no:
+              oe-boll.ord-no = ar-invl.ord-no :
 
-                                      /** Bill Of Lading TOTAL CASES **/
-              ASSIGN v-bol-cases = v-bol-cases + oe-boll.cases
-                     v-tot-pallets = v-tot-pallets + oe-boll.cases +
-                                     (if oe-boll.partial gt 0 then 1 else 0).
-              IF oe-boll.p-c THEN v-pc = "C". /*complete*/
+              ASSIGN cLocation = oe-boll.loc .
               
            END. /* each oe-boll */
-           assign v-date-ship = oe-bolh.bol-date
-                 /* v-tot-pallets = v-tot-pallets + v-bol-cases +
-                                  (if oe-boll.partial gt 0 then 1 else 0) */.
          END. /* each oe-bolh */
-         */
+         
          
 
          if last-of(ar-invl.i-no) then do:
@@ -397,6 +381,14 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
                   lv-bol-no = ar-invl.bol-no.
                   .
         END.
+      
+        RUN FileSys_GetBusinessFormLogo(cocode, ar-inv.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+
+            IF NOT lValid THEN
+            DO:
+                 MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+            END.
+                 ASSIGN ls-full-img1 = cRtnChar + ">" .
 
  {ar/rep/invcolrx.i}  /* xprint form */
 
@@ -712,7 +704,10 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
         "<=8><R+4> Total Invoice:" v-inv-total FORM "->>,>>9.99" . /* ar-inv.gross*/
 
 
-    PUT "<FArial><R58><C1><#9><P12><B> THANK YOU. </B> <P9> " SKIP
+    PUT "<FArial><R58><C1><#9><P12><B> THANK YOU. </B> <P9> " SKIP(1)
+        "  Certificate Registration Code: SCS-COC-004377-CH FSC"  SKIP
+        "  Trademark License Number FSC-C113126"     SKIP
+        "  FSC Recycled Credit" SKIP
    /*      "  Your business is greatly appreciated! Thank You!"SKIP
          "  Please pay by invoice - no statements are issued." SKIP
          "  24% per annum interest charge on overdue accounts. " SKIP

@@ -67,6 +67,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "M Code,Job#,##,Shift,MR Std,MR Act,MR Eff%," + 
@@ -516,6 +519,8 @@ ON END-ERROR OF C-Win /* Productivity By Department (D-R-3) */
 ON WINDOW-CLOSE OF C-Win /* Productivity By Department (D-R-3) */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        IF VALID-HANDLE(hdOutputProcs) THEN  
+            DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.

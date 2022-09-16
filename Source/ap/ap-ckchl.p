@@ -130,7 +130,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
               v-vend-name                               at 6
               ap-chk.check-date                         at 44
               "Check #:"                                at 63
-              trim(string(ap-chk.check-no,">>>>>>"))    format "x(6)"
+              trim(string(ap-chk.check-no,">>>>>>>>"))    format "x(8)"
               skip(1)
 
           with no-labels stream-io no-box frame xyz.

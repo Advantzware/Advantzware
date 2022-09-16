@@ -30,6 +30,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+
 &if defined(uib_is_running) <> 0 &then
 def var ip-company like itemfg.company init "001" no-undo.
 def var ip-loc like itemfg.loc init "main" no-undo .
@@ -43,6 +44,8 @@ def input parameter ip-cust-no like cust.cust-no no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 &endif
+{sys/inc/var.i}
+
 def var lv-type-dscr as cha no-undo.
 
 &scoped-define SORTBY-1 BY shipto.ship-id

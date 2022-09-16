@@ -39,9 +39,10 @@ DEFINE VARIABLE li AS INTEGER NO-UNDO.
 {est/d-selblk.i NEW}
 {sys/inc/ceprepprice.i}
 
-DEFINE VARIABLE lv-item-recid   AS RECID   NO-UNDO.
-DEFINE VARIABLE ll-order-warned AS LOGICAL NO-UNDO.
-DEFINE VARIABLE ll-new-record   AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lv-item-recid      AS RECID   NO-UNDO.
+DEFINE VARIABLE ll-order-warned    AS LOGICAL NO-UNDO.
+DEFINE VARIABLE ll-new-record      AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lNumberOutOverride AS LOGICAL NO-UNDO.
 
 DEFINE NEW SHARED BUFFER xest    FOR est.
 DEFINE NEW SHARED BUFFER xef     FOR ef.
@@ -628,6 +629,16 @@ DO:
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out Dialog-Frame
+ON VALUE-CHANGED OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
+DO:
+    lNumberOutOverride = YES.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME est-op.b-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num Dialog-Frame
 ON ENTRY OF est-op.b-num IN FRAME Dialog-Frame /* Blank# */
@@ -746,6 +757,7 @@ DO:
 
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+            lNumberOutOverride = NO.
 
             RUN valid-op-pass NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -785,15 +797,22 @@ DO:
             AND xef.est-no  EQ est-op.est-no
             AND xef.form-no EQ est-op.s-num
             NO-LOCK NO-ERROR.
+            
+        IF NOT AVAILABLE xef AND xest.est-type EQ 6 THEN
+        FIND FIRST xef NO-LOCK
+            WHERE xef.company EQ est-op.company
+            AND xef.est-no  EQ est-op.est-no
+            AND xef.form-no EQ 1
+            NO-ERROR.
 
         RELEASE xeb.
-        IF AVAILABLE xef THEN
-            FIND FIRST xeb
-                WHERE xeb.company   EQ xef.company
-                AND xeb.est-no    EQ xef.est-no
-                AND xeb.form-no   EQ xef.form-no
-                AND (xeb.blank-no EQ est-op.b-num OR est-op.b-num EQ 0)
-                NO-LOCK NO-ERROR.
+        
+        FIND FIRST xeb NO-LOCK
+            WHERE xeb.company   EQ est-op.company
+            AND xeb.est-no    EQ est-op.est-no
+            AND xeb.form-no   EQ est-op.s-num
+            AND (xeb.blank-no EQ est-op.b-num OR est-op.b-num EQ 0)
+            NO-ERROR.  
 
         ASSIGN
             est-op.d-seq  = mach.d-seq
@@ -897,7 +916,7 @@ DO:
 
         END.
 
-        IF NOT xef.op-lock AND NOT ll-foam THEN 
+        IF AVAILABLE xef AND NOT xef.op-lock AND NOT ll-foam THEN 
         DO:
             v-outw = xef.n-out.    
             IF v-outw GT 1 THEN
@@ -952,7 +971,8 @@ DO:
             NO-LOCK:
             RUN set-lock (ef.form-no, NOT ll-import-selected).
         END.
-
+        
+        IF AVAILABLE xef THEN
         RUN cec/mach-rek.p (IF ll-import-all THEN ? ELSE ROWID(est-op)).
 
         FOR EACH ef 
@@ -1008,12 +1028,13 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code Dialog-Frame
 ON ENTRY OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
 DO:
-        IF v-estopmch-log = NO AND v-override-mode THEN
-        DO:
-            APPLY "tab" TO est-op.m-code .
-            RETURN NO-APPLY.
-        END.
+    SELF:MODIFIED = NO.
+    IF v-estopmch-log = NO AND v-override-mode THEN
+    DO:
+        APPLY "tab" TO est-op.m-code .
+        RETURN NO-APPLY.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1022,39 +1043,41 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code Dialog-Frame
 ON LEAVE OF est-op.m-code IN FRAME Dialog-Frame /* Machine */
 DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
+    IF LASTKEY NE -1 THEN 
+    DO:
+        IF SELF:MODIFIED THEN DO:
             RUN valid-mach NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+        END. // self modified
 
-            FIND FIRST mach NO-LOCK
-                {sys/look/machW.i}
-                AND mach.m-code EQ {&self-name}:SCREEN-VALUE 
-                NO-ERROR.
-            IF AVAILABLE MACH THEN DO:
-                ASSIGN
-                    {&SELF-NAME}:SCREEN-VALUE  = CAPS(mach.m-code)
-                    est-op.m-dscr:SCREEN-VALUE = mach.m-dscr
-                    lv-dept                    = mach.dept[1]
-                    .    
-                IF mach.p-type EQ "B" AND
-                    INT(est-op.b-num:SCREEN-VALUE ) EQ 0 THEN
-                    est-op.b-num:SCREEN-VALUE  = "1".
-    
-                IF mach.p-type NE "B" AND NOT LOOKUP(mach.p-type, "P,A") GT 0 THEN
-                    est-op.b-num:SCREEN-VALUE  = "0".
-            END.            
-            
-            IF ll-import-stds AND NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
-            DO:
-                IF lv-dept EQ "PR" THEN
-                    APPLY "entry" TO est-op.plates .
-                ELSE
-                    APPLY "entry" TO est-op.att-type[1] .
-                RETURN NO-APPLY.
-            END.
+        FIND FIRST mach NO-LOCK
+            {sys/look/machW.i}
+            AND mach.m-code EQ SELF:SCREEN-VALUE 
+            NO-ERROR.
+        IF AVAILABLE MACH THEN DO:
+            ASSIGN
+                SELF:SCREEN-VALUE          = CAPS(mach.m-code)
+                est-op.m-dscr:SCREEN-VALUE = mach.m-dscr
+                lv-dept                    = mach.dept[1]
+                .    
+            IF mach.p-type EQ "B" AND
+                INT(est-op.b-num:SCREEN-VALUE ) EQ 0 THEN
+                est-op.b-num:SCREEN-VALUE  = "1".
+
+            IF mach.p-type NE "B" AND NOT LOOKUP(mach.p-type, "P,A") GT 0 THEN
+                est-op.b-num:SCREEN-VALUE  = "0".
+        END.            
+        
+        IF ll-import-stds AND NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
+        DO:
+            IF lv-dept EQ "PR" THEN
+                APPLY "entry" TO est-op.plates .
+            ELSE
+                APPLY "entry" TO est-op.att-type[1] .
+            RETURN NO-APPLY.
         END.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1094,21 +1117,22 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out Dialog-Frame
 ON LEAVE OF est-op.n-out IN FRAME Dialog-Frame /* Out. */
 DO:
-        IF LASTKEY NE -1 THEN 
-        DO:
-            RUN valid-mach NO-ERROR.
-            IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF LASTKEY NE -1 THEN 
+    DO:
+        lNumberOutOverride = SELF:MODIFIED.
+        RUN valid-mach NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-            IF ll-import-stds AND CAN-DO(lv-n-out-depts,lv-dept) THEN 
-            DO:
-                IF lv-dept EQ "PR" THEN
-                    APPLY "entry" TO est-op.plates .
-                ELSE
-                    APPLY "entry" TO est-op.att-type[1] .
-                RETURN NO-APPLY.
-            END.
+        IF ll-import-stds AND CAN-DO(lv-n-out-depts,lv-dept) THEN 
+        DO:
+            IF lv-dept EQ "PR" THEN
+                APPLY "entry" TO est-op.plates .
+            ELSE
+                APPLY "entry" TO est-op.att-type[1] .
+            RETURN NO-APPLY.
         END.
     END.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1402,7 +1426,7 @@ PROCEDURE display-item :
     IF AVAILABLE est-op  THEN 
     DO:
         
-        DISPLAY est-op.s-num est-op.b-num 
+        DISPLAY est-op.s-num est-op.b-num est-op.isLocked
             est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr 
             est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] 
             est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.plates 
@@ -1942,7 +1966,7 @@ PROCEDURE valid-mach :
         FIND FIRST xeb
             WHERE xeb.company EQ est.company
             AND xeb.est-no  EQ est.est-no
-            AND xeb.form-no EQ xef.form-no
+            AND xeb.form-no EQ int(est-op.s-num:screen-value )
             AND (xeb.blank-no EQ int(est-op.b-num:screen-value ) OR
             int(est-op.b-num:screen-value ) EQ 0)
             NO-LOCK NO-ERROR.
@@ -1953,8 +1977,7 @@ PROCEDURE valid-mach :
                 est-op.n-out:SCREEN-VALUE  =
                     IF lv-dept EQ "RC" THEN STRING(xef.n-out) ELSE STRING(xef.n-out-l).  */            
 
-
-        IF AVAILABLE xef AND (adm-adding-record OR INTEGER(est-op.n-out:SCREEN-VALUE ) EQ 0) THEN
+        IF AVAILABLE xef AND NOT lNumberOutOverride THEN
         DO:
             RUN Operations_GetNumout IN hdOpProcs ( INPUT xef.company,
                 INPUT xef.est-no,
@@ -1979,7 +2002,7 @@ PROCEDURE valid-mach :
 
         v-on-f = int(est-op.n-out:screen-value ).
 
-        IF v-on-f NE 0 OR NOT CAN-DO(lv-n-out-depts,lv-dept) THEN 
+        IF AVAILABLE xef AND (v-on-f NE 0 OR NOT CAN-DO(lv-n-out-depts,lv-dept)) THEN 
         DO:
             IF xef.lam-dscr EQ "R"                         /*or
          (xef.lam-dscr ne "R" and xef.xgrain eq "S")*/ THEN
@@ -2312,18 +2335,20 @@ PROCEDURE valid-s-num :
       Notes:       
     ------------------------------------------------------------------------------*/
   
-    DO WITH FRAME {&frame-name}:
-        IF NOT CAN-FIND(FIRST ef
-            WHERE ef.company EQ est.company
-            AND ef.est-no  EQ est.est-no
-            AND ef.form-no EQ int(est-op.s-num:screen-value ))
-            THEN 
-        DO:
+    DO WITH FRAME {&frame-name}:                                       
+        IF NOT CAN-FIND(FIRST ef                                       
+            WHERE ef.company EQ est.company                            
+            AND ef.est-no  EQ est.est-no                               
+            AND (ef.form-no EQ int(est-op.s-num:SCREEN-VALUE)
+                OR (est.est-type EQ 6 AND INT(est-op.s-num:screen-value) EQ 0)
+                ))         
+            THEN                                                       
+        DO:                                                            
             MESSAGE "Must enter a valid Form#" VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO est-op.s-num .
-            RETURN ERROR.
-        END.
-    END.
+            APPLY "entry" TO est-op.s-num .                            
+            RETURN ERROR.                                              
+        END.                                                           
+    END.                                                               
   
 END PROCEDURE.
 

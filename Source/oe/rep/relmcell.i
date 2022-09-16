@@ -56,7 +56,7 @@ DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
 
-format w-oe-rell.ord-no                 to 6    FORMAT ">>>>>>>9"
+format w-oe-rell.ord-no                 to 8    FORMAT ">>>>>>>9"
        w-par                            AT 10    FORMAT "x(30)" "</B>"
        v-bin                            AT 47   format "x(23)" 
        w-x                              AT 70   format "X/"
@@ -186,8 +186,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
           where oe-ord.company eq xoe-rell.company
             and oe-ord.ord-no  eq xoe-rell.ord-no
           no-lock:
-
-        case oe-ord.frt-pay:
+        v-frt-terms = IF xoe-rell.frt-pay NE "" THEN xoe-rell.frt-pay ELSE oe-ord.frt-pay.
+        case v-frt-terms:
              when "P" THEN v-frt-terms = "Prepaid".
              when "C" THEN v-frt-terms = "Collect".
              when "B" THEN v-frt-terms = "Bill".

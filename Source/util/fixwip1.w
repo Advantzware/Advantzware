@@ -81,7 +81,7 @@ mch-act.qty mch-act.waste job-mch.n-on job-mch.n-out
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table job-mch
 &Scoped-define QUERY-STRING-br_table FOR EACH job WHERE ~{&KEY-PHRASE} ~
       AND job.company = cocode ~
- AND trim(job.job-no) = trim(begin_job-no) ~
+ AND job.job-no = begin_job-no ~
  AND job.job-no2 = int(begin_job-no2) NO-LOCK, ~
       EACH mch-act WHERE mch-act.company = job.company ~
   AND mch-act.job = job.job ~
@@ -98,7 +98,7 @@ mch-act.qty mch-act.waste job-mch.n-on job-mch.n-out
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH job WHERE ~{&KEY-PHRASE} ~
       AND job.company = cocode ~
- AND trim(job.job-no) = trim(begin_job-no) ~
+ AND job.job-no = begin_job-no ~
  AND job.job-no2 = int(begin_job-no2) NO-LOCK, ~
       EACH mch-act WHERE mch-act.company = job.company ~
   AND mch-act.job = job.job ~
@@ -321,8 +321,8 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ",, FIRST"
      _Where[1]         = "asi.job.company = cocode
- AND trim(asi.job.job-no) = trim(begin_job-no)
- AND asi.job.job-no2 = int(begin_job-no2)"
+ AND asi.job.job-no    = begin_job-no
+ AND asi.job.job-no2   = int(begin_job-no2)"
      _JoinCode[2]      = "asi.mch-act.company = asi.job.company
   AND asi.mch-act.job = asi.job.job
   AND asi.mch-act.job-no = asi.job.job-no
@@ -515,7 +515,7 @@ PROCEDURE get-job :
 
     FIND FIRST job NO-LOCK
         WHERE job.company EQ cocode
-          AND trim(job.job-no)  EQ trim(begin_job-no)
+          AND job.job-no  EQ begin_job-no
           AND job.job-no2 EQ INT(begin_job-no2)
           AND CAN-FIND(FIRST mch-act
                        WHERE mch-act.company EQ job.company
@@ -585,7 +585,7 @@ PROCEDURE local-open-query :
   /* Code placed here will execute PRIOR to standard behavior. */
   FOR EACH job NO-LOCK
       WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(begin_job-no)
+        AND job.job-no  EQ begin_job-no
         AND job.job-no2 EQ INT(begin_job-no2),
 
       EACH mch-act NO-LOCK

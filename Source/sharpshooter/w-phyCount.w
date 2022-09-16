@@ -507,9 +507,9 @@ DO:
             
             RETURN.
         END.
-        
-        RUN pCreateCounts.
     END.
+
+    RUN pCreateCounts.
     
     RUN Reset.    
 END.
@@ -845,21 +845,6 @@ PROCEDURE enable_UI :
       WITH FRAME F-Main IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-F-Main}
   VIEW W-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GetDesignConfig W-Win 
-PROCEDURE GetDesignConfig :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER opoDesignConfig AS system.Config NO-UNDO.
-    
-    opoDesignConfig = system.ConfigLoader:Instance:GetConfig("SSLoadTagJobDesign").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

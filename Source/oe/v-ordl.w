@@ -1383,7 +1383,7 @@ PROCEDURE create-release :
                                 oe-rel.ship-i[2] = shipto.notes[2]
                                 oe-rel.ship-i[3] = shipto.notes[3]
                                oe-rel.ship-i[4] = shipto.notes[4].
-             RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+             RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
              /* if add mode then use default carrier */
           /*   if sel = 3 /* and NOT oe-rel.carrier ENTERED */ then do: */
             find first sys-ctrl where sys-ctrl.company eq cocode
@@ -1431,7 +1431,7 @@ PROCEDURE create-release :
                          oe-rel.ship-i[2] = shipto.notes[2]
                          oe-rel.ship-i[3] = shipto.notes[3]
                          oe-rel.ship-i[4] = shipto.notes[4].
-                RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+                RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
                if adm-new-record /* and NOT oe-rel.carrier ENTERED */ then do:
                   find first sys-ctrl where sys-ctrl.company eq cocode
@@ -1473,7 +1473,7 @@ PROCEDURE create-release :
                        oe-rel.ship-i[2] = shipto.notes[2]
                        oe-rel.ship-i[3] = shipto.notes[3]
                        oe-rel.ship-i[4] = shipto.notes[4].
-               RUN CopyShipNote (shipto.rec_key, oe-rel.rec_key).
+               RUN pCopyShipNote (shipto.rec_key, oe-rel.rec_key).
                /* if add mode then use default carrier */
            if adm-new-record then do:                
                  find first sys-ctrl where sys-ctrl.company eq cocode
@@ -1596,16 +1596,18 @@ DO:
 END.
 
 if avail xeb then do:
-    assign itemfg.die-no     = xeb.die-no
-           itemfg.plate-no   = xeb.plate-no
-           itemfg.style      = xeb.style
-           itemfg.procat     = xeb.procat
-           itemfg.cad-no     = xeb.cad-no
-           itemfg.upc-no     = xeb.upc-no
-           itemfg.spc-no     = xeb.spc-no
-           itemfg.isaset     = xeb.form-no eq 0
-           itemfg.pur-man    = xeb.pur-man      
-           itemfg.alloc      = NOT xeb.set-is-assembled.
+    assign itemfg.die-no            = xeb.die-no
+           itemfg.plate-no          = xeb.plate-no
+           itemfg.style             = xeb.style
+           itemfg.procat            = xeb.procat
+           itemfg.cad-no            = xeb.cad-no
+           itemfg.upc-no            = xeb.upc-no
+           itemfg.spc-no            = xeb.spc-no
+           itemfg.isaset            = xeb.form-no eq 0
+           itemfg.pur-man           = xeb.pur-man      
+           itemfg.alloc             = NOT xeb.set-is-assembled
+           itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+           .
 
     {oe/fgfreighta.i xeb}
 
@@ -2481,8 +2483,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CopyShipNote d-oeitem
-PROCEDURE CopyShipNote PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem
+PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
  Notes:
@@ -2490,12 +2492,7 @@ PROCEDURE CopyShipNote PRIVATE:
 DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
 
-DEFINE VARIABLE hNotesProcs AS HANDLE NO-UNDO.
-RUN "sys/NotesProcs.p" PERSISTENT SET hNotesProcs.  
-
-RUN CopyShipNote IN hNotesProcs (ipcRecKeyFrom, ipcRecKeyTo).
-
-DELETE OBJECT hNotesProcs.   
+RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
     

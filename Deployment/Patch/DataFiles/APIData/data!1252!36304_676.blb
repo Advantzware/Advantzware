@@ -1,0 +1,17 @@
+{
+    "rec_key" : "$Rec_key$",
+    "estCostCategoryID" : "$EstCostCategoryID$",
+    "estCostDetailID" : "$EstCostDetailID$",
+    "estCostHeaderID" : "$EstCostHeaderID$",
+    "estCostFormID" : "$EstCostFormID$",
+    "estCostBlankID" : "$EstCostBlankID$",
+    "sourceID" : "$SourceID$",
+    "sourceType" : "$SourceType$",
+    "estCostDetailDesc" : "$EstCostDetailDesc$",
+    "costTotal" : "$CostTotal$",
+    "profitPercent" : "$ProfitPercent$",
+    "profitPercentType" : "$ProfitPercentType$",
+    "company" : "$Company$",
+    "estimateNo" : "$EstimateNo$",
+    "hasBeenProcessed" : "$HasBeenProcessed$"
+}$comma$

@@ -154,7 +154,8 @@ END.
     IF lv-sort-by EQ "cad-no"  THEN eb.cad-no  ELSE ~
     IF lv-sort-by EQ "plate-no"  THEN eb.plate-no  ELSE ~
     IF lv-sort-by EQ "entered-id"  THEN est.entered-id  ELSE ~
-    IF lv-sort-by EQ "updated-id"  THEN est.updated-id  ELSE ""
+    IF lv-sort-by EQ "updated-id"  THEN est.updated-id  ELSE ~
+    IF lv-sort-by EQ "board"       THEN ef.board  ELSE ""
 
 &SCOPED-DEFINE sortby BY est.est-no BY eb.form-no BY eb.blank-no
 
@@ -208,10 +209,10 @@ eb.part-no display-qty() @ est-qty.eqty est-qty.eqty ~
 display-qty() @ est-qty.eqty eb.ord-no eb.stock-no eb.style eb.part-dscr1 ~
 display-qty-set() @ eb.cust-% eb.cust-% display-qty-set() @ eb.cust-% ~
 eb.die-no eb.cad-no eb.len eb.wid eb.dep eb.plate-no est.entered-id ~
-est.updated-id est.est-date eb.pur-man 
+est.updated-id est.est-date eb.pur-man ef.board
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table est.est-no eb.cust-no ~
 eb.part-no est-qty.eqty eb.ord-no eb.stock-no eb.style eb.part-dscr1 ~
-eb.cust-% eb.die-no eb.cad-no eb.plate-no est.est-date 
+eb.cust-% eb.die-no eb.cad-no eb.plate-no est.est-date ef.board
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table est eb est-qty
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table est
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table eb
@@ -377,7 +378,7 @@ DEFINE VARIABLE vi_part-dscr1 AS CHARACTER FORMAT "X(30)":U
      SIZE 36 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(15)":U 
+DEFINE VARIABLE vi_part-no AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -475,6 +476,7 @@ DEFINE BROWSE Browser-Table
       eb.pur-man COLUMN-LABEL "Purch/Manuf" FORMAT "Purchased/Manufacture":U
       get-type() @ cEstType COLUMN-LABEL "Est Type" FORMAT "x(21)":U
             WIDTH 29.4
+      ef.board FORMAT "x(12)":U LABEL-BGCOLOR 14      
   ENABLE
       est.est-no
       eb.cust-no
@@ -714,6 +716,8 @@ eb.est-no = lv-last-est-no"
 "eb.pur-man" "Purch/Manuf" ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[24]   > "_<CALC>"
 "get-type() @ cEstType" "Est Type" "x(21)" "character" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[25]   > ASI.ef.board
+"ef.board" ? "x(12)" "character" ? ? ? 14 ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2277,17 +2281,18 @@ PROCEDURE pReOpenQuery :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-    
-  RUN local-open-query.
-  
-  DO WITH FRAME {&frame-name}:
-    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
-    RUN dispatch ('row-changed').
-    APPLY "value-changed" TO {&browse-name}.
-    RETURN NO-APPLY.  
-  END.
+    DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
+    DO WITH FRAME {&FRAME-NAME}:
+        {&BROWSE-NAME}:REFRESH().
+        
+        REPOSITION {&BROWSE-NAME} TO ROWID ip-rowid NO-ERROR.
+        RUN dispatch ('row-changed').
+
+        APPLY "VALUE-CHANGED" TO {&BROWSE-NAME}.
+
+        RETURN NO-APPLY.
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

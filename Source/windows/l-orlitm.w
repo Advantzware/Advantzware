@@ -37,6 +37,8 @@ def input param ip-ord-no like oe-ord.ord-no no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 def output param op-rec-id as recid no-undo.     /* recid output */
+{sys/inc/var.i}
+
 &scoped-define SORTBY-1 BY oe-rell.i-no
 &scoped-define fld-name-1 oe-rell.i-no
 /*&scoped-define datatype-1  */

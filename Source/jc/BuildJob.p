@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriJob AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
+DEFINE INPUT PARAMETER ipiQuantityOverride AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
 DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
 
@@ -52,7 +53,7 @@ DEFINE TEMP-TABLE ttJobFarmToKeep
     
 /* ***************************  Main Block  *************************** */
 
-RUN pBuildJob(ipriJob, ipiOrderID, OUTPUT oplError, OUTPUT opcErrorMessage).
+RUN pBuildJob(ipriJob, ipiOrderID, ipiQuantityOverride, OUTPUT oplError, OUTPUT opcErrorMessage).
 
 /* **********************  Internal Procedures  *********************** */
 PROCEDURE pBuildFarm PRIVATE:
@@ -121,6 +122,7 @@ PROCEDURE pBuildJob PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipriJob AS ROWID NO-UNDO.
     DEFINE INPUT PARAMETER ipiOrderID AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuantityOverride AS INTEGER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcErrorMessage AS CHARACTER NO-UNDO.
     
@@ -134,7 +136,7 @@ PROCEDURE pBuildJob PRIVATE:
     IF AVAILABLE bf-job THEN 
     DO:
         RUN pSetGlobalSettings(bf-job.company).
-        RUN pCalcEstimateForJob(BUFFER bf-job, 0, OUTPUT iEstCostHeaderID).
+        RUN pCalcEstimateForJob(BUFFER bf-job, ipiQuantityOverride, OUTPUT iEstCostHeaderID).
         RUN pBuildHeaders(iEstCostHeaderID, ipiOrderID, BUFFER bf-job).
         RUN pBuildMaterials(iEstCostHeaderID, BUFFER bf-job).
         RUN pBuildMachines(iEstCostHeaderID, BUFFER bf-job).

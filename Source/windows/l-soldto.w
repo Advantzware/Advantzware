@@ -34,6 +34,7 @@ def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-cust-no like cust.cust-no no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
+{sys/inc/var.i}
 
 def var lv-type-dscr as cha no-undo.
 
@@ -355,11 +356,11 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
+   DO WITH FRAME {&FRAME-NAME}:
+    RUN enable_UI.
+    {custom/lookpos4.i &lookup-file="soldto" &lookup-field="sold-id" }
+  END.
 
-  &scoped-define key-phrase {&fld-name-1} >= ip-cur-val
-  &scoped-define sortby-phrase {&sortby-1}
-  
-  RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.

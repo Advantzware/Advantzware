@@ -1068,8 +1068,8 @@ PROCEDURE run-report :
         PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
    
     FOR EACH job WHERE job.company EQ cocode
-        AND  fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) >= begin_job 
-        AND  fill(" ",9 - length(TRIM(job.job-no))) + trim(job.job-no) <= END_job 
+        AND  FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) >= begin_job 
+        AND  FILL(" ", iJobLen - length(TRIM(job.job-no))) + trim(job.job-no) <= END_job 
         AND  job.job-no2 GE begin_job-2 AND job.job-no2 LE end_job-2
         AND ((job.opened EQ YES AND v-open) OR (job.opened EQ NO AND v-closed)) NO-LOCK,
         FIRST job-hdr WHERE job-hdr.company = cocode

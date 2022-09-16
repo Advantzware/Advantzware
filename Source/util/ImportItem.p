@@ -85,6 +85,7 @@ DEFINE TEMP-TABLE ttImportItem
     FIELD stocked              AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Stocked" HELP "Optional - Yes or No(Blank - No)"
     FIELD pur-man              AS CHARACTER FORMAT "x(12)" COLUMN-LABEL "Purchased Or Manufactured" HELP "Required - Purchased Or Manufactured(Blank - Manufactured)"
     FIELD inv-by-cust          AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Zero On Hand" HELP "Required - Yes or No(Blank - No)" 
+    FIELD cItemNotes           AS CHARACTER FORMAT "x(1000)" COLUMN-LABEL "Item Notes [Large]" HELP "Optional - Size:Large" 
 
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
@@ -198,6 +199,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueCToL (ipbf-ttImportItem.stocked, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-item.stocked).
     RUN pAssignValueCToL (ipbf-ttImportItem.pur-man, "Purchased", iplIgnoreBlanks, INPUT-OUTPUT bf-item.pur-man).
     RUN pAssignValueCToL (ipbf-ttImportItem.inv-by-cust, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-item.inv-by-cust).
+    RUN pAssignValueC (ipbf-ttImportItem.cItemNotes, iplIgnoreBlanks, INPUT-OUTPUT bf-item.itemNotes).
         
     /*IF ipbf-ttImportItem.ml EQ "M" THEN
         ASSIGN bf-item.ml = YES.

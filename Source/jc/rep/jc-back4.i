@@ -3,10 +3,10 @@
 /*  Mod: Ticket - 103137 Format Change for Order No. and Job No.       */
 /* -------------------------------------------------------------------------- */
       
-      and fill(" ",9 - length(trim(job-hdr.job-no))) +
+      and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
           trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                          ge v-fjob
-      and fill(" ",9 - length(trim(job-hdr.job-no))) +
+      and FILL(" ", iJobLen - length(trim(job-hdr.job-no))) +
           trim(job-hdr.job-no) + string(job-hdr.job-no2,"999")
                          le v-tjob
       AND job-hdr.job-no2 GE int(begin_job-no2)

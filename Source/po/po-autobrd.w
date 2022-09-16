@@ -228,7 +228,7 @@ DO:
 
       IF NOT CAN-FIND(FIRST job WHERE
          job.company EQ cocode AND
-         trim(job.job-no) EQ trim(op-job-no) AND
+         job.job-no  EQ op-job-no AND
          job.job-no2 EQ op-job-no2) THEN
          DO:
             MESSAGE "Invalid Job #."
@@ -239,7 +239,7 @@ DO:
       DO:
           FIND FIRST po-ordl NO-LOCK
                WHERE po-ordl.company EQ cocode
-                 AND trim(po-ordl.job-no)  EQ trim(op-job-no)
+                 AND po-ordl.job-no  EQ op-job-no
                  AND po-ordl.job-no2 EQ op-job-no2
                NO-ERROR.
           IF AVAILABLE po-ordl THEN DO:

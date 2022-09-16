@@ -1468,10 +1468,10 @@ for each ar-inv
 
     each ar-invl
     where ar-invl.x-no eq ar-inv.x-no
-      AND FILL(" ",9 - LENGTH(TRIM(ar-invl.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
           STRING(ar-invl.job-no2,"999") GE v-job[1]
-      AND FILL(" ",9 - LENGTH(TRIM(ar-invl.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(ar-invl.job-no))) +
           TRIM(ar-invl.job-no) +
           STRING(ar-invl.job-no2,"999") LE v-job[2]
       AND ar-invl.job-no2 GE int(begin_job-no2)

@@ -63,12 +63,13 @@ ASSIGN
 &Scoped-Define ENABLED-OBJECTS RECT-17 RECT-18 RECT-19 RECT-20 from_company ~
 from_est tb_copy tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate ~
 tb_copy-dscr-2 tb_i-no tb_copy-notes tb_farm tb_dept-notes tb_copy-prep ~
-tb_clip-att to_company fi_cust fi_part fi_shipto fi_rep ~
+tb_clip-att tbCopyCosts to_company fi_cust fi_part fi_shipto fi_rep ~
 btn-process btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS from_company from_name from_est from_ship ~
 from_part tb_copy tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate ~
 tb_copy-dscr-2 tb_i-no tb_copy-notes tb_farm tb_dept-notes tb_copy-prep ~
-tb_clip-att to_company to_name to_est fi_cust fi_part fi_shipto fi_rep 
+tb_clip-att tbCopyCosts to_company to_name to_est fi_cust fi_part fi_shipto ~
+fi_rep 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -81,204 +82,210 @@ tb_clip-att to_company to_name to_est fi_cust fi_part fi_shipto fi_rep
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel 
-    LABEL "Ca&ncel" 
-    SIZE 16 BY 1.29.
+     LABEL "Ca&ncel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-process 
-    LABEL "&Start Process" 
-    SIZE 16 BY 1.29.
+     LABEL "&Start Process" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE fi_cust      AS CHARACTER FORMAT "X(8)":U 
-    LABEL "New Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_cust AS CHARACTER FORMAT "X(8)":U 
+     LABEL "New Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_part      AS CHARACTER FORMAT "X(15)":U 
-    LABEL "New Customer Part#" 
-    VIEW-AS FILL-IN 
-    SIZE 27 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_part AS CHARACTER FORMAT "X(15)":U 
+     LABEL "New Customer Part#" 
+     VIEW-AS FILL-IN 
+     SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_rep       AS CHARACTER FORMAT "X(5)":U 
-    LABEL "New Sales Rep#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_rep AS CHARACTER FORMAT "X(5)":U 
+     LABEL "New Sales Rep#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_shipto    AS CHARACTER FORMAT "X(15)":U 
-    LABEL "New Ship To#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_shipto AS CHARACTER FORMAT "X(15)":U 
+     LABEL "New Ship To#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE from_company AS CHARACTER FORMAT "XXX" INITIAL "001" 
-    LABEL "From Company" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+     LABEL "From Company" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE from_est     AS CHARACTER FORMAT "X(8)" 
-    LABEL "From Estimate#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE from_est AS CHARACTER FORMAT "X(8)" 
+     LABEL "From Estimate#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE from_name    AS CHARACTER FORMAT "x(30)" 
-    VIEW-AS FILL-IN 
-    SIZE 48 BY 1 NO-UNDO.
+DEFINE VARIABLE from_name AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 48 BY 1 NO-UNDO.
 
-DEFINE VARIABLE from_part    AS CHARACTER FORMAT "x(30)" 
-    VIEW-AS FILL-IN 
-    SIZE 48 BY 1 NO-UNDO.
+DEFINE VARIABLE from_part AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 48 BY 1 NO-UNDO.
 
-DEFINE VARIABLE from_ship    AS CHARACTER FORMAT "x(30)" 
-    VIEW-AS FILL-IN 
-    SIZE 48 BY 1 NO-UNDO.
+DEFINE VARIABLE from_ship AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 48 BY 1 NO-UNDO.
 
-DEFINE VARIABLE to_company   AS CHARACTER FORMAT "XXX" INITIAL "001" 
-    LABEL "To Company" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE to_company AS CHARACTER FORMAT "XXX" INITIAL "001" 
+     LABEL "To Company" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE to_est       AS CHARACTER FORMAT "X(8)" 
-    LABEL "To Estimate#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE to_est AS CHARACTER FORMAT "X(8)" 
+     LABEL "To Estimate#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE to_name      AS CHARACTER FORMAT "x(30)" 
-    VIEW-AS FILL-IN 
-    SIZE 48 BY 1 NO-UNDO.
+DEFINE VARIABLE to_name AS CHARACTER FORMAT "x(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 48 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 18.71.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 91 BY 19.67.
 
 DEFINE RECTANGLE RECT-18
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 89 BY 10.05.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 89 BY 10.95.
 
 DEFINE RECTANGLE RECT-19
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 89 BY 7.14.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 89 BY 7.14.
 
 DEFINE RECTANGLE RECT-20
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 71 BY 6.19.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 71 BY 6.86.
 
-DEFINE VARIABLE tb_clip-att    AS LOGICAL INITIAL YES 
-    LABEL "Copy Paper Clip Attachments?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 40 BY 1 NO-UNDO.
+DEFINE VARIABLE tbCopyCosts AS LOGICAL INITIAL yes 
+     LABEL "Copy Additional Costs" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_copy        AS LOGICAL INITIAL YES 
-    LABEL "Copy Routing?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_clip-att AS LOGICAL INITIAL yes 
+     LABEL "Copy Paper Clip Attachments?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_copy-dscr-1 AS LOGICAL INITIAL YES 
-    LABEL "Copy Item Description 1?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 29 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_copy AS LOGICAL INITIAL yes 
+     LABEL "Copy Routing?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_copy-dscr-2 AS LOGICAL INITIAL YES 
-    LABEL "Copy Item Description 2?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 29 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_copy-dscr-1 AS LOGICAL INITIAL yes 
+     LABEL "Copy Item Description 1?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_copy-i-name AS LOGICAL INITIAL YES 
-    LABEL "Copy Item Name?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 25 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_copy-dscr-2 AS LOGICAL INITIAL yes 
+     LABEL "Copy Item Description 2?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_copy-notes  AS LOGICAL INITIAL YES 
-    LABEL "Copy Book Icon Spec Notes?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 25 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_copy-i-name AS LOGICAL INITIAL yes 
+     LABEL "Copy Item Name?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_copy-prep   AS LOGICAL INITIAL YES 
-    LABEL "Copy Prep?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_copy-notes AS LOGICAL INITIAL yes 
+     LABEL "Copy Book Icon Spec Notes?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_dept-notes  AS LOGICAL INITIAL YES 
-    LABEL " Copy Fountain Pen Icon Dept Notes?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 40 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_copy-prep AS LOGICAL INITIAL yes 
+     LABEL "Copy Prep?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_die         AS LOGICAL INITIAL YES 
-    LABEL "Copy Die#?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_dept-notes AS LOGICAL INITIAL yes 
+     LABEL " Copy Fountain Pen Icon Dept Notes?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_farm        AS LOGICAL INITIAL NO 
-    LABEL "Copy Farm Out Costs?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 26 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_die AS LOGICAL INITIAL yes 
+     LABEL "Copy Die#?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_i-no        AS LOGICAL INITIAL NO 
-    LABEL "Copy FG Item#?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_farm AS LOGICAL INITIAL no 
+     LABEL "Copy Farm Out Costs?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_plate       AS LOGICAL INITIAL NO 
-    LABEL "Copy Plate#?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 18 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_i-no AS LOGICAL INITIAL no 
+     LABEL "Copy FG Item#?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_plate AS LOGICAL INITIAL no 
+     LABEL "Copy Plate#?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    from_company AT ROW 3.14 COL 22 COLON-ALIGNED HELP
-    "Enter Company To Copy From"
-    from_name AT ROW 3.14 COL 39 COLON-ALIGNED NO-LABELS
-    from_est AT ROW 4.1 COL 22 COLON-ALIGNED HELP
-    "Enter Estimate# to Be Copied"
-    from_ship AT ROW 4.1 COL 39 COLON-ALIGNED NO-LABELS
-    from_part AT ROW 5.05 COL 39 COLON-ALIGNED NO-LABELS
-    tb_copy AT ROW 6.62 COL 16.4
-    tb_copy-i-name AT ROW 6.62 COL 42.6 WIDGET-ID 4
-    tb_die AT ROW 7.52 COL 16.4
-    tb_copy-dscr-1 AT ROW 7.52 COL 42.6 WIDGET-ID 6
-    tb_plate AT ROW 8.43 COL 16.4
-    tb_copy-dscr-2 AT ROW 8.43 COL 42.6 WIDGET-ID 8
-    tb_i-no AT ROW 9.33 COL 16.4
-    tb_copy-notes AT ROW 9.33 COL 42.6 WIDGET-ID 2
-    tb_farm AT ROW 10.24 COL 16.4
-    tb_dept-notes AT ROW 10.24 COL 42.6 WIDGET-ID 14
-    tb_copy-prep AT ROW 11.1 COL 16.4 WIDGET-ID 20
-    tb_clip-att AT ROW 11.14 COL 42.6 WIDGET-ID 16
-    to_company AT ROW 14.1 COL 25 COLON-ALIGNED HELP
-    "Copy To Company"
-    to_name AT ROW 14.1 COL 42 COLON-ALIGNED NO-LABELS
-    to_est AT ROW 15.05 COL 25 COLON-ALIGNED HELP
-    "Enter Estimate# to Be To"
-    fi_cust AT ROW 16 COL 25 COLON-ALIGNED HELP
-    "Enter New Customer Number"
-    fi_part AT ROW 16.95 COL 25 COLON-ALIGNED HELP
-    "Enter New Customer Part Number"
-    fi_shipto AT ROW 17.91 COL 25 COLON-ALIGNED HELP
-    "Enter New Customer Part Number" WIDGET-ID 10
-    fi_rep AT ROW 18.86 COL 25 COLON-ALIGNED HELP
-    "Enter New Customer Part Number" WIDGET-ID 12
-    btn-process AT ROW 21 COL 26.8
-    btn-cancel AT ROW 21 COL 53
-    " C O P Y  T O" VIEW-AS TEXT
-    SIZE 13 BY 1 AT ROW 12.71 COL 40
-    BGCOLOR 8 
-    " C O P Y  F R O M" VIEW-AS TEXT
-    SIZE 17 BY 1 AT ROW 1.95 COL 38
-    BGCOLOR 8 
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .95 AT ROW 1.24 COL 4
-    RECT-17 AT ROW 1.81 COL 3
-    RECT-18 AT ROW 2.43 COL 4
-    RECT-19 AT ROW 13.19 COL 4
-    RECT-20 AT ROW 6.29 COL 12.6 WIDGET-ID 18
+     from_company AT ROW 3.14 COL 22 COLON-ALIGNED HELP
+          "Enter Company To Copy From"
+     from_name AT ROW 3.14 COL 39 COLON-ALIGNED NO-LABEL
+     from_est AT ROW 4.1 COL 22 COLON-ALIGNED HELP
+          "Enter Estimate# to Be Copied"
+     from_ship AT ROW 4.1 COL 39 COLON-ALIGNED NO-LABEL
+     from_part AT ROW 5.05 COL 39 COLON-ALIGNED NO-LABEL
+     tb_copy AT ROW 6.62 COL 16.4
+     tb_copy-i-name AT ROW 6.62 COL 42.6 WIDGET-ID 4
+     tb_die AT ROW 7.52 COL 16.4
+     tb_copy-dscr-1 AT ROW 7.52 COL 42.6 WIDGET-ID 6
+     tb_plate AT ROW 8.43 COL 16.4
+     tb_copy-dscr-2 AT ROW 8.43 COL 42.6 WIDGET-ID 8
+     tb_i-no AT ROW 9.33 COL 16.4
+     tb_copy-notes AT ROW 9.33 COL 42.6 WIDGET-ID 2
+     tb_farm AT ROW 10.24 COL 16.4
+     tb_dept-notes AT ROW 10.24 COL 42.6 WIDGET-ID 14
+     tb_copy-prep AT ROW 11.1 COL 16.4 WIDGET-ID 20
+     tb_clip-att AT ROW 11.14 COL 42.6 WIDGET-ID 16
+     tbCopyCosts AT ROW 12 COL 16.4 WIDGET-ID 22
+     to_company AT ROW 14.76 COL 26 COLON-ALIGNED HELP
+          "Copy To Company"
+     to_name AT ROW 14.76 COL 43 COLON-ALIGNED NO-LABEL
+     to_est AT ROW 15.71 COL 26 COLON-ALIGNED HELP
+          "Enter Estimate# to Be To"
+     fi_cust AT ROW 16.67 COL 26 COLON-ALIGNED HELP
+          "Enter New Customer Number"
+     fi_part AT ROW 17.62 COL 26 COLON-ALIGNED HELP
+          "Enter New Customer Part Number"
+     fi_shipto AT ROW 18.57 COL 26 COLON-ALIGNED HELP
+          "Enter New Customer Part Number" WIDGET-ID 10
+     fi_rep AT ROW 19.52 COL 26 COLON-ALIGNED HELP
+          "Enter New Customer Part Number" WIDGET-ID 12
+     btn-process AT ROW 21.57 COL 26.8
+     btn-cancel AT ROW 21.57 COL 53
+     " C O P Y  T O" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 13.38 COL 41
+          BGCOLOR 8 
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .95 AT ROW 1.24 COL 4
+     " C O P Y  F R O M" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 1.95 COL 38
+          BGCOLOR 8 
+     RECT-17 AT ROW 1.81 COL 3
+     RECT-18 AT ROW 2.43 COL 4
+     RECT-19 AT ROW 13.86 COL 5
+     RECT-20 AT ROW 6.29 COL 12.6 WIDGET-ID 18
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 94.8 BY 22.1
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 94.8 BY 22.1
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -295,30 +302,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Copy Estimate"
-        HEIGHT             = 22.1
-        WIDTH              = 94.8
-        MAX-HEIGHT         = 26.62
-        MAX-WIDTH          = 160
-        VIRTUAL-HEIGHT     = 26.62
-        VIRTUAL-WIDTH      = 160
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Copy Estimate"
+         HEIGHT             = 22.1
+         WIDTH              = 94.8
+         MAX-HEIGHT         = 26.62
+         MAX-WIDTH          = 160
+         VIRTUAL-HEIGHT     = 26.62
+         VIRTUAL-WIDTH      = 160
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -333,16 +340,20 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-process:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    from_company:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       from_company:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    from_est:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       from_est:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN from_name IN FRAME FRAME-A
    NO-ENABLE                                                            */
@@ -351,17 +362,19 @@ ASSIGN
 /* SETTINGS FOR FILL-IN from_ship IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    to_company:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       to_company:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN to_est IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    to_est:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       to_est:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN to_name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -375,7 +388,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Copy Estimate */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -389,7 +402,7 @@ ON END-ERROR OF C-Win /* Copy Estimate */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Copy Estimate */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -402,7 +415,7 @@ ON WINDOW-CLOSE OF C-Win /* Copy Estimate */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -413,7 +426,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
-    DO:
+DO:
         DEFINE VARIABLE v-process AS LOG INIT NO NO-UNDO.
 
 
@@ -507,7 +520,7 @@ ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 &Scoped-define SELF-NAME fi_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust C-Win
 ON LEAVE OF fi_cust IN FRAME FRAME-A /* New Customer# */
-    DO:
+DO:
         {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 
         IF LASTKEY NE -1 THEN 
@@ -547,7 +560,7 @@ ON LEAVE OF fi_cust IN FRAME FRAME-A /* New Customer# */
 &Scoped-define SELF-NAME fi_part
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_part C-Win
 ON LEAVE OF fi_part IN FRAME FRAME-A /* New Customer Part# */
-    DO:
+DO:
         {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 
         IF LASTKEY NE -1 THEN 
@@ -566,7 +579,7 @@ ON LEAVE OF fi_part IN FRAME FRAME-A /* New Customer Part# */
 &Scoped-define SELF-NAME fi_rep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_rep C-Win
 ON LEAVE OF fi_rep IN FRAME FRAME-A /* New Sales Rep# */
-    DO:
+DO:
         {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 
         IF LASTKEY NE -1 THEN 
@@ -585,7 +598,7 @@ ON LEAVE OF fi_rep IN FRAME FRAME-A /* New Sales Rep# */
 &Scoped-define SELF-NAME fi_shipto
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_shipto C-Win
 ON HELP OF fi_shipto IN FRAME FRAME-A /* New Ship To# */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
 
         RUN windows/l-shipto.w (gcompany,"",fi_cust:SCREEN-VALUE,"", OUTPUT char-val).
@@ -604,7 +617,7 @@ ON HELP OF fi_shipto IN FRAME FRAME-A /* New Ship To# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_shipto C-Win
 ON LEAVE OF fi_shipto IN FRAME FRAME-A /* New Ship To# */
-    DO:
+DO:
         {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
 
         IF LASTKEY NE -1 THEN 
@@ -631,7 +644,7 @@ ON LEAVE OF fi_shipto IN FRAME FRAME-A /* New Ship To# */
 &Scoped-define SELF-NAME from_company
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL from_company C-Win
 ON HELP OF from_company IN FRAME FRAME-A /* From Company */
-    DO:
+DO:
         RUN lookups/company.p.
 
         IF g_lookup-var NE ""                        AND 
@@ -648,7 +661,7 @@ ON HELP OF from_company IN FRAME FRAME-A /* From Company */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL from_company C-Win
 ON LEAVE OF from_company IN FRAME FRAME-A /* From Company */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-company NO-ERROR.
@@ -664,7 +677,7 @@ ON LEAVE OF from_company IN FRAME FRAME-A /* From Company */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL from_company C-Win
 ON VALUE-CHANGED OF from_company IN FRAME FRAME-A /* From Company */
-    DO:
+DO:
         RUN new-company.
     END.
 
@@ -675,7 +688,7 @@ ON VALUE-CHANGED OF from_company IN FRAME FRAME-A /* From Company */
 &Scoped-define SELF-NAME from_est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL from_est C-Win
 ON HELP OF from_est IN FRAME FRAME-A /* From Estimate# */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
 
 
@@ -696,7 +709,7 @@ ON HELP OF from_est IN FRAME FRAME-A /* From Estimate# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL from_est C-Win
 ON LEAVE OF from_est IN FRAME FRAME-A /* From Estimate# */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-est NO-ERROR.
@@ -712,7 +725,7 @@ ON LEAVE OF from_est IN FRAME FRAME-A /* From Estimate# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL from_est C-Win
 ON VALUE-CHANGED OF from_est IN FRAME FRAME-A /* From Estimate# */
-    DO:
+DO:
         FOR EACH eb
             WHERE eb.company EQ from_company:SCREEN-VALUE
             AND eb.est-no  EQ FILL(" ",8 - LENGTH(TRIM(from_est:SCREEN-VALUE))) +
@@ -749,10 +762,21 @@ ON VALUE-CHANGED OF from_est IN FRAME FRAME-A /* From Estimate# */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tbCopyCosts
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbCopyCosts C-Win
+ON VALUE-CHANGED OF tbCopyCosts IN FRAME FRAME-A /* Copy Additional Costs */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_clip-att
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_clip-att C-Win
 ON VALUE-CHANGED OF tb_clip-att IN FRAME FRAME-A /* Copy Paper Clip Attachments? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -763,7 +787,7 @@ ON VALUE-CHANGED OF tb_clip-att IN FRAME FRAME-A /* Copy Paper Clip Attachments?
 &Scoped-define SELF-NAME tb_copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_copy C-Win
 ON VALUE-CHANGED OF tb_copy IN FRAME FRAME-A /* Copy Routing? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -774,7 +798,7 @@ ON VALUE-CHANGED OF tb_copy IN FRAME FRAME-A /* Copy Routing? */
 &Scoped-define SELF-NAME tb_copy-dscr-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_copy-dscr-1 C-Win
 ON VALUE-CHANGED OF tb_copy-dscr-1 IN FRAME FRAME-A /* Copy Item Description 1? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -785,7 +809,7 @@ ON VALUE-CHANGED OF tb_copy-dscr-1 IN FRAME FRAME-A /* Copy Item Description 1? 
 &Scoped-define SELF-NAME tb_copy-dscr-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_copy-dscr-2 C-Win
 ON VALUE-CHANGED OF tb_copy-dscr-2 IN FRAME FRAME-A /* Copy Item Description 2? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -796,7 +820,7 @@ ON VALUE-CHANGED OF tb_copy-dscr-2 IN FRAME FRAME-A /* Copy Item Description 2? 
 &Scoped-define SELF-NAME tb_copy-i-name
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_copy-i-name C-Win
 ON VALUE-CHANGED OF tb_copy-i-name IN FRAME FRAME-A /* Copy Item Name? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -807,7 +831,7 @@ ON VALUE-CHANGED OF tb_copy-i-name IN FRAME FRAME-A /* Copy Item Name? */
 &Scoped-define SELF-NAME tb_copy-notes
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_copy-notes C-Win
 ON VALUE-CHANGED OF tb_copy-notes IN FRAME FRAME-A /* Copy Book Icon Spec Notes? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -818,7 +842,7 @@ ON VALUE-CHANGED OF tb_copy-notes IN FRAME FRAME-A /* Copy Book Icon Spec Notes?
 &Scoped-define SELF-NAME tb_copy-prep
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_copy-prep C-Win
 ON VALUE-CHANGED OF tb_copy-prep IN FRAME FRAME-A /* Copy Prep? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -829,7 +853,7 @@ ON VALUE-CHANGED OF tb_copy-prep IN FRAME FRAME-A /* Copy Prep? */
 &Scoped-define SELF-NAME tb_dept-notes
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_dept-notes C-Win
 ON VALUE-CHANGED OF tb_dept-notes IN FRAME FRAME-A /*  Copy Fountain Pen Icon Dept Notes? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -840,7 +864,7 @@ ON VALUE-CHANGED OF tb_dept-notes IN FRAME FRAME-A /*  Copy Fountain Pen Icon De
 &Scoped-define SELF-NAME tb_die
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_die C-Win
 ON VALUE-CHANGED OF tb_die IN FRAME FRAME-A /* Copy Die#? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -851,7 +875,7 @@ ON VALUE-CHANGED OF tb_die IN FRAME FRAME-A /* Copy Die#? */
 &Scoped-define SELF-NAME tb_farm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_farm C-Win
 ON VALUE-CHANGED OF tb_farm IN FRAME FRAME-A /* Copy Farm Out Costs? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -862,7 +886,7 @@ ON VALUE-CHANGED OF tb_farm IN FRAME FRAME-A /* Copy Farm Out Costs? */
 &Scoped-define SELF-NAME tb_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_i-no C-Win
 ON VALUE-CHANGED OF tb_i-no IN FRAME FRAME-A /* Copy FG Item#? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -873,7 +897,7 @@ ON VALUE-CHANGED OF tb_i-no IN FRAME FRAME-A /* Copy FG Item#? */
 &Scoped-define SELF-NAME tb_plate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_plate C-Win
 ON VALUE-CHANGED OF tb_plate IN FRAME FRAME-A /* Copy Plate#? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -884,7 +908,7 @@ ON VALUE-CHANGED OF tb_plate IN FRAME FRAME-A /* Copy Plate#? */
 &Scoped-define SELF-NAME to_company
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL to_company C-Win
 ON HELP OF to_company IN FRAME FRAME-A /* To Company */
-    DO:
+DO:
         RUN lookups/company.p.
 
         IF g_lookup-var NE ""                        AND 
@@ -901,7 +925,7 @@ ON HELP OF to_company IN FRAME FRAME-A /* To Company */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL to_company C-Win
 ON LEAVE OF to_company IN FRAME FRAME-A /* To Company */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             RUN valid-company NO-ERROR.
@@ -917,7 +941,7 @@ ON LEAVE OF to_company IN FRAME FRAME-A /* To Company */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL to_company C-Win
 ON VALUE-CHANGED OF to_company IN FRAME FRAME-A /* To Company */
-    DO:
+DO:
         RUN new-company.
     END.
 
@@ -928,7 +952,7 @@ ON VALUE-CHANGED OF to_company IN FRAME FRAME-A /* To Company */
 &Scoped-define SELF-NAME to_est
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL to_est C-Win
 ON LEAVE OF to_est IN FRAME FRAME-A /* To Estimate# */
-    DO:
+DO:
         ASSIGN {&self-name}.  
     END.
 
@@ -1005,18 +1029,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1024,28 +1048,28 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY from_company from_name from_est from_ship from_part tb_copy 
-        tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate tb_copy-dscr-2 tb_i-no 
-        tb_copy-notes tb_farm tb_dept-notes tb_copy-prep tb_clip-att 
-        to_company to_name to_est fi_cust fi_part fi_shipto fi_rep 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-17 RECT-18 RECT-19 RECT-20 from_company from_est tb_copy 
-        tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate tb_copy-dscr-2 tb_i-no 
-        tb_copy-notes tb_farm tb_dept-notes tb_copy-prep tb_clip-att 
-        to_company fi_cust fi_part fi_shipto fi_rep btn-process 
-        btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY from_company from_name from_est from_ship from_part tb_copy 
+          tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate tb_copy-dscr-2 tb_i-no 
+          tb_copy-notes tb_farm tb_dept-notes tb_copy-prep tb_clip-att 
+          tbCopyCosts to_company to_name to_est fi_cust fi_part fi_shipto fi_rep 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-17 RECT-18 RECT-19 RECT-20 from_company from_est tb_copy 
+         tb_copy-i-name tb_die tb_copy-dscr-1 tb_plate tb_copy-dscr-2 tb_i-no 
+         tb_copy-notes tb_farm tb_dept-notes tb_copy-prep tb_clip-att 
+         tbCopyCosts to_company fi_cust fi_part fi_shipto fi_rep btn-process 
+         btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1053,7 +1077,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-company C-Win 
 PROCEDURE new-company :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1079,7 +1103,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-    /* ---------------------------------------------------- ce/cp-est.p 10/94 gb */
+/* ---------------------------------------------------- ce/cp-est.p 10/94 gb */
     /* copy estimate & standards files                                           */
     /* -------------------------------------------------------------------------- */
     DEFINE BUFFER kest          FOR est.
@@ -1100,6 +1124,7 @@ PROCEDURE run-process :
     DEFINE BUFFER b-itemfg      FOR itemfg.
     DEFINE BUFFER b-attach      FOR ATTACH .
     DEFINE BUFFER bf-estPacking FOR estPacking.
+    DEFINE BUFFER bf-estMisc    FOR estMisc.
 
     DEFINE VARIABLE txno       AS INTEGER.
 
@@ -1594,7 +1619,20 @@ PROCEDURE run-process :
                 b-attach.est-no  = kest.est-no .
         END.
     END.
-
+    
+    IF tbCopyCosts THEN DO:
+        FOR EACH estMisc NO-LOCK
+            WHERE estMisc.company    EQ est.company
+              AND estMisc.estimateNo EQ est.est-no:
+            CREATE bf-estMisc.
+            BUFFER-COPY estMisc EXCEPT rec_key estimateNo TO bf-estMisc.
+            ASSIGN
+                bf-estMisc.company    = kest.company
+                bf-estMisc.estimateNo = kest.est-no
+                .
+        END.
+    END.
+    
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
     SESSION:SET-WAIT-STATE("").
@@ -1612,7 +1650,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-company C-Win 
 PROCEDURE valid-company :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1643,7 +1681,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-cust C-Win 
 PROCEDURE valid-cust :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1668,7 +1706,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-est C-Win 
 PROCEDURE valid-est :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1718,7 +1756,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-part C-Win 
 PROCEDURE valid-part :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1741,7 +1779,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rep C-Win 
 PROCEDURE valid-rep :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1767,7 +1805,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-shipto C-Win 
 PROCEDURE valid-shipto :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1796,7 +1834,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-terms C-Win 
 PROCEDURE valid-terms :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

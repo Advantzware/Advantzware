@@ -1253,6 +1253,11 @@ PROCEDURE create-ttfrmout :
         ttInputEst.lPurchased       = IF rd_pur EQ "P" THEN TRUE ELSE FALSE
         ttInputEst.cSetType         = IF ipcScreen EQ "F" THEN "FoldSingle" ELSE ""       
         .
+        
+        {sys/inc/k16bb.i ttInputEst.dLength  }
+        {sys/inc/k16bb.i ttInputEst.dWidth  }
+        {sys/inc/k16bb.i ttInputEst.dDepth  } 
+        
      ASSIGN 
          ttInputEst.copy-qty[2] = lv-copy-qty[2] 
          ttInputEst.copy-qty[3] = lv-copy-qty[3] 
@@ -1539,6 +1544,9 @@ PROCEDURE pDefaultValue :
                 ASSIGN style-dscr:SCREEN-VALUE = style.dscr
                        .         
         END.           
+        
+        RUN pSetLWDFormat.
+        
     END.
 
 END PROCEDURE.
@@ -1573,7 +1581,7 @@ PROCEDURE pDisplayQty :
     ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-eb FOR eb .
     DO WITH FRAME {&FRAME-NAME}:
-
+                
         FIND FIRST bf-eb NO-LOCK 
             WHERE bf-eb.company EQ cocode
               AND ROWID(bf-eb) EQ ipriRowid NO-ERROR .
@@ -1668,6 +1676,7 @@ PROCEDURE pDisplayValue :
     DEFINE BUFFER bf-eb FOR eb .
     DO WITH FRAME {&FRAME-NAME}:
 
+        RUN pSetLWDFormat.
         FIND FIRST eb NO-LOCK 
             WHERE eb.company EQ cocode
               AND ROWID(eb) EQ ipriRowid NO-ERROR .
@@ -1686,9 +1695,9 @@ PROCEDURE pDisplayValue :
              cCustPart:SCREEN-VALUE  = eb.part-no             
              item-name:SCREEN-VALUE  = eb.part-dscr1            
              item-descr:SCREEN-VALUE = eb.part-dscr2            
-             len:SCREEN-VALUE        = string(eb.len)
-             wid:SCREEN-VALUE        = string(eb.wid)
-             dep:SCREEN-VALUE        = string(eb.dep)
+             len:SCREEN-VALUE        = STRING( {sys/inc/k16.i eb.len }) 
+             wid:SCREEN-VALUE        = STRING( {sys/inc/k16.i eb.wid }) 
+             dep:SCREEN-VALUE        = STRING( {sys/inc/k16.i eb.dep }) 
              style-cod:SCREEN-VALUE  = eb.style
              board:SCREEN-VALUE      = IF AVAIL ef THEN ef.board ELSE ""
              fg-cat:SCREEN-VALUE     = eb.procat
@@ -1776,6 +1785,32 @@ PROCEDURE send-records :
      Tables specified for this SmartDialog, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLWDFormat D-Dialog 
+PROCEDURE pSetLWDFormat :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+       IF v-cecscrn-char EQ "Decimal" THEN do:
+          iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .
+
+          ASSIGN
+              len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+              len:WIDTH  = 12.5
+              wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))   
+              wid:WIDTH  = 12.5
+              dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+              dep:WIDTH  = 12.5.        
+       END.   
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

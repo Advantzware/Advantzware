@@ -73,16 +73,10 @@ IF LAST-OF(tt-boll.LINE) THEN DO:
                            wb2.i-no = oe-ordl.i-no
                            .
       ELSE IF i = 2 THEN 
-          ASSIGN /*wb2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/
+          ASSIGN 
                  wb2.dscr = oe-ordl.part-dscr1
                  
                   .
-      /*else if i eq 3 then ASSIGN
-           wb2.dscr = oe-ordl.part-dscr1
-           wb2.wet  = tt-boll.weight .*/
-     /* ELSE if i eq 4 then ASSIGN wb2.dscr = oe-ordl.part-dscr2.
-      ELSE if i eq 5 then ASSIGN wb2.dscr = itemfg.part-dscr3.*/
 
   END.
   IF i < 5 THEN DO i = i TO 5:
@@ -99,8 +93,7 @@ IF LAST-OF(tt-boll.LINE) THEN DO:
          and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
        wb2.i-no = "".
        IF i = 2 THEN 
-          ASSIGN /*wb2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/
+          ASSIGN 
                  wb2.dscr = oe-ordl.part-dscr1
                   .
       /* else if i eq 3 then ASSIGN wb2.dscr = oe-ordl.part-dscr1.*/
@@ -121,8 +114,7 @@ IF LAST-OF(tt-boll.LINE) THEN DO:
          and oe-ordl.line    eq tt-boll.LINE no-lock no-error.
        wb2.i-no = "".
        IF i = 2 THEN 
-          ASSIGN /*wb2.job-po = if oe-ordl.job-no eq "" then "" else
-                             (trim(oe-ordl.job-no) + "-" + string(oe-ordl.job-no2,"99"))*/
+          ASSIGN 
                  wb2.dscr = oe-ordl.part-dscr1
                  wb2.job-po = string(oe-ordl.ord-no)
                  /*wb2.i-no = oe-ordl.i-no */ .

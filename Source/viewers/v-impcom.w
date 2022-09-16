@@ -67,7 +67,7 @@ RUN methods/prgsecur.p
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-40 btn-excel 
+&Scoped-Define ENABLED-OBJECTS btn-excel 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -103,22 +103,21 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-excel 
-     LABEL "&Import Excel" 
-     SIZE 17 BY 1.43.
-
-DEFINE RECTANGLE RECT-40
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 19 BY 1.81.
+     IMAGE-UP FILE "Graphics/32x32/import.png":U
+     IMAGE-DOWN FILE "Graphics/32x32/import_hover.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/import_disable.png":U NO-FOCUS FLAT-BUTTON
+     LABEL "" 
+     SIZE 7.8 BY 1.81 TOOLTIP "Import".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btn-excel AT ROW 1.19 COL 2
-     RECT-40 AT ROW 1 COL 1
+     btn-excel AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE 
+         BGCOLOR 21 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -147,7 +146,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 6.86
+         HEIGHT             = 1.81
          WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -226,7 +225,7 @@ END.
   IF NOT v-can-update THEN
       ASSIGN
       btn-excel:HIDDEN IN FRAME  {&frame-name} = YES 
-      RECT-40:HIDDEN IN FRAME  {&frame-name} = YES .
+      .
   
 
   

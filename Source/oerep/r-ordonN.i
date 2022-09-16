@@ -20,9 +20,9 @@
         EACH oe-ordl OF oe-ord
         WHERE oe-ordl.i-no      GE v-item[1]
           AND oe-ordl.i-no      LE v-item[2]
-          AND FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
               TRIM(oe-ordl.job-no) + STRING(INT(oe-ordl.job-no2),"999") GE v-job[1]
-          AND FILL(" ",9 - LENGTH(TRIM(oe-ordl.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(oe-ordl.job-no))) +
               TRIM(oe-ordl.job-no) + STRING(INT(oe-ordl.job-no2),"999") LE v-job[2]
           AND oe-ordl.job-no2 GE int(begin_job-no2)
           AND oe-ordl.job-no2 LE int(end_job-no2)    
@@ -489,7 +489,7 @@
             AND tt-fg-bin.i-no    EQ tt-report.key-06
             AND tt-fg-bin.qty     GT 0
             AND (tt-fg-bin.ord-no EQ oe-ord.ord-no OR
-                 SUBSTR(tt-report.key-04,1,9) EQ "")
+                 SUBSTR(tt-report.key-04,1,iJobLen) EQ "")
             AND tt-fg-bin.cust EQ ""
           NO-LOCK
           BREAK BY tt-fg-bin.job-no

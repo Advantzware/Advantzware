@@ -21,6 +21,10 @@ DEF VAR ip-rowid AS ROWID NO-UNDO.
 
 DEF NEW SHARED VAR CALL_id AS RECID NO-UNDO.
 DEF VAR fil_id AS RECID NO-UNDO.
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lUnitSetup AS LOGICAL NO-UNDO.
+
+RUN pGetSettingValue (xest.company).
 
 {ce/mach-ink.i new}
 
@@ -55,5 +59,21 @@ fil_id = recid(xef).
 find xef where recid(xef) = fil_id no-error.
 xef.gsh-qty = cumul.
 release est-op.
+
+
+PROCEDURE pGetSettingValue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
 
 /* end ---------------------------------- copr. 1992  advanced software, inc. */

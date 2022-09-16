@@ -44,6 +44,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i new shared}
+
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle             AS HANDLE    NO-UNDO.
@@ -316,7 +318,6 @@ DEFINE FRAME F-Main
      btnViewRM AT ROW 2.91 COL 138.2 COLON-ALIGNED NO-LABEL WIDGET-ID 138
      btClear AT ROW 3.14 COL 197 WIDGET-ID 146
      btnClearText AT ROW 3.33 COL 184.2 NO-LABEL WIDGET-ID 148
-     btnSBNotes AT ROW 32.67 COL 135
      imJobLookup AT ROW 7.52 COL 100.6 WIDGET-ID 182
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -863,8 +864,6 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-job-mat , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat-last-all ,
-             h_viewrminquiry , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-job-mat ,
              h_b-job-mat-last-all , 'AFTER':U ).
     END. /* Page 1 */
@@ -1120,7 +1119,7 @@ PROCEDURE pGetPrevoiusJob :
    
    FIND FIRST bf-job NO-LOCK
         WHERE bf-job.company EQ ipcCompany
-        AND TRIM(bf-job.job-no) EQ TRIM(ipcJobNo) 
+        AND bf-job.job-no  EQ ipcJobNo 
         AND bf-job.job-no2 EQ (ipiJobNo2 - 1) NO-ERROR.
         
    IF NOT AVAIL bf-job THEN

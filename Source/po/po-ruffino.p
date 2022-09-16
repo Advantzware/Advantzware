@@ -122,32 +122,14 @@ DEFINE TEMP-TABLE tt-text NO-UNDO
 DEFINE VARIABLE lValid   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN 
-DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath",
-        cRtnChar
-        ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
+RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
 
-    IF NOT lValid THEN 
-    DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
+IF NOT lValid THEN
+DO:
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
 END.
 
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 v-dash-line = FILL ("_",80).
 
@@ -359,7 +341,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     v-num-add = 0.
 
                 FIND FIRST job WHERE job.company EQ cocode 
-                    AND TRIM(job.job-no) EQ TRIM(po-ordl.job-no) 
+                    AND job.job-no EQ po-ordl.job-no 
                     AND job.job-no2 EQ po-ordl.job-no2
                     NO-LOCK NO-ERROR.
                 IF AVAILABLE job THEN

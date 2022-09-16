@@ -1444,7 +1444,7 @@ PROCEDURE get-matrix :
             ELSE 
             DO:
                 FIND FIRST job WHERE job.company EQ cocode
-                    AND trim(job.job-no)  EQ trim(rm-rctd.job-no)
+                    AND job.job-no  EQ rm-rctd.job-no
                     AND job.job-no2 EQ rm-rctd.job-no2
                     NO-LOCK NO-ERROR.
                 IF AVAILABLE job THEN 
@@ -1564,7 +1564,7 @@ PROCEDURE get-matrix :
                 ELSE 
                 DO:
                     FIND FIRST job WHERE job.company EQ cocode
-                        AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE) 
+                        AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE 
                         AND job.job-no2 EQ integer(rm-rctd.job-no2:SCREEN-VALUE )
                         NO-LOCK NO-ERROR.
                     IF AVAILABLE job THEN 
@@ -1804,7 +1804,7 @@ PROCEDURE get-matrix-tandem-rec :
             ELSE 
             DO:
                 FIND FIRST job WHERE job.company EQ cocode
-                    AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE) 
+                    AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE 
                     AND job.job-no2 EQ integer(rm-rctd.job-no2:SCREEN-VALUE )
                     NO-LOCK NO-ERROR.
                 IF AVAILABLE job THEN 
@@ -2006,7 +2006,7 @@ PROCEDURE get-qty-matrix :
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST job WHERE
             job.company EQ cocode AND
-            trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE)  AND
+            job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE  AND
             job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE )
             NO-LOCK NO-ERROR.
 
@@ -2141,7 +2141,7 @@ PROCEDURE lookup-job-mat :
             FOR EACH job-mat
                 WHERE job-mat.company    EQ cocode
                 AND job-mat.job        EQ job.job 
-                AND trim(job-mat.job-no) EQ trim(rm-rctd.job-no:SCREEN-VALUE)
+                AND job-mat.job-no     EQ rm-rctd.job-no:SCREEN-VALUE
                 AND job-mat.job-no2    EQ INPUT rm-rctd.job-no2 
                 AND (ip-for-item-only OR
                 (job-mat.frm      EQ INT(rm-rctd.s-num:SCREEN-VALUE) AND
@@ -2311,7 +2311,7 @@ PROCEDURE multi-issues :
                 IF NOT CAN-FIND(FIRST b-rm-rctd
                     WHERE b-rm-rctd.company  EQ rm-rctd.company
                     AND b-rm-rctd.rct-date EQ rm-rctd.rct-date
-                    AND trim(b-rm-rctd.job-no) EQ trim(rm-rctd.job-no)
+                    AND b-rm-rctd.job-no   EQ rm-rctd.job-no
                     AND b-rm-rctd.job-no2  EQ rm-rctd.job-no2
                     AND b-rm-rctd.i-no     EQ rm-rctd.i-no
                     AND b-rm-rctd.loc      EQ rm-bin.loc
@@ -2465,7 +2465,7 @@ PROCEDURE new-i-no :
 
             FOR EACH job
                 WHERE job.company EQ cocode
-                AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE) 
+                AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE 
                 AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE )
                 NO-LOCK,
                 EACH job-mat
@@ -2524,7 +2524,7 @@ PROCEDURE new-job-no :
 
             FIND FIRST job
                 WHERE job.company EQ cocode
-                AND trim(job.job-no)  EQ trim(lv-job-no)
+                AND job.job-no  EQ lv-job-no
                 AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE )
                 USE-INDEX job-no NO-LOCK NO-ERROR.
 
@@ -2756,7 +2756,7 @@ PROCEDURE tandem-rec-uom-conv :
 
     FIND FIRST job WHERE
         job.company EQ cocode AND
-        trim(job.job-no)  EQ trim(ip-job-no) AND
+        job.job-no  EQ ip-job-no AND
         job.job-no2 EQ ip-job-no2
         NO-LOCK NO-ERROR.
    
@@ -2936,7 +2936,7 @@ PROCEDURE valid-job-no :
 
             IF NOT CAN-FIND(FIRST job
                 WHERE job.company EQ cocode
-                AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE) 
+                AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE 
                 USE-INDEX job-no) OR lv-po-no NE 0
                 THEN 
             DO:
@@ -2976,7 +2976,7 @@ PROCEDURE valid-job-no2 :
         DO:
             FIND FIRST job
                 WHERE job.company EQ cocode
-                AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE) 
+                AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE 
                 AND job.job-no2 EQ int(rm-rctd.job-no2:SCREEN-VALUE)
                 USE-INDEX job-no NO-LOCK NO-ERROR.
             IF NOT AVAILABLE job THEN 
@@ -3431,7 +3431,7 @@ PROCEDURE validate-jobmat :
         IF rm-rctd.job-no:SCREEN-VALUE  NE "" THEN
             FIND FIRST job
                 WHERE job.company EQ cocode
-                AND trim(job.job-no)  EQ trim(rm-rctd.job-no:SCREEN-VALUE) 
+                AND job.job-no  EQ rm-rctd.job-no:SCREEN-VALUE 
                 AND job.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE )
                 NO-LOCK NO-ERROR.
         IF AVAILABLE job THEN
@@ -3494,7 +3494,7 @@ PROCEDURE validate-jobmat :
             DO:
 
                 FIND FIRST job WHERE job.company = cocode
-                    AND trim(job.job-no) =  trim(rm-rctd.job-no:SCREEN-VALUE)
+                    AND job.job-no =  rm-rctd.job-no:SCREEN-VALUE
                     AND job.job-no2 = int(rm-rctd.job-no2:SCREEN-VALUE)
                     NO-LOCK NO-ERROR.
                 /*             v-job-up = 0.                                    */

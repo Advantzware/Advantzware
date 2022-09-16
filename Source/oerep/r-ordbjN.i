@@ -36,9 +36,9 @@
       FOR EACH tt-fg-bin
           WHERE tt-fg-bin.company   EQ cocode
             AND tt-fg-bin.i-no      EQ tt-report.key-06
-            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,9) AND
-                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,11,3))) OR
-                 SUBSTR(tt-report.key-04,1,9) EQ ""):
+            AND ((tt-fg-bin.job-no  EQ SUBSTR(tt-report.key-04,1,iJobLen) AND
+                  tt-fg-bin.job-no2 EQ INT(SUBSTR(tt-report.key-04,(iJobLen + 2),3))) OR
+                 SUBSTR(tt-report.key-04,1,iJobLen) EQ ""):
         tt-report.q-onh = tt-report.q-onh + tt-fg-bin.qty.
       END.
     END.
@@ -403,7 +403,7 @@
        /* DO WITH FRAME detail:
           DOWN.
           /*
-          if trim(tt-report.key-04) ne "-00" then
+          if trim(tt-report.key-04) ne "-000" then
             display trim(tt-report.key-04) @ v-ord-no.
           */
           if (/*first-of(tt-report.row-id) and*/ v-field1 ne "") then
@@ -415,9 +415,9 @@
             where tt-fg-bin.company           eq cocode
               and tt-fg-bin.i-no              eq tt-report.key-06
               and tt-fg-bin.qty               gt 0
-              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,9) and
-                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,11,3))) or
-                   substr(tt-report.key-04,1,9) eq "")
+              and ((tt-fg-bin.job-no          eq substr(tt-report.key-04,1,iJobLen) and
+                    tt-fg-bin.job-no2         eq int(substr(tt-report.key-04,(iJobLen + 2),3))) or
+                   substr(tt-report.key-04,1,iJobLen) eq "")
             no-lock
             break by tt-fg-bin.job-no
                   by tt-fg-bin.job-no2

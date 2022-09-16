@@ -1627,7 +1627,9 @@ PROCEDURE dynamic-labels :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  IF NOT AVAILABLE eb THEN
+      RETURN.
+      
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-label[1] EQ "" THEN lv-label[1] = eb.cas-cnt:LABEL.
 
@@ -1794,12 +1796,12 @@ PROCEDURE local-assign-record :
            RUN cec/d-layers.w (YES, ROWID(eb), eb.tr-no, eb.tr-dep, eb.cas-cnt,
                                eb.stacks, INPUT-OUTPUT eb.tr-cas, INPUT-OUTPUT eb.tr-cnt).
     END.
-
+    
+    IF ll-unit-calc THEN    
     ASSIGN                                
-     eb.cas-pal = eb.stacks * eb.tr-cas  
-     eb.tr-cnt  = eb.tr-cnt + INTEGER(eb.quantityPartial:SCREEN-VALUE)
-     .
-   
+     eb.cas-pal = eb.stacks * eb.tr-cas       
+     .   
+        
      RUN cec/UpdFgEc.p(INPUT eb.company, INPUT ROWID(eb)) .
 
     DISPLAY eb.cas-pal eb.tr-cnt WITH FRAME {&FRAME-NAME}.
@@ -1958,12 +1960,14 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN dynamic-labels.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  IF NOT AVAILABLE eb THEN
+      RETURN.
 
   /* Code placed here will execute AFTER standard behavior.    */
   ll-foam = CAN-FIND(FIRST style

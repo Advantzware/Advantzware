@@ -73,7 +73,7 @@ IF bf-job.job-no2 GT 0 THEN
 ELSE 
     bf-job.orderType = "O".               
 
-RUN jc/BuildJob.p (ROWID(bf-job), 0, OUTPUT lError, OUTPUT cMessage).                       
+RUN jc/BuildJob.p (ROWID(bf-job), 0, 0, OUTPUT lError, OUTPUT cMessage).                       
 //RUN jc/jc-calc.p (RECID(bf-job), YES) NO-ERROR.
 
 RUN pUpdateFGItemQty(BUFFER bf-job).

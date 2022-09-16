@@ -1,0 +1,50 @@
+<CdtTrfTxInf>
+    <PmtId>
+     <InstrId>Enter Instr ID</InstrId>
+     <EndToEndId>$ChequeNumber$</EndToEndId>
+    </PmtId>
+    <Amt>
+     <InstdAmt Ccy="USD">$TransactionAmount$</InstdAmt>
+    </Amt>
+    <ChqInstr>
+     <ChqNb>$ChequeNumber$</ChqNb>
+     <ChqMtrtyDt>$CurrentDate|YYYY-MM-DD |DATE|$</ChqMtrtyDt>
+    </ChqInstr>
+    <Cdtr>
+      <Nm>$VendorName$</Nm>
+     <PstlAdr>
+      <PstCd>$VendorRemitToPostalCode$</PstCd>
+      <TwnNm>$VendorRemitToCity$</TwnNm>
+      <CtrySubDvsn>$VendorRemitToState$</CtrySubDvsn>
+      <Ctry>$VendorCountry$</Ctry>
+      <AdrLine>$VendorRemitToStreetAddress1$</AdrLine>
+      <AdrLine>$VendorRemitToStreetAddress2$</AdrLine>
+     </PstlAdr>
+    </Cdtr>
+    <RltdRmtInf>
+     <RmtId>$DeliveryMethod$</RmtId>
+    </RltdRmtInf>
+    <RmtInf>
+     <Ustrd>Enter Ustrd</Ustrd>
+     <Strd>
+      <RfrdDocInf>
+       <Tp>
+        <CdOrPrtry>
+         <Cd>NURG</Cd>
+        </CdOrPrtry>
+       </Tp>
+       <Nb>$InvoiceNumber$</Nb>
+       <RltdDt>$InvoiceDate$</RltdDt>
+      </RfrdDocInf>
+      <RfrdDocAmt>
+       <DuePyblAmt Ccy="USD">$DuePayableAmount$</DuePyblAmt>
+       <AdjstmntAmtAndRsn>
+        <Amt Ccy="USD">$Amount$</Amt>
+        <CdtDbtInd>$CreditDebitIndicator$</CdtDbtInd>
+       </AdjstmntAmtAndRsn>
+       <RmtdAmt Ccy="USD">$RemittedAmount$</RmtdAmt>
+      </RfrdDocAmt>
+      <AddtlRmtInf>$AdditionalRemittanceInformation$</AddtlRmtInf>
+     </Strd>
+    </RmtInf>
+   </CdtTrfTxInf>

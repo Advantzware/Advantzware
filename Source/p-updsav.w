@@ -553,8 +553,14 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lDisableDeleteButton AS LOGICAL NO-UNDO.
 
 DO WITH FRAME Panel-Frame:
+
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"getdelete-TARGET", OUTPUT char-hdl).
+     
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN pDisableDeleteButton IN WIDGET-HANDLE(char-hdl) (OUTPUT lDisableDeleteButton)  .
 
   IF panel-state = 'disable-all':U THEN DO:
 
@@ -679,7 +685,7 @@ IF NOT add-valid THEN
    Btn-Add:SENSITIVE  = NO
    Btn-Copy:SENSITIVE = NO.
 
-IF NOT del-valid THEN
+IF NOT del-valid OR lDisableDeleteButton THEN
   Btn-Delete:SENSITIVE = NO.
 
 END PROCEDURE.

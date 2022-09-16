@@ -75,7 +75,7 @@ DEF var v-po-no-source AS char FORMAT "!" init "R".
 def var v-stat as char format "!" init "O".
 
 DEF var v-out AS char FORMAT "x(40)" NO-UNDO.
-DEF var v-job AS char FORMAT "x(9)" NO-UNDO.
+DEF var v-job AS char FORMAT "x(13)" NO-UNDO.
 DEF var num-rec AS int init 0 NO-UNDO.
 DEF var by-release AS log init NO NO-UNDO.
 DEF VAR lv-rd_print  AS CHAR NO-UNDO.
@@ -686,7 +686,7 @@ PROCEDURE create-text-file :
           input stream s-form close.
         end.
         FOR EACH w-ord:
-           v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+           v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
            IF v-job BEGINS "-" or v-job = ? /* 9901 CAH */
                 THEN v-job = string(W-ORD.ORD-NO).   /* 9812 CAH in case blank */
            find first itemfg where itemfg.company = cocode
@@ -867,13 +867,13 @@ PROCEDURE create-text-file :
 
         ASSIGN
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt
-        v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+        v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
         IF v-job BEGINS "-" THEN v-job = "".
         ASSIGN
-         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
          lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
          lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
          lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -1994,14 +1994,14 @@ PROCEDURE print-loadtag :
                    
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt.
 
-        v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
+        v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))).
         IF v-job BEGINS "-" THEN v-job = "".
 
         ASSIGN
-         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,6)
+         lv-middlesex-po  = SUBSTR(TRIM(w-ord.job-no),1,iJobLen)
          lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
          lv-middlesex-po  = SUBSTR(TRIM(w-ord.cust-po-no),1,6)
          lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" ELSE
@@ -2019,7 +2019,7 @@ PROCEDURE print-loadtag :
       FIND FIRST cust WHERE cust.company = g_company
                        AND cust.cust-no = itemfg.cust-no
                        NO-LOCK NO-ERROR.
-            v-job = bf-tag.job-no + "-" + string(bf-tag.job-no2,"99").
+            v-job = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', bf-tag.job-no, bf-tag.job-no2))).
       IF v-job BEGINS "-" THEN v-job = "".
 
       FIND first job-hdr WHERE job-hdr.company EQ g_company
@@ -2068,10 +2068,10 @@ PROCEDURE print-loadtag :
              v-net-wt = 0
              v-sheet-wt = 0
              v-uom = "EA"
-             lv-middlesex-po  = SUBSTR(TRIM(bf-tag.job-no),1,6)
+             lv-middlesex-po  = SUBSTR(TRIM(bf-tag.job-no),1,iJobLen)
              lv-middlesex-job = IF lv-middlesex-job EQ "" THEN "" ELSE
                             "%MX" +
-                            FILL("0",6 - LENGTH(TRIM(lv-middlesex-job))) +
+                            FILL("0",iJobLen - LENGTH(TRIM(lv-middlesex-job))) +
                             TRIM(lv-middlesex-job)
              lv-middlesex-po  = SUBSTR(TRIM(v-cust-po-no),1,6)
              lv-middlesex-po  = IF lv-middlesex-po EQ "" THEN "" 

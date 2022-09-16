@@ -1886,8 +1886,8 @@ PROCEDURE run-report :
         AND po-ordl.po-no EQ po-ord.po-no
         AND po-ordl.i-no      GE v-s-item
         AND po-ordl.i-no      LE v-tt-ei
-        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) GE v-s-job
-        AND fill(" ",9 - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) LE v-e-job
+        AND FILL(" ", iJobLen - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) GE v-s-job
+        AND FILL(" ", iJobLen - length(TRIM(po-ordl.job-no))) + trim(po-ordl.job-no) LE v-e-job
         NO-LOCK BREAK BY po-ord.po-no
         BY po-ord.po-date
         BY po-ordl.po-no 

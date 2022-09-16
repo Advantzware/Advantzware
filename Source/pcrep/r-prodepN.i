@@ -335,10 +335,10 @@
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "mch-cod"          THEN cVarValue = STRING(tt-srt.m-code) .
+                         WHEN "mch-cod"          THEN cVarValue = STRING(tt-srt.m-code).
                          WHEN "job"              THEN cVarValue = STRING(tt-srt.job-no) .
                          WHEN "job2"             THEN cVarValue = STRING(tt-srt.job-no2) .
-                         WHEN "shift"            THEN cVarValue = STRING(tt-srt.shift,">>>>") .
+                         WHEN "shift"            THEN cVarValue = STRING(tt-srt.shift,">>>>").
                          WHEN "mr-stnd"          THEN cVarValue = STRING(tt-srt.mr-std-hr,"->>>9.99") .
                          WHEN "mr-act"           THEN cVarValue = STRING(tt-srt.mr-act-hr,"->>>9.99") .
                          WHEN "mr-eff"           THEN cVarValue = STRING(mr-eff,"->>>9.99") .
@@ -358,10 +358,10 @@
                          WHEN "act-ton"          THEN cVarValue = STRING(tt-srt.qty-ton,"->>,>>9.99") .
                          WHEN "act-msf"          THEN cVarValue = STRING(tt-srt.qty-msf,"->>,>>9.99") .
                          WHEN "exp-qty"          THEN cVarValue = STRING(tt-srt.qty-expect,"->>>,>>>,>>9") .
-                         WHEN "i-no"             THEN cVarValue = STRING(tt-srt.i-no) .
+                         WHEN "i-no"             THEN cVarValue = STRING(tt-srt.i-no).
                          
                     END CASE.
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue) .
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -422,11 +422,11 @@
                          WHEN "act-ton"       THEN cVarValue = STRING(mch-qty-ton,"->>,>>9.99") .
                          WHEN "act-msf"       THEN cVarValue = STRING(mch-qty-msf,"->>,>>9.99") .
                          WHEN "exp-qty"       THEN cVarValue = STRING(mch-qty-expect,"->>>,>>>,>>9") .
-                         WHEN "i-no"          THEN cVarValue = STRING(tt-srt.i-no) .
+                         WHEN "i-no"          THEN cVarValue = STRING(tt-srt.i-no).
                          
                     END CASE.
                     
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue) . 
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -437,7 +437,7 @@
            
             
             IF tb_excel THEN DO:
-                 PUT STREAM excel UNFORMATTED "," + ( IF AVAILABLE mach THEN STRING(mach.m-dscr) ELSE "          " ) + " ," +
+                 PUT STREAM excel UNFORMATTED "," + ( IF AVAILABLE mach THEN DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, STRING(mach.m-dscr)) ELSE "          " ) + " ," +
                        substring(cExcelDisplay,9,500) SKIP.
              END.
 
@@ -500,11 +500,11 @@
                          WHEN "act-ton"           THEN cVarValue = STRING(shf-qty-ton,"->>,>>9.99") .
                          WHEN "act-msf"           THEN cVarValue = STRING(shf-qty-msf,"->>,>>9.99") .
                          WHEN "exp-qty"           THEN cVarValue = STRING(shf-qty-expect,"->>>,>>>,>>9") .
-                         WHEN "i-no"              THEN cVarValue = STRING(tt-srt.i-no) .                         
+                         WHEN "i-no"              THEN cVarValue = STRING(tt-srt.i-no).                         
                          
                     END CASE.
                     
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue) .
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -583,11 +583,11 @@
                          WHEN "act-ton"           THEN cVarValue = STRING(dpt-qty-ton,"->>,>>9.99") .
                          WHEN "act-msf"           THEN cVarValue = STRING(dpt-qty-msf,"->>,>>9.99") .
                          WHEN "exp-qty"           THEN cVarValue = STRING(dpt-qty-expect,"->>>,>>>,>>9") .
-                         WHEN "i-no"              THEN cVarValue = STRING(tt-srt.i-no) .
+                         WHEN "i-no"              THEN cVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, STRING(tt-srt.i-no))  .
                          
                     END CASE.
                     
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue) .
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -598,7 +598,7 @@
                  PUT SKIP SPACE(6) str-line SKIP .
                  
                  IF tb_excel THEN DO:
-                        PUT STREAM excel UNFORMATTED "," + (IF AVAILABLE dept THEN STRING(dept.dscr) ELSE "") + " ," +
+                        PUT STREAM excel UNFORMATTED "," + (IF AVAILABLE dept THEN DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, STRING(dept.dscr)) ELSE "") + " ," +
                        substring(cExcelDisplay,9,500) SKIP.
                  END.
                  ASSIGN

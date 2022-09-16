@@ -1,0 +1,55 @@
+ADD FIELD "emailPreference" OF "cust" AS integer
+  FORMAT "9"
+  POSITION 180
+  INITIAL "0"
+  LABEL "Email Preference"
+  COLUMN-LABEL "Email Preference"
+  ORDER 1780
+  MAX-WIDTH 4
+
+ADD FIELD "receiveAsRMItemID" OF "eb" AS character
+  FORMAT "x(10)"
+  POSITION 167
+  INITIAL ""
+  LABEL "Receive As RM ItemID"
+  COLUMN-LABEL "Receive As RM ItemID"
+  ORDER 1630
+  MAX-WIDTH 20
+
+ADD FIELD "receiveAsRMItemID" OF "itemfg" AS character
+  FORMAT "x(10)"
+  POSITION 233
+  INITIAL ""
+  LABEL "Receive As RM ItemID"
+  COLUMN-LABEL "Receive As RM ItemID"
+  ORDER 2300
+  MAX-WIDTH 20
+
+ADD INDEX "receiveAsRMItemID" ON "itemfg"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "receiveAsRMItemID" ASCENDING
+
+ADD FIELD "floorPositions" OF "loc" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 18
+  INITIAL "0"
+  LABEL "# Floor Positions"
+  COLUMN-LABEL "# Floor Positions"
+  ORDER 170
+  MAX-WIDTH 4
+
+ADD FIELD "rackPositions" OF "loc" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 19
+  INITIAL "0"
+  LABEL "# Rack Positions"
+  COLUMN-LABEL "# Rack Positions"
+  ORDER 180
+  MAX-WIDTH 4
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000001126

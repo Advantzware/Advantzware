@@ -192,7 +192,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 16.2 BY 1
           BGCOLOR 15 FONT 1
-     estRelease.quantity AT ROW 1.29 COL 43.4 COLON-ALIGNED
+     estRelease.quantity AT ROW 1.29 COL 43.4 COLON-ALIGNED FORMAT ">>>>>>>>9"
           VIEW-AS COMBO-BOX INNER-LINES 10
           DROP-DOWN-LIST
           SIZE 20 BY 1
@@ -452,10 +452,13 @@ DO:
                 END.
            WHEN "shipToID" THEN 
                 DO: 
-                    RUN windows/l-shipt3.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
+                    RUN windows/l-shipt3.w (cocode, locode, eb.cust-no, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
 //                    RUN windows/l-shipt2.w (cocode, locode, estRelease.customerID:SCREEN-VALUE, estRelease.shipToID:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
-                    IF char-val <> "" THEN do: 
-                        FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+                    IF char-val <> "" THEN DO: 
+                        ASSIGN
+                            FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
+                            estRelease.customerID:SCREEN-VALUE        = ENTRY(4, char-val)
+                            .
                     END.
                 END.
             
@@ -1164,14 +1167,26 @@ PROCEDURE valid-shipto :
           Notes:       
         ------------------------------------------------------------------------------*/
     DEFINE OUTPUT PARAMETER opcValidError AS LOGICAL NO-UNDO .
+    DEFINE VARIABLE cInternalCust AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-cust FOR cust.
     DO WITH FRAME {&FRAME-NAME}:
         FIND FIRST cust NO-LOCK
             WHERE cust.company EQ cocode
             AND cust.ACTIVE EQ "X" NO-ERROR .
+            
+        FOR EACH bf-cust NO-LOCK
+            WHERE bf-cust.company EQ cocode
+            AND bf-cust.internal EQ YES 
+            AND bf-cust.active  NE "X": 
+            cInternalCust = cInternalCust + bf-cust.cust-no + ",".
+        END.
+                
+        IF cInternalCust EQ "," THEN cInternalCust = "".    
 
         FIND FIRST shipto NO-LOCK 
         WHERE shipto.company EQ cocode 
-        AND (shipto.cust-no EQ estRelease.customerID:SCREEN-VALUE OR shipto.cust-no EQ cust.cust-no)
+        AND (shipto.cust-no EQ eb.cust-no OR shipto.cust-no EQ cust.cust-no  OR 
+        (lookup(shipto.cust-no,cInternalCust) NE 0 and cInternalCust ne ""))
         AND TRIM(shipto.ship-id) = TRIM(estRelease.shipToID:SCREEN-VALUE)
         NO-ERROR.
         IF NOT AVAILABLE shipto THEN 

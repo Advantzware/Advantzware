@@ -115,6 +115,7 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -139,29 +140,29 @@ RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb, ef.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS eb.cust-no eb.ship-id est.csrUser_id eb.sman ~
-eb.comm eb.procat eb.part-no eb.stock-no eb.part-dscr1 eb.part-dscr2 ~
-eb.die-no ef.cad-image eb.cad-no eb.plate-no eb.spc-no eb.upc-no eb.style ~
-est.metric ef.board eb.len eb.wid eb.dep eb.adhesive eb.dust eb.fpanel ~
-eb.lock eb.gluelap eb.k-len eb.k-wid eb.tuck eb.lin-in eb.t-wid eb.t-len ~
-eb.t-sqin eb.bl-qty 
+&Scoped-Define ENABLED-FIELDS eb.receiveAsRMItemID eb.cust-no eb.ship-id ~
+est.csrUser_id eb.sman eb.comm eb.procat eb.part-no eb.stock-no ~
+eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.cad-no eb.plate-no ~
+eb.spc-no eb.upc-no eb.style est.metric ef.board eb.len eb.wid eb.dep ~
+eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-len eb.k-wid eb.tuck ~
+eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.bl-qty 
 &Scoped-define ENABLED-TABLES eb est ef
 &Scoped-define FIRST-ENABLED-TABLE eb
 &Scoped-define SECOND-ENABLED-TABLE est
 &Scoped-define THIRD-ENABLED-TABLE ef
 &Scoped-Define ENABLED-OBJECTS btn_fgitem btn_from btn_style btn_board ~
 btn_cust RECT-18 RECT-19 RECT-23 RECT-24 
-&Scoped-Define DISPLAYED-FIELDS est.est-no eb.form-no est.form-qty ~
-eb.blank-no est.mod-date est.ord-date eb.cust-no eb.ship-id eb.ship-name ~
-eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state eb.ship-zip ~
-est.csrUser_id eb.sman eb.comm eb.procat eb.part-no eb.stock-no ~
+&Scoped-Define DISPLAYED-FIELDS eb.receiveAsRMItemID est.est-no eb.form-no ~
+est.form-qty eb.blank-no est.mod-date est.ord-date eb.cust-no eb.ship-id ~
+eb.ship-name eb.ship-addr[1] eb.ship-addr[2] eb.ship-city eb.ship-state ~
+eb.ship-zip est.csrUser_id eb.sman eb.comm eb.procat eb.part-no eb.stock-no ~
 eb.part-dscr1 eb.part-dscr2 eb.die-no ef.cad-image eb.cad-no eb.plate-no ~
 eb.spc-no eb.upc-no eb.style est.metric ef.board ef.brd-dscr eb.len eb.wid ~
 eb.dep eb.adhesive eb.dust eb.fpanel eb.lock eb.gluelap eb.k-len eb.k-wid ~
 eb.tuck eb.lin-in eb.t-wid eb.t-len eb.t-sqin eb.bl-qty eb.ord-no 
-&Scoped-define DISPLAYED-TABLES est eb ef
-&Scoped-define FIRST-DISPLAYED-TABLE est
-&Scoped-define SECOND-DISPLAYED-TABLE eb
+&Scoped-define DISPLAYED-TABLES eb est ef
+&Scoped-define FIRST-DISPLAYED-TABLE eb
+&Scoped-define SECOND-DISPLAYED-TABLE est
 &Scoped-define THIRD-DISPLAYED-TABLE ef
 &Scoped-Define DISPLAYED-OBJECTS fi_from-est-no fi_blank-qty sman_sname ~
 procat_desc style_dscr 
@@ -287,6 +288,10 @@ DEFINE RECTANGLE RECT-24
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fold
+     eb.receiveAsRMItemID AT ROW 3.86 COL 136 COLON-ALIGNED WIDGET-ID 22
+          LABEL "RM Item#"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
      btnDieLookup AT ROW 6.95 COL 74
      est.est-no AT ROW 1.24 COL 10.2 COLON-ALIGNED
           LABEL "Est #" FORMAT "x(8)"
@@ -364,20 +369,28 @@ DEFINE FRAME fold
           SIZE 10 BY 1
           FONT 6
      procat_desc AT ROW 9.1 COL 31 COLON-ALIGNED NO-LABEL
-     eb.part-no AT ROW 3.86 COL 86 COLON-ALIGNED
+     eb.part-no AT ROW 2.67 COL 116 COLON-ALIGNED
+          LABEL "Cust Part#" FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 23 BY 1
+          SIZE 37 BY 1
           FONT 6
-     eb.stock-no AT ROW 3.86 COL 128.2 COLON-ALIGNED
+     eb.stock-no AT ROW 3.86 COL 101 COLON-ALIGNED
           LABEL "FG Item#"
           VIEW-AS FILL-IN 
-          SIZE 23 BY 1
+          SIZE 22 BY 1
           FONT 6
      eb.part-dscr1 AT ROW 5.05 COL 86 COLON-ALIGNED
           LABEL "Item Name"
           VIEW-AS FILL-IN 
           SIZE 50 BY 1
           FONT 6
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fold
      eb.part-dscr2 AT ROW 6 COL 86 COLON-ALIGNED
           LABEL "Description"
           VIEW-AS FILL-IN 
@@ -389,13 +402,6 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 33 BY 1
           FONT 6
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME fold
      ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
@@ -479,6 +485,13 @@ DEFINE FRAME fold
           LABEL "Lin Inches"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fold
      eb.t-wid AT ROW 16 COL 25 COLON-ALIGNED
           LABEL "Blank Width"
           VIEW-AS FILL-IN 
@@ -491,13 +504,6 @@ DEFINE FRAME fold
           LABEL "Blank Sq. In." FORMAT ">>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME fold
      eb.bl-qty AT ROW 2.67 COL 86 COLON-ALIGNED
           LABEL "Qty" FORMAT ">>>,>>>,>>9"
           VIEW-AS FILL-IN 
@@ -507,11 +513,11 @@ DEFINE FRAME fold
           LABEL "Last Order#" FORMAT ">>>>>>>>"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     btn_fgitem AT ROW 3.81 COL 115 WIDGET-ID 16
+     btn_fgitem AT ROW 3.86 COL 88 WIDGET-ID 16
      btn_from AT ROW 1.19 COL 24.8 WIDGET-ID 16
      btn_style AT ROW 10.52 COL 11 WIDGET-ID 16
      btn_board AT ROW 11.71 COL 16 WIDGET-ID 16
-     btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16     
+     btn_cust AT ROW 2.67 COL 12 WIDGET-ID 16
      btnPlateLookup AT ROW 7.95 COL 115.4 WIDGET-ID 20
      "of" VIEW-AS TEXT
           SIZE 3 BY .95 AT ROW 1.24 COL 72.6
@@ -653,10 +659,14 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.part-dscr2 IN FRAME fold
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN eb.part-no IN FRAME fold
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.procat IN FRAME fold
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN procat_desc IN FRAME fold
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN eb.receiveAsRMItemID IN FRAME fold
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.ship-addr[1] IN FRAME fold
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN eb.ship-addr[2] IN FRAME fold
@@ -887,6 +897,20 @@ DO:
               assign est.csrUser_id:screen-value in frame {&frame-name} = entry(1,char-val).
            return no-apply.
        END.
+       WHEN "receiveAsRMItemID" THEN DO:
+           RUN system/openlookup.p (
+               "",  /* company */ 
+               "",  /* lookup field */
+               26, /* Subject ID */
+               "",  /* User ID */
+               0,   /* Param value ID */
+               OUTPUT cFieldsValue, 
+               OUTPUT cFoundValue, 
+               OUTPUT recFoundRecID
+               ).
+           IF cFoundValue <> "" AND cFoundValue NE eb.receiveAsRMItemID:SCREEN-VALUE THEN
+               eb.receiveAsRMItemID:SCREEN-VALUE = cFoundValue.
+       END.       
   end case. 
 
   APPLY "ENTRY":U TO lw-focus.
@@ -1166,6 +1190,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn_style
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_style V-table-Win
@@ -1686,22 +1711,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
-PROCEDURE pCheckAutoLock :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
-   
-   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-blank-size V-table-Win 
 PROCEDURE calc-blank-size :
 /*------------------------------------------------------------------------------
@@ -1798,8 +1807,7 @@ PROCEDURE copy-blank :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   RUN est/d-copyblank.w (INPUT ROWID(eb),
-                          INPUT ROWID(ef)).
+  RUN est/CopySheet.p(INPUT ROWID(eb)).  
 
 END PROCEDURE.
 
@@ -1838,25 +1846,27 @@ find first cust  where cust.company eq cocode
 
 create itemfg.
 assign
- itemfg.company    = cocode
- itemfg.loc        = locode
- itemfg.i-no       = v-item
- itemfg.i-name     = xeb.part-dscr1
- itemfg.part-dscr1 = xeb.part-dscr2
- itemfg.part-no    = xeb.part-no
- itemfg.cust-no    = xeb.cust-no
- itemfg.cust-name  = if avail cust then cust.name else ""
- itemfg.die-no     = xeb.die-no
- itemfg.plate-no   = xeb.plate-no
- itemfg.style      = xeb.style
- itemfg.procat     = xeb.procat
- itemfg.cad-no     = xeb.cad-no
- itemfg.upc-no     = xeb.upc-no
- itemfg.spc-no     = xeb.spc-no
- itemfg.isaset     = (xest.est-type eq 2 or xest.est-type eq 6) and
-                     xeb.form-no eq 0
- itemfg.pur-man    = xeb.pur-man 
- itemfg.alloc      = xeb.set-is-assembled
+ itemfg.company           = cocode
+ itemfg.loc               = locode
+ itemfg.i-no              = v-item
+ itemfg.i-name            = xeb.part-dscr1
+ itemfg.part-dscr1        = xeb.part-dscr2
+ itemfg.part-no           = xeb.part-no
+ itemfg.cust-no           = xeb.cust-no
+ itemfg.cust-name         = if avail cust then cust.name else ""
+ itemfg.die-no            = xeb.die-no
+ itemfg.plate-no          = xeb.plate-no
+ itemfg.style             = xeb.style
+ itemfg.procat            = xeb.procat
+ itemfg.cad-no            = xeb.cad-no
+ itemfg.upc-no            = xeb.upc-no
+ itemfg.spc-no            = xeb.spc-no
+ itemfg.isaset            = (xest.est-type eq 2 or xest.est-type eq 6) and
+                            xeb.form-no eq 0
+ itemfg.pur-man           = xeb.pur-man 
+ itemfg.alloc             = xeb.set-is-assembled
+ itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+ itemfg.trno              = xeb.tr-no
  .
 
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
@@ -2208,6 +2218,8 @@ PROCEDURE local-assign-statement :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cOldFGItem AS CHARACTER NO-UNDO.
   
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND CURRENT ef EXCLUSIVE-LOCK.
   FIND CURRENT est EXCLUSIVE-LOCK.
@@ -2237,7 +2249,16 @@ PROCEDURE local-assign-statement :
           INPUT eb.stock-no /* New FG Item */
           ).    
   END. 
-                  
+  
+  IF eb.stock-no NE "" THEN DO:
+      FIND FIRST bf-itemfg EXCLUSIVE-LOCK
+           WHERE bf-itemfg.company EQ eb.company
+             AND bf-itemfg.i-no    EQ eb.stock-no
+           NO-ERROR.
+      IF AVAILABLE bf-itemfg THEN
+          bf-itemfg.receiveAsRMItemID = eb.receiveAsRMItemID.
+  END.
+                          
   FIND CURRENT ef NO-LOCK.
   FIND CURRENT est NO-LOCK.
 
@@ -2636,6 +2657,9 @@ PROCEDURE local-update-record :
   RUN valid-custcsr NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  RUN valid-rm-item NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    
   DO WITH FRAME {&FRAME-NAME}:
   /*  IF eb.t-wid:MODIFIED OR eb.t-len:MODIFIED OR 
        eb.wid:MODIFIED OR eb.len:MODIFIED OR eb.dep:MODIFIED */
@@ -2901,6 +2925,22 @@ PROCEDURE one-eb-on-ef :
 
   op-one-eb = AVAIL b-ac-eb.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
+PROCEDURE pCheckAutoLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
+   
+   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3367,6 +3407,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win
+PROCEDURE valid-rm-item PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF eb.receiveAsRMItemID:SCREEN-VALUE EQ "" THEN
+        RETURN.
+        
+    IF NOT CAN-FIND(FIRST item
+                    WHERE item.company  EQ cocode
+                      AND item.i-no     EQ eb.receiveAsRMItemID:SCREEN-VALUE) THEN DO:
+        MESSAGE "Invalid RM Item #, try help..." VIEW-AS ALERT-BOX ERROR.
+        
+        APPLY "ENTRY" TO eb.receiveAsRMItemID.
+        
+        RETURN ERROR.
+    END.
+    
+    {methods/lValidateError.i NO}
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
 PROCEDURE valid-ship-id :

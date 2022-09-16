@@ -30,6 +30,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{sys/inc/var.i}
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
   def var ip-company LIKE eb.company init "001" no-undo.
@@ -157,7 +158,7 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       eb.form-no COLUMN-LABEL "Form#" FORMAT ">9":U
       eb.blank-no COLUMN-LABEL "Blank#" FORMAT ">9":U
-      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
+      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(30)":U
             WIDTH 20
       eb.part-dscr1 COLUMN-LABEL "Description" FORMAT "x(30)":U
             WIDTH 40

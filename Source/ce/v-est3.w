@@ -49,6 +49,10 @@ DEFINE VARIABLE lPackCodeBtn AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+
+RUN pGetSettingValue(cocode).
+
 RUN sys/ref/nk1look.p (INPUT cocode, "CePackEnhanced", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -1632,6 +1636,7 @@ DO:
     eb.i-coat-p:SCREEN-VALUE = "1".
 
   {ce/def-inks.i}
+  RUN pClearInkUnits.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1643,6 +1648,7 @@ END.
 ON VALUE-CHANGED OF eb.i-coat-p IN FRAME fold /* Passes */
 DO:
   {ce/def-inks.i}
+  RUN pClearInkUnits.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2051,6 +2057,7 @@ DO:
     eb.i-pass:SCREEN-VALUE = "1".
 
   {ce/def-inks.i}
+  RUN pClearInkUnits.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2062,6 +2069,7 @@ END.
 ON VALUE-CHANGED OF eb.i-pass IN FRAME fold /* Passes */
 DO:
   {ce/def-inks.i}
+  RUN pClearInkUnits.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3100,7 +3108,8 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li-num-of-code AS INT NO-UNDO.
-
+    
+    
 {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
@@ -3252,6 +3261,9 @@ PROCEDURE local-update-record :
 
   RUN update-ink.
   RUN disable-inks.
+  
+  RUN pSetFormColors (INPUT eb.company, INPUT eb.est-no, INPUT eb.form-no).  
+    
 
 END PROCEDURE.
 
@@ -3319,6 +3331,217 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnitNo V-table-Win
+PROCEDURE pGetUnitNo:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipIdx AS INTEGER NO-UNDO.
+
+    DEFINE VARIABLE iPS2    AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iCode2  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE fiUnit  AS HANDLE  NO-UNDO.
+    DEFINE VARIABLE iUnitNo AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bfEX-eb FOR eb.
+    
+    /* Run logic only if NK1 is set */
+    IF glAssignUnitsForInk = NO THEN
+        RETURN.
+    
+    RUN getObjectHandle (ipIdx,'i-ps2',OUTPUT iPS2).
+    RUN getObjectHandle (ipIdx,'i-code2',OUTPUT iCode2).
+    RUN getObjectHandle (ipIdx,'unitno',OUTPUT fiUnit).
+   
+   
+    IF iCode2:SCREEN-VALUE EQ "" OR fiUnit:SCREEN-VALUE NE "" THEN
+        RETURN.
+        
+    RUN est/GetInksUnitNo.p (BUFFER eb, ipIdx, iCode2:SCREEN-VALUE, OUTPUT iUnitNo). 
+    
+    fiUnit:SCREEN-VALUE = STRING(iUnitNo).
+    Do TRANSACTION:
+        FIND FIRST bfEX-eb EXCLUSIVE-LOCK
+            WHERE ROWID(bfEX-eb) = ROWID(eb) NO-ERROR.
+        
+        IF AVAILABLE bfEX-eb THEN
+            bfEX-eb.unitno[ipIdx] = iUnitNo.
+            
+        RELEASE bfEX-eb.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearInkUnits V-table-Win
+PROCEDURE pClearInkUnits PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    DO WITH FRAME {&frame-name}:
+        ASSIGN
+            eb.unitno[01]:SCREEN-VALUE = ""
+            eb.unitno[02]:SCREEN-VALUE = ""
+            eb.unitno[03]:SCREEN-VALUE = ""
+            eb.unitno[04]:SCREEN-VALUE = ""
+            eb.unitno[05]:SCREEN-VALUE = ""
+            eb.unitno[06]:SCREEN-VALUE = ""
+            eb.unitno[07]:SCREEN-VALUE = ""
+            eb.unitno[08]:SCREEN-VALUE = ""
+            eb.unitno[09]:SCREEN-VALUE = ""
+            eb.unitno[10]:SCREEN-VALUE = ""
+            eb.unitno[11]:SCREEN-VALUE = ""
+            eb.unitno[12]:SCREEN-VALUE = ""
+            eb.unitno[13]:SCREEN-VALUE = ""
+            eb.unitno[14]:SCREEN-VALUE = ""
+            eb.unitno[15]:SCREEN-VALUE = ""
+            eb.unitno[16]:SCREEN-VALUE = ""
+            eb.unitno[17]:SCREEN-VALUE = ""
+            .
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetInkUnits V-table-Win
+PROCEDURE pResetInkUnits PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    DEFINE VARIABLE iColorUnit AS INTEGER EXTENT 17 NO-UNDO.
+    DEFINE VARIABLE iExt       AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bfEX-eb FOR eb.
+    
+    DO WITH FRAME {&frame-name}:
+    END.
+        
+    IF glAssignUnitsForInk NE YES THEN
+        RETURN.
+        
+    DO iExt = 1 TO EXTENT(eb.i-code2):
+        IF eb.i-code2[iExt] NE '' THEN
+        DO:
+            RUN est/GetInksUnitNo.p (BUFFER eb, iExt, eb.i-code2[iExt], OUTPUT iColorUnit[iExt]).
+            Do TRANSACTION:
+                FIND FIRST bfEX-eb EXCLUSIVE-LOCK
+                    WHERE ROWID(bfEX-eb) = ROWID(eb) NO-ERROR.
+        
+                IF AVAILABLE bfEX-eb THEN
+                    bfEX-eb.unitno[iExt] = iColorUnit[iExt].
+            
+                RELEASE bfEX-eb.
+            END.
+        END.  
+    END.
+    ASSIGN
+        eb.unitno[01]:SCREEN-VALUE = STRING(iColorUnit[01])
+        eb.unitno[02]:SCREEN-VALUE = STRING(iColorUnit[02])
+        eb.unitno[03]:SCREEN-VALUE = STRING(iColorUnit[03])
+        eb.unitno[04]:SCREEN-VALUE = STRING(iColorUnit[04])
+        eb.unitno[05]:SCREEN-VALUE = STRING(iColorUnit[05])
+        eb.unitno[06]:SCREEN-VALUE = STRING(iColorUnit[06])
+        eb.unitno[07]:SCREEN-VALUE = STRING(iColorUnit[07])
+        eb.unitno[08]:SCREEN-VALUE = STRING(iColorUnit[08])
+        eb.unitno[09]:SCREEN-VALUE = STRING(iColorUnit[09])
+        eb.unitno[10]:SCREEN-VALUE = STRING(iColorUnit[10])
+        eb.unitno[11]:SCREEN-VALUE = STRING(iColorUnit[11])
+        eb.unitno[12]:SCREEN-VALUE = STRING(iColorUnit[12])
+        eb.unitno[13]:SCREEN-VALUE = STRING(iColorUnit[13])
+        eb.unitno[14]:SCREEN-VALUE = STRING(iColorUnit[14])
+        eb.unitno[15]:SCREEN-VALUE = STRING(iColorUnit[15])
+        eb.unitno[16]:SCREEN-VALUE = STRING(iColorUnit[16])
+        eb.unitno[17]:SCREEN-VALUE = STRING(iColorUnit[17])
+        .
+        
+    RUN pSetFormColors (INPUT eb.company, INPUT eb.est-no, INPUT eb.form-no).
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFormColors V-table-Win
+PROCEDURE pSetFormColors PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Set Form level colors and Coats etc
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iInkPerForm      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iInkPassPerForm  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatPerForm     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatPassPerForm AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-ef FOR ef. 
+
+    RUN Estimate_CalcFormInksAndCoats (ipcCompany, ipcEstimate, ipiFormNo, OUTPUT iInkPerForm, OUTPUT iInkPassPerForm, OUTPUT iCoatPerForm, OUTPUT iCoatPassPerForm).
+    
+    FIND FIRST bf-ef EXCLUSIVE
+        WHERE bf-ef.Company = ipcCompany
+          AND bf-ef.Est-no = ipcEstimate
+          AND bf-ef.form-no = ipiFormNo NO-ERROR.
+          
+    IF AVAIL bf-ef THEN 
+    DO: 
+        ASSIGN
+            bf-ef.f-col    = iInkPerForm
+            bf-ef.f-pass   = iInkPassPerForm
+            bf-ef.f-coat   = iCoatPerForm
+            bf-ef.f-coat-p = iCoatPassPerForm.
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettingValue V-table-Win
+PROCEDURE pGetSettingValue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers V-table-Win 
 PROCEDURE release-shared-buffers :
 /*------------------------------------------------------------------------------
@@ -3354,6 +3577,8 @@ IF eb.form-no NE 0 THEN DO:
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
 
   IF framechk-i-changed THEN RUN est/updest3.p (ROWID(eb), ROWID(eb), 1,YES).
+  
+  RUN pResetInkUnits.
 END.
 
 END PROCEDURE.

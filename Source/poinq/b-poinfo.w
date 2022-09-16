@@ -260,8 +260,8 @@ DEFINE BROWSE BROWSE-1
     po-ord.vend-no COLUMN-LABEL "Vendor#" FORMAT "x(8)":U LABEL-BGCOLOR 14
     po-ordl.due-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
     po-ord.ship-id FORMAT "x(8)":U LABEL-BGCOLOR 14
-    po-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14
-    po-ordl.job-no2 COLUMN-LABEL "" FORMAT "99":U 
+    po-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(9)":U LABEL-BGCOLOR 14
+    po-ordl.job-no2 COLUMN-LABEL "" FORMAT "999":U 
     po-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
     po-ord.Loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
     po-ordl.ord-qty COLUMN-LABEL "Qty Ordered" FORMAT "->>>,>>>,>>9.9<<<<<":U

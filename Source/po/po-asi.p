@@ -298,7 +298,7 @@ assign
               assign v-len = truncate(po-ordl.s-len,0) + v-len.
 
               find first job WHERE job.company EQ cocode AND
-                                 TRIM(job.job-no) EQ TRIM(po-ordl.job-no) AND
+                                 job.job-no EQ po-ordl.job-no AND
                                  job.job-no2 EQ po-ordl.job-no2
                                  no-lock no-error.
               if avail job then

@@ -62,10 +62,10 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
     cTextListToSelect  = "Account Number,Account Description,Run #,Journal," +
-                           "Reference,AP Description,Date,Amount,Balance"
-    cFieldListToSelect = "actnum,actdesc,run,jour," + "ref,ap-desc,date,amt,bal" 
-    cFieldLength       = "25,40,8,8," + "52,30,10,15,19"
-    cFieldType         = "c,c,i,i," + "c,c,c,i,i"
+                           "Reference,AP Description,Date,Amount,Balance,Document Id"
+    cFieldListToSelect = "actnum,actdesc,run,jour," + "ref,ap-desc,date,amt,bal,documentID" 
+    cFieldLength       = "25,40,8,8," + "52,30,10,15,19,32"
+    cFieldType         = "c,c,i,i," + "c,c,c,i,i,c"
     .
 ASSIGN 
     cTextListToDefault = "Account Number,Account Description,Run #,Journal," +
@@ -1604,6 +1604,8 @@ PROCEDURE run-report :
                     cVarValue = /* string(w-data.i-no)*/ "" .
                 WHEN "amt"     THEN 
                     cVarValue = /*IF AVAIL itemfg THEN STRING(itemfg.procat) ELSE*/ "".
+                WHEN "documentID" THEN 
+                    cVarValue = "" .
                 WHEN "bal"      THEN 
                     cVarValue = STRING(open-amt,"->>,>>>,>>>,>>>.99") .
 
@@ -1699,6 +1701,8 @@ PROCEDURE run-report :
                             cVarValue = STRING(glhist.tr-date,"99/99/99") .
                         WHEN "amt"     THEN 
                             cVarValue = STRING(glhist.tr-amt,"(>>,>>>,>>9.99)") .
+                        WHEN "documentID" THEN 
+                            cVarValue =  STRING(glhist.documentID,"x(32)") .
                         WHEN "bal"     THEN 
                             cVarValue =  "" .
 
@@ -1846,6 +1850,8 @@ PROCEDURE run-report :
                                 cVarValue = STRING(glhist.tr-date,"99/99/99") .
                             WHEN "amt"     THEN 
                                 cVarValue = STRING(tmp-amt,"(>>,>>>,>>9.99)") .
+                            WHEN "documentID" THEN 
+                                cVarValue =  STRING(glhist.documentID,"x(32)") .
                             WHEN "bal"     THEN 
                                 cVarValue =  "" .
                         END CASE.
@@ -1922,6 +1928,8 @@ PROCEDURE run-report :
                         cVarValue = "" .
                     WHEN "date"    THEN 
                         cVarValue = "" .
+                    WHEN "documentID" THEN 
+                        cVarValue = "" .
                     WHEN "amt"     THEN 
                         cVarValue = STRING(tot-act,"->>,>>>,>>9.99") .
                     WHEN "bal"     THEN 
@@ -1981,6 +1989,8 @@ PROCEDURE run-report :
             WHEN "date"    THEN 
                 cVarValue = "" .
             WHEN "amt"     THEN 
+                cVarValue = "" .
+            WHEN "documentID" THEN 
                 cVarValue = "" .
             WHEN "bal"     THEN 
                 cVarValue = STRING(tot-all,"->>,>>>,>>>,>>9.99") + "*" .

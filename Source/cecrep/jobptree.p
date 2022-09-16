@@ -178,7 +178,16 @@ RUN sys/ref/nk1look.p (
     ).
 lProdAceBarScan = lProdAceBarScan AND cProdAceBarScan EQ "YES".
 
+FUNCTION fIsDuplicateNote RETURNS LOGICAL PRIVATE
+    (ipriNotes AS ROWID , ipcRecKey AS CHARACTER ):
+/*------------------------------------------------------------------------------
+ Purpose:  Wrapper for Notes procs
+ Notes:
+------------------------------------------------------------------------------*/    
 
+RETURN DYNAMIC-FUNCTION("fNotes_IsDuplicateNote", ipriNotes, ipcRecKey).
+        
+END FUNCTION.
 
 FUNCTION display-i-name RETURNS CHARACTER
   ( /* parameter-definitions */ ) :
@@ -287,10 +296,10 @@ ASSIGN
           AND (production OR
                job-hdr.ftick-prnt           EQ reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  GE fjob-no
-	  AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
 	      TRIM(job-hdr.job-no) +
 	      STRING(job-hdr.job-no2,"999")  LE tjob-no
 	  AND job-hdr.job-no2 GE fjob-no2
@@ -951,7 +960,20 @@ ASSIGN
            BY notes.note_form_no BY dept.fc:
 
        lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
-    END.    
+    END.   
+    
+    IF AVAILABLE xoe-ordl THEN DO:
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = xoe-ordl.rec_key AND
+                (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
+                LOOKUP(notes.note_code,v-exc-depts) EQ 0
+                AND notes.note_type NE 'O'
+                ,
+        FIRST dept WHERE dept.code = notes.note_code NO-LOCK 
+                   BY notes.note_form_no BY dept.fc:                     
+            IF NOT fIsDuplicateNote (ROWID(notes), job.rec_key) THEN
+                lv-text = lv-text + notes.note_text + CHR(10).          
+        END.
+    END.
 
     DO li = 1 TO 11:
       CREATE tt-formtext.
@@ -1342,12 +1364,21 @@ ASSIGN
              lv-text = "".
              FOR EACH notes FIELDS(note_text) NO-LOCK WHERE
                  notes.rec_key = job.rec_key AND
-                 lookup(notes.note_code,"SH,UN") GT 0:
+                 lookup(notes.note_code,"SH,UN") GT 0:                  
                  lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
              END.
+             IF AVAILABLE xoe-ordl THEN DO:
+                FOR EACH notes WHERE notes.rec_key EQ xoe-ordl.rec_key AND                          
+                         lookup(notes.note_code,"SH,UN") GT 0 NO-LOCK:
+                  IF NOT fIsDuplicateNote (ROWID(notes), job.rec_key) THEN
+                    lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
+                END.
+            END.
+             
              FOR EACH notes FIELDS(note_text) NO-LOCK WHERE
                  notes.rec_key = itemfg.rec_key AND
                  lookup(notes.note_code,"SH,UN") GT 0:
+                 IF NOT fIsDuplicateNote (ROWID(notes), job.rec_key) THEN
                  lv-text = lv-text + " " + TRIM(notes.note_text) + CHR(10).
              END.
              DO li = 1 TO 15:
@@ -1559,7 +1590,7 @@ PROCEDURE pConvertToHours:
 
     ASSIGN cHours = STRING(ipdHours) .
    
-    ASSIGN iHours =  INT( SUBSTRING(cHours,1,3)).
+    ASSIGN iHours =  INT( SUBSTRING(cHours,1,5)).
      
     cRoundHour = SUBSTRING(cHours,INDEX(cHours,".") + 1).
 

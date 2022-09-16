@@ -68,8 +68,6 @@ DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR lv-line-print AS INT INIT 44 NO-UNDO.
 DEF VAR lv-due-date AS DATE NO-UNDO.
-DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE dSetItemQty AS DECIMAL NO-UNDO .
 DEFINE BUFFER bf-shipto FOR shipto .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
@@ -80,31 +78,9 @@ DEFINE VARIABLE v-blank        AS INTEGER NO-UNDO.
 DEF VAR lv-text        AS CHARACTER                     NO-UNDO.
 DEF VAR li             AS INTEGER                       NO-UNDO.
 DEF VAR cShiptoAddress AS CHAR FORMAT "x(80)"  EXTENT 4 NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
+DEFINE VARIABLE opcBusinessFormLogo AS CHARACTER NO-UNDO .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "ACKHEAD" no-lock no-error.
@@ -201,6 +177,21 @@ find first company where company.company eq cocode no-lock no-error.
       if avail cust then v-cust-phone = cust.area-code + cust.phone.
       /* get q-no for first item */
       v-q-no = 0.
+      
+      IF AVAIL cust THEN
+      ASSIGN
+        cCustomerNo         = cust.cust-no
+        cCustomerLocation   = cust.loc
+        .
+      RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT opcBusinessFormLogo, OUTPUT lValid, OUTPUT cMessage).
+      
+      IF NOT lValid THEN
+      DO:
+          MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+      END.
+      
+      ASSIGN ls-full-img1 = opcBusinessFormLogo + ">" .
+      
       FIND first oe-ordl where oe-ordl.company eq oe-ord.company
                            and oe-ordl.ord-no  eq oe-ord.ord-no
                            NO-LOCK NO-ERROR.

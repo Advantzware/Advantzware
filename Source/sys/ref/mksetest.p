@@ -468,13 +468,7 @@ if avail itemfg and itemfg.isaset then do transaction:
            b-boxl.blank-no = b-eb.blank-no.
         end.
       end.   
-
-      FOR EACH notes WHERE notes.rec_key EQ est.rec_key:
-        CREATE b-notes.
-        BUFFER-COPY notes TO b-notes
-        ASSIGN
-         b-notes.rec_key = b-est.rec_key. 
-      END.
+      RUN Notes_CopyNotes(est.rec_key, b-est.rec_key, "", "").      
     end.
     
     v-rowid = ROWID(b-est).

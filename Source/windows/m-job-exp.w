@@ -158,7 +158,7 @@ DEFINE BUTTON btn_Up
     LABEL "Move Up" 
     SIZE 16 BY 1.
 
-DEFINE VARIABLE begin_job  AS CHARACTER FORMAT "x(6)" 
+DEFINE VARIABLE begin_job  AS CHARACTER FORMAT "x(9)" 
     LABEL "From Job#" 
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
@@ -168,7 +168,7 @@ DEFINE VARIABLE begin_mach AS CHARACTER FORMAT "x(6)"
     VIEW-AS FILL-IN 
     SIZE 20 BY 1.
 
-DEFINE VARIABLE end_job    AS CHARACTER FORMAT "X(6)" INITIAL "zzzzzz" 
+DEFINE VARIABLE end_job    AS CHARACTER FORMAT "X(9)" INITIAL "zzzzzzzzz" 
     LABEL "To Job#" 
     VIEW-AS FILL-IN 
     SIZE 21 BY 1.
@@ -870,8 +870,8 @@ PROCEDURE run-report :
     FOR EACH cmpltjob WHERE cmpltjob.company = gcompany 
         AND cmpltjob.machine GE begin_mach
         AND cmpltjob.machine LE end_mach
-        AND cmpltjob.job_number GE begin_job
-        AND cmpltjob.job_number LE end_job NO-LOCK :
+        AND TRIM(cmpltjob.job_number) GE TRIM(begin_job)
+        AND TRIM(cmpltjob.job_number) LE TRIM(end_job) NO-LOCK :
 
 
         v-excel-detail-lines = "".

@@ -46,7 +46,6 @@ DEFINE VARIABLE cCompany             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobBuildVersion     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCalculationTypeList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMaterialTypeGroup   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hdMaterialProcs      AS HANDLE    NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -269,7 +268,6 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
   
-      RUN rm/MaterialProcs.p PERSISTENT SET hdMaterialProcs.
   
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -360,7 +358,7 @@ PROCEDURE local-assign-statement :
 
     /* Code placed here will execute AFTER standard behavior.    */
     IF AVAILABLE materialType THEN
-    RUN Material_UpdateMaterialSystemType IN hdMaterialProcs (
+    RUN Material_UpdateMaterialSystemType (
                            cCompany,
                            materialType.materialType,
                            materialType.materialTypeGroup
@@ -430,6 +428,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lAutoPost AS LOGICAL   NO-UNDO.  
+  DEFINE VARIABLE lError    AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  ASSIGN
+      lAutoPost = materialType.autoIssue
+      .        
+  
+  RUN pValidateDepartment(OUTPUT cMessage, OUTPUT lError).
+  IF lError THEN DO:
+      MESSAGE cMessage
+          VIEW-AS ALERT-BOX ERROR.
+      
+      APPLY "ENTRY" TO materialType.consumedByDept IN FRAME {&FRAME-NAME}.
+      RETURN.
+  END.
+  
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  IF lAutoPost NE materialType.autoIssue AND materialType.autoIssue THEN
+  DO:
+       MESSAGE "Update the Auto Issue flag for all open jobs?"
+                 VIEW-AS ALERT-BOX QUESTION 
+                 BUTTONS OK-CANCEL UPDATE lcheckflg as logical .
+       IF lcheckflg THEN
+       DO:
+           RUN spProgressBar ("Update the Auto Issue flag for all open jobs", 90, 100). 
+           RUN Material_UpdateJobMaterialAutoIssue (
+                           cCompany,
+                           materialType.materialType,
+                           YES
+                           ).   
+           RUN spProgressBar (?, ?, 100).                 
+       END.
+  END.
+
+ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
 PROCEDURE local-destroy:
 /*------------------------------------------------------------------------------
@@ -437,8 +486,6 @@ PROCEDURE local-destroy:
  Notes:
 ------------------------------------------------------------------------------*/
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE (hdMaterialProcs) THEN
-        DELETE PROCEDURE hdMaterialProcs.
                 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
@@ -467,11 +514,11 @@ PROCEDURE pInit :
         OUTPUT cCompany
         ).
         
-    RUN Material_GetCalculationTypeList IN hdMaterialProcs (
+    RUN Material_GetCalculationTypeList (
         OUTPUT cCalculationTypeList
         ).
         
-    RUN Material_GetSystemTypeList IN hdMaterialProcs (
+    RUN Material_GetSystemTypeList (
         OUTPUT cMaterialTypeGroup
         ).    
         
@@ -516,6 +563,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidateDepartment V-table-Win
+PROCEDURE pValidateDepartment:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError   AS LOGICAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-dept FOR dept.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    IF materialType.consumedByDept:SCREEN-VALUE NE "" THEN 
+    do:
+        FIND FIRST bf-dept NO-LOCK
+             WHERE bf-dept.code EQ materialType.consumedByDept:SCREEN-VALUE
+             NO-ERROR.
+        IF NOT AVAILABLE bf-dept THEN     
+            ASSIGN
+                oplError   = TRUE
+                opcMessage = "Invalid depatment '" + materialType.consumedByDept:SCREEN-VALUE + "'"
+                .
+    END.        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

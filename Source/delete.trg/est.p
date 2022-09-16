@@ -40,10 +40,6 @@ FOR EACH box-design-hdr WHERE box-design-hdr.company EQ est.company
   DELETE box-design-hdr.
 END. 
 
-FOR EACH notes where notes.rec_key   eq est.rec_key :
-    DELETE notes.
-END.
-
 FOR EACH reftable
     WHERE reftable.reftable EQ "est/getqty.w"
       AND reftable.company  EQ est.company
@@ -63,4 +59,10 @@ FOR EACH e-itemfg-vend
       AND e-itemfg-vend.est-no   EQ {&TABLENAME}.est-no:
 
   DELETE e-itemfg-vend.
+END.
+
+FOR EACH estMisc
+    WHERE estMisc.company    EQ {&TABLENAME}.company
+      AND estMisc.estimateNo EQ {&TABLENAME}.est-no:
+    DELETE estMisc.
 END.

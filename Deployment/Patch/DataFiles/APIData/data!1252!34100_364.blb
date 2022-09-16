@@ -1,0 +1,9 @@
+<P12>
+Board:$Board$ $ItemName$   FG Item: $StockBox|X(15)|$
+                                    $FGItemName$
+Design #: $DesignNo|>>>|INT|$   $BoxDesignDescription$    CorrDir: $CrossGrain||||IF["N","Vertical","Horizontal"]|$
+$LengthScore$
+$LengthCumulativeScore$
+<C1><#30><R+25><C+65><IMAGE#30=$BoxDesignImage$>
+<=30>
+$BoxDesignLines$$formfeed$

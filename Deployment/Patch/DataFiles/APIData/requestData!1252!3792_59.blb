@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE cXML SYSTEM "http://xml.cXML.org/schemas/cXML/1.2.020/Fulfill.dtd">
+<cXML payloadID="$PayloadID$" xml:lang="en-US" timestamp="$NoticeDate$">
+   <Header>
+      <From>
+         <Credential domain="DUNS">
+            <Identity>$CompanyIdentity$</Identity>
+         </Credential>
+      </From>
+      <To>
+         <Credential domain="DUNS">
+            <Identity>$PartnerIdentity$</Identity>
+         </Credential>
+      </To>   
+      <Sender>
+         <Credential domain="DUNS">
+            <Identity>$CompanyIdentity$</Identity>
+            <SharedSecret>$SharedSecret$</SharedSecret>
+         </Credential>
+         <UserAgent>ASN Advantzware API</UserAgent>
+      </Sender>
+   </Header>
+<Request deploymentMode="production">
+<ShipNoticeRequest>
+         <ShipNoticeHeader shipmentID="$BOLID$" noticeDate="$BOLPrintDate$" shipmentDate="$BOLShipDate$" deliveryDate="$BOLRelDate$">
+    <Contact role="supplier">
+      <Name xml:lang="en">Enter Supplier Name</Name>
+      <PostalAddress>
+      <Street>Enter Address 1</Street>
+      <City>Enter City</City>
+      <State>Enter State</State>
+      <PostalCode>Enter Postal Code</PostalCode>
+      <Country isoCountryCode="US">United States</Country>
+      </PostalAddress>
+     </Contact>
+    <Contact addressID="$PostalID$" role="shipTo">
+      <Name xml:lang="en">$ShipToName$</Name>
+      <PostalAddress>
+        <Street>$ShipToPostalAddressStreet$</Street>
+        <City>$ShipToPostalAddressCity$</City>
+        <State>$ShipToPostalAddressState$</State>
+        <PostalCode>$ShipToPostalAddressPostalCode$</PostalCode>
+        <Country isoCountryCode="$ShipToPostalAddressCountryCode$">United States</Country>
+      </PostalAddress>
+    </Contact>
+    <Contact role="shipFrom">
+      <Name xml:lang="en">$ShipFromName$</Name>
+      <PostalAddress>
+        <Street>$ShipFromAddress1$</Street>
+        <City>$ShipFromAddress2$</City>
+        <State>$ShipFromState$</State>
+        <PostalCode>$ShipFromPostalCode$</PostalCode>
+        <Country isoCountryCode="$ShipFromCountryCode$">$ShipFromCountry$</Country>
+      </PostalAddress>
+    </Contact>
+    <Contact role="soldTo">
+      <Name xml:lang="en">$SoldToName$</Name>
+      <PostalAddress>
+        <Street>$SoldToAddress1$</Street>
+        <City>$SoldToAddress2$</City>
+        <State>$SoldToState$</State>
+        <PostalCode>$SoldToPostalCode$</PostalCode>
+        <Country isoCountryCode="$SoldToCountry$">$SoldToCountry$</Country>
+      </PostalAddress>
+    </Contact>
+            <Comments></Comments>
+         </ShipNoticeHeader>
+         <ShipControl>
+            <CarrierIdentifier domain="SCAC"></CarrierIdentifier>
+            <CarrierIdentifier domain="companyName">$CarrierName$</CarrierIdentifier>
+            <ShipmentIdentifier>$TrailerID$</ShipmentIdentifier>
+         </ShipControl>
+         <ShipNoticePortion>
+            $OrderDetailID$
+            $ItemDetailID$
+         </ShipNoticePortion>
+</ShipNoticeRequest>
+</Request>
+</cXML>

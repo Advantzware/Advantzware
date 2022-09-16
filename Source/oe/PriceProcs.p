@@ -331,8 +331,16 @@ PROCEDURE pExpireOldPrices PRIVATE:
                 END.                  
                       
                 IF ttOeprmtx.effectiveDate - 1  LT bf-oe-prmtx.eff-date THEN DO:
-                    IF iplExpire THEN
+                    IF iplExpire THEN do:
                         bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate.
+                        
+                        IF bf-oe-prmtx.quoteID NE 0 THEN 
+                        RUN pUpdateExpQuoteDate(
+                                       INPUT ipcCompany,
+                                       INPUT bf-oe-prmtx.quoteID,
+                                       INPUT bf-oe-prmtx.exp-date
+                                       ).
+                    END.    
                     ELSE 
                         ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate.                           
                 END.                 
@@ -340,7 +348,14 @@ PROCEDURE pExpireOldPrices PRIVATE:
                     IF iplExpire THEN
                     do:
                      ASSIGN
-                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.                        
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.
+                        
+                     IF bf-oe-prmtx.quoteID NE 0 THEN 
+                        RUN pUpdateExpQuoteDate(
+                                       INPUT ipcCompany, 
+                                       INPUT bf-oe-prmtx.quoteID,
+                                       INPUT bf-oe-prmtx.exp-date
+                                       ).                         
                     END.    
                     ELSE 
                         ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate - 1.                         
@@ -611,7 +626,7 @@ PROCEDURE Price_CheckPriceMatrix:
     DEFINE VARIABLE lBlockEntry    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dPriceMtx      AS DECIMAL   NO-UNDO .
     DEFINE VARIABLE cPriceUOM      AS CHARACTER NO-UNDO.
-    
+            
     RUN pGetOEPriceMatrixCheckSettings(ipcCompany, OUTPUT oplPrompt, OUTPUT lAllowMax, OUTPUT oplBlockEntry).
     IF oplPrompt THEN 
     DO:
@@ -620,9 +635,12 @@ PROCEDURE Price_CheckPriceMatrix:
         IF lMatrixFound THEN 
         DO:
             RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, 0, OUTPUT iLevel, OUTPUT lQtyMatch).
-            RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).
+            iLevel = IF AVAIL bf-cust AND iLevel LT MAXIMUM(1, bf-cust.cust-level) THEN MAXIMUM(1, bf-cust.cust-level) ELSE iLevel . /* force price level*/
+            RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, bf-itemfg.sell-price, bf-itemfg.sell-uom, OUTPUT dPriceMtx, OUTPUT cPriceUOM).             
             IF dPriceMtx NE ipdPrice THEN 
-                opcMessage = cMessage + " but price should be " + STRING(dPriceMtx) + " not " + STRING(ipdPrice). 
+            DO:                 
+                opcMessage = cMessage + " but price should be " + STRING(bf-oe-prmtx.price[iLevel]) + " at level " + STRING(iLevel,"99") + " not " + STRING(ipdPrice).                 
+            END.    
             ELSE 
             DO:                
                 IF NOT lQtyMatch THEN 
@@ -711,10 +729,10 @@ PROCEDURE Price_CalculateLinePrice:
             ttItemLines.cCustID, 
             ttItemLines.cShipID,
             ttItemLines.dQuantityLookup,  
-            OUTPUT lMatrixFound,
+            OUTPUT ttItemLines.lMatrixExists,
             INPUT-OUTPUT ttItemLines.dPrice, 
             INPUT-OUTPUT ttItemLines.cPriceUOM ).    
-
+                
         IF ttItemLines.lIsPrimary THEN 
             ASSIGN 
                 oplMatrixExists = ttItemLines.lMatrixExists
@@ -997,7 +1015,7 @@ PROCEDURE Price_GetPriceMatrixPrice:
     /*for calculation of discount method*/
     DEFINE VARIABLE dItemSellPrice    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cItemSellPriceUOM AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE lPriceForceLevel  AS LOGICAL   NO-UNDO.
     
     RUN pSetBuffers(ipcCompany, ipcFGItemId, ipcCustID, BUFFER bf-itemfg, BUFFER bf-cust).
         
@@ -1017,10 +1035,15 @@ PROCEDURE Price_GetPriceMatrixPrice:
             dItemSellPrice    = bf-itemfg.sell-price
             cItemSellPriceUOM = bf-itemfg.sell-uom
             .       
-             
+       
     RUN pGetQtyMatchInfo(BUFFER bf-oe-prmtx, ipdQuantity, iLevelStart, OUTPUT iLevel, OUTPUT oplQtyDistinctMatch).
     IF iLevel GT 0 THEN 
         oplQtyWithinRange = YES.
+        
+    IF NOT oplQtyDistinctMatch AND iLevel EQ 0 AND iLevelStart GT 0 THEN   /* force price level*/
+        assign
+        lPriceForceLevel = YES
+        iLevel           = iLevelStart.
     
     IF ipiLevelOverride NE 0 THEN 
     DO:
@@ -1028,8 +1051,8 @@ PROCEDURE Price_GetPriceMatrixPrice:
             iLevel = ipiLevelOverride.
         ELSE 
             iLevel = iLevelStart.
-    END.     
-    IF oplQtyWithinRange THEN
+    END.               
+    IF oplQtyWithinRange OR lPriceForceLevel THEN
         RUN pGetPriceAtLevel(BUFFER bf-oe-prmtx, iLevel, dItemSellPrice, cItemSellPriceUom, OUTPUT iopdPrice, OUTPUT iopcUom).
     ELSE 
         ASSIGN 
@@ -1790,6 +1813,28 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
         END. /*Qty LE oe-prmtx qty*/
     END.
           
+END PROCEDURE.
+
+
+PROCEDURE pUpdateExpQuoteDate PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuoteNo        AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtExpireDate    AS DATE      NO-UNDO.
+        
+    DEFINE VARIABLE iQuoteNo AS INT64 NO-UNDO.
+    DEFINE BUFFER bf-quotehd  FOR quotehd. 
+    
+    FOR EACH bf-quotehd EXCLUSIVE-LOCK 
+        WHERE bf-quotehd.company    EQ ipcCompany
+          AND bf-quotehd.q-no       EQ ipiQuoteNo                      
+          :                    
+          bf-quotehd.expireDate = ipdtExpireDate.
+    END.          
+    RELEASE bf-quotehd.      
 END PROCEDURE.
 
 PROCEDURE Price_ExpirePriceMatrixByItem:

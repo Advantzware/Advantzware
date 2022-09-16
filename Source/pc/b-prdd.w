@@ -998,7 +998,7 @@ PROCEDURE display-item :
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST job-hdr
         WHERE job-hdr.company    EQ pc-prdd.company
-          AND trim(job-hdr.job-no)     EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND job-hdr.job-no     EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND job-hdr.job-no2    EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND (job-hdr.frm       EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                v-est-type EQ 2 OR v-est-type EQ 6)
@@ -1251,7 +1251,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   FIND FIRST job WHERE job.company = pc-prdd.company
-                       AND trim(job.job-no) = trim(pc-prdd.job-no)
+                       AND job.job-no  = pc-prdd.job-no
                        AND job.job-no2 = pc-prdd.job-no2
                        NO-LOCK NO-ERROR.
   IF pc-prdd.job EQ 0 AND AVAIL job THEN 
@@ -1287,7 +1287,7 @@ PROCEDURE local-assign-record :
    FIND FIRST job-mch
           WHERE job-mch.company EQ pc-prdd.company
             AND job-mch.job     EQ li-help-job
-            AND trim(job-mch.job-no)  EQ trim(pc-prdd.job-no)
+            AND job-mch.job-no  EQ pc-prdd.job-no
             AND job-mch.job-no2 EQ INT(pc-prdd.job-no2)
             AND job-mch.m-code  EQ pc-prdd.m-code
             AND job-mch.frm     EQ INT(pc-prdd.frm)
@@ -1302,7 +1302,7 @@ PROCEDURE local-assign-record :
       FIND FIRST job-mch
           WHERE job-mch.company EQ pc-prdd.company
             AND job-mch.job     EQ li-help-job
-            AND trim(job-mch.job-no)  EQ trim(pc-prdd.job-no)
+            AND job-mch.job-no  EQ pc-prdd.job-no
             AND job-mch.job-no2 EQ INT(pc-prdd.job-no2)
             AND job-mch.m-code  EQ pc-prdd.m-code
             AND job-mch.frm     EQ INT(pc-prdd.frm)
@@ -1351,7 +1351,7 @@ PROCEDURE local-assign-record :
     FOR EACH job-mch
         WHERE job-mch.company EQ pc-prdd.company
           AND job-mch.job     EQ pc-prdd.job
-          AND trim(job-mch.job-no)  EQ trim(pc-prdd.job-no)
+          AND job-mch.job-no  EQ pc-prdd.job-no
           AND job-mch.job-no2 EQ pc-prdd.job-no2
         NO-LOCK:
       FIND FIRST mach
@@ -1579,7 +1579,7 @@ PROCEDURE local-update-record :
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
    FIND FIRST job WHERE job.company = pc-prdd.company
-                     AND trim(job.job-no) = trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                     AND job.job-no = pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
                      AND job.job-no2 = INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
                    NO-LOCK NO-ERROR.
     if avail job and job.stat = "H" then do:
@@ -1716,7 +1716,7 @@ PROCEDURE new-job-hdr :
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST job-hdr
         WHERE job-hdr.company    EQ pc-prdd.company
-          AND trim(job-hdr.job-no)     EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND job-hdr.job-no     EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND job-hdr.job-no2    EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           AND (job-hdr.frm       EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                v-est-type EQ 2 OR v-est-type EQ 6)
@@ -1757,7 +1757,7 @@ PROCEDURE new-job-no :
 
     FIND FIRST job
         WHERE job.company   EQ pc-prdd.company
-          AND trim(job.job-no)  EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND job.job-no    EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND (job.job-no2  EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR ip-log)
         NO-LOCK NO-ERROR.
 
@@ -1780,7 +1780,7 @@ PROCEDURE new-job-no :
         WHERE job-mch.company  EQ pc-prdd.company
           AND job-mch.m-code   EQ pc-prdd.m-code
           AND job-mch.job      EQ li-help-job
-          AND trim(job-mch.job-no)   EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND job-mch.job-no   EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND (job-mch.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR ip-log)
         NO-LOCK NO-ERROR.
 
@@ -1894,7 +1894,7 @@ PROCEDURE proc-form-cmplt :
    DEF BUFFER b-reftable FOR reftable.
 
    FIND FIRST job WHERE job.company EQ pc-prdd.company
-        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+        AND job.job-no  EQ pc-prdd.job-no
         AND job.job-no2 EQ pc-prdd.job-no2
       USE-INDEX job-no NO-LOCK NO-ERROR.
 
@@ -1952,7 +1952,7 @@ PROCEDURE proc-form-cmplt :
           AND fg-bin.loc     EQ v-loc
           AND fg-bin.loc-bin EQ v-loc-bin  
           AND fg-bin.tag     EQ ""
-          AND trim(fg-bin.job-no)  EQ trim(job-hdr.job-no)
+          AND fg-bin.job-no  EQ job-hdr.job-no
           AND fg-bin.job-no2 EQ job-hdr.job-no2
         NO-ERROR.
     IF NOT AVAIL fg-bin THEN DO:
@@ -1996,7 +1996,7 @@ PROCEDURE proc-form-cmplt :
     v-runqty = 0. 
     FOR EACH bf-prdd WHERE bf-prdd.company = pc-prdd.company 
                        AND bf-prdd.m-code = pc-prdd.m-code
-                       AND trim(bf-prdd.job-no) = trim(pc-prdd.job-no)
+                       AND bf-prdd.job-no = pc-prdd.job-no
                        AND bf-prdd.job-no2 = pc-prdd.job-no2
                        AND bf-prdd.FRM = pc-prdd.frm
                        AND bf-prdd.blank-no = pc-prdd.blank-no
@@ -2017,7 +2017,7 @@ PROCEDURE proc-form-cmplt :
 
 
     FIND FIRST job WHERE job.company EQ cocode
-                        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+                        AND job.job-no  EQ pc-prdd.job-no
                         AND job.job-no2 EQ pc-prdd.job-no2
                         USE-INDEX job-no NO-ERROR.
     ASSIGN v-up  = 1
@@ -2292,7 +2292,7 @@ PROCEDURE proc-set-cmplt :
    DEF BUFFER b-reftable FOR reftable.
 
    FIND FIRST job WHERE job.company EQ cocode
-        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+        AND job.job-no  EQ pc-prdd.job-no
         AND job.job-no2 EQ pc-prdd.job-no2
       USE-INDEX job-no NO-LOCK NO-ERROR.
 
@@ -2319,7 +2319,7 @@ PROCEDURE proc-set-cmplt :
 
   FOR EACH job-hdr
       WHERE job-hdr.company   EQ cocode
-        AND trim(job-hdr.job-no)    EQ trim(job-mch.job-no)
+        AND job-hdr.job-no    EQ job-mch.job-no
         AND job-hdr.job-no2   EQ job-mch.job-no2
         AND (job-hdr.frm      EQ job-mch.frm OR v-est-type       EQ 2 )
         AND (job-hdr.blank-no EQ job-mch.blank-no OR job-mch.blank-no EQ 0 ),
@@ -2353,7 +2353,7 @@ PROCEDURE proc-set-cmplt :
           AND fg-bin.loc     EQ v-loc
           AND fg-bin.loc-bin EQ v-loc-bin  
           AND fg-bin.tag     EQ ""
-          AND trim(fg-bin.job-no)  EQ trim(job-hdr.job-no)
+          AND fg-bin.job-no  EQ job-hdr.job-no
           AND fg-bin.job-no2 EQ job-hdr.job-no2
         NO-ERROR.
     IF NOT AVAIL fg-bin THEN DO:
@@ -2395,7 +2395,7 @@ PROCEDURE proc-set-cmplt :
     v-runqty = 0. 
     FOR EACH bf-prdd WHERE bf-prdd.company = pc-prdd.company 
                        AND bf-prdd.m-code = pc-prdd.m-code
-                       AND trim(bf-prdd.job-no) = trim(pc-prdd.job-no)
+                       AND bf-prdd.job-no = pc-prdd.job-no
                        AND bf-prdd.job-no2 = pc-prdd.job-no2
                        AND bf-prdd.FRM = pc-prdd.frm
                        AND bf-prdd.blank-no = pc-prdd.blank-no
@@ -2433,7 +2433,7 @@ PROCEDURE proc-set-cmplt :
                                       bf-machtran.pass_sequence = INTEGER(pass_sequence) NO-LOCK:
                                       */
     FIND FIRST job WHERE job.company EQ cocode
-                        AND trim(job.job-no)  EQ trim(pc-prdd.job-no)
+                        AND job.job-no  EQ pc-prdd.job-no
                         AND job.job-no2 EQ pc-prdd.job-no2
                         USE-INDEX job-no NO-ERROR.
     ASSIGN v-up  = 1
@@ -2644,7 +2644,7 @@ PROCEDURE proc-set-cmplt :
       FIND FIRST fg-bin
           WHERE fg-bin.company EQ fg-rctd.company
             AND fg-bin.i-no    EQ fg-rctd.i-no
-            AND trim(fg-bin.job-no)  EQ trim(job-hdr.job-no)
+            AND fg-bin.job-no  EQ job-hdr.job-no
             AND fg-bin.job-no2 EQ job-hdr.job-no2
             AND fg-bin.loc     EQ fg-rctd.loc
             AND fg-bin.loc-bin EQ fg-rctd.loc-bin
@@ -2746,7 +2746,7 @@ PROCEDURE show-crew :
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST job
         WHERE job.company EQ pc-prdd.company
-          AND trim(job.job-no)  EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+          AND job.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND job.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
         NO-LOCK NO-ERROR.
 
@@ -2855,7 +2855,7 @@ PROCEDURE valid-blank-no :
     IF NOT CAN-FIND(FIRST job-mch
                     WHERE job-mch.company  EQ pc-prdd.company
                       AND job-mch.job      EQ li-help-job
-                      AND trim(job-mch.job-no)   EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                      AND job-mch.job-no   EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
                       AND job-mch.job-no2  EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
                       AND job-mch.frm      EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
                       AND job-mch.blank-no EQ INT(pc-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}))
@@ -2864,7 +2864,7 @@ PROCEDURE valid-blank-no :
       FIND FIRST job
           WHERE job.company EQ pc-prdd.company
             AND job.job     EQ li-help-job
-            AND trim(job.job-no)  EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND job.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND job.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job OR
@@ -2930,7 +2930,7 @@ PROCEDURE valid-frm :
     IF NOT CAN-FIND(FIRST job-mch
                     WHERE job-mch.company EQ pc-prdd.company
                       AND job-mch.job     EQ li-help-job
-                      AND trim(job-mch.job-no)  EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                      AND job-mch.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
                       AND job-mch.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
                       AND job-mch.frm     EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}))
     THEN DO:
@@ -2966,7 +2966,7 @@ PROCEDURE valid-i-no :
     IF NOT CAN-FIND(FIRST job-hdr
                     WHERE job-hdr.company  EQ pc-prdd.company
                       AND job-hdr.job      EQ li-help-job
-                      AND trim(job-hdr.job-no)   EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+                      AND job-hdr.job-no   EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
                       AND job-hdr.job-no2  EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
                       AND (job-mch.frm     EQ INT(pc-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                            v-est-type EQ 2 OR v-est-type EQ 6) 
@@ -2976,7 +2976,7 @@ PROCEDURE valid-i-no :
       FIND FIRST job
           WHERE job.company EQ pc-prdd.company
             AND job.job     EQ li-help-job
-            AND trim(job.job-no)  EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND job.job-no  EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND job.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
           NO-LOCK NO-ERROR.
       IF NOT AVAIL job OR
@@ -3019,7 +3019,7 @@ PROCEDURE valid-job-no :
 
      FIND FIRST job NO-LOCK 
           WHERE job.company  EQ g_company
-            AND trim(job.job-no)   EQ trim(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND job.job-no   EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
             AND (job.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR
                            ip-log) NO-ERROR .
     IF NOT AVAIL job THEN DO:

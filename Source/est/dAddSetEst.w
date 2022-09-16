@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 
 
 DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode */
+DEFINE INPUT PARAMETER ipcEstType AS CHARACTER NO-UNDO.  /* estimate type Wood or SetWithSubAssembly  */
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
 
 /* Local Variable Definitions ---                                       */
@@ -452,7 +453,7 @@ DO:
         RUN valid-ship-id(OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY . 
     
-        RUN est/dAddEditComp.w (?,ROWID(eb),"Add",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+        RUN est/dAddEditComp.w (?,ROWID(eb),"Add", ipcEstType,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             item-name:SCREEN-VALUE IN FRAME {&frame-name},
             cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -481,7 +482,7 @@ DO:
         DO:   
             BUFFER-COPY ttInputEst  TO bff-ttInputEst .
             lv-rowid = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditComp.w (RECID(ttInputEst),lv-rowid,"Copy",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            RUN est/dAddEditComp.w (RECID(ttInputEst),lv-rowid,"Copy",ipcEstType,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -529,7 +530,7 @@ DO:
         IF AVAILABLE ttInputEst THEN 
         DO:
             rwRowidEb = IF AVAILABLE eb THEN ROWID(eb) ELSE ?.
-            RUN est/dAddEditComp.w (RECID(ttInputEst),rwRowidEb,"Update",cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
+            RUN est/dAddEditComp.w (RECID(ttInputEst),rwRowidEb,"Update",ipcEstType,cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 item-name:SCREEN-VALUE IN FRAME {&frame-name},
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
@@ -1279,6 +1280,11 @@ PROCEDURE create-ttfrmout :
         tt-eb-set.dep              = dep        
         tt-eb-set.procat           = fg-cat
         tt-eb-set.eqty             = quantity.
+        
+        {sys/inc/k16bb.i tt-eb-set.len  } 
+        {sys/inc/k16bb.i tt-eb-set.wid  } 
+        {sys/inc/k16bb.i tt-eb-set.dep  } 
+        
         IF cType EQ "No" THEN
         ASSIGN 
           tt-eb-set.set-is-assembled = FALSE
@@ -1303,6 +1309,10 @@ PROCEDURE create-ttfrmout :
             bf-ttInputEst.cCustomer = cCustNo
             bf-ttInputEst.cShipTo   = ship-to
             .
+        
+        {sys/inc/k16bb.i bf-ttInputEst.dLength  }
+        {sys/inc/k16bb.i bf-ttInputEst.dWidth  }
+        {sys/inc/k16bb.i bf-ttInputEst.dDepth  } 
         
         ASSIGN 
             bf-ttInputEst.copy-qty[2]  = lv-copy-qty[2] 
@@ -1475,6 +1485,8 @@ PROCEDURE pDefaultValue :
       cType:SCREEN-VALUE = "No".
     END.
 
+    RUN pSetLWDFormat.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1588,6 +1600,7 @@ PROCEDURE pDisplayValue :
     DEFINE BUFFER bf-ef FOR ef .
     DO WITH FRAME {&FRAME-NAME}:
 
+        RUN pSetLWDFormat.
         FIND FIRST eb NO-LOCK 
             WHERE eb.company EQ cocode
             AND ROWID(eb) EQ ipriRowid NO-ERROR .
@@ -1613,9 +1626,9 @@ PROCEDURE pDisplayValue :
                     fg-no:SCREEN-VALUE     = bf-eb.stock-no
                     item-name:SCREEN-VALUE = bf-eb.part-dscr1
                     item-dscr:SCREEN-VALUE = bf-eb.part-dscr2
-                    len:SCREEN-VALUE       = STRING(bf-eb.len)
-                    wid:SCREEN-VALUE       = STRING(bf-eb.wid)
-                    dep:SCREEN-VALUE       = STRING(bf-eb.dep)              
+                    len:SCREEN-VALUE       = STRING( {sys/inc/k16.i bf-eb.len }) 
+                    wid:SCREEN-VALUE       = STRING( {sys/inc/k16.i bf-eb.wid }) 
+                    dep:SCREEN-VALUE       = STRING( {sys/inc/k16.i bf-eb.dep })               
                     fg-cat:SCREEN-VALUE    = bf-eb.procat  
                     cType:SCREEN-VALUE     = IF bf-eb.set-is-assembled EQ TRUE THEN "Yes" ELSE IF bf-eb.set-is-assembled EQ FALSE THEN "No" ELSE "Q".
                 
@@ -1658,7 +1671,7 @@ PROCEDURE pDisplayValue :
                 
                 CREATE ttInputEst.
                 ASSIGN
-                    ttInputEst.cEstType         = "NewSetEstimate"
+                    ttInputEst.cEstType         = IF ipcEstType EQ "Wood" THEN "NewSetEstimate" ELSE "SetSubAssembly"
                     ttInputEst.cSetType         = "Set"
                     ttInputEst.cCompany         = cocode 
                     ttInputEst.iFormNo          = bf-eb.form-no
@@ -1667,16 +1680,20 @@ PROCEDURE pDisplayValue :
                     ttInputEst.cPartID          = bf-eb.part-no             
                     ttInputEst.cPartName        = bf-eb.part-dscr1
                     ttInputEst.cPartDescription = eb.part-dscr2
-                    ttInputEst.dLength          = bf-eb.len
-                    ttInputEst.dWidth           = bf-eb.wid            
-                    ttInputEst.dDepth           = bf-eb.dep
+                    ttInputEst.dLength          = {sys/inc/k16.i bf-eb.len } 
+                    ttInputEst.dWidth           = {sys/inc/k16.i bf-eb.wid }             
+                    ttInputEst.dDepth           = {sys/inc/k16.i bf-eb.dep } 
                     ttInputEst.cCategory        = bf-eb.procat
                     ttInputEst.cBoard           = IF AVAILABLE bf-ef THEN bf-ef.board ELSE ""
                     ttInputEst.cStyle           = bf-eb.style
                     ttInputEst.dQtyPerSet       = bf-eb.quantityPerSet
                     ttInputEst.lPurchased       = bf-eb.pur-man 
                     ttInputEst.riParentEst      = ROWID(bf-eb)
-                    ttInputEst.iEstNo           = INTEGER(bf-eb.est-no) .                
+                    ttInputEst.iEstNo           = INTEGER(bf-eb.est-no) 
+                    ttInputEst.cSourceEst       = bf-eb.sourceEstimate
+                    ttInputEst.iColor           = INTEGER(bf-eb.i-col) 
+                    ttInputEst.iCoating         = bf-eb.i-coat
+                    .                
             END.
             RUN repo-query (lv-rowid).          
         
@@ -1731,6 +1748,32 @@ PROCEDURE send-records :
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetLWDFormat D-Dialog 
+PROCEDURE pSetLWDFormat :
+/*------------------------------------------------------------------------------
+          Purpose:     
+          Parameters:  <none>
+          Notes:       
+        ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iDecimalValue AS INTEGER NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+       IF v-cecscrn-char EQ "Decimal" THEN do:
+          iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .
+
+          ASSIGN
+              len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue)) 
+              len:WIDTH  = 12.5
+              wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))  
+              wid:WIDTH  = 12.5
+              dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+              dep:WIDTH  = 12.5.        
+       END.   
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

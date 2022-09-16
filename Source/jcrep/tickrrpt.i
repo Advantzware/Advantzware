@@ -43,14 +43,14 @@ IF tb_freeze-note THEN
         WHERE job-hdr.company               EQ cocode
           AND (production OR job-hdr.ftick-prnt EQ reprint OR
                PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) +
               STRING(job-hdr.job-no2,"999")  GE fjob-no
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) +
               STRING(job-hdr.job-no2,"999")  LE tjob-no
-          AND job-hdr.job-no2 GE fjob-no2
-          AND job-hdr.job-no2 LE tjob-no2
+/*          AND job-hdr.job-no2 GE fjob-no2*/
+/*          AND job-hdr.job-no2 LE tjob-no2*/
               NO-LOCK,
         FIRST job
         WHERE job.company                   EQ cocode
@@ -63,6 +63,7 @@ IF tb_freeze-note THEN
               (tb_app-unprinted AND job.pr-printed = NO AND
                job.opened = YES AND job.cs-to-pr = YES))
         EXCLUSIVE-LOCK:
+        
         RUN jc\jobnotes.p(BUFFER job).
 
         ASSIGN job.freezeNote = YES 
@@ -82,10 +83,10 @@ FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company                   EQ cocode
       AND (production OR job-hdr.ftick-prnt EQ reprint OR
           PROGRAM-NAME(2) MATCHES "*r-tickt2*")
-      AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
           TRIM(job-hdr.job-no) +
           STRING(job-hdr.job-no2,"999")  GE fjob-no
-      AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+      AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
           TRIM(job-hdr.job-no) +
           STRING(job-hdr.job-no2,"999")  LE tjob-no
       AND job-hdr.job-no2 GE fjob-no2
@@ -312,10 +313,10 @@ DEF VAR v-sample-on-ct AS LOG NO-UNDO.
 IF ip-industry EQ "Fold" AND tb_fold AND lv-format-f EQ "Colonial" THEN
 DO:
    FOR EACH job-hdr WHERE job-hdr.company         EQ cocode 
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) +
               STRING(job-hdr.job-no2,"999")  GE fjob-no
-          AND FILL(" ",9 - LENGTH(TRIM(job-hdr.job-no))) +
+          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
               TRIM(job-hdr.job-no) +
               STRING(job-hdr.job-no2,"999")  LE tjob-no
           AND job-hdr.job-no2 GE fjob-no2
@@ -811,7 +812,7 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobamcarton.p (lv-format-c).
   END.
-  ELSE IF lv-format-c = "PkgAtlanta" THEN do:
+  ELSE IF lv-format-c = "PkgAtlanta" OR lv-format-c = "Onducorr" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
       RUN cecrep/jobPkgAtl.p (lv-format-c).
   END.
@@ -833,7 +834,7 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
   END.
   ELSE IF lv-format-c = "Burt" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.
-      RUN cecrep/jobburt.p (lv-format-c).
+      RUN cerep/jobburt.p (lv-format-c, OUTPUT lcRequestData).
   END.
   ELSE IF lv-format-c = "PExpress" THEN do:
       PUT UNFORMATTED "<OLANDSCAPE><FTahoma><P10></PROGRESS>" skip.

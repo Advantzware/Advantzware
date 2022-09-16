@@ -1576,9 +1576,9 @@ PROCEDURE run-report :
 
     FOR EACH job 
         WHERE job.company EQ cocode         
-        AND fill(" ",9 - length(TRIM(job.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(job.job-no))) +
         trim(begin_job-no) + string(int(job.job-no2),"999") GE vl-job-no[1]
-        AND fill(" ",9 - length(TRIM(job.job-no))) +
+        AND FILL(" ", iJobLen - length(TRIM(job.job-no))) +
         trim(begin_job-no) + string(int(job.job-no2),"999") LE vl-job-no[2]
         AND job.job-no2 GE int(begin_job-no2)
         AND job.job-no2 LE int(end_job-no2):
