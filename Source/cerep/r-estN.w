@@ -1900,8 +1900,9 @@ FOR EACH tt-eb,
             
             IF cTmpField = "ord-date" THEN cExcelVarValue = IF v_ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v_ord-date) ELSE "" .
             ELSE IF cTmpField = "job-no" THEN cExcelVarValue = IF AVAIL job-hdr THEN STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2)) ELSE "".
+            ELSE IF cTmpField = "v_mod-date" THEN cExcelVarValue = IF v_mod-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v_mod-date) ELSE "" .
              
-             ELSE cExcelVarValue = cVarValue.
+            ELSE cExcelVarValue = cVarValue.
              
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 

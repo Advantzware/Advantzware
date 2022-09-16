@@ -969,10 +969,7 @@ FOR EACH cust
         v-cr-db-amt = 0
         v-disc-amt  = 0.
 END.  /* for each cust record */
-FINALLY:
-        IF VALID-HANDLE (hdOutputProcs) THEN
-            DELETE PROCEDURE hdOutputProcs.            
-    END FINALLY.
+
   
 RETURN.
  
