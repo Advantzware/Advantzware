@@ -41,6 +41,9 @@ def var k_frac as dec init 6.25 no-undo.
 DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
 &global-define style-formular Corr
 
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
 ASSIGN cocode = g_company
        locode = g_loc.
 /*{sys/inc/f16to32.i}*/
@@ -999,25 +1002,13 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  DO WITH FRAME {&FRAME-NAME}:
+  END.
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
- find first reftable where reftable.reftable = "STYFLU" 
-                        and reftable.company = style.style
-                        and reftable.loc = flute.code
-                        and reftable.code = "DIM-FIT"
-                        no-error.
-  if not avail reftable then do:
-     create reftable.
-     assign reftable.reftable = "STYFLU"
-            reftable.company = style.style
-            reftable.loc = flute.code
-            reftable.code = "DIM-FIT".
-  end.
-  reftable.val[1] = dec( ld-box-fit:screen-value in frame {&frame-name}) * k_frac. 
-
+  RUN Formula_SaveSquareBoxFitForStyleAndFlute IN hdFormulaProcs (cocode, style.style, flute.code, "16th's", INPUT DECIMAL(ld-box-fit:SCREEN-VALUE)).
 
 END PROCEDURE.
 
@@ -1057,14 +1048,11 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   if not avail style then return.
-
-  find first reftable where reftable.reftable = "STYFLU" 
-                        and reftable.company = style.style
-                        and reftable.loc = flute.code
-                        and reftable.code = "DIM-FIT"
-                        no-lock no-error.
-  ld-box-fit = (if avail reftable then reftable.val[1]
-                            else style.dim-fit) / k_frac.        
+                            
+  RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (cocode, style.style, flute.code, OUTPUT ld-box-fit).
+  
+  ld-box-fit = ld-box-fit / k_frac.
+                                              
   disable ld-box-fit with frame {&frame-name}.
   display ld-box-fit with frame {&frame-name}.
 
