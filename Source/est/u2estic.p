@@ -22,6 +22,10 @@ def shared buffer xeb  for eb.
 def var v-sq-box like eb.k-wid.
 def var k_frac as dec init 6.25 no-undo.
 DEF VAR cocode AS CHAR NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 
 cocode = xeb.company.
@@ -39,15 +43,12 @@ if not avail reftable then leave.
 v-field = trunc(reftable.val[13],0) +
           ((reftable.val[13] - trunc(reftable.val[13],0)) * k_frac).
 
-if v-dim-fit then do:
-  find first reftable
-      where reftable.reftable eq "STYFLU"
-        and reftable.company  eq xeb.style
-        and reftable.loc      eq xeb.flute
-        and reftable.code     eq "DIM-FIT"
-      no-lock no-error.
-
-  if avail reftable then v-field = v-field - (reftable.val[1] / 6.25 * k_frac * 2).
+if v-dim-fit then do:  
+  RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (cocode, xeb.style, xeb.flute, OUTPUT dBoxFit).
+  v-field = v-field - (dBoxFit / 6.25 * k_frac * 2).
 end.
+
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

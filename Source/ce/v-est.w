@@ -113,8 +113,12 @@ RUN methods/prgsecur.p
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
 
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2520,6 +2524,27 @@ PROCEDURE local-display-fields :
 
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+    IF VALID-HANDLE (hdSalesManProcs) THEN
+        DELETE PROCEDURE hdSalesManProcs.    
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

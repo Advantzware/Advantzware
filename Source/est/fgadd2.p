@@ -29,6 +29,10 @@ def shared var v-i-qty like eb.bl-qty NO-UNDO.   /* INPUT QUANTITY */
 DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGMasterLoc AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER x-eb FOR eb.
@@ -241,5 +245,6 @@ do on error undo:
   hide frame eb-part no-pause.
 end.
 
-
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1993  advanced software, inc. */

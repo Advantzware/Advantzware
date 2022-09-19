@@ -33,7 +33,9 @@ DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
 DEF TEMP-TABLE w-itemfg-ink LIKE itemfg-ink
     FIELD old-rm-i-no LIKE itemfg-ink.rm-i-no
     FIELD old-pass    LIKE itemfg-ink.pass.
-
+    
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF est.
 DISABLE TRIGGERS FOR LOAD OF ef.
@@ -575,7 +577,10 @@ FOR EACH b-itemfg NO-LOCK
      itemfg.d-score[50] NE ld-dep THEN
     IF itemfg.isaset THEN RUN fg/updsetdm.p (RECID({&TABLENAME})).
     ELSE DO:
+      RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
       {sys/inc/updfgdim.i {&TABLENAME}}
+      IF VALID-HANDLE(hdFormulaProcs) THEN
+      DELETE PROCEDURE hdFormulaProcs.
     END.
  END.
 END.

@@ -30,7 +30,10 @@ DEFINE OUTPUT PARAMETER TABLE FOR formule.
 DEFINE VARIABLE iIndex         AS INTEGER NO-UNDO.
 DEFINE VARIABLE dSquareBoxFit  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dScoresOrKnife AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
 
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -38,7 +41,7 @@ DEFINE VARIABLE dScoresOrKnife AS DECIMAL NO-UNDO.
 
 
 FUNCTION fGetSquareBoxFit RETURNS DECIMAL 
-    ( ipcStyle AS CHARACTER, ipcFlute AS CHARACTER, ipdKFrac AS DECIMAL  ) FORWARD.
+    ( ipcCompany AS CHARACTER, ipcStyle AS CHARACTER, ipcFlute AS CHARACTER, ipdKFrac AS DECIMAL  ) FORWARD.
 
 
 /* ***************************  Main Block  *************************** */
@@ -56,7 +59,7 @@ IF NOT AVAILABLE formule THEN
     CREATE formule.
     
         
-dSquareBoxFit = fGetSquareBoxFit(eb.style, eb.flute, ipdConversionFactor).  /*REFACTOR - PURPOSE?*/
+dSquareBoxFit = fGetSquareBoxFit(eb.company, eb.style, eb.flute, ipdConversionFactor).  /*REFACTOR - PURPOSE?*/
     
 /*Set Scoring Values based on Tab in and Joint Material*/
 IF style.type <> "F" THEN /*If Not Foam*/
@@ -88,6 +91,8 @@ DO iIndex = 1 TO 12:
 END. /*iIndex 1 to 12*/
     
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.    
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pApplyProperScoring:
@@ -318,14 +323,8 @@ PROCEDURE pModifyScoring:
 
     IF iplSquareBoxFit THEN 
     DO:
-        FIND FIRST reftable NO-LOCK 
-            WHERE reftable.reftable EQ "STYFLU"
-            AND reftable.company  EQ ipcStyle
-            AND reftable.loc      EQ ipcFlute
-            AND reftable.code     EQ "DIM-FIT"
-            NO-ERROR.
-        IF AVAILABLE reftable THEN 
-            iopdScoring = iopdScoring - (reftable.val[1] / 6.25 * ipdConversionFactor * 2).
+        RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (eb.company, ipcStyle, ipcFlute, OUTPUT dBoxFit).
+        iopdScoring = iopdScoring - (dBoxFit / 6.25 * ipdConversionFactor * 2).
     END.
 
 
@@ -334,22 +333,17 @@ END PROCEDURE.
 /* ************************  Function Implementations ***************** */
 
 FUNCTION fGetSquareBoxFit RETURNS DECIMAL 
-    ( ipcStyle AS CHARACTER, ipcFlute AS CHARACTER, ipdConversionFactor AS DECIMAL ):
+    ( ipcCompany AS CHARACTER, ipcStyle AS CHARACTER, ipcFlute AS CHARACTER, ipdConversionFactor AS DECIMAL ):
     /*------------------------------------------------------------------------------
      Purpose:  Returns the value of Sq Box Fit for the Style (*REFACTOR*)
      Notes: Original Note: "JLF added 02/28/96"
     ------------------------------------------------------------------------------*/	
 
-    DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.    
     
-    FIND FIRST reftable NO-LOCK 
-        WHERE reftable.reftable EQ "STYFLU"
-        AND reftable.company  EQ ipcStyle
-        AND reftable.loc      EQ ipcFlute
-        AND reftable.code     EQ "DIM-FIT"
-        NO-ERROR.
+    RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (ipcCompany, ipcStyle, ipcFlute, OUTPUT dBoxFit).    
 
-    dResult = IF AVAILABLE reftable THEN (reftable.val[1] / 6.25 * ipdConversionFactor) ELSE 0.
+    dResult = IF AVAILABLE reftable THEN (dBoxFit / 6.25 * ipdConversionFactor) ELSE 0.
     
     RETURN dResult.
 		

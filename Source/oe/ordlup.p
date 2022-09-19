@@ -19,6 +19,10 @@ DEFINE        VARIABLE v-part-qty        AS DECIMAL.
 DEFINE        VARIABLE v-q-back          AS INTEGER NO-UNDO.
 DEFINE        VARIABLE v-run-from-steps2 AS LOG     NO-UNDO.
 DEFINE        VARIABLE K_FRAC            AS DECIMAL INIT 6.25 NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 DEFINE BUFFER xitemfg FOR itemfg.
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
@@ -315,4 +319,6 @@ DO:
     RELEASE itemfg.
 END.
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1998  advanced software, inc. */
