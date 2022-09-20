@@ -452,6 +452,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportCust FOR ttImportCust.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE VARIABLE riNote AS ROWID NO-UNDO.
     DEFINE BUFFER bf-cust FOR cust .
     DEFINE BUFFER bf-shipto FOR shipto .
     DEFINE BUFFER bf-soldto FOR soldto .
@@ -605,59 +606,19 @@ PROCEDURE pProcessRecord PRIVATE:
             .
     END.
             
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note1,
-        "Misc Message 1",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note2,
-        "Misc Message 2",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note3,
-        "Mfg. Inst.",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note4,
-        "B/L Message",
-        "",
-        "C"). 
+    IF ipbf-ttImportCust.Note1 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note1, "Misc Message 1", "", "C", OUTPUT riNote).
+    IF ipbf-ttImportCust.Note2 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note2, "Misc Message 2", "", "C", OUTPUT riNote).
+    IF ipbf-ttImportCust.Note3 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note3, "Mfg. Inst.", "", "C", OUTPUT riNote).
+    IF ipbf-ttImportCust.Note4 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note4, "B/L Message", "", "C", OUTPUT riNote). 
+    
     RELEASE bf-cust.
     RELEASE bf-shipto.
     RELEASE bf-soldto .
     
-END PROCEDURE.
-
-PROCEDURE pAddNote:
-    /*------------------------------------------------------------------------------
-     Purpose: Adds a note to supplied rec_key and parameters
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcText AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcTitle AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcCode AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER.
-    DEFINE BUFFER bf-notes FOR notes.
-    
-    IF ipcText NE "" THEN 
-    DO:
-        CREATE bf-notes.
-        ASSIGN
-            bf-notes.rec_key    = ipcRecKey
-            bf-notes.note_date  = TODAY
-            bf-notes.note_time  = TIME
-            bf-notes.note_text  = ipcText
-            bf-notes.note_title = ipcTitle
-            bf-notes.note_code  = ipcCode
-            bf-notes.user_id    = "asi"
-            bf-notes.note_type  = ipcType
-            .                    
-    END.                           
-    RELEASE bf-notes.
 END PROCEDURE.
 
 PROCEDURE pGetSalesRep:
