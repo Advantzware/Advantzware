@@ -6379,8 +6379,12 @@ PROCEDURE ipRefTableConv :
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-est FOR est.
     DEFINE BUFFER recalc-mr FOR reftable.
+    DEFINE BUFFER bf-reftable FOR reftable.
 
     DEF VAR cThisElement AS CHAR NO-UNDO.
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
     DISABLE TRIGGERS FOR LOAD OF reftable.
     DISABLE TRIGGERS FOR LOAD OF reftable1.
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
@@ -6472,6 +6476,17 @@ PROCEDURE ipRefTableConv :
          END. 
     END.
     RELEASE bf-est.
+    
+    FOR EACH bf-reftable EXCLUSIVE-LOCK
+        WHERE bf-reftable.reftable EQ "STYFLU"
+          AND bf-reftable.code     EQ "DIM-FIT":
+        FOR EACH company NO-LOCK:
+          RUN Formula_SaveSquareBoxFitForStyleAndFlute IN hdFormulaProcs (company.company, bf-reftable.company, bf-reftable.loc, "Decimal", INPUT bf-reftable.val[1]).
+        END.
+        DELETE bf-reftable.
+    END. 
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+    DELETE PROCEDURE hdFormulaProcs.
 
     ASSIGN 
         lSuccess = TRUE.
