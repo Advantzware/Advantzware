@@ -1835,7 +1835,7 @@ PROCEDURE Inventory_CreateRMTransactionTransfer:
         INPUT  gcTransactionTypeTransfer,
         INPUT  bf-rm-bin.qty,
         INPUT  "",
-        INPUT  FALSE,
+        INPUT  TRUE,
         OUTPUT opriRMRctd,
         OUTPUT lSuccess,  
         OUTPUT opcMessage          
@@ -5133,6 +5133,9 @@ PROCEDURE pPostRawMaterials PRIVATE:
                     bf-transfer-rm-bin.tag     = bf-rm-rctd.tag2
                     bf-transfer-rm-bin.i-no    = bf-rm-rctd.i-no
                     .
+                
+                IF iPOValidator NE 0 THEN
+                    bf-transfer-rm-bin.po-no = iPOValidator.
             END.   
 
             RUN pCalculateAverageCost (
