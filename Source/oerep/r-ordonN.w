@@ -129,13 +129,13 @@ DEFINE VARIABLE cFileName   as CHARACTER          NO-UNDO .
 ASSIGN cTextListToSelect = "Rep,Cust#,Line Due Dt,Rel Due Dt,Cust Part#,Item Description,FG Item #," +
                            "Order#,CAD#,PO#,Order Qty,Qty OnHand,Qty Shippd,Qty ActRel," +
                            "Qty WIP,Qty Avail,Unit,Pallet,Order Value,Ack Date,Order Start Date,Status,CSR," +
-                           "JOB#,DIE#,DUE DATE,COMPLETION DATE,STYLE,SHEETED,PRINTED,DIE CUT,GLUED,Last Ship,Customer Lot #"
+                           "JOB#,DIE#,DUE DATE,COMPLETION DATE,STYLE,SHEETED,PRINTED,DIE CUT,GLUED,Last Ship,Customer Lot #,Invoice Qty"
        cFieldListToSelect = "rep,cust,l-due-dt,r-due-dt,cust-prt,itm-dscr,fg-itm," +
                             "ord,cad,po,ord-qty,qty-oh,qty-shp,qty-act," +
                             "qty-wip,qty-avl,est-unt,est-palt,ord-value,ack-date,ord-date,status,csr," +
-                            "job,die,due-dt,comp-dt,styl,sht,prntd,die-cut,glue,last-date,cust-lot"
-       cFieldLength = "3,8,11,10,15,30,20," + "8,14,15,10,10,10,10," + "10,10,5,6,15,8,16,20,8," + "13,20,10,15,7,7,7,7,5,16,15"
-       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c,c" 
+                            "job,die,due-dt,comp-dt,styl,sht,prntd,die-cut,glue,last-date,cust-lot,iInvoiceQty"
+       cFieldLength = "3,8,11,10,15,30,20," + "8,14,15,10,10,10,10," + "10,10,5,6,15,8,16,20,8," + "13,20,10,15,7,7,7,7,5,16,15,10"
+       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c,c,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1936,7 +1936,7 @@ PROCEDURE build-tt :
   IF AVAIL b-inv-line THEN DO:
     FIND FIRST b-inv-head WHERE b-inv-head.r-no EQ b-inv-line.r-no NO-LOCK.
     ASSIGN
-     tt-report.q-shp  = b-inv-line.ship-qty
+     tt-report.q-shp  = b-inv-line.ship-qty 
      tt-report.inv    = YES
      tt-report.inv-no = b-inv-head.inv-no.
   END.
