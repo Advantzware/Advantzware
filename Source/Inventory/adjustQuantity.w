@@ -1202,8 +1202,7 @@ FUNCTION fCalculateQuantityUnits RETURNS INTEGER
          ipdQuantitySubUnitsPerUnit = 1.
         
      RETURN INTEGER(TRUNC(ipdQuantitySubUnits / ipdQuantitySubUnitsPerUnit, 0)) +
-            INTEGER((ipdQuantitySubUnits MODULO ipdQuantitySubUnitsPerUnit) NE 0) + 
-            ( IF (ipdQuantitySubUnits * ipdSubUnitCount + ipdQuantityPartialSubUnit) GT (ipdSubUnitCount * ipdQuantitySubUnitsPerUnit )  THEN INTEGER(ipdQuantityPartialSubUnit GT 0) ELSE 0) .
+            INTEGER((ipdQuantitySubUnits MODULO ipdQuantitySubUnitsPerUnit) NE 0) .
 END FUNCTION.     
 
 
