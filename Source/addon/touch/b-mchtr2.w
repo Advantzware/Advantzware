@@ -680,19 +680,17 @@ PROCEDURE GearWheelsImageProc :
    DEFINE VARIABLE v-spec AS LOG NO-UNDO.
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
+   RELEASE job.
    IF AVAIL tt-tran AND tt-tran.job_number <> "" THEN
-     FIND FIRST job WHERE job.company EQ company_code AND
-                          job.job-no = tt-tran.job_number AND
-                          job.job-no2 = tt-tran.job_sub NO-LOCK NO-ERROR.
-   
-   IF AVAIL job THEN
-   FIND FIRST notes WHERE notes.rec_key = job.rec_key
-       AND notes.note_type = "O" 
-       NO-LOCK NO-ERROR.
-
-   IF AVAILABLE notes THEN
-      v-spec = TRUE.
-   ELSE v-spec = FALSE.
+   FIND FIRST job NO-LOCK
+        WHERE job.company EQ company_code
+          AND job.job-no  EQ tt-tran.job_number
+          AND job.job-no2 EQ tt-tran.job_sub
+        NO-ERROR.   
+   v-spec = AVAILABLE job AND
+            CAN-FIND(FIRST notes
+                     WHERE notes.rec_key   EQ job.rec_key
+                       AND notes.note_type EQ "O").
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'optonote-target':U, OUTPUT char-hdl).
 
