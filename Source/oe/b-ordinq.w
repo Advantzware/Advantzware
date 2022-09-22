@@ -2805,13 +2805,10 @@ PROCEDURE GearWheelsImageProc :
    DEFINE VARIABLE v-spec AS LOG NO-UNDO.
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
-   FIND FIRST notes WHERE notes.rec_key = oe-ordl.rec_key
-       AND notes.note_type = "O" 
-       NO-LOCK NO-ERROR.
-
-   IF AVAILABLE notes THEN
-      v-spec = TRUE.
-   ELSE v-spec = FALSE.
+   v-spec = AVAILABLE oe-ordl AND
+            CAN-FIND(FIRST notes
+                     WHERE notes.rec_key   EQ oe-ordl.rec_key
+                       AND notes.note_type EQ "O").
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'optonote-target':U, OUTPUT char-hdl).
 
