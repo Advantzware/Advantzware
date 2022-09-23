@@ -3768,8 +3768,7 @@ PROCEDURE local-assign-record :
      eb.i-ps2   = 0
      eb.i-code2 = ""
      eb.i-dscr2 = ""
-     eb.i-%2    = 0
-     eb.unitno  = 0
+     eb.i-%2    = 0     
      .
 
     FOR EACH inks BY inks.iv:
@@ -3787,7 +3786,7 @@ PROCEDURE local-assign-record :
   END.
 
   /* Run logic only if NK1 is set */
-  IF glAssignUnitsForInk = YES THEN
+  IF glAssignUnitsForInk = YES AND NOT ll-copied-from-eb THEN
   DO iExt = 1 TO EXTENT(eb.i-code2):
       IF eb.i-code2[iExt] NE '' THEN
           RUN est/GetInksUnitNo.p (BUFFER eb, iExt, eb.i-code2[iExt], OUTPUT eb.unitno[iExt]).
