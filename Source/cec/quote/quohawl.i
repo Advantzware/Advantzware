@@ -62,7 +62,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
       put trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) lv-part-dscr1.  
+          xqitm.part-no FORMAT "X(15)" space(6) lv-part-dscr1.  
          
     END.
 
@@ -211,7 +211,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      put eb.part-no AT 10 FORM "x(21)" temp-trim-size   SKIP.
+      put eb.part-no AT 10 FORM "x(15)" temp-trim-size   SKIP.
       IF LINE-COUNTER GT PAGE-SIZE - 2 THEN DO: 
            page.  
            {cec/quote/quohawl2.i}

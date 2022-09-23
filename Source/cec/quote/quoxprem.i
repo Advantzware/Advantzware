@@ -60,7 +60,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
       PUT TRIM(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) lv-part-dscr1.  
+          xqitm.part-no FORMAT "X(15)" space(6) lv-part-dscr1.  
     END.
     ELSE
     IF i EQ 2 THEN DO:

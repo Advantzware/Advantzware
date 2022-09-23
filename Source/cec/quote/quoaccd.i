@@ -52,7 +52,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
 
       put trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) xqitm.part-dscr1 FORM "x(30)" .  
+          xqitm.part-no FORMAT "X(15)" space(6) xqitm.part-dscr1 FORM "x(30)" .  
          
     END.
 

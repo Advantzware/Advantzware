@@ -65,7 +65,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
       PUT TRIM(lv-est-no) FORM "x(8)" AT 1  /*SPACE(1) */
           xqitm.part-dscr1 AT 10 /*space(1)*/
-          xqitm.part-no AT 41 .  
+          xqitm.part-no FORMAT "X(15)" AT 41 .  
       
     END.
 

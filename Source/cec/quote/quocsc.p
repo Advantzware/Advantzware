@@ -44,7 +44,7 @@ FIND first xquo  where recid(xquo) eq report.rec-id NO-LOCK NO-ERROR.
 IF NOT AVAIL xquo THEN RETURN.
 
 format xquo.est-no        to 8
-       xqitm.part-no      to 34   format "x(25)"
+       xqitm.part-no      to 24   format "x(15)"
        trim-size          TO 60   format "x(24)"
        xqqty.qty          to 67   format ">>>>>>9"
        xqqty.price        to 78   format ">>,>>9.99"

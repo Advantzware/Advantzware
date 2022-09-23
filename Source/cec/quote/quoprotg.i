@@ -116,7 +116,7 @@ FOR EACH tt-item,
                          ELSE xqitm.part-dscr1.
       /*lv-part-dscr1 = IF s-print-2nd-dscr AND AVAIL itemfg THEN ITEMfg.i-NAME ELSE lv-part-dscr1.*/
       put trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) lv-part-dscr1 .
+          xqitm.part-no FORMAT "X(15)" space(6) lv-part-dscr1 .
     END.
 
     ELSE
@@ -348,12 +348,12 @@ FOR EACH tt-item,
         ELSE temp-trim-size = trim-size.
         
         IF est.est-type EQ 6 THEN
-           put eb.part-no AT 10 FORM "x(21)"
+           put eb.part-no AT 10 FORM "x(15)"
                "  Qty Per Set "
                TRIM(STRING(eb.quantityPerSet,"->>>,>>>"))
                SKIP.
         ELSE
-           put eb.part-no AT 10 FORM "x(21)"
+           put eb.part-no AT 10 FORM "x(15)"
                "  Qty Per Set "
                TRIM(STRING(eb.cust-%,"->>>,>>>"))
                SKIP.

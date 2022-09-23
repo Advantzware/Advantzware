@@ -83,7 +83,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                  xqitm.part-no space(1) lv-part-dscr1.
              */
             PUT TRIM(lv-est-no) FORM "x(8)" AT 1
-               "<c8>" xqitm.part-no  FORMAT "x(21)"
+               "<c8>" xqitm.part-no  FORMAT "x(15)"
 
                 /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
                 "<c24>" TRIM(lv-part-dscr1)  FORMAT "x(28)". 

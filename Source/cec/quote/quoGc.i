@@ -81,7 +81,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
             /* 01/30/07 rdb 01290707 
              PUT TRIM(lv-est-no) FORM "x(6)" SPACE(1)
-                 xqitm.part-no space(1) lv-part-dscr1.
+                 xqitm.part-no FORMAT "X(15)" space(6) lv-part-dscr1.
              */
             PUT TRIM(lv-est-no) FORM "x(6)" AT 1
                 xqitm.part-no AT 8 FORMAT "x(21)".
@@ -394,7 +394,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 END.
                 ELSE temp-trim-size = trim-size.
     
-                put eb.part-no AT 8 FORM "x(30)" SPACE temp-trim-size   SKIP.
+                put eb.part-no AT 8 FORM "x(15)" SPACE temp-trim-size   SKIP.
     
                 FIND FIRST style
                     WHERE style.company EQ cocode

@@ -43,7 +43,7 @@ FIND first report where report.term-id eq v-term-id NO-LOCK NO-ERROR.
 FIND first xquo  where recid(xquo) eq report.rec-id NO-LOCK NO-ERROR.
 IF NOT AVAIL xquo THEN RETURN.
 
-format xqitm.part-no    to 30   format "x(30)"
+format xqitm.part-no    to 15   format "x(15)"
        xqitm.part-dscr1 to 61
        xqitm.i-coldscr  to 89   format "x(27)"
        xqqty.qty        to 100  format ">>,>>>,>>9"

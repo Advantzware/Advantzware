@@ -85,7 +85,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                                 THEN itemfg.i-name ELSE xqitm.part-dscr1.
             PUT 
                 TRIM(lv-est-no) FORM "x(8)" AT 1
-                xqitm.part-no AT 10 FORMAT "x(21)"
+                xqitm.part-no AT 10 FORMAT "x(15)"
                 TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)".
         END. /* IF i EQ 1 */
         ELSE
@@ -433,7 +433,7 @@ FOR EACH xqitm OF xquo NO-LOCK
            ELSE ASSIGN temp-trim-size = trim-size.
 
            PUT 
-               eb.part-no AT 10 FORMAT "x(21)" temp-trim-size   SKIP.
+               eb.part-no AT 10 FORMAT "x(15)" temp-trim-size   SKIP.
 
            FIND FIRST style NO-LOCK
              WHERE style.company EQ cocode

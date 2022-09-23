@@ -81,7 +81,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
           xqitm.part-no space(1) lv-part-dscr1.
       */
       PUT TRIM(lv-est-no) FORM "x(8)" AT 1
-          xqitm.part-no AT 10 FORMAT "x(21)"
+          xqitm.part-no AT 10 FORMAT "x(15)"
 
           /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
            TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)". 
@@ -387,14 +387,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      put eb.part-no AT 10 FORM "x(21)" temp-trim-size   SKIP.
+      put eb.part-no AT 10 FORM "x(15)" temp-trim-size   SKIP.
     
       FIND FIRST style
           WHERE style.company EQ cocode
             AND style.style   EQ eb.style
           NO-LOCK NO-ERROR.
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.      
-      PUT eb.part-dscr1 AT 10 FORM "x(21)"
+      PUT eb.part-dscr1 AT 10 FORM "x(15)"
           style-dscr SKIP.
 
       DO i = 1 TO 6:

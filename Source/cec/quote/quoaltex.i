@@ -112,7 +112,7 @@ FOR EACH xqitm OF xquo NO-LOCK
 
 
             PUT TRIM(lv-est-no) FORM "x(8)" AT 1
-                xqitm.part-no AT 10 FORMAT "x(21)"          
+                xqitm.part-no AT 10 FORMAT "x(15)"          
                 TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)". 
 
         END.
@@ -382,7 +382,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                 END.
                 ELSE temp-trim-size = trim-size.
     
-                PUT eb.part-no AT 10 FORM "x(21)" temp-trim-size   SKIP.
+                PUT eb.part-no AT 10 FORM "x(15)" temp-trim-size   SKIP.
     
                 FIND FIRST style
                     WHERE style.company EQ cocode

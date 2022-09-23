@@ -68,7 +68,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
       put trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) xqitm.part-dscr1.           
+          xqitm.part-no FORMAT "x(15)" space(6) xqitm.part-dscr1.           
     END.
     ELSE IF i EQ 2 THEN DO:
       trim-size = "".
@@ -217,7 +217,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
       END.
       ELSE temp-trim-size = trim-size.
     
-      put eb.part-no AT 10 FORM "x(21)" temp-trim-size  SKIP.
+      put eb.part-no AT 10 FORM "x(15)" temp-trim-size  SKIP.
     
       FIND FIRST style
           WHERE style.company EQ cocode

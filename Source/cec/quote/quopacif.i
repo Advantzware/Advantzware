@@ -68,7 +68,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
       put trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) xqitm.part-dscr1.           
+          xqitm.part-no FORMAT "X(15)" space(1) xqitm.part-dscr1.           
     END.
     ELSE IF i EQ 2 THEN DO:
       trim-size = "".
@@ -226,7 +226,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no :
           NO-LOCK NO-ERROR.
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.
 
-      put eb.part-no AT 10 FORM "x(21)" eb.part-dscr1 AT 31 SKIP.
+      put eb.part-no AT 10 FORM "x(15)" eb.part-dscr1 AT 31 SKIP.
       PUT temp-trim-size AT 10 FORM "X(21)" style-dscr AT 31 SKIP.
       
       v-board = /*IF AVAIL ef THEN*/

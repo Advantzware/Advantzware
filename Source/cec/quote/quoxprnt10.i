@@ -349,7 +349,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      put eb.part-no AT 10 FORM "x(21)" SPACE temp-trim-size   SKIP.
+      put eb.part-no AT 10 FORM "x(15)" SPACE temp-trim-size   SKIP.
     
       FIND FIRST style
           WHERE style.company EQ cocode
