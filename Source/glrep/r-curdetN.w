@@ -470,7 +470,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         END.
 
         /* gdm - 10010905 */
-        ASSIGN tb_excel
+        ASSIGN 
             tb_OpenCSV
             fi_file.
         /* gdm - 10010905 */
@@ -494,6 +494,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1672,9 +1675,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM str-exl CLOSE.
-
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(TRIM(cFileName))).
     END.
     /* gdm - 10010905 */
 
