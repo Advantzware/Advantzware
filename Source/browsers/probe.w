@@ -1813,6 +1813,7 @@ IF CAN-FIND(FIRST xprobe
        /* copy notes from old quotehd */
       IF ll-new-quote THEN DO:
           RUN est/GetQuoteDefNotes.p (INPUT quotehd.company,
+                                      INPUT quotehd.loc,
                                       OUTPUT cNotes).
 /*          FIND FIRST bf-qhd NO-LOCK NO-ERROR. */
 /*          IF AVAILABLE bf-qhd THEN                */
