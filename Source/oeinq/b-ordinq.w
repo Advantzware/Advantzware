@@ -3594,7 +3594,7 @@ FUNCTION get-inv-qty RETURNS INT
 
   DEF VAR lp-inv-qty AS INT NO-UNDO.
 
-  ASSIGN lp-inv-qty = oe-ordl.inv-qty - getReturned("ReturnedInv") .   
+  ASSIGN lp-inv-qty = oe-ordl.t-inv-qty - getReturned("ReturnedInv") .   
 
   RETURN lp-inv-qty.
 
