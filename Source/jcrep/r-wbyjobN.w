@@ -1584,17 +1584,22 @@ for each mch-act
      v-mr-qty   = 0
      v-mr-waste = 0.
 
-    find job-code where job-code.code eq mch-act.code no-lock.
-    if job-code.cat eq "RUN" then
-      assign
-       v-run-qty  = mch-act.qty
-       v-wst-qty  = mch-act.waste.
-    else
-    if job-code.cat eq "MR" then
-      assign
-       v-mr-qty   = mch-act.qty
-       v-mr-waste = mch-act.waste.
-
+    FIND FIRST job-code NO-LOCK
+         WHEN job-code.code EQ mch-act.code
+         NO-ERROR.
+    IF AVAILABLE job-code THEN
+    CASE job-code.cat:
+        WHEN "RUN" then
+        ASSIGN
+            v-run-qty = mch-act.qty
+            v-wst-qty = mch-act.waste
+            .
+        WHEN MR" THEN
+        ASSIGN
+            v-mr-qty   = mch-act.qty
+            v-mr-waste = mch-act.waste
+            .
+    END CASE.
     assign
      v-up  = 1
      v-out = 1
