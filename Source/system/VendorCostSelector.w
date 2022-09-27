@@ -116,7 +116,6 @@ lSize x x-2 fiQuantity fiUOM lQuantity lShow fiAdders cAdders
 &ANALYZE-RESUME
 
 
-
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
