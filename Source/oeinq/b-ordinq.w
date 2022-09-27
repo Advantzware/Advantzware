@@ -1046,6 +1046,8 @@ DO:
 
   RUN set-rec_key.
 
+  RUN GearWheelsImageProc.
+  
   IF ll-browse-first THEN DO: /* don't know but focus is not on fi_ord-no without this*/
     APPLY 'ENTRY':U TO fi_ord-no IN FRAME {&FRAME-NAME}.
     ll-browse-first = NO.
@@ -2015,6 +2017,8 @@ PROCEDURE local-open-query :
     END.
   END.
 
+  IF AVAILABLE oe-ord THEN APPLY "value-changed" TO BROWSE {&browse-name}.
+
   ASSIGN
     lv-show-prev = NO
     lv-show-next = NO
@@ -2097,6 +2101,7 @@ PROCEDURE navigate-browser :
   IF ROWID(oe-ordl) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
+  APPLY "value-changed" TO BROWSE {&browse-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3255,6 +3260,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GearWheelsImageProc B-table-Win 
+PROCEDURE GearWheelsImageProc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE v-spec AS LOG NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+   v-spec = AVAILABLE oe-ordl AND
+            CAN-FIND(FIRST notes
+                     WHERE notes.rec_key   EQ oe-ordl.rec_key
+                       AND notes.note_type EQ "O").
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'optonote-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN pUpdateGearWheelsImage IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -3594,7 +3623,7 @@ FUNCTION get-inv-qty RETURNS INT
 
   DEF VAR lp-inv-qty AS INT NO-UNDO.
 
-  ASSIGN lp-inv-qty = oe-ordl.inv-qty - getReturned("ReturnedInv") .   
+  ASSIGN lp-inv-qty = oe-ordl.t-inv-qty - getReturned("ReturnedInv") .   
 
   RETURN lp-inv-qty.
 

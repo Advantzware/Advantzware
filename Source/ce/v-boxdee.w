@@ -1058,9 +1058,10 @@ PROCEDURE local-display-fields :
       ELSE if ll-is-3d-displayed AND
               box-design-hdr.box-3d-image <> "" then do:
               /*  box-image:auto-resize = yes. */
+             ASSIGN box-design-hdr.box-text:HIDDEN = YES
+                box-image-2:HIDDEN             = NO .
               IF INDEX(box-design-hdr.box-3d-image,".pdf") <= 0 THEN
                  ll-dummy = box-image-2:load-image(box-design-hdr.box-3d-image) in frame {&frame-name}.
-              ELSE box-image-2:HIDDEN = yes.
       end.
       ELSE DO:
           ASSIGN box-design-hdr.box-text:HIDDEN = NO

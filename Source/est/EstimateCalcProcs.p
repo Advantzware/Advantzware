@@ -561,7 +561,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-ttEstCostBlank.blankWidth              = IF ipbf-eb.t-wid EQ 0 THEN ipbf-eb.wid ELSE ipbf-eb.t-wid
         opbf-ttEstCostBlank.blankLength             = IF ipbf-eb.t-len EQ 0 THEN ipbf-eb.len ELSE ipbf-eb.t-len
         opbf-ttEstCostBlank.blankDepth              = IF ipbf-eb.t-dep EQ 0 THEN ipbf-eb.dep ELSE ipbf-eb.t-dep
-        opbf-ttEstCostBlank.blankArea               = IF ipbf-eb.t-sqin EQ 0 THEN opbf-ttEstCostBlank.blankLength * opbf-ttEstCostBlank.blankWidth ELSE ( IF gclCorrware THEN ipbf-eb.t-sqin * 0.007 ELSE ipbf-eb.t-sqin / 144)
+        opbf-ttEstCostBlank.blankArea               = IF ipbf-eb.t-sqin EQ 0 THEN opbf-ttEstCostBlank.blankLength * opbf-ttEstCostBlank.blankWidth ELSE ipbf-eb.t-sqin
         opbf-ttEstCostBlank.dimLength               = ipbf-eb.len
         opbf-ttEstCostBlank.dimWidth                = ipbf-eb.wid
         opbf-ttEstCostBlank.dimDepth                = ipbf-eb.dep
@@ -570,7 +570,7 @@ PROCEDURE pAddEstBlank PRIVATE:
         opbf-ttEstCostBlank.isPurchased             = ipbf-eb.pur-man
                                                         
         /*Refactor - Hardcoded*/
-        opbf-ttEstCostBlank.areaUOM                 = "SF"
+        opbf-ttEstCostBlank.areaUOM                 = "SQIN"
         opbf-ttEstCostBlank.dimUOM                  = "IN"
         opbf-ttEstCostBlank.weightUOM               = gcDefaultWeightUOM
                     
@@ -1608,7 +1608,7 @@ PROCEDURE pAddLeaf PRIVATE:
             
             IF ttLeaf.lIsWax AND bf-item.shrink NE 0 THEN 
                 ASSIGN 
-                    ttLeaf.dAreaInSqIn  = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-ttEstCostForm.basisWeight) * bf-item.shrink
+                    ttLeaf.dAreaInSqIn  = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-ttEstCostForm.basisWeight) * bf-item.shrink / 100
                     ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSqIn
                     ttLeaf.dCoverageRate = 1                    
                     .
