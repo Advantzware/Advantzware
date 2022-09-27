@@ -88,7 +88,7 @@ FOR EACH oe-boll NO-LOCK
     END.
 END.
 FIND FIRST bf-w-except NO-LOCK
-     WHERE NOT bf-w-except.lAvailOnhQty NO-ERROR.
+     WHERE bf-w-except.lAvailOnhQty EQ NO NO-ERROR.
 IF AVAILABLE bf-w-except THEN
 DO:
       FOR EACH w-except NO-LOCK :
