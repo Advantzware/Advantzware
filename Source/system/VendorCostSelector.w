@@ -116,6 +116,7 @@ lSize x x-2 fiQuantity fiUOM lQuantity lShow fiAdders cAdders
 &ANALYZE-RESUME
 
 
+
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
@@ -475,14 +476,9 @@ DO:
                 VIEW-AS ALERT-BOX.
             RETURN NO-APPLY.
         END. 
-        ELSE IF PROGRAM-NAME(9) EQ "oe/ordfrest.p" 
-        OR INDEX(PROGRAM-NAME(9),"oe/d-oeitem.w") NE 0 
-        OR INDEX(PROGRAM-NAME(9),"panels/p-job.w") NE 0 
-        OR INDEX(PROGRAM-NAME(9),"browsers/probe.w") NE 0 
-        THEN 
-        DO:
+        ELSE DO:
             MESSAGE 
-                "Creating PO for vendor: " + ttVendItemCost.vendorID + "." skip
+                "Selected vendor code: " + ttVendItemCost.vendorID + "." skip
                 "Is this correct?"
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCorrect AS LOG.
             IF NOT lCorrect THEN RETURN NO-APPLY.
@@ -492,25 +488,12 @@ DO:
             ttVendItemCost.isSelected = TRUE.
             APPLY 'CLOSE' TO THIS-PROCEDURE.
         END.
-        ELSE DO:
-            MESSAGE 
-                PROGRAM-NAME(1) skip
-                PROGRAM-NAME(2) skip
-                PROGRAM-NAME(3) skip
-                PROGRAM-NAME(4) skip
-                PROGRAM-NAME(5) skip
-                PROGRAM-NAME(6) skip
-                PROGRAM-NAME(7) skip
-                PROGRAM-NAME(8) skip
-                PROGRAM-NAME(9) 
-                VIEW-AS ALERT-BOX.
-        END.        
-                
     END.
     ELSE DO:
-        MESSAGE 
-            "No vendor was selected."
-            VIEW-AS ALERT-BOX.
+        ASSIGN 
+            oplError = TRUE  
+            opcMessage = "No Vendor/Item/Cost record was available/selected.".
+        APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
 END.
 
