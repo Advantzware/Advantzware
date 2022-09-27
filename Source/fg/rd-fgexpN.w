@@ -1955,7 +1955,7 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         WHEN "iOnHoldQty"  THEN 
             DO:
                 ASSIGN iTotalOnHoldQty = 0 .
-                FOR EACH fg-bin
+                FOR EACH fg-bin NO-LOCK
                    WHERE fg-bin.company  EQ ipb-itemfg.company
                      AND fg-bin.i-no     EQ ipb-itemfg.i-no
                     :
