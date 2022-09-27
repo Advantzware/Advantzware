@@ -1585,7 +1585,7 @@ for each mch-act
      v-mr-waste = 0.
 
     FIND FIRST job-code NO-LOCK
-         WHEN job-code.code EQ mch-act.code
+         WHERE job-code.code EQ mch-act.code
          NO-ERROR.
     IF AVAILABLE job-code THEN
     CASE job-code.cat:
@@ -1594,7 +1594,7 @@ for each mch-act
             v-run-qty = mch-act.qty
             v-wst-qty = mch-act.waste
             .
-        WHEN MR" THEN
+        WHEN "MR" THEN
         ASSIGN
             v-mr-qty   = mch-act.qty
             v-mr-waste = mch-act.waste
