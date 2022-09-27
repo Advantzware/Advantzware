@@ -1441,7 +1441,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     DO:
                         IF lSingleBOL THEN DO:
                                 
-                            IF w-except.lAvailOnhQty THEN
+                            IF w-except.lAvailOnhQty AND NOT w-except.lNotValidAllOnhQty THEN
                             DO:
                                  lAvailOnHandQty = YES.
                                  RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs (oe-boll.company, oe-boll.b-no, w-except.cLocBin).
