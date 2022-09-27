@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-//{methods/prgsecur.i}
+
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
 
@@ -90,7 +90,7 @@ RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixU
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
 /* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.customerID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup /* ttVendItemCost.costSetup */ ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.customerID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
@@ -114,6 +114,7 @@ lSize x x-2 fiQuantity fiUOM lQuantity lShow fiAdders cAdders
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -243,9 +244,7 @@ DEFINE BROWSE brVendItemCost
       ttVendItemCost.vendorUOM    COLUMN-LABEL "UOM"  
              LABEL-BGCOLOR 14   FORMAT "x(5)"    
       ttVendItemCost.costSetup    COLUMN-LABEL "Setup" 
-             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99" 
-     /* ttVendItemCost.costSetup   COLUMN-LABEL "Additional Cost" 
-             LABEL-BGCOLOR 14*/
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"      
       ttVendItemCost.costTotal      COLUMN-LABEL "Total Cost"        
              LABEL-BGCOLOR 14   FORMAT "->,>>>,>>9.99" 
       ttVendItemCost.vendorItem COLUMN-LABEL "Vendor Item"   
@@ -257,9 +256,7 @@ DEFINE BROWSE brVendItemCost
       ttVendItemCost.isValid      COLUMN-LABEL "Valid"        
              LABEL-BGCOLOR 14   FORMAT "Yes/No" 
       ttVendItemCost.reasonNotValid COLUMN-LABEL "Invalid Reason"  
-             LABEL-BGCOLOR 14   FORMAT "x(100)"  
-          //  ttVendItemCost.note COLUMN-LABEL "Note"   FORMAT "x(32)":U
-           // WIDTH 24 LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "x(100)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 158.4 BY 13.52
