@@ -138,7 +138,7 @@ PROCEDURE pGetOnHoldQty:
     
     ASSIGN iTotalOnHoldQty = 0.
     
-    FOR EACH fg-bin
+    FOR EACH fg-bin NO-LOCK
        WHERE fg-bin.company  EQ ipcCompany
          AND fg-bin.i-no     EQ ipcItemNo
          AND (fg-bin.loc     EQ ipcLocation OR
