@@ -886,7 +886,7 @@ PROCEDURE pLogEntry:
     iLogEntry = iLogEntry + 1.
     RUN spCreateAuditDtl (
         iAuditID, /* audit id     */
-        STRING(iLogEntry,">>9") + " " + ipcField, /* field */
+        STRING(iLogEntry,">>>9") + " " + ipcField, /* field */
         0,        /* extent       */
         ipcValue, /* before value */
         "",       /* after value  */

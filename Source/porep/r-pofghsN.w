@@ -135,7 +135,7 @@ DEFINE BUTTON btn-ok
 
 DEFINE BUTTON btn_SelectColumns 
     LABEL "Select Columns" 
-    SIZE 43 BY 1.19.
+    SIZE 40 BY 1.48.
 
 
 DEFINE VARIABLE begin_buyer    AS CHARACTER FORMAT "X(15)":U 
@@ -1019,6 +1019,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN DisplaySelectionList.
     btn-ok:load-image("Graphics/32x32/Ok.png").
     btn-cancel:load-image("Graphics/32x32/cancel.png").
+    btn_SelectColumns:LOAD-IMAGE("Graphics/32x32/selectColumns.png").
     RUN enable_UI.
   
     FOR EACH mat:

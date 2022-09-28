@@ -92,6 +92,24 @@ File: TaskResults/2022.06/Locations.16.72512.csv" 9 1 5.33 116.2 32 7 15 1 2 1.2
 0 "Message" yes 31 0 "Submitted Run Now Request is Available
 
 File: TaskResults/2022.06/MachineTransactionQuery.16.72567.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72579 "_default" "202206167257909599446"
+0 "Message" yes 32 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.08/CapacityHTMLPage.02.68329.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "alex" "20220802_19:02:20_09859650"
+0 "Message" yes 33 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.08/FGInventoryStatusByCust.02.68421.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "laurel" "20220802_19:02:20_09859651"
+0 "Message" yes 34 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.08/FGInventoryStatusByCust.02.68479.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "laurel" "20220802_19:02:20_09859652"
+0 "Message" yes 35 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.08/FGInventoryStatusByCust.02.68486.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "laurel" "20220802_19:02:20_09859653"
+0 "Message" yes 36 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.08/FGInventoryStatusByCust.02.68483.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "mark" "20220802_19:02:20_09859654"
+0 "Message" yes 37 0 "Submitted Run Now Request is Available
+
+File: TaskResults/2022.08/FGInventoryStatusByCust.02.68506.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "mark" "20220802_19:02:20_09859655"
 1 "System" yes 1 1 "Welcome to Version 16.8.0 of Advantzware!
 
 This is our new Cue Card feature.  Cue Cards appear to guide and explain new features and functionality added to Advantzware.

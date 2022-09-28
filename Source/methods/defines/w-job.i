@@ -16,6 +16,7 @@ DEFINE NEW SHARED TEMP-TABLE w-job NO-UNDO
     FIELD ord-max     LIKE itemfg-loc.ord-max   FORMAT ">>>,>>>,>>>.<<"
     FIELD ord-min     LIKE itemfg-loc.ord-min   FORMAT ">>>,>>>,>>>.<<<"
     FIELD onHand        AS INTEGER FORMAT "->>,>>>,>>9" LABEL "OnHand"
+    FIELD onHoldQty     AS INTEGER FORMAT "->>,>>>,>>9" LABEL "OnHold"
     FIELD onOrder       AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Jobs/POs"
     FIELD allocated     AS INTEGER FORMAT "->>,>>>,>>9" LABEL "Allocated"
     FIELD backOrder     AS INTEGER FORMAT "->>,>>>,>>9" LABEL "BackOrder"

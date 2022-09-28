@@ -35,7 +35,7 @@ FOR EACH vendItemCost NO-LOCK
  END. 
 
 IF AVAILABLE eb THEN     
-RUN est\BuildFarmForLogistics.p (ROWID(eb)).
+RUN est\BuildFarmForLogistics.p (ROWID(eb), YES, YES).
 FOR EACH vendItemCost NO-LOCK 
     WHERE vendItemCost.company EQ eb.company
     AND vendItemCost.estimateNo EQ eb.est-no

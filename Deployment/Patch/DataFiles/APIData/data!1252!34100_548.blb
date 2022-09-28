@@ -1,0 +1,34 @@
+<C2><R2><#1><R+10><C+45><IMAGE#1=$BusinessFormLogo$>
+<R4><C50><#3><FROM><R10><C80><RECT><||3>
+<R6><C50><FROM><R6><C80><LINE><||3>
+<R8><C50><FROM><R8><C80><LINE><||3>
+<R4><C62><FROM><R6><C62><LINE><||3>
+<R6><C65><FROM><R8><C65><LINE><||3>
+<R8><C65><FROM><R10><C65><LINE><||3>
+<FArial><P12><=#3><R-2> <B>Invoice#:   $InvoiceID$</B><P10>                            Page:   $PageNumber$     
+<=#3><C51>Client/Customer<C63>Contact<=#3><R+2><C51>Telephone<C66>Fax<=#3><R+4><C51>Bon De Commande        Facture/Invoice Date <FCourier New><=3><R+1><C51>$CustomerID$<C63>$CustomerContact$<=3><R+3><C51>($AreaCode$)$Phone|999-9999|$<C66>$Fax|(999)999-9999|$<=3><R+5><C51>$CustomerPO$<C66>$InvoiceDate|MM/DD/YYYY|DATE|$
+<R13><FCourier New>
+<C7>Facturè À: <C54>Livrè À:
+<C7>$CustomerName$<C54>$InvoiceShipToName$
+<C7>$InvoiceAddress1$<C54>$InvoiceShipToAddress1$
+<C7>$InvoiceAddress2$<C54>$InvoiceShipToAddress2$
+<C7>$InvoiceCity$ $InvoiceState$ $InvoiceZip$<C54>$InvoiceShipToCity$ $InvoiceShipToState$ $InvoiceShipToZip$
+<R21><C1><#4><FROM><R25><C80><RECT><||3>
+<R23><C1><FROM><R23><C80><LINE><||3>
+<R21><C11><FROM><R25><C11><LINE><||3>
+<R21><C22><FROM><R25><C22><LINE><||3>
+<R21><C38><FROM><R25><C38><LINE><||3>
+<R21><C55><FROM><R25><C55><LINE><||3>
+<R21><C65><FROM><R25><C65><LINE><||3>
+<R21><C72><FROM><R25><C72><LINE><||3>
+<FArial><=4><R+1><C3>Date De<C14>Destination<C27>Transporteur<C43>Termes<C56>Representant<C66>Palettes<C74>BOL#
+<FCourier New><=4><R+3><C2>$BolDate||||IF["?","$InvoiceDate|MM/DD/YYYY|DATE|$","$BolDate|MM/DD/YYYY|DATE|$"]|$<C12>$FOB$<C24>$CarrierDescription$<C40>$Terms$<C57>$SalesPerson1$$SalesPerson2$$SalesPerson3$<C66>$TotalPallets$<C73>$BOLID$
+<R26><C1><#5><FROM><R28><C80><RECT><||3>   
+<R26><C9><FROM><R28><C9><LINE><||3>
+<R26><C15><FROM><R28><C15><LINE><||3>
+<R26><C21><FROM><R28><C21><LINE><||3>
+<R26><C34><FROM><R28><C34><LINE><||3>
+<R26><C56><FROM><R28><C56><LINE><||3>
+<R26><C65><FROM><R28><C65><LINE><||3>
+<R26><C69><FROM><R28><C69><LINE><||3>
+$PrintAllQty||||IF["no","<FArial><=5><R+1><C1.5>Commandè<C10>Livrè<C15.5>Order#<C22>Article#/reference#<C41>Description<C59>Prix<C65.5>UM<C72>Montant<P9><FCourier New>","<FArial><=5><R+0><C1.5>Commandè<FCourier New><FArial><=5><R+1><C1.5>Facturè<C10>Livrè<C15.5>Order#<C22>Article#/reference#<C41>Description<C59>Prix<C65.5>UM<C72>Montant<P9><FCourier New>"]|$

@@ -1,0 +1,4 @@
+$InvoiceHeader$
+$InvoiceLineGroupHeader$$InvoiceLines$$InvoiceLineGroupFooter$$PageSeparator$$InvoiceMiscGroupHeader$$InvoiceMiscs$$InvoiceMiscGroupFooter$$PageSeparator$
+$PrintInstructions||||IF["yes","$BillingInstruction1$$linefeed$$BillingInstruction2$$linefeed$$BillingInstruction3$$linefeed$$BillingInstruction4$",""]|$$PageSeparator$
+$InvoiceFooter$

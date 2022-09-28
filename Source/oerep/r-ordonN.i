@@ -442,7 +442,8 @@
                    WHEN "po"       THEN cVarValue = STRING(tt-report.po-no,"x(15)") .
                    WHEN "ord-qty"  THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.qty,"->,>>>,>>9") ELSE "" .
                    WHEN "qty-oh "  THEN cVarValue = STRING(tt-report.q-onh,"->,>>>,>>9") .
-                   WHEN "qty-shp"  THEN cVarValue = STRING(tt-report.q-shp,"->,>>>,>>9") .
+                   WHEN "qty-shp"  THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.ship-qty,"->,>>>,>>9") ELSE "" .
+                   WHEN "iInvoiceQty"  THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.t-inv-qty,"->,>>>,>>9") ELSE "" .
                    WHEN "qty-act"  THEN cVarValue = STRING(tt-report.q-rel,"->,>>>,>>9") .
                    WHEN "qty-wip"  THEN cVarValue = STRING(tt-report.q-wip,"->,>>>,>>9") .
                    WHEN "qty-avl"  THEN cVarValue = STRING(tt-report.q-avl,"->,>>>,>>9") .

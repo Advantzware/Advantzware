@@ -69,6 +69,7 @@ ASSIGN
   v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 
 def var lv-first-time as log init yes no-undo.
+DEFINE VARIABLE cInternalCust AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,7 +87,7 @@ def var lv-first-time as log init yes no-undo.
 &Scoped-define BROWSE-NAME BROWSE-1
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES shipto
+&Scoped-define INTERNAL-TABLES cust shipto 
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -96,20 +97,27 @@ def var lv-first-time as log init yes no-undo.
 shipto.ship-name shipto.ship-addr[1] shipto.ship-city shipto.ship-state ~
 shipto.ship-zip shipto.carrier shipto.loc shipto.bill
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
-&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
-      AND shipto.company = ip-company and ~
-(shipto.cust-no = ip-cust-no or  ~
-(shipto.cust-no eq lv-cust-x and lv-cust-x ne "")) ~
-and shipto.statusCode ne "I" NO-LOCK ~
+&Scoped-define QUERY-STRING-BROWSE-1 FOR EACH cust NO-LOCK ~
+          WHERE cust.company EQ ip-company ~
+          AND (cust.cust-no = ip-cust-no or  ~
+(cust.cust-no eq lv-cust-x and lv-cust-x ne "") or (lookup(cust.cust-no,cInternalCust) NE 0 and cInternalCust ne "") ), ~
+         EACH shipto WHERE ~{&KEY-PHRASE} ~
+      AND shipto.company = ip-company  ~
+      and shipto.cust-no = cust.cust-no ~
+      and shipto.statusCode ne "I" NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH shipto WHERE ~{&KEY-PHRASE} ~
-      AND shipto.company = ip-company and ~
-(shipto.cust-no = ip-cust-no or  ~
-(shipto.cust-no eq lv-cust-x and lv-cust-x ne "")) ~
-and shipto.statusCode ne "I" NO-LOCK ~
+&Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH cust NO-LOCK ~
+          WHERE cust.company EQ ip-company ~
+          AND (cust.cust-no = ip-cust-no or  ~
+(cust.cust-no eq lv-cust-x and lv-cust-x ne "") or (lookup(cust.cust-no,cInternalCust) NE 0 and cInternalCust ne "") ), ~
+         EACH shipto WHERE ~{&KEY-PHRASE} ~
+      AND shipto.company = ip-company  ~
+      and shipto.cust-no = cust.cust-no ~
+      and shipto.statusCode ne "I" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-BROWSE-1 shipto
-&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 shipto
+&Scoped-define TABLES-IN-QUERY-BROWSE-1 cust shipto
+&Scoped-define FIRST-TABLE-IN-QUERY-BROWSE-1 cust
+&Scoped-define SECOND-TABLE-IN-QUERY-BROWSE-1 shipto
 
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
@@ -166,6 +174,7 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
+      cust,
       shipto SCROLLING.
 &ANALYZE-RESUME
 
@@ -236,12 +245,15 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "ASI.shipto"
+     _TblList          = "ASI.cust,ASI.shipto"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "ASI.shipto.company = ip-company and
-(shipto.cust-no = ip-cust-no or 
-(shipto.cust-no eq lv-cust-x and lv-cust-x ne """"))
-and shipto.statusCode ne ""I"""
+     _Where[1]         = "cust.company EQ ip-company ~
+                         AND (cust.cust-no = ip-cust-no or  ~
+                         (cust.cust-no eq lv-cust-x and lv-cust-x ne """") or (lookup(cust.cust-no,cInternalCust) NE 0 and cInternalCust ne """") )"
+      _Where[2]         = "~{&KEY-PHRASE} ~
+                        AND shipto.company = ip-company  ~
+                        and shipto.cust-no = cust.cust-no ~
+                        and shipto.statusCode ne ""I"" "                     
      _FldNameList[1]   = ASI.shipto.cust-no
      _FldNameList[2]   = ASI.shipto.ship-id
      _FldNameList[3]   = ASI.shipto.ship-name
@@ -383,30 +395,20 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     lv-cust-x = cust.cust-no.
     LEAVE.
   END.
+  
+  FOR EACH cust NO-LOCK
+      WHERE cust.company EQ ip-company
+       AND cust.internal EQ YES 
+       AND cust.active  NE "X": 
+       cInternalCust = cInternalCust + cust.cust-no + ",".
+  END.
+  
+  IF cInternalCust EQ "," THEN cInternalCust = "".
 
   RUN enable_UI.
   DO WITH FRAME {&FRAME-NAME}:
-    {custom/usrprint.i}
-    lv-search = ip-cur-val.
-
-    RELEASE shipto.
-    FIND shipto NO-LOCK 
-        WHERE shipto.company   EQ cocode
-          AND (shipto.cust-no  EQ ip-cust-no OR 
-               (shipto.cust-no EQ lv-cust-x AND lv-cust-x NE ""))
-          AND shipto.ship-id   BEGINS ip-cur-val
-        NO-ERROR.
-    IF AVAIL shipto THEN
-      lv-search = IF rd-sort:SCREEN-VALUE EQ "3" THEN shipto.ship-name
-                                                 ELSE
-                  IF rd-sort:SCREEN-VALUE EQ "2" THEN shipto.ship-id
-                                                 ELSE shipto.cust-no.
-
-    lv-search:SCREEN-VALUE = lv-search.
-
-    IF lv-search EQ "" THEN RUN new-rd-sort.
-
-    ELSE RUN new-search.
+    {custom/usrprint.i}  
+    lv-search:SCREEN-VALUE = "".
   END.
   RUN new-rd-sort.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.

@@ -2712,7 +2712,14 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
           est-qty.qty[39] = tt-frmout.copy-rel[19] 
           est-qty.qty[40] = tt-frmout.copy-rel[20]  .
      
-
+     IF tt-frmout.stack-no NE "" AND NOT CAN-FIND(FIRST itemfg
+                  WHERE itemfg.company EQ cocode
+                    AND itemfg.i-no    EQ tt-frmout.stack-no) THEN DO:  
+        FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+        FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+        eb.pur-man  = TRUE .
+        RUN fg/ce-addfg.p (tt-frmout.stack-no).
+     END. 
 
      FIND FIRST itemfg WHERE  itemfg.company = cocode
          AND itemfg.stat = "A" AND itemfg.i-no = tt-frmout.stack-no

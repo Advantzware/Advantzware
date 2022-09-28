@@ -1,0 +1,15 @@
+<FCourier New>
+<C1><R3><#1><R+9><C+45><IMAGE#1=$BusinessFormLogo$>
+<P14><R4><C+49><#3><B>Purchase Order</B>
+<P12><=#3>
+<=#3><R+5>DATE: $PODate$<R+2>
+<C8>TO:<C50>SHIP TO:
+<C8>$VendorName$<C50>$POShipName$
+<C8>$VendorAddress1$<C50>$POShipAddress1$
+<C8>$VendorAddress2$<C50>$POShipAddress2$
+<C8>$VendorCity$ $VendorState$ $VendorZip$<C50>$POShipCity$ $POShipState$ $POShipZip$
+<C8>Phone#:($VendorAreaCode$)$VendorPhone|xxx-xxxx|$<C30>Fax#:($VendorFaxAreaCode$)$VendorFax|xxx-xxxx|$<R+1>
+<C4>ATTN:$POContact|X(25)|$<C50>PO#: $POID|>>>>>>>9|INT|$
+<R20.5><C1><#4><FROM><R20.5><C81><LINE><R+0.5>
+<=#4><C59>Count/
+<=4><R+1><C3>Qty<C7>DESC/NOTES<C40> ADDER<C47> JOB#<C59>Due Date<C68> MSF/TOTALS<R23><C1><#5><FROM><R23><C81><LINE>

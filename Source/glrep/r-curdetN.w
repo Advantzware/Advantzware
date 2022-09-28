@@ -475,7 +475,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         END.
 
         /* gdm - 10010905 */
-        ASSIGN tb_excel
+        ASSIGN 
             tb_OpenCSV
             fi_file.
         /* gdm - 10010905 */
@@ -501,7 +501,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         END.
                     END.
                     ELSE DO:
-                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 

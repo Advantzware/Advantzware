@@ -787,7 +787,7 @@ DO:
                         INPUT begin_cust-no,
                         INPUT end_cust-no).
   END.
-  IF iColumnLength > 300 THEN
+  IF rd-dest NE 3 AND iColumnLength > 300 THEN
      MESSAGE "Report may not show all selected columns appropriately. " SKIP
              "Use Excel Output for all selected column values. (" iColumnLength ")"
          VIEW-AS ALERT-BOX WARNING BUTTONS OK.

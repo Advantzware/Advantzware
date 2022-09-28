@@ -1,0 +1,6 @@
+<FArial><R58><C1><P12><B> Gracias. </B> <P9>
+<FArial><R60><C1><P12> Todas las monedas mostradas en $CompanyID||||IF["004","CAD",""]|$$CompanyID||||IF["001","AUD",""]|$$CompanyID||||IF["005","USD",""]|$.<P9> 
+<FCourier New><P10><B><R58><C54><#8><FROM><R+5><C+26><RECT>
+<=8><C54.5>Total parcial      :<C70>$InvoiceLineTotalAmount|$->>,>>9.99|DEC|R|$
+<=8><R+1><C54.5>Carga              :<C70>$BillFreight||||IF["yes","$InvoiceFreightAmount|$->>>>>9.99|DEC|R|$","      0.00"]|$<=8><R+2><C54.5>Impuesto de venta  :<C70>$TotalInvoicedTax|$->>>>>9.99|DEC|R|$
+<=8><R+4><C54.5>Total de la factura:<C70>$TotalInvoicedRevenue|$->>,>>9.99|DEC|R|$$LastInvoice||||IF["yes","","$formfeed$"]|$

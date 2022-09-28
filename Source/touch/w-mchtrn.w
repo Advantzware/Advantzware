@@ -346,6 +346,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-mchtr2 , 'attach':U , h_attach ).
+       RUN add-link IN adm-broker-hdl ( h_b-mchtr2 , 'optonote':U , h_optonote ).
 
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).

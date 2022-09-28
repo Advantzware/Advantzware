@@ -1,0 +1,7 @@
+UPDATE FIELD "line" OF "ap-invl" AS int64
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000048

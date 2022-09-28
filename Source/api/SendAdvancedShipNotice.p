@@ -210,7 +210,8 @@
 
         FIND FIRST bf-carrier NO-LOCK 
              WHERE bf-carrier.company EQ oe-bolh.company
-               AND bf-carrier.carrier EQ oe-bolh.carrier         
+               AND bf-carrier.carrier EQ oe-bolh.carrier
+               AND bf-carrier.loc     EQ oe-bolh.loc         
              NO-ERROR.     
         IF AVAILABLE bf-carrier THEN
             cCarrierDescription = bf-carrier.dscr.
