@@ -123,14 +123,14 @@ FOR EACH tt-item,
       IF LENGTH(xqitm.part-no) LE 20 THEN
         PUT TRIM(lv-est-no) FORM "x(8)" AT 1
           xqitm.part-no AT 10 FORMAT "x(20)"           
-          TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)".
+          TRIM(lv-part-dscr1) AT 31 FORMAT "x(30)".
       ELSE do: 
          PUT TRIM(lv-est-no) FORM "x(8)" AT 1
           xqitm.part-no AT 10 FORMAT "x(30)".
           IF lv-part-dscr1 NE "" THEN
           PUT 
             SKIP           
-            TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)".
+            TRIM(lv-part-dscr1) AT 31 FORMAT "x(30)".
       END.
     END.
 
@@ -305,8 +305,8 @@ FOR EACH tt-item,
        v-pricea = IF xqqty.uom EQ "EA" THEN string(xqqty.price,">>>>9.9999") 
                                        ELSE string(xqqty.price,"->>,>>9.99").
       
-        PUT xqqty.qty           TO 68   FORMAT ">,>>>,>>9"
-            xqqty.rels          TO 72   FORMAT ">>9"   
+        PUT xqqty.qty           TO 69   FORMAT ">,>>>,>>9"
+            xqqty.rels          TO 73   FORMAT ">>9"   
             v-pricea            TO 84   /*FORMAT "->>>,>>9.99"*/ .
 
         IF xqqty.uom NE "L" THEN

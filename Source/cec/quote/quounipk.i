@@ -63,9 +63,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     IF i EQ 1 THEN DO:
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
-
+         
       put trim(lv-est-no) FORM "x(8)" AT 1  /*SPACE(1) */
-          xqitm.part-no FORMAT "x(28)" AT 12 
+          xqitm.part-no FORMAT "x(30)" AT 10 
           xqitm.part-dscr1 FORMAT "x(25)" AT 41 /*space(1)*/.  
       
     END.
@@ -94,25 +94,25 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       style-dscr = IF AVAIL style THEN style.dscr ELSE xqitm.style.
 
       PUT     STRING(xquo.q-no)  AT 3  FORM "x(6)" 
-               trim-size AT 12 FORM "x(28)"
+               trim-size AT 10 FORM "x(30)"
               style-dscr AT 41
               /*xqitm.style*/ /* style-dscr */  .
     END.
     ELSE
     IF i EQ 3 THEN
-      PUT   "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 12 FORM "x(21)"
+      PUT   "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 10 FORM "x(21)"
             xqitm.i-coldscr  AT 41 FORM "x(25)"
           .
     ELSE
     IF i EQ 4 THEN DO:
       
-       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 12  FORM "x(21)" 
+       PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 10  FORM "x(21)" 
            IF AVAIL ef THEN ef.brd-dscr  ELSE ""  AT 41 FORMAT "x(25)" .
     END.
     ELSE
     IF i EQ 5 THEN DO:
 
-        put "FG#: " + (IF AVAIL eb THEN eb.stock-no ELSE "") AT 12 FORM "x(21)".
+        put "FG#: " + (IF AVAIL eb THEN eb.stock-no ELSE "") AT 10 FORM "x(21)".
            
     END.
   /*
