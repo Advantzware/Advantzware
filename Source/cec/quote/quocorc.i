@@ -51,8 +51,18 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
 
-      put trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) xqitm.part-dscr1.  
+          IF LENGTH(xqitm.part-no) LE 20 THEN
+            PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+              xqitm.part-no AT 10 FORMAT "x(20)"           
+              TRIM(xqitm.part-dscr1) AT 31 FORMAT "x(30)".
+          ELSE do: 
+             PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+              xqitm.part-no AT 10 FORMAT "x(30)".
+              IF xqitm.part-dscr1 NE "" THEN
+              PUT 
+                SKIP           
+                TRIM(xqitm.part-dscr1) AT 31 FORMAT "x(30)".
+          END.   
          
     END.
 
@@ -82,7 +92,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
       ELSE trim-size = "".
 */
-      trim-size = STRING(eb.len) + "x" + STRING(eb.wid) + "x" + STRING(eb.dep).
+      trim-size = IF AVAIL eb THEN STRING(eb.len) + "x" + STRING(eb.wid) + "x" + STRING(eb.dep) ELSE "".
       PUT     trim-size AT 10 FORM "x(21)"
               /*xqitm.style*/  style-dscr   .
     END.

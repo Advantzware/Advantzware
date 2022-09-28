@@ -39,11 +39,13 @@
             no-lock no-error.
         if avail fgcat and fgcat.comm gt 0 then
         do j = 1 to 3:
+          IF AVAIL eb THEN
           run sys/inc/dec-frac.p (if j eq 1 then eb.len else
                                   if j eq 2 then eb.wid else eb.dep,
                                   64, output v-str[j]).
         end.
         else
+          IF AVAIL eb THEN
           assign
            v-str[1] = string(eb.len,">>>9.9<<<")
            v-str[2] = string(eb.wid,">>>9.9<<<")

@@ -79,15 +79,16 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 THEN itemfg.i-name
                 ELSE xqitm.part-dscr1.
 
-            /* 01/30/07 rdb 01290707 
-             PUT TRIM(lv-est-no) FORM "x(6)" SPACE(1)
-                 xqitm.part-no space(1) lv-part-dscr1.
-             */
-            PUT TRIM(lv-est-no) FORM "x(6)" AT 1
-                xqitm.part-no AT 8 FORMAT "x(21)".
-
-            /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
-            PUT "<C20>" TRIM(lv-part-dscr1) FORMAT "x(30)". 
+            IF LENGTH(xqitm.part-no) LE 15 THEN
+                PUT  "<C1>" TRIM(lv-est-no) FORM "x(8)"
+                    "<C8.5>" xqitm.part-no  FORMAT "x(15)"           
+                    "<C20>" TRIM(lv-part-dscr1) FORMAT "x(30)".
+            ELSE do: 
+                PUT "<C1>" TRIM(lv-est-no) FORM "x(8)"
+                 "<C8.5>" xqitm.part-no  FORMAT "x(30)".
+                IF lv-part-dscr1 NE "" THEN
+                    PUT SKIP "<C20>" TRIM(lv-part-dscr1) FORMAT "x(30)". 
+            END.
    
         END.
 
