@@ -3834,36 +3834,14 @@ DO:
 /*              iTotalProdQty = iTotalProdQty + fg-rdtlh.qty. */
 /*         END.                                               */
 /*      ELSE                                                  */
-    FOR EACH job-hdr FIELDS(company job-no job-no2 i-no) 
-        WHERE job-hdr.company EQ cocode 
-          AND job-hdr.ord-no EQ oe-ordl.ord-no 
-          AND job-hdr.i-no EQ oe-ordl.i-no
-        USE-INDEX ord-no
-/*         NO-LOCK,                                       */
-/*         EACH fg-rcpth FIELDS(r-no rita-code)           */
-/*         WHERE fg-rcpth.company   EQ cocode             */
-/*           AND fg-rcpth.job-no    EQ job-hdr.job-no     */
-/*           AND fg-rcpth.job-no2   EQ job-hdr.job-no2    */
-/*           AND fg-rcpth.i-no      EQ oe-ordl.i-no       */
-/*           AND fg-rcpth.rita-code EQ "R"                */
-/*         USE-INDEX job                                  */
-/*         NO-LOCK,                                       */
-/*         EACH fg-rdtlh FIELDS(qty)                      */
-/*         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no      */
-/*           AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code */
-        NO-LOCK
-            BREAK BY job-hdr.job-no
-            BY job-hdr.job-no2:
-            IF FIRST-OF(job-hdr.job-no2) THEN DO:
-                RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                                INPUT job-hdr.job-no,
-                                INPUT job-hdr.job-no2,
-                                INPUT job-hdr.i-no,
+   IF oe-ordl.job-no NE "" THEN 
+   RUN fg/GetProductionQty.p (INPUT oe-ord.company,
+                                INPUT oe-ordl.job-no,
+                                INPUT oe-ordl.job-no2,
+                                INPUT oe-ordl.i-no,
                                 INPUT NO,
                                 OUTPUT iJobProdQty).
-                iTotalProdQty = iTotalProdQty + iJobProdQty.
-            END.
-    END.
+   iTotalProdQty =  iJobProdQty.   
 
     IF oe-ordl.po-no-po NE 0 THEN
         FOR EACH fg-rcpth FIELDS(r-no rita-code)
