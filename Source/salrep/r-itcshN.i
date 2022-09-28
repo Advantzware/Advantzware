@@ -750,10 +750,12 @@ if v-det then do:
                  WHEN "loc" THEN cVarValue = IF AVAIL ar-invl THEN string(ar-invl.loc,"X(9)") ELSE "".
             END CASE.
               
-            cExcelVarValue = cVarValue.
+            IF cTmpField = "v-date" THEN
+                 cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
   END.
 
    PUT UNFORMATTED cDisplay SKIP.

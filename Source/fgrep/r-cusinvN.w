@@ -61,6 +61,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Item#,Customer Part#,Description,Re-Order Point,Release Po#,Total On-Hand," +
@@ -442,6 +445,7 @@ ON END-ERROR OF C-Win /* Inventory Per Customer by Item Class */
 ON WINDOW-CLOSE OF C-Win /* Inventory Per Customer by Item Class */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -480,6 +484,7 @@ ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -532,6 +537,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1625,11 +1633,14 @@ PROCEDURE run-report :
                     cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.req-date,"99/99/99") ELSE "" .
 
             END CASE.
+            
+            IF cTmpField = "date"  THEN 
+               cExcelVarValue = IF AVAILABLE oe-ordl THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "" .
 
-            cExcelVarValue = cVarValue.
+            ELSE cExcelVarValue =cVarValue.
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter( DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
         END.
 
         PUT UNFORMATTED cDisplay SKIP(1).
@@ -1638,29 +1649,11 @@ PROCEDURE run-report :
             PUT STREAM excel UNFORMATTED  
                 cExcelDisplay SKIP.
         END.
-
-        IF rd-dest = 3 THEN 
-            PUT STREAM excel UNFORMATTED
-                '"' itemfg.i-no                                            '",'
-                '"' itemfg.part-no                                         '",'
-                '"' itemfg.i-name                                          '",'
-                '"' STRING(itemfg.ord-level,"->>>,>>>,>>>")                '",'
-                '"' (IF AVAILABLE oe-rel THEN oe-ordl.po-no
-                ELSE "")                                              '",'
-                '"' STRING(itemfg.q-onh,"->>>,>>>,>>>")                    '",'
-                '"' STRING(v-pal-cnt,"->>,>>>")                            '",'
-                '"' "__________"                                           '",'
-                '"' (IF AVAILABLE oe-ordl AND
-                oe-ordl.req-date NE ? THEN STRING(oe-ordl.req-date)
-                ELSE "")                                            '",'
-                SKIP.
     END.
 
     IF rd-dest = 3 THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

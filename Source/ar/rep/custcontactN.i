@@ -8,7 +8,7 @@
       v-page-break = NO.
 
    IF tb_excel THEN DO:
-      OUTPUT STREAM excel TO VALUE(fi_file).
+      OUTPUT STREAM excel TO VALUE(cFileName).
 
     /*  IF tb_contact-sort EQ NO THEN
       DO:
@@ -177,23 +177,23 @@
                       WHEN "fin-chrg"      THEN cVarValue = string(cust.fin-chg) .                     
                       WHEN "inv-po"        THEN cVarValue = IF cust.inv-meth NE ? THEN STRING(cust.inv-meth,"YES/NO") ELSE "" .           
                       WHEN "tax-rsl"       THEN cVarValue = string(cust.tax-id) .                      
-                      WHEN "exp"           THEN cVarValue = IF cust.date-field[2] NE ? THEN string(cust.date-field[2]) ELSE "" .               
+                      WHEN "exp"           THEN cVarValue = IF cust.date-field[2] NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",cust.date-field[2]) ELSE "" .               
                       WHEN "trm-cd"        THEN cVarValue = string(cust.terms) .                       
                       WHEN "crd-hld-trm"   THEN cVarValue = if avail terms then terms.dscr else ""   . 
-                      WHEN "date-ad"       THEN cVarValue = IF cust.date-field[1] NE ? THEN string(cust.date-field[1]) ELSE "" .
+                      WHEN "date-ad"       THEN cVarValue = IF cust.date-field[1] NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",cust.date-field[1]) ELSE "" .
                       WHEN "disc"          THEN cVarValue = string(cust.disc,">>9.99%") .         
                       WHEN "mark"          THEN cVarValue = string(cust.markup) .       
                       WHEN "undr"          THEN cVarValue = string(cust.under-pct,">>9.99%") .    
                       WHEN "ovr"           THEN cVarValue = string(cust.over-pct,">>9.99%") .     
                       WHEN "emal"          THEN cVarValue = string(cust.email) .       
                       WHEN "lod-tag"       THEN cVarValue = string(cust.int-field[1]) . 
-                      WHEN "fst-invdt"       THEN cVarValue = IF v-fst-invdt NE ? THEN string(v-fst-invdt) ELSE "" . 
+                      WHEN "fst-invdt"       THEN cVarValue = IF v-fst-invdt NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-fst-invdt) ELSE "" . 
                       WHEN "group"       THEN cVarValue = string(cust.spare-char-2)  .  
-                      WHEN "last-ordered"  THEN cVarValue = IF dtLastOrdered = ? THEN "" ELSE string(dtLastOrdered)  . 
+                      WHEN "last-ordered"  THEN cVarValue = IF dtLastOrdered = ? THEN "" ELSE DYNAMIC-FUNCTION("sfFormat_Date",dtLastOrdered)  . 
                       WHEN "csr"           THEN cVarValue = IF cust.csrUser_id NE "" THEN string(cust.csrUser_id,"x(8)") ELSE "" .
                  END CASE.                                                           
   
-                 cExcelVarValue = cVarValue.
+                 cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                  cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(j,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                  cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
@@ -318,23 +318,23 @@
                       WHEN "fin-chrg"      THEN cVarValue = string(cust.fin-chg) .                     
                       WHEN "inv-po"        THEN cVarValue = IF cust.inv-meth NE ? THEN STRING(cust.inv-meth,"YES/NO") ELSE "" .           
                       WHEN "tax-rsl"       THEN cVarValue = string(cust.tax-id) .                      
-                      WHEN "exp"           THEN cVarValue = IF cust.date-field[2] NE ? THEN string(cust.date-field[2]) ELSE "" .               
+                      WHEN "exp"           THEN cVarValue = IF cust.date-field[2] NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",cust.date-field[2]) ELSE "" .               
                       WHEN "trm-cd"        THEN cVarValue = string(cust.terms) .                       
                       WHEN "crd-hld-trm"   THEN cVarValue = if avail terms then terms.dscr else ""   . 
-                      WHEN "date-ad"       THEN cVarValue = IF cust.date-field[1] NE ? THEN string(cust.date-field[1]) ELSE "" .
+                      WHEN "date-ad"       THEN cVarValue = IF cust.date-field[1] NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",cust.date-field[1]) ELSE "" .
                       WHEN "disc"          THEN cVarValue = string(cust.disc,">>9.99%") .         
                       WHEN "mark"          THEN cVarValue = string(cust.markup) .       
                       WHEN "undr"          THEN cVarValue = string(cust.under-pct,">>9.99%") .    
                       WHEN "ovr"           THEN cVarValue = string(cust.over-pct,">>9.99%") .     
                       WHEN "emal"          THEN cVarValue = string(cust.email) .       
                       WHEN "lod-tag"       THEN cVarValue = string(cust.int-field[1]) . 
-                      WHEN "fst-invdt"       THEN cVarValue = IF v-fst-invdt NE ? THEN string(v-fst-invdt) ELSE "" . 
+                      WHEN "fst-invdt"       THEN cVarValue = IF v-fst-invdt NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-fst-invdt) ELSE "" . 
                       WHEN "group"       THEN cVarValue = string(cust.spare-char-2)  .   
-                      WHEN "last-ordered"  THEN cVarValue = IF dtLastOrdered = ? THEN "" ELSE string(dtLastOrdered)  . 
+                      WHEN "last-ordered"  THEN cVarValue = IF dtLastOrdered = ? THEN "" ELSE DYNAMIC-FUNCTION("sfFormat_Date",dtLastOrdered)  . 
                       WHEN "csr"           THEN cVarValue = IF cust.csrUser_id NE "" THEN string(cust.csrUser_id,"x(8)") ELSE "" .
                  END CASE.                                                            
   
-                 cExcelVarValue = cVarValue.
+                 cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                  cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(j,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                  cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 

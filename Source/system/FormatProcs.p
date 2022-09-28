@@ -59,6 +59,9 @@ FUNCTION fEscapeExceptionCharactersXML RETURNS CHARACTER
 FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
 	( INPUT ipiCount AS INTEGER ) FORWARD.  
 
+FUNCTION sfFormat_Date RETURNS CHARACTER
+  ( ipdtDate AS DATE ) FORWARD.
+
 FUNCTION sfFormat_FilledJobWithHyphen RETURNS CHARACTER 
 	(ipcJobNo AS CHARACTER,
 	 ipiJobNo2 AS INTEGER) FORWARD.
@@ -1182,6 +1185,23 @@ FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
 END FUNCTION.
 
    
+FUNCTION sfFormat_Date RETURNS CHARACTER 
+	( ipdtDate AS DATE ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cDateFormat   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE opcDateString AS CHARACTER NO-UNDO.
+
+    ASSIGN cDateFormat = "YYYY-MM-DD". 
+    
+    RUN Format_Date(ipdtDate,cDateFormat, OUTPUT opcDateString).
+        
+    RETURN opcDateString.
+    		
+END FUNCTION.
+
 FUNCTION sfFormat_FilledJobWithHyphen RETURNS CHARACTER 
 	( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
 /*------------------------------------------------------------------------------

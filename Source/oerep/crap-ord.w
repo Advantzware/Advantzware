@@ -55,7 +55,9 @@ DEF VAR cFieldListToSelect AS cha NO-UNDO.
 DEF VAR cFieldLength AS cha NO-UNDO.
 DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
 
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 DEF TEMP-TABLE tt-report NO-UNDO
     FIELD i-no    AS CHAR
@@ -73,10 +75,10 @@ ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Ite
                             "Customer Name,Est#,Job#,CAD#,Invoice Qty,Act. Rel. Quantity,Production Balance,O/U%,Rep," +
                             "Rep Name,Release Date,Carrier,Ship To,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason code,Hold/Approved Date" 
 
-       cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
-                            "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
+       cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
+                            "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
-                            "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date"
+                            "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date"
                             
         cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18"
            cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c"
@@ -464,6 +466,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Order Maintenance Excel Export */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "END-ERROR":U TO SELF.
 END.
 
@@ -541,6 +544,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1398,12 +1402,22 @@ IF tb_excel THEN
                   WHEN "shipid" THEN cVarValue = string(vshipid) .
                   WHEN "v-prod-qty" THEN cVarValue = STRING(v-prod-qty) .
                   WHEN "approved-date" THEN cVarValue = IF oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE ""    .
+                  WHEN "ord-date" THEN cVarValue = IF oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE ""    .
+                  WHEN "req-date" THEN cVarValue = IF oe-ordl.req-date NE ? THEN STRING(oe-ordl.req-date) ELSE ""    .
+                  WHEN "oe-req-date" THEN cVarValue = IF oe-ordl.req-date NE ? THEN STRING(oe-ordl.req-date) ELSE ""    .
              END CASE.
+             
+             IF cTmpField = "reldate" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",vreldate) .
+             ELSE IF cTmpField = "ord-date" THEN cExcelVarValue = IF oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "" .
+             ELSE IF cTmpField = "req-date" THEN cExcelVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "" .
+             ELSE IF cTmpField = "oe-req-date" THEN cExcelVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "" .
+             ELSE IF cTmpField = "approved-date" THEN cExcelVarValue = IF oe-ord.approved-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.approved-date) ELSE "" .
 
-             cExcelVarValue = cVarValue.
+             ELSE cExcelVarValue = cVarValue.
+             
              cDisplay = cDisplay + cVarValue +
                                    FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                       cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                       cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
       END.
       

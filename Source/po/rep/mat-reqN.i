@@ -349,10 +349,14 @@ for each {1}report where {1}report.term-id eq v-term,
                      WHEN "custname"        THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-name,"x(30)") ELSE "".
                 END CASE.
                   
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "dt" THEN
+                     cExcelVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",po-ord.due-date) ELSE "".
+                ELSE IF  cTmpField = "job-due-date" THEN
+                     cExcelVarValue = IF AVAIL job AND job.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.due-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
@@ -398,10 +402,14 @@ for each {1}report where {1}report.term-id eq v-term,
                      WHEN "custname"        THEN cVarValue = IF AVAIL oe-ord THEN STRING(oe-ord.cust-name,"x(30)") ELSE "".
                 END CASE.
                   
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "dt" THEN
+                     cExcelVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",po-ord.due-date) ELSE "".
+                ELSE IF  cTmpField = "job-due-date" THEN
+                     cExcelVarValue = IF AVAIL job AND job.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.due-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay SKIP.

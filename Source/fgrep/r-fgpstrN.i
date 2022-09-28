@@ -360,7 +360,8 @@ FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                         .
                 IF ENTRY(i,cSelectedList) = "Job#" THEN
-                    cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + (IF fg-rcpth.job-no  <> "" THEN 
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + 
+                                    (IF fg-rcpth.job-no  <> "" THEN 
                                     TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', fg-rcpth.job-no, fg-rcpth.job-no2))) ELSE  "") + ",".
                 ELSE cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
             END.
@@ -378,6 +379,10 @@ FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
              
 
             CASE cTmpField:               
+                WHEN "trans-date" THEN 
+                    cVarValue = IF fg-rcpth.trans-date NE ? THEN STRING(fg-rcpth.trans-date) ELSE "" . 
+                WHEN "post-date" THEN 
+                    cVarValue = IF fg-rcpth.post-date NE ? THEN STRING(fg-rcpth.post-date) ELSE "" .               
                 WHEN "loc" THEN 
                     cVarValue = STRING(fg-rdtlh.loc,"x(5)"). 
                 WHEN "v-tran-type" THEN 
@@ -452,12 +457,24 @@ FOR EACH tt-report WHERE tt-report.term-id EQ "" NO-LOCK,
                 WHEN "bin-foh-cost" THEN 
                     cVarValue = IF dBinFOHCost NE 0 THEN STRING(dBinFOHCost,"->>>,>>9.99<<") ELSE "".
             END CASE.
+            
+            IF cTmpField = "trans-date" THEN 
+                    cExcelVarValue = IF fg-rcpth.trans-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",fg-rcpth.trans-date) ELSE "" . 
+            ELSE IF cTmpField = "post-date" THEN 
+                    cExcelVarValue = IF fg-rcpth.post-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",fg-rcpth.post-date) ELSE "" .
+            ELSE IF cTmpField = "prom-date" THEN 
+                    cExcelVarValue = IF prom-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",prom-date) ELSE "".
+            ELSE IF cTmpField = "due-date" THEN 
+                    cExcelVarValue = IF due-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",due-date) ELSE "".
+            ELSE IF cTmpField = "job-start" THEN 
+                    cExcelVarValue = IF job-start <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job-start) ELSE "".
               
-            cExcelVarValue = cVarValue.
+            ELSE cExcelVarValue = cVarValue.
+            
             IF cTmpField <> "loc" THEN 
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
         END.
     END.
     PUT UNFORMATTED cDisplay SKIP.

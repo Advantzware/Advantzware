@@ -161,22 +161,22 @@ if chosen eq 2 then DO:
                         cVarValue = "" .
                 END.
                 WHEN "sa-ship-date" THEN DO:
-                  IF AVAIL shipto THEN
+                  IF AVAIL shipto AND w-ord.xls-rel-date NE ? THEN
                       cVarValue = STRING(w-ord.xls-rel-date - INT(shipto.spare-int-1),"99/99/9999") .
                   ELSE cVarValue = "" .
                 END.
                 WHEN "dock-ship-date" THEN DO:
-                  IF AVAIL shipto THEN
+                  IF AVAIL shipto AND w-ord.xls-rel-date NE ? THEN
                       cVarValue = STRING(w-ord.xls-rel-date - INT(shipto.spare-int-2),"99/99/9999") .
                   ELSE cVarValue = "" .
                 END.
                 WHEN "ear-ship-date" THEN DO:
-                  IF AVAIL shipto THEN
+                  IF AVAIL shipto AND w-ord.xls-rel-date NE ?  THEN
                       cVarValue = STRING(w-ord.xls-rel-date - INT(shipto.spare-int-3),"99/99/9999") .
                   ELSE cVarValue = "" .
                 END.
                 WHEN "lat-ship-date" THEN DO:
-                  IF AVAIL shipto THEN
+                  IF AVAIL shipto AND w-ord.xls-rel-date NE ?  THEN
                       cVarValue = STRING(w-ord.xls-rel-date + INT(shipto.spare-int-4),"99/99/9999") .
                   ELSE cVarValue = "" .
                 END.
@@ -386,11 +386,35 @@ if chosen eq 2 then DO:
                 WHEN "dock-appointment" THEN cVarValue = IF v-dockTime NE ? THEN STRING(v-dockTime,"99/99/9999 HH:MM") ELSE "" .
             
                 WHEN "pallet-count-quantity" THEN cVarValue = string(iCount).
+                WHEN "xls-rel-date" THEN cVarValue = IF w-ord.xls-rel-date NE ? THEN STRING(w-ord.xls-rel-date,"99/99/9999") ELSE "" .
+                WHEN "last-date" THEN cVarValue = IF w-ord.last-date NE ? THEN STRING(w-ord.last-date) ELSE "" .
+                WHEN "promiseDate" THEN cVarValue = IF w-ord.promiseDate NE ? THEN STRING(w-ord.promiseDate) ELSE "" .
+                WHEN "rel-due-date" THEN cVarValue = IF w-ord.rel-due-date NE ? THEN STRING(w-ord.rel-due-date) ELSE "" .
+                WHEN "ord-due-date" THEN cVarValue = IF w-ord.ord-due-date NE ? THEN STRING(w-ord.ord-due-date) ELSE "" .
+                
             END CASE.
-            cExcelVarValue = cVarValue.
+            
+            IF cTmpField = "sa-ship-date" THEN cExcelVarValue = IF AVAIL shipto THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.xls-rel-date - INT(shipto.spare-int-1)) ELSE "".
+            ELSE IF cTmpField = "dock-ship-date" THEN cExcelVarValue = IF AVAIL shipto THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.xls-rel-date - INT(shipto.spare-int-2)) ELSE "" .
+            ELSE IF cTmpField = "ear-ship-date" THEN cExcelVarValue = IF AVAIL shipto THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.xls-rel-date - INT(shipto.spare-int-3)) ELSE "" .
+            ELSE IF cTmpField = "lat-ship-date" THEN cExcelVarValue = IF AVAIL shipto THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.xls-rel-date + INT(shipto.spare-int-4)) ELSE "" .
+            ELSE IF cTmpField = "due-dt" THEN cExcelVarValue = IF w-ord.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.due-date) ELSE "" .
+            ELSE IF cTmpField = "po-due-date" THEN cExcelVarValue = IF w-ord.po-due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.po-due-date) ELSE "" .
+            ELSE IF cTmpField = "ord-date" THEN cExcelVarValue = IF w-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.ord-date) ELSE "" .
+            ELSE IF cTmpField = "mfg-date" THEN cExcelVarValue = IF w-ord.prom-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.prom-date) ELSE "" .
+            ELSE IF cTmpField = "dock-appointment" THEN cExcelVarValue = IF v-dockTime NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-dockTime) ELSE "" .
+            ELSE IF cTmpField = "last-date" THEN cExcelVarValue = IF w-ord.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.last-date) ELSE "" .
+            ELSE IF cTmpField = "promiseDate" THEN cExcelVarValue = IF w-ord.promiseDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.promiseDate) ELSE "" .
+            ELSE IF cTmpField = "xls-rel-date" THEN cExcelVarValue = IF  w-ord.xls-rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date", w-ord.xls-rel-date) ELSE "" .
+            ELSE IF cTmpField = "comp-date" THEN ASSIGN  cExcelVarValue = IF job-mch.end-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job-mch.end-date) ELSE "" .
+            ELSE IF cTmpField = "rel-due-date" THEN ASSIGN  cExcelVarValue = IF w-ord.rel-due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.rel-due-date) ELSE "" .
+            ELSE IF cTmpField = "ord-due-date" THEN ASSIGN  cExcelVarValue = IF w-ord.ord-due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.ord-due-date) ELSE "" .
+            
+            ELSE cExcelVarValue = cVarValue.
+            
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
          
       END.
