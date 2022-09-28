@@ -1858,7 +1858,7 @@ PROCEDURE enable-item :
     IF AVAIL ITEM AND INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w. 
     IF AVAIL ITEM AND item.mat-type EQ "C" THEN ENABLE fi_flute fi_reg-no.
     IF AVAIL ITEM AND INDEX("BAP",item.mat-type) GT 0 THEN ENABLE fi_ect.
-    IF AVAIL ITEM AND INDEX("1234",item.mat-type) GT 0 THEN ENABLE fi_ect.
+    IF AVAIL ITEM AND INDEX("12349",item.mat-type) GT 0 THEN ENABLE fi_ect.
   END.
 
 END PROCEDURE.
@@ -2065,7 +2065,7 @@ PROCEDURE local-assign-record :
         {sys/inc/k16bb.i item.r-wid}
         item.ect = lv-ect * (IF item.mat-type EQ "P" THEN 10000 ELSE 1).
   END.      
-  ELSE IF INDEX("1234",item.mat-type) > 0 THEN DO:  
+  ELSE IF INDEX("12349",item.mat-type) > 0 THEN DO:  
         {sys/inc/k16bb.i item.s-wid}
         {sys/inc/k16bb.i item.s-len}
         {sys/inc/k16bb.i item.s-dep}
@@ -2205,7 +2205,7 @@ PROCEDURE local-display-fields :
     END.
 
     ELSE
-    IF INDEX("1234",fi_mat-type) GT 0 THEN DO:
+    IF INDEX("12349",fi_mat-type) GT 0 THEN DO:
       ASSIGN
        item.s-wid:screen-value = STRING({sys/inc/k16v.i item.s-wid})
        item.s-len:screen-value = STRING({sys/inc/k16v.i item.s-len})
@@ -2577,7 +2577,7 @@ PROCEDURE pLabelValueChange :
 ------------------------------------------------------------------------------*/
 
 DO WITH FRAME {&FRAME-NAME}:
-      IF lDisplayWood AND INDEX("1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN DO:
+      IF lDisplayWood AND INDEX("12349",fi_mat-type:SCREEN-VALUE) GT 0 THEN DO:
        ASSIGN
           item.flute:LABEL       = "Lumber"              
           item.s-dep:LABEL       = "Thickness"
