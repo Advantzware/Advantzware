@@ -88,10 +88,18 @@ FOR EACH xqitm OF xquo NO-LOCK
                       THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
 
-
+      IF length(xqitm.part-no) LE 20 THEN
       PUT TRIM(lv-est-no) FORM "x(8)" AT 1
-          xqitm.part-no AT 10 FORMAT "x(21)"          
-           TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)". 
+          xqitm.part-no AT 10 FORMAT "x(20)"          
+           TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)".
+      ELSE do: 
+         PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+          xqitm.part-no AT 10 FORMAT "x(30)".
+          IF lv-part-dscr1 NE "" THEN
+          PUT 
+            SKIP           
+            TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)".
+      END.     
 
     END.
     ELSE
@@ -261,10 +269,10 @@ FOR EACH xqitm OF xquo NO-LOCK
                   ((xqqty.qty / 1000) * xqqty.price)    ELSE
                   (xqqty.qty * xqqty.price).
       
-       PUT xqqty.qty FORMAT ">>>>>>>9" TO  70 
-           xqqty.rels space(5)
-           xqqty.price FORM "->>,>>9.99<<" space(4)
-           xqqty.uom.   
+       PUT "<C52>" xqqty.qty FORMAT ">>>>>>>9" 
+           "<C60>" xqqty.rels
+           "<C67>" xqqty.price FORM "->>,>>9.99<<"
+           "<C76>" xqqty.uom.   
        
        v-line-total = v-line-total + xqqty.price.
     END.
