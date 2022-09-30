@@ -290,7 +290,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
                     RELEASE xeb.
 
-                    IF est.est-type EQ 6 THEN
+                    IF AVAIL est AND est.est-type EQ 6 THEN
                         find first xeb WHERE
                             xeb.company EQ est.company AND
                             xeb.est-no eq est.est-no AND
@@ -371,7 +371,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                     ld-wid = eb.wid * ld-metric
                     ld-dep = eb.dep * ld-metric.
 
-                IF est.metric THEN 
+                IF AVAIL est AND est.metric THEN 
                 DO:
                     {sys/inc/roundup.i ld-len}
                     {sys/inc/roundup.i ld-wid}
@@ -506,7 +506,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
         RUN printHeader (12,OUTPUT v-printline).
     END.
-
+    
+    IF LAST-OF(xqitm.part-no) AND lSpecNotes THEN
+    DO:
+        RUN pPrintSpecNotes(xqitm.i-no).
+    END.
     IF NOT LAST(xqitm.part-no) THEN 
     do:
         PUT SKIP(1).
