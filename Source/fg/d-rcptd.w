@@ -332,7 +332,7 @@ DEFINE FRAME Dialog-Frame
           BGCOLOR 15 FONT 1
      btnCalendar-1 AT ROW 1.48 COL 35
      fg-rctd.tag AT ROW 2.67 COL 19 COLON-ALIGNED
-          LABEL "Tag" FORMAT "x(20)"
+          LABEL "Tag" FORMAT "x(24)"
           VIEW-AS FILL-IN 
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
@@ -987,8 +987,8 @@ DO:
             END.
 
             IF fg-rctd.tag:SCREEN-VALUE  NE fg-rctd.tag 
-                AND NOT adm-new-record THEN 
-            DO:
+                AND NOT adm-new-record AND NOT ip-set-parts THEN 
+            DO:      
                 /* Note: if adm-new-record, tag will always be different, */
                 /*       and cases will be overriden                      */
                 RUN new-tag.
