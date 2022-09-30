@@ -2879,6 +2879,8 @@ PROCEDURE ipDataFix :
     iopiStatus = 68.
     IF iCurrentVersion LT 22020500 THEN
         RUN ipDataFix220205.   
+    IF iCurrentVersion LT 22031000 THEN
+        RUN ipDataFix220310.   
     IF iCurrentVersion LT 99999999 THEN
         RUN ipDataFix999999.
     iopiStatus = 80.
@@ -3744,6 +3746,24 @@ END PROCEDURE.
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix230310 C-Win
+PROCEDURE ipDataFix220310:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220310...").
+    
+    RUN ipFixStyleAddToLengthAndWidth.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
 /*------------------------------------------------------------------------------
@@ -4583,6 +4603,36 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixStyleAddToLengthAndWidth C-Win
+PROCEDURE ipFixStyleAddToLengthAndWidth PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("    Converting Style Add To Length and Width to Decimals").
+        
+    DEFINE VARIABLE k_frac AS DECIMAL NO-UNDO INITIAL 6.25.
+    DEF VAR iIntPart AS INT NO-UNDO.
+    DEF VAR deDecPart AS DEC NO-UNDO.
+    
+    FOR EACH style EXCLUSIVE-LOCK:
+        ASSIGN
+            iIntPart = TRUNC(style.sqft-len-trim,0)
+            deDecPart = style.sqft-len-trim - iIntPart
+            style.sqft-len-trim = iIntPart + (deDecPart / k_frac)
+            iIntPart = TRUNC(style.sqft-wid-trim,0)
+            deDecPart = style.sqft-wid-trim - iIntPart
+            style.sqft-wid-trim = iIntPart + (deDecPart / k_frac)
+            .
+    END.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win 
 PROCEDURE ipFixUserPrint :
