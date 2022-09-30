@@ -513,7 +513,7 @@ PROCEDURE pPrintSpecNotes:
        
   IF AVAILABLE bf-itemfg THEN 
   DO:               
-       {custom/notesprt.i bf-itemfg cInst 20}
+       {custom/notespr2.i bf-itemfg cInst 20 "notes.rec_key = bf-itemfg.rec_key AND lookup(notes.note_code,cSpecNotesCode) NE 0"}
        DO i = 1 TO 20:
           IF cInst[i] <> "" THEN DO:
               IF i = 1 THEN

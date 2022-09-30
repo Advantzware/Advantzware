@@ -2391,7 +2391,7 @@ PROCEDURE pRunFormatValueChanged :
         ELSE
             spec_codes:HIDDEN IN FRAME FRAME-A = YES.    
             
-        IF LOOKUP(v-print-fmt,"quoprint 1,quoprint 2,quoprint 10,quoprint 20,xprint,quoprint10-CAN,quoprint 11") NE 0 THEN 
+        IF LOOKUP(v-print-fmt,"quoprint 1,quoprint 2,quoprint 10,quoprint 20,xprint,quoprint10-CAN,quoprint 11,GC") NE 0 THEN 
             ASSIGN
                 tb_spec-note:SENSITIVE   = YES
                 tb_spec-note:HIDDEN      = NO 
