@@ -1029,11 +1029,11 @@ PROCEDURE local-assign-record :
 
     ASSIGN
         reftable.val[1]     = DEC(ld-box-fit:screen-value in frame {&frame-name}) * k_frac
-        iIntPart = TRUNC(fiSqft-len-trim),0)
-        deDecPart = fiSqft-lentrim - iIntPart  
+        iIntPart = TRUNC(fiSqft-len-trim,0)
+        deDecPart = fiSqft-len-trim - iIntPart  
         style.sqft-len-trim = iIntPart + (deDecPart * k_frac)
-        iIntPart = TRUNC(fiSqft-wid-trim),0)
-        deDecPart = fiSqft-widtrim - iIntPart  
+        iIntPart = TRUNC(fiSqft-wid-trim,0)
+        deDecPart = fiSqft-wid-trim - iIntPart  
         style.sqft-wid-trim = iIntPart + (deDecPart * k_frac)
         . 
 
@@ -1083,7 +1083,7 @@ PROCEDURE local-display-fields :
                         no-lock no-error.
   
     ASSIGN
-        ld-box-fit = (if avail reftable then reftable.val[1] else style.dim-fit) / k_frac.
+        ld-box-fit = (if avail reftable then reftable.val[1] else style.dim-fit) / k_frac
         iIntPart = TRUNC(style.sqft-len-trim,0)
         deDecPart = style.sqft-len-trim - iIntPart
         fiSqft-len-trim = iIntPart + (deDecPart / k_frac)
