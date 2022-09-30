@@ -332,7 +332,7 @@ DEFINE FRAME Dialog-Frame
           BGCOLOR 15 FONT 1
      btnCalendar-1 AT ROW 1.48 COL 35
      fg-rctd.tag AT ROW 2.67 COL 19 COLON-ALIGNED
-          LABEL "Tag" FORMAT "x(20)"
+          LABEL "Tag" FORMAT "x(24)"
           VIEW-AS FILL-IN 
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
