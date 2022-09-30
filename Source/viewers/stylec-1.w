@@ -39,6 +39,8 @@ CREATE WIDGET-POOL.
 
 def var k_frac as dec init 6.25 no-undo.
 DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iIntPart AS INTEGER NO-UNDO.
+DEFINE VARIABLE deDecPart AS DECIMAL NO-UNDO.
 &global-define style-formular Corr
 
 ASSIGN cocode = g_company
@@ -523,6 +525,7 @@ END.
 ON LEAVE OF fiSqft-len-trim IN FRAME F-Main /* Add to Length */
 DO:
   IF LASTKEY NE -1 THEN DO:
+      
     RUN valid-dim (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
@@ -1007,27 +1010,32 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- find first reftable where reftable.reftable = "STYFLU" 
+    find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = style.style
                         and reftable.loc = flute.code
                         and reftable.code = "DIM-FIT"
                         no-error.
-  if not avail reftable then do:
-     create reftable.
-     assign reftable.reftable = "STYFLU"
+    if not avail reftable then do:
+        create reftable.
+        assign 
+            reftable.reftable = "STYFLU"
             reftable.company = style.style
             reftable.loc = flute.code
             reftable.code = "DIM-FIT".
-  end.
-  
-  ASSIGN
-      reftable.val[1]     = dec( ld-box-fit:screen-value in frame {&frame-name}) * k_frac
-      style.sqft-len-trim = fiSqft-len-trim * k_frac
-      style.sqft-wid-trim = fiSqft-wid-trim * k_frac
-      . 
+    end.
+
+    ASSIGN
+        reftable.val[1]     = DEC(ld-box-fit:screen-value in frame {&frame-name}) * k_frac
+        iIntPart = TRUNC(fiSqft-len-trim),0)
+        deDecPart = fiSqft-lentrim - iIntPart  
+        style.sqft-len-trim = iIntPart + (deDecPart * k_frac)
+        iIntPart = TRUNC(fiSqft-wid-trim),0)
+        deDecPart = fiSqft-widtrim - iIntPart  
+        style.sqft-wid-trim = iIntPart + (deDecPart * k_frac)
+        . 
 
 END PROCEDURE.
 
@@ -1063,23 +1071,26 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  if not avail style then return.
+    if not avail style then return.
 
-  find first reftable where reftable.reftable = "STYFLU" 
+    find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = style.style
                         and reftable.loc = flute.code
                         and reftable.code = "DIM-FIT"
                         no-lock no-error.
-  ld-box-fit = (if avail reftable then reftable.val[1]
-                            else style.dim-fit) / k_frac.
   
-  ASSIGN
-      fiSqft-len-trim = style.sqft-len-trim / k_frac
-      fiSqft-wid-trim = style.sqft-wid-trim / k_frac
-      .
+    ASSIGN
+        ld-box-fit = (if avail reftable then reftable.val[1] else style.dim-fit) / k_frac.
+        iIntPart = TRUNC(style.sqft-len-trim,0)
+        deDecPart = style.sqft-len-trim - iIntPart
+        fiSqft-len-trim = iIntPart + (deDecPart / k_frac)
+        iIntPart = TRUNC(style.sqft-wid-trim,0)
+        deDecPart = style.sqft-wid-trim - iIntPart
+        fiSqft-wid-trim = iIntPart + (deDecPart / k_frac)
+        .
 
   disable ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
   display ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
@@ -1249,21 +1260,25 @@ PROCEDURE valid-dim :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+    DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF DEC(ip-focus:SCREEN-VALUE) - TRUNC(DEC(ip-focus:SCREEN-VALUE),0) GT .15
-    THEN DO:
-      MESSAGE TRIM(ip-focus:LABEL) +
-              " Decimal must be less than (.16)..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ip-focus.
-      RETURN ERROR.
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN 
+            iIntPart = TRUNC(DEC(ip-focus:SCREEN-VALUE),0)
+            deDecPart = DEC(ip-focus:SCREEN-VALUE) - iIntPart.  
+        IF deDecPart GT .15 THEN DO:
+            MESSAGE 
+                TRIM(ip-focus:LABEL) +
+                " Make sure this value is entered in 'number of 16ths of an inch'." SKIP 
+                "For Example: '1.08' is the value for '1 and 8/16ths'."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ip-focus.
+            RETURN ERROR.
+        END.
     END.
-  END.
 
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
