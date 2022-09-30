@@ -5492,8 +5492,10 @@ PROCEDURE pProcessLeafByDepartment PRIVATE:
     FOR EACH ttEstCostOperation NO-LOCK 
         WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
           AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
-          AND ttEstCostOperation.isLeafer
-          AND (ttEstCostOperation.feedType EQ "S" AND ipbf-ttLeaf.lIsSheetFed OR NOT ipbf-ttLeaf.lIsSheetFed)  /*If leaf is not for a specific blank, must have a sheet fed leafer*/
+          AND ttEstCostOperation.isLeafer EQ YES
+          AND (ttEstCostOperation.feedType EQ "S"
+          AND ipbf-ttLeaf.lIsSheetFed EQ YES
+           OR ipbf-ttLeaf.lIsSheetFed EQ NO)  /*If leaf is not for a specific blank, must have a sheet fed leafer*/
         BY ttEstCostOperation.sequenceOfOperation DESCENDING:
         
         IF ipcDepartmentList NE "" AND LOOKUP(ttEstCostOperation.departmentIDPrimary, ipcDepartmentList) LE 0 THEN
