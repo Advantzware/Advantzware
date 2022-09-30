@@ -442,7 +442,8 @@
                    WHEN "po"       THEN cVarValue = STRING(tt-report.po-no,"x(15)") .
                    WHEN "ord-qty"  THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.qty,"->,>>>,>>9") ELSE "" .
                    WHEN "qty-oh "  THEN cVarValue = STRING(tt-report.q-onh,"->,>>>,>>9") .
-                   WHEN "qty-shp"  THEN cVarValue = STRING(tt-report.q-shp,"->,>>>,>>9") .
+                   WHEN "qty-shp"  THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.ship-qty,"->,>>>,>>9") ELSE "" .
+                   WHEN "iInvoiceQty"  THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.t-inv-qty,"->,>>>,>>9") ELSE "" .
                    WHEN "qty-act"  THEN cVarValue = STRING(tt-report.q-rel,"->,>>>,>>9") .
                    WHEN "qty-wip"  THEN cVarValue = STRING(tt-report.q-wip,"->,>>>,>>9") .
                    WHEN "qty-avl"  THEN cVarValue = STRING(tt-report.q-avl,"->,>>>,>>9") .
@@ -469,12 +470,21 @@
                    WHEN "glue"        THEN cVarValue =  STRING(tt-report.glue).
                    WHEN "last-date"   THEN cVarValue = IF oe-ord.last-date NE ? THEN STRING(oe-ord.last-date) ELSE "".
                    WHEN "cust-lot"    THEN cVarValue =  STRING(tt-report.cust-lot).
-               END CASE.                                                                 
-                
-              cExcelVarValue = cVarValue.
+               END CASE.
+               
+               IF cTmpField = "l-due-dt"         THEN cExcelVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "".
+               ELSE IF cTmpField =  "r-due-dt"   THEN cExcelVarValue = IF lv-due-date2 NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",lv-due-date2) ELSE "" .
+               ELSE IF cTmpField =  "ack-date"   THEN cExcelVarValue = IF oe-ord.ack-prnt-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ack-prnt-date) ELSE "".
+               ELSE IF cTmpField =  "ord-date"   THEN cExcelVarValue = IF oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "".
+               ELSE IF cTmpField =  "due-dt"     THEN cExcelVarValue =  IF tt-report.due-dt NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.due-dt) ELSE ""  .
+               ELSE IF cTmpField =  "comp-dt"    THEN cExcelVarValue =  IF tt-report.run-end-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.run-end-date) ELSE ""     .    
+               ELSE IF cTmpField =  "last-date"  THEN cExcelVarValue = IF oe-ord.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.last-date) ELSE "".
+               
+              ELSE cExcelVarValue = cVarValue.
+              
               cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+              cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
       END.
       
       PUT UNFORMATTED cDisplay SKIP.

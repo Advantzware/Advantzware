@@ -79,6 +79,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName2         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -554,6 +557,7 @@ ON END-ERROR OF C-Win /* Period To Date Sales Report */
 ON WINDOW-CLOSE OF C-Win /* Period To Date Sales Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -599,6 +603,7 @@ ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Salesrep# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -641,14 +646,20 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                  
                         IF lChoice THEN
                         DO:
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
+                            
                             IF tb_detailed THEN 
                             DO:
                                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                             END.
-                            ELSE 
-                            DO:
-                                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
-                            END.
+                        END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
+                        
+                        IF tb_detailed THEN 
+                        DO:
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
                 END. /* WHEN 3 THEN DO: */
@@ -1481,7 +1492,7 @@ PROCEDURE pChangeDest :
                 tb_OpenCSV:SENSITIVE    = YES      
                 tb_excel                = YES
                 .
-            IF tb_detailed THEN
+            IF tb_detailed:SCREEN-VALUE EQ "yes" THEN
             DO:
                 fi_file:SENSITIVE       = YES . 
             END.
@@ -1640,13 +1651,15 @@ PROCEDURE run-report :
 
     IF tb_excel THEN 
     DO:
-        IF NOT v-summ THEN 
+        IF tb_detailed THEN
         DO:
-        
             OUTPUT STREAM excel TO VALUE(cFileName).
             PUT STREAM excel UNFORMATTED 
                 '"' REPLACE(excelheader,',','","') '"' SKIP.
-
+        END. /* IF tb_detailed THEN */
+        
+        IF NOT v-summ THEN 
+        DO:
             OUTPUT STREAM excel-2 TO VALUE(cFileName2).
             IF tb_ytd THEN
                 excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF,YTD Amount".
@@ -1657,12 +1670,6 @@ PROCEDURE run-report :
         END.
         ELSE 
         DO:
-            OUTPUT STREAM excel TO VALUE(cFileName).
-            /*excelheader = "Inv Number,Inv Date,Post Date,Cust#,Name," +
-                          "Net,MSF,$/MSF".*/
-            PUT STREAM excel UNFORMATTED 
-                '"' REPLACE(excelheader,',','","') '"' SKIP.
-
             OUTPUT STREAM excel-2 TO VALUE(cFileName2).
             IF tb_ytd THEN
                 excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF,YTD Amount".
@@ -1680,28 +1687,12 @@ PROCEDURE run-report :
 
     IF tb_excel THEN 
     DO:
-        IF NOT v-summ THEN 
-        DO:
-       
-            OUTPUT STREAM excel CLOSE.
-            IF tb_OpenCSV THEN
-                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-   
-            OUTPUT STREAM excel-2 CLOSE.
-            IF tb_OpenCSV THEN
-                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
-        END.
-        ELSE 
+        IF tb_detailed THEN 
         DO:
             OUTPUT STREAM excel CLOSE.
-            IF tb_OpenCSV THEN
-                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-   
-            OUTPUT STREAM excel-2 CLOSE.
-            IF tb_OpenCSV THEN
-                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
         END.
-   
+        
+        OUTPUT STREAM excel-2 CLOSE.   
     END.
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
     SESSION:SET-WAIT-STATE ("").

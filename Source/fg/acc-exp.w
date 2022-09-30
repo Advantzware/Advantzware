@@ -61,7 +61,7 @@ ASSIGN
                             "LAST YEAR(5),LAST YEAR(6),LAST YEAR(7),LAST YEAR(8),LAST YEAR(9),LAST YEAR(10),LAST YEAR(11),LAST YEAR(12),LAST YEAR(13),CURRENT YEAR Budget(1),CURRENT YEAR Budget(2),CURRENT YEAR Budget(3)," +
                             "CURRENT YEAR Budget(4),CURRENT YEAR Budget(5),CURRENT YEAR Budget(6),CURRENT YEAR Budget(7),CURRENT YEAR Budget(8),CURRENT YEAR Budget(9),CURRENT YEAR Budget(10),CURRENT YEAR Budget(11),CURRENT YEAR Budget(12)," +
                             "CURRENT YEAR Budget(13),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1)," +
-                            "LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),Terms Discount,Inactive"
+                            "LAST YEAR Budget(1),LAST YEAR Budget(1),LAST YEAR Budget(1),Terms Discount,Inactive,Sales,Commission"
 
     cFieldListToSelect = "actnum,dscr,cyr-open,lyr-open,vTYPE,cyr[1],cyr[2]," +
                         "cyr[3],cyr[4],cyr[5],cyr[6],cyr[7],cyr[8],cyr[9],cyr[10]," +
@@ -69,10 +69,10 @@ ASSIGN
                         "lyr[6],lyr[7],lyr[8],lyr[9],lyr[10],lyr[11],lyr[12],lyr[13],bud[1],"  +
                         "bud[2],bud[3],bud[4],bud[5],bud[6],bud[7],bud[8],bud[9],bud[10],bud[11]," +
                         "bud[12],bud[13],ly-bud[1],ly-bud[2],ly-bud[3],ly-bud[4],ly-bud[5],ly-bud[6],ly-bud[7],ly-bud[8]," +
-                        "ly-bud[9],ly-bud[10],ly-bud[11],ly-bud[12],ly-bud[13],term-disc,inactive"  .
+                        "ly-bud[9],ly-bud[10],ly-bud[11],ly-bud[12],ly-bud[13],term-disc,inactive,salesReport,commReport"  .
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "Account No,Acc Description,Type,Inactive,Current Year Open Balance,Last Year Open Balance"  .
+    cTextListToDefault = "Account No,Acc Description,Type,Inactive,Current Year Open Balance,Last Year Open Balance,Sales,Commission"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -438,6 +438,9 @@ ON CHOOSE OF btn-ok IN FRAME rd-fgexp /* OK */
             DO:
                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
             END.
+        END.
+        ELSE DO:
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
         END.
         IF tbAutoClose:CHECKED THEN 
             APPLY "END-ERROR":U TO SELF.                
@@ -1024,8 +1027,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

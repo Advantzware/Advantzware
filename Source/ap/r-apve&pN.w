@@ -560,6 +560,9 @@ DO:
   RUN pCheckUser.
   if v-invalid-inv then return no-apply.
   
+  RUN pCheckBlankdate.
+  if v-invalid-inv then return no-apply.
+  
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
@@ -2064,6 +2067,42 @@ PROCEDURE valid-date :
             ll-warned = YES.
         END.
     END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckBlankdate C-Win 
+PROCEDURE pCheckBlankdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE BUFFER bf-period FOR period.
+   
+   v-invalid-inv = NO.
+   DO WITH FRAME {&FRAME-NAME}:
+     IF DATE(tran-date:SCREEN-VALUE) EQ ? THEN
+     DO:                        
+         MESSAGE TRIM(tran-date:LABEL) + " is blank, Please enter Post Date" 
+         VIEW-AS ALERT-BOX INFO.
+         v-invalid-inv = YES.          
+     END. 
+     ELSE IF tran-period:SCREEN-VALUE EQ "" THEN
+     DO:
+         FIND FIRST bf-period NO-LOCK
+               WHERE bf-period.company EQ cocode
+               AND bf-period.pst     LE DATE(tran-date:SCREEN-VALUE)
+               AND bf-period.pend    GE DATE(tran-date:SCREEN-VALUE)
+           NO-ERROR.
+       
+           IF AVAIL bf-period THEN
+           ASSIGN                
+               tran-period:SCREEN-VALUE = STRING(bf-period.pnum,"99").         
+     END.
+   END.
     
 END PROCEDURE.
 

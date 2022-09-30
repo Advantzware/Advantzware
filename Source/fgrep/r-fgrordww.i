@@ -385,13 +385,16 @@ ELSE
                 cExcelVarValue = "".
             WHEN "last-ship" THEN ASSIGN
                  cVarValue = string(v-last-ship)
-                 cExcelVarValue = "".
+                 cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,DYNAMIC-FUNCTION("sfFormat_Date",v-last-ship)).
+                 
             WHEN "v-rep" THEN ASSIGN cVarValue = string(v-sales-rep)
                               cExcelVarValue = "".
             WHEN "po-due-dt" THEN ASSIGN cVarValue = string(v-po-due-dt)
-                              cExcelVarValue = "".
+                              cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,DYNAMIC-FUNCTION("sfFormat_Date",v-po-due-dt)).
+                              
             WHEN "job-due-dt" THEN ASSIGN cVarValue = string(v-job-due-dt)
-                              cExcelVarValue = "".
+                              cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,DYNAMIC-FUNCTION("sfFormat_Date",v-job-due-dt)).
+                              
             WHEN "mo-avg" THEN ASSIGN cVarValue = STRING(li-avg-hist,"->>>>>>9") 
                               cExcelVarValue = "".
             WHEN "sug-avg" THEN DO:
@@ -512,13 +515,16 @@ ELSE
           WHEN "whs-day" THEN ASSIGN cVarValue = IF AVAIL cust THEN string(cust.ship-days,"->>>>>>>") ELSE ""
                  cExcelVarValue = "".
           WHEN "last-ship" THEN ASSIGN cVarValue = string(v-last-ship)
-                cExcelVarValue = "".
+                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,DYNAMIC-FUNCTION("sfFormat_Date",v-last-ship)).
+                
           WHEN "v-rep" THEN ASSIGN cVarValue = string(v-sales-rep)
                               cExcelVarValue = "".
           WHEN "po-due-dt" THEN ASSIGN cVarValue = string(v-po-due-dt)
-                              cExcelVarValue = "".
+                              cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,DYNAMIC-FUNCTION("sfFormat_Date",v-po-due-dt)).
+                              
           WHEN "job-due-dt" THEN ASSIGN cVarValue = string(v-job-due-dt)
-                              cExcelVarValue = "".
+                              cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,DYNAMIC-FUNCTION("sfFormat_Date",v-job-due-dt)).
+                              
           WHEN "mo-avg" THEN ASSIGN cVarValue = STRING(li-avg-hist,"->>>>>>9") 
                               cExcelVarValue = "".
           WHEN "sug-avg" THEN DO:

@@ -157,6 +157,11 @@ ON CHOOSE OF Select_ONote IN FRAME F-Main /* Operator Notes */
 DO:
   
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+   
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"optonote-source",OUTPUT char-hdl).
+
+   IF char-hdl NE "" THEN
+      RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -273,6 +278,27 @@ PROCEDURE make-sensitive :
   Notes:       
 ------------------------------------------------------------------------------*/
 Select_ONote:SENSITIVE IN FRAME F-Main = TRUE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateGearWheelsImage s-object 
+PROCEDURE pUpdateGearWheelsImage :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
+   
+   DO WITH FRAME {&FRAME-NAME}:
+
+      IF NOT ip-log THEN
+         Select_ONote:LOAD-IMAGE("Graphics/32x32/gearwheels.png").
+      ELSE
+         Select_ONote:LOAD-IMAGE("Graphics/32x32/gearwheels_star.png").
+   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -136,6 +136,9 @@ DEF VAR v-bol# AS INT FORM ">>>>>>>9" NO-UNDO.
 DEF VAR v-inv# AS INT FORM ">>>>>9" NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE cFileName as character NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN cTextListToSelect = "Order#,Est#,Job#,Date,Cust#,Name," + 
@@ -143,7 +146,7 @@ ASSIGN cTextListToSelect = "Order#,Est#,Job#,Date,Cust#,Name," +
                            "PO MSF,FG Shipped,PO Profit,PO#,PO Qty,PO Cost,PO Total Cost,PO Received,"  +
                            "Order% Profit,MSF Recvd,FG Ship Date,PO Rec Date,FG Ext Price," +
                            "PO Rec Cost,Profit $ Sold,Profit % Sold,Units/Board,Unit Waste, % Loss,BOL#,Invoice#"
-       cFieldListToSelect = "oe-ord.ord-no,oe-ordl.est-no,oe-ordl.job-no,oe-ord.ord-date,oe-ord.cust-no,oe-ord.cust-name," +
+       cFieldListToSelect = "oe-ord.ord-no,oe-ordl.est-no,oe-ordl.job-no,ord-date,oe-ord.cust-no,oe-ord.cust-name," +
                             "oe-ordl.i-no,oe-ordl.i-name,v-qty-lft,oe-ordl.cost,oe-ordl.price,oe-ordl.pr-uom,v-ext-price,v-margin," +
                             "v-orderedMsf,v-jobShipQty,v-boardProfit,v-boardPO,v-boardpoQty,v-boardCost,v-boardTotalCost,v-boardTotalQty," +
                             "v-Order%Profit,v-MSFRec,v-FGShipDate,v-PORecDate,v-FGExtPrice," +
@@ -674,6 +677,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Orders Booked By Order No */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -753,6 +757,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    APPLY "close" TO THIS-PROCEDURE.
 END.
 
@@ -782,7 +787,7 @@ DO:
                         INPUT begin_cust-no,
                         INPUT end_cust-no).
   END.
-  IF iColumnLength > 300 THEN
+  IF rd-dest NE 3 AND iColumnLength > 300 THEN
      MESSAGE "Report may not show all selected columns appropriately. " SKIP
              "Use Excel Output for all selected column values. (" iColumnLength ")"
          VIEW-AS ALERT-BOX WARNING BUTTONS OK.
@@ -2144,10 +2149,15 @@ FOR EACH oe-ord
             CASE cTmpField:                                   
                  {oerep/r-booko#N1.i} 
             END CASE.
-            cExcelVarValue = cVarValue.
+            
+            IF cTmpField = "ord-date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) .
+            ELSE IF cTmpField = "v-FGShipDate" THEN cExcelVarValue = IF v-FGShipDate <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-FGShipDate) ELSE "" .
+            ELSE IF cTmpField = "v-PORecDate" THEN cExcelVarValue = IF v-PORecDate <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-PORecDate) ELSE "" .
+            
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
 
       END.

@@ -24,3 +24,4 @@ WHEN "v-UnitLoss$" THEN cVarValue = string(v-UnitLoss$,"->>>>,>>9.99").
 WHEN "v-Loss%" THEN cVarValue = string(v-Loss% * 100,">>9.99%").
 WHEN "v-bol#" THEN cVarValue = string(v-bol#,">>>>>>>>").
 WHEN "v-Inv#" THEN cVarValue = string(v-Inv#,">>>>>>").
+WHEN "ord-date" THEN cVarValue = STRING(oe-ord.ord-date).

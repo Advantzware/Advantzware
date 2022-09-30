@@ -53,6 +53,10 @@ DEFINE VARIABLE cFieldType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 
 ASSIGN cTextListToSelect = "CUSTOMER,JOB#,F,B,DIE#,Plate#,DUE DATE,COMPLETION DATE,STYLE," +
                            "QTY GLUING,SHEETED,PRINTED,DIE CUT,GLUED,GLUE HRS,ORD MFG DATE,RELEASE DATE," +
@@ -465,6 +469,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Jobs Due Tracking */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -499,6 +504,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -537,6 +543,9 @@ DO:
                   DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
+              END.
+              ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
               END.
            END. /* WHEN 3 THEN DO: */
   END CASE. 
@@ -1653,10 +1662,20 @@ SESSION:SET-WAIT-STATE ("general").
 
                     END CASE.  
 
-                    cExcelVarValue = cVarValue.
+                    IF  cTmpField = "due-dt" THEN
+                         cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+                    ELSE IF  cTmpField = "comp-dt" THEN
+                         cExcelVarValue = IF v-run-end-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-run-end-date) ELSE "".
+                    ELSE IF  cTmpField = "mfg-date" THEN
+                         cExcelVarValue = IF AVAIL oe-ordl THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.prom-date) ELSE "".
+                    ELSE IF  cTmpField = "rel-date" THEN
+                         cExcelVarValue = IF v-rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-rel-date) ELSE "".
+                    ELSE IF  cTmpField = "ord-date" THEN
+                         cExcelVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
@@ -1673,8 +1692,6 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
-  IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

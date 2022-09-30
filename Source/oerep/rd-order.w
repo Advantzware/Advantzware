@@ -67,6 +67,9 @@ DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 DEFINE TEMP-TABLE tt-report NO-UNDO
     FIELD i-no      AS CHARACTER
@@ -88,8 +91,8 @@ ASSIGN
                             "Rep Name,Release Date,Carrier,Ship To Code,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
                             "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,# of Pallets"
 
-    cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
-                            "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
+    cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
+                            "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
                             "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet"
@@ -537,6 +540,7 @@ ON HELP OF FRAME Dialog-Frame /* Order Maintenance Excel Export */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Order Maintenance Excel Export */
     DO:
+        DELETE PROCEDURE hdOutputProcs. 
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -625,6 +629,7 @@ ON LEAVE OF begin_shipfrom IN FRAME Dialog-Frame /* Beginning Ship From WH */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs. 
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -659,6 +664,9 @@ ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
             DO:
                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
             END.
+        END.
+        ELSE DO:
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
         END.
                     
         IF tbAutoClose:CHECKED THEN                
@@ -1564,7 +1572,7 @@ PROCEDURE run-report :
                         cDisplay = cDisplay + cTmpField + 
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField)).
 
-                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".    
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".    
                     END.
                     ELSE 
                     DO:
@@ -1629,12 +1637,26 @@ PROCEDURE run-report :
                             cVarValue =  STRING(itemfg.weight-100 * v-prod-qty / 100 ).
                         WHEN "Pallet" THEN 
                             cVarValue = STRING(itemfg.q-onh / v-pallet-count).                  
+                        WHEN "ord-date" THEN 
+                            cVarValue =  IF oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE ""    .
+                        WHEN "req-date" THEN 
+                            cVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE ""    .
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF  cTmpField = "reldate" THEN
+                         cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",DATE(vreldate)) .
+                    ELSE IF  cTmpField = "approved-date" THEN
+                         cExcelVarValue = IF oe-ord.approved-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.approved-date) ELSE "".
+                    ELSE IF  cTmpField = "post-date" THEN
+                         cExcelVarValue = IF dtPostedDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dtPostedDate) ELSE "".
+                    ELSE IF  cTmpField = "ord-date" THEN
+                         cExcelVarValue = IF oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "".
+                    ELSE IF  cTmpField = "req-date" THEN
+                         cExcelVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "".
+                    ELSE cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue) .
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                 END.
             END.
       
@@ -1652,9 +1674,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -64,6 +64,7 @@ ASSIGN
   v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 
 def var lv-first-time as log init yes no-undo.
+DEFINE BUFFER bf-item FOR ITEM.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -447,17 +448,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       rd-sort:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1"
       rd-sort = 1 .
   
-  RUN new-rd-sort.
-  
-  /* gdm - 05260910*/
-  ASSIGN lv-search:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = ip-cur-val.
-  /* gdm - 05260910 end */
-
-  BROWSE {&browse-name}:SELECT-FOCUSED-ROW().
-
-  /* gdm - 05260910*/
-  APPLY "leave" TO lv-search IN FRAME {&FRAME-NAME}.
-  /* gdm - 05260910 end */
+  RUN new-rd-sort.    
+ 
+  FIND FIRST bf-item NO-LOCK
+       WHERE bf-item.company EQ ip-company
+         AND bf-item.i-no EQ ip-cur-val NO-ERROR.
+  IF AVAILABLE bf-item AND bf-item.i-no NE "" THEN
+  DO:
+      RUN pReposition(ROWID(bf-item)).
+  END.
   
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -528,6 +527,24 @@ PROCEDURE new-rd-sort :
 
   DO TRANSACTION:
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReposition Dialog-Frame 
+PROCEDURE pReposition :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.  
+
+  DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.       
   END.
 
 END PROCEDURE.

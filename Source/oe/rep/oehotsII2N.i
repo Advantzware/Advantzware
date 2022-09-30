@@ -266,11 +266,16 @@ IF AVAIL itemfg THEN DO:
                          WHEN "LastActionOnJob" THEN cVarValue = STRING(cLastAction ,"x(15)") . 
 			
                     END CASE.
+                    
+                    IF cTmpField = "rel-date" THEN cExcelVarValue = IF w-ord.rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.rel-date) ELSE "" .
+                    ELSE IF cTmpField = "pro-date" THEN cExcelVarValue = IF w-ord.prom-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.prom-date) ELSE "" .
+                    ELSE IF cTmpField = "ord-prom-date" THEN cExcelVarValue = IF w-ord.ord-prom-date ne ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.ord-prom-date) ELSE "" .
+                    ELSE IF cTmpField = "job-prom-date" THEN cExcelVarValue = IF w-ord.job-prom-date ne ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.job-prom-date) ELSE "" .
                       
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.

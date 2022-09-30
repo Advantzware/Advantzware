@@ -83,11 +83,14 @@ DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Sman,Customer,Inv#,Inv Date,FG Item Code,Order#,Quantity," +
                             "Inv Amt,Date Inv Paid,Amt Paid,Delta,GrossProfit%,Comm Amt,Comm Pct,Basis,Total Cost"  
-    cFieldListToSelect = "sman,cust-no,inv-no,ar-inv.inv-date,i-no,ord-no,qty," +
+    cFieldListToSelect = "sman,cust-no,inv-no,inv-date,i-no,ord-no,qty," +
                             "amt,cash-date,amtp,delta,v-gp,v-camt,v-comm,basis,ttl-cst"
 
     cFieldLength       = "4,8,7,10,15,8,9," + "12,13,12,12,12,12,8,5,15"
@@ -558,6 +561,7 @@ ON END-ERROR OF C-Win /* Commission - Cash Receipt Report */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Commission - Cash Receipt Report */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -571,6 +575,7 @@ ON WINDOW-CLOSE OF C-Win /* Commission - Cash Receipt Report */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -624,6 +629,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1591,8 +1599,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.  
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

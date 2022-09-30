@@ -167,6 +167,21 @@ ELSE IF ls-cur-val = 'DateRule' THEN DO:
   {&tableName}.char-fld:SCREEN-VALUE = cFoundValue.
   RETURN NO-APPLY.
 END.
+ELSE IF ls-cur-val = 'WIPWHSBIN' OR ls-cur-val = 'WIPTAGSDefaultLocation' THEN DO:
+  RUN system/openLookup.p (
+      INPUT  gcompany, 
+      INPUT  "", /* Lookup ID */
+      INPUT  150, /* Subject ID */
+      INPUT  "", /* User ID */
+      INPUT  0,  /* Param Value ID */
+      OUTPUT cFieldsValue, 
+      OUTPUT cFoundValue, 
+      OUTPUT recFoundRecID
+      ).
+  IF cFoundValue NE '' THEN
+  {&tableName}.char-fld:SCREEN-VALUE = cFoundValue.
+  RETURN NO-APPLY.
+END.
 ELSE DO:
   RUN windows/l-syschr.w (gcompany,ls-cur-val,FOCUS:SCREEN-VALUE,OUTPUT char-val).
   IF char-val NE '' THEN

@@ -101,7 +101,7 @@ ASSIGN
                             "Spec Note 5 Group,Spec Note 5 Title,Spec Note 5 Note [Large]," +
                             "Setup By UserId,Setup Date,Modified By,Modified Date,Pallet Quantity," +
                             "FgItem Color1,FgItem Color2,FgItem Color3,FgItem Color4,FgItem Color5," +
-                            "FgItem Color6,FgItem Color7,FgItem Color8,FgItem Color9,FgItem Color10,Product Tax Class,Weight Per EA"
+                            "FgItem Color6,FgItem Color7,FgItem Color8,FgItem Color9,FgItem Color10,Product Tax Class,Weight Per EA,Qty On Hold"
     cFieldListToSelect = "i-no,i-name,part-no,cust-no,cust-name," +
                             "est-no,style,procat,procat-desc,part-dscr1,part-dscr2,part-dscr3,i-code," +
                             "die-no,plate-no,upc-no,cad-no,spc-no,stocked," +
@@ -134,7 +134,7 @@ ASSIGN
                             "spc-grp5,spc-title5,spc-note5," +
                             "setupBy,setupDate,modifiedBy,modifiedDate,pallet-qty," +
                             "fgcol1,fgcol2,fgcol3,fgcol4,fgcol5," +
-                            "fgcol6,fgcol7,fgcol8,fgcol9,fgcol10,productTaxClass,weightPerEA"
+                            "fgcol6,fgcol7,fgcol8,fgcol9,fgcol10,productTaxClass,weightPerEA,iOnHoldQty"
     /*         cFieldListToSelect = "itemfg.i-no,itemfg.i-name,itemfg.part-no,itemfg.cust-no," +                 */
     /*                             "itemfg.est-no,itemfg.style,itemfg.procat,itemfg.part-dscr1,itemfg.i-code," + */
     /*                             "itemfg.cad-no,itemfg.spc-no,itemfg.stocked,itemfg.q-onh"                     */
@@ -839,6 +839,9 @@ DO:
             DO:
                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
             END.
+        END.
+        ELSE DO:
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
         END.
 
         IF tbAutoClose:CHECKED THEN 
@@ -1775,8 +1778,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1904,6 +1905,8 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
     DEFINE VARIABLE li-extent AS INTEGER   NO-UNDO.
     DEFINE VARIABLE lc-return AS CHARACTER FORMAT "x(100)" NO-UNDO.
 
+    DEFINE VARIABLE iTotalOnHoldQty AS INTEGER FORMAT "->>,>>>,>>9" NO-UNDO.
+
     CASE ipc-field :
         WHEN "dfuncStatus"  THEN 
             DO:
@@ -1949,6 +1952,17 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     WHEN NO THEN
                         lc-return = "Pallet".
                 END CASE.
+            END.                               
+        WHEN "iOnHoldQty"  THEN 
+            DO:
+                ASSIGN iTotalOnHoldQty = 0 .
+                FOR EACH fg-bin NO-LOCK
+                   WHERE fg-bin.company  EQ ipb-itemfg.company
+                     AND fg-bin.i-no     EQ ipb-itemfg.i-no
+                    :
+                    IF fg-bin.onHold THEN iTotalOnHoldQty = iTotalOnHoldQty + fg-bin.qty .
+                END.
+                lc-return = STRING(iTotalOnHoldQty).
             END.
         OTHERWISE 
         DO:
