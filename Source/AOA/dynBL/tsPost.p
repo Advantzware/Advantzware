@@ -103,7 +103,7 @@ PROCEDURE pBusinessLogic:
         OUTPUT cTSSecure,OUTPUT lTSSecure
         ).
     lTSSecure = cTSSecure EQ "YES".
-    RUN sys/ref/TSSecure.p (
+    RUN sys/ref/nk1look.p (
         cCompany,"TSPost","C",NO,NO,"","",
         OUTPUT cTSSecure,OUTPUT lTSSecure
         ).
@@ -169,6 +169,7 @@ PROCEDURE pBusinessLogic:
                    AND job.job-no  EQ machtran.job_number
                    AND job.job-no2 EQ machtran.job_sub
                  NO-ERROR.
+            IF NOT AVAILABLE job THEN NEXT.
             FIND FIRST job-hdr NO-LOCK
                  WHERE job-hdr.company  EQ machtran.company
                    AND job-hdr.job-no   EQ machtran.job_number
@@ -636,6 +637,7 @@ PROCEDURE pBusinessLogic:
             RETURN.
         END.      
     END. // valid to post
+    IF lPost THEN
     RUN pPost.
     IF VALID-HANDLE(hJobProcs ) THEN
     DELETE PROCEDURE hJobProcs .
