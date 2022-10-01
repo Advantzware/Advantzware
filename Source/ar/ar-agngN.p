@@ -2225,8 +2225,11 @@ PROCEDURE total-head:
                 '                       ' vname  ','  SUBSTRING(cExcelDisplay,4,400) SKIP(1).
         END.
     END.
-    FINALLY:
-        IF VALID-HANDLE (hdOutputProcs) THEN
-            DELETE PROCEDURE hdOutputProcs.            
-    END FINALLY.
 end procedure.
+
+FINALLY:
+    IF VALID-HANDLE (hdOutputProcs) THEN
+        DELETE PROCEDURE hdOutputProcs.            
+END FINALLY.
+
+

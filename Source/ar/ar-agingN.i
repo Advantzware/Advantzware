@@ -2163,13 +2163,12 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
             END.
         END.
 
+ END PROCEDURE.
+ 
  FINALLY:
         IF VALID-HANDLE (hdOutputProcs) THEN
             DELETE PROCEDURE hdOutputProcs.            
  END FINALLY.
-        
-
- END PROCEDURE.
 
 /* End ---------------------------------- Copr. 1997  Advanced Software, Inc. */
 
