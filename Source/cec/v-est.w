@@ -4138,6 +4138,8 @@ END.
         btn_board:HIDDEN  = TRUE .
     ELSE 
         btn_board:HIDDEN  = FALSE .
+        
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}       
 
   RUN get-current-values (OUTPUT lc-previous-values).              
 END PROCEDURE.

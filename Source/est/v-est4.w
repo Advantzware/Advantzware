@@ -1743,7 +1743,8 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  IF AVAILABLE eb THEN
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
