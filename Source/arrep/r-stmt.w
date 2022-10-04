@@ -1956,6 +1956,7 @@ PROCEDURE run-asistmt :
                     tt-inv.trans-date = ar-inv.inv-date
                     tt-inv.old-day    = (TODAY - ar-inv.inv-date)
                     tt-inv.inv-no     = ar-inv.inv-no
+                    tt-inv.terms      = ar-inv.terms
                     tt-inv.type       = IF ar-inv.type GT ' ' THEN ar-inv.type ELSE 'I'
                     tt-inv.amount     = IF v-detail THEN
                            IF ar-inv.net     EQ
@@ -2250,18 +2251,20 @@ PROCEDURE run-asistmt :
                             ELSE IF v-stmt-char = "Badger" THEN
                                     PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
                                         "<=1><R+7><C+54><B><P22>Statement</B><P12>" SKIP
-                                        "<=1><R+9>Attn:" cust.contact "<C53>Statement Date  Account #" SKIP
+                                        "<=1><R+9><C53>Statement Date  Account #" 
+                                        "<=1><R+11>Attn:" cust.contact SKIP
                                         "<=1><R+10><C+52><FROM><C+13><LINE>" SKIP
                                         "<=1><R+10><C+68><FROM><C+10><LINE>" 
                                         "<=1><R+10><C+52>" v-stmt-date
                                         "<=1><R+10><C+68>" cust.cust-no SKIP
-                                        "<=1><R+11><C1>" ws_addr[1] SKIP
-                                        "<=1><R+12><C1>" ws_addr[2] v-remitto[1] SKIP 
-                                        "<=1><R+13><C1>" ws_addr[3] v-remitto[2] SKIP
-                                        "<=1><R+14><C1>" ws_addr[4] v-remitto[3] SKIP
-                                        "<=1><R+15><C1>" ws_addr[5] v-remitto[4] SKIP
-                                        "<=1><R+17>Date     Code  Inv# Description               Days <C60>Amount        Balance" SKIP
-                                        "<=1><R+18><FROM><C+82><LINE>"
+                                        "<=1><R+12><C1>" ws_addr[1] SKIP
+                                        "<=1><R+13><C1>" ws_addr[2] v-remitto[1] SKIP 
+                                        "<=1><R+14><C1>" ws_addr[3] v-remitto[2] SKIP
+                                        "<=1><R+15><C1>" ws_addr[4] v-remitto[3] SKIP
+                                        "<=1><R+16><C1>" ws_addr[5] v-remitto[4] SKIP
+                                        "<=1><R+18>Date    Code Terms    Inv# Customer PO  Description <C53>Days <C62>Amount        Balance" SKIP
+                                        "<=1><R+19><FROM><C+82><LINE>"
+                                        "<P10>"
                                         . 
 
                                 ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
@@ -2340,18 +2343,16 @@ PROCEDURE run-asistmt :
             DO:
                 IF v-stmt-char = "Badger" THEN 
                 DO:
-                    DISPLAY
-                        tt-inv.trans-date
-                        tt-inv.type
-                        tt-inv.inv-no  
-                        WHEN tt-inv.inv-no GT 0                                        
-                        (IF v-stmt-char = "LoyLang" OR v-stmt-char = "Printers" THEN tt-inv.bol-no + " " + string(tt-inv.po-no) ELSE tt-inv.description) @ tt-inv.description
-                        /*(IF v-stmt-char = "LoyLang" THEN string(tt-inv.po-no) ELSE tt-inv.description) @ tt-inv.description*/
-                        tt-inv.old-day
-                        tt-inv.amount
-                        v-balance 
-                        WITH FRAME stmt-line .
-                    DOWN 1 WITH FRAME stmt-line.
+                    PUT 
+                        "<C1>" tt-inv.trans-date
+                        "<C9>" tt-inv.type
+                        "<C14>" tt-inv.terms
+                        "<C20>" tt-inv.inv-no FORMAT ">>>>>>>9"
+                        "<C28>" STRING(tt-inv.po-no) FORMAT "x(15)"
+                        "<C41>" tt-inv.description FORMAT "X(13)"
+                        "<C49>" tt-inv.old-day
+                        "<C58>" tt-inv.amount
+                        "<C71>" v-balance  SKIP.
                 END.
                 ELSE IF v-stmt-char = "RFC" THEN 
                     DO:
