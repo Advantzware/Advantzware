@@ -470,6 +470,7 @@
                    WHEN "glue"        THEN cVarValue =  STRING(tt-report.glue).
                    WHEN "last-date"   THEN cVarValue = IF oe-ord.last-date NE ? THEN STRING(oe-ord.last-date) ELSE "".
                    WHEN "cust-lot"    THEN cVarValue =  STRING(tt-report.cust-lot).
+                   WHEN "dtPromiseDate" THEN cVarValue = IF oe-ord.promiseDate NE ? THEN STRING(oe-ord.promiseDate) ELSE "" .
                END CASE.
                
                IF cTmpField = "l-due-dt"         THEN cExcelVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "".
@@ -479,6 +480,7 @@
                ELSE IF cTmpField =  "due-dt"     THEN cExcelVarValue =  IF tt-report.due-dt NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.due-dt) ELSE ""  .
                ELSE IF cTmpField =  "comp-dt"    THEN cExcelVarValue =  IF tt-report.run-end-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.run-end-date) ELSE ""     .    
                ELSE IF cTmpField =  "last-date"  THEN cExcelVarValue = IF oe-ord.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.last-date) ELSE "".
+               ELSE IF cTmpField =  "dtPromiseDate"  THEN cExcelVarValue = IF oe-ord.promiseDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.promiseDate) ELSE "".
                
               ELSE cExcelVarValue = cVarValue.
               
