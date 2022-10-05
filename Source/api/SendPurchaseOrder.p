@@ -707,7 +707,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cUnitPallet                 = "0"
                 cPurchaseUnit               = STRING(po-ordl.pr-qty-uom)
                 cJobID                      = TRIM(STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")"))
-                cJobID2                     = STRING(po-ordl.job-no2, ">9")
+                cJobID2                     = STRING(po-ordl.job-no2, ">>9")
                 cJobConcat                  = IF po-ordl.job-no EQ "" THEN
                                                   ""
                                               ELSE
@@ -715,9 +715,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cJobConcatHRMS              = IF po-ordl.job-no EQ "" THEN
                                                   ""
                                               ELSE
-                                                  STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")") + "-" + STRING(po-ordl.job-no2, "99")
+                                                  STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")") + "-" + STRING(po-ordl.job-no2, "999")
                 cJobConcatSmurfit           = "" 
-                cJobConcat1                 = TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2, "99")                                         
+                cJobConcat1                 = TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2, "999")                                         
                 cJobIDFormNo                = STRING(po-ordl.s-num)
                 cJobIDBlankNo               = STRING(po-ordl.b-num)
                 cQuantityReceived           = TRIM(STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<"))
@@ -726,7 +726,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 dQuantityInSF               = po-ordl.ord-qty
                 cTotalLineCost              = STRING(po-ordl.t-cost)
                 cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"99999999")
-                                              + "-" + STRING(po-ordl.LINE,"99") + "/" 
+                                              + "-" + STRING(po-ordl.LINE,"999") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
                                               DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",po-ordl.job-no,po-ordl.job-no2) 
                                               + "-" + STRING(po-ordl.s-num,"99")
