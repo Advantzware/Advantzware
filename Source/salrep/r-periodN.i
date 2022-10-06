@@ -601,10 +601,16 @@
                         
                     END CASE.
                       
-                    cExcelVarValue = cVarValue.
+                    IF  cTmpField = "inv-date" THEN
+                         cExcelVarValue = IF w-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-inv.inv-date) ELSE "".
+                    ELSE IF  cTmpField = "firstInvDate" THEN
+                         cExcelVarValue = IF w-inv.firstInvDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-inv.firstInvDate) ELSE "".
+                    ELSE IF  cTmpField = "post-date" THEN
+                         cExcelVarValue = IF w-inv.pst-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-inv.pst-date) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
@@ -671,7 +677,7 @@
             END.
            PUT str-line SKIP.
             PUT UNFORMATTED "           Total " substring(cDisplay,18,350) SKIP(2).
-            IF tb_excel THEN DO:
+            IF tb_excel AND tb_detailed THEN DO:
                  PUT STREAM excel UNFORMATTED  'Total ,'
                        substring(cExcelDisplay,4,350) SKIP.
              END.

@@ -95,6 +95,9 @@ DEFINE VARIABLE glCustListActive    AS LOGICAL   NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /*
 (IF {sys/inc/rptDisp.i "oe-ord.due-date"} THEN "DUE DATE " ELSE "" ) +   8
@@ -835,6 +838,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Orders Booked */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -939,6 +943,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    APPLY "close" TO THIS-PROCEDURE.
 END.
 

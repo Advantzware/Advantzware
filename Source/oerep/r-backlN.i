@@ -320,11 +320,16 @@
                            WHEN "ord-qty"     THEN cVarValue =  STRING(w-ord.qty,"->>>,>>>,>>9").
                                                               
                       END CASE.
-                        
-                      cExcelVarValue = cVarValue.
+                      
+                      IF cTmpField = "due-dt" THEN cExcelVarValue = IF w-ord.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.due-date) ELSE "" .
+                      ELSE IF cTmpField = "ord-dt" THEN cExcelVarValue = IF w-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.ord-date) ELSE "" .
+                      ELSE IF cTmpField = "rel-dt" THEN cExcelVarValue = IF w-ord.rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.rel-date) ELSE "" .
+                                              
+                      ELSE cExcelVarValue = cVarValue.
+                      
                       cDisplay = cDisplay + cVarValue +
                                  FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                      cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
               END.
            
               PUT UNFORMATTED cDisplay SKIP.

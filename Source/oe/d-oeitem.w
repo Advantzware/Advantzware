@@ -6090,13 +6090,15 @@ PROCEDURE display-est-detail :
             INPUT-OUTPUT lv-pr-uom,
             OUTPUT lv-q-no,
             INPUT-OUTPUT lv-qty).
-
-        oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
-        RUN pAddTagInfoForGroup(
-            INPUT oe-ordl.rec_key,
-            INPUT "Price-Source",
-            INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty)
-            ).
+        IF lv-q-no NE 0 THEN 
+        DO:         
+            oe-ordl.qty:SCREEN-VALUE  = STRING(lv-qty).
+            RUN pAddTagInfoForGroup(
+                INPUT oe-ordl.rec_key,
+                INPUT "Price-Source",
+                INPUT "Quoted Price Quote Est:" + STRING(cQuoteEst) + " Quote No:" + STRING(lv-q-no) + " Quantity:" + string(lv-qty)
+                ).
+        END.    
     END.
     IF lv-qty GT 0 AND AVAILABLE est-qty THEN 
     DO:
@@ -6363,13 +6365,15 @@ PROCEDURE display-fgitem :
                                 INPUT-OUTPUT lv-pr-uom,
                                 OUTPUT lv-q-no,
                                 INPUT-OUTPUT lv-qty).
-                    
-                            oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
-                            RUN pAddTagInfoForGroup(
-                                INPUT oe-ordl.rec_key,
-                                INPUT "Price-Source",
-                                INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
-                                ).
+                            IF lv-q-no NE 0 THEN 
+                            DO:
+                                oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
+                                RUN pAddTagInfoForGroup(
+                                    INPUT oe-ordl.rec_key,
+                                    INPUT "Price-Source",
+                                    INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity:" + string(lv-qty)
+                                    ).
+                            END.    
                         END.
                         ELSE
                         DO:
@@ -8332,13 +8336,15 @@ PROCEDURE leave-qty :
                         INPUT-OUTPUT lv-pr-uom,
                         OUTPUT lv-q-no,
                         INPUT-OUTPUT lv-qty).
-                    oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).
-              
-                    RUN pAddTagInfoForGroup(
-                        INPUT oe-ordl.rec_key,
-                        INPUT "Price-Source",
-                        INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
-                        ).
+                    IF lv-q-no NE 0 THEN 
+                    DO:    
+                        oe-ordl.qty:SCREEN-VALUE = STRING(lv-qty).              
+                        RUN pAddTagInfoForGroup(
+                            INPUT oe-ordl.rec_key,
+                            INPUT "Price-Source",
+                            INPUT "Quoted Price Quote No:" + string(lv-q-no) + " Quantity: " + string(lv-qty) 
+                            ).
+                    END.    
                 END.
                 ELSE IF NOT lQuotePriceMatrix THEN
                     DO:

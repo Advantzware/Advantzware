@@ -1356,6 +1356,47 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE boardSize W-Win
+PROCEDURE boardSize:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE startHeight AS INTEGER NO-UNDO.
+  DEFINE VARIABLE startWidth AS INTEGER NO-UNDO.
+
+  IF boardSize EQ 'Maximize' THEN
+  ASSIGN
+    {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = SESSION:WIDTH-PIXELS
+    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = SESSION:HEIGHT-PIXELS
+    {&WINDOW-NAME}:WINDOW-STATE = 1
+    .
+  ELSE DO:
+    IF boardSize EQ 'Minimum' THEN
+    ASSIGN
+      startWidth = 750
+      startHeight = 504
+      .
+    ELSE
+    ASSIGN
+      startWidth = INTEGER(SUBSTR(boardSize,1,INDEX(boardSize,'x') - 1))
+      startHeight = INTEGER(SUBSTR(boardSize,INDEX(boardSize,'x') + 1))
+      .
+    ASSIGN
+      {&WINDOW-NAME}:X = 0
+      {&WINDOW-NAME}:Y = 0
+      {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = startwidth
+      {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = startHeight
+      {&WINDOW-NAME}:WIDTH-PIXELS = startwidth
+      {&WINDOW-NAME}:HEIGHT-PIXELS = startHeight
+      .
+  END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE checkPopup W-Win 
 PROCEDURE checkPopup :
 /*------------------------------------------------------------------------------
@@ -1585,8 +1626,6 @@ PROCEDURE local-initialize :
   DEFINE VARIABLE configW AS DECIMAL NO-UNDO.
   DEFINE VARIABLE configH AS DECIMAL NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  DEFINE VARIABLE startHeight AS INTEGER NO-UNDO.
-  DEFINE VARIABLE startWidth AS INTEGER NO-UNDO.
   DEFINE VARIABLE version AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
 
@@ -1616,29 +1655,7 @@ PROCEDURE local-initialize :
   IF NOT continue THEN RETURN.
 &ENDIF
 
-  IF boardSize EQ 'Maximize' THEN
-  ASSIGN
-    {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS  = SESSION:WIDTH-PIXELS
-    {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = SESSION:HEIGHT-PIXELS
-    {&WINDOW-NAME}:WINDOW-STATE = 1
-    .
-  ELSE DO:
-    IF boardSize EQ 'Minimum' THEN
-    ASSIGN
-      startWidth = 750
-      startHeight = 504.
-    ELSE
-    ASSIGN
-      startWidth = INTEGER(SUBSTR(boardSize,1,INDEX(boardSize,'x') - 1))
-      startHeight = INTEGER(SUBSTR(boardSize,INDEX(boardSize,'x') + 1)).
-    ASSIGN
-      {&WINDOW-NAME}:X = 0
-      {&WINDOW-NAME}:Y = 0
-      {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS = startwidth
-      {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS = startHeight
-      {&WINDOW-NAME}:WIDTH-PIXELS = startwidth
-      {&WINDOW-NAME}:HEIGHT-PIXELS = startHeight.
-  END.
+  RUN boardSize.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1945,12 +1962,8 @@ PROCEDURE winReSize :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE offSet AS INTEGER NO-UNDO.
 
-  ASSIGN
-    {&WINDOW-NAME}:X = 0
-    {&WINDOW-NAME}:Y = 0
-    {&WINDOW-NAME}:HEIGHT-PIXELS = SESSION:HEIGHT-PIXELS
-    {&WINDOW-NAME}:WIDTH-PIXELS  = SESSION:WIDTH-PIXELS
-    .
+  RUN boardSize.
+
   offSet = IF {&WINDOW-NAME}:HEIGHT-PIXELS LE 600 THEN 0
            ELSE INTEGER({&WINDOW-NAME}:STATUS-AREA) - 1.22.
   IF {&WINDOW-NAME}:HEIGHT-PIXELS LT 600 THEN

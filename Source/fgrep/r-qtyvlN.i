@@ -291,11 +291,18 @@ FOR EACH tt-cust,
                           WHEN "csr"    THEN cVarValue = IF AVAIL oe-ord AND oe-ord.csrUser_id NE "" THEN STRING(oe-ord.csrUser_id,"x(8)") ELSE "" .                                       
 
                      END CASE.
+                     
+                     IF cTmpField = "rcpt-dt"    THEN 
+                          cExcelVarValue = IF NOT(zbal AND v-qty-onh = 0) AND NOT(v-qty-job = 0) AND trans-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",trans-date) ELSE "" .
+                     ELSE IF cTmpField = "due-date"    THEN 
+                             cExcelVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.due-date) ELSE "" . 
+                     ELSE IF cTmpField = "job-due-date"    THEN 
+                             cExcelVarValue = IF AVAIL job AND job.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.due-date) ELSE "" .     
                        
-                     cExcelVarValue = cVarValue.
+                     ELSE cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
              END.
             
              PUT UNFORMATTED cDisplay SKIP.

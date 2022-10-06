@@ -1195,6 +1195,9 @@ PROCEDURE valid-shipto :
             APPLY "entry" TO estRelease.shipToID .
             opcValidError = YES .
         END.
+        ELSE DO:
+            estRelease.customerID:SCREEN-VALUE = shipto.cust-no.
+        END.
     END.
 
 END PROCEDURE.

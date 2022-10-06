@@ -3123,3 +3123,20 @@
 209 "_default" "dynSubjct." 0 7 yes "ttCostByMachine.qtyInTons" "Tons" "->>>,>>9.9<<<" 0 "decimal" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" no no no "" "202206287534209662378" no "" "" 0 0 "" no no "" "" no
 209 "_default" "dynSubjct." 0 8 yes "ttCostByMachine.matCost" "Mat Cost" "->>>,>>9.9<<<<" 0 "decimal" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" no no no "" "202206287534209662379" no "" "" 0 0 "" no no "" "" no
 209 "_default" "dynSubjct." 0 9 yes "ttCostByMachine.prodCost" "Prod Cost" "->>>,>>9.9<<<<" 0 "decimal" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" no no no "" "202206287534209662380" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 1 yes "ttbl_pc-prdd.shift" "Shift" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216129" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 2 yes "ttbl_pc-prdd.job-no" "Job" "x(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216130" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 3 yes "ttbl_pc-prdd.job-no2" "Run #" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216131" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 4 yes "ttbl_pc-prdd.frm" "Form" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216132" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 5 yes "ttbl_pc-prdd.blank-no" "Blank" ">9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216133" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 6 yes "ttbl_pc-prdd.i-no" "Item No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216134" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 7 yes "ttbl_pc-prdd.i-name" "Description" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216135" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 8 yes "ttbl_pc-prdd.code" "Machine" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216136" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 9 yes "ttbl_pc-prdd.hours" "Hours" ">>9.99-" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216137" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 10 yes "ttbl_pc-prdd.crew" "Crew" "99.9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216138" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 11 yes "ttbl_pc-prdd.start" "Start" ">>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216139" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 12 yes "ttbl_pc-prdd.stopp" "Stop" ">>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216140" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 13 yes "ttbl_pc-prdd.qty" "Quantity" ">>>>>>>9-" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216141" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 14 yes "ttbl_pc-prdd.waste" "Waste" ">>>>9-" 0 "integer" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216142" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 15 yes "ttbl_pc-prdd.complete" "Complete" "Y/N" 0 "logical" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216143" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 16 yes "ttbl_pc-prdd.emp-id[1]" "Emp ID" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216144" no "" "" 0 0 "" no no "" "" no
+213 "_default" "dynSubjct." 0 17 yes "ttbl_pc-prdd.rate[1]" "Rate" ">>>>9.99<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216145" no "" "" 0 0 "" no no "" "" no

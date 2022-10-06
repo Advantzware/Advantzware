@@ -727,13 +727,8 @@
 
   /* For Receipts increase the quantity in the BIN */
   else 
-  if {1}.rita-code eq "R" then do:
-    ld-cvt-cost = {2}.ext-cost / {2}.t-qty * 1000.
-    IF {2}.cost-uom NE "M" THEN
-      RUN sys/ref/convcuom.p("M", {2}.cost-uom, 0,
-                             IF AVAIL po-ordl THEN po-ordl.s-len ELSE 0,
-                             IF AVAIL po-ordl THEN po-ordl.s-wid ELSE 0,
-                             0, ld-cvt-cost, OUTPUT ld-cvt-cost).
+  if {1}.rita-code eq "R" then do:     
+    ld-cvt-cost = {2}.std-cost.     
     {fg/upd-bin.i "fg-bin" "{2}.cost-uom" "ld-cvt-cost" {2}}
   end.
   else 

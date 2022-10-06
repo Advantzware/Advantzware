@@ -287,11 +287,15 @@ IF AVAIL itemfg THEN DO:
                          WHEN "stat"  THEN cVarValue = STRING(w-ord.xls-status,"x(6)") .
                          
                     END CASE.
+                    
+                    IF cTmpField = "rel-date" THEN cExcelVarValue = IF w-ord.rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.rel-date) ELSE "" .
+                    ELSE IF cTmpField = "ord-date" THEN cExcelVarValue = IF w-ord.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.last-date) ELSE "" .
                       
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.

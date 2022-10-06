@@ -2129,6 +2129,9 @@ PROCEDURE local-create-record :
             tb_taxable:SCREEN-VALUE = STRING(itemfg.taxable).
     /*      rd_status:SCREEN-VALUE      = "A"   */
     /*      tb_exempt-disc:SCREEN-VALUE = "no". */
+        IF itemfg.poStatus EQ "" 
+        OR itemfg.poStatus EQ ? THEN ASSIGN 
+            poStatus:SCREEN-VALUE = '<none>'.
     END.
 
    

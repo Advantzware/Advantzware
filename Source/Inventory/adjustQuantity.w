@@ -84,7 +84,16 @@ cbReasonCode
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-
+/* ************************  Function Prototypes ********************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCalculateQuantityUnits Dialog-Frame
+FUNCTION fCalculateQuantityUnits RETURNS INTEGER
+    (ipdQuantitySubUnits AS DECIMAL, 
+     ipdQuantitySubUnitsPerUnit AS DECIMAL,
+     ipdQuantityPartialSubUnit AS DECIMAL,
+     ipdSubUnitCount AS DECIMAL) FORWARD.
+     
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME     
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -1001,11 +1010,11 @@ PROCEDURE pCalculateQuantities :
                                        DECIMAL(fiSubUnits:SCREEN-VALUE),
                                        ipdSubUnitCount)
                                        )
-        fiUnits:SCREEN-VALUE     = STRING(DYNAMIC-FUNCTION(
-                                       "fCalculateQuantityUnits" IN hdInventoryProcs,
+        fiUnits:SCREEN-VALUE     = STRING(fCalculateQuantityUnits(
                                        DECIMAL(fiSubUnits:SCREEN-VALUE),
                                        ipdSubUnitsPerUnit,
-                                       DECIMAL(fiPartial:SCREEN-VALUE))
+                                       DECIMAL(fiPartial:SCREEN-VALUE),
+                                       decimal(fiSubUnitCount:SCREEN-VALUE))
                                        )
         .
 END PROCEDURE.
@@ -1184,3 +1193,18 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCalculateQuantityUnits Dialog-Frame 
+FUNCTION fCalculateQuantityUnits RETURNS INTEGER
+    (ipdQuantitySubUnits AS DECIMAL, ipdQuantitySubUnitsPerUnit AS DECIMAL, ipdQuantityPartialSubUnit AS DECIMAL, ipdSubUnitCount AS DECIMAL):
+     IF ipdQuantitySubUnitsPerUnit EQ 0 THEN
+         ipdQuantitySubUnitsPerUnit = 1.
+        
+     RETURN INTEGER(TRUNC(ipdQuantitySubUnits / ipdQuantitySubUnitsPerUnit, 0)) +
+            INTEGER((ipdQuantitySubUnits MODULO ipdQuantitySubUnitsPerUnit) NE 0) .
+END FUNCTION.     
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

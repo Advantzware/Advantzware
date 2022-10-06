@@ -30,6 +30,9 @@ if ld-cst ne ?                              and
   IF "{1}" EQ "" THEN item.last-cost = ld-cst.
 end. /* R */
 
+IF rm-rcpth.po-no NE "" AND {1}rm-bin.po-no EQ 0 THEN 
+     {1}rm-bin.po-no = INTEGER(rm-rcpth.po-no).
+
 if index("RATC",rm-rcpth.rita-code) ne 0 then
   {1}rm-bin.qty = ld-qty +
                   if rm-rcpth.rita-code eq "C" then 0 else {1}rm-bin.qty.

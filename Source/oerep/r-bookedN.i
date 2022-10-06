@@ -679,7 +679,7 @@ FORMAT wkrecap.procat
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
          cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
          
-         IF INDEX(cTmpField,".") GT 0 THEN DO:
+         IF INDEX(cTmpField,".") GT 0 AND LOOKUP(cTmpField, "oe-ord.due-date,oe-ord.ord-date") EQ 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAILABLE boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
@@ -694,7 +694,7 @@ FORMAT wkrecap.procat
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
-                     cExcelDisplay = cExcelDisplay + QUOTER(GetFieldValue(hField)) + ",".
+                     cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".
                  END.
                  ELSE DO:
                     cTmpField = substring(cFieldName,1,INTEGER(ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
@@ -727,13 +727,24 @@ FORMAT wkrecap.procat
                  WHEN "status" THEN cVarValue = STRING(c-result,"x(20)") . 
                  WHEN "po-recvdt" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.poReceivedDate NE ? THEN STRING(oe-ord.poReceivedDate) ELSE "".
                  WHEN "prev-order" THEN cVarValue = STRING(cPrevOrder,"x(8)") .
-		         WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
+		         WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
+		         WHEN "oe-ord.due-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date) ELSE "".
+		         WHEN "oe-ord.ord-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
             END CASE.
             IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
-            cExcelVarValue = cVarValue.
+            
+            IF  cTmpField = "oe-ord.due-date" THEN
+                 cExcelVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.due-date) ELSE "".
+            ELSE IF  cTmpField = "oe-ord.ord-date" THEN
+                 cExcelVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "".
+            ELSE IF  cTmpField = "approved-date" THEN
+                 cExcelVarValue = IF AVAIL oe-ord AND oe-ord.approved-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.approved-date) ELSE "".
+            ELSE IF  cTmpField = "ack-date" THEN
+                 cExcelVarValue = IF AVAIL oe-ord AND oe-ord.ack-prnt-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ack-prnt-date) ELSE "".
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
       END.
       PUT UNFORMATTED cDisplay SKIP.
@@ -937,7 +948,7 @@ FORMAT wkrecap.procat
 
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
          cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-         IF INDEX(cTmpField,".") > 0 THEN DO:
+         IF INDEX(cTmpField,".") > 0 AND LOOKUP(cTmpField, "oe-ord.due-date,oe-ord.ord-date") EQ 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  IF cFieldName BEGINS "oe-ordl" THEN hField = IF AVAILABLE boe-ordl THEN BUFFER boe-ordl:BUFFER-FIELD(cTmpField) ELSE ?.
@@ -952,7 +963,7 @@ FORMAT wkrecap.procat
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
-                     cExcelDisplay = cExcelDisplay + QUOTER(GetFieldValue(hField)) + ",".
+                     cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".
                  END.
                  ELSE DO:
                     cTmpField = SUBSTRING(cFieldName,1,INTEGER(ENTRY( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
@@ -985,13 +996,24 @@ FORMAT wkrecap.procat
                 WHEN "status" THEN cVarValue = STRING(c-result,"x(20)") .
                 WHEN "po-recvdt" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.poReceivedDate NE ? THEN STRING(oe-ord.poReceivedDate) ELSE "".
                 WHEN "prev-order" THEN cVarValue = STRING(cPrevOrder,"X(8)") .
-		        WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
+		        WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
+		        WHEN "oe-ord.due-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date) ELSE "".
+		        WHEN "oe-ord.ord-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
             END CASE.
             IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
-            cExcelVarValue = cVarValue.
+            
+            IF  cTmpField = "oe-ord.due-date" THEN
+                 cExcelVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.due-date) ELSE "".
+            ELSE IF  cTmpField = "oe-ord.ord-date" THEN
+                 cExcelVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "".
+            ELSE IF  cTmpField = "approved-date" THEN
+                 cExcelVarValue = IF AVAIL oe-ord AND oe-ord.approved-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.approved-date) ELSE "".
+            ELSE IF  cTmpField = "ack-date" THEN
+                 cExcelVarValue = IF AVAIL oe-ord AND oe-ord.ack-prnt-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ack-prnt-date) ELSE "".
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
       END.
       PUT UNFORMATTED cDisplay SKIP.

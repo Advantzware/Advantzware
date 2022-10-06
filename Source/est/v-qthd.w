@@ -1263,8 +1263,9 @@ PROCEDURE local-create-record :
   assign /*quotehd.company = gcompany
          quotehd.loc = gloc
          quotehd.q-no = li-next-qno*/
-         quotehd.quo-date = today.
+         quotehd.quo-date = today.  
     RUN est/GetQuoteDefNotes.p (INPUT quotehd.company,
+                                INPUT quotehd.loc,
                                 OUTPUT cNotes).
     ASSIGN  
         quotehd.comment[1] = cNotes[1]

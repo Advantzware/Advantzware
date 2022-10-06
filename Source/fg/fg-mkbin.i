@@ -4,7 +4,7 @@
     ELSE ASSIGN
         {1}fg-bin.qty = {1}fg-bin.qty - fg-rdtlh.qty.
 
-    IF fg-rcpth.rita-code EQ "C" THEN ASSIGN
+    IF fg-rcpth.rita-code EQ "C" OR fg-rcpth.rita-code EQ "R" THEN ASSIGN
         {1}fg-bin.partial-count = fg-rdtlh.partial.
     ELSE DO:
         FIND FIRST {2}fg-rctd NO-LOCK WHERE 

@@ -172,3 +172,5 @@
 190 "System" "Zero Standard MR from Previous" 3.1 45 yes "" yes "202206031122909508798"
 192 "System" "Job and Date Time" 3.1 49 yes "" yes "202206031185509508802"
 193 "System" "Show Detail" 3.1 19 yes "" yes "202206248396209640063"
+194 "System" "Touch Screen No Crew Message" 3.1 47 yes "" yes "20220920_23:14:37_10155848"
+195 "System" "FG Rebuild Bin Toggle Params" 5.95 44 yes "" yes "20220926_17:37:52_10174692"

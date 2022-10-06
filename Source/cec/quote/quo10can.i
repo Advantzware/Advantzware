@@ -400,6 +400,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   END.
   IF NOT LAST(xqitm.part-no) THEN
   put skip(1) .
+
+  IF LAST-OF(xqitm.part-no) AND lSpecNotes THEN
+  DO:
+        RUN pPrintSpecNotes(xqitm.i-no).
+  END.
 END.
 
 numfit = 0.

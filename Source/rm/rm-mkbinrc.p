@@ -224,6 +224,9 @@ PROCEDURE rm-mkbin-i:
   IF bf-rm-rcpth.rita-code EQ "C"
      AND ld-cst NE 0 THEN 
      bf-rm-bin.cost = ld-cst.
+ 
+  IF bf-rm-rcpth.po-no NE "" AND bf-rm-bin.po-no EQ 0 THEN 
+     bf-rm-bin.po-no = INTEGER(bf-rm-rcpth.po-no).
      
   IF INDEX("RATC",bf-rm-rcpth.rita-code) NE 0 THEN DO:
 

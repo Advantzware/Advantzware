@@ -83,11 +83,13 @@ FOR EACH gl-jrn WHERE gl-jrn.company EQ cocode
                          WHEN "rev"   THEN cVarValue = STRING(lv-rev,"X(3)") .
                          
                     END CASE.
+                    
+                    IF cTmpField = "date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",gl-jrn.tr-date) .
                       
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.
@@ -262,11 +264,14 @@ FOR EACH gl-jrn WHERE gl-jrn.company EQ cocode
                          WHEN "credit"   THEN cVarValue = IF cred NE 0 THEN STRING(cred,"->>,>>>,>>9.99") ELSE ""  .
                          WHEN "rev"   THEN cVarValue = STRING(lv-rev,"X(3)") .
                     END CASE.
+                    
+                    IF cTmpField = "date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",gl-jrn.tr-date) .
                       
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.

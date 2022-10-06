@@ -54,6 +54,9 @@ DEFINE VARIABLE cFieldType          AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE iColumnLength       AS INTEGER    NO-UNDO.
 DEFINE VARIABLE  cTextListToDefault AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER  NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 DEFINE BUFFER b-itemfg FOR itemfg .
 
@@ -387,6 +390,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Quoted Price List */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -480,6 +484,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    APPLY "close" TO THIS-PROCEDURE.
 END.
 
@@ -528,7 +533,7 @@ DO:
            END.
            END.
         WHEN 4 THEN DO:
-           IF NOT tb_OpenCSV THEN DO:        
+              IF NOT tb_OpenCSV THEN DO:        
                   MESSAGE "CSV file have been created." SKIP(1)
                            "~"OK"~"Want to open CSV file?"
                   VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
@@ -539,7 +544,10 @@ DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
               END.
-           END. /* WHEN 4 THEN DO: */
+              ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+              END.
+        END. /* WHEN 4 THEN DO: */
 
   END CASE. 
   
@@ -1429,11 +1437,14 @@ SESSION:SET-WAIT-STATE("general").
                          WHEN "date"         THEN cVarValue = STRING(v_quo-dt) .
 
                     END CASE.
+                    
+                    IF cTmpField = "date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v_quo-dt) .
 
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
@@ -1453,8 +1464,6 @@ SESSION:SET-WAIT-STATE("general").
 /* gdm - 10130808 */
     IF rd-dest = 4 THEN DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
 /* gdm - 10130807 */

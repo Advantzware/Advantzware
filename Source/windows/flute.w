@@ -361,7 +361,11 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/stack-fl.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Initial-Lock = NO-LOCK,
+                     Hide-on-Init = no,
+                     Disable-on-Init = no,
+                     Layout = ,
+                     Create-On-Add = Yes':U ,
              OUTPUT h_stack-fl ).
        RUN set-position IN h_stack-fl ( 4.81 , 9.00 ) NO-ERROR.
        RUN set-size IN h_stack-fl ( 17.86 , 141.00 ) NO-ERROR.

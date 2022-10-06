@@ -196,6 +196,22 @@ PROCEDURE GL_CloseMonthModule:
 
 END PROCEDURE.
 
+PROCEDURE GL_CheckRunBalance:
+    /*------------------------------------------------------------------------------
+     Purpose: close sub ledger of month 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany          AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT PARAMETER ipiTrNumber         AS INTEGER     NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdAmountBalance   AS DECIMAL     NO-UNDO.     
+    DEFINE OUTPUT PARAMETER oplUnBalance       AS LOGICAL     NO-UNDO.
+    
+    RUN pCheckRunBalance(INPUT ipcCompany, INPUT ipiTrNumber, OUTPUT opdAmountBalance, OUTPUT oplUnBalance).       
+    
+
+END PROCEDURE.
+
 PROCEDURE pCloseMonthModule PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: close sub ledger of month 
@@ -262,7 +278,32 @@ PROCEDURE pCloseMonthModule PRIVATE:
 
 END PROCEDURE.
 
-
+PROCEDURE pCheckRunBalance PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: close sub ledger of month 
+     Notes:
+     Syntax:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany          AS CHARACTER   NO-UNDO.    
+    DEFINE INPUT PARAMETER ipiTrNumber         AS INTEGER     NO-UNDO.    
+    DEFINE OUTPUT PARAMETER opdAmountBalance   AS DECIMAL     NO-UNDO.     
+    DEFINE OUTPUT PARAMETER oplUnBalance       AS LOGICAL     NO-UNDO.
+    
+    DEFINE VARIABLE dBalanceAmount AS DECIMAL NO-UNDO.
+    DEFINE BUFFER bf-glhist FOR glhist.
+    
+    FOR EACH bf-glhist NO-LOCK
+        WHERE bf-glhist.company EQ ipcCompany
+          AND bf-glhist.tr-num EQ ipiTrNumber:
+                 
+          ASSIGN
+            dBalanceAmount = dBalanceAmount + bf-glhist.tr-amt .
+    END.
+    IF dBalanceAmount NE 0 THEN
+    ASSIGN 
+        opdAmountBalance = -(dBalanceAmount)
+        oplUnBalance = YES.
+END PROCEDURE.
 
 PROCEDURE pGetAccountAR PRIVATE:
     /*------------------------------------------------------------------------------

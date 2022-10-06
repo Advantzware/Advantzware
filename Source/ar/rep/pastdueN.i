@@ -53,6 +53,10 @@ DEFINE SHARED VARIABLE cFieldType         AS cha       NO-UNDO.
 DEFINE SHARED VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE SHARED BUFFER b-itemfg FOR itemfg .
 DEFINE SHARED VARIABLE cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR cslist AS cha NO-UNDO.
@@ -244,12 +248,15 @@ FOR EACH cust
                     WHEN "curr"      THEN 
                         cVarValue = STRING(v-dec[1],"->>>>>>>>9.99")  .         
                                                              
-                END CASE.                                       
+                END CASE.
+                
+                IF cTmpField = "inv-dt" THEN 
+                   cExcelVarValue = IF ar-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) ELSE "".
              
-                cExcelVarValue = cVarValue.
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
 
             END.
      
@@ -367,10 +374,13 @@ FOR EACH cust
                                                                         
                                 END CASE.                                       
                         
-                                cExcelVarValue = cVarValue.
+                                IF cTmpField = "inv-dt" THEN 
+                                   cExcelVarValue = IF ar-cash.check-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) ELSE "".
+                        
+                                ELSE cExcelVarValue = cVarValue.
                                 cDisplay = cDisplay + cVarValue +
                                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                             END.
                 
                             PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
@@ -432,12 +442,15 @@ FOR EACH cust
                                 WHEN "curr"      THEN 
                                     cVarValue = STRING(0,"->>>>>>>>9.99")  .         
                                                                     
-                            END CASE.                                       
+                            END CASE.
+                            
+                            IF cTmpField = "inv-dt" THEN 
+                                   cExcelVarValue = IF ar-cash.check-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) ELSE "".
                     
-                            cExcelVarValue = cVarValue.
+                            ELSE cExcelVarValue = cVarValue.
                             cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                         END.
             
                         PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
@@ -504,12 +517,15 @@ FOR EACH cust
                                 WHEN "curr"      THEN 
                                     cVarValue = STRING(0,"->>>>>>>>9.99")  .         
                                                                     
-                            END CASE.                                       
+                            END CASE.
+                            
+                            IF cTmpField = "inv-dt" THEN 
+                                   cExcelVarValue = IF ar-cash.check-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) ELSE "".
                     
-                            cExcelVarValue = cVarValue.
+                            ELSE cExcelVarValue = cVarValue.
                             cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                         END.
             
                         PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
@@ -690,12 +706,16 @@ FOR EACH cust
                         WHEN "curr"      THEN 
                             cVarValue = STRING(unapp[1],"->>>>>>>>9.99")  .         
                                                                     
-                    END CASE.                                       
+                    END CASE.
                     
-                    cExcelVarValue = cVarValue.
+                    IF cTmpField = "inv-dt" THEN 
+                       cExcelVarValue = IF ar-cash.check-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) ELSE "".
+                    
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                 END.
             
                 PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
@@ -763,12 +783,15 @@ FOR EACH cust
                         WHEN "curr"      THEN 
                             cVarValue = STRING(0,"->>>>>>>>9.99")  .         
                                                                     
-                    END CASE.                                       
+                    END CASE.
                     
-                    cExcelVarValue = cVarValue.
+                    IF cTmpField = "inv-dt" THEN 
+                       cExcelVarValue = IF ar-cash.check-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) ELSE "".
+                    
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                 END.
             
                 PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
@@ -946,6 +969,7 @@ FOR EACH cust
         v-cr-db-amt = 0
         v-disc-amt  = 0.
 END.  /* for each cust record */
+
   
 RETURN.
  

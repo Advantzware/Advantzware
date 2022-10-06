@@ -67,6 +67,9 @@ DEFINE VARIABLE cFieldType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN cTextListToSelect = "Job#,RM Item#,Form#,User1,Date1,Time1,Est#,User2,Date2,Time2,PO#,User3,Date3,Time3"
@@ -426,6 +429,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Job/Est/PO Audit */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -460,6 +464,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -489,7 +494,7 @@ DO:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN DO:
-           IF NOT tb_OpenCSV THEN DO:        
+              IF NOT tb_OpenCSV THEN DO:        
                   MESSAGE "CSV file have been created." SKIP(1)
                            "~"OK"~"Want to open CSV file?"
                   VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
@@ -499,6 +504,9 @@ DO:
                   DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
+              END.
+              ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
               END.
            END. /* WHEN 3 THEN DO: */
   END CASE. 
@@ -1287,10 +1295,16 @@ FOR EACH job NO-LOCK
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF  cTmpField = "date" THEN
+                         cExcelVarValue = IF AVAIL j-audit THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(j-audit.code)) ELSE "".
+                    ELSE IF  cTmpField = "date2" THEN
+                         cExcelVarValue = IF AVAIL e-audit THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(e-audit.code)) ELSE "".
+                    ELSE IF  cTmpField = "date3" THEN
+                         cExcelVarValue = IF AVAIL p-audit THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(p-audit.code)) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
@@ -1302,8 +1316,6 @@ END.
 
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
-  IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
