@@ -1383,7 +1383,7 @@ PROCEDURE pAddGlue PRIVATE:
                 ttGlue.cItemID       = bf-item.i-no
                 ttGlue.cDescription  = IF bf-item.est-dscr NE "" THEN bf-item.est-dscr ELSE bf-item.i-name
                 ttGlue.cMaterialType = bf-item.mat-type
-                ttGlue.cQtyUOM       = bf-item.cons-uom   
+                ttGlue.cQtyUOM       = IF bf-item.cons-uom NE "" THEN bf-item.cons-uom ELSE "LB"
                 ttGlue.dMinLbsPerJob = bf-item.min-lbs
                 .
         END.
