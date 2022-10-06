@@ -6979,7 +6979,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO ttTempUser.
         ASSIGN 
-            ttTempUser._Password = ENCODE("Boxco2020!").
+            ttTempUser._Password = ENCODE("Adv*2*2!").
         DELETE _User.
         CREATE _User.
         BUFFER-COPY ttTempUser EXCEPT _tenantid TO _User.
@@ -6988,7 +6988,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = ENCODE("Boxco2020!").
+            _User._Password = ENCODE("Adv*2*2!").
     END.
 
     RELEASE _user.
