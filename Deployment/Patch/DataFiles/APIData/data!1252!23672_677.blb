@@ -1,0 +1,12 @@
+{
+    "rec_key" : "$Rec_key$",
+    "estCostSummaryID" : "$EstCostSummaryID$",
+    "estCostGroupID" : "$EstCostGroupID$",
+    "scopeType" : "$ScopeType$",
+    "costTotal" : "$CostTotal$",
+    "costTotalPerMFinished" : "$CostTotalPerMFinished$",
+    "scopeRecKey" : "$ScopeRecKey$",
+    "company" : "$Company$",
+    "estimateNo" : "$EstimateNo$",
+    "estCostHeaderID" : "$EstCostHeaderID$"
+}$comma$
