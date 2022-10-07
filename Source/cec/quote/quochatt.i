@@ -78,12 +78,17 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                 THEN itemfg.i-name
                 ELSE xqitm.part-dscr1.
      
-      
+            IF LENGTH(xqitm.part-no) LE 15 THEN
             PUT SKIP "<C1><B>" TRIM(lv-est-no) FORM "x(8)" "</B>"
                 "<C8>"xqitm.part-no FORMAT "x(15)" SPACE(1)
               
                 /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
-                "<C21>" TRIM(lv-part-dscr1)  FORMAT "x(30)". 
+                "<C21>" TRIM(lv-part-dscr1)  FORMAT "x(30)".
+            ELSE do:
+                PUT SKIP "<C1><B>" TRIM(lv-est-no) FORM "x(8)" "</B>"
+                    "<C8>"xqitm.part-no FORMAT "x(30)" SKIP
+                    "<C21>" TRIM(lv-part-dscr1)  FORMAT "x(30)".
+            END.
    
         END.
 

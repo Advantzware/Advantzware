@@ -88,10 +88,18 @@ FOR EACH xqitm OF xquo NO-LOCK
                                   est.est-type EQ 6 AND 
                                  AVAIL itemfg 
                                 THEN itemfg.i-name ELSE xqitm.part-dscr1.
+            IF length(xqitm.part-no) LE 18 THEN
             PUT 
 /*                 TRIM(lv-est-no) FORM "x(5)" AT 2 */
-                xqitm.part-no AT 1 FORMAT "x(21)"
-                TRIM(lv-part-dscr1) AT 22 FORMAT "x(28)".
+                "<C1>"xqitm.part-no FORMAT "x(18)"
+                "<C16>" TRIM(lv-part-dscr1) FORMAT "x(28)".
+            ELSE DO:
+               put "<C1>" xqitm.part-no FORM "x(30)" . 
+               IF lv-part-dscr1 NE "" THEN
+               PUT
+                 SKIP
+                 "<C16>" TRIM(lv-part-dscr1) FORMAT "x(30)" . 
+            END.    
         END. /* IF i EQ 1 */
         ELSE IF i EQ 2 THEN DO:            
             trim-size = "".
@@ -101,7 +109,7 @@ FOR EACH xqitm OF xquo NO-LOCK
                    trim-size = trim(STRING(eb.len)) + " x " + trim(STRING(eb.wid))
                           + " x " + trim(STRING(eb.dep)).
               ELSE trim-size = xqitm.SIZE /*""*/ .
-              PUT     trim-size AT 22 FORM "x(30)"
+              PUT  "<C16>" trim-size  FORM "x(30)"
                       /*xqitm.style*/ /* style-dscr */  .
         END. /* IF i EQ 3 */
         ELSE IF i EQ 3 THEN DO:            
@@ -121,12 +129,12 @@ FOR EACH xqitm OF xquo NO-LOCK
                /*IF AVAIL eb 
                  THEN eb.cad-no 
                  ELSE ""        AT 1 FORMAT "x(21)"*/
-               lv-part-dscr2    AT 22 FORMAT "x(28)".
+               "<C16>" lv-part-dscr2   FORMAT "x(28)".
 /*                 lv-i-coldscr AT 22 FORM "x(28)". */
         END. /* IF i EQ 3 */
         ELSE IF i EQ 4 THEN DO:
             PUT    /* "DIE#: " + IF AVAIL eb THEN eb.die-no ELSE "" AT 8 FORM "x(21)"*/
-            xqitm.i-coldscr  AT 22 FORM "x(40)" .
+           "<C16>" xqitm.i-coldscr FORM "x(40)" .
         END. /* IF i EQ 4 */
         ELSE IF i EQ 5 THEN DO:
             PUT /*"CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)"         */
