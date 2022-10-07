@@ -134,7 +134,7 @@ ef.leaf-dscr[4] ef.leaf-snum[4] ef.leaf-bnum[4] ef.leaf-w[4] ef.leaf-l[4]
 &Scoped-define DISPLAYED-TABLES ef eb
 &Scoped-define FIRST-DISPLAYED-TABLE ef
 &Scoped-define SECOND-DISPLAYED-TABLE eb
-&Scoped-Define DISPLAYED-OBJECTS dtCost OverrideExist 
+&Scoped-Define DISPLAYED-OBJECTS fiWtPerTon dtCost OverrideExist 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -214,6 +214,11 @@ DEFINE VARIABLE dtCost AS CHARACTER FORMAT "X(8)":U INITIAL "Cost/"
 DEFINE VARIABLE OverrideExist AS CHARACTER FORMAT "X(16)":U INITIAL "Overrides Exist" 
      VIEW-AS FILL-IN 
      SIZE 19.4 BY 1 NO-UNDO.
+     
+DEFINE VARIABLE fiWtPerTon AS DECIMAL FORMAT "->>,>>9.99<<":U INITIAL 0 
+     LABEL "WT Per Ton" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.        
 
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -261,7 +266,8 @@ DEFINE FRAME fold
           SIZE 16 BY 1
      ef.brd-dscr AT ROW 2.43 COL 28 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
-          SIZE 63 BY 1
+          SIZE 40 BY 1
+     fiWtPerTon AT ROW 2.48 COL 88.6 COLON-ALIGNED WIDGET-ID 18     
      ef.i-code AT ROW 2.19 COL 111 COLON-ALIGNED
           LABEL "Real"
           VIEW-AS FILL-IN 
@@ -555,6 +561,8 @@ ASSIGN
    5                                                                    */
 /* SETTINGS FOR FILL-IN ef.fr-uom IN FRAME fold
    5 EXP-LABEL                                                          */
+/* SETTINGS FOR FILL-IN fiWtPerTon IN FRAME Corr
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN ef.gsh-len IN FRAME fold
    5 EXP-LABEL EXP-FORMAT                                               */
 ASSIGN 
@@ -2725,6 +2733,7 @@ PROCEDURE local-display-fields :
 
   END.  /* page - 4 */
   gvl-first = FALSE.
+  RUN pDisplayWtPerTon(eb.eqty, ef.board).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3315,6 +3324,43 @@ PROCEDURE proc-enable :
   DO WITH FRAME {&FRAME-NAME}:
       btn_board:HIDDEN = TRUE .
       btn_cost:HIDDEN = TRUE .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayWtPerTon V-table-Win 
+PROCEDURE pDisplayWtPerTon :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiQty   AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcBoard AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+  FIND FIRST item NO-LOCK
+       WHERE item.company EQ cocode
+       AND item.i-no    EQ ipcBoard
+       NO-ERROR.
+  
+  IF AVAIL item THEN DO:        
+       IF ITEM.cons-uom EQ "TON" THEN
+         dResult = ipiQty.
+       ELSE
+         RUN custom/convquom.p(cocode, item.cons-uom,"TON", item.basis-w,
+                               (IF item.r-wid EQ 0 THEN item.s-len
+                                                    ELSE 12),
+                                (IF item.r-wid EQ 0 THEN item.s-wid
+                                                    ELSE item.r-wid),
+                                item.s-dep,                    
+                                ipiQty, OUTPUT dResult).
+  END.         
+         
+  DO WITH FRAME {&FRAME-NAME}:
+     fiWtPerTon:SCREEN-VALUE = string(dResult) .
   END.
 
 END PROCEDURE.
