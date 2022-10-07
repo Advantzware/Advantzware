@@ -113,8 +113,21 @@ RUN methods/prgsecur.p
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lCADFile AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCADFile AS CHARACTER NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CADFILE", "L" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     lCADFile = logical(cRecValue) NO-ERROR. 
+RUN sys/ref/nk1look.p (INPUT cocode, "CADFILE", "C" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     cCADFile = cRecValue NO-ERROR.     
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -980,7 +993,7 @@ DO:
     cArtiosCAD = cRecValue NO-ERROR.
     
   ASSIGN
-    initDir = cArtiosCAD
+    initDir = IF lArtiosCAD THEN cArtiosCAD ELSE IF lCADFile THEN cCADFile ELSE cArtiosCAD.
     cadfile = ''.
   IF lArtiosCAD THEN
      iInitialFilter = 2.

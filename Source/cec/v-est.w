@@ -148,6 +148,14 @@ RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
+DEFINE VARIABLE lCADFile AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CADFILE", "L" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     lCADFile = logical(cRecValue) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1231,8 +1239,9 @@ DO:
     lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
   
   
+      
   ASSIGN
-    initDir = cArtiosCAD 
+    initDir = IF lArtiosCAD THEN cArtiosCAD ELSE IF lCADFile THEN lv-cad-path ELSE cArtiosCAD
     cadFile = ''.
   IF lArtiosCAD THEN
    iInitialFilter = 2.
