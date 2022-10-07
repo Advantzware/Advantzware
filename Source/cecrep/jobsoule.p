@@ -996,10 +996,6 @@ do v-local-loop = 1 to v-local-copies:
             PAGE.
          END. /* i > 1*/
       END. /* set header printing  est.est-type = 6 */
-
-
-      RUN pPrintAttachImage(job-hdr.i-no).
-      
     end.  /* each job */
     end.  /* end v-local-loop  */
  
