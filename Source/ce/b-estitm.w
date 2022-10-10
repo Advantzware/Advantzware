@@ -3716,13 +3716,14 @@ PROCEDURE local-assign-record :
      ll-crt-itemfg = NO.
   END.
 
-  IF eb.stock-no NE "" AND eb.part-dscr2 EQ "" THEN DO:
+  IF eb.stock-no NE "" AND (eb.part-dscr2 EQ "" OR eb.cad-no EQ "") THEN DO:
     FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company    EQ eb.company
           AND itemfg.i-no       EQ eb.stock-no
           AND itemfg.part-dscr1 NE ""
         NO-ERROR.
-    IF AVAIL itemfg THEN eb.part-dscr2 = itemfg.part-dscr1.
+    IF AVAIL itemfg AND eb.part-dscr2 EQ "" THEN eb.part-dscr2 = itemfg.part-dscr1.
+    IF AVAIL itemfg AND eb.cad-no EQ "" THEN eb.cad = itemfg.cad-no.
   END. 
 
   /*== Qty assignment ==*/
