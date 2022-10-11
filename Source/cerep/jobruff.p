@@ -1258,7 +1258,7 @@ PROCEDURE pPrintData:
          
             lv-line-chars = 80.
             FIND FIRST job OF job-hdr NO-LOCK NO-ERROR.       
-            {custom/notespr5.i job v-inst2 40 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ tt-reftable.val[12] OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
+            {custom/notespr10.i job v-inst2 40 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ tt-reftable.val[12] OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
             DO i = 1 TO 40:
                 v-dept-inst[i] = v-inst2[i].
             END.
