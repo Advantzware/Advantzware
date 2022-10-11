@@ -32,13 +32,13 @@ DEF VAR v-phone-num         AS   CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR v-dock-note AS   CHAR FORMAT "x(20)" NO-UNDO.
 
 DEF VAR v-ship-name  LIKE shipto.ship-name NO-UNDO.
-DEF VAR v-ship-addr  LIKE shipto.ship-addr NO-UNDO.
+DEF VAR v-ship-addr  LIKE shipto.ship-addr EXTENT 3 NO-UNDO.
 DEF VAR v-ship-city  LIKE shipto.ship-city NO-UNDO.
 DEF VAR v-ship-state LIKE shipto.ship-state NO-UNDO.
 DEF VAR v-ship-zip   LIKE shipto.ship-zip NO-UNDO.
-DEF VAR v-ship-addr3 AS   CHAR FORMAT "x(30)" NO-UNDO.
+DEF VAR v-ship-cityline AS   CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-name  LIKE company.name NO-UNDO.
-DEF VAR v-comp-addr  LIKE company.addr NO-UNDO.
+DEF VAR v-comp-addr  LIKE company.addr EXTENT 3 NO-UNDO.
 DEF VAR v-comp-city  LIKE company.city NO-UNDO.
 DEF VAR v-comp-state LIKE company.state NO-UNDO.
 DEF VAR v-comp-zip   LIKE company.zip NO-UNDO.
@@ -199,13 +199,16 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
      v-ship-name    = shipto.ship-name
      v-ship-addr[1] = shipto.ship-addr[1]
      v-ship-addr[2] = shipto.ship-addr[2]
-     v-ship-addr3   = shipto.ship-city + ", " +
+     v-ship-addr[3] = shipto.spare-char-3
+     v-ship-cityline   = shipto.ship-city + ", " +
                       shipto.ship-state + "  " +
-                      shipto.ship-zip
+                      shipto.ship-zip + "  " +
+                      shipto.country
      v-phone-num    = cust.area-code + cust.phone
      v-comp-name    = cust.name
      v-comp-addr[1] = cust.addr[1]
      v-comp-addr[2] = cust.addr[2]
+     v-comp-addr[3] = cust.spare-char-3
      v-comp-addr3   = cust.city + ", " +
                       cust.state + "  " +
                       cust.zip
@@ -222,16 +225,25 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     
     IF TRIM(v-comp-addr3) EQ "," THEN v-comp-addr3 = "".
               
+    IF v-comp-addr[3] EQ "" THEN
+      ASSIGN
+       v-comp-addr[3] = v-comp-addr3
+       v-comp-addr3   = "".          
     IF v-comp-addr[2] EQ "" THEN
       ASSIGN
-       v-comp-addr[2] = v-comp-addr3
-       v-comp-addr3   = "".
+       v-comp-addr[2] = v-comp-addr[3]
+       v-comp-addr[3]   = "".
+    
+    IF v-ship-addr[3] EQ "" THEN
+      ASSIGN
+       v-ship-addr[3] = v-ship-cityline
+       v-ship-cityline   = "".
     IF v-ship-addr[2] EQ "" THEN
       ASSIGN
-       v-ship-addr[2] = v-ship-addr3
-       v-ship-addr3   = "".
+       v-ship-addr[2] = v-ship-addr[3]
+       v-ship-addr[3] = "".
 
-    IF TRIM(v-ship-addr3) EQ "," THEN v-ship-addr3 = "".
+    IF TRIM(v-ship-cityline) EQ "," THEN v-ship-cityline = "".
     IF TRIM(v-cust-addr3) EQ "," THEN v-cust-addr3 = "".
 
     ASSIGN
@@ -329,12 +341,23 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
      oe-boll.printed = YES.
   END.
   IF LAST-OF(oe-bolh.bol-no) THEN DO:
-     IF v-comp-addr[2] = "" THEN
-           ASSIGN v-comp-addr[2] = v-comp-addr3
-                  v-comp-addr3 = "".
-     IF v-ship-addr[2] = "" THEN
-           ASSIGN v-ship-addr[2] = v-ship-addr3
-                  v-ship-addr3 = "".
+     IF v-comp-addr[3] EQ "" THEN
+      ASSIGN
+       v-comp-addr[3] = v-comp-addr3
+       v-comp-addr3   = "".          
+    IF v-comp-addr[2] EQ "" THEN
+      ASSIGN
+       v-comp-addr[2] = v-comp-addr[3]
+       v-comp-addr[3]   = "".
+    
+    IF v-ship-addr[3] EQ "" THEN
+      ASSIGN
+       v-ship-addr[3] = v-ship-cityline
+       v-ship-cityline   = "".
+    IF v-ship-addr[2] EQ "" THEN
+      ASSIGN
+       v-ship-addr[2] = v-ship-addr[3]
+       v-ship-addr[3] = "".
 
      /* duplicate loop for total freight */
      ASSIGN

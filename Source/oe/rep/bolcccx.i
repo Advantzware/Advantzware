@@ -168,21 +168,20 @@ for each report where report.term-id eq v-term-id,
              END.
     END.
 
-    DISPLAY  {1}
-          oe-ordl.part-no   WHEN AVAIL oe-ordl 
-          oe-boll.po-no 
-          oe-ordl.i-name FORM "x(27)"
-          /*oe-boll.tag*/ oe-boll.lot-no  FORM "x(20)"
-          /*oe-boll.i-no WHEN oe-boll.tag = "" @ oe-boll.tag*/
-          lv-pal-tot FORM ">>>,>>9"
-          lv-cases-tot FORM "->>>>>" AT 90 "@" 
-          lv-qcase-tot FORM "->>>>>"           
+    
+    IF AVAIL oe-ordl THEN PUT "<C1>" oe-ordl.part-no FORMAT "x(15)" "<C23>" oe-ordl.i-name FORM "x(25)".
       
-        
-         lv-qty-tot FORM "->>>>>>>"
-                
-         with frame bol-mid1 NO-BOX NO-LABELS STREAM-IO NO-ATTR-SPACE WIDTH 130.
-    down {1} with frame bol-mid1.
+    PUT 
+      "<C12>"oe-boll.po-no FORMAT "X(15)"
+      "<C42>" oe-boll.lot-no  FORM "x(20)"
+      "<C58>" lv-pal-tot FORM ">>>,>>9"
+      "<C64>" lv-cases-tot FORM "->>>>>"
+      "<C68.5>@"
+      "<C70>" lv-qcase-tot FORM "->>>>>"
+      "<C74.5>" lv-qty-tot FORM "->>>>>>>"
+      SKIP
+      .
+          
     v-printline = v-printline + 1.
 
     IF v-printline >= 50 THEN DO:
@@ -209,9 +208,10 @@ for each report where report.term-id eq v-term-id,
     IF oe-ordl.part-dscr1 <> "" OR v-unit-qty <> "" /*OR v-lot-no <> ""*/ OR v-job-no <> "" THEN DO:
        PUT {1}
           v-job-no
-          oe-ordl.part-dscr1 AT 33 FORM "x(27)"
-          /*v-lot-no AT 61 FORM "X(15)"*/
-          v-unit-qty AT 91 FORM "x(15)"  
+          "<C23>" oe-ordl.part-dscr1 FORM "x(27)"
+          /*v-lot-no AT 61 FORM "X(15)"*/  
+          "<C64>" v-unit-qty FORM "x(15)"
+          SKIP
           .
         v-printline = v-printline + 1.
     END.
@@ -219,7 +219,7 @@ for each report where report.term-id eq v-term-id,
     IF cPrintFormat EQ "CCC" AND iIntValue EQ 1 THEN do:
       PUT {1} SKIP.   
       PUT "<C1>Quantity Ordered: "  trim(STRING(oe-ordl.qty,"->>,>>>,>>9")) FORMAT "x(12)"
-          "<C22> Quantity Shipped: " trim(STRING(iShipQty,"->>,>>>,>>9"))  FORMAT "x(12)"
+          "<C22.2> Quantity Shipped: " trim(STRING(iShipQty,"->>,>>>,>>9"))  FORMAT "x(12)"
           "<C44> Balance Due: " trim(STRING(oe-ordl.qty - iShipQty,"->>,>>>,>>9")) FORMAT "x(12)" .        
     END.
 
