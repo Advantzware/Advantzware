@@ -193,7 +193,7 @@ asi.itemfg.i-no eq "###" NO-LOCK ~
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS tb_act fi_i-no fi_part-no fi_cust-no ~
 fi_i-name fi_est-no fi_style fi_procat tb_in-act btn_go btn_next btn_show ~
-fi_FGMaster r_table 
+r_table 
 &Scoped-Define DISPLAYED-OBJECTS tb_act fi_i-no fi_part-no fi_cust-no ~
 fi_i-name fi_est-no fi_style fi_procat tb_in-act fi_sort-by fi_FGMaster 
 
