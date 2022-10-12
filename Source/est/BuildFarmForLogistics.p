@@ -26,6 +26,7 @@ DEFINE VARIABLE cVendorItem         AS CHARACTER NO-UNDO INITIAL "In-house Manuf
 DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMiscEstimateSource AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCount              AS INTEGER   NO-UNDO.
 
 DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
 DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
@@ -98,6 +99,10 @@ DO:
         bf-vendItemCost.expirationDate = 12/31/2099
         .
 END.
+iCount = 0.
+FOR EACH ttQuantityCost:
+iCount = iCount + 1.
+END.
 FOR EACH ttQuantityCost:
     FIND FIRST bf-vendItemCostLevel EXCLUSIVE-LOCK
         WHERE bf-vendItemCostLevel.vendItemCostID EQ bf-vendItemCost.vendItemCostID
@@ -112,6 +117,7 @@ FOR EACH ttQuantityCost:
             .
     END.
     bf-vendItemCostLevel.costPerUOM = ttQuantityCost.dCostPerEA.
+    IF iCount EQ 1 THEN bf-vendItemCostLevel.quantityBase = DYNAMIC-FUNCTION("VendCost_GetUnlimitedQuantity").
 END.
 RUN RecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
 
