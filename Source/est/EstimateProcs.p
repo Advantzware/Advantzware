@@ -796,7 +796,7 @@ PROCEDURE Estimate_UpdateEstDependencies:
 
     IF ipiNewBlankNo EQ 0 THEN DO:
         FOR EACH bf-loop-reftable NO-LOCK
-            WHERE bf-loop-reftable.reftable EQ "bf-est-MISC"
+            WHERE bf-loop-reftable.reftable EQ "EST-MISC"
               AND bf-loop-reftable.company  EQ ipcCompany
               AND bf-loop-reftable.loc      EQ ipcLocation
               AND bf-loop-reftable.code     EQ TRIM(ipcEstNo) + STRING(ipiFormNo,"/99"):
