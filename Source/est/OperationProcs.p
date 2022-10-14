@@ -396,12 +396,12 @@ PROCEDURE BuildEstimateRouting:
     DEFINE INPUT PARAMETER ipiFormNo          AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdEstQty          AS DECIMAL NO-UNDO.
     
-    RUN pBuildRouting (ipcCompany, ipcEstimateNo, ipiFormNo, ipdEstQty).
+    RUN BuildEstimateRoutingTT (ipcCompany, ipcEstimateNo, ipiFormNo, ipdEstQty).
     RUN pAddEstOPFromRouting (ipcCompany, ipcEstimateNo, ipdEstQty).
     
 END.
 
-PROCEDURE pBuildRouting:
+PROCEDURE BuildEstimateRoutingTT:
 /*------------------------------------------------------------------------------
     Purpose:  procedure to calculate the machine routings
     Notes:
@@ -3470,7 +3470,7 @@ PROCEDURE pGetOperationTT:
    
 END.
 
-PROCEDURE pGetRoutingTT:
+PROCEDURE GetEstimateRoutingTT:
    
    DEFINE OUTPUT PARAMETER TABLE FOR ttRouting.
    

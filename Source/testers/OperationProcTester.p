@@ -34,8 +34,8 @@ SESSION:ADD-SUPER-PROCEDURE (hdSession).
 // RUN pChangeOperation.
 //RUN ClearAttributes IN hdOpProcs.
 //RUN pGetOperationStandardsSingle(gcCompany, gcEstimateID).
-//RUN pBuildRoutingTest.
-RUN pBuildEstOPTest.
+RUN pBuildRoutingTest.
+//RUN pBuildEstOPTest.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -59,9 +59,9 @@ PROCEDURE pBuildRoutingTest PRIVATE:
             VIEW-AS ALERT-BOX.
         RETURN.
     END.
-    RUN pBuildRouting IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
+    RUN BuildEstimateRoutingTT IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
     
-    RUN pGetRoutingTT IN hdOpProcs (OUTPUT TABLE ttRouting).
+    RUN GetEstimateRoutingTT IN hdOpProcs (OUTPUT TABLE ttRouting).
     
     FOR EACH ttRouting:
         
