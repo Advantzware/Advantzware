@@ -3834,7 +3834,8 @@ DO:
 /*              iTotalProdQty = iTotalProdQty + fg-rdtlh.qty. */
 /*         END.                                               */
 /*      ELSE                                                  */
-   IF oe-ordl.job-no NE "" THEN do:
+   IF oe-ordl.job-no NE "" THEN DO:
+        iTotalProdQty = 0.
         FOR EACH job NO-LOCK
             WHERE job.company EQ oe-ord.company
               AND job.job-no EQ oe-ordl.job-no: 
