@@ -3834,14 +3834,20 @@ DO:
 /*              iTotalProdQty = iTotalProdQty + fg-rdtlh.qty. */
 /*         END.                                               */
 /*      ELSE                                                  */
-   IF oe-ordl.job-no NE "" THEN 
-   RUN fg/GetProductionQty.p (INPUT oe-ord.company,
-                                INPUT oe-ordl.job-no,
-                                INPUT oe-ordl.job-no2,
-                                INPUT oe-ordl.i-no,
-                                INPUT NO,
-                                OUTPUT iJobProdQty).
-   iTotalProdQty =  iJobProdQty.   
+   IF oe-ordl.job-no NE "" THEN DO:
+        iTotalProdQty = 0.
+        FOR EACH job NO-LOCK
+            WHERE job.company EQ oe-ord.company
+              AND job.job-no EQ oe-ordl.job-no: 
+            RUN fg/GetProductionQty.p (INPUT oe-ord.company,
+                                   INPUT oe-ordl.job-no,
+                                   INPUT job.job-no2,
+                                   INPUT oe-ordl.i-no,
+                                   INPUT NO,
+                                   OUTPUT iJobProdQty).
+            iTotalProdQty = iTotalProdQty + iJobProdQty.   
+        END.
+   END.        
 
     IF oe-ordl.po-no-po NE 0 THEN
         FOR EACH fg-rcpth FIELDS(r-no rita-code)
