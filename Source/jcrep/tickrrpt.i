@@ -25,9 +25,9 @@ DO li = 1 TO NUM-ENTRIES(spec_codes):
 END.
 
 /*FibreFC,*/
-IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Coburn,Knight***",lv-format-f) THEN 
+IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
   lines-per-page = 50. /*55*/
-ELSE IF tb_fold AND CAN-DO("Carded2",lv-format-f) THEN 
+ELSE IF tb_fold AND CAN-DO("GPI-STN",lv-format-f) THEN 
   lines-per-page = 55 /* 55 lines-per-page*/.
 ELSE IF tb_fold AND CAN-DO("FibreFC,HPB,METRO,Dee",lv-format-f) THEN 
   lines-per-page = 70 /* 58 lines-per-page*/.
@@ -306,6 +306,7 @@ IF ip-industry EQ "Fold" AND tb_fold AND
     lv-format-f EQ "Carded"     OR
     lv-format-f EQ "McLean"     OR 
     lv-format-f EQ "Carded2"     OR
+    lv-format-f EQ "GPI-STN"     OR
     lv-format-f EQ "Coburn"     OR
     lv-format-f EQ "Knight***") THEN
   RUN cerep/jobcbox3.p.
@@ -362,7 +363,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 /*Change similar lines in jcrep\r-tickt2.w can-do ... in multiple places*/
 is-xprint-form = (ip-industry EQ "Corr") OR 
-                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Burt,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry",lv-format-f).
+                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry",lv-format-f).
 
 IF is-xprint-form THEN DO:
 
@@ -414,7 +415,7 @@ END.
 /* FOLDING */
 IF ip-industry EQ "Fold" THEN DO:
     /* Colonial */
-   IF NOT CAN-DO('ASI,CentBox,Henry,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,CCC-Hybrid,xml,Carded,McLean,Carded2,Coburn,Knight***,ruffino',lv-format-f) THEN spec-list = "".
+   IF NOT CAN-DO('ASI,CentBox,Henry,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,CCC-Hybrid,xml,Carded,McLean,Carded2,GPI-STN,Coburn,Knight***,ruffino',lv-format-f) THEN spec-list = "".
    
    if  lv-format-f = 'Indiana-XL'      and 
        (logical (tb_RS:screen-value in frame {&frame-name}) = true or
@@ -502,6 +503,9 @@ IF ip-industry EQ "Fold" THEN DO:
    END.
    ELSE IF lv-format-f EQ "Carded2" THEN DO:  /* task 10281309   */  
      RUN cerep/jobcard2.p (lv-format-f).
+   END.
+   ELSE IF lv-format-f EQ "GPI-STN" THEN DO:   
+     RUN cerep/jobcardGpi.p (lv-format-f).
    END.
    ELSE IF lv-format-f EQ "Coburn" THEN DO:  
      RUN cerep/jobcobrn.p (lv-format-f).

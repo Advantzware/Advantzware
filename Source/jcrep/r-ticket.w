@@ -1874,7 +1874,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         lv-default-f      = sys-ctrl.char-fld
         dDecimalFoldValue = sys-ctrl.dec-fld .
     IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/
-        LOOKUP(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,burt,McLean,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
+        LOOKUP(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,burt,McLean,Carded2,GPI-STN,Coburn,Knight***") > 0 THEN lines-per-page = 55.
 
     {sys/inc/jobcard.i "C"}
     ASSIGN
@@ -2989,7 +2989,8 @@ PROCEDURE new-job-no :
         IF v-freezenotes-log EQ NO THEN 
         DO:
             IF (lv-format-f NE "Accord" OR 
-                lv-format-f NE "Carded2" OR 
+                lv-format-f NE "Carded2" OR
+                lv-format-f NE "GPI-STN" OR 
                 lv-format-f NE "Coburn" OR 
                 lv-format-f NE "Knight***") AND AVAILABLE job-hdr AND
                 job-hdr.freezeNote EQ TRUE THEN ASSIGN
@@ -3132,7 +3133,7 @@ PROCEDURE output-to-printer :
         /*      MESSAGE "lv-format-f  " lv-format-f VIEW-AS ALERT-BOX ERROR.*/
         IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0 */
             LOOKUP(lv-format-f, 
-            "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Burt,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
+            "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
         DO:   
             FILE-INFO:FILE-NAME = list-name.
             RUN printfile (FILE-INFO:FILE-NAME).   
@@ -3192,7 +3193,7 @@ PROCEDURE output-to-screen :
         END.
 
         IF  /*index("Interpac,FibreFC,Dayton,Livngstn",lv-format-f) > 0 */
-            LOOKUP(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,burt,McLean,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
+            LOOKUP(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
         DO:
             FILE-INFO:FILE-NAME = list-name.
             RUN printfile (FILE-INFO:FILE-NAME).
@@ -3376,7 +3377,7 @@ PROCEDURE pRunFormatValueChanged :
             OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
             OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
             OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
-            OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "McLean" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
+            OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "McLean" OR lv-format-f = "Carded2" OR lv-format-f = "GPI-STN" OR lv-format-f = "Coburn")) OR
             (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL" OR lv-format-c = "JobCardc 20" OR lv-format-c = "AtlanticBox"
             OR lv-format-c = "PkgAtlanta" OR lv-format-c = "Onducorr" OR lv-format-c = "HoneyCell" OR lv-format-c = "AmCarton" OR lv-format-c = "PreCorr" OR lv-format-c = "Valley20" OR lv-format-c = "PExpress")) THEN
             ASSIGN 
@@ -3419,7 +3420,8 @@ PROCEDURE pRunFormatValueChanged :
         IF lv-format-f EQ "Accord" 
             OR lv-format-f EQ "Knight***" 
             OR lv-format-f EQ "Carded" 
-            OR lv-format-f EQ "Carded2" 
+            OR lv-format-f EQ "Carded2"  
+            OR lv-format-f EQ "GPI-STN"
             OR lv-format-f EQ "Coburn" THEN ASSIGN 
                 tb_freeze-note:SCREEN-VALUE = "NO"
                 lFreezeNoteVal              = FALSE
