@@ -192,6 +192,10 @@ DEF VAR v-cust-name-extent AS CHAR EXTENT 10 NO-UNDO.
 DEF VAR v-ship1-extent AS CHAR EXTENT 10 NO-UNDO.
 DEF VAR v-ship2-extent AS CHAR EXTENT 10 NO-UNDO.
 DEF VAR v-ship4-extent AS CHAR EXTENT 10 NO-UNDO.
+DEFINE VARIABLE iPrintPalletCount LIKE eb.tr-cnt EXTENT 10 NO-UNDO.
+DEFINE VARIABLE iPrintForm AS INTEGER EXTENT 10 NO-UNDO.
+DEFINE VARIABLE iPrintBlank AS INTEGER EXTENT 10 NO-UNDO.
+
 DEF BUFFER b-est FOR est.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
 DEF BUFFER b-oe-rel FOR oe-rel.
@@ -221,7 +225,10 @@ DEF TEMP-TABLE tt-fgitm NO-UNDO FIELD i-no AS cha FORM "x(15)"
                         FIELD cust-name AS cha
                         FIELD shipto1 AS CHAR
                         FIELD shipto2 AS CHAR
-                        FIELD shipto4 AS CHAR.
+                        FIELD shipto4 AS CHAR
+                        FIELD iForm   AS INTEGER
+                        FIELD iBlank  AS INTEGER
+                        FIELD iPalletCount AS INTEGER.
 DEF VAR v-board-po LIKE oe-ordl.po-no-po NO-UNDO.
 DEF VAR v-plate-printed AS LOG NO-UNDO.
 DEF BUFFER xoe-ordl FOR oe-ordl.
@@ -1182,10 +1189,9 @@ END FUNCTION.
                         NO-LOCK NO-ERROR.
                v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
-                 IF wrk-sheet.sh-len <> 0 THEN RUN sys/inc/dec-frac.p (wrk-sheet.sh-len,32,OUTPUT vs-len).
-                 IF wrk-sheet.sh-wid <> 0 THEN RUN sys/inc/dec-frac.p (wrk-sheet.sh-wid,32,OUTPUT vs-wid).
-                 v-sht-size = (IF vs-wid <> "" THEN trim(vs-wid) + "x" ELSE "") +
-                             trim(vs-len).
+                 //IF wrk-sheet.sh-len <> 0 THEN RUN sys/inc/dec-frac.p (wrk-sheet.sh-len,32,OUTPUT vs-len).
+                 //IF wrk-sheet.sh-wid <> 0 THEN RUN sys/inc/dec-frac.p (wrk-sheet.sh-wid,32,OUTPUT vs-wid).
+                 v-sht-size = trim(string(wrk-sheet.sh-wid)) + "x" + trim(string(wrk-sheet.sh-len)).
                  ASSIGN vs-len = ""
                         vs-wid = ""
                         vs-dep = "".
@@ -1303,11 +1309,11 @@ END FUNCTION.
                                 
                             IF wrk-ink.i-unit = i THEN  
                               v-ink1[i] =  string(wrk-ink.i-code,"X(15)") + " " + 
-                                           string(wrk-ink.i-dscr,"x(20)") + "  " +
+                                           string(wrk-ink.i-dscr,"x(28)") + "  " +
                                            STRING(v-i-qty,">>>,>>9.9<") + " " + string(wrk-ink.i-bf,"X(1)")  .
                             ELSE IF wrk-ink.i-unit > 0 AND wrk-ink.i-unit <= 8 THEN 
                               v-ink1[int(wrk-ink.i-unit)] = string(wrk-ink.i-code,"X(15)") + " " + 
-                                                            string(wrk-ink.i-dscr,"x(20)") + "  " + STRING(v-i-qty,">>>,>>9.9<") + " " + string(wrk-ink.i-bf,"X(1)") .
+                                                            string(wrk-ink.i-dscr,"x(28)") + "  " + STRING(v-i-qty,">>>,>>9.9<") + " " + string(wrk-ink.i-bf,"X(1)") .
                             i = i + 1.
                         END.
                         ELSE IF wrk-ink.i-pass = 2 THEN DO:
@@ -1317,11 +1323,11 @@ END FUNCTION.
                             */
                             IF wrk-ink.i-unit = i THEN  
                               v-ink2[i] = string(wrk-ink.i-code,"X(15)") + " " + 
-                                          string(wrk-ink.i-dscr,"x(20)")  + "  " + 
+                                          string(wrk-ink.i-dscr,"x(28)")  + "  " + 
                                           STRING(v-i-qty,">>>,>>9.9<") + " " + string(wrk-ink.i-bf,"X(1)").
                             ELSE IF wrk-ink.i-unit > 0 AND wrk-ink.i-unit <= 8 THEN 
                               v-ink2[int(wrk-ink.i-unit)] = string(wrk-ink.i-code,"X(15)") + " " + 
-                                                            string(wrk-ink.i-dscr,"x(20)") + "  " + STRING(v-i-qty,">>>,>>9.9<") + " " + string(wrk-ink.i-bf,"X(1)").
+                                                            string(wrk-ink.i-dscr,"x(28)") + "  " + STRING(v-i-qty,">>>,>>9.9<") + " " + string(wrk-ink.i-bf,"X(1)").
                             i = i + 1.           
                         END.
                     END.
@@ -1505,14 +1511,14 @@ END FUNCTION.
         
        /* PRINTING NOTES	*/
         PUT v-thick   /*RDR*/
-                 "<C1><B>PRINTING</B>" "<C43>LBS  F/B"  "<C93>LBS  F/B"  SKIP. /* 02/02/07 rdb SKIP(1). */
-                  
-        PUT "<#15><FROM><R+5><C105><RECT><||3>"
-                 "<=15><C50><FROM><R+5><C50><LINE><||4>" 
-                 "<=15><R+1><C1><FROM><C105><LINE><||4> "
-                 "<=15><R+2><C1><FROM><C105><LINE><||4> "
-                 "<=15><R+3><C1><FROM><C105><LINE><||4> "
-                 "<=15><R+4><C1><FROM><C105><LINE><||4> "
+                 "<C1><B>PRINTING</B>" "<C48>LBS  F/B"  "<C100>LBS  F/B"  SKIP. /* 02/02/07 rdb SKIP(1). */
+                 
+        PUT "<#15><FROM><R+5><C108><RECT><||3>"
+                 "<=15><C55><FROM><R+5><C55><LINE><||4>" 
+                 "<=15><R+1><C1><FROM><C108><LINE><||4> "
+                 "<=15><R+2><C1><FROM><C108><LINE><||4> "
+                 "<=15><R+3><C1><FROM><C108><LINE><||4> "
+                 "<=15><R+4><C1><FROM><C108><LINE><||4> "
                  " <=15>".
                  
         v-num-of-inks = 0. /* 1 thru 8 */
@@ -1555,15 +1561,15 @@ END FUNCTION.
             IF AVAIL(wrk-ink) THEN
             v-ink1[1] = IF AVAIL wrk-ink THEN
                        STRING(wrk-ink.i-code,"X(15)") + " " + 
-                       STRING(wrk-ink.i-dscr,"x(20)") + " " +  STRING(wrk-ink.i-qty,">>>9.999") + "   " + string(wrk-ink.i-bf,"X(1)")    
+                       STRING(wrk-ink.i-dscr,"x(28)") + " " +  STRING(wrk-ink.i-qty,">>>9.999") + " " + string(wrk-ink.i-bf,"X(1)")    
                      ELSE "".
 
             IF i EQ 1 THEN PUT "  ".
             PUT "UNIT"
                 j + (i * 5) FORMAT ">9: "
-                v-ink1[1]   FORMAT "x(50)".
+                v-ink1[1]   FORMAT "x(55)".
 
-            IF i EQ 1 THEN PUT "<C105><FROM><LINE><||3>" SKIP.
+            IF i EQ 1 THEN PUT "<C108><FROM><LINE><||3>" SKIP.
           END.
         END.
           
@@ -1612,16 +1618,16 @@ END FUNCTION.
          END.
 
         IF v-ink-pass2  THEN DO:
-            /* PRINTING NOTES	*/
+            /* PRINTING NOTES	*/  
             PUT v-fill   /*RDR*/
-                "<C1><B>PRINTING</B>" "<C43>LBS  F/B"  "<C93>LBS  F/B"  SKIP. /* 02/02/07 rdb SKIP(1). */
+                "<C1><B>PRINTING</B>" "<C48>LBS  F/B"  "<C100>LBS  F/B"  SKIP. /* 02/02/07 rdb SKIP(1). */
 
-            PUT "<#15><FROM><R+5><C105><RECT><||3>"
-                "<=15><C50><FROM><R+5><C50><LINE><||4>" 
-                "<=15><R+1><C1><FROM><C105><LINE><||4> "
-                "<=15><R+2><C1><FROM><C105><LINE><||4> "
-                "<=15><R+3><C1><FROM><C105><LINE><||4> "
-                "<=15><R+4><C1><FROM><C105><LINE><||4> "
+            PUT "<#15><FROM><R+5><C108><RECT><||3>"
+                "<=15><C55><FROM><R+5><C55><LINE><||4>" 
+                "<=15><R+1><C1><FROM><C108><LINE><||4> "
+                "<=15><R+2><C1><FROM><C108><LINE><||4> "
+                "<=15><R+3><C1><FROM><C108><LINE><||4> "
+                "<=15><R+4><C1><FROM><C108><LINE><||4> "
                 " <=15>".
 
             v-num-of-inks = 0. /* 1 thru 8 */
@@ -1638,13 +1644,13 @@ END FUNCTION.
                     IF AVAIL(wrk-ink) THEN
                         v-ink1[1] = IF AVAIL wrk-ink THEN
                             STRING(wrk-ink.i-code,"X(15)") + " " + 
-                            STRING(wrk-ink.i-dscr,"x(20)") + " " +  STRING(wrk-ink.i-qty,">>>9.999") + "   " + string(wrk-ink.i-bf,"X(1)")    
+                            STRING(wrk-ink.i-dscr,"x(28)") + " " +  STRING(wrk-ink.i-qty,">>>9.999") + " " + string(wrk-ink.i-bf,"X(1)")    
                             ELSE "".
 
                     IF i EQ 1 THEN PUT "  ".
                     PUT "UNIT"
                         j + (i * 5) FORMAT ">9: "
-                        v-ink1[1]   FORMAT "x(50)".
+                        v-ink1[1]   FORMAT "x(55)".
                     IF i EQ 1 THEN PUT "<C105><FROM><LINE><||3>" SKIP.
                 END. /* do i */
             END. /* do j */
@@ -1762,129 +1768,7 @@ END FUNCTION.
         PUT "Packing Spec. Notes:" SKIP.
         RUN PRprintfg2 ("PK").  
         */
-        
-       /* WINDOWING */
-
-       /* rdb 02/16/07  02140714 */
-        intLnCount = 6. /* number of other lines static in set */
-
-        FOR EACH xjob-mat NO-LOCK
-            WHERE xjob-mat.company EQ job-hdr.company
-              AND xjob-mat.job     EQ job-hdr.job
-              AND xjob-mat.job-no  EQ job-hdr.job-no
-              AND xjob-mat.job-no2 EQ job-hdr.job-no2
-              AND xjob-mat.frm     EQ job-hdr.frm,
-            FIRST item NO-LOCK
-            WHERE item.company  EQ xjob-mat.company
-              AND item.i-no     EQ xjob-mat.rm-i-no  
-              AND item.mat-type EQ "W"
-            BREAK BY xjob-mat.rm-i-no
-                  BY xjob-mat.wid
-                  BY xjob-mat.len:
-
-          IF LAST-OF(xjob-mat.len) THEN intLnCount = intLnCount + 1.
-        END. 
-
-        RUN PRpage (intLnCount).
-
-        PUT v-thick 
-            "<C1><B>WINDOWING</B>"  SKIP            /*RDR*/                     
-            "<C1><u>RM Item #</u> <u>Name                          </u> <u>Width  </u> <u>Length </u> <u>Linear Feet Needed</u>" SKIP.
-
-        FOR EACH xjob-mat NO-LOCK
-            WHERE xjob-mat.company EQ job-hdr.company
-              AND xjob-mat.job     EQ job-hdr.job
-              AND xjob-mat.job-no  EQ job-hdr.job-no
-              AND xjob-mat.job-no2 EQ job-hdr.job-no2
-              AND xjob-mat.frm     EQ job-hdr.frm,
-            FIRST item NO-LOCK
-            WHERE item.company  EQ xjob-mat.company
-              AND item.i-no     EQ xjob-mat.rm-i-no  
-              AND item.mat-type EQ "W"
-            BREAK BY item.i-no
-                  BY xjob-mat.wid
-                  BY xjob-mat.len:
-
-          IF FIRST-OF(xjob-mat.len) THEN ld-qty-disp = 0.
-
-          ld-qty-disp = ld-qty-disp +
-                        (xjob-mat.qty *
-                         (IF xjob-mat.qty-uom EQ "MSI" THEN 1000
-                                                       ELSE item.sqin-lb) /
-                         (xjob-mat.wid * 12)).
-
-          IF LAST-OF(xjob-mat.len) THEN DO:
-            {sys/inc/roundup.i ld-qty-disp}
-                         
-            PUT "<C1>" 
-                item.i-no
-		        item.i-name
-                xjob-mat.wid
-                SPACE(2)
-                xjob-mat.len
-                SPACE(5)
-                STRING(ld-qty-disp,">,>>>,>>9") FORMAT "x(10)"
-                SKIP.
-          END.
-        END. /* xjob-mat */      
-
-        PUT " "
-            /*"<C1>Window Checklist Complete : <FROM><R+1><C+2><RECT><||3>" */   /*Task# 12021303*/
-            " "  SKIP.                                                                  
-
-       /* PUT " "  SKIP.  rdb 01/26/07 rq 01250707 */      
-       /* PUT "<C1>Window Department Notes:"  SKIP. */           /*Task# 12021303*/
-        /* rdb 02/16/07  02140714 */
-        
-       
-        ASSIGN 
-          v-text = FNformat(FNdeptnotes(vjobreckey,"WN",0),80)
-          intLnCount = 1.
-
-        DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
-          intLnCount = intLnCount + 1.
-        END.              
-
-        RUN PRpage (intLnCount).
-
-        DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
-            PUT "<C1>" 
-                ENTRY(i,v-text,"`") FORMAT "X(80)"  SKIP. 
-        END.  
-
-        
-        ASSIGN 
-          v-text = FNformat(FNdeptnotes(vjobreckey,"WN",job-hdr.frm),80)
-          intLnCount = 1.
-
-        DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
-          intLnCount = intLnCount + 1.
-        END.              
-
-        RUN PRpage (intLnCount).
-
-        DO i = 1 TO NUM-ENTRIES(v-text,"`"):        
-            PUT "<C1>" 
-                ENTRY(i,v-text,"`") FORMAT "X(80)"  SKIP. 
-        END.      
-
-        FOR EACH x-hdr WHERE x-hdr.company = job-hdr.company
-                    AND x-hdr.job     = job-hdr.job
-                    AND x-hdr.job-no  = job-hdr.job-no
-                    AND x-hdr.job-no2 = job-hdr.job-no2
-                    AND x-hdr.frm     = job-hdr.frm NO-LOCK
-                  BREAK BY x-hdr.i-no:
-             IF FIRST-OF(x-hdr.i-no) THEN DO:
-                 FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
-                            AND itemfg.i-no = x-hdr.i-no NO-LOCK NO-ERROR.
-                 ASSIGN vitemreckey = itemfg.rec_key.                      
-                 LEAVE.
-             END.  
-        END.  
-           
-      /*  PUT "<C1>Window Spec. Notes:"  SKIP. */        /*Task# 12021303*/
-        RUN PRprintfg2 ("WD").    
-
+             
        /* FINISHING	*/
         intLnCount = 4.
         FOR EACH xjob-mat NO-LOCK
@@ -2010,7 +1894,7 @@ END FUNCTION.
         
         casqty = ld-qty-disp .
 
-        intLnCount = 2.
+        intLnCount = 0.
         FOR EACH xjob-mat NO-LOCK
             WHERE xjob-mat.company EQ job-hdr.company
               AND xjob-mat.job     EQ job-hdr.job
@@ -2068,10 +1952,12 @@ END FUNCTION.
             cCheckMatrialItem = cCheckMatrialItem + item.i-no + "," .
           END.
         END. /* xjob-mat */
-        IF NOT v-pallet-log  THEN
+        IF NOT v-pallet-log  THEN do:
             PUT SKIP(1).
 
-         RUN PRpage (intLnCount).
+         RUN PRpage (1).
+        END.
+        intLnCount = 0.
          for each eb WHERE eb.company  EQ cocode
                           AND eb.est-no   eq job-hdr.est-no
                           and eb.stock-no eq job-hdr.i-no
@@ -2082,16 +1968,33 @@ END FUNCTION.
             AND reftable.loc      EQ eb.est-no
             AND reftable.code     EQ STRING(eb.form-no,"9999999999")
             AND reftable.code2    EQ STRING(eb.blank-no,"9999999999")
-          NO-LOCK NO-ERROR.
-          
-            intLnCount = intLnCount + 1.
+          NO-LOCK NO-ERROR.  
 
             FIND FIRST item NO-LOCK
             WHERE item.company  EQ eb.company
               AND item.i-no     EQ eb.layer-pad  NO-ERROR .
             IF AVAIL ITEM AND  eb.layer-pad NE "" THEN do:
-           /*PUT "<C1>Layer Pads"           SKIP*/
-           /* "<C1><u>RM Item # </u> <u>Length  </u> <u>Width  </u> <u>Depth  </u>  <u> Qty    </u>"  SKIP.*/
+             intLnCount = intLnCount + 1.                         
+            END.
+         END.
+         RUN PRpage (intLnCount).
+         
+         for each eb WHERE eb.company  EQ cocode
+                          AND eb.est-no   eq job-hdr.est-no
+                          and eb.stock-no eq job-hdr.i-no
+                        no-lock:
+          FIND FIRST reftable
+          WHERE reftable.reftable EQ "cedepth"
+            AND reftable.company  EQ eb.company
+            AND reftable.loc      EQ eb.est-no
+            AND reftable.code     EQ STRING(eb.form-no,"9999999999")
+            AND reftable.code2    EQ STRING(eb.blank-no,"9999999999")
+          NO-LOCK NO-ERROR.               
+            FIND FIRST item NO-LOCK
+            WHERE item.company  EQ eb.company
+              AND item.i-no     EQ eb.layer-pad  NO-ERROR .
+            IF AVAIL ITEM AND  eb.layer-pad NE "" THEN do:
+          
             PUT "<C1>" eb.layer-pad FORMAT "x(10)" space(4)
                  ITEM.i-name FORMAT "x(20)" SPACE(3)  
                   eb.lp-len 
@@ -2102,12 +2005,12 @@ END FUNCTION.
                 PUT (lp-up * casqty / eb.cas-pal) FORMAT ">>>>>>9"   SKIP .
              ELSE 
                  PUT (lp-up * casqty) FORMAT ">>>>>>9"   SKIP .
-             intLnCount = intLnCount + 1.
+             
              cCheckMatrialItem = cCheckMatrialItem + item.i-no + "," .
             END.
          END.
 
-        intLnCount = 3.
+        intLnCount = 0.
         FOR EACH xjob-mat NO-LOCK
             WHERE xjob-mat.company EQ job-hdr.company
               AND xjob-mat.job     EQ job-hdr.job
@@ -2124,37 +2027,7 @@ END FUNCTION.
         END. 
 
         RUN PRpage (intLnCount).
-                                                
-        /*PUT "<C1>Adhesive"   SKIP          /*RDR*/                                         
-             "<C1><u>RM Item #</u> <u>Description</u> "  SKIP.*/
-
-      /*  FIND FIRST xjob-mat
-            WHERE xjob-mat.company EQ job-hdr.company
-              AND xjob-mat.job     EQ job-hdr.job
-              AND xjob-mat.job-no  EQ job-hdr.job-no
-              AND xjob-mat.job-no2 EQ job-hdr.job-no2
-              AND xjob-mat.frm     EQ job-hdr.frm
-              AND CAN-FIND(FIRST ITEM 
-                           WHERE item.company  EQ xjob-mat.company
-                           AND item.i-no     EQ xjob-mat.rm-i-no
-                           AND item.mat-type EQ "G")
-             NO-LOCK NO-ERROR.
-        IF NOT AVAIL xjob-mat THEN
-            FIND FIRST xjob-mat
-                WHERE xjob-mat.company EQ job-hdr.company
-                  AND xjob-mat.job     EQ job-hdr.job
-                  AND xjob-mat.job-no  EQ job-hdr.job-no
-                  AND xjob-mat.job-no2 EQ job-hdr.job-no2
-                  AND CAN-FIND(FIRST ITEM 
-                               WHERE item.company  EQ xjob-mat.company
-                               AND item.i-no     EQ xjob-mat.rm-i-no
-                               AND item.mat-type EQ "G")
-                NO-LOCK NO-ERROR.
-        IF AVAIL xjob-mat THEN
-            FIND FIRST ITEM
-                WHERE item.company  EQ xjob-mat.company
-                  AND item.i-no     EQ xjob-mat.rm-i-no
-            NO-LOCK NO-ERROR.*/
+                
         FIND FIRST eb WHERE eb.company  EQ cocode
                           AND eb.est-no   eq job-hdr.est-no
                           and eb.stock-no eq job-hdr.i-no
@@ -2169,25 +2042,33 @@ END FUNCTION.
                 item.i-no FORMAT "x(10)" SPACE(4)
 		        item.i-name                                        
                 SKIP.
+   intLnCount = 0.
+   Main-EstPacking: 
+   FOR EACH estPacking NO-LOCK
+         WHERE estPacking.company  EQ cocode
+         AND estPacking.estimateNo EQ eb.est-no
+         AND estPacking.FormNo     EQ eb.form-no
+         AND estPacking.BlankNo    EQ eb.blank-No,
+       EACH xjob-mat NO-LOCK
+         WHERE xjob-mat.company EQ job-hdr.company
+           AND xjob-mat.job     EQ job-hdr.job
+           AND xjob-mat.job-no  EQ job-hdr.job-no
+           AND xjob-mat.job-no2 EQ job-hdr.job-no2
+           AND xjob-mat.frm     EQ eb.form-no 
+           AND xjob-mat.rm-i-no EQ estPacking.rmItemID BREAK BY estPacking.rmItemID :
 
-/*         FOR EACH xjob-mat NO-LOCK                     */
-/*             WHERE xjob-mat.company EQ job-hdr.company */
-/*               AND xjob-mat.job     EQ job-hdr.job     */
-/*               AND xjob-mat.job-no  EQ job-hdr.job-no  */
-/*               AND xjob-mat.job-no2 EQ job-hdr.job-no2 */
-/*               AND xjob-mat.frm     EQ job-hdr.frm,    */
-/*             FIRST item NO-LOCK                        */
-/*             WHERE item.company  EQ xjob-mat.company   */
-/*               AND item.i-no     EQ xjob-mat.rm-i-no   */
-/*               AND item.mat-type EQ "G"                */
-/*             BREAK BY item.i-no:                       */
-/*                                                       */
-/*           IF LAST-OF(item.i-no) THEN                  */
-/*             PUT "<C1>"                                */
-/*                 item.i-no                             */
-/*                 item.i-name                           */
-/*                 SKIP.                                 */
-/*         END. /* xjob-mat */                           */
+         FIND FIRST ITEM NO-LOCK
+             WHERE item.company  EQ cocode
+             AND item.i-no     EQ estPacking.rmItemID
+             NO-ERROR.
+
+         IF LOOKUP(item.i-no,cCheckMatrialItem) GT 0 THEN NEXT Main-EstPacking.                                                                                              
+         IF AVAIL ITEM AND LAST-OF(estPacking.rmItemID) THEN do:              
+             intLnCount = intLnCount + 1.
+         END.
+     END.
+   RUN PRpage (intLnCount). 
+   
    Main-EstPacking: 
    FOR EACH estPacking NO-LOCK
          WHERE estPacking.company  EQ cocode
@@ -2217,23 +2098,14 @@ END FUNCTION.
                  estPacking.dimLength FORMAT ">9.9999" " "
                  estPacking.dimWidth FORMAT ">9.9999" " "
                  estPacking.dimDepth FORMAT ">9.9999" " "
-                 ld-qty-disp FORMAT ">>>>>9" SKIP.
-             intLnCount = intLnCount + 1.
+                 ld-qty-disp FORMAT ">>>>>9" SKIP.              
          END.
      END.
 
-        PUT " " SKIP.      
+        PUT " " SKIP.       
 
-       /* 02/02/07
-        PUT "Adhesive Spec. Notes:" SKIP.
-        RUN PRprintfg2 ("GL").  
-        */
-
-        RUN PRpage (2).
-       /* PUT "<C1>Finishing Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP.*/  /*Task# 12021303*/
-        
-      /*  PUT "<C1>Finishing Department Notes:"  SKIP. */   /*Task# 12021303*/
-       
+        RUN PRpage (1).
+              
        ASSIGN 
           v-text = FNformat(FNdeptnotes(vjobreckey,"GL",0),80)
           intLnCount = 1.
@@ -2336,6 +2208,7 @@ END FUNCTION.
               ASSIGN vlist = vlist + (IF vlist = "" THEN "" ELSE ",") +
                              ENTRY(i,spec-list).
         END.
+        
         RUN PRprintfg3 (vlist).   
 
         IF vlist EQ "" THEN  /* rdb 02/02/07 */
@@ -2381,7 +2254,10 @@ END FUNCTION.
                                      IF AVAIL xoe-ordl AND xoe-ordl.cas-cnt <> 0 THEN xoe-ordl.cas-cnt
                                      ELSE IF AVAIL b-eb THEN b-eb.cas-cnt
                                      ELSE 0
-                  tt-fgitm.cas-pal = IF AVAIL b-eb THEN b-eb.cas-pal ELSE 0
+                  tt-fgitm.cas-pal = IF AVAIL xoe-ordl AND xoe-ordl.cases-unit <> 0 THEN xoe-ordl.cases-unit ELSE IF AVAIL b-eb THEN b-eb.cas-pal ELSE 0 
+                  tt-fgitm.iForm  = IF AVAILABLE b-eb THEN b-eb.form-no ELSE xjob-hdr.frm 
+                  tt-fgitm.iBlank  = IF AVAILABLE b-eb THEN b-eb.blank-no ELSE xjob-hdr.blank-no 
+                  tt-fgitm.iPalletCount  = IF AVAILABLE b-eb THEN b-eb.tr-cnt ELSE 0                  
                   tt-fgitm.seq = i
                   i = i + 1.
             
@@ -2469,7 +2345,7 @@ END FUNCTION.
 
         ASSIGN v-cust-name2 = v-cust-name 
                v-cust-name3 = v-cust-name.
-
+               
        /* label prints per item */
         ASSIGN
            i = 0
@@ -2490,6 +2366,9 @@ END FUNCTION.
                    v-ship1-extent[i] = tt-fgitm.shipto1
                    v-ship2-extent[i] = tt-fgitm.shipto2
                    v-ship4-extent[i] = tt-fgitm.shipto4
+                   iPrintForm[i] = tt-fgitm.iForm
+                   iPrintBlank[i] = tt-fgitm.iBlank
+                   iPrintPalletCount[i] = tt-fgitm.iPalletCount
                    j = j + 1.
 
             IF i >= 3 THEN DO:                
@@ -2509,9 +2388,9 @@ END FUNCTION.
 
                 DISPLAY
                v-thick  SKIP
-               "<B><U>LABEL ITEM" + trim(string(v-label-item-no)) + "</U>"  FORM "x(22)"
-               "<U>LABEL ITEM" + trim(string(v-label-item-no + 1 )) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 54
-               "<U>LABEL ITEM" + TRIM(STRING(v-label-item-no + 2)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 104
+               "<B><U>LABEL/TAG" + trim(string(v-label-item-no)) + "</U>"  FORM "x(22)"
+               "<U>LABEL/TAG" + trim(string(v-label-item-no + 1 )) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 54
+               "<U>LABEL/TAG" + TRIM(STRING(v-label-item-no + 2)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 104
                SKIP
                "<B>FG Item #:</B>" v-fgitm[1]
                "<B>FG Item #:</B>" WHEN v-fgitm[2] <> "" AT 51 v-fgitm[2] WHEN v-fgitm[2] <> "" 
@@ -2520,11 +2399,7 @@ END FUNCTION.
                "Cust Name:" v-cust-name 
                "Cust Name:"  WHEN v-fgitm[2] <> ""  AT 44 v-cust-name2  WHEN v-fgitm[2] <> "" 
                "Cust Name:" WHEN v-fgitm[3] <> "" AT 87  v-cust-name3 WHEN v-fgitm[3] <> ""
-               SKIP
-               "Shipto   :" v-lab-shipto[1] /*v-shipto[1] */
-               "Shipto   :" WHEN v-fgitm[2] <> "" AT 44 v-lab-shipto[2] /*v-shipto1[1]*/ WHEN v-fgitm[2] <> ""
-               "Shipto   :" WHEN v-fgitm[3] <> "" AT 87 v-lab-shipto[3] /*v-shipto2[1]*/ WHEN v-fgitm[3] <> ""
-               SKIP
+               SKIP               
                "PO#      :" v-pono[1]
                "PO#      :" WHEN v-fgitm[2] <> "" AT 44 v-pono[2]  WHEN v-fgitm[2] <> "" 
                "PO#      :" WHEN v-fgitm[3] <> "" AT 87  v-pono[3] WHEN v-fgitm[3] <> "" 
@@ -2541,9 +2416,13 @@ END FUNCTION.
                "Qty/Case :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
                "Qty/Case :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
                SKIP
-               "Qty/Pal  :"  v-cas-pal[1]
-               "Qty/Pal  :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> "" 
+               "Cases/Pal:"  v-cas-pal[1]
+               "Cases/Pal:"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
+               "Cases/Pal:"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> "" 
+               SKIP
+               "Qty/Pal  :"  iPrintPalletCount[1]
+               "Qty/Pal  :"  WHEN v-fgitm[2] <> "" AT 44 iPrintPalletCount[2]  WHEN v-fgitm[2] <> "" 
+               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  iPrintPalletCount[3] WHEN v-fgitm[3] <> "" 
                SKIP
                   WITH FRAME itmlbl NO-BOX NO-LABELS STREAM-IO WIDTH 180.
                 DOWN WITH FRAME itmlbl.
@@ -2565,10 +2444,8 @@ END FUNCTION.
                    IF LENGTH(TRIM(v-fgitm[1])) LT 15 THEN 
                      chrDummy = FILL(" ", 15 - LENGTH(TRIM(v-fgitm[1]))).
 
-                   chrBarcode[1] = TRIM(v-fgitm[1]) + 
-                                   chrDummy + 
-                                   " " +
-                                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
+                   chrBarcode[1] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))) 
+                                   + "-" + string(iPrintForm[1],"99") + "-" + STRING(iPrintBlank[1],"99") .
 
                    v-fgitm[1] = 
                      v-fgitm[1] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
@@ -2579,10 +2456,8 @@ END FUNCTION.
                    IF LENGTH(TRIM(v-fgitm[2])) LT 15 THEN 
                      chrDummy = FILL(" ", 15 - LENGTH(TRIM(v-fgitm[2]))).
 
-                   chrBarcode[2] = TRIM(v-fgitm[2]) + 
-                                   chrDummy + 
-                                   " " +
-                                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
+                   chrBarcode[2] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2)))
+                                   + "-" + string(iPrintForm[2],"99") + "-" + STRING(iPrintBlank[2],"99").
 
                    v-fgitm[2] = 
                     v-fgitm[2] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
@@ -2593,10 +2468,8 @@ END FUNCTION.
                     IF LENGTH(TRIM(v-fgitm[3])) LT 15 THEN 
                       chrDummy = FILL(" ", 15 - LENGTH(TRIM(v-fgitm[3]))).
 
-                    chrBarcode[3] = TRIM(v-fgitm[3]) + 
-                                    chrDummy + 
-                                    " " +
-                                    TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
+                    chrBarcode[3] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2)))
+                                    + "-" + string(iPrintForm[3],"99") + "-" + STRING(iPrintBlank[3],"99").
 
                     v-fgitm[3] = 
                      v-fgitm[3] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
@@ -2650,6 +2523,9 @@ END FUNCTION.
                        v-ship4-extent[1] = ""
                        v-ship4-extent[2] = ""
                        v-ship4-extent[3] = ""
+                       iPrintPalletCount[1] = 0
+                       iPrintPalletCount[2] = 0
+                       iPrintPalletCount[3] = 0
                        v-last-j = j.
             END. /* i >= 3 */
         END. /* tt-fgitm BY tt-fgitm.seq */
@@ -2671,9 +2547,9 @@ END FUNCTION.
 
            DISPLAY
                v-thick  SKIP
-               "<B><U>LABEL ITEM" + trim(string(v-label-item-no)) + "</U>"  FORM "x(22)"
-               "<U>LABEL ITEM" + trim(string(v-label-item-no + 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 54
-               "<U>LABEL ITEM" + TRIM(STRING(v-label-item-no + 2)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 104
+               "<B><U>LABEL/TAG" + trim(string(v-label-item-no)) + "</U>"  FORM "x(22)"
+               "<U>LABEL/TAG" + trim(string(v-label-item-no + 1)) + "</U>" FORM "x(20)" WHEN v-fgitm[2] <> "" AT 54
+               "<U>LABEL/TAG" + TRIM(STRING(v-label-item-no + 2)) + "</U></B>" FORM "x(23)" WHEN v-fgitm[3] <> "" AT 104
                SKIP
                "<B>FG Item #:</B>" v-fgitm[1]
                "<B>FG Item #:</B>"  WHEN v-fgitm[2] <> "" AT 51 v-fgitm[2] WHEN v-fgitm[2] <> "" 
@@ -2682,11 +2558,7 @@ END FUNCTION.
                "Cust Name:" v-cust-name 
                "Cust Name:"  WHEN v-fgitm[2] <> ""  AT 44 v-cust-name2  WHEN v-fgitm[2] <> "" 
                "Cust Name:" WHEN v-fgitm[3] <> "" AT 87  v-cust-name3 WHEN v-fgitm[3] <> "" 
-               SKIP
-               "Shipto   :" v-shipto[1] 
-               "Shipto   :" WHEN v-fgitm[2] <> "" AT 44 v-shipto1[1] WHEN v-fgitm[2] <> ""
-               "Shipto   :" WHEN v-fgitm[3] <> "" AT 87 v-shipto2[1] WHEN v-fgitm[3] <> ""
-               SKIP
+               SKIP                    
                "PO#      :" v-pono[1]
                "PO#      :" WHEN v-fgitm[2] <> "" AT 44 v-pono[2]  WHEN v-fgitm[2] <> "" 
                "PO#      :" WHEN v-fgitm[3] <> "" AT 87  v-pono[3] WHEN v-fgitm[3] <> "" 
@@ -2703,9 +2575,13 @@ END FUNCTION.
                "Qty/Case :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-cnt[2]  WHEN v-fgitm[2] <> "" 
                "Qty/Case :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-cnt[3] WHEN v-fgitm[3] <> ""                               
                SKIP
-               "Qty/Pal  :" /*v-fgqty[1]*/ v-cas-pal[1]
-               "Qty/Pal  :"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
-               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
+               "Cases/Pal:" /*v-fgqty[1]*/ v-cas-pal[1]
+               "Cases/Pal:"  WHEN v-fgitm[2] <> "" AT 44 v-cas-pal[2]  WHEN v-fgitm[2] <> "" 
+               "Cases/Pal:"  WHEN v-fgitm[3] <> "" AT 87  v-cas-pal[3] WHEN v-fgitm[3] <> ""                               
+               SKIP
+               "Qty/Pal  :"  iPrintPalletCount[1]
+               "Qty/Pal  :"  WHEN v-fgitm[2] <> "" AT 44 iPrintPalletCount[2]  WHEN v-fgitm[2] <> "" 
+               "Qty/Pal  :"  WHEN v-fgitm[3] <> "" AT 87  iPrintPalletCount[3] WHEN v-fgitm[3] <> "" 
                SKIP
                WITH FRAME itmlbl2 NO-BOX NO-LABELS STREAM-IO WIDTH 180.
 
@@ -2729,10 +2605,8 @@ END FUNCTION.
                IF LENGTH(TRIM(v-fgitm[1])) LT 15 THEN 
                  chrDummy = FILL(" ", 15 - LENGTH(TRIM(v-fgitm[1]))).
 
-               chrBarcode[1] = TRIM(v-fgitm[1]) + 
-                               chrDummy + 
-                               " " +
-                               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
+               chrBarcode[1] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2)))
+                               + "-" + string(iPrintForm[1],"99") + "-" + STRING(iPrintBlank[1],"99").
                
                v-fgitm[1] = 
                   v-fgitm[1] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
@@ -2744,10 +2618,8 @@ END FUNCTION.
                IF LENGTH(TRIM(v-fgitm[2])) LT 15 THEN 
                  chrDummy = FILL(" ", 15 - LENGTH(TRIM(v-fgitm[2]))).
 
-               chrBarcode[2] = TRIM(v-fgitm[2]) + 
-                               chrDummy + 
-                               " " +
-                               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
+               chrBarcode[2] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2)))
+                               + "-" + string(iPrintForm[2],"99") + "-" + STRING(iPrintBlank[2],"99").
                
                v-fgitm[2] = 
                   v-fgitm[2] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
@@ -2759,10 +2631,8 @@ END FUNCTION.
                IF LENGTH(TRIM(v-fgitm[3])) LT 15 THEN 
                  chrDummy = FILL(" ", 15 - LENGTH(TRIM(v-fgitm[3]))).
 
-               chrBarcode[3] = TRIM(v-fgitm[3]) + 
-                               chrDummy + 
-                               " " +
-                               TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
+               chrBarcode[3] = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2)))
+                               + "-" + string(iPrintForm[3],"99") + "-" + STRING(iPrintBlank[3],"99").
                
                v-fgitm[3] = 
                   v-fgitm[3] + " " + TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', v-job-no, v-job-no2))).
@@ -2868,14 +2738,20 @@ if v-format eq "Fibre" then page.
 RETURN.
 
 PROCEDURE PRpage:
-   DEFINE INPUT PARAMETER vline AS INT.
-  /* rdb 02/16/07 02150702 
-   IF LINE-COUNTER + vline >= PAGE-SIZE THEN DO:
-   */
-   IF LINE-COUNTER + vline >= PAGE-SIZE AND 
-      vline < PAGE-SIZE THEN DO:
-      PAGE.
-      VIEW FRAME head.
+   DEFINE INPUT PARAMETER vline AS INT. 
+   IF vline EQ 16 THEN do:
+      IF LINE-COUNTER + vline >= 50 AND 
+          vline < PAGE-SIZE THEN DO:
+          PAGE.
+          VIEW FRAME head.
+       END.
+   END.
+   ELSE DO:   
+       IF LINE-COUNTER + vline >= PAGE-SIZE AND 
+          vline < PAGE-SIZE THEN DO:
+          PAGE.
+          VIEW FRAME head.
+       END.
    END.
 END PROCEDURE.
 
@@ -2928,7 +2804,7 @@ PROCEDURE PRprintfg2:
               ACCUM 1 (COUNT).
 
               /* gdm - 10070907 */
-              IF LINE-COUNTER GE 47 THEN PAGE.
+              IF LINE-COUNTER GE 52 THEN PAGE.
               
            END.                
            PUT " " SKIP.   
@@ -2971,7 +2847,7 @@ PROCEDURE PRprintfg3:
               ACCUM 1 (COUNT).
 
               /* gdm - 10070907 */
-              IF LINE-COUNTER GE 47 THEN PAGE.
+              IF LINE-COUNTER GE 52 THEN PAGE.
 
            END.                
            PUT " " SKIP.   
