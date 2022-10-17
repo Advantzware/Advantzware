@@ -247,6 +247,8 @@ DEF SHARED VAR s-print-revised AS LOG NO-UNDO.
 DEF VAR lv-status AS cha NO-UNDO.
 DEF VAR v-job-len LIKE job-mat.len NO-UNDO.
 DEF VAR v-job-wid LIKE job-mat.wid NO-UNDO.
+DEF VAR cSimpleBeginJobNo AS CHAR NO-UNDO.
+DEF VAR cSimpleEndJobNo AS CHAR NO-UNDO.
 
 lv-status = IF s-print-revised THEN "<FGCOLOR=RED>REVISED<FGCOLOR=BLACK>" ELSE "<FGCOLOR=BLACK>ORIGINAL".
 
@@ -278,20 +280,18 @@ ASSIGN
  v-job2[1]   = fjob-no2
  v-job2[2]   = tjob-no2
  v-reprint   = reprint
- v-spec-list = spec-list.
+ v-spec-list = spec-list
+ cSimpleBeginJobNo = TRIM(ENTRY(1,fjob-no,"-"))
+ cSimpleEndJobNo = TRIM(ENTRY(1,tjob-no,"-")).
 
 PUT "<FCourier New>".
 
-for each job-hdr
-        where job-hdr.company                  eq cocode
-          AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
-	  	TRIM(job-hdr.job-no) +
-	  	STRING(job-hdr.job-no2,"999")  GE fjob-no
-	  AND FILL(" ", iJobLen - LENGTH(TRIM(job-hdr.job-no))) +
-	  	TRIM(job-hdr.job-no) +
-	  	STRING(job-hdr.job-no2,"999")  LE tjob-no
-	  AND job-hdr.job-no2 GE fjob-no2
-          AND job-hdr.job-no2 LE tjob-no2
+for each job-hdr where 
+    job-hdr.company                  eq cocode AND 
+    TRIM(job-hdr.job-no) GE cSimpleBeginJobNo AND 
+    TRIM(job-hdr.job-no) LE cSimpleEndJobNo AND 
+	job-hdr.job-no2 GE fjob-no2 AND 
+	job-hdr.job-no2 LE tjob-no2
           /*and job-hdr.ftick-prnt            eq v-reprint
           and can-find(first job where job.company eq cocode
                                    and job.job     eq job-hdr.job
@@ -299,7 +299,6 @@ for each job-hdr
                                    and job.job-no2 eq job-hdr.job-no2
                                    and job.stat    ne "H")  */
         use-index job-no no-lock,
-
         first est
         where est.company  eq job-hdr.company
           AND est.est-no   EQ job-hdr.est-no
@@ -310,6 +309,7 @@ for each job-hdr
               by job-hdr.job-no
               by job-hdr.job-no2
               BY job-hdr.frm:       
+
 
       ASSIGN lv-prt-sts = IF NOT job-hdr.ftick-prnt THEN "ORIGINAL" ELSE "REVISED"
              lv-prt-date = TODAY
