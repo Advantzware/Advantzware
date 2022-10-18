@@ -14,11 +14,11 @@ PUT "<C1><#2>"
             space(3) v-comp-add5 SKIP
             space(3) "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" lv-email FORMAT "X(48)" SKIP(1)*/
             "<FCourier New>"
-            space(7) "Bill To:" "<C50>" "Ship To:" SKIP
-            SPACE(7) ar-inv.cust-name "<C50>" v-shipto-name  skip
-            SPACE(7) ar-inv.addr[1] "<C50>"  v-shipto-addr[1]  SKIP
-            SPACE(7) ar-inv.addr[2] "<C50>" v-shipto-addr[2]  SKIP
-            SPACE(7) v-addr3 "<C50>" v-sold-addr3  SKIP.
+            "<C8>" "Bill To:" "<C50>" "Ship To:" SKIP
+            "<C8>" ar-inv.cust-name "<C50>" v-shipto-name  skip
+            "<C8>" ar-inv.addr[1] "<C50>"  v-shipto-addr[1]  SKIP
+            "<C8>" ar-inv.addr[2] "<C50>" v-shipto-addr[2]  SKIP
+            "<C8>" v-addr3 "<C50>" v-sold-addr3  SKIP.
 v-printline = v-printline + 18.
 /*IF lv-display-comp THEN
     PUT "<=2><C3><R+2><FGCOLOR=" trim(lv-comp-color) + ">"
