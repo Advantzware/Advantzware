@@ -2526,6 +2526,7 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
     DEFINE VARIABLE cHeaderItemSumm   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dPriceTotal       AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dPrepCostTotal    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSellPriceTotal   AS DECIMAL   NO-UNDO.
                
     RUN pGetEstCostGroupLevelTT(OUTPUT TABLE ttEstCostGroupLevel).
     
@@ -2712,15 +2713,18 @@ PROCEDURE pPrintSummaryCosts PRIVATE:
             IF ipbf-ttCEFormatConfig.setPartSummSellPriceShow THEN
                 RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummSellPriceCol, estCostItem.sellprice / ipbf-estCostHeader.quantityMaster, 4, 4, NO, YES, NO, NO, YES).
             IF ipbf-ttCEFormatConfig.setPartSummPricePerEAShow THEN DO:
-                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, estCostItem.sellprice * estCostItem.quantityPerSet / ipbf-estCostHeader.quantityMaster, 4, 2, NO, YES, NO, NO, YES).
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, (estCostItem.sellprice / ipbf-estCostHeader.quantityMaster) / estCostItem.quantityPerSet, 4, 2, NO, YES, NO, NO, YES).
                 
-            dPriceTotal = dPriceTotal + estCostItem.sellprice * estCostItem.quantityPerSet / ipbf-estCostHeader.quantityMaster.
+            dPriceTotal = dPriceTotal + (estCostItem.sellprice / ipbf-estCostHeader.quantityMaster) / estCostItem.quantityPerSet .
+            dSellPriceTotal = dSellPriceTotal + estCostItem.sellprice / ipbf-estCostHeader.quantityMaster.
             RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             
             IF LAST-OF(estCostItem.estCostHeaderID) THEN DO:
+                RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummSellPriceCol, "--------------", NO, NO, YES).
                 RUN pWriteToCoordinates(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, "--------------", NO, NO, YES).
                 RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
                 RUN pWriteToCoordinates(iopiRowCount, 2, "Set Total Price ", NO, NO, NO).
+                RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummSellPriceCol, dSellPriceTotal , 4, 2, NO, YES, NO, NO, YES).
                 RUN pWriteToCoordinatesNum(iopiRowCount, ipbf-ttCEFormatConfig.setPartSummPricePerEACol, dPriceTotal , 4, 2, NO, YES, NO, NO, YES). 
                 RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
             END.
