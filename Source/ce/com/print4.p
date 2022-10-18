@@ -79,7 +79,7 @@ DEFINE VARIABLE hdEstimateProcs AS HANDLE NO-UNDO.
 IF xest.metric THEN
   ASSIGN
    ld-metric = 25.4
-   lv-format = "->>,>>>mm".
+   lv-format = "->>,>>>.99".
 
 IF vprint THEN DO:
   FIND FIRST probe
@@ -652,12 +652,6 @@ with no-box no-labels width 80 frame aa5 DOWN STREAM-IO.
        ld-len = xeb.len * ld-metric
        ld-wid = xeb.wid * ld-metric
        ld-dep = xeb.dep * ld-metric.
-
-      IF ld-metric NE 1 THEN DO:
-        {sys/inc/roundup.i ld-len}
-        {sys/inc/roundup.i ld-wid}
-        {sys/inc/roundup.i ld-dep}
-      END.
 
       ASSIGN
        sizcol[1]  = TRIM(STRING(ld-len,lv-format)) + "x" +
