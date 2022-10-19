@@ -540,10 +540,8 @@ END.
 
 /* Creating a temp-table with table's primary index fields */
 FOR EACH ASI._file NO-LOCK:
-if _file._file-name begins "_" then next.
-if _file._file-name begins "sys" then next.
-if _file._hidden eq yes or _file._for-type = "procedure"
-then next.    
+IF ASI._file._tbl-type NE "T" THEN NEXT.
+IF ASI._file._hidden OR ASI._file._for-type EQ "procedure" THEN NEXT.    
     CREATE ttPrimaryIndex.
     ttPrimaryIndex.tableName = ASI._file._file-name.
 
