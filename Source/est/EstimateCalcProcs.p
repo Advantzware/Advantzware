@@ -168,6 +168,9 @@ FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
 FUNCTION fIsSingleType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
+FUNCTION fIsWoodStyle RETURNS LOGICAL PRIVATE 
+    (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER) FORWARD.
+
 FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
@@ -2430,6 +2433,7 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
     DEFINE PARAMETER BUFFER opbf-ttEstCostMaterial FOR ttEstCostMaterial.
     
     DEFINE VARIABLE lFoam  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lWood  AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-ttEstCostBlank    FOR ttEstCostBlank.
     
@@ -2437,8 +2441,9 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
         RETURN.
         
     lFoam = fIsFoamStyle (ipbf-ttEstCostForm.company, ipbf-ttEstCostForm.estimateNo, ipbf-ttEstCostForm.formNo).
+    lWood = fIsWoodStyle (ipbf-ttEstCostForm.company, ipbf-ttEstCostForm.estimateNo, ipbf-ttEstCostForm.formNo).
         
-    IF lFoam THEN
+    IF lFoam OR lWood THEN
     DO:
         IF fIsComboType(ipbf-ttEstCostHeader.estType) THEN DO:
             ASSIGN
@@ -2446,6 +2451,8 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
                 opbf-ttEstCostMaterial.dimWidth                = ipbf-ttEstCostForm.netWidth
                 opbf-ttEstCostMaterial.dimDepth                = ipbf-ttEstCostForm.netDepth 
                 opbf-ttEstCostMaterial.quantityRequiredNoWaste = opbf-ttEstCostMaterial.quantityRequiredNoWaste * ipbf-ttEstCostForm.numOutNet
+                opbf-ttEstCostMaterial.quantityRequiredRunWaste = opbf-ttEstCostMaterial.quantityRequiredRunWaste * ipbf-ttEstCostForm.numOutNet
+                opbf-ttEstCostMaterial.quantityRequiredSetupWaste = opbf-ttEstCostMaterial.quantityRequiredSetupWaste * ipbf-ttEstCostForm.numOutNet
                 .
         END.
         ELSE DO:
@@ -2459,6 +2466,8 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
                     opbf-ttEstCostMaterial.dimWidth                = bf-ttEstCostBlank.blankWidth
                     opbf-ttEstCostMaterial.dimDepth                = bf-ttEstCostBlank.blankDepth
                     opbf-ttEstCostMaterial.quantityRequiredNoWaste = bf-ttEstCostBlank.quantityRequired
+                    opbf-ttEstCostMaterial.quantityRequiredRunWaste = opbf-ttEstCostMaterial.quantityRequiredRunWaste * bf-ttEstCostBlank.numOut
+                    opbf-ttEstCostMaterial.quantityRequiredSetupWaste = opbf-ttEstCostMaterial.quantityRequiredSetupWaste * bf-ttEstCostBlank.numOut 
                     .
         END.
     END.  
@@ -2471,8 +2480,7 @@ PROCEDURE pBuildFreightForBoardCost PRIVATE:
      Notes: This cost is processing for Single/combo estimates but not being included in case of Item-BOM setup.
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-    
-    DEFINE BUFFER bf-ef                     FOR ef. 
+      DEFINE BUFFER bf-ef                     FOR ef. 
     DEFINE BUFFER bf-ttEstCostForm          FOR ttEstCostForm. 
     DEFINE BUFFER bf-ttEstCostBlank         FOR ttEstCostBlank. 
     DEFINE BUFFER bf-ttEstCostHeader        FOR ttEstCostHeader.
@@ -6962,7 +6970,7 @@ FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
     
 END FUNCTION.
 
-FUNCTION fIsFoamStyle RETURNS LOGICAL 
+FUNCTION fIsFoamStyle RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER):
     /*------------------------------------------------------------------------------
      Purpose: Returns if any Item is Foam type in the Estimate
@@ -7020,6 +7028,35 @@ FUNCTION fIsSingleType RETURNS LOGICAL PRIVATE
     ------------------------------------------------------------------------------*/    
     RETURN DYNAMIC-FUNCTION("fEstimate_IsSingleType", ipcEstType).
     
+END FUNCTION.
+
+FUNCTION fIsWoodStyle RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if any Item is Foam type in the Estimate
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+    DEFINE BUFFER bf-Style FOR Style.
+    DEFINE BUFFER bf-eb    FOR eb.
+    
+    FIND FIRST bf-eb
+        WHERE bf-eb.company EQ ipcCompany
+        AND bf-eb.est-no  EQ ipcEstNo
+        AND bf-eb.form-no EQ ipiFormNo
+        AND bf-eb.pur-man EQ NO
+        AND CAN-FIND(FIRST bf-Style
+        WHERE bf-Style.company EQ bf-eb.company
+        AND bf-Style.style   EQ bf-eb.style
+        AND bf-Style.type    EQ "W")
+        NO-LOCK NO-ERROR.
+    
+    IF AVAILABLE bf-eb THEN
+        lResult = YES.
+
+    RETURN lResult.
 END FUNCTION.
 
 FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE 
