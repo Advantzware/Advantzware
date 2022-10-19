@@ -49,9 +49,9 @@ IF VALID-HANDLE(hPgmMstrSecur) THEN DO:
 END.
 IF lAdmin THEN RETURN.
 
+/*
 FIND FIRST module NO-LOCK
-     WHERE module.db-name EQ ipcDBName
-       AND module.module  EQ ipcModule
+     WHERE module.module  EQ ipcModule
      NO-ERROR.
 IF NOT AVAILABLE module THEN 
     FIND FIRST module NO-LOCK 
@@ -66,18 +66,19 @@ IF NOT AVAILABLE module THEN DO:
             WHERE module.module EQ prgrms.prgm_ver  /*note this should be changed to use a new module linker field*/
             NO-ERROR.
 END.
+*/
 IF NOT AVAILABLE module THEN 
     ASSIGN 
         oplAccess = YES  /*Set to yes until we get Product List Organized*/
         cMessage = 'Module "' + ipcModule + '" does not exist'
         .
 IF AVAILABLE module THEN  DO:
-    IF oplAccess AND NOT module.is-used  THEN
+    IF oplAccess AND NOT module.Licensed  THEN
         ASSIGN 
             oplAccess = NO
             cMessage = 'Module "' + ipcModule + '" is not activated.'
             .
-    IF oplAccess AND module.expire-date LT TODAY THEN
+    IF oplAccess AND module.expDate LT TODAY THEN
         ASSIGN
             oplAccess = NO
             cMessage = 'Access to Module "' +  ipcModule + '" is expired.'
