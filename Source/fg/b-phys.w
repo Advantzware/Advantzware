@@ -1613,14 +1613,17 @@ PROCEDURE local-enable-fields :
   def var ii as int no-undo.
   def var hd-next as widget-handle no-undo.
   DEF VAR li AS INT NO-UNDO.
+  DEFINE VARIABLE dReturnWidth AS DECIMAL NO-UNDO.
 
-   
+   {methods/run_link.i "container-source" "pReturnWidth" "(OUTPUT dReturnWidth)" }
+  
   /* Code placed here will execute PRIOR to standard behavior. */
+  IF dReturnWidth LE 300 THEN
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
       APPLY 'cursor-left' TO {&BROWSE-NAME}.
     END.
-  END.
+  END.  
 
   /*
   run get-link-handle in adm-broker-hdl (this-procedure,"record-target", output out-hd-lst).
