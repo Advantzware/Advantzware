@@ -40,7 +40,8 @@ CREATE WIDGET-POOL.
 assign cocode = g_company
        locode = g_loc.
 {oe/oe-sysct1.i NEW}
-DEF VAR lv-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
+DEFINE VARIABLE lv-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
+DEFINE VARIABLE iTotalPallet AS INTEGER FORMAT "->>,>>>,>>9" NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,7 +87,7 @@ oe-ordl.prom-code oe-ordl.prom-date oe-ordl.po-no-po oe-ordl.s-man[1] ~
 oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.vend-no oe-ordl.s-man[2] ~
 oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.job-no oe-ordl.job-no2 ~
 oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] get-inv-qty () @ lv-inv-qty ~
-oe-ordl.ship-qty 
+oe-ordl.ship-qty fGetTotalPallet(oe-ordl.i-no , INT(oe-ordl.qty) ) @ iTotalPallet
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
 
@@ -103,6 +104,13 @@ oe-ordl.ship-qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-inv-qty V-table-Win 
 FUNCTION get-inv-qty RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalPallet B-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
+  ( ipcItemNo AS CHARACTER , ipiQty AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -270,7 +278,11 @@ DEFINE FRAME F-Main
      oe-ordl.ship-qty AT ROW 13.14 COL 81 COLON-ALIGNED
           LABEL "Quantity Shipped"
           VIEW-AS FILL-IN 
-          SIZE 21.6 BY 1
+          SIZE 21 BY 1  
+     iTotalPallet AT ROW 13.14 COL 128 COLON-ALIGNED
+          LABEL "Total # of Pallets (FG)"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      RECT-2 AT ROW 1 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -637,6 +649,37 @@ FUNCTION get-inv-qty RETURNS DECIMAL
   RETURN lp-inv-qty.
  
   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalPallet V-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
+  ( ipcItemNo AS CHARACTER , ipiQty AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+
+  DEFINE VARIABLE opiTotalPallet AS INTEGER NO-UNDO.
+
+  opiTotalPallet = 0.
+  
+  FIND FIRST bf-itemfg NO-LOCK
+    WHERE bf-itemfg.company EQ cocode
+      AND bf-itemfg.i-no    EQ ipcItemNo 
+      NO-ERROR.
+      
+  IF AVAIL bf-itemfg AND bf-itemfg.case-pall NE 0 THEN
+  DO:
+       opiTotalPallet = INT(ipiQty / bf-itemfg.case-pall).
+  END.
+  ELSE opiTotalPallet = 0.
+
+  RETURN opiTotalPallet.
 
 END FUNCTION.
 

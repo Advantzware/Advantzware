@@ -53,6 +53,7 @@ DEFINE VARIABLE lv-ordl-recid AS RECID NO-UNDO.
 DEFINE VARIABLE lv-change-prom-date AS LOG NO-UNDO.  /* flag for updating oe-ordl.prom-date*/
 DEFINE VARIABLE lv-uom-list AS cha INIT "M,EA,L,CS,C" NO-UNDO.
 DEFINE VARIABLE cDueDateChangeRsn AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iTotalPallet AS INTEGER NO-UNDO.
 
 /* ==== FOR REPRICE ===*/
 DEFINE NEW SHARED VARIABLE v-procat LIKE oe-prmtx.procat NO-UNDO. /* ITEM CATEGORY */
@@ -178,7 +179,8 @@ oe-ordl.po-no oe-ordl.req-date oe-ordl.job-no oe-ordl.job-no2 ~
 oe-ordl.vend-no oe-ordl.disc get-extended-price() @ ld-ext-price ~
 oe-ordl.spare-char-3 oe-ordl.spare-char-4 ~
 dueDateChangeRsn() @ cDueDateChangeRsn ~
-dueDateChangeUser() @ oe-ordl.spare-char-5 
+dueDateChangeUser() @ oe-ordl.spare-char-5 ~
+fGetTotalPallet(oe-ordl.i-no , INT(oe-ordl.qty) ) @ iTotalPallet
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-ordl OF oe-ord WHERE ~{&KEY-PHRASE} ~
       AND oe-ordl.line GT 0 AND ~
@@ -239,6 +241,13 @@ FUNCTION get-pr-uom RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-price-disc B-table-Win 
 FUNCTION get-price-disc RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalPallet B-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
+  ( ipcItemNo AS CHARACTER , ipiQty AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -323,6 +332,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.spare-char-4 COLUMN-LABEL "Prom Dt User" FORMAT "x(8)":U
       dueDateChangeRsn() @ cDueDateChangeRsn COLUMN-LABEL "Due Dt Chg Rsn"
       dueDateChangeUser() @ oe-ordl.spare-char-5 COLUMN-LABEL "Due Dt Usr" FORMAT "x(12)":U
+      fGetTotalPallet(oe-ordl.i-no , INT(oe-ordl.qty) ) @ iTotalPallet COLUMN-LABEL "Total # of Pallets (FG)" FORMAT "->>,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 179 BY 11.19
@@ -474,6 +484,8 @@ ASI.oe-ordl.line LT 99999999"
 "dueDateChangeRsn() @ cDueDateChangeRsn" "Due Dt Chg Rsn" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
 "dueDateChangeUser() @ oe-ordl.spare-char-5" "Due Dt Usr" "x(12)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[22]   > "_<CALC>"
+"fGetTotalPallet(oe-ordl.i-no , INT(oe-ordl.qty) ) @ iTotalPallet" "Due Dt Usr" "->>,>>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2262,6 +2274,37 @@ FUNCTION get-price-disc RETURNS DECIMAL
      END.
 
   RETURN ld.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalPallet B-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
+  ( ipcItemNo AS CHARACTER , ipiQty AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+
+  DEFINE VARIABLE opiTotalPallet AS INTEGER NO-UNDO.
+
+  opiTotalPallet = 0.
+  
+  FIND FIRST bf-itemfg NO-LOCK
+    WHERE bf-itemfg.company EQ cocode
+      AND bf-itemfg.i-no    EQ ipcItemNo 
+      NO-ERROR.
+      
+  IF AVAIL bf-itemfg AND bf-itemfg.case-pall NE 0 THEN
+  DO:
+       opiTotalPallet = INT(ipiQty / bf-itemfg.case-pall).
+  END.
+  ELSE opiTotalPallet = 0.
+
+  RETURN opiTotalPallet.
 
 END FUNCTION.
 

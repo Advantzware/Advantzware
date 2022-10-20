@@ -4,6 +4,7 @@ DEFINE VARIABLE dNetprct LIKE probe.net-profit.
 DEFINE VARIABLE cUsers-id AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cInks AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iTotalPallet AS INTEGER NO-UNDO .
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
          FORMAT oe-ord.due-date COLUMN-LABEL " !Due!Date"
@@ -585,6 +586,9 @@ FORMAT wkrecap.procat
     END.
     
 
+    ASSIGN
+        iTotalPallet = IF itemfg.case-pall NE 0 THEN INT(oe-ordl.qty / itemfg.case-pall) ELSE 0.
+    
     FIND FIRST oe-ord NO-LOCK
         WHERE oe-ord.company EQ cocode
           AND oe-ord.ord-no  EQ w-data.ord-no
@@ -730,6 +734,7 @@ FORMAT wkrecap.procat
 		         WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
 		         WHEN "oe-ord.due-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date) ELSE "".
 		         WHEN "oe-ord.ord-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
+		         WHEN "iTotalPallet" THEN cVarValue = STRING(iTotalPallet,"->>,>>>,>>9").
             END CASE.
             IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
             
@@ -828,6 +833,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+		           WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -910,6 +916,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+		           WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -999,6 +1006,7 @@ FORMAT wkrecap.procat
 		        WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
 		        WHEN "oe-ord.due-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date) ELSE "".
 		        WHEN "oe-ord.ord-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
+		        WHEN "iTotalPallet" THEN cVarValue = string(iTotalPallet,"->>,>>>,>>9").
             END CASE.
             IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
             
@@ -1094,6 +1102,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "" . 
 		           WHEN "approved-date" THEN cVarValue = "" .	
+		           WHEN "iTotalPallet" THEN cVarValue = "" .	
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1175,6 +1184,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+		           WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
