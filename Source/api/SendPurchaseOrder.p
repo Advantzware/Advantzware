@@ -637,6 +637,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 INPUT  po-ordl.company,
                 INPUT  po-ordl.po-no,
                 INPUT  po-ordl.line,
+                INPUT  "",
                 OUTPUT dScoreSizeArray,
                 OUTPUT cScoreTypeArray
                 ).
