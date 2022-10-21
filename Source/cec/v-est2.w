@@ -3758,6 +3758,9 @@ PROCEDURE local-display-fields :
     RUN enable-auto-calc IN WIDGET-HANDLE(char-hdl) (ll-one-eb-on-ef OR ll-part-style).
     RUN enable-copy IN WIDGET-HANDLE(char-hdl) (ll-one-ef-on-est).
   END.
+  
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
+  
   do with frame {&frame-name} :  
   IF est.estimateTypeID eq "WOOD" THEN
     ASSIGN  
