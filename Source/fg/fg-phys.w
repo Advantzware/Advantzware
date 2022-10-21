@@ -569,3 +569,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReturnWidth W-Win 
+PROCEDURE pReturnWidth :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER opdReturnWidth AS DECIMAL NO-UNDO.  
+   opdReturnWidth = {&WINDOW-NAME}:WIDTH.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
