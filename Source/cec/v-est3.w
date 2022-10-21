@@ -2037,7 +2037,7 @@ PROCEDURE local-display-fields :
   RELEASE xest.
   RELEASE xeb. 
   RUN check-modified IN THIS-PROCEDURE ('clear':U) NO-ERROR.
-
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -59,8 +59,20 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
       lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
-      PUT TRIM(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) lv-part-dscr1.  
+      
+      IF LENGTH(xqitm.part-no) LE 20 THEN
+        PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+          xqitm.part-no AT 10 FORMAT "x(20)"           
+          TRIM(lv-part-dscr1) AT 31 FORMAT "x(30)".
+      ELSE do: 
+         PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+          xqitm.part-no AT 10 FORMAT "x(30)".
+          IF lv-part-dscr1 NE "" THEN
+          PUT 
+            SKIP           
+            TRIM(lv-part-dscr1) AT 31 FORMAT "x(30)".
+      END.
+      
     END.
     ELSE
     IF i EQ 2 THEN DO:
@@ -97,7 +109,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
            ELSE trim-size = "".
       END.
-      PUT  xquo.q-no  trim-size AT 10 FORM "x(21)"
+      PUT  xquo.q-no FORMAT ">>>>>9"  trim-size AT 10 FORM "x(21)"
               /*xqitm.style*/  style-dscr   .
     END.
     ELSE

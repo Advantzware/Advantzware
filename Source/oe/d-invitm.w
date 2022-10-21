@@ -1317,6 +1317,7 @@ assign inv-line.r-no       = inv-head.r-no
        inv-line.cust-no    = inv-head.cust-no
        inv-line.ord-date   = inv-head.inv-date
        inv-line.taxGroup   = inv-head.tax-gr
+       inv-line.inv-no     = inv-head.inv-no
        .
 find first cust of inv-line no-lock.
 

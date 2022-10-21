@@ -21,7 +21,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE>"
   .
 
 PUT "<FArial><P12><=#3>"
-  "<=#3><R-2> <B>Quotation#: " v-first-q-no "</B>" "           Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(30)"
+  "<=#3><R-2> <B>Quotation#: " v-first-q-no FORMAT ">>>>>9" "</B>" "           Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(30)"
   "<P10>" SKIP
   "<=#3> Customer ID             Contact"
   "<=#3><R+2> Telephone                       Fax <FCourier New>" 

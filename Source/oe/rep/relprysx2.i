@@ -17,7 +17,7 @@
         v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
         lv-email AT 8 SKIP(1)
               "<FCourier New>"
-              "Sold To:" SPACE(30) "Ship To:" shipto.ship-id SKIP
+              "Sold To:" SPACE(30) "Ship To:" SKIP
               SPACE(5) cust.name shipto.ship-name AT 45 skip
               SPACE(5) cust.addr[1] shipto.ship-addr[1] AT 45 SKIP.
       IF cust.addr[2] <> "" OR shipto.ship-addr[2] <> ""  THEN

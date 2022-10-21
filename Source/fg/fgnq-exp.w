@@ -87,10 +87,10 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-8 begin_i-no end_i-no ~
-begin_vend end_vend sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up ~
-btn_down fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+begin_vend end_vend from_date to_date sl_avail sl_selected Btn_Def Btn_Add ~
+Btn_Remove btn_Up btn_down fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_i-no end_i-no begin_vend end_vend ~
-sl_avail sl_selected fi_file tb_OpenCSV tbAutoClose 
+from_date to_date sl_avail sl_selected fi_file tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -136,138 +136,150 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn_Add 
-    LABEL "&Add >>" 
-    SIZE 16 BY 1.1.
+     LABEL "&Add >>" 
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Def 
-    LABEL "&Default" 
-    SIZE 16 BY 1.1.
+     LABEL "&Default" 
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_down 
-    LABEL "Move Down" 
-    SIZE 16 BY 1.1.
+     LABEL "Move Down" 
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON Btn_Remove 
-    LABEL "<< &Remove" 
-    SIZE 16 BY 1.1.
+     LABEL "<< &Remove" 
+     SIZE 16 BY 1.1.
 
 DEFINE BUTTON btn_Up 
-    LABEL "Move Up" 
-    SIZE 16 BY 1.1.
+     LABEL "Move Up" 
+     SIZE 16 BY 1.1.
 
 DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "x(15)" 
-    LABEL "From Item#" 
-    VIEW-AS FILL-IN 
-    SIZE 21 BY 1.
+     LABEL "From Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
 
 DEFINE VARIABLE begin_vend AS CHARACTER FORMAT "x(10)" 
-    LABEL "From Vendor" 
-    VIEW-AS FILL-IN 
-    SIZE 21 BY 1.
+     LABEL "From Vendor" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
 
-DEFINE VARIABLE end_i-no   AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzzz" 
-    LABEL "To Item#" 
-    VIEW-AS FILL-IN 
-    SIZE 21 BY 1.
+DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)" INITIAL "zzzzzzzzzzzzzzzz" 
+     LABEL "To Item#" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
 
-DEFINE VARIABLE end_vend   AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz" 
-    LABEL "To Vendor" 
-    VIEW-AS FILL-IN 
-    SIZE 21 BY 1.
+DEFINE VARIABLE end_vend AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzzzzzz" 
+     LABEL "To Vendor" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1.
 
-DEFINE VARIABLE fi_file    AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ExportCustomer.csv" 
-    LABEL "Name" 
-    VIEW-AS FILL-IN NATIVE 
-    SIZE 52 BY 1.
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\ExportCustomer.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 52 BY 1.
+
+DEFINE VARIABLE from_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "From Date" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1 NO-UNDO.
+
+DEFINE VARIABLE to_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "To Date" 
+     VIEW-AS FILL-IN 
+     SIZE 21 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 7.86.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 7.86.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 5.67.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 5.67.
 
 DEFINE RECTANGLE RECT-8
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 94 BY 2.48.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 2.48.
 
-DEFINE VARIABLE sl_avail    AS CHARACTER 
-    VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-    SIZE 31 BY 6.14 NO-UNDO.
+DEFINE VARIABLE sl_avail AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     SIZE 31 BY 6.14 NO-UNDO.
 
 DEFINE VARIABLE sl_selected AS CHARACTER 
-    VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-    SIZE 31 BY 6.14 NO-UNDO.
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     SIZE 31 BY 6.14 NO-UNDO.
 
-DEFINE VARIABLE tbAutoClose AS LOGICAL   INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_excel    AS LOGICAL   INITIAL YES 
-    LABEL "Export To Excel?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_OpenCSV  AS LOGICAL   INITIAL YES 
-    LABEL "Open CSV?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 15.4 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL yes 
+     LABEL "Open CSV?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15.4 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rd-fgnq-exp
-    begin_i-no AT ROW 2.91 COL 25 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number" WIDGET-ID 142
-    end_i-no AT ROW 2.91 COL 64.8 COLON-ALIGNED HELP
-    "Enter Ending Customer" WIDGET-ID 144
-    begin_vend AT ROW 4.38 COL 25 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number" WIDGET-ID 146
-    end_vend AT ROW 4.38 COL 64.8 COLON-ALIGNED HELP
-    "Enter Ending Customer" WIDGET-ID 148
-    sl_avail AT ROW 8.71 COL 7 NO-LABELS WIDGET-ID 26
-    sl_selected AT ROW 8.71 COL 62.6 NO-LABELS WIDGET-ID 28
-    Btn_Def AT ROW 8.81 COL 42.2 HELP
-    "Add Selected Table to Tables to Audit" WIDGET-ID 56
-    Btn_Add AT ROW 10 COL 42.2 HELP
-    "Add Selected Table to Tables to Audit" WIDGET-ID 130
-    Btn_Remove AT ROW 11.19 COL 42.2 HELP
-    "Remove Selected Table from Tables to Audit" WIDGET-ID 134
-    btn_Up AT ROW 12.38 COL 42.2 WIDGET-ID 136
-    btn_down AT ROW 13.57 COL 42.2 WIDGET-ID 132
-    fi_file AT ROW 16.38 COL 18.8 COLON-ALIGNED HELP
-    "Enter File Name" WIDGET-ID 22
-    tb_OpenCSV AT ROW 16.48 COL 87.8 RIGHT-ALIGNED WIDGET-ID 34
-    tbAutoClose AT ROW 18.29 COL 32.8 WIDGET-ID 60
-    tb_excel AT ROW 18.38 COL 4 WIDGET-ID 32
-    btn-ok AT ROW 19.1 COL 32.6 WIDGET-ID 14
-    btn-cancel AT ROW 19.1 COL 52.6 WIDGET-ID 12
-    "Selected Columns" VIEW-AS TEXT
-    SIZE 18 BY .62 AT ROW 8 COL 69.4 WIDGET-ID 138
-    "Available Columns" VIEW-AS TEXT
-    SIZE 18 BY .62 AT ROW 8 COL 13.4 WIDGET-ID 140
-    " Export Selection" VIEW-AS TEXT
-    SIZE 17 BY .62 AT ROW 7.33 COL 5 WIDGET-ID 86
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21.2 BY .71 AT ROW 1.14 COL 5 WIDGET-ID 36
-    RECT-6 AT ROW 7.67 COL 4 WIDGET-ID 30
-    RECT-7 AT ROW 1.52 COL 4 WIDGET-ID 38
-    RECT-8 AT ROW 15.76 COL 4 WIDGET-ID 84
-    SPACE(2.99) SKIP(2.85)
+     begin_i-no AT ROW 2.48 COL 25 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 142
+     end_i-no AT ROW 2.48 COL 64.8 COLON-ALIGNED HELP
+          "Enter Ending Customer" WIDGET-ID 144
+     begin_vend AT ROW 3.86 COL 25 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 146
+     end_vend AT ROW 3.86 COL 64.8 COLON-ALIGNED HELP
+          "Enter Ending Customer" WIDGET-ID 148
+     from_date AT ROW 5.19 COL 25 COLON-ALIGNED WIDGET-ID 150
+     to_date AT ROW 5.19 COL 64.8 COLON-ALIGNED WIDGET-ID 152
+     sl_avail AT ROW 8.71 COL 7 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 8.71 COL 62.6 NO-LABEL WIDGET-ID 28
+     Btn_Def AT ROW 8.81 COL 42.2 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 10 COL 42.2 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 130
+     Btn_Remove AT ROW 11.19 COL 42.2 HELP
+          "Remove Selected Table from Tables to Audit" WIDGET-ID 134
+     btn_Up AT ROW 12.38 COL 42.2 WIDGET-ID 136
+     btn_down AT ROW 13.57 COL 42.2 WIDGET-ID 132
+     fi_file AT ROW 16.38 COL 18.8 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 22
+     tb_OpenCSV AT ROW 16.48 COL 87.8 RIGHT-ALIGNED WIDGET-ID 34
+     tbAutoClose AT ROW 18.29 COL 32.8 WIDGET-ID 60
+     tb_excel AT ROW 18.38 COL 4 WIDGET-ID 32
+     btn-ok AT ROW 19.1 COL 32.6 WIDGET-ID 14
+     btn-cancel AT ROW 19.1 COL 52.6 WIDGET-ID 12
+     "Selected Columns" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 8 COL 69.4 WIDGET-ID 138
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21.2 BY .71 AT ROW 1.14 COL 5 WIDGET-ID 36
+     " Export Selection" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 7.33 COL 5 WIDGET-ID 86
+     "Available Columns" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 8 COL 13.4 WIDGET-ID 140
+     RECT-6 AT ROW 7.67 COL 4 WIDGET-ID 30
+     RECT-7 AT ROW 1.52 COL 4 WIDGET-ID 38
+     RECT-8 AT ROW 15.76 COL 4 WIDGET-ID 84
+     SPACE(2.99) SKIP(2.85)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
-    SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-    BGCOLOR 15 
-    TITLE "Export Finished Good to Excel" WIDGET-ID 100.
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         BGCOLOR 15 
+         TITLE "Export Finished Good to Excel" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -288,34 +300,49 @@ DEFINE FRAME rd-fgnq-exp
 /* SETTINGS FOR DIALOG-BOX rd-fgnq-exp
    FRAME-NAME                                                           */
 ASSIGN 
-    FRAME rd-fgnq-exp:SCROLLABLE = FALSE
-    FRAME rd-fgnq-exp:HIDDEN     = TRUE.
+       FRAME rd-fgnq-exp:SCROLLABLE       = FALSE
+       FRAME rd-fgnq-exp:HIDDEN           = TRUE.
 
 ASSIGN 
-    begin_i-no:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
+       begin_i-no:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
 
 ASSIGN 
-    begin_vend:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
+       begin_vend:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
 
 ASSIGN 
-    end_i-no:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
+       end_i-no:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
 
 ASSIGN 
-    end_vend:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
+       end_vend:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
 
 ASSIGN 
-    fi_file:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
+       fi_file:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
+
+ASSIGN 
+       from_date:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME rd-fgnq-exp
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    tb_excel:HIDDEN IN FRAME rd-fgnq-exp       = TRUE
-    tb_excel:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
+       tb_excel:HIDDEN IN FRAME rd-fgnq-exp           = TRUE
+       tb_excel:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME rd-fgnq-exp
    ALIGN-R                                                              */
 ASSIGN 
-    tb_OpenCSV:PRIVATE-DATA IN FRAME rd-fgnq-exp = "parm".
+       tb_OpenCSV:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
+
+ASSIGN 
+       to_date:PRIVATE-DATA IN FRAME rd-fgnq-exp     = 
+                "parm".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -328,8 +355,8 @@ ASSIGN
 
 &Scoped-define SELF-NAME rd-fgnq-exp
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgnq-exp rd-fgnq-exp
-ON HELP OF FRAME rd-fgnq-exp /* Export Customer to Excel */
-    DO:
+ON HELP OF FRAME rd-fgnq-exp /* Export Finished Good to Excel */
+DO:
         DEFINE VARIABLE lw-focus   AS WIDGET-HANDLE NO-UNDO.
         DEFINE VARIABLE ls-cur-val AS CHARACTER     NO-UNDO.
         DEFINE VARIABLE char-val   AS CHARACTER     NO-UNDO.
@@ -362,8 +389,8 @@ ON HELP OF FRAME rd-fgnq-exp /* Export Customer to Excel */
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-fgnq-exp rd-fgnq-exp
-ON WINDOW-CLOSE OF FRAME rd-fgnq-exp /* Export Customer to Excel */
-    DO:
+ON WINDOW-CLOSE OF FRAME rd-fgnq-exp /* Export Finished Good to Excel */
+DO:
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -374,7 +401,7 @@ ON WINDOW-CLOSE OF FRAME rd-fgnq-exp /* Export Customer to Excel */
 &Scoped-define SELF-NAME begin_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no rd-fgnq-exp
 ON LEAVE OF begin_i-no IN FRAME rd-fgnq-exp /* From Item# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -385,7 +412,7 @@ ON LEAVE OF begin_i-no IN FRAME rd-fgnq-exp /* From Item# */
 &Scoped-define SELF-NAME begin_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend rd-fgnq-exp
 ON LEAVE OF begin_vend IN FRAME rd-fgnq-exp /* From Vendor */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -396,7 +423,7 @@ ON LEAVE OF begin_vend IN FRAME rd-fgnq-exp /* From Vendor */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel rd-fgnq-exp
 ON CHOOSE OF btn-cancel IN FRAME rd-fgnq-exp /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -407,7 +434,7 @@ ON CHOOSE OF btn-cancel IN FRAME rd-fgnq-exp /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok rd-fgnq-exp
 ON CHOOSE OF btn-ok IN FRAME rd-fgnq-exp /* OK */
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
         END.
@@ -448,7 +475,7 @@ ON CHOOSE OF btn-ok IN FRAME rd-fgnq-exp /* OK */
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add rd-fgnq-exp
 ON CHOOSE OF Btn_Add IN FRAME rd-fgnq-exp /* Add >> */
-    DO:
+DO:
         DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
         APPLY "DEFAULT-ACTION" TO sl_avail.
@@ -461,7 +488,7 @@ ON CHOOSE OF Btn_Add IN FRAME rd-fgnq-exp /* Add >> */
 &Scoped-define SELF-NAME Btn_Def
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def rd-fgnq-exp
 ON CHOOSE OF Btn_Def IN FRAME rd-fgnq-exp /* Default */
-    DO:
+DO:
         DEFINE VARIABLE cSelectedList AS CHARACTER NO-UNDO.
 
         RUN DisplaySelectionDefault.  /* task 04041406 */ 
@@ -476,7 +503,7 @@ ON CHOOSE OF Btn_Def IN FRAME rd-fgnq-exp /* Default */
 &Scoped-define SELF-NAME btn_down
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_down rd-fgnq-exp
 ON CHOOSE OF btn_down IN FRAME rd-fgnq-exp /* Move Down */
-    DO:
+DO:
         RUN Move-Field ("Down").
     END.
 
@@ -487,7 +514,7 @@ ON CHOOSE OF btn_down IN FRAME rd-fgnq-exp /* Move Down */
 &Scoped-define SELF-NAME Btn_Remove
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Remove rd-fgnq-exp
 ON CHOOSE OF Btn_Remove IN FRAME rd-fgnq-exp /* << Remove */
-    DO:
+DO:
         APPLY "DEFAULT-ACTION" TO sl_selected  .
     END.
 
@@ -498,7 +525,7 @@ ON CHOOSE OF Btn_Remove IN FRAME rd-fgnq-exp /* << Remove */
 &Scoped-define SELF-NAME btn_Up
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_Up rd-fgnq-exp
 ON CHOOSE OF btn_Up IN FRAME rd-fgnq-exp /* Move Up */
-    DO:
+DO:
         RUN Move-Field ("Up").
     END.
 
@@ -509,7 +536,7 @@ ON CHOOSE OF btn_Up IN FRAME rd-fgnq-exp /* Move Up */
 &Scoped-define SELF-NAME end_i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no rd-fgnq-exp
 ON LEAVE OF end_i-no IN FRAME rd-fgnq-exp /* To Item# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -520,7 +547,7 @@ ON LEAVE OF end_i-no IN FRAME rd-fgnq-exp /* To Item# */
 &Scoped-define SELF-NAME end_vend
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vend rd-fgnq-exp
 ON LEAVE OF end_vend IN FRAME rd-fgnq-exp /* To Vendor */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -531,7 +558,7 @@ ON LEAVE OF end_vend IN FRAME rd-fgnq-exp /* To Vendor */
 &Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgnq-exp
 ON HELP OF fi_file IN FRAME rd-fgnq-exp /* Name */
-    DO:
+DO:
         DEFINE VARIABLE ls-filename AS CHARACTER NO-UNDO.
         DEFINE VARIABLE ll-ok       AS LOG       NO-UNDO.
 
@@ -551,10 +578,20 @@ ON HELP OF fi_file IN FRAME rd-fgnq-exp /* Name */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file rd-fgnq-exp
 ON LEAVE OF fi_file IN FRAME rd-fgnq-exp /* Name */
-    DO:
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME from_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL from_date rd-fgnq-exp
+ON LEAVE OF from_date IN FRAME rd-fgnq-exp /* From Date */
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -565,7 +602,7 @@ ON LEAVE OF fi_file IN FRAME rd-fgnq-exp /* Name */
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail rd-fgnq-exp
 ON DEFAULT-ACTION OF sl_avail IN FRAME rd-fgnq-exp
-    DO:
+DO:
   
         IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
             sl_selected:NUM-ITEMS = 0)
@@ -582,7 +619,7 @@ ON DEFAULT-ACTION OF sl_avail IN FRAME rd-fgnq-exp
 &Scoped-define SELF-NAME sl_selected
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_selected rd-fgnq-exp
 ON DEFAULT-ACTION OF sl_selected IN FRAME rd-fgnq-exp
-    DO:
+DO:
         DO i = 1 TO {&SELF-NAME}:NUM-ITEMS:
             IF {&SELF-NAME}:IS-SELECTED(i) THEN 
             DO:
@@ -608,7 +645,7 @@ ON DEFAULT-ACTION OF sl_selected IN FRAME rd-fgnq-exp
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel rd-fgnq-exp
 ON VALUE-CHANGED OF tb_excel IN FRAME rd-fgnq-exp /* Export To Excel? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -619,7 +656,18 @@ ON VALUE-CHANGED OF tb_excel IN FRAME rd-fgnq-exp /* Export To Excel? */
 &Scoped-define SELF-NAME tb_OpenCSV
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV rd-fgnq-exp
 ON VALUE-CHANGED OF tb_OpenCSV IN FRAME rd-fgnq-exp /* Open CSV? */
-    DO:
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME to_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL to_date rd-fgnq-exp
+ON LEAVE OF to_date IN FRAME rd-fgnq-exp /* To Date */
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -676,16 +724,16 @@ RUN disable_UI.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI rd-fgnq-exp  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Hide all frames. */
-    HIDE FRAME rd-fgnq-exp.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Hide all frames. */
+  HIDE FRAME rd-fgnq-exp.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -693,7 +741,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault rd-fgnq-exp 
 PROCEDURE DisplaySelectionDefault :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -716,7 +764,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList rd-fgnq-exp 
 PROCEDURE DisplaySelectionList :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -762,7 +810,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionList2 rd-fgnq-exp 
 PROCEDURE DisplaySelectionList2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -813,24 +861,24 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI rd-fgnq-exp  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_i-no end_i-no begin_vend end_vend sl_avail sl_selected fi_file 
-        tb_OpenCSV tbAutoClose 
-        WITH FRAME rd-fgnq-exp.
-    ENABLE RECT-6 RECT-7 RECT-8 begin_i-no end_i-no begin_vend end_vend sl_avail 
-        sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down fi_file 
-        tb_OpenCSV tbAutoClose btn-ok btn-cancel 
-        WITH FRAME rd-fgnq-exp.
-    VIEW FRAME rd-fgnq-exp.
-    {&OPEN-BROWSERS-IN-QUERY-rd-fgnq-exp}
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_i-no end_i-no begin_vend end_vend from_date to_date sl_avail 
+          sl_selected fi_file tb_OpenCSV tbAutoClose 
+      WITH FRAME rd-fgnq-exp.
+  ENABLE RECT-6 RECT-7 RECT-8 begin_i-no end_i-no begin_vend end_vend from_date 
+         to_date sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up 
+         btn_down fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+      WITH FRAME rd-fgnq-exp.
+  VIEW FRAME rd-fgnq-exp.
+  {&OPEN-BROWSERS-IN-QUERY-rd-fgnq-exp}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -925,7 +973,10 @@ PROCEDURE run-report :
         AND fg-rcpth.i-no GE begin_i-no 
         AND fg-rcpth.i-no LE end_i-no 
         AND fg-rcpth.po-no GE begin_vend 
-        AND fg-rcpth.po-no LE end_vend NO-LOCK,
+        AND fg-rcpth.po-no LE end_vend 
+        AND fg-rcpth.trans-date GE from_date 
+        AND fg-rcpth.trans-date LE to_date 
+        NO-LOCK,
         EACH fg-rdtlh WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no AND 
         fg-rdtlh.rita-code EQ fg-rcpth.rita-code NO-LOCK 
         BY fg-rcpth.i-no

@@ -41,18 +41,6 @@ FIND first report where report.term-id eq v-term-id NO-LOCK NO-ERROR.
 
 FIND first xquo  where recid(xquo) eq report.rec-id NO-LOCK NO-ERROR.
 
-
-format xquo.est-no        to 8    format "x(8)"
-       xqitm.part-no      to 28   format "x(19)"
-       trim-size          to 47   format "x(18)"
-       xqqty.qty          to 55   format ">>>>>>9"
-       xqqty.price        to 65   format ">>,>>9.99"
-       xqqty.uom          to 69
-       xxx                to 80   format ">>>,>>9.99"
-
-      with frame detail no-box no-labels down width 80 STREAM-IO.
-
-
 v-hdr = "Est #    Description         Siz/Styl/Br" +
         "d/Color     QTY     Price UOM      Price".
 

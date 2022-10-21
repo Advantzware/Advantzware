@@ -28,22 +28,29 @@
 USING System.SharedConfig.
 
 /* ***************************  Definitions  ************************** */
-{sys/inc/var.i}
+{sys/inc/var.i "NEW SHARED"}
 {api/ttArgs.i}
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {api/ttReceipt.i}
+{oerep/ttLoadTag.i}
+{oerep/r-loadtg.i NEW}
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
 DEFINE VARIABLE cCompany          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLocation         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdOutboundProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdLoadTagProcs    AS HANDLE NO-UNDO.
 DEFINE VARIABLE cPrimaryID        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE scInstance        AS CLASS System.SharedConfig NO-UNDO.
 
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
+       FIELD tag-no AS CHARACTER.
+
 RUN api\OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+RUN oerep/LoadTagProcs.p PERSISTENT SET hdLoadTagProcs.
 
 ASSIGN
     cCompany  = g_company
@@ -453,6 +460,8 @@ ON WINDOW-CLOSE OF W-Win /* Outbound API Tester */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
+  IF VALID-HANDLE(hdLoadTagProcs) THEN
+        DELETE PROCEDURE hdLoadTagProcs.   
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -562,6 +571,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel W-Win
 ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* Cancel */
 DO:
+    IF VALID-HANDLE(hdLoadTagProcs) THEN
+        DELETE PROCEDURE hdLoadTagProcs.
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.    
 END.
@@ -734,6 +745,8 @@ DO:
     DEFINE VARIABLE riReceipt             AS ROWID     NO-UNDO.
     DEFINE VARIABLE iCount                AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cTag                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cExportFile           AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cExportTemplate       AS CHARACTER NO-UNDO.
     
     EMPTY TEMP-TABLE ttArgs.
  
@@ -1076,6 +1089,57 @@ DO:
                 INPUT "ROWID",
                 INPUT "oe-ord",
                 INPUT STRING(ROWID(oe-ord))
+                ).
+        END.    
+        WHEN "CreateLoadtag"  THEN DO:
+            EMPTY TEMP-TABLE ttLoadTag.
+            FIND FIRST loadtag NO-LOCK
+                 WHERE loadtag.company EQ cCompany
+                   AND loadtag.tag-no   EQ fiPrimaryKey:SCREEN-VALUE
+                 NO-ERROR.
+            IF NOT AVAILABLE loadtag THEN     
+            FIND FIRST loadtag NO-LOCK 
+                 WHERE loadtag.company      EQ cCompany                      
+                   AND loadtag.misc-char[1] EQ fiPrimaryKey:SCREEN-VALUE
+                 NO-ERROR.     
+            IF NOT AVAILABLE loadtag THEN DO:    
+                MESSAGE "Invalid Loadtag" VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+            IF AVAILABLE loadtag AND loadtag.item-type EQ TRUE THEN DO:    
+                MESSAGE "Please enter Finished Goods loadtags " VIEW-AS ALERT-BOX ERROR.
+                RETURN.
+            END.
+            
+            RUN BuildLoadTagsFromTag IN hdLoadTagProcs (
+            INPUT  cCompany,
+            INPUT  fiPrimaryKey:SCREEN-VALUE,
+            INPUT  1,
+            INPUT-OUTPUT TABLE ttLoadTag BY-REFERENCE
+            ).    
+                   
+            FOR EACH ttLoadTag NO-LOCK:            
+            ASSIGN
+              cExportFile = ttLoadTag.exportFile.
+              cExportTemplate = ttLoadTag.exportTemplate.
+            END.
+            
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT "ExportFile",
+                INPUT cExportFile
+                ).
+                
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT "ExportTemplate",
+                INPUT cExportTemplate
+                ).                
+              
+            RUN pCreateArgs (
+                INPUT "ROWID",
+                INPUT "TTLoadTagHandle",
+                INPUT STRING(TEMP-TABLE ttLoadTag:HANDLE)
                 ).
         END.    
         WHEN "CalculateTax" THEN DO:
@@ -1483,6 +1547,9 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
+   IF VALID-HANDLE(hdLoadTagProcs) THEN
+        DELETE PROCEDURE hdLoadTagProcs.
+        
    APPLY "CLOSE":U TO THIS-PROCEDURE.
    
    RETURN.
