@@ -2662,7 +2662,7 @@ PROCEDURE Set-Comp_Loc :
             g_company                 = ipcCompany
             g_loc                     = ipcLoc
             .
-
+/*
         /* Set BGColor for this company */
         FIND company NO-LOCK WHERE
             company.company EQ g_company.
@@ -2674,7 +2674,7 @@ PROCEDURE Set-Comp_Loc :
         COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
         COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,cCompanyBgColor))).
         COLOR-TABLE:SET-BLUE-VALUE(21, INTEGER(ENTRY(3,cCompanyBgColor))).
-
+*/
     END.
     RUN spSetSessionParam ("Company", g_company).
     RUN spSetSessionParam ("Location", g_loc).
