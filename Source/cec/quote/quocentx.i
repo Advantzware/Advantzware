@@ -68,7 +68,12 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
       put trim(lv-est-no) FORM "x(8)" AT 1  /*SPACE(1) */
           xqitm.part-dscr1 AT 10 /*space(1)*/
-          xqitm.part-no AT 47 .  
+          .
+      
+      IF LENGTH(xqitm.part-no) LE 20 THEN
+        PUT xqitm.part-no AT 47 FORMAT "x(20)".
+      ELSE PUT xqitm.part-no AT 47 FORMAT "x(30)" SKIP.
+      
     END.
     ELSE IF i EQ 2 THEN DO:
       trim-size = "".

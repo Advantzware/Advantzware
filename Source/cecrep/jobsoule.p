@@ -12,8 +12,7 @@ DEF VAR v-ink-1 AS cha FORM "X(30)" NO-UNDO.
 DEF VAR v-ink-2 AS cha FORM "X(30)" NO-UNDO.
 DEF VAR v-ink-3 AS cha FORM "X(30)" NO-UNDO.
 DEF VAR v-ink-4 AS cha FORM "X(30)" NO-UNDO.
-DEF var v-dept-note AS cha FORM "x(124)" EXTENT 10 NO-UNDO.
-DEF var v-spec-note AS cha FORM "x(124)" EXTENT 10 NO-UNDO.
+DEF var v-dept-note AS cha FORM "x(124)" EXTENT 12 NO-UNDO.
 DEF VAR v-deptnote AS cha NO-UNDO.
 DEF VAR v-dept-length AS DEC NO-UNDO.
 DEF VAR lv-under-run AS cha NO-UNDO.
@@ -581,7 +580,7 @@ do v-local-loop = 1 to v-local-copies:
 
                k = v-tmp-lines + lv-got-return + 
                    IF (v-prev-note-rec <> RECID(notes) AND v-prev-note-rec <> ?) THEN v-prev-extent ELSE 0.
-               IF k < 7 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
+               IF k < 13 THEN v-dept-note[k] = v-dept-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
                              ELSE "" .              
 
                IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
@@ -597,58 +596,22 @@ do v-local-loop = 1 to v-local-copies:
 
 
         END.
-        
-        ASSIGN
-        v-inst = ""
-        v-spec-note = ""
-        v-tmp-lines = 0
-        j = 0
-        K = 0
-        lv-got-return = 0.
 
         IF v-fg NE "" THEN
         FIND FIRST bf-itemfg NO-LOCK
             WHERE bf-itemfg.company EQ cocode
             AND bf-itemfg.i-no EQ v-fg NO-ERROR.
-        FOR EACH notes WHERE notes.rec_key = bf-itemfg.rec_key
-            AND lookup(notes.note_code,spec-list) NE 0 NO-LOCK.
-         
-            DO i = 1 TO LENGTH(notes.note_text) :        
-               IF i - j >= v-note-length THEN ASSIGN j = i
-                                              lv-got-return = lv-got-return + 1.
-                   
-               v-tmp-lines = ( i - j ) / v-note-length.
-               {SYS/INC/ROUNDUP.I v-tmp-lines}
 
-               k = v-tmp-lines + lv-got-return.
-               IF k < 9 THEN v-spec-note[k] = v-spec-note[k] + IF SUBSTRING(notes.note_text,i,1) <> CHR(10) THEN SUBSTRING(notes.note_text,i,1) 
-                                  ELSE "" .              
-           
-               IF SUBSTRING(note_text,i,1) = CHR(10) OR SUBSTRING(note_text,i,1) = CHR(13)                 
-               THEN do:
-                  lv-got-return = lv-got-return + 1.
-                  j = i.
-               END.         
-            END.
-         END.
 
         PUT "<#11><C1><FROM><C105><R+47><RECT><|3>"  
-            "<=11> Department Notes" SKIP
-            v-dept-note[1]  AT 2 SKIP
-            v-dept-note[2] AT 2 SKIP
-            v-dept-note[3] AT 2 SKIP
-            v-dept-note[4] AT 2 SKIP
-            v-dept-note[5] AT 2 SKIP
-            v-dept-note[6] AT 2 SKIP
-            "<C1><FROM><C105><LINE><|3>" 
-            "<C1> Spec Notes" SKIP
-            v-spec-note[1] FORM "x(122)" AT 2 SKIP
-            v-spec-note[2] FORM "x(122)" AT 2 SKIP
-            v-spec-note[3] FORM "x(122)" AT 2 SKIP
-            v-spec-note[4] FORM "x(122)" AT 2 SKIP
-            v-spec-note[5] FORM "x(122)" AT 2 SKIP
-            v-spec-note[6] FORM "x(122)" AT 2 SKIP
-            "<C1><R48>F-850-001-A<R15>".
+            "<=11> Department Notes" SKIP.
+        DO i = 1 TO 12:
+          PUT v-dept-note[i]  AT 2 SKIP.
+        END.
+        
+        PUT  "<C1><FROM><C105><LINE><|3>" 
+             "<C1><R48>F-850-001-A<R15>".
+             
         if print-box and avail xest then do:
             
            run cec/desprntLa.p (recid(xef),
@@ -661,12 +624,13 @@ do v-local-loop = 1 to v-local-copies:
         
         /* print fgitem's image */
         IF s-prt-fgimage THEN DO:        
+            IF AVAILABLE bf-itemfg THEN
             ASSIGN ls-fgitem-img = bf-itemfg.box-image.
             
             IF ls-fgitem-img NE "" THEN
             DO:
                PUT UNFORMATTED "<#12><C1><FROM><C91><R+55><RECT><||3><C91>" /*v-qa-text*/ SKIP
-                "<=12><R+1><C5><P11><B>Job #: " v-job-prt "  FG Item: " bf-itemfg.i-no " "  "</B>"
+                "<=12><R+1><C5><P11><B>Job #: " v-job-prt "  FG Item: " IF AVAILABLE bf-itemfg THEN bf-itemfg.i-no ELSE "" " "  "</B>"
                 "<=12><R+3><C1><FROM><C91><LINE><||3>"
                 "<=12><R+5><C5><#21><R+45><C+80><IMAGE#21=" ls-fgitem-img ">" SKIP. 
                PAGE. 
@@ -996,10 +960,6 @@ do v-local-loop = 1 to v-local-copies:
             PAGE.
          END. /* i > 1*/
       END. /* set header printing  est.est-type = 6 */
-
-
-      RUN pPrintAttachImage(job-hdr.i-no).
-      
     end.  /* each job */
     end.  /* end v-local-loop  */
  

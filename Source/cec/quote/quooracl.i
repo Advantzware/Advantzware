@@ -65,9 +65,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
 
       put lv-est-no FORM "x(8)" AT 1  /*SPACE(1) */
-          xqitm.part-dscr1 AT 10 /*space(1)*/
-          xqitm.part-no AT 41 .  
-      
+          xqitm.part-dscr1 AT 10 .
+      IF length(xqitm.part-no) LE 15 THEN    
+      put "<C35>" xqitm.part-no FORM "x(18)" .  
+      ELSE DO:
+           put "<C35>" xqitm.part-no FORM "x(30)"
+           SKIP .
+      END.     
     END.
 
     ELSE
@@ -148,10 +152,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       ELSE*/ 
                 
            lv-uom = IF est.est-type = 6 AND NOT lv-two-box THEN "SET" ELSE xqqty.uom.
-           put xqqty.qty  AT 61 
-               space(2) xqqty.rels space(3)
-               xqqty.price FORM "$->>,>>9.99" space(5)
-               lv-uom .   
+           PUT "<C51>" xqqty.qty 
+               "<C57>" xqqty.rels 
+               "<C65>" xqqty.price FORM "$->>,>>9.99" 
+               "<C76>" lv-uom .   
       
 
       v-line-total = v-line-total + xqqty.price.

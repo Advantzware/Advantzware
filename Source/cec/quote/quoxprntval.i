@@ -75,12 +75,19 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                       THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
      
-      PUT TRIM(lv-est-no) FORM "x(8)" AT 1
-          xqitm.part-no AT 10 FORMAT "x(15)" SPACE(1)
-
-          /* gdm - 11040801 deducted 2 char from format, used to be 30 - now 28*/
-           TRIM(lv-part-dscr1)  FORMAT "x(30)". 
-           lDataPrint = TRUE .
+      PUT "<C1>" TRIM(lv-est-no) FORM "x(8)" .
+      IF length(xqitm.part-no) LE 15 THEN
+      PUT "<C8.5>" xqitm.part-no FORMAT "x(15)"          
+          "<C22>" TRIM(lv-part-dscr1) FORMAT "x(30)".
+      ELSE do: 
+         PUT
+          "<C8.5>" xqitm.part-no FORMAT "x(30)".
+          IF lv-part-dscr1 NE "" THEN
+          PUT 
+            SKIP           
+            "<C22>" TRIM(lv-part-dscr1) FORMAT "x(30)".
+      END. 
+          lDataPrint = TRUE .
    
     END.
 
@@ -208,7 +215,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     
     ELSE
     IF i EQ 7  THEN DO:                
-       
+           IF AVAIL ef THEN
            DO j = 1 TO 6:
                IF ef.adder[j] NE "" THEN
                    cAddrDesc[j] = cAddrDesc[j] + ef.adder[j].
@@ -340,7 +347,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
           style-dscr SKIP.
 
       DO i = 1 TO 6:
-          IF ef.adder[i] NE "" THEN
+          IF AVAIL ef AND ef.adder[i] NE "" THEN
               cAdder = cAdder + ef.adder[i] + ",".
       END.
       cAdder = SUBSTRING(cAdder,1,LENGTH(cAdder) - 1).

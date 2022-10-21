@@ -2,7 +2,7 @@
 DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
 DEF VAR lv-inv-no LIKE inv-head.inv-no NO-UNDO.
-
+DEFINE BUFFER bf-inv-line FOR inv-line.
 
 FIND inv-head WHERE ROWID(inv-head) EQ ip-rowid NO-ERROR.
 
@@ -30,6 +30,12 @@ IF AVAIL inv-head THEN DO:
    inv-head.inv-no  = lv-inv-no + 1
    inv-head.printed = YES
    inv-head.stat    = "X".
+   
+  FOR EACH bf-inv-line EXCLUSIVE-LOCK
+      WHERE bf-inv-line.r-no EQ inv-head.r-no:
+      ASSIGN
+      bf-inv-line.inv-no = inv-head.inv-no.
+  END.
 
   RUN oe/checkinv#.p(BUFFER inv-head).
 END.

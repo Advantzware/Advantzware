@@ -3805,6 +3805,8 @@ PROCEDURE ipDataFix999999 :
     iopiStatus = 78.
     RUN util/dAOAFormatUpdate.p.
     iopiStatus = 79.
+    RUN ipUserPrintJobNo.
+    iopiStatus = 80.
     
 END PROCEDURE.
 
@@ -3890,7 +3892,7 @@ PROCEDURE ipDeleteAudit :
         module.module EQ "Audit"
         NO-ERROR.
     IF NOT AVAIL module
-    OR module.is-used EQ FALSE THEN ASSIGN 
+    OR module.licensed EQ FALSE THEN ASSIGN 
         lAuditLicensed = FALSE.
         
     ASSIGN
@@ -5684,7 +5686,6 @@ PROCEDURE ipLoadModules :
         CREATE tt{&tablename}.
         IMPORT tt{&tablename}.
         FIND FIRST {&tablename} EXCLUSIVE WHERE 
-            {&tablename}.db-name EQ tt{&tablename}.db-name AND 
             {&tablename}.module EQ tt{&tablename}.module
             NO-ERROR.
         IF NOT AVAIL {&tablename} THEN 
@@ -5692,7 +5693,7 @@ PROCEDURE ipLoadModules :
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
             ASSIGN 
-                {&tablename}.is-Used = FALSE.
+                {&tablename}.licensed = FALSE.
         END.
     END.
     INPUT CLOSE.
@@ -5700,7 +5701,6 @@ PROCEDURE ipLoadModules :
     /* Delete records no longer used */
     FOR EACH {&tablename} EXCLUSIVE WHERE 
         NOT CAN-FIND(FIRST tt{&tablename} WHERE 
-                    tt{&tablename}.db-name EQ {&tablename}.db-name AND
                     tt{&tablename}.module EQ {&tablename}.module):
         DELETE {&tablename}.
     END.
@@ -6979,7 +6979,7 @@ PROCEDURE ipSetAsiPwd :
     IF AVAIL (_User) THEN DO:
         BUFFER-COPY _User EXCEPT _tenantID _User._Password TO ttTempUser.
         ASSIGN 
-            ttTempUser._Password = ENCODE("Boxco2020!").
+            ttTempUser._Password = ENCODE("Adv*2*2!").
         DELETE _User.
         CREATE _User.
         BUFFER-COPY ttTempUser EXCEPT _tenantid TO _User.
@@ -6988,7 +6988,7 @@ PROCEDURE ipSetAsiPwd :
         CREATE _User.
         ASSIGN
             _User._UserId = "asi"
-            _User._Password = ENCODE("Boxco2020!").
+            _User._Password = ENCODE("Adv*2*2!").
     END.
 
     RELEASE _user.
@@ -7595,6 +7595,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateInvLineInvNo C-Win 
+PROCEDURE ipUpdateInvLineInvNo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    RUN ipStatus ("Updating Invoice Line Records").
+
+    ASSIGN 
+        lSuccess = FALSE.
+    DISABLE TRIGGERS FOR LOAD OF inv-line.
+    
+    FOR EACH inv-head NO-LOCK
+        WHERE inv-head.inv-no NE 0:
+       FOR EACH bf-inv-line EXCLUSIVE-LOCK
+           WHERE bf-inv-line.r-no EQ inv-head.r-no 
+             AND bf-inv-line.inv-no EQ 0:
+             ASSIGN
+              bf-inv-line.inv-no = inv-head.inv-no. 
+       END.
+    END.
+    RELEASE bf-inv-line.
+    ASSIGN 
+        lSuccess = TRUE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateNK1s C-Win 
 PROCEDURE ipUpdateNK1s :
 /*------------------------------------------------------------------------------
@@ -7957,6 +7990,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUserPrintJobNo C-Win
+PROCEDURE ipUserPrintJobNo:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR i AS INTEGER.
+
+    FOR EACH user-print EXCLUSIVE-LOCK:
+        DO i = 1 TO EXTENT(user-print.field-value):
+            IF user-print.field-value[i] EQ '-00' THEN
+                user-print.field-value[i] = '-000'.
+            IF user-print.field-value[i] EQ '-99' THEN
+                user-print.field-value[i] = '-999'.    
+        END.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipValidateDB C-Win 
 PROCEDURE ipValidateDB :
 /*------------------------------------------------------------------------------
@@ -8116,6 +8174,11 @@ PROCEDURE ip_ProcessAll :
     RUN ipUpdateMaster.
     IF lSuccess EQ TRUE THEN ASSIGN 
         iopiStatus = 50.
+    ELSE RETURN.
+    
+    RUN ipUpdateInvLineInvNo.
+    IF lSuccess EQ TRUE THEN ASSIGN 
+        iopiStatus = 51.
     ELSE RETURN.
 
     RUN ipDataFix.
