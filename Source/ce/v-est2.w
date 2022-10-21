@@ -357,7 +357,7 @@ DEFINE FRAME fold
      eb.t-len AT ROW 9.57 COL 31 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 13.6 BY 1
-     eb.t-sqin AT ROW 9.57 COL 49 COLON-ALIGNED NO-LABEL
+     eb.t-sqin AT ROW 9.57 COL 49 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      ef.leaf[1] AT ROW 11.71 COL 4 COLON-ALIGNED NO-LABEL
@@ -665,7 +665,7 @@ ASSIGN
                 "16th".
 
 /* SETTINGS FOR FILL-IN eb.t-sqin IN FRAME fold
-   NO-ENABLE EXP-LABEL                                                  */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN eb.t-wid IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 ASSIGN 
