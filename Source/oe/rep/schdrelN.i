@@ -148,6 +148,8 @@ if chosen eq 2 then DO:
                 WHEN "ship-stat" THEN cVarValue = string(v-ship-stat).
                 WHEN "ship-zip" THEN cVarValue = string(v-ship-zip).
                 WHEN "ship-name" THEN cVarValue = string(v-ship-name).
+                WHEN "est-wt-per-ton" THEN cVarValue = string(w-ord.estWeight,"->>,>>>,>>9.99<<<<").
+                WHEN "act-wt-per-ton" THEN cVarValue = string(w-ord.actWeight,"->>,>>>,>>9.99<<<<").
                 WHEN "trans-day"  THEN DO:
                     IF AVAIL shipto THEN
                         ASSIGN cVarValue = STRING(INT(shipto.del-time),">>>>>>>>>>9").
