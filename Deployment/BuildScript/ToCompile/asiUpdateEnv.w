@@ -2004,6 +2004,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConSpareIntField C-Win
+PROCEDURE ipConSpareIntField:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR i AS INTEGER.
+
+    FOR EACH itemfg EXCLUSIVE-LOCK:
+      ASSIGN
+        itemfg.lLockWeightCalc  = IF itemfg.spare-int-1 EQ 1 THEN TRUE ELSE FALSE
+        itemfg.lLockDimensions  = IF itemfg.spare-int-2 EQ 1 THEN TRUE ELSE FALSE
+        itemfg.iReleaseSeq      = itemfg.spare-int-2.       
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertCustomerX C-Win 
 PROCEDURE ipConvertCustomerX PRIVATE :
 /*------------------------------------------------------------------------------
@@ -3807,6 +3827,8 @@ PROCEDURE ipDataFix999999 :
     iopiStatus = 79.
     RUN ipUserPrintJobNo.
     iopiStatus = 80.
+    RUN ipConSpareIntField.
+    iopiStatus = 81.
     
 END PROCEDURE.
 
