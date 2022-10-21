@@ -352,9 +352,9 @@ DEFINE BROWSE br-estitm
       ef.flute COLUMN-LABEL "Paper 2" FORMAT "x(10)":U WIDTH 13
       ef.cal FORMAT ">9.99999<":U 
       eb.procat FORMAT "x(5)":U 
-      eb.len FORMAT ">9.99999":U 
-      eb.wid FORMAT ">9.99999":U 
-      eb.dep FORMAT ">9.99999":U 
+      eb.len FORMAT ">>9.99999":U 
+      eb.wid FORMAT ">>9.99999":U 
+      eb.dep FORMAT ">>9.99999":U 
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
@@ -514,11 +514,11 @@ ASSIGN
      _FldNameList[14]   > ASI.eb.procat
 "eb.procat" ? ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.eb.len
-"eb.len" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.eb.wid
-"eb.wid" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.eb.dep
-"eb.dep" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.dep" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.cust-%
 "eb.cust-%" "Qty/Set" "->>,>>>" "decimal" ? ? ? ? ? ? yes "Quantity Per Set" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.eb.i-col
