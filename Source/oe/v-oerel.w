@@ -104,25 +104,26 @@ END.
 DEFINE QUERY external_tables FOR oe-relh.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-relh.ship-id oe-relh.carrier ~
-oe-relh.rel-date oe-relh.spare-char-1 oe-relh.trailer  
+oe-relh.rel-date oe-relh.spare-char-1 oe-relh.trailer oe-relh.PROnumber 
 &Scoped-define ENABLED-TABLES oe-relh
 &Scoped-define FIRST-ENABLED-TABLE oe-relh
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-38 btnCalendar-1 ~
-dtDockDate cDockTime btnCalendar-2
+dtDockDate btnCalendar-2 cDockTime 
 &Scoped-Define DISPLAYED-FIELDS oe-relh.printed oe-relh.spare-char-3 ~
 oe-relh.cust-no oe-relh.ship-id oe-relh.release# oe-relh.carrier ~
-oe-relh.rel-date oe-relh.spare-char-1 oe-relh.spare-char-2 oe-relh.trailer 
+oe-relh.rel-date oe-relh.spare-char-1 oe-relh.spare-char-2 oe-relh.trailer ~
+oe-relh.PROnumber 
 &Scoped-define DISPLAYED-TABLES oe-relh
 &Scoped-define FIRST-DISPLAYED-TABLE oe-relh
 &Scoped-Define DISPLAYED-OBJECTS fi_hold cust_name ship_name cust_addr1 ~
 ship_addr1 cust_addr2 ship_addr2 cust_city cust_state cust_zip ship_city ~
-ship_state ship_zip line_i-no freight_term qty-ordered qty-rel qty-ship ~
-qty-oh dtDockDate cDockTime
+ship_state ship_zip line_i-no freight_term dtDockDate cDockTime qty-ordered ~
+qty-rel qty-ship qty-oh 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS oe-relh.cust-no 
-&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2
+&Scoped-define ROW-AVAILABLE btnCalendar-1 btnCalendar-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -158,11 +159,16 @@ DEFINE BUTTON btnCalendar-1
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-     
+
 DEFINE BUTTON btnCalendar-2 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".     
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
+
+DEFINE VARIABLE cDockTime AS CHARACTER FORMAT "99:99" 
+     LABEL "Time" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1.
 
 DEFINE VARIABLE cust_addr1 AS CHARACTER FORMAT "x(30)" 
      VIEW-AS FILL-IN 
@@ -185,6 +191,11 @@ DEFINE VARIABLE cust_state AS CHARACTER FORMAT "x(2)"
      SIZE 4.4 BY 1.
 
 DEFINE VARIABLE cust_zip AS CHARACTER FORMAT "x(10)" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.
+
+DEFINE VARIABLE dtDockDate AS DATE FORMAT "99/99/9999" 
+     LABEL "Dock Appointment" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.
 
@@ -246,17 +257,6 @@ DEFINE VARIABLE ship_state AS CHARACTER FORMAT "x(2)"
 DEFINE VARIABLE ship_zip AS CHARACTER FORMAT "x(10)" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.
-     
- 
-DEFINE VARIABLE dtDockDate AS DATE FORMAT "99/99/9999" 
-     LABEL "Dock Appointment"
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1.
-     
-DEFINE VARIABLE cDockTime AS CHARACTER FORMAT "99:99" 
-     LABEL "Time"
-     VIEW-AS FILL-IN 
-     SIZE 10 BY 1.     
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -327,12 +327,16 @@ DEFINE FRAME F-Main
      oe-relh.trailer AT ROW 6.48 COL 110 COLON-ALIGNED
           LABEL "Trailer #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1      
-     dtDockDate AT ROW 7.71 COL 103 COLON-ALIGNED
-     btnCalendar-2 AT ROW 7.71 COL 120.5
-     cDockTime AT ROW 7.71 COL 130 COLON-ALIGNED  
+          SIZE 30 BY 1
      line_i-no AT ROW 6.71 COL 16 COLON-ALIGNED
-     freight_term AT ROW 6.71 COL 72 COLON-ALIGNED
+     freight_term AT ROW 6.71 COL 62.8 COLON-ALIGNED
+     dtDockDate AT ROW 7.86 COL 62.8 COLON-ALIGNED
+     btnCalendar-2 AT ROW 7.86 COL 80.4
+     cDockTime AT ROW 7.86 COL 90 COLON-ALIGNED
+     oe-relh.PROnumber AT ROW 7.86 COL 110 COLON-ALIGNED WIDGET-ID 12
+          LABEL "PRO#"
+          VIEW-AS FILL-IN 
+          SIZE 22.4 BY 1  TOOLTIP "Enter carrier's PRO number"
      qty-ordered AT ROW 9.24 COL 17 COLON-ALIGNED
      qty-rel AT ROW 9.24 COL 53 COLON-ALIGNED
      qty-ship AT ROW 9.24 COL 87 COLON-ALIGNED
@@ -405,13 +409,9 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-2 IN FRAME F-Main
-   3                                                                    */   
+   3                                                                    */
 /* SETTINGS FOR FILL-IN oe-relh.carrier IN FRAME F-Main
-   EXP-FORMAT                                                           */    
-/* SETTINGS FOR FILL-IN dtDockDate IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */  
-/* SETTINGS FOR FILL-IN cDockTime IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                  */   
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN oe-relh.cust-no IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN cust_addr1 IN FRAME F-Main
@@ -468,6 +468,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT EXP-HELP                              */
 /* SETTINGS FOR FILL-IN oe-relh.trailer IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN oe-relh.PROnumber IN FRAME F-Main
+   EXP-LABEL                                                            */    
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -556,6 +558,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME btnCalendar-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCalendar-2 V-table-Win
 ON CHOOSE OF btnCalendar-2 IN FRAME F-Main
@@ -575,6 +578,20 @@ DO:
     RUN valid-carrier NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cDockTime
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cDockTime V-table-Win
+ON LEAVE OF cDockTime IN FRAME F-Main /* Time */
+DO:      
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-time(OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -607,6 +624,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME dtDockDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDockDate V-table-Win
+ON HELP OF dtDockDate IN FRAME F-Main /* Dock Appointment */
+DO:
+  {methods/calendar.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME oe-relh.rel-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.rel-date V-table-Win
 ON HELP OF oe-relh.rel-date IN FRAME F-Main /* Release Date */
@@ -631,29 +659,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME dtDockDate
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dtDockDate V-table-Win
-ON HELP OF dtDockDate IN FRAME F-Main /* Dock Date */
-DO:
-  {methods/calendar.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME cDockTime
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cDockTime V-table-Win
-ON LEAVE OF cDockTime IN FRAME F-Main /* Dock Time */
-DO:      
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-time(OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME oe-relh.ship-id
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-relh.ship-id V-table-Win
@@ -934,22 +939,6 @@ PROCEDURE check-hold :
          */        
       END.
    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote V-table-Win 
-PROCEDURE pCopyShipNote PRIVATE :
-/*------------------------------------------------------------------------------
- Purpose: Copies Ship Note from rec_key to rec_key
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-
-    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -1501,9 +1490,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1520,11 +1508,9 @@ PROCEDURE local-destroy:
 
     /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -1777,9 +1763,61 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote V-table-Win 
+PROCEDURE pCopyShipNote PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose: Copies Ship Note from rec_key to rec_key
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableDisable V-table-Win 
+PROCEDURE pEnableDisable :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER iplEnable  AS LOGICAL NO-UNDO.
+DO WITH FRAME {&FRAME-NAME}:
+    dtDockDate:SENSITIVE IN FRAME {&FRAME-NAME} = iplEnable.
+    cDockTime:SENSITIVE IN FRAME {&FRAME-NAME} = iplEnable.   
+END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/* -----------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+-------------------------------------------------------------*/
+
+DO WITH FRAME {&FRAME-NAME}:
+    dtDockDate:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
+    cDockTime:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.    
+END.
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunAPIOutboundTrigger V-table-Win 
 PROCEDURE pRunAPIOutboundTrigger :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:   Fires Outbound APIs for given release header  
       Parameters:  <none>
       Notes:       
@@ -1950,43 +1988,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
-PROCEDURE proc-enable :
-/* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
-
-DO WITH FRAME {&FRAME-NAME}:
-    dtDockDate:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.
-    cDockTime:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE.    
-END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEnableDisable V-table-Win 
-PROCEDURE pEnableDisable :
-/* -----------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
--------------------------------------------------------------*/
- DEFINE INPUT PARAMETER iplEnable  AS LOGICAL NO-UNDO.
-DO WITH FRAME {&FRAME-NAME}:
-    dtDockDate:SENSITIVE IN FRAME {&FRAME-NAME} = iplEnable.
-    cDockTime:SENSITIVE IN FRAME {&FRAME-NAME} = iplEnable.   
-END.
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
