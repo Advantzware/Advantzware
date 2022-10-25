@@ -701,7 +701,7 @@ v-printline = 0.
                      v-line-number = v-line-number + 1
                      v-printline = v-printline + 1.
              END.    
-             IF  cWidScore NE "" AND AVAIL ITEM AND ITEM.mat-type = "B" AND dec(trim(cWidScore)) ne v-wid THEN do:
+             IF  cWidScore NE "" AND AVAIL ITEM AND ITEM.mat-type = "B" THEN do:
                  put 
                      "Score: " AT 3
                      cWidScore format "x(80)" SKIP .                     
