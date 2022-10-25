@@ -1177,6 +1177,13 @@ PROCEDURE pGetFormQtys PRIVATE:
             AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
             NO-LOCK NO-ERROR.
 
+      IF AVAIL bff-job-hdr AND bff-job-hdr.ord-no EQ 0 AND NOT AVAILABLE bff-oe-ordl THEN
+      FIND FIRST bff-oe-ordl
+            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
+            AND bff-oe-ordl.job-no  EQ bff-job-hdr.job-no
+            AND bff-oe-ordl.job-no2 EQ bff-job-hdr.job-no2
+            AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
+            NO-LOCK NO-ERROR.      
       IF bff-job-hdr.ord-no NE 0 AND NOT AVAILABLE bff-oe-ordl THEN
       FIND FIRST bff-oe-ordl
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
@@ -1492,6 +1499,13 @@ PROCEDURE pGetJobQty :
             AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
             NO-LOCK NO-ERROR.
 
+      IF AVAIL bff-job-hdr AND bff-job-hdr.ord-no EQ 0 AND NOT AVAILABLE bff-oe-ordl THEN
+      FIND FIRST bff-oe-ordl
+            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
+            AND bff-oe-ordl.job-no  EQ bff-job-hdr.job-no
+            AND bff-oe-ordl.job-no2 EQ bff-job-hdr.job-no2
+            AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
+            NO-LOCK NO-ERROR.
       IF AVAIL bff-job-hdr AND bff-job-hdr.ord-no NE 0 AND NOT AVAILABLE bff-oe-ordl THEN
       FIND FIRST bff-oe-ordl
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
