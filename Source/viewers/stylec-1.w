@@ -39,6 +39,8 @@ CREATE WIDGET-POOL.
 
 def var k_frac as dec init 6.25 no-undo.
 DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iIntPart AS INTEGER NO-UNDO.
+DEFINE VARIABLE deDecPart AS DECIMAL NO-UNDO.
 &global-define style-formular Corr
 
 ASSIGN cocode = g_company
@@ -72,33 +74,33 @@ DEFINE QUERY external_tables FOR style, flute.
 &Scoped-Define ENABLED-FIELDS style.formula[1] style.formula[2] ~
 style.formula[3] style.formula[4] style.formula[5] style.formula[6] ~
 style.formula[7] style.formula[8] style.kdf-width style.kdf-length ~
-style.formula[20] style.balecount style.sqft-len-trim style.sqft-wid-trim ~
-style.formula[12] style.use-w[2] style.use-w[3] style.use-w[4] ~
-style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
-style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
-style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
-style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] 
+style.formula[20] style.balecount style.formula[12] style.use-w[2] ~
+style.use-w[3] style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] ~
+style.use-w[8] style.use-w[9] style.use-w[10] style.use-w[11] ~
+style.use-w[12] style.use-w[13] style.use-l[2] style.use-l[3] ~
+style.use-l[4] style.use-l[5] style.use-l[6] style.use-l[7] style.use-l[8] ~
+style.use-l[9] style.use-l[10] style.use-l[11] style.use-l[12] ~
+style.use-l[13] 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
-&Scoped-Define ENABLED-OBJECTS RECT-16 
+&Scoped-Define ENABLED-OBJECTS fiSqft-len-trim fiSqft-wid-trim RECT-16 
 &Scoped-Define DISPLAYED-FIELDS style.formula[1] style.formula[2] ~
 style.formula[3] style.formula[4] style.formula[5] style.formula[6] ~
 style.formula[7] style.formula[8] style.kdf-width style.kdf-length ~
-style.formula[20] style.balecount style.sqft-len-trim style.sqft-wid-trim ~
-style.formula[12] style.use-w[2] style.use-w[3] style.use-w[4] ~
-style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
-style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
-style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
-style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] 
+style.formula[20] style.balecount style.formula[12] style.use-w[2] ~
+style.use-w[3] style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] ~
+style.use-w[8] style.use-w[9] style.use-w[10] style.use-w[11] ~
+style.use-w[12] style.use-w[13] style.use-l[2] style.use-l[3] ~
+style.use-l[4] style.use-l[5] style.use-l[6] style.use-l[7] style.use-l[8] ~
+style.use-l[9] style.use-l[10] style.use-l[11] style.use-l[12] ~
+style.use-l[13] 
 &Scoped-define DISPLAYED-TABLES style
 &Scoped-define FIRST-DISPLAYED-TABLE style
-&Scoped-Define DISPLAYED-OBJECTS ld-box-fit 
+&Scoped-Define DISPLAYED-OBJECTS ld-box-fit fiSqft-len-trim fiSqft-wid-trim 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS style.sqft-len-trim style.sqft-wid-trim 
+&Scoped-define ADM-ASSIGN-FIELDS fiSqft-len-trim fiSqft-wid-trim 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -130,6 +132,16 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE fiSqft-len-trim AS DECIMAL FORMAT ">>>9.99" INITIAL 0 
+     LABEL "Add to Length" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1.
+
+DEFINE VARIABLE fiSqft-wid-trim AS DECIMAL FORMAT ">>>9.99" INITIAL 0 
+     LABEL "Add to Width" 
+     VIEW-AS FILL-IN 
+     SIZE 9 BY 1.
+
 DEFINE VARIABLE ld-box-fit AS DECIMAL FORMAT ".99":U INITIAL 0 
      LABEL "Sq Box Fit" 
      VIEW-AS FILL-IN 
@@ -193,23 +205,19 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 46.6 BY 1
           BGCOLOR 15 
-     style.formula[20] AT ROW 11.48 COL 24.4 COLON-ALIGNED WIDGET-ID 6
-          LABEL "PO Scores Width" FORMAT "x(80)"
+     style.formula[20] AT ROW 11.48 COL 30 COLON-ALIGNED WIDGET-ID 6
+          LABEL "PO Sheet Scores Formula" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 46.6 BY 1
+          SIZE 41 BY 1
           BGCOLOR 15 
      ld-box-fit AT ROW 12.71 COL 24.4 COLON-ALIGNED
      style.balecount AT ROW 12.71 COL 67.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
-     style.sqft-len-trim AT ROW 13.91 COL 24.4 COLON-ALIGNED HELP
-          "Enter inches added to length for sell price based on PerMSF" WIDGET-ID 2 FORMAT ">>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
-     style.sqft-wid-trim AT ROW 13.91 COL 62 COLON-ALIGNED HELP
-          "Enter inches added to width for sell price based on PerMSF" WIDGET-ID 4 FORMAT ">>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 9 BY 1
+     fiSqft-len-trim AT ROW 13.91 COL 24.4 COLON-ALIGNED HELP
+          "Enter inches added to length for sell price based on PerMSF" WIDGET-ID 2
+     fiSqft-wid-trim AT ROW 13.91 COL 62 COLON-ALIGNED HELP
+          "Enter inches added to width for sell price based on PerMSF" WIDGET-ID 4
      style.formula[12] AT ROW 9.57 COL 87 COLON-ALIGNED
           LABEL "Die Rule" FORMAT "x(25)"
           VIEW-AS FILL-IN 
@@ -321,6 +329,10 @@ DEFINE FRAME F-Main
           BGCOLOR 15 FONT 4
      "5" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 103
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 134
+     "9" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 119
      "7" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 12.67 COL 111
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -330,40 +342,6 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     "Nesting Formula" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 8.62 COL 82
-     "5" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 103
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 126
-     "7" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 111
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 134
-     "3" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 95
-     "6" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 107
-     "10" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 122
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 91
-     "8" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 115
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 10.76 COL 130
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 126
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 91
-     "4" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 99
-     "# On Wid" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 12.67 COL 77
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 134
-     "9" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 12.67 COL 119
      "# On Len" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 10.76 COL 77
      "3" VIEW-AS TEXT
@@ -378,8 +356,38 @@ DEFINE FRAME F-Main
           SIZE 3 BY .62 AT ROW 12.67 COL 122
      "12" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 12.67 COL 130
+     "10" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 122
      "8" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 10.76 COL 115
+     "Nesting Formula" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 8.62 COL 82
+     "5" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 103
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 126
+     "7" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 111
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 134
+     "3" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 95
+     "6" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 107
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 91
+     "8" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 115
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 10.76 COL 130
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 126
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 91
+     "4" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 12.67 COL 99
+     "# On Wid" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 12.67 COL 77
      RECT-16 AT ROW 8.86 COL 75
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -443,6 +451,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN fiSqft-len-trim IN FRAME F-Main
+   2                                                                    */
+/* SETTINGS FOR FILL-IN fiSqft-wid-trim IN FRAME F-Main
+   2                                                                    */
 /* SETTINGS FOR FILL-IN style.formula[12] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.formula[1] IN FRAME F-Main
@@ -469,10 +481,6 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ld-box-fit IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN style.sqft-len-trim IN FRAME F-Main
-   2 EXP-FORMAT EXP-HELP                                                */
-/* SETTINGS FOR FILL-IN style.sqft-wid-trim IN FRAME F-Main
-   2 EXP-FORMAT EXP-HELP                                                */
 /* SETTINGS FOR FILL-IN style.use-l[2] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.use-w[2] IN FRAME F-Main
@@ -512,6 +520,35 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiSqft-len-trim
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSqft-len-trim V-table-Win
+ON LEAVE OF fiSqft-len-trim IN FRAME F-Main /* Add to Length */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-dim (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiSqft-wid-trim
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSqft-wid-trim V-table-Win
+ON LEAVE OF fiSqft-wid-trim IN FRAME F-Main /* Add to Width */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-dim (FOCUS) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME ld-box-fit
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ld-box-fit V-table-Win
 ON LEAVE OF ld-box-fit IN FRAME F-Main /* Sq Box Fit */
@@ -526,298 +563,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME style.sqft-len-trim
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.sqft-len-trim V-table-Win
-ON LEAVE OF style.sqft-len-trim IN FRAME F-Main /* Add to Length */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-dim (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME style.sqft-wid-trim
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.sqft-wid-trim V-table-Win
-ON LEAVE OF style.sqft-wid-trim IN FRAME F-Main /* Add to Width */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-dim (FOCUS) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME style.use-w[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[2] V-table-Win
-ON LEAVE OF style.use-w[2] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 2, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
-
-&Scoped-define SELF-NAME style.use-w[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[3] V-table-Win
-ON LEAVE OF style.use-w[3] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 3, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[4]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[4] V-table-Win
-ON LEAVE OF style.use-w[4] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 4, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[5]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[5] V-table-Win
-ON LEAVE OF style.use-w[5] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 5, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[6]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[6] V-table-Win
-ON LEAVE OF style.use-w[6] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 6, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[7]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[7] V-table-Win
-ON LEAVE OF style.use-w[7] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 7, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[8]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[8] V-table-Win
-ON LEAVE OF style.use-w[8] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 8, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[9]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[9] V-table-Win
-ON LEAVE OF style.use-w[9] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 9, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[10]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[10] V-table-Win
-ON LEAVE OF style.use-w[10] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 10, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[11]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[11] V-table-Win
-ON LEAVE OF style.use-w[11] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 11, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[12]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[12] V-table-Win
-ON LEAVE OF style.use-w[12] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 12, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-w[13]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[13] V-table-Win
-ON LEAVE OF style.use-w[13] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("W", FOCUS, 13, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-
-&Scoped-define SELF-NAME style.use-l[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[2] V-table-Win
-ON LEAVE OF style.use-l[2] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 2, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
-
-&Scoped-define SELF-NAME style.use-l[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[3] V-table-Win
-ON LEAVE OF style.use-l[3] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 3, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-l[4]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[4] V-table-Win
-ON LEAVE OF style.use-l[4] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 4, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-l[5]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[5] V-table-Win
-ON LEAVE OF style.use-l[5] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 5, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-l[6]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[6] V-table-Win
-ON LEAVE OF style.use-l[6] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 6, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-l[7]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[7] V-table-Win
-ON LEAVE OF style.use-l[7] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 7, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-l[8]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[8] V-table-Win
-ON LEAVE OF style.use-l[8] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 8, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
-&Scoped-define SELF-NAME style.use-l[9]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[9] V-table-Win
-ON LEAVE OF style.use-l[9] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 9, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
-
 &Scoped-define SELF-NAME style.use-l[10]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[10] V-table-Win
-ON LEAVE OF style.use-l[10] IN FRAME F-Main /*  */
+ON LEAVE OF style.use-l[10] IN FRAME F-Main /* Formula[10] */
 DO:
     IF LASTKEY NE -1 THEN DO:
         RUN valid-formula ("L", FOCUS, 10, OUTPUT lError) NO-ERROR.
@@ -826,24 +574,12 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
+&ANALYZE-RESUME
 
-&Scoped-define SELF-NAME style.use-l[11]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[11] V-table-Win
-ON LEAVE OF style.use-w[11] IN FRAME F-Main /*  */
-DO:
-    IF LASTKEY NE -1 THEN DO:
-        RUN valid-formula ("L", FOCUS, 11, OUTPUT lError) NO-ERROR.
-        IF lError THEN RETURN NO-APPLY.
-    END.               
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
 
 &Scoped-define SELF-NAME style.use-l[12]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[12] V-table-Win
-ON LEAVE OF style.use-l[12] IN FRAME F-Main /*  */
+ON LEAVE OF style.use-l[12] IN FRAME F-Main /* Formula[12] */
 DO:
     IF LASTKEY NE -1 THEN DO:
         RUN valid-formula ("L", FOCUS, 12, OUTPUT lError) NO-ERROR.
@@ -852,14 +588,295 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME 
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME style.use-l[13]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[13] V-table-Win
-ON LEAVE OF style.use-l[13] IN FRAME F-Main /*  */
+ON LEAVE OF style.use-l[13] IN FRAME F-Main /* Formula[13] */
 DO:
     IF LASTKEY NE -1 THEN DO:
         RUN valid-formula ("L", FOCUS, 13, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-l[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[2] V-table-Win
+ON LEAVE OF style.use-l[2] IN FRAME F-Main /* Formula */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 2, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-l[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[3] V-table-Win
+ON LEAVE OF style.use-l[3] IN FRAME F-Main /* Formula[3] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 3, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-l[4]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[4] V-table-Win
+ON LEAVE OF style.use-l[4] IN FRAME F-Main /* Formula[4] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 4, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-l[5]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[5] V-table-Win
+ON LEAVE OF style.use-l[5] IN FRAME F-Main /* Formula[5] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 5, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-l[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[6] V-table-Win
+ON LEAVE OF style.use-l[6] IN FRAME F-Main /* Formula[6] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 6, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-l[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[7] V-table-Win
+ON LEAVE OF style.use-l[7] IN FRAME F-Main /* Formula[7] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 7, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-l[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[8] V-table-Win
+ON LEAVE OF style.use-l[8] IN FRAME F-Main /* Formula[8] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 8, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-l[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-l[9] V-table-Win
+ON LEAVE OF style.use-l[9] IN FRAME F-Main /* Formula[9] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("L", FOCUS, 9, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[10]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[10] V-table-Win
+ON LEAVE OF style.use-w[10] IN FRAME F-Main /* Formula[10] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 10, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[11]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[11] V-table-Win
+ON LEAVE OF style.use-w[11] IN FRAME F-Main /* Formula[11] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 11, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[12]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[12] V-table-Win
+ON LEAVE OF style.use-w[12] IN FRAME F-Main /* Formula[12] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 12, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[13]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[13] V-table-Win
+ON LEAVE OF style.use-w[13] IN FRAME F-Main /* Formula[13] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 13, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[2] V-table-Win
+ON LEAVE OF style.use-w[2] IN FRAME F-Main /* Formula */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 2, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[3] V-table-Win
+ON LEAVE OF style.use-w[3] IN FRAME F-Main /* Formula[3] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 3, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[4]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[4] V-table-Win
+ON LEAVE OF style.use-w[4] IN FRAME F-Main /* Formula[4] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 4, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[5]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[5] V-table-Win
+ON LEAVE OF style.use-w[5] IN FRAME F-Main /* Formula[5] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 5, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[6] V-table-Win
+ON LEAVE OF style.use-w[6] IN FRAME F-Main /* Formula[6] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 6, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[7] V-table-Win
+ON LEAVE OF style.use-w[7] IN FRAME F-Main /* Formula[7] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 7, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[8] V-table-Win
+ON LEAVE OF style.use-w[8] IN FRAME F-Main /* Formula[8] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 8, OUTPUT lError) NO-ERROR.
+        IF lError THEN RETURN NO-APPLY.
+    END.               
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME style.use-w[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.use-w[9] V-table-Win
+ON LEAVE OF style.use-w[9] IN FRAME F-Main /* Formula[9] */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+        RUN valid-formula ("W", FOCUS, 9, OUTPUT lError) NO-ERROR.
         IF lError THEN RETURN NO-APPLY.
     END.               
 END.
@@ -976,7 +993,7 @@ PROCEDURE enable-style-formular :
 ------------------------------------------------------------------------------*/
   /* callled in methods/viewers/enable/style.i */
 
-  enable ld-box-fit with frame {&frame-name}.
+  enable ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
 
 END PROCEDURE.
 
@@ -993,23 +1010,32 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- find first reftable where reftable.reftable = "STYFLU" 
+    find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = style.style
                         and reftable.loc = flute.code
                         and reftable.code = "DIM-FIT"
                         no-error.
-  if not avail reftable then do:
-     create reftable.
-     assign reftable.reftable = "STYFLU"
+    if not avail reftable then do:
+        create reftable.
+        assign 
+            reftable.reftable = "STYFLU"
             reftable.company = style.style
             reftable.loc = flute.code
             reftable.code = "DIM-FIT".
-  end.
-  reftable.val[1] = dec( ld-box-fit:screen-value in frame {&frame-name}) * k_frac. 
+    end.
 
+    ASSIGN
+        reftable.val[1]     = DEC(ld-box-fit:screen-value in frame {&frame-name}) * k_frac
+        iIntPart = TRUNC(fiSqft-len-trim,0)
+        deDecPart = fiSqft-len-trim - iIntPart  
+        style.sqft-len-trim = iIntPart + (deDecPart * k_frac)
+        iIntPart = TRUNC(fiSqft-wid-trim,0)
+        deDecPart = fiSqft-wid-trim - iIntPart  
+        style.sqft-wid-trim = iIntPart + (deDecPart * k_frac)
+        . 
 
 END PROCEDURE.
 
@@ -1045,20 +1071,29 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  if not avail style then return.
+    if not avail style then return.
 
-  find first reftable where reftable.reftable = "STYFLU" 
+    find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = style.style
                         and reftable.loc = flute.code
                         and reftable.code = "DIM-FIT"
                         no-lock no-error.
-  ld-box-fit = (if avail reftable then reftable.val[1]
-                            else style.dim-fit) / k_frac.        
-  disable ld-box-fit with frame {&frame-name}.
-  display ld-box-fit with frame {&frame-name}.
+  
+    ASSIGN
+        ld-box-fit = (if avail reftable then reftable.val[1] else style.dim-fit) / k_frac
+        iIntPart = TRUNC(style.sqft-len-trim,0)
+        deDecPart = style.sqft-len-trim - iIntPart
+        fiSqft-len-trim = iIntPart + (deDecPart / k_frac)
+        iIntPart = TRUNC(style.sqft-wid-trim,0)
+        deDecPart = style.sqft-wid-trim - iIntPart
+        fiSqft-wid-trim = iIntPart + (deDecPart / k_frac)
+        .
+
+  disable ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
+  display ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
 
 END PROCEDURE.
 
@@ -1085,10 +1120,10 @@ PROCEDURE local-update-record :
     RUN valid-dim (ld-box-fit:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    RUN valid-dim (style.sqft-len-trim:HANDLE) NO-ERROR.
+    RUN valid-dim (fiSqft-len-trim:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    RUN valid-dim (style.sqft-wid-trim:HANDLE) NO-ERROR.
+    RUN valid-dim (fiSqft-wid-trim:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     
     RUN valid-formula ("W", style.use-w[2]:HANDLE, 2, OUTPUT lError) NO-ERROR.
@@ -1169,7 +1204,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  disable ld-box-fit with frame {&frame-name}.
+  disable ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1225,26 +1260,29 @@ PROCEDURE valid-dim :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+    DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-    IF DEC(ip-focus:SCREEN-VALUE) - TRUNC(DEC(ip-focus:SCREEN-VALUE),0) GT .15
-    THEN DO:
-      MESSAGE TRIM(ip-focus:LABEL) +
-              " Decimal must be less than (.16)..."
-          VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO ip-focus.
-      RETURN ERROR.
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN 
+            iIntPart = TRUNC(DEC(ip-focus:SCREEN-VALUE),0)
+            deDecPart = DEC(ip-focus:SCREEN-VALUE) - iIntPart.  
+        IF deDecPart GT .15 THEN DO:
+            MESSAGE 
+                TRIM(ip-focus:LABEL) +
+                " Make sure this value is entered in 'number of 16ths of an inch'." SKIP 
+                "For Example: '1.08' is the value for '1 and 8/16ths'."
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO ip-focus.
+            RETURN ERROR.
+        END.
     END.
-  END.
 
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-formula V-table-Win 
 PROCEDURE valid-formula :
@@ -1300,3 +1338,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

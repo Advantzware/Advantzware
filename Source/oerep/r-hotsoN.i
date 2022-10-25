@@ -172,11 +172,14 @@
                          WHEN "ord-msf"   THEN cVarValue = STRING(tt-report.msf2,"->>>>>>9.99") .
                          
                     END CASE.
+                    
+                    IF cTmpField = "due-dt" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-report.due-date) .
                       
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.

@@ -127,6 +127,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha       NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Vendor,G/L Account,PO#,PO Line,Date Rec,Item Number,Description,Cat," +
@@ -594,6 +597,7 @@ ON END-ERROR OF C-Win /* PO Receipts Not Vouchered */
 ON WINDOW-CLOSE OF C-Win /* PO Receipts Not Vouchered */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -650,6 +654,7 @@ ON LEAVE OF begin_rdate IN FRAME FRAME-A /* Beginning Receipt Date */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1202,10 +1207,12 @@ PROCEDURE display-data-proc :
             cVarValue = "".
         END CASE.
 
-        cExcelVarValue = cVarValue.
+        IF  cTmpField = "date" THEN
+             cExcelVarValue = IF temp-po-rec.date-rec NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",temp-po-rec.date-rec) ELSE "".
+        ELSE cExcelVarValue = cVarValue.
         cDisplay = cDisplay + cVarValue +
             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
     END.
 
     PUT UNFORMATTED cDisplay SKIP.
@@ -1740,6 +1747,7 @@ PROCEDURE run-report :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -1773,6 +1781,7 @@ PROCEDURE run-report :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -2056,6 +2065,7 @@ PROCEDURE run-report-2 :
             rm-rcpth.company    EQ cocode
             AND rm-rcpth.i-no       EQ po-ordl.i-no
             AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+            AND rm-rcpth.po-line    EQ po-ordl.LINE
             AND rm-rcpth.job-no     EQ po-ordl.job-no
             AND rm-rcpth.job-no2    EQ po-ordl.job-no2
             AND rm-rcpth.trans-date GE frdat
@@ -2067,6 +2077,7 @@ PROCEDURE run-report-2 :
                 fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat) THEN
@@ -2092,6 +2103,7 @@ PROCEDURE run-report-2 :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -2116,6 +2128,7 @@ PROCEDURE run-report-2 :
                 WHERE rm-rcpth.company    EQ cocode
                 AND rm-rcpth.i-no       EQ po-ordl.i-no
                 AND rm-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND rm-rcpth.po-line    EQ po-ordl.LINE
                 AND rm-rcpth.job-no     EQ po-ordl.job-no
                 AND rm-rcpth.job-no2    EQ po-ordl.job-no2
                 AND rm-rcpth.trans-date GE frdat
@@ -2137,10 +2150,11 @@ PROCEDURE run-report-2 :
                    tt-neg-po-line.i-no EQ po-ordl.i-no and
                    tt-neg-po-line.item-type EQ po-ordl.item-type AND
                    tt-neg-po-line.qty EQ rm-rdtlh.qty) THEN
-                   DO:*/
+                   DO:*/      
                 CREATE tt-neg-po-line.
                 ASSIGN 
                     tt-neg-po-line.po-no     = po-ordl.po-no
+                    tt-neg-po-line.po-line   = po-ordl.LINE
                     tt-neg-po-line.i-no      = po-ordl.i-no
                     tt-neg-po-line.item-type = po-ordl.item-type
                     tt-neg-po-line.qty       = rm-rdtlh.qty
@@ -2163,6 +2177,7 @@ PROCEDURE run-report-2 :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -2179,6 +2194,7 @@ PROCEDURE run-report-2 :
                 WHERE fg-rcpth.company    EQ cocode
                 AND fg-rcpth.i-no       EQ po-ordl.i-no
                 AND fg-rcpth.po-no      EQ string(po-ordl.po-no)
+                AND fg-rcpth.po-line    EQ po-ordl.LINE
                 AND fg-rcpth.rita-code  EQ "R"
                 AND fg-rcpth.trans-date GE frdat
                 AND fg-rcpth.trans-date LE trdat
@@ -2197,6 +2213,7 @@ PROCEDURE run-report-2 :
                 CREATE tt-neg-po-line.
                 ASSIGN 
                     tt-neg-po-line.po-no     = po-ordl.po-no
+                    tt-neg-po-line.po-line   = po-ordl.LINE
                     tt-neg-po-line.i-no      = po-ordl.i-no
                     tt-neg-po-line.item-type = po-ordl.item-type
                     tt-neg-po-line.qty       = fg-rdtlh.qty
@@ -2244,6 +2261,7 @@ PROCEDURE run-report-2 :
                 DO:
                     FOR EACH tt-neg-po-line WHERE
                         tt-neg-po-line.po-no = po-ordl.po-no AND
+                        tt-neg-po-line.po-line = po-ordl.LINE AND
                         tt-neg-po-line.i-no = po-ordl.i-no AND
                         tt-neg-po-line.item-type = po-ordl.item-type
                         /*                     NO-ERROR.               */
@@ -2273,8 +2291,8 @@ PROCEDURE run-report-2 :
                         LEAVE.
                     END.
 
-                    IF ll-neg-inv-found = NO THEN
-                    DO:
+                    IF ll-neg-inv-found = YES THEN
+                    DO:           
                         CREATE temp-po-rec.
                         ASSIGN
                             temp-po-rec.vend-no    = v-vend-no
@@ -2301,10 +2319,11 @@ PROCEDURE run-report-2 :
         DO:
             FIND FIRST tt-neg-po-line WHERE
                 tt-neg-po-line.po-no = po-ordl.po-no AND
+                tt-neg-po-line.po-line = po-ordl.LINE AND
                 tt-neg-po-line.i-no = po-ordl.i-no AND
                 tt-neg-po-line.item-type = po-ordl.item-type
                 NO-ERROR.
-
+                          
             IF AVAILABLE tt-neg-po-line THEN
             DO:
                 ll-neg-inv-found = NO.
@@ -2328,9 +2347,9 @@ PROCEDURE run-report-2 :
                 ll-neg-inv-found = YES.
                 LEAVE.
             END.
-
-            IF ll-neg-inv-found = NO THEN
-            DO:
+            
+            IF ll-neg-inv-found = YES THEN
+            DO:                 
                 CREATE temp-po-rec.
                 ASSIGN
                     temp-po-rec.vend-no    = v-vend-no
@@ -2385,8 +2404,8 @@ DO:
     LEAVE.
 END.
 
-IF ll-neg-inv-found = NO THEN
-DO:
+IF ll-neg-inv-found = YES THEN
+DO:                
     CREATE temp-po-rec.
     ASSIGN
         temp-po-rec.vend-no    = v-vend-no
@@ -2596,10 +2615,12 @@ PROCEDURE pPrintDetail :
                     cVarValue = "".
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "rec-date" THEN
+                     cExcelVarValue = IF rm-rcpth.trans-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",rm-rcpth.trans-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
             END.
 
             IF cDisplay NE "" THEN PUT UNFORMATTED cDisplay SKIP.
@@ -2688,10 +2709,12 @@ PROCEDURE pPrintDetail :
                     cVarValue = "".
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "rec-date" THEN
+                     cExcelVarValue = IF fg-rcpth.trans-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",fg-rcpth.trans-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
             END.
 
             IF cDisplay NE "" THEN PUT UNFORMATTED cDisplay SKIP.
@@ -2702,23 +2725,15 @@ PROCEDURE pPrintDetail :
             END.                 
         END.        
     END.
-  
-    FOR EACH reftable
-        {ap/ap-reftbW.i bf-po-ordl.po-no}
-        NO-LOCK,
-               each ap-inv WHERE
-                    ap-inv.company eq cocode AND
-                    ap-inv.i-no    eq int(reftable.code2) AND
-                    ap-inv.vend-no eq bf-po-ord.vend-no AND
-                    (ap-inv.po-no  eq bf-po-ordl.po-no or ap-inv.po-no eq 0) AND
-                    ap-inv.posted  eq yes
-                    use-index i-no no-lock,
-               each ap-invl WHERE
-                    ap-invl.i-no       eq ap-inv.i-no AND
-                    (ap-invl.po-no     eq bf-po-ordl.po-no or ap-inv.po-no ne 0) AND
-                    {ap/invlline.i -1} eq bf-po-ordl.LINE 
-                    use-index i-no no-lock:
-
+         
+    FOR EACH ap-invl NO-LOCK
+        WHERE ap-invl.company EQ cocode 
+          AND ap-invl.po-no EQ bf-po-ordl.po-no 
+          AND (ap-invl.line + (ap-invl.po-no * -1000)) eq bf-po-ordl.LINE,           
+        EACH ap-inv NO-LOCK
+        WHERE ap-inv.i-no eq ap-invl.i-no
+          AND ap-inv.company EQ cocode:
+                      
     ASSIGN 
         cDisplay       = ""
         cTmpField      = ""
@@ -2747,10 +2762,12 @@ PROCEDURE pPrintDetail :
             cVarValue = "".
         END CASE.
 
-        cExcelVarValue = cVarValue.
+        IF  cTmpField = "inv-date" THEN
+             cExcelVarValue = IF ap-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date) ELSE "".
+        ELSE cExcelVarValue = cVarValue.
         cDisplay = cDisplay + cVarValue +
             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
     END.
 
     PUT UNFORMATTED cDisplay SKIP.

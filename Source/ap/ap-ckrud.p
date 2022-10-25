@@ -9,8 +9,9 @@
 
 form
   skip(4)
-  ap-chk.check-no to 7 ap-chk.check-date  to 16 FORM "99/99/99"
-  vend.vend-no to 27 skip(5)
+  ap-chk.check-no to 8 
+  ap-chk.check-date  to 17 FORM "99/99/99"
+  vend.vend-no to 28 skip(5)
   dol at 1 skip
   ctot to 75 format "*,***,**9.99" skip(2)
   vend.remit at 10

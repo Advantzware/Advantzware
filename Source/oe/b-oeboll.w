@@ -2075,6 +2075,7 @@ PROCEDURE local-delete-record :
   DEF VAR li-ord-no LIKE oe-boll.ord-no NO-UNDO.
   DEF VAR li-boll-cnt AS INT NO-UNDO.
   DEF VAR dFreight AS DEC DECIMALS 6 NO-UNDO.
+  DEFINE VARIABLE rwRowid AS ROWID NO-UNDO.
    
   li-boll-cnt = 0.
   FOR EACH bf-boll 
@@ -2175,6 +2176,12 @@ PROCEDURE local-delete-record :
   END.
 
   RUN redisplay-header.
+  
+  IF AVAILABLE oe-boll THEN
+  rwRowid = ROWID(oe-boll).
+  
+  {methods/run_link.i "container-source" "pReopenQuey" "(ROWID(oe-bolh))" }
+  RUN repo-query(rwRowid).      
   
 END PROCEDURE.
 
@@ -2434,6 +2441,8 @@ PROCEDURE local-update-record :
 /*      oe-boll.weight:READ-ONLY IN BROWSE {&browse-name} = yes */
 
   /* RUN calc-all-freight. */
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
+  RUN make-buttons-sensitive IN WIDGET-HANDLE(char-hdl).
 
 END PROCEDURE.
 

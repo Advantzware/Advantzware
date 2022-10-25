@@ -88,3 +88,5 @@ CEPrompt,Logical,CEPrompt,Logical,Prompt for options when calculating estimate,Y
 CEVendorDefault,Character,CEVendorDefault,Character,Default vendor for estimate calculations,Blank Vendor|Best Vendor,Best Vendor,Yes,EstimateCalculation,No
 CEShipWeight,Character,CEShipWeight,Character,Select the freight/ship weight calculation for the estimate.  Gross includes all product weights and packing/tare weight.  Net weight will exclude any packing/tare weight,Gross|Net,Net,Yes,EstimateCalculation,No
 CEAutoRecostBoard,Logical,CEAutoRecostBoard,Logical,When set to yes: If there are multiple forms on an esitmate automatically combine any identical board for the purposes of using the combined quantity to determine the vendor cost.  If set to No:  The quantity of each individual form will be used to lookup the corresponding cost,Yes|No,Yes,Yes,EstimateCalculation,No
+Notepad,Logical,Notepad,Logical,Notepad instead of Standard Screen Output? Active,YES|NO,NO,Yes,Notepad,No
+Notepad,Character,NotepadValue,Character,Notepad instead of Standard Screen Output? Value,|Notepad,,Yes,Notepad,No

@@ -16,11 +16,11 @@
           v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
           lv-email AT 8*/ SKIP(2)
          "<FCourier New>"
-         "Client/Customer:" AT 4 space(32) "Livraison/Ship To: " shipto[5] SKIP
-         SPACE(5) bill[1]  shipto[1] AT 55 skip
-         SPACE(5) bill[2]  shipto[2] AT 55 SKIP
-         SPACE(5) bill[3]  shipto[3] AT 55 SKIP
-         SPACE(5) bill[4]  shipto[4] AT 55 SKIP.
+         "Client/Customer:" AT 4 space(32) "Livraison/Ship To: " xquo.shipto[5] SKIP
+         SPACE(5) bill[1]  xquo.shipto[1] AT 55 skip
+         SPACE(5) bill[2]  xquo.shipto[2] AT 55 SKIP
+         SPACE(5) bill[3]  xquo.shipto[3] AT 55 SKIP
+         SPACE(5) bill[4]  xquo.shipto[4] AT 55 SKIP.
      /*
      IF lv-display-comp THEN
         PUT "<=2><C3><R+2><FGCOLOR=" trim(lv-comp-color) + ">"

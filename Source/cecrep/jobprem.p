@@ -417,6 +417,28 @@ do v-local-loop = 1 to v-local-copies:
                 xeb.plate-no when avail xeb
                 "<=#7> DIE CUTTING, SLIT, & SAW"                
             with no-box no-labels frame m2 width 145 NO-ATTR-SPACE STREAM-IO.
+            
+        /* PREMIER logic to show each ink on estimate - start */
+        FOR EACH w-i:
+          DELETE w-i.
+        END.
+
+        DO i = 1 TO EXTENT(xeb.i-code):
+          IF xeb.i-code[i] NE "" THEN DO:
+            CREATE w-i.
+            ASSIGN
+             w-i.i-code = xeb.i-code[i]
+             w-i.i-dscr = xeb.i-dscr[i]
+             .
+             FOR EACH job-mat NO-LOCK
+                 WHERE job-mat.company EQ cocode
+                   AND job-mat.job     EQ job-hdr.job
+                   AND job-mat.frm     EQ xeb.form-no
+                   AND job-mat.i-no    EQ xeb.i-code[i]:
+                 w-i.i-qty  = job-mat.qty.    
+             END.      
+          END.
+        END.     
 
         i = 0.
         for each w-i:
@@ -540,8 +562,8 @@ do v-local-loop = 1 to v-local-copies:
                      j = j + 1.
                      v-tmp-stype = IF v-xg-flag THEN xeb.k-len-scr-type2[j]
                                    ELSE xeb.k-wid-scr-type2[j].
-                     /*SUBSTRING(v-len-score,i,1) = v-tmp-stype.*/
-                     v-len-score2[j] = v-tmp-score + v-tmp-stype.
+                      
+                     v-len-score2[j] = (IF J EQ 1 THEN " " ELSE "") + v-tmp-stype + v-tmp-score .                      
                      v-tmp-score = "".
                   END.
                   ELSE v-tmp-score = v-tmp-score + " " /*SUBSTRING(v-len-score,i,1)*/.
@@ -1109,12 +1131,12 @@ IF iplLength THEN DO:
         opcScoresType = "Type :  " + ttScoreLine.ScoreType.
 END.    
 ELSE DO:
-    opcScoresType = "Type :  ".
+    opcScoresType = "Type : ".
     FOR EACH ttScoreLine NO-LOCK
         WHERE ttScoreLine.PanelType = "W"
         AND TRIM(ttScoreLine.ScoreLine) NE "":   
         opcScores = opcScores + " " + ttScoreLine.ScoreLine.
-        opcScoresType = opcScoresType +  ttScoreLine.ScoreType + "   " .
+        opcScoresType = opcScoresType +  FILL(" ",LENGTH(ttScoreLine.ScoreLine)) + ttScoreLine.ScoreType.
     END.
 END.            
 

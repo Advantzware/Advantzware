@@ -51,6 +51,11 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i "new shared"}
 {sys/inc/varasgn.i}
 
+/* Required for LoadtagProcs.p */
+{oerep/r-loadtg.i NEW}
+DEFINE NEW SHARED TEMP-TABLE tt-word-print LIKE w-ord 
+       FIELD tag-no AS CHARACTER.
+       
 /* Required for run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
@@ -62,6 +67,7 @@ DEFINE VARIABLE oItemFG          AS fg.ItemFG         NO-UNDO.
 DEFINE VARIABLE oKeyboard        AS system.Keyboard   NO-UNDO.
 
 DEFINE VARIABLE hdInventoryProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hdLoadtagProcs   AS HANDLE    NO-UNDO.
 DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCompany         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iWarehouseLength AS INTEGER   NO-UNDO.
@@ -70,6 +76,7 @@ DEFINE VARIABLE riFGRctdMove     AS ROWID     NO-UNDO.
 DEFINE VARIABLE riRMRctdMove     AS ROWID     NO-UNDO.
 DEFINE VARIABLE cUserID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lItemType        AS LOGICAL   NO-UNDO. /* TRUE - RM Item, FALSE - FG Item */
+DEFINE VARIABLE iTagsScanned     AS INTEGER   NO-UNDO.
 
 /* This will an incremented sequence value to be assigned into ttBrowseInventory.inventoryStockID (unique index column)
    once the transaction is posted */
@@ -80,6 +87,7 @@ DEFINE VARIABLE glSSCloseJob          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE glSSFGPost            AS LOGICAL   NO-UNDO INITIAL FALSE.
 DEFINE VARIABLE gcShowSettings        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glShowVirtualKeyboard AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE gcSSVendorTags        AS CHARACTER NO-UNDO INITIAL "No Vendor Tags".
 
 DEFINE VARIABLE gcCreateFGCompReceiptForSetHeader AS CHARACTER NO-UNDO.
 
@@ -115,7 +123,7 @@ RUN spGetSessionParam ("UserID", OUTPUT cUserID).
 &Scoped-define INTERNAL-TABLES ttBrowseInventory
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttBrowseInventory.primaryID ttBrowseInventory.itemType fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag ttBrowseInventory.quantity fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus ttBrowseInventory.emptyColumn   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 ttBrowseInventory.primaryID ttBrowseInventory.itemType fGetConcatLocationID() @ ttBrowseInventory.warehouseID ttBrowseInventory.tag ttBrowseInventory.quantity ttBrowseInventory.quantityUOM fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus ttBrowseInventory.emptyColumn   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1   
 &Scoped-define SELF-NAME BROWSE-1
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH ttBrowseInventory BY ttBrowseInventory.lastTransTime DESCENDING
@@ -133,7 +141,7 @@ RUN spGetSessionParam ("UserID", OUTPUT cUserID).
 btReset btnKeyboardlOCATION btnKeyboardTAG btnNumPad btnFirst btnLast ~
 btnNext btnPrevious btExit btnExitText btnClearText btnSettingsText 
 &Scoped-Define DISPLAYED-OBJECTS fiTag fiLocation btnExitText btnClearText ~
-statusMessage btnSettingsText 
+fiPallets statusMessage btnSettingsText 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -249,6 +257,11 @@ DEFINE VARIABLE fiLocation AS CHARACTER FORMAT "X(256)":U
      SIZE 71 BY 1.38
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
+DEFINE VARIABLE fiPallets AS INTEGER FORMAT ">,>>>,>>9":U INITIAL 0 
+     LABEL "# PALLETS" 
+      VIEW-AS TEXT 
+     SIZE 18.4 BY 1.1 NO-UNDO.
+
 DEFINE VARIABLE fiTag AS CHARACTER FORMAT "X(256)":U 
      LABEL "TAG" 
      VIEW-AS FILL-IN 
@@ -279,6 +292,7 @@ DEFINE BROWSE BROWSE-1
       fGetConcatLocationID() @ ttBrowseInventory.warehouseID WIDTH 30 COLUMN-LABEL "Location" FORMAT "X(20)"
       ttBrowseInventory.tag WIDTH 50 COLUMN-LABEL "Tag #" FORMAT "X(30)"
       ttBrowseInventory.quantity WIDTH 25 COLUMN-LABEL "Quantity" FORMAT "->,>>>,>>9.99<<<<"
+      ttBrowseInventory.quantityUOM WIDTH 10 COLUMN-LABEL "UOM" FORMAT "X(4)"
       fGetInventoryStatus() @ ttBrowseInventory.inventoryStatus COLUMN-LABEL "Status" FORMAT "X(30)"
       ttBrowseInventory.emptyColumn COLUMN-LABEL ""
 /* _UIB-CODE-BLOCK-END */
@@ -299,7 +313,7 @@ DEFINE FRAME F-Main
      btReset AT ROW 2.52 COL 100 WIDGET-ID 32 NO-TAB-STOP 
      btnKeyboardlOCATION AT ROW 4.33 COL 93 WIDGET-ID 138 NO-TAB-STOP 
      btnKeyboardTAG AT ROW 2.67 COL 93 WIDGET-ID 144 NO-TAB-STOP 
-     btnNumPad AT ROW 2.86 COL 148 WIDGET-ID 120 NO-TAB-STOP 
+     btnNumPad AT ROW 2.14 COL 142 WIDGET-ID 120 NO-TAB-STOP 
      btnFirst AT ROW 8.38 COL 182 WIDGET-ID 44
      btnLast AT ROW 14.1 COL 182 WIDGET-ID 46
      btnNext AT ROW 12.19 COL 182 WIDGET-ID 42
@@ -307,9 +321,10 @@ DEFINE FRAME F-Main
      btExit AT ROW 1 COL 182 WIDGET-ID 26 NO-TAB-STOP 
      btnExitText AT ROW 1.24 COL 174 NO-LABEL WIDGET-ID 36
      btnClearText AT ROW 3.38 COL 169 NO-LABEL WIDGET-ID 188
+     fiPallets AT ROW 4.57 COL 148.8 WIDGET-ID 190
      statusMessage AT ROW 28.86 COL 3 NO-LABEL WIDGET-ID 34
      btnSettingsText AT ROW 29.05 COL 163 NO-LABEL WIDGET-ID 146
-     RECT-2 AT ROW 2.67 COL 147 WIDGET-ID 130
+     RECT-2 AT ROW 1.95 COL 141 WIDGET-ID 130
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -395,6 +410,8 @@ ASSIGN
 ASSIGN 
        btTransfer:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN fiPallets IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN statusMessage IN FRAME F-Main
@@ -482,6 +499,8 @@ DO:
     ASSIGN
         fiTag:SCREEN-VALUE      = ""
         fiLocation:SCREEN-VALUE = ""
+        fiPallets:SCREEN-VALUE  = "0"
+        iTagsScanned            = 0
         .
     
     APPLY "ENTRY" TO fiTag.
@@ -892,7 +911,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiTag fiLocation btnExitText btnClearText statusMessage 
+  DISPLAY fiTag fiLocation btnExitText btnClearText fiPallets statusMessage 
           btnSettingsText 
       WITH FRAME F-Main IN WINDOW W-Win.
   ENABLE btClear fiTag fiLocation btPost BROWSE-1 btReset btnKeyboardlOCATION 
@@ -956,7 +975,13 @@ PROCEDURE local-destroy :
 
   IF VALID-OBJECT(oItemFG) THEN
       DELETE OBJECT oItemFG.
-                  
+    
+  IF VALID-HANDLE(hdInventoryProcs) THEN
+      DELETE PROCEDURE hdInventoryProcs.
+  
+  IF VALID-HANDLE(hdLoadtagProcs) THEN
+      DELETE PROCEDURE hdLoadtagProcs.
+                        
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -1044,6 +1069,8 @@ PROCEDURE pInit PRIVATE :
     RUN spGetSettingByName ("SSFGPost", OUTPUT cSettingValue).            
     glSSFGPost = LOGICAL(cSettingValue) NO-ERROR.
     
+    RUN spGetSettingByName ("SSVendorTags", OUTPUT gcSSVendorTags).
+    
     btPost:HIDDEN = glSSFGPost.
     
     oKeyboard:SetWindow({&WINDOW-NAME}:HANDLE).
@@ -1080,6 +1107,8 @@ PROCEDURE pInit PRIVATE :
     cColHandList = TRIM(cColHandList, ",").
     
     RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.    
+    RUN oerep/LoadtagProcs.p PERSISTENT SET hdLoadtagProcs.
+    
     RUN spGetSessionParam ("Company", OUTPUT cCompany).    
     RUN Inventory_GetWarehouseLength IN hdInventoryProcs (
         INPUT  cCompany,
@@ -1137,6 +1166,7 @@ PROCEDURE pLocationScan PRIVATE :
     DEFINE VARIABLE cCurrentWarehouse AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCurrentLocation  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lLocationConfirm  AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cTag              AS CHARACTER NO-UNDO.
     
     DO WITH FRAME {&FRAME-NAME}:
     END.    
@@ -1150,7 +1180,9 @@ PROCEDURE pLocationScan PRIVATE :
     END.
     
     oLoadTag:SetContext (cCompany, lItemType /* ItemType */, ipcTag).
-
+    
+    cTag = oLoadTag:GetValue("Tag").
+    
     IF NOT oLoadTag:IsAvailable() THEN DO:
         ASSIGN
             oplError   = TRUE
@@ -1162,11 +1194,11 @@ PROCEDURE pLocationScan PRIVATE :
     cItemID = oLoadTag:GetValue("ItemID").
     
     IF lItemType THEN DO:
-        oRMBin:SetContext (cCompany, cItemID, ipcTag).
+        oRMBin:SetContext (cCompany, cItemID, cTag).
         IF NOT oRMBin:IsAvailable() THEN DO:
             ASSIGN
                 oplError   = TRUE
-                opcMessage = "FG Bin not available for tag '" + ipcTag + "'"
+                opcMessage = "RM Bin not available for tag '" + ipcTag + "'"
                 .
             RETURN.
         END.
@@ -1187,7 +1219,7 @@ PROCEDURE pLocationScan PRIVATE :
             RETURN.        
         END.
      
-        oFGBin:SetContext (cCompany, cItemID, ipcTag).
+        oFGBin:SetContext (cCompany, cItemID, cTag).
         IF NOT oFGBin:IsAvailable() THEN DO:
             ASSIGN
                 oplError   = TRUE
@@ -1228,7 +1260,7 @@ PROCEDURE pLocationScan PRIVATE :
             INPUT  cCompany, 
             INPUT  ipcWarehouse,
             INPUT  ipcLocation, 
-            INPUT  ipcTag,
+            INPUT  cTag,
             INPUT  cItemID,
             INPUT  STRING(lItemType, "RM/FG"),
             INPUT  cUserID, 
@@ -1248,6 +1280,7 @@ PROCEDURE pLocationScan PRIVATE :
             ttBrowseInventory.warehouse        = ipcWarehouse
             ttBrowseInventory.location         = ipcLocation
             ttBrowseInventory.quantity         = dQuantity
+            ttBrowseInventory.quantityUOM      = "EA"
             ttBrowseInventory.inventoryStockID = STRING(riRctd)
             ttBrowseInventory.transactionType  = "Transfer"
             ttBrowseInventory.inventoryStatus  = "Created"
@@ -1527,7 +1560,14 @@ PROCEDURE pTagScan PRIVATE :
     DEFINE OUTPUT PARAMETER oplIsTransfer AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError      AS LOGICAL   NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage    AS CHARACTER NO-UNDO.
-            
+    
+    DEFINE VARIABLE iPOID        AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iPOLine      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantity    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cQuantityUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cAddInfo     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
+                            
     ASSIGN
         lIsMoveReceipt = FALSE
         riFGRctdMove   = ?
@@ -1546,7 +1586,62 @@ PROCEDURE pTagScan PRIVATE :
 
     IF NOT oLoadTag:IsAvailable() THEN
         oLoadTag:SetContext (cCompany, TRUE /* ItemType */, ipcTag).
+    
+    IF NOT oLoadTag:IsAvailable() THEN DO:
+        IF gcSSVendorTags EQ "Parse Vendor Tags" THEN DO:
+            RUN Loadtag_CreateLoadTagFromVendorTag IN hdLoadtagProcs (
+                INPUT  cCompany,
+                INPUT  ipcTag,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+            IF oplError THEN
+                RETURN.
+        END.
+        ELSE IF gcSSVendorTags EQ "Enter Vendor Tag Information" THEN DO:
+            RUN addon/rm/vendorTagParse.p(
+                INPUT  ipcTag,
+                OUTPUT iPOID,
+                OUTPUT iPOLine,
+                OUTPUT dQuantity,
+                OUTPUT cAddInfo,
+                OUTPUT opcMessage,
+                OUTPUT oplError
+                ).
+            
+            RUN sharpshooter/d-poInfo.w (
+                INPUT-OUTPUT iPOID,
+                INPUT-OUTPUT iPOLine,
+                INPUT-OUTPUT dQuantity,
+                INPUT-OUTPUT cQuantityUOM,
+                OUTPUT lValid
+                ).    
+            IF NOT lValid THEN
+                RETURN.
+            
+            RUN Loadtag_BuildAndCreateLoadTagsFromPO IN hdLoadtagProcs (
+                INPUT  cCompany,
+                INPUT  iPOID,
+                INPUT  iPOLine,
+                INPUT  dQuantity,
+                INPUT  dQuantity,
+                INPUT  1,
+                INPUT  cQuantityUOM,
+                INPUT  ipcTag,
+                OUTPUT oplError,
+                OUTPUT opcMessage
+                ).
+            IF oplError THEN
+                RETURN.             
+        END.
+    END.
+    
+    /* Re-read the loadtag table, as previous procedure would create a loadtag */    
+    oLoadTag:SetContext (cCompany, FALSE /* ItemType */, ipcTag).
 
+    IF NOT oLoadTag:IsAvailable() THEN
+        oLoadTag:SetContext (cCompany, TRUE /* ItemType */, ipcTag).
+        
     IF NOT oLoadTag:IsAvailable() THEN DO:
         ASSIGN
             oplError = TRUE
@@ -1559,7 +1654,7 @@ PROCEDURE pTagScan PRIVATE :
     lItemType = LOGICAL(oLoadtag:GetValue("ItemType")).
     
     IF lItemType THEN DO:
-        RUN pTagScanRM (ipcTag, OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pTagScanRM (oLoadtag:GetValue("Tag"), OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
         
         IF oplError THEN DO:
             RUN pStatusMessage(opcMessage, 3).
@@ -1568,7 +1663,7 @@ PROCEDURE pTagScan PRIVATE :
         END.
     END.
     ELSE IF NOT lItemType THEN DO:
-        RUN pTagScanFG (ipcTag, OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
+        RUN pTagScanFG (oLoadtag:GetValue("Tag"), OUTPUT oplIsTransfer, OUTPUT oplError, OUTPUT opcMessage).
 
         IF oplError THEN DO:
             RUN pStatusMessage(opcMessage, 3).
@@ -1755,20 +1850,20 @@ PROCEDURE pTagScanFG PRIVATE :
             ttBrowseInventory.warehouse        = cWarehouse
             ttBrowseInventory.location         = cLocation
             ttBrowseInventory.quantity         = iQuantity
+            ttBrowseInventory.quantityUOM      = cQuantityUOM
             ttBrowseInventory.inventoryStockID = STRING(riFGRctd)
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
             ttBrowseInventory.lastTransTime    = NOW
-            .
+            iTagsScanned                       = iTagsScanned + 1
+            .        
         
         FIND FIRST bf-fg-rctd NO-LOCK
              WHERE ROWID(bf-fg-rctd) EQ riFGRctd
              NO-ERROR.
         IF AVAILABLE bf-fg-rctd THEN DO:
             FOR EACH bf-comp-fg-rctd NO-LOCK 
-                WHERE bf-comp-fg-rctd.company    EQ bf-fg-rctd.company
-                AND bf-comp-fg-rctd.SetHeaderRno EQ bf-fg-rctd.r-no
-                USE-INDEX fg-rctd:
+                WHERE bf-comp-fg-rctd.SetHeaderRno EQ bf-fg-rctd.r-no:
                 CREATE ttBrowseInventory.
                 ASSIGN
                     ttBrowseInventory.company          = bf-comp-fg-rctd.company
@@ -1778,6 +1873,7 @@ PROCEDURE pTagScanFG PRIVATE :
                     ttBrowseInventory.warehouse        = bf-comp-fg-rctd.loc
                     ttBrowseInventory.location         = bf-comp-fg-rctd.loc-bin
                     ttBrowseInventory.quantity         = bf-comp-fg-rctd.qty
+                    ttBrowseInventory.quantityUOM      = bf-comp-fg-rctd.pur-uom
                     ttBrowseInventory.inventoryStockID = STRING(ROWID(bf-comp-fg-rctd))
                     ttBrowseInventory.transactionType  = "Receipt"
                     ttBrowseInventory.inventoryStatus  = "Created"
@@ -1785,6 +1881,8 @@ PROCEDURE pTagScanFG PRIVATE :
                     .            
             END.            
         END.
+
+        fiPallets:SCREEN-VALUE = STRING(iTagsScanned).
     
         {&OPEN-QUERY-{&BROWSE-NAME}}
     END.    
@@ -1815,10 +1913,11 @@ PROCEDURE pTagScanRM PRIVATE :
     DEFINE VARIABLE iJobID2          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dNewQuantity     AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE lSuccess         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE iQuantity        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSubUnits        AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iSubUnitsPerUnit AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iPartial         AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dQuantity        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnits        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dSubUnitsPerUnit AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dPartial         AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cTag             AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bf-rm-rctd       FOR rm-rctd.
     DEFINE BUFFER bf-item          FOR item.
@@ -1901,14 +2000,15 @@ PROCEDURE pTagScanRM PRIVATE :
     ELSE DO:
         ASSIGN
             cQuantityUOM     = bf-item.cons-uom
+            cTag             = oLoadTag:GetValue("Tag")        
             iPOID            = INTEGER(oLoadTag:GetValue("PO"))
             iPOLineID        = INTEGER(oLoadTag:GetValue("PoLine"))
             cJobID           = oLoadTag:GetValue("JobID")
             iJobID2          = INTEGER(oLoadTag:GetValue("JobID2"))
-            iSubUnits        = INTEGER(oLoadTag:GetValue("QuantityInSubUnit"))
-            iSubUnitsPerUnit = INTEGER(oLoadTag:GetValue("SubUnitsPerUnit"))
-            iPartial         = INTEGER(oLoadTag:GetValue("Partial"))
-            iQuantity        = iSubUnits * iSubUnitsPerUnit + iPartial
+            dSubUnits        = INTEGER(oLoadTag:GetValue("QuantityInSubUnit"))
+            dSubUnitsPerUnit = INTEGER(oLoadTag:GetValue("SubUnitsPerUnit"))
+            dPartial         = INTEGER(oLoadTag:GetValue("Partial"))
+            dQuantity        = DECIMAL(oLoadTag:GetValue("Quantity"))
             .
 
         EMPTY TEMP-TABLE work-gl.
@@ -1925,15 +2025,15 @@ PROCEDURE pTagScanRM PRIVATE :
                 
         RUN api\inbound\CreateInventoryReceipt.p (
             INPUT        cCompany, 
-            INPUT        ipcTag,
-            INPUT        iQuantity,  /* Quantity */
+            INPUT        cTag,
+            INPUT        dQuantity,  /* Quantity */
             INPUT        cQuantityUOM,
             INPUT-OUTPUT iPOID,
             INPUT        iPOLineID,
             INPUT-OUTPUT cJobID,                  
             INPUT        STRING(iJobID2),                 
-            INPUT        iSubUnits,  /* Sub Units */     
-            INPUT        iSubUnitsPerUnit,  /* Sub Units per Unit */
+            INPUT        dSubUnits,  /* Sub Units */     
+            INPUT        dSubUnitsPerUnit,  /* Sub Units per Unit */
             INPUT        cWarehouse,            
             INPUT        cLocation,
             INPUT        FALSE, 
@@ -1955,17 +2055,21 @@ PROCEDURE pTagScanRM PRIVATE :
             ttBrowseInventory.company          = cCompany
             ttBrowseInventory.primaryID        = cItemID
             ttBrowseInventory.itemType         = STRING(lItemType, "RM/FG")
-            ttBrowseInventory.tag              = ipcTag
+            ttBrowseInventory.tag              = cTag
             ttBrowseInventory.warehouse        = cWarehouse
             ttBrowseInventory.location         = cLocation
-            ttBrowseInventory.quantity         = iQuantity
+            ttBrowseInventory.quantity         = dNewQuantity
+            ttBrowseInventory.quantityUOM      = cQuantityUOM
             ttBrowseInventory.inventoryStockID = STRING(riRMRctd)
             ttBrowseInventory.transactionType  = "Receipt"
             ttBrowseInventory.inventoryStatus  = "Created"
             ttBrowseInventory.lastTransTime    = NOW
+            iTagsScanned                       = iTagsScanned + 1
             .        
         
         {&OPEN-QUERY-{&BROWSE-NAME}}
+        
+        fiPallets:SCREEN-VALUE = STRING(iTagsScanned).
     END.    
 END PROCEDURE.
 

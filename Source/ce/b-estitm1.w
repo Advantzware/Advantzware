@@ -338,24 +338,23 @@ DEFINE QUERY br-estitm FOR
 DEFINE BROWSE br-estitm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-estitm B-table-Win _STRUCTURED
   QUERY br-estitm NO-LOCK DISPLAY
-      est.est-no FORMAT "99999999":U WIDTH 12 COLUMN-FONT 2
-      est.est-date FORMAT "99/99/9999":U COLUMN-FONT 2
-      eb.cust-no FORMAT "x(8)":U COLUMN-FONT 2
+      est.est-no FORMAT "99999999":U WIDTH 12 
+      est.est-date FORMAT "99/99/9999":U 
+      eb.cust-no FORMAT "x(8)":U 
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
-            COLUMN-FONT 2
-      eb.part-no FORMAT "x(30)":U COLUMN-FONT 2
-      eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2
-      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U COLUMN-FONT 2
+      eb.part-no FORMAT "x(30)":U 
+      eb.part-dscr1 FORMAT "x(30)":U 
+      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U 
       eb.bl-qty COLUMN-LABEL "Qty" FORMAT ">>>,>>>,>>>":U WIDTH 15
-      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 COLUMN-FONT 2
-      ef.board FORMAT "x(12)":U COLUMN-FONT 2
+      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 
+      ef.board FORMAT "x(12)":U 
       ef.medium COLUMN-LABEL "Paper 1" FORMAT "x(10)":U WIDTH 13
       ef.flute COLUMN-LABEL "Paper 2" FORMAT "x(10)":U WIDTH 13
-      ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
-      eb.procat FORMAT "x(5)":U COLUMN-FONT 2
-      eb.len FORMAT ">9.99999":U COLUMN-FONT 2
-      eb.wid FORMAT ">9.99999":U COLUMN-FONT 2
-      eb.dep FORMAT ">9.99999":U COLUMN-FONT 2
+      ef.cal FORMAT ">9.99999<":U 
+      eb.procat FORMAT "x(5)":U 
+      eb.len FORMAT ">>9.99999":U 
+      eb.wid FORMAT ">>9.99999":U 
+      eb.dep FORMAT ">>9.99999":U 
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
@@ -515,11 +514,11 @@ ASSIGN
      _FldNameList[14]   > ASI.eb.procat
 "eb.procat" ? ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.eb.len
-"eb.len" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.eb.wid
-"eb.wid" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.eb.dep
-"eb.dep" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.dep" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.cust-%
 "eb.cust-%" "Qty/Set" "->>,>>>" "decimal" ? ? ? ? ? ? yes "Quantity Per Set" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.eb.i-col
@@ -2713,7 +2712,14 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
           est-qty.qty[39] = tt-frmout.copy-rel[19] 
           est-qty.qty[40] = tt-frmout.copy-rel[20]  .
      
-
+     IF tt-frmout.stack-no NE "" AND NOT CAN-FIND(FIRST itemfg
+                  WHERE itemfg.company EQ cocode
+                    AND itemfg.i-no    EQ tt-frmout.stack-no) THEN DO:  
+        FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+        FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+        eb.pur-man  = TRUE .
+        RUN fg/ce-addfg.p (tt-frmout.stack-no).
+     END. 
 
      FIND FIRST itemfg WHERE  itemfg.company = cocode
          AND itemfg.stat = "A" AND itemfg.i-no = tt-frmout.stack-no
@@ -3248,7 +3254,7 @@ DEF VAR prev-board LIKE ef.board NO-UNDO.
 
 DEF BUFFER bf FOR ef.
 DEF BUFFER bf-est FOR est.
-
+DEFINE BUFFER bf-eb FOR eb.
 
 FIND bf-est WHERE RECID(bf-est) = ip-recid.
 
@@ -3257,7 +3263,10 @@ FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 IF bf-est.est-type NE 2 THEN
 DO:
     bf-est.est-type = 4.
-    RUN pReSetEstQty(rowid(est-qty)). 
+    RUN pReSetEstQty(rowid(est-qty)).
+    FOR EACH bf-eb OF bf-est:  
+      RUN set-yld-qty (ROWID(bf-eb)).
+    END.
 END.
 
 FIND LAST bf 
@@ -3743,13 +3752,14 @@ PROCEDURE local-assign-record :
      ll-crt-itemfg = NO.
   END.
 
-  IF eb.stock-no NE "" AND eb.part-dscr2 EQ "" THEN DO:
+  IF eb.stock-no NE "" AND (eb.part-dscr2 EQ "" OR eb.cad-no EQ "") THEN DO:
     FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company    EQ eb.company
           AND itemfg.i-no       EQ eb.stock-no
           AND itemfg.part-dscr1 NE ""
         NO-ERROR.
-    IF AVAIL itemfg THEN eb.part-dscr2 = itemfg.part-dscr1.
+    IF AVAIL itemfg AND eb.part-dscr2 EQ "" THEN eb.part-dscr2 = itemfg.part-dscr1.
+    IF AVAIL itemfg AND eb.cad-no EQ "" THEN eb.cad = itemfg.cad-no.
   END. 
 
   /*== Qty assignment ==*/

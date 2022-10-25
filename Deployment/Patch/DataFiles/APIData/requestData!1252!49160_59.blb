@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE cXML SYSTEM "http://xml.cXML.org/schemas/cXML/1.2.020/Fulfill.dtd">
+<cXML payloadID="$PayloadID$" xml:lang="en-US" timestamp="$NoticeDate$">
+   <Header>
+      <From>
+         <Credential domain="DUNS">
+            <Identity>$CompanyIdentity$</Identity>
+         </Credential>
+      </From>
+      <To>
+         <Credential domain="DUNS">
+            <Identity>$PartnerIdentity$</Identity>
+         </Credential>
+      </To>   
+      <Sender>
+         <Credential domain="DUNS">
+            <Identity>$CompanyIdentity$</Identity>
+            <SharedSecret>$SharedSecret$</SharedSecret>
+         </Credential>
+         <UserAgent>ASN Advantzware API</UserAgent>
+      </Sender>
+   </Header>
+<Request deploymentMode="production">
+<ShipNoticeRequest>
+         <ShipNoticeHeader shipmentID="$BOLID$" noticeDate="$BOLPrintDate$" shipmentDate="$BOLShipDate$" deliveryDate="$BOLRelDate$">
+            <Contact role="shipFrom">
+               <Name xml:lang="en-US">Premier Packaging</Name>
+               <PostalAddress>
+                  <Street>$ShipToPostalAddressStreet$</Street>
+                  <City>$ShipToPostalAddressCity$</City>
+                  <State>$ShipToPostalAddressState$</State>
+                  <PostalCode>$ShipToPostalAddressPostalCode$</PostalCode>
+                  <Country isoCountryCode="$ShipToPostalAddressCountryCode$" />
+               </PostalAddress>
+               <Email name="Supplier">$ShipToEmail$</Email>
+               <Phone>
+                  <TelephoneNumber>
+                     <CountryCode isoCountryCode="$ShipToPhoneCountryCode$" />
+                     <AreaOrCityCode>$ShipToPhoneAreaOrCityCode$</AreaOrCityCode>
+                     <Number>$ShipToPhoneNumber$</Number>
+                     <Extension>$ShipToPhoneExtension$</Extension>
+                  </TelephoneNumber>
+               </Phone>
+            </Contact>
+            <Comments></Comments>
+         </ShipNoticeHeader>
+         <ShipControl>
+            <CarrierIdentifier domain="SCAC"></CarrierIdentifier>
+            <CarrierIdentifier domain="companyName">$CarrierName$</CarrierIdentifier>
+            <ShipmentIdentifier>$TrailerID$</ShipmentIdentifier>
+         </ShipControl>
+         <ShipNoticePortion>
+            $OrderDetailID$
+            $ItemDetailID$
+         </ShipNoticePortion>
+</ShipNoticeRequest>
+</Request>
+</cXML>

@@ -331,8 +331,16 @@ PROCEDURE pExpireOldPrices PRIVATE:
                 END.                  
                       
                 IF ttOeprmtx.effectiveDate - 1  LT bf-oe-prmtx.eff-date THEN DO:
-                    IF iplExpire THEN
+                    IF iplExpire THEN do:
                         bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate.
+                        
+                        IF bf-oe-prmtx.quoteID NE 0 THEN 
+                        RUN pUpdateExpQuoteDate(
+                                       INPUT ipcCompany,
+                                       INPUT bf-oe-prmtx.quoteID,
+                                       INPUT bf-oe-prmtx.exp-date
+                                       ).
+                    END.    
                     ELSE 
                         ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate.                           
                 END.                 
@@ -340,7 +348,14 @@ PROCEDURE pExpireOldPrices PRIVATE:
                     IF iplExpire THEN
                     do:
                      ASSIGN
-                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.                        
+                        bf-oe-prmtx.exp-date = ttOeprmtx.effectiveDate - 1.
+                        
+                     IF bf-oe-prmtx.quoteID NE 0 THEN 
+                        RUN pUpdateExpQuoteDate(
+                                       INPUT ipcCompany, 
+                                       INPUT bf-oe-prmtx.quoteID,
+                                       INPUT bf-oe-prmtx.exp-date
+                                       ).                         
                     END.    
                     ELSE 
                         ttOePrmtxCsv.newExpiryDate = ttOeprmtx.effectiveDate - 1.                         
@@ -1798,6 +1813,28 @@ PROCEDURE pGetQtyMatchInfo PRIVATE:
         END. /*Qty LE oe-prmtx qty*/
     END.
           
+END PROCEDURE.
+
+
+PROCEDURE pUpdateExpQuoteDate PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/    
+    DEFINE INPUT PARAMETER ipcCompany        AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiQuoteNo        AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER ipdtExpireDate    AS DATE      NO-UNDO.
+        
+    DEFINE VARIABLE iQuoteNo AS INT64 NO-UNDO.
+    DEFINE BUFFER bf-quotehd  FOR quotehd. 
+    
+    FOR EACH bf-quotehd EXCLUSIVE-LOCK 
+        WHERE bf-quotehd.company    EQ ipcCompany
+          AND bf-quotehd.q-no       EQ ipiQuoteNo                      
+          :                    
+          bf-quotehd.expireDate = ipdtExpireDate.
+    END.          
+    RELEASE bf-quotehd.      
 END PROCEDURE.
 
 PROCEDURE Price_ExpirePriceMatrixByItem:

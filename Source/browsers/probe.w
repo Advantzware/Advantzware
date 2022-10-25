@@ -452,7 +452,7 @@ FUNCTION display-gp RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDirectMatPctSellPrice B-table-Win 
 FUNCTION fDirectMatPctSellPrice RETURNS DECIMAL
-  ( INPUT ip-type AS INTEGER ) FORWARD.
+  ( INPUT ip-type AS INT ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -788,6 +788,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON ALT-O OF br_table IN FRAME F-Main /* Estimate  Analysis Per Thousand */
+DO:
+    IF AVAILABLE probe AND INT64(probe.spare-char-2) NE 0 THEN
+        RUN est/dViewEstCost.w (INT64(probe.spare-char-2)).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON START-SEARCH OF br_table IN FRAME F-Main
@@ -1804,6 +1813,7 @@ IF CAN-FIND(FIRST xprobe
        /* copy notes from old quotehd */
       IF ll-new-quote THEN DO:
           RUN est/GetQuoteDefNotes.p (INPUT quotehd.company,
+                                      INPUT quotehd.loc,
                                       OUTPUT cNotes).
 /*          FIND FIRST bf-qhd NO-LOCK NO-ERROR. */
 /*          IF AVAILABLE bf-qhd THEN                */
@@ -2176,6 +2186,16 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+PROCEDURE edit-quantity:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+RUN est/estEditQuantity.p (RECID(eb)).
+
+END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE est-summ B-table-Win 
 PROCEDURE est-summ :
@@ -2839,7 +2859,10 @@ PROCEDURE local-update-record :
   IF vmclean THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
 
   IF probe.spare-char-2 NE "" THEN
+  DO: 
     RUN pCalculatePricing(BUFFER probe). 
+    RUN dispatch ("open-query").
+  END.   
 
     IF LAST-EVENT:LABEL EQ "Choose" THEN RETURN.  
     QUERY br_table:GET-NEXT().
@@ -3074,7 +3097,10 @@ PROCEDURE print-box :
      ls-outfile = lv-cebrowse-dir + TRIM(est.est-no) + '.x' + STRING(probe.line,'999').
 
   OUTPUT TO VALUE(ls-outfile).
-  PUT '</PROGRESS><PREVIEW><P11>'.
+  IF NOT lBussFormModle THEN
+  PUT '</PROGRESS><PREVIEW><MODAL=NO><P11>'.
+  ELSE
+  PUT '</PROGRESS><PREVIEW><P11>'.  
   OUTPUT CLOSE.
 
   RUN printBoxImage.

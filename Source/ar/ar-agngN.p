@@ -83,6 +83,10 @@ def input parameter ipcDateToUse as char no-undo.
     DEF        VAR v-gltrans-desc       AS CHAR    FORMAT "X(60)" NO-UNDO.
     DEF        VAR cPoNo                LIKE ar-inv.po-no NO-UNDO.
     DEF        VAR cJobStr              AS CHAR    FORMAT "x(13)" NO-UNDO.
+    DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+    
+    RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+    
     DEF TEMP-TABLE tt-cust NO-UNDO 
         FIELD curr-code LIKE cust.curr-code
         FIELD sorter    LIKE cust.cust-no
@@ -440,7 +444,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                 USE-INDEX ar-cash,                                                                                               
                 EACH ar-cashl                                           
     FIELDS(check-no c-no posted inv-no company                     
-                cust-no memo amt-disc amt-paid on-account rec_key)        
+                cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
                 NO-LOCK                                                 
                 WHERE ar-cashl.c-no       EQ ar-cash.c-no                 
                 AND ar-cashl.posted     EQ YES                        
@@ -763,7 +767,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "inv"       THEN 
                                 cVarValue = STRING(tt-inv.inv-no,">>>>>>>>") .
                             WHEN "inv-date"  THEN 
-                                cVarValue = STRING(tt-inv.inv-date,"99/99/99") .
+                                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-inv.inv-date) .
                             WHEN "amount"    THEN 
                                 cVarValue = STRING(amt,"->>>>>>>>9.99").
                             WHEN "current"   THEN 
@@ -789,7 +793,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     
                         END CASE.
                   
-                        cExcelVarValue = cVarValue.
+                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -961,7 +965,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                         WHEN "inv"       THEN 
                                             cVarValue = STRING(tt-ar-cashl.inv-no,">>>>>>>>") .
                                         WHEN "inv-date"  THEN 
-                                            cVarValue = STRING(tt-ar-cash.check-date,"99/99/99") .
+                                            cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-ar-cash.check-date) .
                                         WHEN "amount"    THEN 
                                             cVarValue = STRING(v-cr-db-amt,"->>>>>>>>9.99").
                                         WHEN "current"   THEN 
@@ -986,7 +990,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                             cVarValue = "".
                                     END CASE.
 
-                                    cExcelVarValue = cVarValue.
+                                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                                     cDisplay = cDisplay + cVarValue +
                                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1057,7 +1061,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                     WHEN "inv"       THEN 
                                         cVarValue = STRING(tt-ar-cashl.inv-no,">>>>>>>>") .
                                     WHEN "inv-date"  THEN 
-                                        cVarValue = STRING(tt-ar-cash.check-date,"99/99/99") .
+                                        cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-ar-cash.check-date) .
                                     WHEN "amount"    THEN 
                                         cVarValue = STRING(v-disc-amt,"->>>>>>>>9.99").
                                     WHEN "current"   THEN 
@@ -1082,7 +1086,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                         cVarValue = "".
                                 END CASE.
 
-                                cExcelVarValue = cVarValue.
+                                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                                 cDisplay = cDisplay + cVarValue +
                                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1185,7 +1189,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                         WHEN "inv"       THEN 
                                             cVarValue = STRING(tt-ar-cashl.inv-no,">>>>>>>>") .
                                         WHEN "inv-date"  THEN 
-                                            cVarValue = STRING(v-check-date,"99/99/99") .
+                                            cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
                                         WHEN "amount"    THEN 
                                             cVarValue = STRING(v-cr-db-amt,"->>>>>>>>9.99").
                                         WHEN "current"   THEN 
@@ -1210,7 +1214,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                             cVarValue = "".
                                     END CASE.
 
-                                    cExcelVarValue = cVarValue.
+                                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                                     cDisplay = cDisplay + cVarValue +
                                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1251,7 +1255,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                                                                                   
             EACH tt-ar-cashl                                           
          FIELDS(check-no c-no posted inv-no company                     
-            cust-no memo amt-disc amt-paid on-account rec_key)        
+            cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
             NO-LOCK                                                 
             WHERE tt-ar-cashl.c-no       EQ tt-ar-cash.c-no                 
             AND tt-ar-cashl.posted     EQ YES                        
@@ -1325,7 +1329,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                                                                               
             EACH tt-ar-cashl                                           
          FIELDS(check-no c-no posted inv-no company                     
-            cust-no memo amt-disc amt-paid on-account rec_key)        
+            cust-no memo amt-disc amt-paid on-account rec_key voiddate)        
             NO-LOCK                                                
             WHERE tt-ar-cashl.c-no       EQ tt-ar-cash.c-no                
             AND tt-ar-cashl.posted     EQ YES                        
@@ -1518,7 +1522,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "inv"       THEN 
                                 cVarValue = STRING(v-neg-text) .
                             WHEN "inv-date"  THEN 
-                                cVarValue = STRING(v-check-date,"99/99/99") .
+                                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
                             WHEN "amount"    THEN 
                                 cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>>>>>>9.99").
                             WHEN "current"   THEN 
@@ -1544,7 +1548,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     
                         END CASE.
                   
-                        cExcelVarValue = cVarValue.
+                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1651,7 +1655,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                             WHEN "inv"       THEN 
                                 cVarValue = STRING(v-neg-text) .
                             WHEN "inv-date"  THEN 
-                                cVarValue = STRING(v-check-date,"99/99/99") .
+                                cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
                             WHEN "amount"    THEN 
                                 cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>>>>>>9.99").
                             WHEN "current"   THEN 
@@ -1677,7 +1681,7 @@ DEF VAR cToCust AS CHAR NO-UNDO.
                     
                         END CASE.
                   
-                        cExcelVarValue = cVarValue.
+                        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -2194,7 +2198,7 @@ PROCEDURE total-head:
                     
         END CASE.
                   
-        cExcelVarValue = cVarValue.
+        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
         cDisplay = cDisplay + cVarValue +
             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -2222,3 +2226,10 @@ PROCEDURE total-head:
         END.
     END.
 end procedure.
+
+FINALLY:
+    IF VALID-HANDLE (hdOutputProcs) THEN
+        DELETE PROCEDURE hdOutputProcs.            
+END FINALLY.
+
+

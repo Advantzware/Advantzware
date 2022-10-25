@@ -332,7 +332,7 @@ DEFINE FRAME Dialog-Frame
           BGCOLOR 15 FONT 1
      btnCalendar-1 AT ROW 1.48 COL 35
      fg-rctd.tag AT ROW 2.67 COL 19 COLON-ALIGNED
-          LABEL "Tag" FORMAT "x(20)"
+          LABEL "Tag" FORMAT "x(24)"
           VIEW-AS FILL-IN 
           SIZE 31.2 BY 1
           BGCOLOR 15 FONT 1
@@ -665,12 +665,17 @@ DO:
                                     fg-rctd.po-line:screen-value = ENTRY(6,char-val)
                                     .
                                 RUN pDisplayPO(YES).
+                                APPLY "value-changed" TO FOCUS.
                             END.
                         END.
                         ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN 
                             DO:
                                 RUN windows/l-jobit1.w (fg-rctd.company,fg-rctd.job-no:SCREEN-VALUE,fg-rctd.job-no2:screen-value, FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT rec-val).
-                                IF char-val <> ""  THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val). 
+                                IF char-val <> ""  THEN 
+                                DO:
+                                    ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val). 
+                                    APPLY "value-changed" TO FOCUS.
+                                END.
                                 IF rec-val <> ? THEN 
                                 DO:
                                     FIND tt-job-hdr WHERE RECID(tt-job-hdr) = rec-val NO-LOCK NO-ERROR.
@@ -707,6 +712,7 @@ DO:
                                 fg-rctd.i-no:SCREEN-VALUE    = ENTRY(3,char-val)
                                 .
                             RUN  pGetUnassembledItem(cocode , ENTRY(3,char-val)) .
+                            RUN pGetLocBin .
                         END.
                         IF rec-val <> ? THEN 
                         DO:
@@ -730,12 +736,14 @@ DO:
                 WHEN "job-no2" THEN 
                     DO:
                         RUN windows/l-jobno2.w (fg-rctd.company, fg-rctd.job-no:screen-value,FOCUS:SCREEN-VALUE,OUTPUT char-val, OUTPUT rec-val).
-                        IF char-val <> "" THEN
+                        IF char-val <> "" THEN DO:
                             ASSIGN /*focus:screen-value in frame {&frame-name} = entry(1,char-val)
                        fg-rctd.job-no:screen-value = entry(1,char-val) */
                                 fg-rctd.job-no2:screen-value = ENTRY(2,char-val)
                                 fg-rctd.i-no:SCREEN-VALUE    = ENTRY(3,char-val)
                                 .
+                                RUN pGetLocBin .
+                        END.
                         IF rec-val <> ? THEN 
                         DO:
                             FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
@@ -979,8 +987,8 @@ DO:
             END.
 
             IF fg-rctd.tag:SCREEN-VALUE  NE fg-rctd.tag 
-                AND NOT adm-new-record THEN 
-            DO:
+                AND NOT adm-new-record AND NOT ip-set-parts THEN 
+            DO:      
                 /* Note: if adm-new-record, tag will always be different, */
                 /*       and cases will be overriden                      */
                 RUN new-tag.
@@ -1195,7 +1203,7 @@ DO:
         END.
       
   
-        IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
+        IF glFGPOTag# AND fg-rctd.tag:SCREEN-VALUE EQ "" THEN 
         DO:
             RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).
             RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
@@ -2167,7 +2175,7 @@ PROCEDURE create-from-po :
                 fg-rctd.qty-case
                 fg-rctd.cases-unit                 
                     WITH FRAME {&FRAME-NAME}.
-            IF glFGPOTag# AND fg-rctd.tag EQ "" THEN 
+            IF glFGPOTag# AND fg-rctd.tag:SCREEN-VALUE EQ "" THEN 
             DO:
                 RUN get-next-tag (INPUT fg-rctd.i-no, OUTPUT v-next-tag).
                 RUN create-loadtag (INPUT-OUTPUT v-next-tag, INPUT ROWID(fg-rctd)).
@@ -2633,13 +2641,15 @@ PROCEDURE get-def-values :
             ------------------------------------------------------------------------------*/
 
     DO WITH FRAME {&FRAME-NAME}:
-        IF adm-new-record THEN
+        IF adm-new-record THEN do:
             ASSIGN
                 fg-rctd.loc:SCREEN-VALUE      = ""
                 fg-rctd.loc-bin:SCREEN-VALUE  = ""
-                fg-rctd.std-cost:SCREEN-VALUE = ""
-                fg-rctd.qty-case:SCREEN-VALUE = ""
+                fg-rctd.std-cost:SCREEN-VALUE = ""                  
                 fg-rctd.cost-uom:SCREEN-VALUE = "".
+            IF fg-rctd.tag:SCREEN-VALUE EQ "" THEN
+            fg-rctd.qty-case:SCREEN-VALUE = "".           
+        END.        
 
         RUN get-values.
     END.
@@ -2771,7 +2781,7 @@ PROCEDURE get-job-no :
     ELSE
         lcRitaCode = "R".
     DO WITH FRAME {&frame-name}:
-        fg-rctd.job-no:SCREEN-VALUE  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no))
+        fg-rctd.job-no:SCREEN-VALUE  = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE))
         .
         IF TRIM(fg-rctd.job-no:SCREEN-VALUE ) NE TRIM(lv-job-no)  OR
             DEC(fg-rctd.job-no2:SCREEN-VALUE ) NE DEC(lv-job-no2) THEN
@@ -3279,7 +3289,7 @@ DEFINE BUFFER bf-job-hdr FOR job-hdr .
                       RUN  pGetUnassembledItem(cocode , bf-job-hdr.i-no) .
 
                     RUN get-def-values.
-                    IF NOT lUpdateRecords THEN
+                    IF NOT lUpdateRecords AND fg-rctd.tag:screen-value EQ "" THEN
                         RUN pGetUnitCountFromJob(bf-job-hdr.ord-no ,fg-rctd.i-no:SCREEN-VALUE,bf-job-hdr.job-no,bf-job-hdr.job-no2) .
                       
                     LEAVE.
@@ -3495,7 +3505,7 @@ PROCEDURE pDisplayFG PRIVATE :
         ASSIGN
             fg-rctd.std-cost:SCREEN-VALUE = IF glAverageCost THEN STRING(ipbf-itemfg.avg-cost) ELSE STRING(ipbf-itemfg.last-cost)
             fg-rctd.cost-uom:SCREEN-VALUE = ipbf-itemfg.prod-uom  .
-        IF NOT lUpdateRecords THEN
+        IF NOT lUpdateRecords AND INTEGER(fg-rctd.qty-case:SCREEN-VALUE) EQ 0 THEN
             fg-rctd.qty-case:SCREEN-VALUE = STRING(ipbf-itemfg.case-count) .  
     END.
     

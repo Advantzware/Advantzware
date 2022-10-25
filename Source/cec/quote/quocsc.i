@@ -76,7 +76,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                          style.style = v-style NO-LOCK NO-ERROR.
   style-name = IF AVAIL style THEN style.dscr ELSE xqitm.style.
     
-  DO i = 1 TO linfit WITH FRAME item-10p:
+  DO i = 1 TO linfit:
     IF i EQ 1 THEN DO:
       trim-size = "".
       /*
@@ -100,15 +100,23 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
       IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.
 
-      DISPLAY trim(xquo.est-no) @ xquo.est-no
-              xqitm.part-no
-              trim-size.
+      IF LENGTH(xqitm.part-no) LE 25 THEN
+      DO:  
+         PUT   TRIM(xquo.est-no) TO 8 format "x(8)" 
+               xqitm.part-no TO 34 format "x(25)"
+               trim-size TO 60 format "x(24)" . 
+      END.
+      ELSE DO:  
+        PUT  TRIM(xquo.est-no) TO 8 format "x(8)" 
+             xqitm.part-no TO 39 format "x(30)" SKIP
+             trim-size TO 60 format "x(24)" .               
+      END.
     END.
 
     ELSE
     IF i EQ 2 THEN
-      DISPLAY xqitm.part-dscr1              @ xqitm.part-no
-              style-name                    @ trim-size.
+      PUT     xqitm.part-dscr1 TO 34 format "x(25)"
+              style-name TO 60 format "x(24)".
 
     ELSE
     IF i EQ 3 THEN DO:
@@ -166,8 +174,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
               NO-LOCK NO-ERROR.
 
       IF xqitm.i-coldscr <> "" THEN
-         DISPLAY xqitm.i-coldscr               @ trim-size.
-      ELSE IF AVAIL eb THEN DISPLAY eb.i-coldscr @ trim-size.
+         PUT xqitm.i-coldscr TO 60.
+      ELSE IF AVAIL eb THEN PUT eb.i-coldscr TO 60.
     END.
       
 
@@ -179,15 +187,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   ((xqqty.qty / 1000) * xqqty.price)    ELSE
                   (xqqty.qty * xqqty.price).
               
-      IF i EQ 3 THEN
         PUT xqqty.qty           to 67   format ">>>>>>9"
             xqqty.price         to 78   format ">>,>>9.99"
             xqqty.uom           TO 83.
-
-      ELSE DISPLAY xqqty.qty xqqty.price xqqty.uom.        
+    
     END.
-
-    IF i NE 3 THEN DOWN.
 
     FIND NEXT xqqty OF xqitm NO-LOCK NO-ERROR.
   END.
@@ -205,9 +209,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       
         EACH eb OF ef NO-LOCK
       
-        BREAK BY ef.form-no
-      
-        WITH FRAME item-10p:
+        BREAK BY ef.form-no:
       
       IF FIRST(ef.form-no) THEN DO:
         IF LINE-COUNTER + 7 GT PAGE-SIZE - 2 THEN PAGE.
@@ -235,19 +237,28 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       ELSE temp-trim-size = trim-size.
     
-      DISPLAY eb.part-no                      @ xqitm.part-no
-              temp-trim-size                  @ trim-size.
-      DOWN.
+      IF LENGTH(xqitm.part-no) LE 25 THEN
+      DO:  
+         PUT  eb.part-no TO 34 format "x(25)"
+              temp-trim-size TO 60 format "x(24)" . 
+      END.
+      ELSE DO:  
+        PUT  eb.part-no TO 39 format "x(30)" SKIP
+             temp-trim-size TO 60 format "x(24)" .               
+      END.
+    
     
       FIND FIRST style
           WHERE style.company EQ cocode
             AND style.style   EQ eb.style
           NO-LOCK NO-ERROR.
             
-      DISPLAY eb.part-dscr1                   @ xqitm.part-no
-              eb.style                        @ trim-size
-              style.dscr WHEN AVAIL style     @ trim-size.
-      DOWN.
+          PUT eb.part-dscr1 TO 34 .
+          
+          IF AVAIL style THEN 
+            PUT style.dscr TO 60.
+          ELSE 
+            PUT eb.style TO 60.
     
       v-board = IF AVAIL ef THEN
                   ef.board    + " - " +
@@ -269,12 +280,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                        item.i-dscr.
       END.
     
-      DISPLAY eb.part-dscr2                   @ xqitm.part-no
-              v-board                         @ trim-size.
-      DOWN.
+      PUT     eb.part-dscr2 TO 34 format "x(25)"
+              v-board TO 60 format "x(24)".
     
-      DISPLAY eb.i-coldscr                    @ trim-size.
-      DOWN.
+      PUT     eb.i-coldscr TO 60 format "x(24)".
     END.
   END.
 
@@ -406,9 +415,8 @@ if (ch-multi and (v-last OR s-sep-page)) OR
       if xquo.comment[i] ne "" then put xquo.comment[i] at 6 skip.
     end.
 
-    display skip(1) "Sincerely,"  at 6
-            skip(2) sman.sname    at 6 skip
-        with no-box no-underline no-labels no-attr-space frame f-salute{1} STREAM-IO.
+    PUT     skip(1) "Sincerely,"  at 6
+            skip(2) sman.sname    at 6 skip.
   end.
 end.
     

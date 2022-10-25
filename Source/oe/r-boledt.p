@@ -602,6 +602,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END.
                 END. /* WHEN 3 THEN DO: */
         END CASE.
         SESSION:SET-WAIT-STATE ("").
@@ -1895,8 +1898,6 @@ PROCEDURE run-report :
     IF v-export THEN 
     DO:
         OUTPUT STREAM s-temp close.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(v-exp-name)).
     END.
 
     IF NOT ip-post THEN RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -1425,8 +1425,7 @@ PROCEDURE run-process :
     SESSION:SET-WAIT-STATE("").  
 
     MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-
-    APPLY "close" TO THIS-PROCEDURE.
+       
 
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 

@@ -674,6 +674,11 @@ PROCEDURE pCreateMaterials PRIVATE:
 ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-job FOR job. 
 
+    DEFINE VARIABLE cBoardCode AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cGrain     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCylinder  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cTray      AS CHARACTER NO-UNDO.
+
     DEFINE BUFFER bf-job-mat-APIOutboundDetail FOR APIOutboundDetail.
     
     FIND FIRST bf-job-mat-APIOutboundDetail NO-LOCK
@@ -688,6 +693,14 @@ PROCEDURE pCreateMaterials PRIVATE:
           AND job-mat.job-no  EQ ipbf-job.job-no
           AND job-mat.job-no2 EQ ipbf-job.job-no2
         USE-INDEX seq-idx:
+
+        ASSIGN 
+            cBoardCode = ""
+            cCylinder  = ""
+            cTray      = ""
+            cGrain     = ""
+            .
+
         FOR EACH job-hdr 
             WHERE job-hdr.company EQ job-mat.company
               AND job-hdr.job     EQ job-mat.job
@@ -716,12 +729,14 @@ PROCEDURE pCreateMaterials PRIVATE:
                     WHERE item.company EQ job-hdr.company
                       AND item.i-no    EQ bf-job-mat.i-no
                       AND INDEX("BPR",item.mat-type) GT 0:
-                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "BoardCode", item.i-name).
-                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Grain", ef.xgrain).
-                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder", STRING(ef.gsh-len)).      
+                    ASSIGN 
+                        cBoardCode = TRIM(item.i-name)
+                        cGrain     = TRIM(ef.xgrain)
+                        cCylinder  = TRIM(STRING(ef.gsh-len)) 
+                        .      
                 END.
                 
-                oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Tray", eb.layer-pad).      
+                cTray = TRIM(eb.layer-pad).     
             END. 
         END.
 
@@ -740,6 +755,11 @@ PROCEDURE pCreateMaterials PRIVATE:
             
         oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "CrossGrain", cCrossGrain).
         oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "JobMaterialAction", cAction).
+        oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "BoardCode",cBoardCode).
+        oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Grain",cGrain).
+        oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder",cCylinder).
+        oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Tray",cTray).
+                    
         lcJobMatData = oAttribute:ReplaceAttributes(lcJobMatData, BUFFER job-mat:HANDLE).
 
         RUN pUpdateRMItemInfo (job-mat.company, job-mat.i-no, INPUT-OUTPUT lcJobMatData).
@@ -1521,7 +1541,9 @@ PROCEDURE pUpdateMachineDetails PRIVATE:
         lcJobMachineDataByItem     = iplcJobMachineData
         cRunMinutes                = STRING(ROUND(ipbf-job-mch.run-hr * 60, 0))
         cMRMinutes                 = STRING(ROUND(ipbf-job-mch.mr-hr * 60, 0))
-        . 
+        cMRComplete                = STRING(ipbf-job-mch.mr-complete)
+        cRunComplete               = STRING(ipbf-job-mch.run-complete)
+        .
     
     FOR EACH bf-mch-act NO-LOCK
         WHERE bf-mch-act.company  EQ ipbf-job-mch.company

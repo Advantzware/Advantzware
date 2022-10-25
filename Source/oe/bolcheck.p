@@ -4,7 +4,7 @@ DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 DEFINE VARIABLE dOnHandQty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
 {oe/bolcheck.i}
-
+DEFINE BUFFER bf-w-except FOR w-except.
 FIND oe-bolh WHERE ROWID(oe-bolh) EQ ip-rowid NO-LOCK NO-ERROR.
                                   
 IF AVAILABLE oe-bolh THEN
@@ -86,4 +86,12 @@ FOR EACH oe-boll NO-LOCK
                     w-except.cLocBin = cLocBin.
         END.         
     END.
+END.
+FIND FIRST bf-w-except NO-LOCK
+     WHERE bf-w-except.lAvailOnhQty EQ NO NO-ERROR.
+IF AVAILABLE bf-w-except THEN
+DO:
+      FOR EACH w-except NO-LOCK :
+           w-except.lNotValidAllOnhQty = YES.
+      END.
 END.

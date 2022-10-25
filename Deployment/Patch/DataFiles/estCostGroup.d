@@ -1,1 +1,6 @@
-"202201254114808500242" "costGroup19" 3 "Freight Delivery Cost" "Freight" 0 ""
+"20220826_11:09:32_10055692" "costGroup13" 3 "User Defined Expense 1 Dscr" "User Defined Expense 1" 13 ""
+"20220826_11:09:32_10055693" "costGroup14" 3 "User Defined Expense 2 Dscr" "User Defined Expense 2" 14 ""
+"20220826_11:09:32_10055694" "costGroup15" 3 "User Defined Expense 3 Dscr" "User Defined Expense 3" 15 ""
+"20220829_09:19:47_10062551" "External Freight" 3 "Freight - External" "Freight - External" 25 "001"
+"20220829_09:19:28_10062548" "Internal Freight" 3 "Freight - Internal" "Freight - Internal" 24 "001"
+"20220826_11:16:28_10056383" "Manufacturing Margin" 3 "Manufacturing Margin" "Manufacturing Margin" 0 "001"

@@ -373,6 +373,14 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.14 , 32.00 ) */ 
        
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/optonote.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_optonote ).
+       RUN set-position IN h_optonote ( 1.00 , 1.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 8.00 ) */
+       
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/import.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -453,6 +461,7 @@ PROCEDURE adm-create-objects :
             
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'attach':U , h_attach ).
+       RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'optonote':U , h_optonote ).
 	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options2 ).
        /* Links to SmartViewer h_expxls. */
        RUN add-link IN adm-broker-hdl ( h_expxls , 'sort-data':U , THIS-PROCEDURE ).
@@ -464,6 +473,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'spec':U , h_options2 ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_expxls ,
+             h_optonote , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_miscflds ,
              h_expxls , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_f-add ,
@@ -485,14 +496,6 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/optonote.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_optonote ).
-       RUN set-position IN h_optonote ( 1.00 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 8.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'jcinq/b-jobinq.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -511,14 +514,6 @@ PROCEDURE adm-create-objects :
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
-        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'smartobj/optonote.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_optonote ).
-       RUN set-position IN h_optonote ( 1.00 , 9.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 8.00 ) */
-
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'jc/v-job.w':U ,
              INPUT  FRAME F-Main:HANDLE ,

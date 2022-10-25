@@ -59,6 +59,9 @@ FUNCTION fEscapeExceptionCharactersXML RETURNS CHARACTER
 FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
 	( INPUT ipiCount AS INTEGER ) FORWARD.  
 
+FUNCTION sfFormat_Date RETURNS CHARACTER
+  ( ipdtDate AS DATE ) FORWARD.
+
 FUNCTION sfFormat_FilledJobWithHyphen RETURNS CHARACTER 
 	(ipcJobNo AS CHARACTER,
 	 ipiJobNo2 AS INTEGER) FORWARD.
@@ -383,6 +386,36 @@ PROCEDURE Format_Time:
         ).        
 END PROCEDURE.
 
+PROCEDURE pApplyFunction PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT        PARAMETER ipcFunction      AS CHARACTER NO-UNDO.
+    DEFINE INPUT        PARAMETER ipcFunctionText  AS CHARACTER NO-UNDO.
+    DEFINE INPUT-OUTPUT PARAMETER iopcTargetString AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReplaceSource AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cReplaceTarget AS CHARACTER NO-UNDO.
+    
+    IF ipcFunction EQ "REPLACE" THEN DO:
+        ASSIGN
+            cReplaceSource  = ENTRY(1, ipcFunctionText)
+            cReplaceTarget  = ENTRY(2, ipcFunctionText)
+            cReplaceSource  = REPLACE(cReplaceSource, '"', '')
+            cReplaceSource  = REPLACE(cReplaceSource, "'", "")
+            cReplaceTarget  = REPLACE(cReplaceTarget, '"', '')
+            cReplaceTarget  = REPLACE(cReplaceTarget, "'", "")                    
+            iopcTargetString = REPLACE(iopcTargetString, cReplaceSource, cReplaceTarget)
+            NO-ERROR. 
+    END.
+    ELSE IF ipcFunction EQ "TRIM" THEN 
+        iopcTargetString = TRIM(iopcTargetString).
+    ELSE IF ipcFunction EQ "CAPS" THEN
+        iopcTargetString = CAPS(iopcTargetString).
+
+END PROCEDURE.
+
 PROCEDURE pUpdateRequestData PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Replaces the given key field with the value in the request data
@@ -405,21 +438,35 @@ PROCEDURE pUpdateRequestData PRIVATE:
     DEFINE VARIABLE cSourceString     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTargetString     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFunctionValue    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionValue2   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionValue3   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionValue4   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionValue5   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFunctionText     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionText2    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionText3    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionText4    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunctionText5    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cAlignmentStyle   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFunction         AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunction2        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunction3        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunction4        AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFunction5        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTrim             AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lFormatAvail      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFormatTypeAvail  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lAlignmentAvail   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lFunctionAvail    AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFunctionAvail2   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFunctionAvail3   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFunctionAvail4   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lFunctionAvail5   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cIfValue          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cIfTrueValue      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cIfFalseValue     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lIsNullValue      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lHasQuote         AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cReplaceSource    AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cReplaceTarget    AS CHARACTER NO-UNDO.
     
     ASSIGN
         cFieldValuePrefix = "$"
@@ -454,6 +501,14 @@ PROCEDURE pUpdateRequestData PRIVATE:
             cSourceString   = ""
             cFunction       = ""
             cFunctionValue  = ""
+            cFunction2      = ""
+            cFunctionValue2 = ""
+            cFunction3      = ""
+            cFunctionValue3 = ""
+            cFunction4      = ""
+            cFunctionValue4 = ""
+            cFunction5      = ""
+            cFunctionValue5 = ""            
             cNextChar       = SUBSTRING(ioplcRequestData,INDEX(ioplcRequestData,cFieldValuePrefix + ipcField + "|") + LENGTH(cFieldValuePrefix + ipcField), 1)
             .
         
@@ -544,14 +599,110 @@ PROCEDURE pUpdateRequestData PRIVATE:
                 END.
                 
                 lFunctionAvail = TRUE.
-            END.                    
+            END.
+            
+            iIndex = iIndex + 1.
+            
+            lHasQuote = FALSE.
+
+            /* If the next character after the first function is not $, then a second function exist */
+            IF lFunctionAvail AND SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" AND NOT lHasQuote THEN
+                        LEAVE.
+                    
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ '"' THEN
+                        lHasQuote = NOT lHasQuote.
+  
+                    ASSIGN
+                        cFunctionValue2 = cFunctionValue2 + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex          = iIndex + 1
+                        .
+                END.
+                
+                lFunctionAvail2 = TRUE.
+            END.   
+                                         
+            iIndex = iIndex + 1.
+            
+            lHasQuote = FALSE.
+
+            /* If the next character after the second function is not $, then a third function exist */
+            IF lFunctionAvail2 AND SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" AND NOT lHasQuote THEN
+                        LEAVE.
+                    
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ '"' THEN
+                        lHasQuote = NOT lHasQuote.
+  
+                    ASSIGN
+                        cFunctionValue3 = cFunctionValue3 + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex          = iIndex + 1
+                        .
+                END.
+                
+                lFunctionAvail3 = TRUE.
+            END.      
+                                               
+            iIndex = iIndex + 1.
+            
+            lHasQuote = FALSE.
+
+            /* If the next character after the third function is not $, then a fourth function exist */
+            IF lFunctionAvail3 AND SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" AND NOT lHasQuote THEN
+                        LEAVE.
+                    
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ '"' THEN
+                        lHasQuote = NOT lHasQuote.
+  
+                    ASSIGN
+                        cFunctionValue4 = cFunctionValue4 + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex          = iIndex + 1
+                        .
+                END.
+                
+                lFunctionAvail4 = TRUE.
+            END.
+                                                           
+            iIndex = iIndex + 1.
+            
+            lHasQuote = FALSE.
+
+            /* If the next character after the fourth function is not $, then a fifth function exist */
+            IF lFunctionAvail4 AND SUBSTRING(ioplcRequestData,iIndex,1) NE "$" THEN DO:
+                DO WHILE TRUE:
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ "|" AND NOT lHasQuote THEN
+                        LEAVE.
+                    
+                    IF SUBSTRING(ioplcRequestData,iIndex,1) EQ '"' THEN
+                        lHasQuote = NOT lHasQuote.
+  
+                    ASSIGN
+                        cFunctionValue5 = cFunctionValue5 + SUBSTRING(ioplcRequestData,iIndex,1)
+                        iIndex          = iIndex + 1
+                        .
+                END.
+                
+                lFunctionAvail5 = TRUE.
+            END.                                                           
         END.    
         ELSE
             cFormat = ?.    
         
         ASSIGN
-            cFunction     = ""
-            cFunctionText = ""
+            cFunction      = ""
+            cFunctionText  = ""
+            cFunction2     = ""
+            cFunctionText2 = ""
+            cFunction3     = ""
+            cFunctionText3 = ""
+            cFunction4     = ""
+            cFunctionText4 = ""
+            cFunction5     = ""
+            cFunctionText5 = ""            
             .
         
         IF cFunctionValue NE "" THEN DO:
@@ -560,7 +711,35 @@ PROCEDURE pUpdateRequestData PRIVATE:
                 cFunctionText = REPLACE(SUBSTRING(cFunctionValue, INDEX(cFunctionValue, '[') + 1), ']', '') 
                 NO-ERROR.
         END.
-        
+
+        IF cFunctionValue2 NE "" THEN DO:
+            ASSIGN
+                cFunction2     = SUBSTRING(cFunctionValue2, 1, INDEX(cFunctionValue2, "[") - 1)
+                cFunctionText2 = REPLACE(SUBSTRING(cFunctionValue2, INDEX(cFunctionValue2, '[') + 1), ']', '') 
+                NO-ERROR.
+        END.
+
+        IF cFunctionValue3 NE "" THEN DO:
+            ASSIGN
+                cFunction3     = SUBSTRING(cFunctionValue3, 1, INDEX(cFunctionValue3, "[") - 1)
+                cFunctionText3 = REPLACE(SUBSTRING(cFunctionValue3, INDEX(cFunctionValue3, '[') + 1), ']', '') 
+                NO-ERROR.
+        END.
+                        
+        IF cFunctionValue4 NE "" THEN DO:
+            ASSIGN
+                cFunction4     = SUBSTRING(cFunctionValue4, 1, INDEX(cFunctionValue4, "[") - 1)
+                cFunctionText4 = REPLACE(SUBSTRING(cFunctionValue4, INDEX(cFunctionValue4, '[') + 1), ']', '') 
+                NO-ERROR.
+        END.
+
+        IF cFunctionValue5 NE "" THEN DO:
+            ASSIGN
+                cFunction5     = SUBSTRING(cFunctionValue5, 1, INDEX(cFunctionValue5, "[") - 1)
+                cFunctionText5 = REPLACE(SUBSTRING(cFunctionValue5, INDEX(cFunctionValue5, '[') + 1), ']', '') 
+                NO-ERROR.
+        END.
+                                        
         IF cFunction EQ "IF" THEN DO:
             ASSIGN
                 cIfValue      = ENTRY(1, cFunctionText)
@@ -585,46 +764,46 @@ PROCEDURE pUpdateRequestData PRIVATE:
                 .
         END.
         
-        IF cFormatType NE "" THEN DO:
+        IF cFormatType NE "" AND cFormat NE "" THEN DO:
             /* To convert a decimal value into integer without losing the original value */
             /* Decimal places will be rounded to Progress standard */
             IF cFormatType EQ "DECIMAL-INTEGER" OR cFormatType EQ "DEC-INT" THEN
                 ASSIGN
-                    cTargetString = STRING(DECIMAL(ipcValue),cFormat)
+                    cTargetString = STRING(DECIMAL(cTargetString),cFormat)
                     cTargetString = REPLACE(cTargetString, ".", "")
                     cTargetString = TRIM(cTargetString)
                     NO-ERROR.
             ELSE IF cFormatType BEGINS "INT" THEN
                 ASSIGN
-                    cTargetString = STRING(INTEGER(ipcValue),cFormat)
+                    cTargetString = STRING(INTEGER(cTargetString),cFormat)
                     cTargetString = TRIM(cTargetString)
                     NO-ERROR.
             ELSE IF cFormatType BEGINS "DEC" THEN
                 ASSIGN
-                    cTargetString = STRING(DECIMAL(ipcValue),cFormat)
+                    cTargetString = STRING(DECIMAL(cTargetString),cFormat)
                     cTargetString = TRIM(cTargetString)
                     NO-ERROR.
             ELSE IF cFormatType EQ "TIME" THEN
                 RUN Format_Time (
-                    INPUT  INTEGER(ipcValue),
+                    INPUT  INTEGER(cTargetString),
                     INPUT  cFormat,
                     OUTPUT cTargetString
                     ) NO-ERROR.
             ELSE IF cFormatType EQ "MTIME" THEN
                 RUN Format_MTime (
-                    INPUT  INTEGER(ipcValue),
+                    INPUT  INTEGER(cTargetString),
                     INPUT  cFormat,
                     OUTPUT cTargetString
                     ) NO-ERROR.
             ELSE IF cFormatType EQ "DATE" THEN
                 RUN Format_DateTimeTZ (
-                    INPUT  DATETIME-TZ(ipcValue),
+                    INPUT  DATETIME-TZ(cTargetString),
                     INPUT  cFormat,
                     OUTPUT cTargetString
                     ) NO-ERROR.
             ELSE IF cFormatType BEGINS "LOG" THEN
                 ASSIGN
-                    cTargetString = STRING(LOGICAL(ipcValue), cFormat)
+                    cTargetString = STRING(LOGICAL(cTargetString), cFormat)
                     cTargetString = TRIM(cTargetString)
                     .
         END.
@@ -642,19 +821,11 @@ PROCEDURE pUpdateRequestData PRIVATE:
         END.
         
         /* Some functions may need to be applied after format changes */
-        IF cFunction EQ "REPLACE" THEN DO:
-            ASSIGN
-                cReplaceSource = ENTRY(1, cFunctionText)
-                cReplaceTarget = ENTRY(2, cFunctionText)
-                cReplaceSource = REPLACE(cReplaceSource, '"', '')
-                cReplaceSource = REPLACE(cReplaceSource, "'", "")
-                cReplaceTarget = REPLACE(cReplaceTarget, '"', '')
-                cReplaceTarget = REPLACE(cReplaceTarget, "'", "")                    
-                cTargetString  = REPLACE(cTargetString, cReplaceSource, cReplaceTarget)
-                NO-ERROR. 
-        END.
-        ELSE IF cFunction EQ "TRIM" THEN 
-            cTargetString = TRIM(cTargetString).
+        RUN pApplyFunction (cFunction,  cFunctionText,  INPUT-OUTPUT cTargetString).
+        RUN pApplyFunction (cFunction2, cFunctionText2, INPUT-OUTPUT cTargetString).
+        RUN pApplyFunction (cFunction3, cFunctionText3, INPUT-OUTPUT cTargetString).
+        RUN pApplyFunction (cFunction4, cFunctionText4, INPUT-OUTPUT cTargetString).
+        RUN pApplyFunction (cFunction5, cFunctionText5, INPUT-OUTPUT cTargetString).
         
         IF lFormatAvail THEN        
             cSourceString = cSourceString + cFieldValuePrefix + ipcField + "|" + cFormat + "|".
@@ -669,16 +840,27 @@ PROCEDURE pUpdateRequestData PRIVATE:
         IF lFunctionAvail THEN
             cSourceString = cSourceString + cFunctionValue + "|".
 
+        IF lFunctionAvail2 THEN
+            cSourceString = cSourceString + cFunctionValue2 + "|".
+
+        IF lFunctionAvail3 THEN
+            cSourceString = cSourceString + cFunctionValue3 + "|".
+
+        IF lFunctionAvail4 THEN
+            cSourceString = cSourceString + cFunctionValue4 + "|".
+
+        IF lFunctionAvail5 THEN
+            cSourceString = cSourceString + cFunctionValue5 + "|".
+
         cSourceString = cSourceString + cFieldValueSuffix.
-        
+
         IF ipcRequestDataType EQ "XML" THEN
             cTargetString = fEscapeExceptionCharactersXML (cTargetString).      
         ELSE IF ipcRequestDataType EQ "JSON" THEN
             cTargetString = fEscapeExceptionCharactersJSON (cTargetString).
 
         /* Replace the key field with format and data type with the value */
-        IF (cFormat NE ? AND cFormat NE "") OR lFunctionAvail THEN
-            ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).
+        ioplcRequestData = REPLACE(ioplcRequestData,cSourceString, cTargetString).
     END.    
 END PROCEDURE.
 
@@ -1003,6 +1185,23 @@ FUNCTION fGetReplaceString RETURNS CHARACTER PRIVATE
 END FUNCTION.
 
    
+FUNCTION sfFormat_Date RETURNS CHARACTER 
+	( ipdtDate AS DATE ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cDateFormat   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE opcDateString AS CHARACTER NO-UNDO.
+
+    ASSIGN cDateFormat = "YYYY-MM-DD". 
+    
+    RUN Format_Date(ipdtDate,cDateFormat, OUTPUT opcDateString).
+        
+    RETURN opcDateString.
+    		
+END FUNCTION.
+
 FUNCTION sfFormat_FilledJobWithHyphen RETURNS CHARACTER 
 	( ipcJobNo AS CHARACTER, ipiJobNo2 AS INTEGER ):
 /*------------------------------------------------------------------------------

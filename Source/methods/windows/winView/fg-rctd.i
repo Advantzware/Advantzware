@@ -15,6 +15,8 @@
     {methods/selectTab.i 1}
     RUN auto-ADD IN h_p-updbar.
 &ELSEIF "{&winViewPrgmName}" EQ "fg-phys" &THEN
+    IF VALID-HANDLE(h_pv-trans) THEN
+    RUN reset-button IN h_pv-trans (NO).
     {methods/selectTab.i 1}
     RUN auto-ADD IN h_p-updsav.
 &ELSEIF "{&winViewPrgmName}" EQ "fg-physi" &THEN

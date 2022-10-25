@@ -614,6 +614,8 @@ PROCEDURE pOrdersBooked2:
              WHERE oe-ord.company EQ oe-ordl.company
                AND oe-ord.ord-no  EQ w-data.ord-no
              NO-ERROR.
+        IF NOT AVAILABLE oe-ord THEN NEXT.
+
         FIND cust OF oe-ord NO-LOCK NO-ERROR.
         
         ASSIGN

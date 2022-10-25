@@ -2720,6 +2720,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             end_ship-to:SCREEN-VALUE   = "zzzzzzzz"
             begin_rel:SCREEN-VALUE     = ""
             end_rel:SCREEN-VALUE       = ""
+            loadtagFunction:SCREEN-VALUE = "Order"
             .
         IF tb_override-mult:SCREEN-VALUE EQ "No" THEN
             begin_labels:SENSITIVE = NO.

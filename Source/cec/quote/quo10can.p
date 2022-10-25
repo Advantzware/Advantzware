@@ -43,29 +43,6 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-ASSIGN ls-full-img1 = cRtnChar + ">" .   
-
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
@@ -107,6 +84,8 @@ DEF VAR v-prep-prt-list AS cha NO-UNDO.
 DEF VAR ll-prt-dscr2 AS LOG NO-UNDO.
 
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 {cecrep/jobtick2.i "new shared"}
 
@@ -182,7 +161,18 @@ find first est where est.company = xquo.company
                     trim(string(cust.under-pct,">>9.9<%")).
   IF AVAIL cust THEN cCurCode = cust.curr-code .
       ELSE cCurCode = "" .
-           
+  
+  IF AVAIL cust THEN ASSIGN cCustomerNo       = cust.cust-no
+                          cCustomerLocation = cust.loc .
+  
+  RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+    	      
+  IF NOT lValid THEN
+  DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+  END.
+  ASSIGN ls-full-img1 = cRtnChar + ">" .         
+  
   assign
    sold[5] = trim(string(xquo.sold-no))
    ship[5] = trim(string(xquo.ship-id))
@@ -521,4 +511,52 @@ else do:
   end. /* for each report */
   
 end.  /* multi */    
+
+PROCEDURE printHeader:
+  DEFINE INPUT PARAMETER ipPageOffSet AS INTEGER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opInitVar AS INTEGER NO-UNDO.
+
+  IF LINE-COUNTER > PAGE-SIZE - ipPageOffSet THEN DO:
+    PAGE.
+    {cec/quote/quo10can2.i}
+    opInitVar = 0.       
+  END.
+END PROCEDURE.
+
+PROCEDURE pPrintSpecNotes:
+  DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
+  
+  DEFINE VARIABLE cInst AS CHARACTER FORM "x(80)" EXTENT 20 NO-UNDO.
+  DEFINE VARIABLE lExistNotes AS LOG NO-UNDO.
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+                      
+  FIND FIRST bf-itemfg NO-LOCK 
+       WHERE bf-itemfg.company EQ cocode
+         AND bf-itemfg.i-no EQ ipcFGItem NO-ERROR.
+       
+  IF AVAILABLE bf-itemfg THEN 
+  DO:               
+       {custom/notespr2.i bf-itemfg cInst 20 "notes.rec_key = bf-itemfg.rec_key AND lookup(notes.note_code,cSpecNotesCode) NE 0"}
+       DO i = 1 TO 20:
+          IF cInst[i] <> "" THEN DO:
+              IF i = 1 THEN
+              DO:
+                  PUT "Spec Notes:" SKIP.
+                  RUN printHeader (1,OUTPUT v-printline).
+              END.
+              PUT "<C2>" cInst[i] SKIP.
+              RUN printHeader (1,OUTPUT v-printline).
+              lExistNotes = YES.
+          END.
+       END.  
+       IF lExistNotes THEN 
+       DO:
+         PUT SKIP(1).
+         RUN printHeader (1,OUTPUT v-printline).       
+       END.
+  END.
+  
+END PROCEDURE.
+
+
 /* end ---------------------------------- copr. 2000  advanced software, inc. */

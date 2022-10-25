@@ -143,7 +143,8 @@ end.*/
    oe-bolh.trailer  = oe-relh.trailer
    oe-bolh.upd-date = TODAY
    oe-bolh.upd-time = TIME
-   oe-bolh.user-id  = USERID("nosweat").
+   oe-bolh.user-id  = USERID("nosweat")
+   oe-bolh.PROnumber = oe-relh.PROnumber.
 
   /*task 01121106 disable trigger oe-bolh preventing this from happening*/
   IF oe-bolh.rec_key EQ "" THEN

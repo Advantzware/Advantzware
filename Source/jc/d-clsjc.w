@@ -84,7 +84,7 @@ v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 &Scoped-Define ENABLED-OBJECTS RECT-1 begin_job begin_job2 end_job end_job2 ~
 begin_ord end_ord begin_date end_date tb_only close_date btn_ok 
 &Scoped-Define DISPLAYED-OBJECTS begin_job begin_job2 end_job end_job2 ~
-begin_ord end_ord begin_date end_date tb_only close_date fi_status 
+begin_ord end_ord begin_date end_date tb_only close_date 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -225,7 +225,10 @@ ASSIGN
        FRAME D-Dialog:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_status IN FRAME D-Dialog
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       fi_status:HIDDEN IN FRAME D-Dialog           = TRUE.
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -318,6 +321,13 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
+        
+  IF close_date GT TODAY AND ll-close THEN
+  DO:
+       MESSAGE "Close Date #" STRING(close_date) " is a future date,  Continue?" 
+                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+       IF NOT ll-ans THEN RETURN NO-APPLY.
+  END.
 
   MESSAGE "Are you sure you want to " +
           TRIM(STRING(ll-close,"close/reopen")) +
@@ -327,9 +337,11 @@ DO:
   IF v-process THEN DO WITH FRAME {&FRAME-NAME}:
     SESSION:SET-WAIT-STATE("general").
     ASSIGN
-     begin_job = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job, begin_job2))  
-     end_job   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job, end_job2)) 
-     .
+     begin_job = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job))  
+     end_job   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job)) 
+     begin_job = begin_job + STRING(begin_job2,"999")
+     end_job   = end_job + STRING(end_job2,"999")
+     .    
     IF ll-close THEN
     FOR EACH job EXCLUSIVE-LOCK
         WHERE job.company                     EQ cocode
@@ -371,7 +383,7 @@ DO:
             :
             rm-rctd.rct-date = close_date.
         END.  
-        DISPLAY "Job Closing: " +
+        DISPLAY "Last Job Closed: " +
               TRIM(job.job-no) + "-" +
               STRING(job.job-no2,"999") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
@@ -393,7 +405,7 @@ DO:
         USE-INDEX opened
         :
         RUN jc/jc-reopn.p (ROWID(job)).
-        DISPLAY "Job Opening: " +
+        DISPLAY "Last Job Opened: " +
               TRIM(job.job-no) + "-" +
               STRING(job.job-no2,"999") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
@@ -593,7 +605,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job begin_job2 end_job end_job2 begin_ord end_ord begin_date 
-          end_date tb_only close_date fi_status 
+          end_date tb_only close_date 
       WITH FRAME D-Dialog.
   ENABLE RECT-1 begin_job begin_job2 end_job end_job2 begin_ord end_ord 
          begin_date end_date tb_only close_date btn_ok 

@@ -165,7 +165,7 @@ cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
-cust.tagStatus cust.internal
+cust.tagStatus cust.internal cust.emailPreference
 &Scoped-define ENABLED-TABLES cust
 &Scoped-define FIRST-ENABLED-TABLE cust
 &Scoped-Define ENABLED-OBJECTS btn_bank-info RECT-5 RECT-6 
@@ -182,7 +182,7 @@ cust.loc cust.carrier cust.del-zone cust.terr cust.under-pct cust.over-pct ~
 cust.markup cust.ship-days cust.manf-day cust.classID cust.spare-int-1 ~
 cust.pallet cust.case-bundle cust.int-field[1] cust.po-mandatory ~
 cust.imported cust.show-set cust.nationalAcct cust.log-field[1] ~
-cust.tagStatus cust.internal
+cust.tagStatus cust.internal cust.emailPreference
 &Scoped-define DISPLAYED-TABLES cust
 &Scoped-define FIRST-DISPLAYED-TABLE cust
 &Scoped-Define DISPLAYED-OBJECTS cbMatrixPrecision cbMatrixRounding ~
@@ -354,6 +354,10 @@ DEFINE RECTANGLE RECT-6
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
+          LABEL "Customer"
+          VIEW-AS FILL-IN 
+          SIZE 21 BY 1
      cust.pricingMethod AT ROW 21.48 COL 94 COLON-ALIGNED WIDGET-ID 42
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS " ","Type","Customer","Ship To" 
@@ -362,10 +366,6 @@ DEFINE FRAME F-Main
      cbMatrixPrecision AT ROW 20.29 COL 20 COLON-ALIGNED WIDGET-ID 38
      cbMatrixRounding AT ROW 21.48 COL 20 COLON-ALIGNED WIDGET-ID 40
      btnTags AT ROW 11.57 COL 64 WIDGET-ID 26
-     cust.cust-no AT ROW 1 COL 12 COLON-ALIGNED
-          LABEL "Customer"
-          VIEW-AS FILL-IN 
-          SIZE 21 BY 1
      cust.active AT ROW 1 COL 43 COLON-ALIGNED
           LABEL "Status" FORMAT "x(11)"
           VIEW-AS COMBO-BOX INNER-LINES 5
@@ -648,6 +648,14 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY .81
           BGCOLOR 15 FONT 4
+     cust.emailPreference AT ROW 18.95 COL 135 COLON-ALIGNED
+          LABEL "Email"
+          VIEW-AS COMBO-BOX INNER-LINES 3
+          LIST-ITEM-PAIRS "Ask","0",
+                          "Combined","1",
+                          "Separate","2"
+          DROP-DOWN-LIST
+          SIZE 16 BY 1    
      cust.spare-int-1 AT ROW 13.43 COL 135 COLON-ALIGNED WIDGET-ID 12
           LABEL "Pallet ID" FORMAT ">>>>>>>>9"
           VIEW-AS FILL-IN 
@@ -1370,12 +1378,19 @@ END.
 ON LEAVE OF cust.cust-no IN FRAME F-Main /* Customer */
 DO:
    {&methods/lValidateError.i YES}
-   IF LASTKEY = -1 THEN  RETURN.
+   IF LASTKEY = -1 THEN RETURN.
+   IF cust.cust-no:SCREEN-VALUE = "" THEN DO:
+       MESSAGE "Customer number must be entered." VIEW-AS ALERT-BOX ERROR.
+       APPLY "entry" TO cust.cust-no.
+       RETURN NO-APPLY.
+    END.
+   
    IF adm-new-record AND 
       CAN-FIND(FIRST cust WHERE cust.company = gcompany 
                             AND cust.cust-no = cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})
    THEN DO:
       MESSAGE "Customer already exists. Try other number." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO cust.cust-no.
       RETURN NO-APPLY.
    END.
    {&methods/lValidateError.i NO}
@@ -2561,13 +2576,6 @@ PROCEDURE local-update-record :
    ls-prev-sman = cust.sman  
    ll-new-record = FALSE .
 
-    /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
-    IF adm-new-record 
-    AND cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
-        RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-        RETURN NO-APPLY.
-    END.
-
   RUN cust-zip.
   {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
@@ -2576,7 +2584,7 @@ PROCEDURE local-update-record :
         IF cust.cust-no:SCREEN-VALUE = "" THEN DO:
            MESSAGE "Customer number must be entered." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.cust-no.
-           RETURN.
+           RETURN NO-APPLY.
         END.
         FIND FIRST bf-cust WHERE bf-cust.company = gcompany 
                              AND bf-cust.cust-no = cust.cust-no:SCREEN-VALUE
@@ -2585,7 +2593,7 @@ PROCEDURE local-update-record :
         IF AVAIL bf-cust THEN DO:
            MESSAGE "Customer already exist. Try other number." VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.cust-no.
-           RETURN.
+           RETURN NO-APPLY.
         END.
         IF v-custsize = "Hughes" and
            v-cust-length <> LENGTH(cust.cust-no:SCREEN-VALUE) THEN DO:
@@ -2593,7 +2601,7 @@ PROCEDURE local-update-record :
                "must change your setting or use a" v-cust-length "character length customer number."
                VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.cust-no.
-           RETURN.
+           RETURN NO-APPLY.
         END.
      END.
      {&methods/lValidateError.i NO}
@@ -2605,6 +2613,13 @@ PROCEDURE local-update-record :
         return .
      end.*/
 
+     /* 33482 - Ensure blank record is not saved - MYT - 08/28/18 */
+        IF adm-new-record 
+        AND cust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" THEN DO:
+            RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+            RETURN NO-APPLY.
+        END.
+     
      RUN check-cr-bal NO-ERROR .
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 

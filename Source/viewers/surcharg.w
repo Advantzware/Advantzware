@@ -118,7 +118,8 @@ DEFINE VARIABLE cb_calcon AS CHARACTER FORMAT "X(256)":U
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "Sales Value + Tax","I",
                      "Flat Charge per Invoice","C",
-                     "Flat Charge per BOL","B"
+                     "Flat Charge per BOL","B",
+                     "Sales + Misc + Tax","G"
      DROP-DOWN-LIST
      SIZE 34 BY 1 NO-UNDO.
 

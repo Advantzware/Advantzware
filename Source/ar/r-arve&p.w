@@ -448,9 +448,11 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* A/R Invoice Edit/Posting Register */
 DO:
+        IF ip-post THEN         
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
             INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT YES, 
             OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+            
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         IF VALID-HANDLE(hdOutboundProcs) THEN
@@ -491,6 +493,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+        IF ip-post THEN         
         RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
             INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT YES, 
             OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
@@ -587,10 +590,11 @@ DO:
             ELSE RUN undo-trnum.
         END.
 
-        ELSE RUN undo-trnum.
-        /*
-          ELSE MESSAGE "No Invoices available for posting..." VIEW-AS ALERT-BOX ERROR.
-        */
+        ELSE do:
+          RUN undo-trnum.   
+           IF ip-post THEN
+           MESSAGE "No invoices found to print - only approved and printed invoices can be posted." VIEW-AS ALERT-BOX ERROR.
+        END. 
         IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
 
         SESSION:SET-WAIT-STATE("").
@@ -601,7 +605,7 @@ DO:
                 INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT YES, 
                 OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
         END.
-        IF tbAutoClose:CHECKED THEN 
+        IF tbAutoClose:CHECKED AND ip-post THEN 
         DO:
             RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
                 INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT YES, 
@@ -830,17 +834,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         td-show-parm:HIDDEN    = NOT lShowParameters
         td-show-parm:VISIBLE   = lShowParameters
         .
-    RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
-        INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT NO, 
-        OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
-    IF cFieldInProcess EQ "Yes" THEN
+    IF ip-post THEN
     DO:    
-        MESSAGE "Another user " cFieldUserId " started posting from " cFieldPostType " at " cFieldDateTime " and this process does not " 
-            "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFORMATION.
-        APPLY "close" TO THIS-PROCEDURE.
-        RETURN .
+        RUN spCommon_CheckPostingProcess(INPUT "ar-ctrl", INPUT "postInProcess", INPUT "postType", INPUT "postUserID",
+            INPUT "postStartDtTm", INPUT cocode, INPUT STRING("AU4-" + cocode), INPUT NO, 
+            OUTPUT cFieldInProcess, OUTPUT cFieldPostType, OUTPUT cFieldUserId, OUTPUT cFieldDateTime).
+        IF cFieldInProcess EQ "Yes" THEN
+        DO:    
+            MESSAGE "Another user " cFieldUserId " started posting from " cFieldPostType " at " cFieldDateTime " and this process does not " 
+                "support multiple people posting at the same time. Please try again later." VIEW-AS ALERT-BOX INFORMATION.
+            APPLY "close" TO THIS-PROCEDURE.
+            RETURN .
+        END.
     END.
-
     IF NOT ip-post THEN
         ASSIGN tran-date:HIDDEN IN FRAME {&FRAME-NAME}   = YES
             tran-period:HIDDEN IN FRAME {&FRAME-NAME} = YES

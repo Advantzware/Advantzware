@@ -864,7 +864,7 @@ DO:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN DO:
-           IF NOT tb_OpenCSV THEN DO:        
+              IF NOT tb_OpenCSV THEN DO:        
                   MESSAGE "CSV file have been created." SKIP(1)
                            "~"OK"~"Want to open CSV file?"
                   VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
@@ -874,6 +874,9 @@ DO:
                   DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
+              END.
+              ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
               END.
            END. /* WHEN 3 THEN DO: */
        WHEN 5 THEN
@@ -2413,7 +2416,6 @@ END. /* IF tgl_SumTot */
 
 IF rd-dest EQ 3 THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_OpenCSV THEN OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

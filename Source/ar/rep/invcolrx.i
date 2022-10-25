@@ -9,7 +9,7 @@ PUT "<FTimes New Roman>".
              space(75) v-comp-add3 FORM "x(60)" SKIP
              space(62) v-comp-add4 FORM "x(60)" "<P10>" SKIP  
          */  
-             "<R+10><C+75><IMAGE#1=" ls-full-img1 SKIP(2). /* image */ .
+             "<R+8><C+75><IMAGE#1=" ls-full-img1 SKIP(2). /* image */ .
         PUT "<=1>" SKIP.
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
             "<P10><=2><R+6>"

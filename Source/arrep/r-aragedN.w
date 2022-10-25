@@ -347,8 +347,9 @@ DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "InvDate"
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Due Date", "DueDate",
-"Invoice Date", "InvDate"
-     SIZE 32 BY .86 NO-UNDO.
+"Invoice Date", "InvDate",
+"G/L Posting", "GLPosting"
+     SIZE 48 BY .86 NO-UNDO.
 
 DEFINE VARIABLE rs_detail AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -951,6 +952,9 @@ DO:
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+	                    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -2081,6 +2085,7 @@ PROCEDURE run-report :
                 sPrtInvNote = YES.
             IF ttRptSelected.TextList = "COLLECTION NOTE"  THEN
                 sPrtCollectionNote = YES.
+            IF NOT v-export THEN
             NEXT.
         END.
 
@@ -2183,9 +2188,8 @@ PROCEDURE run-report :
                         RUN ar/ar-agng5N.p. 
     END.
 
-    ELSE 
-    DO:
-        IF v-sort2 BEGINS "InvD" THEN
+    ELSE IF v-sort2 BEGINS "InvD" THEN 
+    DO:       
             IF v-sort EQ "Name" THEN
                 RUN ar/ar-agng3N.p.
 
@@ -2200,12 +2204,25 @@ PROCEDURE run-report :
                         ELSE
                             RUN ar/ar-agng6N.p. 
     END.
+    ELSE IF v-sort2 BEGINS "GLPosting" THEN 
+    DO:       
+            IF v-sort EQ "Name" THEN
+                RUN ar/ar-agng11N.p.
+            ELSE
+                IF v-sort EQ "#Number" THEN
+                    RUN ar/ar-agng12N.p.
+
+                ELSE IF v-sort EQ "SalesRep#" THEN
+                        RUN ar/ar-agng13N.p.
+                    ELSE IF v-sort EQ "ArClass" THEN
+                            RUN ar/ar-agng14N.p.   
+                        ELSE
+                            RUN ar/ar-agng15N.p. 
+    END.
 
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM s-temp CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

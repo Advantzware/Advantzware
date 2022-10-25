@@ -116,6 +116,9 @@ DEFINE VARIABLE cSellUom           LIKE itemfg.sell-uom NO-UNDO.
 DEFINE VARIABLE v-counted-date     AS DATE      NO-UNDO.
 DEFINE VARIABLE v-cust-no          LIKE itemfg.cust-no NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "ITEM,DESCRIPTION,CUSTOMER," +
@@ -280,21 +283,21 @@ DEFINE VARIABLE lbl_sort       AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?"
     VIEW-AS FILL-IN 
     SIZE 10 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>>":U INITIAL 99 
+DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>>":U INITIAL 55 
     LABEL "Lines Per Page" 
     VIEW-AS FILL-IN 
     SIZE 6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=6 (20 cpi for 150 column Report)" 
+DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=9 (13CPI)" 
     VIEW-AS FILL-IN 
     SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "10" 
+DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "12" 
     LABEL "Font" 
     VIEW-AS FILL-IN 
     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
+DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "L" 
     VIEW-AS RADIO-SET HORIZONTAL
     RADIO-BUTTONS 
     "Portrait", "P",
@@ -648,6 +651,7 @@ ON END-ERROR OF C-Win /* Finished Goods Cycle Count Report */
 ON WINDOW-CLOSE OF C-Win /* Finished Goods Cycle Count Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -739,6 +743,7 @@ ON LEAVE OF begin_loc IN FRAME FRAME-A /* From Location */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -779,6 +784,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -2091,7 +2099,7 @@ PROCEDURE run-report :
                             ELSE IF LENGTH(cTmpField) <  int(ENTRY(iEntryNumber, cFieldLength)) THEN
                             (FILL(" ",int(ENTRY(iEntryNumber, cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
                             ELSE cTmpField.
-                        cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
+                        cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".   
 
                     END.
                     ELSE 
@@ -2138,10 +2146,19 @@ PROCEDURE run-report :
                         WHEN "count"      THEN 
                             cVarValue =  STRING(iFGCount,"->,>>>,>>9") .
                     END CASE.
-                    cExcelVarValue = cVarValue.  
+                    
+                    IF cTmpField = "lv-date" THEN 
+                            cExcelVarValue = IF lv-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",lv-date) ELSE "".
+                    ELSE IF cTmpField = "v-counted-date" THEN 
+                            cExcelVarValue = IF v-counted-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-counted-date) ELSE "".        
+                    ELSE IF cTmpField = "cFirstTrxDt" THEN 
+                            cExcelVarValue = IF dTrxDate <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dTrxDate) ELSE "".
+                            
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(iEntryNumber, cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",". 
                 END.
             END.
             PUT UNFORMATTED cDisplay SKIP.
@@ -2246,8 +2263,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     SESSION:SET-WAIT-STATE("").
@@ -2419,7 +2434,7 @@ PROCEDURE run-reportCust :
                         ELSE IF LENGTH(cTmpField) <  int(ENTRY(iEntryNumber, cFieldLength)) THEN
                         (FILL(" ",int(ENTRY(iEntryNumber, cFieldLength)) - LENGTH(cTmpField)) + cTmpField) + " "
                         ELSE cTmpField.
-                    cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".   
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".   
 
                 END.
                 ELSE 
@@ -2464,10 +2479,19 @@ PROCEDURE run-reportCust :
                     WHEN "count"      THEN 
                         cVarValue =  STRING(iFGCount,"->,>>>,>>9") .
                 END CASE.
-                cExcelVarValue = cVarValue.  
+                
+                IF cTmpField = "lv-date" THEN 
+                            cExcelVarValue = IF lv-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",lv-date) ELSE "".
+                ELSE IF cTmpField = "v-counted-date" THEN 
+                            cExcelVarValue = IF v-counted-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-counted-date) ELSE "".        
+                ELSE IF cTmpField = "cFirstTrxDt" THEN 
+                            cExcelVarValue = IF dTrxDate <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dTrxDate) ELSE "".
+                            
+                ELSE cExcelVarValue = cVarValue.
+                 
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(iEntryNumber, cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",". 
             END.
         END.
 

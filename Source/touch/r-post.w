@@ -969,6 +969,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
+                    ELSE DO:
+		    	OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+	            END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
                 DO:
@@ -2121,14 +2124,16 @@ PROCEDURE run-report :
 
     IF td-show-parm THEN RUN show-param.
 
-    IF tb_excel THEN 
+    IF rd-dest:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "3" THEN 
     DO:
+        tb_excel = YES.
         OUTPUT STREAM excel TO VALUE(cFileName).
         ASSIGN 
             excelheader = "Mach,Description,DP,Date,Sh,Job No,Form,Blank,"
                        + "Item,Description,Code,Hours,Crew,Start,Stop,Run Qty,Waste,C,EmpID,Rate".
         PUT STREAM excel UNFORMATTED excelheader SKIP.
     END.
+    ELSE tb_excel = NO.
 
     VIEW FRAME r-top.
     selected-company = g_company.
@@ -2137,12 +2142,9 @@ PROCEDURE run-report :
 
     OUTPUT close.
 
-    IF tb_excel THEN 
+    IF rd-dest:SCREEN-VALUE EQ "3" THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -46,7 +46,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                          style.style = xqitm.style NO-LOCK NO-ERROR.
   style-name = IF AVAIL style THEN style.dscr ELSE xqitm.style.
 
-  DO i = 1 TO numfit WITH FRAME item-10p:
+  DO i = 1 TO numfit :
     IF i EQ 1 THEN DO:
       trim-size = "".
     
@@ -58,18 +58,28 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
       ELSE trim-size = xqitm.size.
 
-      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.
+      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN DO: 
+        PAGE.
+        DISPLAY "" WITH FRAME item-10p.
+      END.
 
-      DISPLAY trim(xquo.est-no) @ xquo.est-no
-              xqitm.part-no
-              trim-size.
+      IF LENGTH(xqitm.part-no) LE 25 THEN
+      DO:  
+         PUT   TRIM(xquo.est-no) TO 8 format "x(8)" 
+               xqitm.part-no TO 34 format "x(25)"
+               trim-size TO 58 format "x(23)" . 
+      END.
+      ELSE DO:  
+        PUT  TRIM(xquo.est-no) TO 8 format "x(8)" 
+             xqitm.part-no TO 39 format "x(30)" SKIP
+             trim-size TO 58 format "x(23)" .               
+      END.
     END.
 
     ELSE
     IF i EQ 2 THEN
-      DISPLAY xqitm.part-dscr1              @ xqitm.part-no
-              /*xqitm.style                   @ trim-size. */
-              style-name @ trim-size.
+      PUT xqitm.part-dscr1 TO 34 format "x(25)"
+          style-name TO 58 format "x(23)".
 
     ELSE
     IF i EQ 3 THEN DO:
@@ -89,18 +99,19 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     END.
 
     ELSE
-    IF i EQ 4 THEN
-      DISPLAY "DIE#: " + eb.die-no WHEN AVAIL eb AND eb.die-no NE ""
-                                            @ xqitm.part-no
-              xqitm.i-coldscr               @ trim-size.
-  
+    IF i EQ 4 THEN DO:
+      IF AVAIL eb AND eb.die-no NE "" THEN 
+      PUT ("DIE#: " + eb.die-no) TO 34 FORMAT "x(25)".
+      PUT xqitm.i-coldscr        TO 58 FORMAT "x(23)".
+    END.
     ELSE
-    IF i EQ 5 AND numfit GE 5 THEN
-      DISPLAY "CAD#: " + eb.cad-no WHEN AVAIL eb AND eb.cad-no NE ""
-                                              @ xqitm.part-no
-              "PLATE#: " + eb.plate-no WHEN AVAIL eb AND eb.plate-no NE ""
-                                              @ trim-size.
-
+    IF i EQ 5 AND numfit GE 5 THEN DO:
+      IF AVAIL eb AND eb.cad-no NE "" THEN
+        PUT ("CAD#: " + eb.cad-no) TO 34 FORMAT "x(25)".
+      IF AVAIL eb AND eb.plate-no NE "" THEN
+        PUT ("PLATE#: " + eb.plate-no) TO 58 FORMAT "x(23)".
+    END.
+      
     IF AVAIL xqqty THEN DO:
        xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
                 IF xqqty.uom EQ "C" THEN
@@ -109,16 +120,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   ((xqqty.qty / 1000) * xqqty.price)    ELSE
                   (xqqty.qty * xqqty.price).
               
-      IF i EQ 3 THEN
         PUT xqqty.qty           TO 66   FORMAT ">>>>>>9"
             xqqty.rels          TO 70   FORMAT ">>9"
             xqqty.price         TO 80   FORMAT ">>,>>9.99"
-            xqqty.uom           TO 83.
-
-      ELSE DISPLAY xqqty.qty xqqty.rels xqqty.price xqqty.uom.        
+            xqqty.uom           TO 83.        
     END.
-
-    IF i NE 3 THEN DOWN.
 
     FIND NEXT xqqty OF xqitm NO-LOCK NO-ERROR.
   END.

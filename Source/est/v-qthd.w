@@ -236,14 +236,14 @@ DEFINE FRAME F-Main
           SIZE 15.4 BY 1
      btnCalendar-1 AT ROW 1.19 COL 114.6
      ls-status AT ROW 1.19 COL 129 COLON-ALIGNED
-     quotehd.del-date AT ROW 2.29 COL 18.4 COLON-ALIGNED
+     quotehd.del-date AT ROW 2.29 COL 16.4 COLON-ALIGNED
           LABEL "Delivery Date"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     quotehd.effectiveDate AT ROW 2.29 COL 92.4 COLON-ALIGNED
-          LABEL "Effective"
+     quotehd.effectiveDate AT ROW 2.29 COL 89.3 COLON-ALIGNED
+          LABEL "Effective" FORMAT "99/99/9999"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15.5 BY 1
      quotehd.cust-no AT ROW 4.33 COL 3 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
@@ -259,9 +259,9 @@ DEFINE FRAME F-Main
      quotehd.billto[4] AT ROW 8.14 COL 3 NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
-     quotehd.contact AT ROW 2.29 COL 44.6 COLON-ALIGNED
+     quotehd.contact AT ROW 2.29 COL 42.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 36.4 BY 1
+          SIZE 35.4 BY 1
      quotehd.ship-id AT ROW 4.33 COL 48 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
@@ -415,7 +415,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN quotehd.est-no IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN quotehd.effectiveDate IN FRAME F-Main
-   EXP-LABEL                                                           */   
+   EXP-LABEL EXP-FORMAT                                                 */   
 /* SETTINGS FOR FILL-IN ls-status IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN quotehd.q-no IN FRAME F-Main
@@ -1154,6 +1154,7 @@ PROCEDURE local-assign-record :
   /* update rfqitem qty - start */
 
   IF quotehd.rfq NE '' THEN DO:
+    /*
     FIND FIRST asi.module NO-LOCK WHERE module.module EQ 'rfq' NO-ERROR.
     IF AVAILABLE module AND module.is-used THEN DO:
       IF module.expire-date EQ ? OR module.expire-date GE TODAY THEN DO:
@@ -1173,6 +1174,7 @@ PROCEDURE local-assign-record :
         END. /* if connected */
       END. /* expire-date */
     END. /* avail module */
+    */
   END. /* if rfq */
   /* update rfqitem qty - end */
 
@@ -1263,8 +1265,9 @@ PROCEDURE local-create-record :
   assign /*quotehd.company = gcompany
          quotehd.loc = gloc
          quotehd.q-no = li-next-qno*/
-         quotehd.quo-date = today.
+         quotehd.quo-date = today.  
     RUN est/GetQuoteDefNotes.p (INPUT quotehd.company,
+                                INPUT quotehd.loc,
                                 OUTPUT cNotes).
     ASSIGN  
         quotehd.comment[1] = cNotes[1]

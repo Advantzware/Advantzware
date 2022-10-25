@@ -352,7 +352,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
     ELSE DO:
       CREATE tt-boll.
-      BUFFER-COPY oe-boll EXCEPT rec_key TO tt-boll.
+      BUFFER-COPY oe-boll EXCEPT rec_key TO tt-boll.      
     END.
 
     oe-boll.printed = YES.
@@ -477,7 +477,8 @@ PROCEDURE create-tt-boll.
    tt-boll.cases  = tt-boll.cases + ip-cases
    tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
    tt-boll.weight = tt-boll.weight + 
-                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight).
+                    ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight)
+   .
 
   IF oe-boll.p-c THEN tt-boll.p-c = YES.
 

@@ -17,3 +17,4 @@ ASSIGN
 FOR EACH ap-inv WHERE ap-inv.i-no EQ {&TABLENAME}.i-no EXCLUSIVE:
   ap-inv.user-id = USERID("nosweat").
 END.
+RELEASE ap-inv.

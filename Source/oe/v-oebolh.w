@@ -127,18 +127,20 @@ IF lRecFound THEN
 DEFINE QUERY external_tables FOR oe-bolh.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS oe-bolh.bol-no oe-bolh.bol-date ~
-oe-bolh.quotedFreight oe-bolh.quoteNote oe-bolh.carrier oe-bolh.ship-id ~
-oe-bolh.trailer oe-bolh.frt-pay oe-bolh.airway-bill oe-bolh.freight ~
-oe-bolh.cwt oe-bolh.tot-wt oe-bolh.tot-pallets oe-bolh.loc 
+oe-bolh.frt-pay oe-bolh.carrier oe-bolh.airway-bill oe-bolh.quoteNote ~
+oe-bolh.loc oe-bolh.trailer oe-bolh.ship-id oe-bolh.cwt ~
+oe-bolh.quotedFreight oe-bolh.tot-wt oe-bolh.freight oe-bolh.tot-pallets ~
+oe-bolh.PROnumber 
 &Scoped-define ENABLED-TABLES oe-bolh
 &Scoped-define FIRST-ENABLED-TABLE oe-bolh
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 RECT-2 
 &Scoped-Define DISPLAYED-FIELDS oe-bolh.bol-no oe-bolh.bol-date ~
-oe-bolh.quotedFreight oe-bolh.quoteNote oe-bolh.stat oe-bolh.release# ~
-oe-bolh.cust-no oe-bolh.carrier oe-bolh.ship-id oe-bolh.trailer ~
-oe-bolh.frt-pay oe-bolh.airway-bill oe-bolh.freight oe-bolh.cwt ~
-oe-bolh.tot-wt oe-bolh.tot-pallets oe-bolh.user-id oe-bolh.printed ~
-oe-bolh.freightCalculationAmount oe-bolh.posted oe-bolh.loc oe-bolh.upd-date 
+oe-bolh.frt-pay oe-bolh.release# oe-bolh.carrier oe-bolh.stat ~
+oe-bolh.airway-bill oe-bolh.quoteNote oe-bolh.cust-no oe-bolh.loc ~
+oe-bolh.trailer oe-bolh.ship-id oe-bolh.cwt oe-bolh.quotedFreight ~
+oe-bolh.tot-wt oe-bolh.freight oe-bolh.freightCalculationAmount ~
+oe-bolh.tot-pallets oe-bolh.user-id oe-bolh.printed oe-bolh.posted ~
+oe-bolh.upd-date oe-bolh.PROnumber 
 &Scoped-define DISPLAYED-TABLES oe-bolh
 &Scoped-define FIRST-DISPLAYED-TABLE oe-bolh
 &Scoped-Define DISPLAYED-OBJECTS tgSigned cust_name ship_name cust_addr1 ~
@@ -185,7 +187,7 @@ DEFINE BUTTON btnCalendar-1
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".
-     
+
 DEFINE BUTTON btnTags 
      IMAGE-UP FILE "Graphics/16x16/question.png":U
      LABEL "" 
@@ -264,7 +266,7 @@ DEFINE VARIABLE ship_zip AS CHARACTER FORMAT "x(10)"
 
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 143.6 BY 10.37.
+     SIZE 143.6 BY 10.38.
 
 DEFINE VARIABLE tgSigned AS LOGICAL INITIAL no 
      LABEL "Signed" 
@@ -275,8 +277,8 @@ DEFINE VARIABLE tgSigned AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btnTags AT ROW 7.00 COL 139.6 WIDGET-ID 34
-     btnTags1 AT ROW 5.00 COL 139.6 WIDGET-ID 34
+     btnTags AT ROW 7.62 COL 139.6 WIDGET-ID 34
+     btnTags1 AT ROW 5.62 COL 139.6
      oe-bolh.bol-no AT ROW 1.24 COL 8 COLON-ALIGNED
           LABEL "BOL#" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
@@ -284,7 +286,7 @@ DEFINE FRAME F-Main
      oe-bolh.bol-date AT ROW 1.24 COL 37 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     tgSigned AT ROW 2.38 COL 10 WIDGET-ID 4            
+     tgSigned AT ROW 2.38 COL 10 WIDGET-ID 4
      oe-bolh.frt-pay AT ROW 2.33 COL 113.4 COLON-ALIGNED
           LABEL "Freight Terms" FORMAT "x(1)"
           VIEW-AS FILL-IN 
@@ -294,7 +296,7 @@ DEFINE FRAME F-Main
           SIZE 14 BY 1
      oe-bolh.carrier AT ROW 3.43 COL 38 COLON-ALIGNED FORMAT "x(5)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1     
+          SIZE 15 BY 1
      oe-bolh.stat AT ROW 2.33 COL 69.2 COLON-ALIGNED HELP
           "Order Status (R)eleased or (H)old"
           LABEL "BOL Status" FORMAT "x(20)"
@@ -307,7 +309,7 @@ DEFINE FRAME F-Main
           LABEL "Seal#" FORMAT "X(12)"
           VIEW-AS FILL-IN 
           SIZE 20 BY 1
-     oe-bolh.quoteNote AT ROW 3.43 COL 108.6 COLON-ALIGNED
+     oe-bolh.quoteNote AT ROW 9.76 COL 108.6 COLON-ALIGNED
           LABEL "Quoted Note" FORMAT "x(32)"
           VIEW-AS FILL-IN 
           SIZE 33 BY 1
@@ -315,24 +317,24 @@ DEFINE FRAME F-Main
           "Enter customer number."
           LABEL "Customer#" FORMAT "x(8)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1 
-     oe-bolh.loc AT ROW 4.52 COL 38 COLON-ALIGNED
+          SIZE 15 BY 1
+     oe-bolh.loc AT ROW 4.52 COL 78.6 COLON-ALIGNED
           LABEL "Loc" FORMAT "x(5)"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1 
-     oe-bolh.trailer AT ROW 4.52 COL 69.6 COLON-ALIGNED
+          SIZE 15 BY 1
+     oe-bolh.trailer AT ROW 3.43 COL 108.6 COLON-ALIGNED
           LABEL "Trailer#"
           VIEW-AS FILL-IN 
-          SIZE 30 BY 1      
+          SIZE 30 BY 1
      oe-bolh.ship-id AT ROW 5.48 COL 14 COLON-ALIGNED
           LABEL "Ship To#"
           VIEW-AS FILL-IN 
-          SIZE 15 BY 1 
+          SIZE 15 BY 1
      oe-bolh.cwt AT ROW 5.57 COL 69.6 COLON-ALIGNED
           LABEL "Rate/100 Wt"
           VIEW-AS FILL-IN 
-          SIZE 16 BY 1   
-     oe-bolh.quotedFreight AT ROW 5.95 COL 122.4 COLON-ALIGNED
+          SIZE 16 BY 1
+     oe-bolh.quotedFreight AT ROW 6.57 COL 122.4 COLON-ALIGNED
           LABEL "Quoted Freight"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
@@ -340,30 +342,22 @@ DEFINE FRAME F-Main
           LABEL "Total Weight" FORMAT "->,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     oe-bolh.freight AT ROW 7 COL 122.4 COLON-ALIGNED
+     oe-bolh.freight AT ROW 7.62 COL 122.4 COLON-ALIGNED
           LABEL "Freight Cost" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     oe-bolh.freightCalculationAmount AT ROW 4.95 COL 122.4 COLON-ALIGNED
+     oe-bolh.freightCalculationAmount AT ROW 5.57 COL 122.4 COLON-ALIGNED
           LABEL "Calculated Freight" FORMAT "->,>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 15.2 BY 1
-     cust_name AT ROW 6.48 COL 58 COLON-ALIGNED NO-LABEL
+     cust_name AT ROW 4.52 COL 29.8 COLON-ALIGNED NO-LABEL
      ship_name AT ROW 6.43 COL 14 COLON-ALIGNED NO-LABEL
-     cust_addr1 AT ROW 7.43 COL 58 COLON-ALIGNED NO-LABEL      
+     cust_addr1 AT ROW 7.43 COL 58 COLON-ALIGNED NO-LABEL
      ship_addr1 AT ROW 7.38 COL 14 COLON-ALIGNED NO-LABEL
      cust_addr2 AT ROW 8.38 COL 58 COLON-ALIGNED NO-LABEL
      ship_addr2 AT ROW 8.33 COL 14 COLON-ALIGNED NO-LABEL
      cust_city AT ROW 9.33 COL 58 COLON-ALIGNED NO-LABEL
      cust_state AT ROW 9.33 COL 78 COLON-ALIGNED NO-LABEL
-     cust_zip AT ROW 9.33 COL 82 COLON-ALIGNED NO-LABEL
-     ship_city AT ROW 9.19 COL 14 COLON-ALIGNED NO-LABEL
-     ship_state AT ROW 9.19 COL 34 COLON-ALIGNED NO-LABEL
-     ship_zip AT ROW 9.19 COL 38 COLON-ALIGNED NO-LABEL
-     oe-bolh.tot-pallets AT ROW 7.77 COL 69.6 COLON-ALIGNED
-          LABEL "Total Pallets" FORMAT "->,>>>,>>9"
-          VIEW-AS FILL-IN 
-          SIZE 15.2 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -371,6 +365,14 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     cust_zip AT ROW 9.33 COL 82 COLON-ALIGNED NO-LABEL
+     ship_city AT ROW 9.19 COL 14 COLON-ALIGNED NO-LABEL
+     ship_state AT ROW 9.19 COL 34 COLON-ALIGNED NO-LABEL
+     ship_zip AT ROW 9.19 COL 38 COLON-ALIGNED NO-LABEL
+     oe-bolh.tot-pallets AT ROW 7.76 COL 69.6 COLON-ALIGNED
+          LABEL "Total Pallets" FORMAT "->,>>>,>>9"
+          VIEW-AS FILL-IN 
+          SIZE 15.2 BY 1
      oe-bolh.user-id AT ROW 1.24 COL 103.2 COLON-ALIGNED
           LABEL "Last Updated By"
           VIEW-AS FILL-IN 
@@ -380,7 +382,7 @@ DEFINE FRAME F-Main
           SIZE 15 BY .81
      oe-bolh.posted AT ROW 2.33 COL 27.4
           VIEW-AS TOGGLE-BOX
-          SIZE 13 BY .81       
+          SIZE 13 BY .81
      oe-bolh.upd-date AT ROW 1.24 COL 119.2 COLON-ALIGNED
           LABEL "On" FORMAT "99/99/99"
           VIEW-AS FILL-IN 
@@ -389,7 +391,11 @@ DEFINE FRAME F-Main
      cOrderBy AT ROW 1.24 COL 71.4 COLON-ALIGNED
      btnCalendar-1 AT ROW 1.24 COL 54
      cBillFreightDscr AT ROW 2.33 COL 121.2 COLON-ALIGNED NO-LABEL WIDGET-ID 300
-     dBillableFreight AT ROW 8.05 COL 122.4 COLON-ALIGNED WIDGET-ID 302
+     dBillableFreight AT ROW 8.67 COL 122.4 COLON-ALIGNED WIDGET-ID 302
+     oe-bolh.PROnumber AT ROW 4.52 COL 108.6 COLON-ALIGNED WIDGET-ID 304
+          LABEL "PRO#"
+          VIEW-AS FILL-IN 
+          SIZE 23.2 BY 1 TOOLTIP "Enter carrier's PRO number"
      "@" VIEW-AS TEXT
           SIZE 1.8 BY .62 AT ROW 1.33 COL 134.2 WIDGET-ID 298
      RECT-2 AT ROW 1 COL 1
@@ -454,16 +460,16 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR BUTTON btnTags1 IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-bolh.airway-bill IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN oe-bolh.bol-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR BUTTON btnCalendar-1 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR BUTTON btnTags IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON btnTags1 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-bolh.carrier IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN cBillFreightDscr IN FRAME F-Main
@@ -489,9 +495,6 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN cust_name IN FRAME F-Main
    NO-ENABLE                                                            */
-ASSIGN 
-       cust_name:HIDDEN IN FRAME F-Main           = TRUE.
-
 /* SETTINGS FOR FILL-IN cust_state IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -511,11 +514,15 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-bolh.freight IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-bolh.freightCalculationAmount IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT NO-ENABLE                                       */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN oe-bolh.frt-pay IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-bolh.loc IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR TOGGLE-BOX oe-bolh.posted IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR TOGGLE-BOX oe-bolh.printed IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-bolh.quotedFreight IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-bolh.quoteNote IN FRAME F-Main
@@ -550,10 +557,8 @@ ASSIGN
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN oe-bolh.user-id IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN oe-bolh.posted IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN oe-bolh.printed IN FRAME F-Main
-   NO-ENABLE EXP-LABEL                                                  */   
+/* SETTINGS FOR FILL-IN oe-bolh.PROnumber IN FRAME F-Main
+   EXP-LABEL                                                            */    
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -705,32 +710,34 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME oe-bolh.loc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.loc V-table-Win
-ON LEAVE OF oe-bolh.loc IN FRAME F-Main /* loc */
+&Scoped-define SELF-NAME btnTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
+ON CHOOSE OF btnTags IN FRAME F-Main
 DO:
-  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc( OUTPUT lReturnError) NO-ERROR.
-    IF lReturnError THEN RETURN NO-APPLY.
-  END.
+    RUN system/d-TagViewer.w (
+        INPUT oe-bolh.rec_key,
+        INPUT "",
+        INPUT "FreightCost"
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME oe-bolh.loc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.loc V-table-Win
-ON VALUE-CHANGED OF oe-bolh.loc IN FRAME F-Main /* loc */
-DO:    
-  IF LASTKEY NE -1 THEN DO:
-    RUN new-loc.
-  END.
+
+&Scoped-define SELF-NAME btnTags1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags1 V-table-Win
+ON CHOOSE OF btnTags1 IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT oe-bolh.rec_key,
+        INPUT "",
+        INPUT "CalcFreight"
+        ).
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME oe-bolh.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.carrier V-table-Win
@@ -780,17 +787,17 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME oe-bolh.frt-pay
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.frt-pay V-table-Win
-ON LEAVE OF oe-bolh.frt-pay IN FRAME F-Main /* Freight Terms */
+&Scoped-define SELF-NAME oe-bolh.cwt
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.cwt V-table-Win
+ON VALUE-CHANGED OF oe-bolh.cwt IN FRAME F-Main /* Rate/100 Wt */
 DO:
-  IF LASTKEY NE -1 THEN DO:
-      RUN Display-freight-dscr.
-  END.
+  RUN pCalcFrtForce.
+  RUN calc-freight.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME oe-bolh.freight
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.freight V-table-Win
@@ -826,6 +833,46 @@ DO:
     
   lFreightEntered = YES.
   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-bolh.frt-pay
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.frt-pay V-table-Win
+ON LEAVE OF oe-bolh.frt-pay IN FRAME F-Main /* Freight Terms */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      RUN Display-freight-dscr.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-bolh.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.loc V-table-Win
+ON LEAVE OF oe-bolh.loc IN FRAME F-Main /* Loc */
+DO:
+  DEFINE VARIABLE lReturnError AS LOGICAL NO-UNDO.
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc( OUTPUT lReturnError) NO-ERROR.
+    IF lReturnError THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.loc V-table-Win
+ON VALUE-CHANGED OF oe-bolh.loc IN FRAME F-Main /* Loc */
+DO:    
+  IF LASTKEY NE -1 THEN DO:
+    RUN new-loc.
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -979,44 +1026,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME btnTags
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
-ON CHOOSE OF btnTags IN FRAME F-Main
-DO:
-    RUN system/d-TagViewer.w (
-        INPUT oe-bolh.rec_key,
-        INPUT "",
-        INPUT "FreightCost"
-        ).
-END.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btnTags
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTags V-table-Win
-ON CHOOSE OF btnTags1 IN FRAME F-Main
-DO:
-    RUN system/d-TagViewer.w (
-        INPUT (oe-bolh.rec_key),
-        INPUT "",
-        INPUT "CalcFreight"
-        ).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.cwt V-table-Win
-ON VALUE-CHANGED OF oe-bolh.cwt IN FRAME F-Main /* Rate/100 Wt */
-DO:
-  RUN pCalcFrtForce.
+&Scoped-define SELF-NAME oe-bolh.tot-pallets
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.tot-pallets V-table-Win
+ON VALUE-CHANGED OF oe-bolh.tot-pallets IN FRAME F-Main /* Total Pallets */
+DO:  
   RUN calc-freight.
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME   
+&ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME oe-bolh.tot-wt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.tot-wt V-table-Win
 ON VALUE-CHANGED OF oe-bolh.tot-wt IN FRAME F-Main /* Total Weight */
 DO:  
@@ -1026,17 +1048,8 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-bolh.tot-pallets V-table-Win
-ON VALUE-CHANGED OF oe-bolh.tot-pallets IN FRAME F-Main /* Total Pallet */
-DO:  
-  RUN calc-freight.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &UNDEFINE SELF-NAME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -1499,6 +1512,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Display-freight-dscr V-table-Win 
+PROCEDURE Display-freight-dscr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  IF AVAIL oe-bolh THEN
+  DO WITH FRAME {&FRAME-NAME}:
+    CASE oe-bolh.frt-pay:SCREEN-VALUE:
+      WHEN "P" THEN cBillFreightDscr:SCREEN-VALUE = "Prepaid".
+      WHEN "C" THEN cBillFreightDscr:SCREEN-VALUE = "Collect".
+      WHEN "T" THEN cBillFreightDscr:SCREEN-VALUE = "Third Party".
+      WHEN "B" THEN cBillFreightDscr:SCREEN-VALUE = "Billable".
+          OTHERWISE cBillFreightDscr:SCREEN-VALUE = "".
+    END CASE.
+    IF oe-bolh.frt-pay:SCREEN-VALUE EQ "B" THEN 
+       dBillableFreight:SCREEN-VALUE = oe-bolh.freight:SCREEN-VALUE  .
+       ELSE dBillableFreight:SCREEN-VALUE = "0" .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-shipto-detail V-table-Win 
 PROCEDURE display-shipto-detail :
 /*------------------------------------------------------------------------------
@@ -1548,34 +1588,6 @@ PROCEDURE display-status :
       WHEN "H" THEN oe-bolh.stat:SCREEN-VALUE = "(H)old".
           OTHERWISE oe-bolh.stat:SCREEN-VALUE = "(R)eleased".
     END CASE.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Display-freight-dscr V-table-Win 
-PROCEDURE Display-freight-dscr :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  IF AVAIL oe-bolh THEN
-  DO WITH FRAME {&FRAME-NAME}:
-    CASE oe-bolh.frt-pay:SCREEN-VALUE:
-      WHEN "P" THEN cBillFreightDscr:SCREEN-VALUE = "Prepaid".
-      WHEN "C" THEN cBillFreightDscr:SCREEN-VALUE = "Collect".
-      WHEN "T" THEN cBillFreightDscr:SCREEN-VALUE = "Third Party".
-      WHEN "B" THEN cBillFreightDscr:SCREEN-VALUE = "Billable".
-          OTHERWISE cBillFreightDscr:SCREEN-VALUE = "".
-    END CASE.
-    IF oe-bolh.frt-pay:SCREEN-VALUE EQ "B" THEN 
-       dBillableFreight:SCREEN-VALUE = oe-bolh.freight:SCREEN-VALUE  .
-       ELSE dBillableFreight:SCREEN-VALUE = "0" .
   END.
 
 END PROCEDURE.
@@ -1655,6 +1667,9 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
   DEFINE VARIABLE dtOldBolDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cOldPRONum AS CHARACTER NO-UNDO.
+  
+  DEFINE BUFFER bf-oe-relh FOR oe-relh.
   
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
@@ -1669,7 +1684,8 @@ PROCEDURE local-assign-record :
    old-shipid  = oe-bolh.ship-id
    old-loc     = oe-bolh.loc
    dOldCwt     = oe-bolh.cwt
-   dtOldBolDate = oe-bolh.bol-date.
+   dtOldBolDate = oe-bolh.bol-date
+   cOldPRONum   = oe-bolh.PROnumber.
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1728,6 +1744,16 @@ PROCEDURE local-assign-record :
           oe-boll.weight = oe-boll.weight + (new-weight - ld).
       END.
     END.
+  END.
+  
+  IF cOldPRONum NE oe-bolh.PROnumber THEN
+  DO:
+      FIND FIRST bf-oe-relh EXCLUSIVE-LOCK
+           WHERE bf-oe-relh.company EQ cocode
+             AND bf-oe-relh.release# EQ oe-bolh.release# NO-ERROR.
+      IF AVAILABLE bf-oe-relh THEN
+      bf-oe-relh.PROnumber = oe-bolh.PROnumber.
+      RELEASE bf-oe-relh. 
   END.
   
   IF dtOldBolDate NE oe-bolh.bol-date AND NOT adm-new-record THEN
@@ -2308,30 +2334,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-loc V-table-Win 
-PROCEDURE new-loc :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:  
-    FIND FIRST loc NO-LOCK
-         WHERE loc.company = g_company
-         AND loc.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
-    IF AVAIL loc THEN DO:
-      RUN new-carrier.
-    END.                                       
-  END.                             
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-cust-no V-table-Win 
 PROCEDURE new-cust-no :
 /*------------------------------------------------------------------------------
@@ -2369,6 +2371,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-loc V-table-Win 
+PROCEDURE new-loc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:  
+    FIND FIRST loc NO-LOCK
+         WHERE loc.company = g_company
+         AND loc.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
+    IF AVAIL loc THEN DO:
+      RUN new-carrier.
+    END.                                       
+  END.                             
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-ship-id V-table-Win 
 PROCEDURE new-ship-id :
 /*------------------------------------------------------------------------------
@@ -2390,6 +2414,49 @@ PROCEDURE new-ship-id :
     END.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcFrtForce V-table-Win 
+PROCEDURE pCalcFrtForce :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
+    DO WITH FRAME {&FRAME-NAME}:
+    
+      IF integer(oe-bolh.cwt:SCREEN-VALUE) NE 0 THEN
+      DO:
+          oe-bolh.freight:SCREEN-VALUE = string( DECIMAL(oe-bolh.cwt:SCREEN-VALUE) / 100 * decimal(oe-bolh.tot-wt:SCREEN-VALUE)).  
+          
+      END.          
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateLineBolDate V-table-Win 
+PROCEDURE pUpdateLineBolDate :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-boll FOR oe-boll.
+    
+    IF AVAILABLE oe-bolh THEN
+    FOR EACH bf-oe-boll EXCLUSIVE-LOCK
+        WHERE bf-oe-boll.company EQ oe-bolh.company 
+        AND bf-oe-boll.b-no EQ oe-bolh.b-no:
+        ASSIGN
+          bf-oe-boll.bol-date = oe-bolh.bol-date.
+    END.
+    RELEASE bf-oe-boll.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2516,49 +2583,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCalcFrtForce V-table-Win 
-PROCEDURE pCalcFrtForce :
-/*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
-    DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
-    DO WITH FRAME {&FRAME-NAME}:
-    
-      IF integer(oe-bolh.cwt:SCREEN-VALUE) NE 0 THEN
-      DO:
-          oe-bolh.freight:SCREEN-VALUE = string( DECIMAL(oe-bolh.cwt:SCREEN-VALUE) / 100 * decimal(oe-bolh.tot-wt:SCREEN-VALUE)).  
-          
-      END.          
-    END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateLineBolDate V-table-Win 
-PROCEDURE pUpdateLineBolDate :
-/*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-oe-boll FOR oe-boll.
-    
-    IF AVAILABLE oe-bolh THEN
-    FOR EACH bf-oe-boll EXCLUSIVE-LOCK
-        WHERE bf-oe-boll.company EQ oe-bolh.company 
-        AND bf-oe-boll.b-no EQ oe-bolh.b-no:
-        ASSIGN
-          bf-oe-boll.bol-date = oe-bolh.bol-date.
-    END.
-    RELEASE bf-oe-boll.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-bol-date V-table-Win 
 PROCEDURE valid-bol-date :
 /*------------------------------------------------------------------------------
@@ -2649,30 +2673,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc V-table-Win 
-PROCEDURE valid-loc :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.       
-    FIND FIRST loc NO-LOCK
-         WHERE loc.company = g_company
-         AND loc.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
-    IF NOT AVAIL loc THEN DO:
-        MESSAGE 
-                "Invalid location . Presss F1 for a list of valid location." 
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO oe-bolh.loc.
-            oplReturnError = YES.
-   END.                
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-carrier V-table-Win 
 PROCEDURE valid-carrier :
 /*------------------------------------------------------------------------------
@@ -2695,7 +2695,7 @@ PROCEDURE valid-carrier :
             NO-LOCK NO-ERROR.
         IF NOT AVAIL carrier THEN DO:
             MESSAGE 
-                "Invalid Carrier. Presss F1 for a list of valid carriers." 
+                "Invalid Carrier. Press F1 for a list of valid carriers." 
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-bolh.carrier.
             RETURN ERROR.
@@ -2703,7 +2703,7 @@ PROCEDURE valid-carrier :
         ELSE DO:
             MESSAGE 
                 "The carrier you entered is valid, but is not available" SKIP 
-                "for this shipto. Presss F1 for a list of valid carriers." 
+                "for this shipto. Press F1 for a list of valid carriers." 
                 VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO oe-bolh.carrier.
             RETURN ERROR.
@@ -2743,6 +2743,29 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-freight V-table-Win 
+PROCEDURE valid-freight :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+     IF iFreightCalculationValue EQ 1 AND oe-bolh.frt-pay:SCREEN-VALUE NE "B" AND oe-bolh.freight:SCREEN-VALUE <> "0.00" THEN DO:
+          MESSAGE "Freight is prepaid so the freight charge should not be added or the freight terms should be adjusted." VIEW-AS ALERT-BOX ERROR.
+          APPLY "entry" TO oe-bolh.freight .
+          RETURN ERROR.
+     END.
+     
+  END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-frt-pay V-table-Win 
 PROCEDURE valid-frt-pay :
 /*------------------------------------------------------------------------------
@@ -2761,23 +2784,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-freight V-table-Win 
-PROCEDURE valid-freight :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc V-table-Win 
+PROCEDURE valid-loc :
 /*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-     IF iFreightCalculationValue EQ 1 AND oe-bolh.frt-pay:SCREEN-VALUE NE "B" AND oe-bolh.freight:SCREEN-VALUE <> "0.00" THEN DO:
-          MESSAGE "Freight is prepaid so the freight charge should not be added or the freight terms should be adjusted." VIEW-AS ALERT-BOX ERROR.
-          APPLY "entry" TO oe-bolh.freight .
-          RETURN ERROR.
-     END.
-     
-  END.
-
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.       
+    FIND FIRST loc NO-LOCK
+         WHERE loc.company = g_company
+         AND loc.loc = oe-bolh.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
+    IF NOT AVAIL loc THEN DO:
+        MESSAGE 
+                "Invalid location . Press F1 for a list of valid location." 
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO oe-bolh.loc.
+            oplReturnError = YES.
+   END.                
 
 END PROCEDURE.
 

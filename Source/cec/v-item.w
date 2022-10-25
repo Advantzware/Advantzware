@@ -104,7 +104,7 @@ item.box-case item.speed%[1] item.speed%[2] item.speed%[3] item.speed%[4] ~
 item.speed%[5] item.speed%[6] item.speed%[7] item.speed%[8] item.speed%[9] ~
 item.speed%[10] item.case-pall item.stat item.sqin-lb item.linin-lb  ~
 item.ink-type item.press-type item.yield item.min-lbs item.spare-char-1 ~
-item.wastePercent
+item.wastePercent item.itemNotes
 &Scoped-define ENABLED-TABLES item
 &Scoped-define FIRST-ENABLED-TABLE item
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 RECT-20 RECT-3 RECT-4 RECT-5 ~
@@ -121,7 +121,7 @@ item.dept-name[9] item.dept-name[10] item.box-case item.speed%[1] ~
 item.speed%[2] item.speed%[3] item.speed%[4] item.speed%[5] item.speed%[6] ~
 item.speed%[7] item.speed%[8] item.speed%[9] item.speed%[10] item.case-pall ~
 item.stat item.sqin-lb item.linin-lb item.ink-type item.press-type item.yield ~
-item.min-lbs item.spare-char-1 item.wastePercent
+item.min-lbs item.spare-char-1 item.wastePercent item.itemNotes
 &Scoped-define DISPLAYED-TABLES item
 &Scoped-define FIRST-DISPLAYED-TABLE item
 &Scoped-Define DISPLAYED-OBJECTS fi_mat-type mat_dscr u-ptd costtype_descr ~
@@ -618,6 +618,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      fi_reg-no AT ROW 16.95 COL 99 COLON-ALIGNED
+     item.itemNotes AT ROW 18.19 COL 18 NO-LABEL WIDGET-ID 10
+          VIEW-AS EDITOR SCROLLBAR-VERTICAL
+          SIZE 106 BY 2.33
      F1 AT ROW 2.67 COL 73 NO-LABEL
      F-2 AT ROW 3.86 COL 73 NO-LABEL
      F-3 AT ROW 5.05 COL 73 NO-LABEL
@@ -643,6 +646,9 @@ DEFINE FRAME F-Main
           FONT 4
      "Consumption Qty" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 6.24 COL 116
+     "Item Notes:" VIEW-AS TEXT
+          SIZE 14 BY .71 AT ROW 18.19 COL 3
+          FONT 6
      RECT-1 AT ROW 6.95 COL 1
      RECT-2 AT ROW 14.81 COL 2
      RECT-20 AT ROW 8.62 COL 32.4
@@ -1852,7 +1858,7 @@ PROCEDURE enable-item :
     IF AVAIL ITEM AND INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w. 
     IF AVAIL ITEM AND item.mat-type EQ "C" THEN ENABLE fi_flute fi_reg-no.
     IF AVAIL ITEM AND INDEX("BAP",item.mat-type) GT 0 THEN ENABLE fi_ect.
-    IF AVAIL ITEM AND INDEX("1234",item.mat-type) GT 0 THEN ENABLE fi_ect.
+    IF AVAIL ITEM AND INDEX("12349",item.mat-type) GT 0 THEN ENABLE fi_ect.
   END.
 
 END PROCEDURE.
@@ -2059,7 +2065,7 @@ PROCEDURE local-assign-record :
         {sys/inc/k16bb.i item.r-wid}
         item.ect = lv-ect * (IF item.mat-type EQ "P" THEN 10000 ELSE 1).
   END.      
-  ELSE IF INDEX("1234",item.mat-type) > 0 THEN DO:  
+  ELSE IF INDEX("12349",item.mat-type) > 0 THEN DO:  
         {sys/inc/k16bb.i item.s-wid}
         {sys/inc/k16bb.i item.s-len}
         {sys/inc/k16bb.i item.s-dep}
@@ -2199,7 +2205,7 @@ PROCEDURE local-display-fields :
     END.
 
     ELSE
-    IF INDEX("1234",fi_mat-type) GT 0 THEN DO:
+    IF INDEX("12349",fi_mat-type) GT 0 THEN DO:
       ASSIGN
        item.s-wid:screen-value = STRING({sys/inc/k16v.i item.s-wid})
        item.s-len:screen-value = STRING({sys/inc/k16v.i item.s-len})
@@ -2571,7 +2577,7 @@ PROCEDURE pLabelValueChange :
 ------------------------------------------------------------------------------*/
 
 DO WITH FRAME {&FRAME-NAME}:
-      IF lDisplayWood AND INDEX("1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN DO:
+      IF lDisplayWood AND INDEX("12349",fi_mat-type:SCREEN-VALUE) GT 0 THEN DO:
        ASSIGN
           item.flute:LABEL       = "Lumber"              
           item.s-dep:LABEL       = "Thickness"
@@ -2842,74 +2848,82 @@ PROCEDURE valid-16th&32th :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-DO WITH FRAME {&FRAME-NAME}:
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
+DO WITH FRAME {&FRAME-NAME}:  
+    IF sys-ctrl.char-fld = "16th's" AND item.s-wid:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-wid:screen-value) - trunc(DECIMAL(item.s-wid:screen-value),0) >= v-16-or-32 
             THEN DO:
             MESSAGE "Please enter 16ths decimal from .01 to .15."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-wid.    
             RETURN ERROR.
         END.
     END.
-    IF sys-ctrl.char-fld = "32nd's" THEN DO:
+    IF sys-ctrl.char-fld = "32nd's" AND item.s-wid:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-wid:screen-value) - trunc(DECIMAL(item.s-wid:screen-value),0) > v-16-or-32 
             THEN DO:
             MESSAGE "Please enter decimal from .01 to .32."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-wid.    
             RETURN ERROR.
         END.
 
     END.
 
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
+    IF sys-ctrl.char-fld = "16th's" AND item.s-len:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-len:screen-value) - trunc(DECIMAL(item.s-len:screen-value),0) >= v-16-or-32 
             THEN DO:
             MESSAGE "Please enter 16ths decimal from .01 to .15."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-len.    
             RETURN ERROR.
         END.
     END.
-    IF sys-ctrl.char-fld = "32nd's" THEN DO:
+    IF sys-ctrl.char-fld = "32nd's" AND item.s-len:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-len:screen-value) - trunc(DECIMAL(item.s-len:screen-value),0) > v-16-or-32 
             THEN DO:
             MESSAGE "Please enter decimal from .01 to .32."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-len.    
             RETURN ERROR.
         END.
     END.
 
 
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
+    IF sys-ctrl.char-fld = "16th's" AND item.r-wid:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.r-wid:screen-value) - trunc(DECIMAL(item.r-wid:screen-value),0) >= v-16-or-32 
             THEN DO:
             MESSAGE "Please enter 16ths decimal from .01 to .15."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.r-wid.    
             RETURN ERROR.
         END.
     END.
-    IF sys-ctrl.char-fld = "32nd's" THEN DO:
+    IF sys-ctrl.char-fld = "32nd's" AND item.r-wid:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.r-wid:screen-value) - trunc(DECIMAL(item.r-wid:screen-value),0) > v-16-or-32 
             THEN DO:
             MESSAGE "Please enter decimal from .01 to .32."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.r-wid.     
             RETURN ERROR.
         END.            
     END.
 
 
-    IF sys-ctrl.char-fld = "16th's" THEN DO:
+    IF sys-ctrl.char-fld = "16th's" AND item.s-dep:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-dep:screen-value) - trunc(DECIMAL(item.s-dep:screen-value),0) >= v-16-or-32 
             THEN DO:
             MESSAGE "Please enter 16ths decimal from .01 to .15."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-dep.     
             RETURN ERROR.
         END.
     END.
-    IF sys-ctrl.char-fld = "32nd's" THEN DO:
+    IF sys-ctrl.char-fld = "32nd's" AND item.s-dep:HIDDEN EQ NO THEN DO:
         IF DECIMAL(item.s-dep:screen-value) - trunc(DECIMAL(item.s-dep:screen-value),0) > v-16-or-32 
             THEN DO:
             MESSAGE "Please enter decimal from .01 to .32."
                 VIEW-AS ALERT-BOX ERROR.
+            APPLY "entry" TO item.s-dep.    
             RETURN ERROR.
         END.
     END.

@@ -46,6 +46,14 @@ DEF TEMP-TABLE tt-inv FIELD selekt AS LOG LABEL "Selected"
                       FIELD seq-no AS INT
                       FIELD check-no AS INT
                       FIELD row-id2 AS ROWID.
+DEFINE BUFFER bf-tt-inv FOR tt-inv.                      
+DEFINE VARIABLE lv-sort-by AS CHARACTER INIT "inv-no" NO-UNDO.
+DEFINE VARIABLE lv-sort-by-lab AS CHARACTER INIT "Inv# " NO-UNDO.
+DEFINE VARIABLE ll-sort-asc AS LOGICAL INIT YES NO-UNDO.
+{methods/template/brwcustomdef.i}  
+
+DEFINE VARIABLE cArCashEntryDiscount AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("ArCashEntryDiscount", OUTPUT cArCashEntryDiscount).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -126,11 +134,11 @@ DEFINE QUERY BROWSE-2 FOR
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
   QUERY BROWSE-2 DISPLAY
-      tt-inv.inv-no     LABEL "Invoice#" FORMAT ">>>>>>>9"
-      tt-inv.inv-date   LABEL "Inv Date"
-      tt-inv.net        LABEL "Net"
-      tt-inv.paid       LABEL "Amt Paid"
-      tt-inv.due        LABEL "Balance Due"
+      tt-inv.inv-no     LABEL "Invoice#" FORMAT ">>>>>>>9" LABEL-BGCOLOR 14
+      tt-inv.inv-date   LABEL "Inv Date" LABEL-BGCOLOR 14
+      tt-inv.net        LABEL "Net" LABEL-BGCOLOR 14
+      tt-inv.paid       LABEL "Amt Paid" LABEL-BGCOLOR 14
+      tt-inv.due        LABEL "Balance Due" LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 76 BY 12.38
@@ -182,6 +190,9 @@ DEFINE FRAME D-Dialog
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
+       
+ASSIGN 
+       BROWSE-2:ALLOW-COLUMN-SEARCHING IN FRAME D-Dialog = TRUE.       
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -217,6 +228,68 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* AR Invoice Selection */
 DO:  
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define BROWSE-NAME BROWSE-2
+&Scoped-define SELF-NAME BROWSE-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
+ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
+DO:
+  {methods/template/sortindicator.i} 
+  DEF VAR lh-column AS HANDLE NO-UNDO.
+  DEF VAR lv-column-nam AS CHAR NO-UNDO.
+  DEF VAR lv-column-lab AS CHAR NO-UNDO.
+
+  
+  ASSIGN
+   lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
+   lv-column-nam = lh-column:NAME
+   lv-column-lab = lh-column:LABEL.
+
+  
+  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
+  
+  ASSIGN
+     lv-sort-by     = lv-column-nam
+     lv-sort-by-lab = lv-column-lab.
+  
+  CLOSE QUERY {&self-name}.
+  
+  IF ll-sort-asc THEN
+  CASE lv-column-nam:
+      WHEN "inv-no" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.inv-no .
+      WHEN "inv-date" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.inv-date.
+      WHEN "net" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.net .      
+      WHEN "paid" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.paid.
+      WHEN "due" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.due.      
+  END CASE.
+  
+  ELSE   /*descending*/
+      CASE lv-column-nam:
+      WHEN "inv-no" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.inv-no DESC.
+      WHEN "inv-date" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.inv-date DESCENDING.
+      WHEN "net" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.net DESCENDING.
+      WHEN "due" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.due DESC.
+      WHEN "paid" THEN
+          OPEN QUERY {&SELF-NAME} FOR EACH tt-inv BY tt-inv.paid DESC.      
+  END CASE.
+    
+  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
+  {methods/template/sortindicatorend.i}
+  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,15 +358,15 @@ DO:
           IF AVAIL tt-inv THEN tt-inv.selekt = YES.
         END.
 
-        FOR EACH tt-inv WHERE tt-inv.selekt,
-            FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
+        FOR EACH bf-tt-inv WHERE bf-tt-inv.selekt,
+            FIRST ar-inv WHERE ROWID(ar-inv) EQ bf-tt-inv.row-id NO-LOCK             
             BY ar-inv.due:
 
            ASSIGN
-            op-cancel       = NO
-            li-seq-no       = li-seq-no + 1
-            tt-inv.seq-no   = li-seq-no
-            tt-inv.amt-disc = 0.
+            op-cancel        = NO
+            li-seq-no        = li-seq-no + 1
+            bf-tt-inv.seq-no = li-seq-no
+            bf-tt-inv.amt-disc  = 0.
            
            IF NOT ip-is-memo AND
               (ll-ans OR
@@ -312,36 +385,36 @@ DO:
                       (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0) - 
                       ar-inv.tax-amt) * (IF ld-net1 = 0 OR ld-net2 = 0 THEN 1 ELSE ld-net2 / ld-net1).
                                                  
-             IF ld-due NE 0 THEN
-               tt-inv.amt-disc = IF ar-inv.disc-% = 0 THEN 0 ELSE ROUND(ld-due * (ar-inv.disc-% / 100),2).
+             IF ld-due NE 0 AND cArCashEntryDiscount NE "None" THEN
+               bf-tt-inv.amt-disc = IF ar-inv.disc-% = 0 THEN 0 ELSE ROUND(ld-due * (ar-inv.disc-% / 100),2).
            END.
 
            ASSIGN
-            tt-inv.amt-paid = ar-inv.due
-            ld-applied      = ld-applied + (tt-inv.amt-paid - tt-inv.amt-disc).
-        END.   /* each tt-inv */
+            bf-tt-inv.amt-paid = ar-inv.due
+            ld-applied      = ld-applied + (bf-tt-inv.amt-paid - bf-tt-inv.amt-disc).
+        END.   /* each bf-tt-inv */
 
 
         v-amt-paid-inv-no  = 0.
 
         IF NOT ip-is-memo AND ld-applied GT ar-cash.check-amt AND ar-cash.check-amt NE 0 THEN
-        FOR EACH tt-inv WHERE tt-inv.selekt,
-            FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
-            BY tt-inv.seq-no DESC:
+        FOR EACH bf-tt-inv WHERE bf-tt-inv.selekt,
+            FIRST ar-inv WHERE ROWID(ar-inv) EQ bf-tt-inv.row-id NO-LOCK
+            BY bf-tt-inv.seq-no DESC:
            ASSIGN
-            ld-applied    = ld-applied - (tt-inv.amt-paid - tt-inv.amt-disc)
-            tt-inv.selekt = NO.
+            ld-applied    = ld-applied - (bf-tt-inv.amt-paid - bf-tt-inv.amt-disc)
+            bf-tt-inv.selekt = NO.
 
            IF ld-applied LE ar-cash.check-amt THEN DO:
-             tt-inv.amt-paid = ar-cash.check-amt - ld-applied + tt-inv.amt-disc.
-             IF tt-inv.amt-paid NE 0 THEN tt-inv.selekt = YES.
+             bf-tt-inv.amt-paid = ar-cash.check-amt - ld-applied + bf-tt-inv.amt-disc.
+             IF bf-tt-inv.amt-paid NE 0 THEN bf-tt-inv.selekt = YES.
 
-             v-amt-paid-inv-no = tt-inv.inv-no.
+             v-amt-paid-inv-no = bf-tt-inv.inv-no.
              LEAVE.
            END.
         END.
 
-        FOR EACH tt-inv WHERE tt-inv.selekt:
+        FOR EACH bf-tt-inv WHERE bf-tt-inv.selekt BY bf-tt-inv.inv-no DESC:
          
            FOR EACH ar-cashl OF ar-cash NO-LOCK BY ar-cashl.line DESCENDING:
               li-next-line = ar-cashl.LINE.
@@ -375,23 +448,23 @@ DO:
            end.
 
            ASSIGN
-            ar-cashl.inv-no = tt-inv.inv-no
-            ar-cashl.inv-date = tt-inv.inv-date
-            ar-cashl.amt-due = tt-inv.due
-            ar-cashl.amt-paid = tt-inv.amt-paid
-            ar-cashl.amt-disc = tt-inv.amt-disc.
+            ar-cashl.inv-no = bf-tt-inv.inv-no
+            ar-cashl.inv-date = bf-tt-inv.inv-date
+            ar-cashl.amt-due = bf-tt-inv.due
+            ar-cashl.amt-paid = bf-tt-inv.amt-paid
+            ar-cashl.amt-disc = bf-tt-inv.amt-disc.
 
            /*CM*/
-           IF tt-inv.check-no >= 90000000 AND
-              tt-inv.check-no <= 99999999 THEN
+           IF bf-tt-inv.check-no >= 90000000 AND
+              bf-tt-inv.check-no <= 99999999 THEN
               ar-cashl.inv-no = v-amt-paid-inv-no.
 
            IF ip-is-memo OR
-              (tt-inv.check-no >= 90000000 AND
-              tt-inv.check-no <= 99999999) THEN
+              (bf-tt-inv.check-no >= 90000000 AND
+              bf-tt-inv.check-no <= 99999999) THEN
               ar-cashl.amt-paid = ar-cashl.amt-paid * -1.
 
-           FIND b-cashl WHERE ROWID(b-cashl) EQ tt-inv.row-id NO-LOCK NO-ERROR.
+           FIND b-cashl WHERE ROWID(b-cashl) EQ bf-tt-inv.row-id NO-LOCK NO-ERROR.
 
            IF AVAIL b-cashl THEN DO:
              FIND FIRST ar-c-memo
@@ -502,7 +575,7 @@ PROCEDURE build-table :
 ------------------------------------------------------------------------------*/
   
   FIND ar-cash WHERE RECID(ar-cash) EQ ip-cash-recid NO-LOCK NO-ERROR.
-
+  EMPTY TEMP-TABLE tt-inv. 
   IF AVAIL ar-cash THEN DO:
      FIND FIRST cust NO-LOCK
          WHERE cust.company EQ ar-cash.company 
@@ -516,7 +589,7 @@ PROCEDURE build-table :
            AND ar-inv.due     NE 0
            AND NOT CAN-FIND(FIRST b-cashl
                             WHERE b-cashl.c-no   EQ ar-cash.c-no
-                              AND b-cashl.inv-no EQ ar-inv.inv-no):
+                              AND b-cashl.inv-no EQ ar-inv.inv-no) BY ar-inv.inv-no DESC:
        CREATE tt-inv.
        ASSIGN
         tt-inv.row-id   = ROWID(ar-inv)

@@ -69,33 +69,14 @@ DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
+RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
 
-IF lRecFound AND cRtnChar NE "" THEN 
+IF NOT lValid THEN
 DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath",
-        cRtnChar
-        ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN 
-    DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
+    MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
 END.
 
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
+ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-contact AS cha FORM "x(20)" NO-UNDO.
@@ -327,11 +308,11 @@ assign
         END.
        
         v-job-no = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))).
-        IF v-job-no = "-000" THEN v-job-no = "".
+        IF v-job-no BEGINS "-" THEN v-job-no = "".
         PUT po-ordl.LINE FORM ">>9"
             po-ordl.ord-qty SPACE(2)
             po-ordl.pr-qty-uom SPACE(1)
-            po-ordl.i-no FORM "x(23)" SPACE(5)
+            po-ordl.i-no FORM "x(23)" SPACE(2)
             po-ordl.due-date  FORM "99/99/9999" SPACE(1)
             /*v-adder[1] */
             v-job-no FORM "x(13)" SPACE(1) .

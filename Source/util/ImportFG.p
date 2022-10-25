@@ -104,7 +104,8 @@ DEFINE TEMP-TABLE ttImportFG
     FIELD vend-no                 AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Vendor 1" HELP "Optional - Size:10"
     FIELD vend-item               AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Vendor 1 Item #" HELP "Optional - Size:16"
     FIELD vend2-no                AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Vendor 2" HELP "Optional - Size:10" 
-    FIELD vend2-item              AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Vendor 2 Item #" HELP "Optional - Size:16" 
+    FIELD vend2-item              AS CHARACTER FORMAT "X(16)" COLUMN-LABEL "Vendor 2 Item #" HELP "Optional - Size:16"
+    FIELD LBsPerEA                AS DECIMAL   FORMAT ">>>>>.99" COLUMN-LABEL "Weight Per EA" HELP "Optional - Decimal" 
     .
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 2 to skip Company and Location field in temp-table since this will not be part of the import data*/
  
@@ -194,7 +195,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportFG.UnitCount, YES, INPUT-OUTPUT bf-itemfg.case-count).
     RUN pAssignValueI (ipbf-ttImportFG.UnitsPerPallet, YES, INPUT-OUTPUT bf-itemfg.case-pall).
     RUN pAssignValueC (ipbf-ttImportFG.ProductionCode, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.prod-code).
-    RUN pAssignValueD (ipbf-ttImportFG.LbsPer100, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.weight-100).   
+    RUN pAssignValueD (ipbf-ttImportFG.LbsPer100, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.weight-100).  
+    RUN pAssignValueD (ipbf-ttImportFG.LbsPerEA, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.weightPerEA).   
     RUN pAssignValueC (ipbf-ttImportFG.PackingNote, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.prod-notes).
     RUN pAssignValueD (ipbf-ttImportFG.StdCostMaterial, YES, INPUT-OUTPUT bf-itemfg.std-mat-cost).
     RUN pAssignValueD (ipbf-ttImportFG.StdCostLabor, YES, INPUT-OUTPUT bf-itemfg.std-lab-cost).         
@@ -415,7 +417,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList ("Stock Item", ipbf-ttImportFG.StockItem, "S,C", OUTPUT oplValid, OUTPUT cValidNote).            
 
         IF oplValid AND ipbf-ttImportFG.TrNo NE "" THEN   
-            RUN pIsValidItemForType (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidPallet (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     

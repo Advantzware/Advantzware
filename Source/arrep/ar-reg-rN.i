@@ -113,7 +113,7 @@ FOR EACH ar-cash
                   WHEN "cust"     THEN cVarValue = IF AVAIL cust THEN string(cust.cust-no) ELSE "" .
                   WHEN "name"    THEN cVarValue = IF AVAIL cust THEN string(cust.NAME,"x(30)") ELSE "" . 
                   WHEN "chk"    THEN cVarValue = IF v-header-chk = YES THEN STRING(ar-cash.check-no,">>>>>>>>>>>>") ELSE "".
-                  WHEN "date"     THEN cVarValue = IF ar-cash.check-date <> ? AND v-header-chk = YES THEN STRING(ar-cash.check-date) ELSE "" .
+                  WHEN "date"     THEN cVarValue = IF ar-cash.check-date <> ? AND v-header-chk = YES THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) ELSE "" .
                   WHEN "chs-rec"    THEN cVarValue = IF v-header-chk = YES THEN  STRING(tt-post.curr-amt,"->>>>>>9.99") ELSE "" .
                   WHEN "inv"     THEN cVarValue = STRING(ar-cashl.inv-no,">>>>>>>>9") .
                   WHEN "org-amt"    THEN cVarValue = IF AVAIL ar-inv THEN string(ar-inv.net,"->>,>>>,>>9.99") ELSE "".
@@ -124,7 +124,7 @@ FOR EACH ar-cash
                   
              END CASE.
              
-             cExcelVarValue = cVarValue.
+             cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -178,7 +178,7 @@ FOR EACH ar-cash
                   
              END CASE.
              
-             cExcelVarValue = cVarValue.
+             cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -240,7 +240,7 @@ FOR EACH ar-cash
                   
              END CASE.
              
-             cExcelVarValue = cVarValue.
+             cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            

@@ -80,8 +80,10 @@ FOR EACH ap-inv NO-LOCK
 
        IF v-check-date LE as_of_date THEN DO:
 
-       IF ap-payl.amt-paid NE 0 THEN v-amt = v-amt - ap-payl.amt-paid.
-       IF ap-payl.amt-disc NE 0 THEN DO:
+       IF ap-payl.amt-paid NE 0 
+       AND ap-payl.amt-paid NE ? THEN v-amt = v-amt - ap-payl.amt-paid.
+       IF ap-payl.amt-disc NE 0 
+       AND ap-payl.amt-disc NE ? THEN DO:
           IF NOT ap-payl.memo THEN v-amt = v-amt - ap-payl.amt-disc.
           IF ap-payl.memo THEN v-amt = v-amt + ap-payl.amt-disc.
        END.
@@ -94,7 +96,8 @@ FOR EACH ap-inv NO-LOCK
 
   ASSIGN
    d     = as_of_date - v-date
-   v-amt = IF ap-inv.net + ap-inv.freight GT 0 THEN (v-amt + ap-inv.net + ap-inv.freight) ELSE v-amt
+   v-amt = v-amt + (IF ap-inv.net NE ? THEN ap-inv.net ELSE 0) + (IF ap-inv.freight NE ? THEN ap-inv.freight ELSE 0)
+/*   v-amt = IF ap-inv.net + ap-inv.freight GT 0 THEN (v-amt + ap-inv.net + ap-inv.freight) ELSE v-amt*/
    t1    = t1 + v-amt
    ni    = ni + 1.
 
@@ -144,14 +147,14 @@ FOR EACH ap-inv NO-LOCK
                          WHEN "type"      THEN cVarValue = STRING(vend.TYPE) .
                          WHEN "term"      THEN cVarValue = STRING(v-terms,"x(17)") .
                          WHEN "inv"       THEN cVarValue = IF lAPInvoiceLength THEN STRING(ap-inv.inv-no,"x(20)") ELSE STRING(ap-inv.inv-no,"x(12)").
-                         WHEN "date"      THEN cVarValue = STRING(v-date,"99/99/99") .
-                         WHEN "due-date"  THEN cVarValue = STRING(ap-inv.due-date,"99/99/99") .
+                         WHEN "date"      THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date) .
+                         WHEN "due-date"  THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.due-date) .
                          WHEN "amt"       THEN cVarValue = STRING(v-amt,"->,>>>,>>>,>>9.99") .
                          WHEN "day"       THEN cVarValue = STRING(d,">>>>>>") .
                          
                     END CASE.
                       
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cVarValue).
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
@@ -263,7 +266,7 @@ FOR EACH ap-inv NO-LOCK
                          
                     END CASE.
                       
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cVarValue).
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            

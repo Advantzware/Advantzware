@@ -2314,7 +2314,11 @@ DO:
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
      xeb.num-len = int(self:screen-value).
-     run cec/calc-dim1.p no-error.
+     
+      IF lCEUseNewLayoutCalc THEN
+          RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
+      ELSE
+          run cec/calc-dim1.p no-error.
      if error-status:error then do:
 
      end.
@@ -2377,7 +2381,11 @@ DO:
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
      xeb.num-wid = int(self:screen-value).
-     run cec/calc-dim1.p no-error.
+     
+      IF lCEUseNewLayoutCalc THEN
+          RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
+      ELSE
+          run cec/calc-dim1.p no-error.
      if error-status:error then do:
 
      end.
@@ -3750,6 +3758,9 @@ PROCEDURE local-display-fields :
     RUN enable-auto-calc IN WIDGET-HANDLE(char-hdl) (ll-one-eb-on-ef OR ll-part-style).
     RUN enable-copy IN WIDGET-HANDLE(char-hdl) (ll-one-ef-on-est).
   END.
+  
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
+  
   do with frame {&frame-name} :  
   IF est.estimateTypeID eq "WOOD" THEN
     ASSIGN  

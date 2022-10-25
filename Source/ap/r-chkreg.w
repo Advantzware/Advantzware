@@ -670,6 +670,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END.
                 END. /* WHEN 3 THEN DO: */
         END CASE.
 
@@ -1954,7 +1957,7 @@ PROCEDURE post-gl :
             ASSIGN
                 ap-ledger.company  = ap-sel.company
                 ap-ledger.vend-no  = ap-sel.vend-no
-                ap-ledger.refnum   = "AC" + STRING(ap-sel.check-no, "999999")
+                ap-ledger.refnum   = "AC" + STRING(ap-sel.check-no, "99999999")
                 ap-ledger.ref-date = ap-sel.check-date
                 ap-ledger.tr-date  = tran-date
                 ap-ledger.trnum    = v-trnum
@@ -2779,8 +2782,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

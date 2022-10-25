@@ -117,6 +117,8 @@ DEF BUFFER bf-eb FOR eb.
 DEF BUFFER bf-est FOR est.*/
 
 DEFINE VARIABLE cadcamValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE glAssignUnitsForInk AS LOGICAL NO-UNDO.
+
 
 RUN Get-Company  (OUTPUT gcompany).
 RUN Get-location (OUTPUT gloc).
@@ -158,6 +160,7 @@ lCEGOTOCALC = LOGICAL(cNK1Value).
 
 {cec/tt-eb-set-part.i "new"}
 {est/ttInputEst.i NEW}
+{api/ttAPIOutboundEvent.i}
 
 DEFINE VARIABLE viEQtyPrev     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cOldFGItem     AS CHARACTER NO-UNDO.
@@ -203,6 +206,7 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cNK1Value) NO-ERROR.    
 
+RUN pGetSettingValue(cocode).
 RUN sys/ref/nk1look.p (INPUT cocode, "CENewLayoutCalc", "L", NO, NO, "", "",OUTPUT cNK1Value, OUTPUT lRecFound).
 IF lRecFound THEN
     lCEUseNewLayoutCalc = logical(cNK1Value) NO-ERROR.
@@ -351,21 +355,20 @@ DEFINE QUERY br-estitm FOR
 DEFINE BROWSE br-estitm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br-estitm B-table-Win _STRUCTURED
   QUERY br-estitm NO-LOCK DISPLAY
-      est.est-no FORMAT "99999999":U WIDTH 12 COLUMN-FONT 2
-      eb.cust-no FORMAT "x(8)":U COLUMN-FONT 2
-      eb.part-no FORMAT "x(30)":U COLUMN-FONT 2
+      est.est-no FORMAT "99999999":U WIDTH 12 
+      eb.cust-no FORMAT "x(8)":U 
+      eb.part-no FORMAT "x(30)":U 
       eb.ship-id COLUMN-LABEL "Ship To" FORMAT "x(8)":U WIDTH 12
-            COLUMN-FONT 2
-      eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2
-      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U COLUMN-FONT 2
+      eb.part-dscr1 FORMAT "x(30)":U 
+      eb.stock-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U 
       eb.bl-qty COLUMN-LABEL "Qty" FORMAT ">>>,>>>,>>>":U WIDTH 15
-      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 COLUMN-FONT 2
-      ef.board FORMAT "x(12)":U COLUMN-FONT 2
-      ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
-      eb.procat FORMAT "x(5)":U COLUMN-FONT 2
-      eb.len FORMAT ">9.99999":U COLUMN-FONT 2
-      eb.wid FORMAT ">9.99999":U COLUMN-FONT 2
-      eb.dep FORMAT ">9.99999":U COLUMN-FONT 2
+      eb.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9 
+      ef.board FORMAT "x(12)":U 
+      ef.cal FORMAT ">9.99999<":U 
+      eb.procat FORMAT "x(5)":U 
+      eb.len FORMAT ">>9.99999":U 
+      eb.wid FORMAT ">>9.99999":U 
+      eb.dep FORMAT ">>9.99999":U 
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
@@ -380,7 +383,7 @@ DEFINE BROWSE br-estitm
       ef.f-coat COLUMN-LABEL "Coatings/Form" FORMAT ">>":U
       ef.f-coat-p COLUMN-LABEL "Coat Passes/Form" FORMAT ">>":U
       eb.pur-man COLUMN-LABEL "Purch/Manuf" FORMAT "P/M":U
-      est.est-date FORMAT "99/99/9999":U COLUMN-FONT 2
+      est.est-date FORMAT "99/99/9999":U 
   ENABLE
       eb.cust-no
       eb.part-no
@@ -521,11 +524,11 @@ ASSIGN
      _FldNameList[11]   > ASI.eb.procat
 "eb.procat" ? ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.eb.len
-"eb.len" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.eb.wid
-"eb.wid" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.eb.dep
-"eb.dep" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.dep" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.eb.cust-%
 "eb.cust-%" "Qty/Set" "->>,>>>" "decimal" ? ? ? ? ? ? yes "Quantity Per Set" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.eb.i-col
@@ -1719,6 +1722,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 &ENDIF
 
 {methods/winReSize.i}
+{est/ShareEstimate.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2689,7 +2693,14 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
           est-qty.qty[39] = tt-frmout.copy-rel[19] 
           est-qty.qty[40] = tt-frmout.copy-rel[20]  .
      
-
+     IF tt-frmout.stack-no NE "" AND NOT CAN-FIND(FIRST itemfg
+                  WHERE itemfg.company EQ cocode
+                    AND itemfg.i-no    EQ tt-frmout.stack-no) THEN DO:  
+        FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+        FIND FIRST xest WHERE ROWID(xest) EQ ROWID(est) NO-LOCK NO-ERROR.
+        eb.pur-man  = TRUE .
+        RUN fg/ce-addfg.p (tt-frmout.stack-no).
+     END. 
 
      FIND FIRST itemfg WHERE  itemfg.company = cocode
          AND itemfg.stat = "A" AND itemfg.i-no = tt-frmout.stack-no
@@ -3236,7 +3247,7 @@ DEF VAR prev-board LIKE ef.board NO-UNDO.
 
 DEF BUFFER bf FOR ef.
 DEF BUFFER bf-est FOR est.
-
+DEFINE BUFFER bf-eb FOR eb.
 
 FIND bf-est WHERE RECID(bf-est) = ip-recid.
 
@@ -3246,6 +3257,9 @@ IF bf-est.est-type NE 2 THEN
 DO:
     bf-est.est-type = 4.
     RUN pReSetEstQty(rowid(est-qty)). 
+    FOR EACH bf-eb OF bf-est:  
+      RUN set-yld-qty (ROWID(bf-eb)).
+    END.
 END.
            
 FIND LAST bf 
@@ -3481,6 +3495,7 @@ PROCEDURE local-assign-record :
   DEF VAR ld-markup AS DEC NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE iExt AS INTEGER NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAIL eb THEN FIND eb WHERE RECID(eb) = lv-eb-recid NO-LOCK NO-ERROR.
@@ -3701,13 +3716,14 @@ PROCEDURE local-assign-record :
      ll-crt-itemfg = NO.
   END.
 
-  IF eb.stock-no NE "" AND eb.part-dscr2 EQ "" THEN DO:
+  IF eb.stock-no NE "" AND (eb.part-dscr2 EQ "" OR eb.cad-no EQ "") THEN DO:
     FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company    EQ eb.company
           AND itemfg.i-no       EQ eb.stock-no
           AND itemfg.part-dscr1 NE ""
         NO-ERROR.
-    IF AVAIL itemfg THEN eb.part-dscr2 = itemfg.part-dscr1.
+    IF AVAIL itemfg AND eb.part-dscr2 EQ "" THEN eb.part-dscr2 = itemfg.part-dscr1.
+    IF AVAIL itemfg AND eb.cad-no EQ "" THEN eb.cad = itemfg.cad-no.
   END. 
 
   /*== Qty assignment ==*/
@@ -3753,7 +3769,8 @@ PROCEDURE local-assign-record :
      eb.i-ps2   = 0
      eb.i-code2 = ""
      eb.i-dscr2 = ""
-     eb.i-%2    = 0.
+     eb.i-%2    = 0     
+     .
 
     FOR EACH inks BY inks.iv:
       li = li + 1.
@@ -3763,9 +3780,17 @@ PROCEDURE local-assign-record :
          eb.i-code2[li] = inks.cd[1]
          eb.i-dscr2[li] = inks.ds[1]
          eb.i-%2[li]    = inks.pc[1].
+              
     END.
 
     {ce/updunit#.i eb}
+  END.
+
+  /* Run logic only if NK1 is set */
+  IF glAssignUnitsForInk = YES AND NOT ll-copied-from-eb THEN
+  DO iExt = 1 TO EXTENT(eb.i-code2):
+      IF eb.i-code2[iExt] NE '' THEN
+          RUN est/GetInksUnitNo.p (BUFFER eb, iExt, eb.i-code2[iExt], OUTPUT eb.unitno[iExt]).
   END.
 
   RUN ce/com/istandem.p (ROWID(est), OUTPUT ll-tandem).
@@ -3775,6 +3800,9 @@ PROCEDURE local-assign-record :
         RUN set-yld-qty (
             INPUT ROWID(eb)
             ).
+  
+  RUN pSetFormColors (INPUT eb.company, INPUT eb.est-no, INPUT eb.form-no).
+  
 
   RUN Prep_ValidateAndDeletePlatePrep IN hPrepProcs (ROWID(eb)).
 
@@ -5135,6 +5163,74 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFormColors B-table-Win
+PROCEDURE pSetFormColors PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Set Form level colors and Coats etc
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcEstimate AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiFormNo   AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE iInkPerForm      AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iInkPassPerForm  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatPerForm     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCoatPassPerForm AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-ef   FOR ef. 
+    DEFINE BUFFER bfEx-ef FOR ef. 
+
+    RUN Estimate_CalcFormInksAndCoats (ipcCompany, ipcEstimate, ipiFormNo, OUTPUT iInkPerForm, OUTPUT iInkPassPerForm, OUTPUT iCoatPerForm, OUTPUT iCoatPassPerForm).
+    
+    FIND FIRST bf-ef NO-LOCK
+        WHERE bf-ef.Company = ipcCompany
+          AND bf-ef.Est-no  = ipcEstimate
+          AND bf-ef.form-no = ipiFormNo NO-ERROR.
+          
+    IF AVAIL bf-ef 
+    AND (bf-ef.f-col NE iInkPerForm OR bf-ef.f-pass NE iInkPassPerForm 
+    OR bf-ef.f-coat NE iCoatPerForm OR bf-ef.f-coat-p NE iCoatPassPerForm) THEN 
+    DO TRANSACTION:
+         
+        FIND FIRST bfEx-ef EXCLUSIVE-LOCK 
+            WHERE ROWID(bfEx-ef) = ROWID(bf-ef) NO-ERROR.
+            
+        IF AVAILABLE bfEx-ef THEN
+            ASSIGN
+                bfEx-ef.f-col    = iInkPerForm
+                bfEx-ef.f-pass   = iInkPassPerForm
+                bfEx-ef.f-coat   = iCoatPerForm
+                bfEx-ef.f-coat-p = iCoatPassPerForm.
+    END.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettingValue B-table-Win
+PROCEDURE pGetSettingValue PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
+    
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstRowid B-table-Win 
 PROCEDURE pGetEstRowid :
 DEFINE OUTPUT PARAMETER iprwRowid AS ROWID NO-UNDO.

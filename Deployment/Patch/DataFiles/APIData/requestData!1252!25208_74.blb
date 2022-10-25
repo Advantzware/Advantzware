@@ -1,0 +1,4 @@
+2050001000000$custXAreaCode|999|$-$custXPhone|999-9999|$$custXZip|X(12)|$$carrierDesc|X(15)|$$fobCode|X(15)|$$poDate|MMDDYYYY|DATE|$$SPACE|X(3)|$20500$SPACE|X(45)|$
+$custXName|X(30)|$$custXAddress1|X(30)|$$custXAddress2|X(30)|$$custXCityState|X(30)|$$SPACE|X(8)|$
+$shipToName|X(30)|$$shipToAddress1|X(30)|$$shipToAddress2|X(30)|$$shipToCityState|X(30)|$$SPACE|X(8)|$
+$detail$

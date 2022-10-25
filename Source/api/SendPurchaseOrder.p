@@ -14,6 +14,7 @@
     {api/ttArgs.i}
     {api/CommonAPIProcs.i}
     {system/FormulaProcs.i}
+    {sys/inc/var.i}
     
     DEFINE INPUT        PARAMETER TABLE                   FOR ttArgs.
     DEFINE INPUT        PARAMETER ipiAPIOutboundID        AS INTEGER   NO-UNDO.
@@ -705,8 +706,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cPalletLength               = "0.00"
                 cUnitPallet                 = "0"
                 cPurchaseUnit               = STRING(po-ordl.pr-qty-uom)
-                cJobID                      = TRIM(STRING(po-ordl.job-no, "X(6)"))
-                cJobID2                     = STRING(po-ordl.job-no2, ">9")
+                cJobID                      = TRIM(STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")"))
+                cJobID2                     = STRING(po-ordl.job-no2, ">>9")
                 cJobConcat                  = IF po-ordl.job-no EQ "" THEN
                                                   ""
                                               ELSE
@@ -714,9 +715,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cJobConcatHRMS              = IF po-ordl.job-no EQ "" THEN
                                                   ""
                                               ELSE
-                                                  STRING(po-ordl.job-no, "X(6)") + "-" + STRING(po-ordl.job-no2, "99")
+                                                  STRING(po-ordl.job-no, "X(" + STRING(MAXIMUM(LENGTH(po-ordl.job-no),1)) + ")") + "-" + STRING(po-ordl.job-no2, "999")
                 cJobConcatSmurfit           = "" 
-                cJobConcat1                 = TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2, "99")                                         
+                cJobConcat1                 = TRIM(po-ordl.job-no) + "-" + STRING(po-ordl.job-no2, "999")                                         
                 cJobIDFormNo                = STRING(po-ordl.s-num)
                 cJobIDBlankNo               = STRING(po-ordl.b-num)
                 cQuantityReceived           = TRIM(STRING(po-ordl.t-rec-qty, "->>>>>>>>9.9<<<<<"))
@@ -725,7 +726,7 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 dQuantityInSF               = po-ordl.ord-qty
                 cTotalLineCost              = STRING(po-ordl.t-cost)
                 cJobDescriptionKiwiT        = STRING(po-ordl.po-no,"99999999")
-                                              + "-" + STRING(po-ordl.LINE,"99") + "/" 
+                                              + "-" + STRING(po-ordl.LINE,"999") + "/" 
                                               + IF po-ordl.job-no EQ "" THEN "" ELSE 
                                               DYNAMIC-FUNCTION("sfFormat_TrimmedJobWithHyphen",po-ordl.job-no,po-ordl.job-no2) 
                                               + "-" + STRING(po-ordl.s-num,"99")
@@ -1526,9 +1527,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cScoreSizeDecimalCorrTrim   = REPLACE(cScoreSizeDecimalCorrTrim,".","")
                 .
 
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-len, OUTPUT dItemScoreLength16ths).
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-wid, OUTPUT dItemScoreWidth16ths).
-            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", item.s-dep, OUTPUT dItemScoreDepth16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-len ELSE 0, OUTPUT dItemScoreLength16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-wid ELSE 0, OUTPUT dItemScoreWidth16ths).
+            RUN SwitchPanelSizeFormat IN hdFormulaProcs ("Decimal", "16th's", IF AVAILABLE ITEM THEN item.s-dep ELSE 0, OUTPUT dItemScoreDepth16ths).
             
             IF cFormattedScoresLiberty EQ "" THEN DO:
                 IF AVAILABLE item THEN DO:

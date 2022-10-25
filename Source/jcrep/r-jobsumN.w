@@ -53,6 +53,7 @@ DEFINE VARIABLE ll-secure AS LOG NO-UNDO.
 DEFINE STREAM excel.
 DEFINE STREAM excel2 .
 DEFINE VARIABLE fi_file    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFileName  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName2 AS CHARACTER NO-UNDO.
 
 ASSIGN
@@ -761,6 +762,11 @@ DO:
   RUN run-report. 
   STATUS DEFAULT "Processing Complete". 
 
+  IF tb_excel THEN
+  DO:
+      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).    
+  END.
+  
   CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
@@ -775,6 +781,9 @@ DO:
                   DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
                   END.
+              END.
+              ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
               END.
            END. /* WHEN 3 THEN DO: */
        WHEN 5 THEN
@@ -1554,7 +1563,6 @@ DEFINE VARIABLE misc-str-tit AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE misc-str-tit2 AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE misc-str-tit3 AS cha FORM "x(150)" NO-UNDO.
 DEFINE VARIABLE misc-str-line AS cha FORM "x(150)" NO-UNDO.
-DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
@@ -1571,8 +1579,10 @@ ASSIGN
                     IF tb_corr THEN "B" ELSE "F"
                   ELSE
                     IF tb_corr THEN "C" ELSE ""
-  v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', begin_job-no, begin_job-no2)) 
-  v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_JobFormat', end_job-no, end_job-no2)) 
+  v-job-no[1]   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_job-no)) 
+  v-job-no[2]   = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', end_job-no)) 
+  v-job-no[1]   = v-job-no[1] + STRING(begin_job-no2,"999") 
+  v-job-no[2]   = v-job-no[2] + STRING(end_job-no2,"999") 
 
   v-date[1]     = begin_date
   v-date[2]     = END_date
@@ -1867,14 +1877,10 @@ DISPLAY "" WITH FRAME r-top.
 
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel2 CLOSE.
-  IF tb_OpenCSV THEN
-  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
 END.
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
-  /*IF tb_OpenCSV THEN*/
-  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

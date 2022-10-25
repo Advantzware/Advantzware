@@ -1,0 +1,9 @@
+<p8><R58.5><C3>$CustomerXNote1$
+<R59.5><C3>$CustomerXNote2$
+<R60.5><C3>$CustomerXNote3$
+<R61.5><C3>$CustomerXNote4$
+<p10>
+<R58><C60><#8><FROM><R+8><C+20><RECT>
+<=8><C61>Sous Total<C70>:$InvoiceLineTotalAmount|$->>,>>9.99|DEC|R|$
+<=8><R+1><C61>Transport<C70>:$BillFreight||||IF["yes","$InvoiceFreightAmount|$->>>>>9.99|DEC|R|$","      0.00"]|$
+$TaxDetailByTaxGroup$<=8><R+7><C61>Grand Total<C70>:$TotalInvoicedRevenue|$->>,>>9.99|DEC|R|$$LastInvoice||||IF["yes","","$formfeed$"]|$

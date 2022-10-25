@@ -446,14 +446,14 @@ DEFINE FRAME FRAME-USER
      users_user_id AT ROW 1.71 COL 90.4 COLON-ALIGNED NO-LABEL
      Mnemonic AT ROW 1.71 COL 141 COLON-ALIGNED NO-LABEL WIDGET-ID 2
      fFollow AT ROW 26.57 COL 100 COLON-ALIGNED NO-LABEL WIDGET-ID 116
-     "Location:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 1.71 COL 52.6
-          FONT 22
      "Company:" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 1.71 COL 3.6
           FONT 22
      "User ID:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 1.71 COL 83
+          FONT 22
+     "Location:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 1.71 COL 52.6
           FONT 22
      boxes AT ROW 8.38 COL 56.2
      menu-image AT ROW 3.24 COL 56.2
@@ -503,13 +503,13 @@ DEFINE FRAME menuTreeFrame
 DEFINE FRAME searchFrame
      btnClear AT ROW 13.86 COL 100 HELP
           "Clear Search Filters" WIDGET-ID 42
-     menuTreeFilter AT ROW 1.14 COL 53 COLON-ALIGNED HELP
-          "Enter Search Filter" NO-LABEL WIDGET-ID 2
-     favoritesList AT ROW 2.29 COL 6 NO-LABEL WIDGET-ID 52
      BtnFavorites AT ROW 1.1 COL 1 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 54
      btnSearch AT ROW 1 COL 49 HELP
           "Search Menu / Edit Favorites" WIDGET-ID 40
+     menuTreeFilter AT ROW 1.14 COL 53 COLON-ALIGNED HELP
+          "Enter Search Filter" NO-LABEL WIDGET-ID 2
+     favoritesList AT ROW 2.29 COL 6 NO-LABEL WIDGET-ID 52
      searchSelections AT ROW 2.29 COL 52 NO-LABEL WIDGET-ID 44
      btnMoveDown AT ROW 5.86 COL 1 HELP
           "Move Favorite Down" WIDGET-ID 58
@@ -949,12 +949,32 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageFolder MAINMENU
+ON RIGHT-MOUSE-CLICK OF imageFolder IN FRAME FRAME-USER
+DO:
+    RUN pShowTaskerLastExecuted.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME imagePrinter
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imagePrinter MAINMENU
 ON MOUSE-SELECT-CLICK OF imagePrinter IN FRAME FRAME-USER
 DO:
     RUN spSetTaskFilter ("", "", "").
     RUN Get_Procedure IN Persistent-Handle ("dynTasks.", OUTPUT run-proc, YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imagePrinter MAINMENU
+ON RIGHT-MOUSE-CLICK OF imagePrinter IN FRAME FRAME-USER
+DO:
+    RUN pShowTaskerLastExecuted.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -978,6 +998,16 @@ ON MOUSE-SELECT-CLICK OF imageScheduler IN FRAME FRAME-USER
 DO:
     RUN spSetSessionParam ("ParamValueID", "0").
     RUN Get_Procedure IN Persistent-Handle ("dynSched.", OUTPUT run-proc, YES).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL imageScheduler MAINMENU
+ON RIGHT-MOUSE-CLICK OF imageScheduler IN FRAME FRAME-USER
+DO:
+    RUN pShowTaskerLastExecuted.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1455,7 +1485,7 @@ PROCEDURE enable_UI :
   {&OPEN-BROWSERS-IN-QUERY-FRAME-USER}
   DISPLAY menuTreeFilter favoritesList searchSelections svFavoriteText 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
-  ENABLE menuTreeFilter favoritesList BtnFavorites btnSearch searchSelections 
+  ENABLE BtnFavorites btnSearch menuTreeFilter favoritesList searchSelections 
          btnMoveDown btnMoveUp btnRemove btnFavorite 
       WITH FRAME searchFrame IN WINDOW MAINMENU.
   VIEW FRAME searchFrame IN WINDOW MAINMENU.
@@ -2436,6 +2466,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowTaskerLastExecuted MAINMENU 
+PROCEDURE pShowTaskerLastExecuted :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cStatusDefault AS CHARACTER NO-UNDO.
+
+    FIND FIRST config NO-LOCK.
+    IF config.taskerLastExecuted LT DATETIME(TODAY,TIME * 1000 - 15000) THEN
+    cStatusDefault = "Task Monitor Currently Not Running".
+    ELSE
+    cStatusDefault = "Task Monitor Last Executed: " + STRING(config.taskerLastExecuted).
+    STATUS DEFAULT cStatusDefault IN WINDOW {&WINDOW-NAME}.
+    RELEASE config.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pWinReSize MAINMENU 
 PROCEDURE pWinReSize :
 /*------------------------------------------------------------------------------
@@ -2611,7 +2662,7 @@ PROCEDURE Set-Comp_Loc :
             g_company                 = ipcCompany
             g_loc                     = ipcLoc
             .
-
+/*
         /* Set BGColor for this company */
         FIND company NO-LOCK WHERE
             company.company EQ g_company.
@@ -2623,7 +2674,7 @@ PROCEDURE Set-Comp_Loc :
         COLOR-TABLE:SET-RED-VALUE(21, INTEGER(ENTRY(1,cCompanyBgColor))).
         COLOR-TABLE:SET-GREEN-VALUE(21, INTEGER(ENTRY(2,cCompanyBgColor))).
         COLOR-TABLE:SET-BLUE-VALUE(21, INTEGER(ENTRY(3,cCompanyBgColor))).
-
+*/
     END.
     RUN spSetSessionParam ("Company", g_company).
     RUN spSetSessionParam ("Location", g_loc).

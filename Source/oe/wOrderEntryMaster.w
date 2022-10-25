@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Object12 h_p-navico
 &SCOPED-DEFINE h_Object10 h_p-orel-2
 &SCOPED-DEFINE h_Object11 h_p-obol 
-
+&SCOPED-DEFINE h_Browse02 h_b-posum
 
 
 &SCOPED-DEFINE setUserExit TRUE
@@ -149,6 +149,8 @@ DEFINE VARIABLE h_w-ordest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordjob AS HANDLE NO-UNDO. 
 DEFINE VARIABLE h_vp-clsoe-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_vi-ord-5 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_b-posum AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -557,7 +559,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Misc|Release|Estimate|Totals|FG Item|Matrix|ShipNote|BillNote' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse|Detail|Items|Misc|Release|Estimate|Totals|FG Item|Matrix|ShipNote|BillNote|POs' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 1.00 ) NO-ERROR.
@@ -606,6 +608,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_options3. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'attach':U , h_options3 ).
+       RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'optonote':U , h_optonote ).
 	   RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'udficon':U , h_options3 ).
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_jobprod ,
@@ -1302,6 +1305,38 @@ PROCEDURE adm-create-objects :
     END. /* Page 11 */
     WHEN 12 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'oe/vi-ord.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_vi-ord-5 ).
+       RUN set-position IN h_vi-ord-5 ( 5.29 , 8.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.43 , 144.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'oe/b-posum.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_b-posum ).
+       RUN set-position IN h_b-posum ( 6.96 , 8.80 ) NO-ERROR.
+       /* Size in UIB:  ( 6.14 , 113.00 ) */  
+      
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+
+       /* Links to SmartViewer h_vi-ord-4. */
+       RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_vi-ord-5 ).
+
+       /* Links to SmartViewer h_v-oebill. */
+       RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_b-posum ).
+       
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_vi-ord-5 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-posum ,
+             h_vi-ord-5 , 'AFTER':U ).         
+    END. /* Page 12 */
+    WHEN 13 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/w-ordesf.w':U ,
              INPUT  {&WINDOW-NAME} ,
              INPUT  'Layout = ':U ,
@@ -1317,7 +1352,7 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'quote':U , h_w-ordesf ).
 
        /* Adjust the tab order of the smart objects. */
-    END. /* Page 12 */
+    END. /* Page 13 */
 
   END CASE.
   /* Select a Startup page. */
@@ -1609,7 +1644,7 @@ PROCEDURE local-change-page :
              FIND FIRST est WHERE est.company = g_company AND
                                  est.est-no = ls-est-no NO-LOCK NO-ERROR.
              IF AVAIL est AND est.est-type <= 4 THEN do:
-                  RUN select-page (12).  
+                  RUN select-page (13).  
                   li-prev-page = li-last-page.
                   RETURN.
              END.

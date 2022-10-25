@@ -94,13 +94,12 @@ DEF STREAM excel.
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_inact tb_prior-period-data ~
-tb_out-bal tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file  ~
-rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok btn-cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-7 tb_inact tb_prior-period-data ~
+tb_out-bal tb_invalid-period tb_post-out-period tb_excel tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS fiText tran-year tran-period tb_inact ~
 tb_prior-period-data tb_out-bal tb_invalid-period tb_post-out-period ~
-tb_excel tb_runExcel fi_file rd-dest lines-per-page lv-ornt lv-font-no ~
-lv-font-name td-show-parm v-msg1 v-msg2 
+tb_excel tb_runExcel fi_file v-msg1 v-msg2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -133,20 +132,6 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(250)":U INITIAL "c:~\tmp~\r-glmcl
      VIEW-AS FILL-IN 
      SIZE 57.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
-     LABEL "Lines Per Page" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-     LABEL "Font" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
-
 DEFINE VARIABLE tran-period AS INTEGER FORMAT ">>":U INITIAL 0 
      LABEL "Period" 
      VIEW-AS FILL-IN 
@@ -164,72 +149,48 @@ DEFINE VARIABLE v-msg1 AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE v-msg2 AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
-     SIZE 88 BY 1.19
+     SIZE 90 BY 1.1
      FONT 6 NO-UNDO.
-
-DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Portrait", "P",
-"Landscape", "L"
-     SIZE 30 BY .95 NO-UNDO.
-
-DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "To Printer", 1,
-"To Screen", 2,
-"To File", 3
-     SIZE 16 BY 5.24 NO-UNDO.
-
-DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 7.86.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 13.57.
 
-DEFINE VARIABLE tb_inact AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+     LABEL "Export To Excel?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81
+     FGCOLOR 8  NO-UNDO.
+
+DEFINE VARIABLE tb_inact AS LOGICAL INITIAL no 
      LABEL "JE's with inactive account" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_invalid-period AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_invalid-period AS LOGICAL INITIAL no 
      LABEL "Invalid Period Entries" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_out-bal AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_out-bal AS LOGICAL INITIAL no 
      LABEL "Out of balance entries" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_post-out-period AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_post-out-period AS LOGICAL INITIAL no 
      LABEL "Posting Date Outside Period" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prior-period-data AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_prior-period-data AS LOGICAL INITIAL no 
      LABEL "Prior period data" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
-     LABEL "Show Parameters?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
-     
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
-     LABEL "Export To Excel?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81
-     FGCOLOR 8  NO-UNDO. 
-     
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 21 BY .81 NO-UNDO.     
+     SIZE 21 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -247,26 +208,17 @@ DEFINE FRAME FRAME-A
      tb_runExcel AT ROW 9.81 COL 67.4 RIGHT-ALIGNED WIDGET-ID 42
      fi_file AT ROW 10.62 COL 19.4 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 18
-     rd-dest AT ROW 16.1 COL 9 NO-LABEL
-     lines-per-page AT ROW 16.1 COL 83 COLON-ALIGNED
-     lv-ornt AT ROW 16.33 COL 31 NO-LABEL
-     lv-font-no AT ROW 18.48 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 19.67 COL 28 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 21.33 COL 10
-     btn-ok AT ROW 23.05 COL 18
-     btn-cancel AT ROW 23.05 COL 57
-     v-msg1 AT ROW 11.71 COL 3.2 NO-LABEL WIDGET-ID 2
-     v-msg2 AT ROW 13.14 COL 2 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     btn-ok AT ROW 14.81 COL 21
+     btn-cancel AT ROW 14.81 COL 60
+     v-msg1 AT ROW 11.71 COL 2 NO-LABEL WIDGET-ID 2
+     v-msg2 AT ROW 13.14 COL 2 NO-LABEL WIDGET-ID 4
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 15.14 COL 5
-     RECT-6 AT ROW 14.67 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 24.33.
+         SIZE 95.2 BY 15.48.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -286,21 +238,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "G/L Month-End Closing"
-         HEIGHT             = 24.76
+         HEIGHT             = 16
          WIDTH              = 95.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -333,14 +285,12 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-   
+
 ASSIGN 
        tb_inact:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -360,7 +310,7 @@ ASSIGN
 ASSIGN 
        tb_prior-period-data:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-                
+
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -390,7 +340,7 @@ ASSIGN
        v-msg2:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -442,28 +392,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  ASSIGN rd-dest
-           
-           tran-period
-           uperiod = tran-period
-           .
+  ASSIGN 
+    tran-period
+    uperiod = tran-period
+    .
 
   RUN check-date (YES).
   IF v-invalid THEN RETURN NO-APPLY.       
 
-  ASSIGN rd-dest
-         
-         tran-period
-         uperiod = tran-period
-         .
+  ASSIGN 
+    tran-period
+    uperiod = tran-period
+    .
 
   RUN run-report. 
-
-  CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-  END CASE. 
+    
   DO:
      choice = NO.
      MESSAGE " Close G/L Period" uperiod VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -515,74 +458,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME lines-per-page
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
-ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lv-font-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
-ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
-ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-   ASSIGN lv-font-no.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lv-ornt
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
-ON LEAVE OF lv-ornt IN FRAME FRAME-A
-DO:
-  ASSIGN lv-ornt.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
-ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-DO:
-  {custom/chgfont.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rd-dest
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
-ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-DO:
-   ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
@@ -649,21 +524,12 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
   ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME td-show-parm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
-ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-DO:
-    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -975,8 +841,8 @@ PROCEDURE close-month :
     ASSIGN 
         v-msg1:HIDDEN IN FRAME {&FRAME-NAME} = NO
         v-msg2:HIDDEN = NO
-        v-msg1:BGCOLOR = 4
-        v-msg2:BGCOLOR = 4
+        v-msg1:BGCOLOR = 14
+        v-msg2:BGCOLOR = 14
         v-msg1 = "Processing... Please wait and do not cancel out of screen!". 
     DISPLAY 
         v-msg1 
@@ -1066,6 +932,7 @@ PROCEDURE close-month :
             ASSIGN 
                 bCompany.yend-per = NO.
         END.
+        RUN util/fxacctg2.p. /* ticket 109212*/
     END. /* TRANSACTION 5 */
 
     FIND NEXT period NO-LOCK WHERE 
@@ -1201,13 +1068,10 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY fiText tran-year tran-period tb_inact tb_prior-period-data tb_out-bal 
           tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file 
-          rd-dest lines-per-page lv-ornt lv-font-no lv-font-name td-show-parm 
           v-msg1 v-msg2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 tb_inact tb_prior-period-data tb_out-bal 
-         tb_invalid-period tb_post-out-period tb_excel tb_runExcel fi_file 
-         rd-dest lines-per-page lv-ornt lv-font-no td-show-parm btn-ok 
-         btn-cancel 
+  ENABLE RECT-7 tb_inact tb_prior-period-data tb_out-bal tb_invalid-period 
+         tb_post-out-period tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1244,40 +1108,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
-PROCEDURE output-to-printer :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetNetIncome C-Win 
+PROCEDURE pGetNetIncome :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
-     DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
-     DEFINE VARIABLE result AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcAccount AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
 
-     RUN custom/prntproc.p (
-        list-name,
-        INT(lv-font-no), 
-        lv-ornt). 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
-PROCEDURE output-to-screen :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    RUN scr-rpt.w (
-        list-name,
-        c-win:TITLE,
-        INT(lv-font-no), 
-        lv-ornt). 
-
+    DEFINE BUFFER bContra FOR account.
+    
+    FIND FIRST bContra NO-LOCK WHERE 
+        bContra.company EQ cocode AND 
+        bContra.actnum  EQ ipcAccount NO-ERROR. 
+    DO i = 1 TO company.num-per:
+        opdNetAmount = opdNetAmount + bContra.cyr[i].
+    END.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1285,7 +1134,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
     DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 
     RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
@@ -1294,21 +1143,7 @@ PROCEDURE run-report :
         excelheader = "Account,Description,Reason" .
         PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
- 
-    FORM 
-        account.actnum LABEL "Account Number"
-        account.dscr   LABEL "Account Description"
-        glhist.jrnl   LABEL " Journal "
-        glhist.tr-amt FORMAT "(>>>,>>>,>>>,>>9.99)" LABEL "Transaction"
-        open-amt       LABEL "Account Balance"
-        WITH FRAME r-mclo DOWN WIDTH 132 NO-BOX COLUMN 10 STREAM-IO.
-
-    {sys/form/r-topw.f}
-    {sys/inc/print1.i}
-    {sys/inc/outprint.i VALUE(lines-per-page)}
-
-    IF td-show-parm THEN RUN show-param.
- 
+             
     SESSION:SET-WAIT-STATE("general").
     ASSIGN 
         uperiod = tran-period .
@@ -1318,23 +1153,7 @@ PROCEDURE run-report :
         period.yr   EQ tran-year AND 
         period.pnum EQ tran-period
         NO-ERROR.
-
-    ASSIGN 
-        str-tit  = coname + " - " + loname
-        str-tit2 = "MONTHLY SUMMARY & G/L CLOSING" 
-        str-tit3 = "Period " + string(uperiod,"99") + " - " + 
-                    string(period.pst) + " to " + string(period.pend)
-        x = (112 - length(str-tit)) / 2
-        str-tit  = FILL(" ",x) + str-tit 
-        x = (114 - length(str-tit2)) / 2
-        str-tit2 = FILL(" ",x) + str-tit2
-        x = (132 - length(str-tit3)) / 2
-        str-tit3 = FILL(" ",x) + str-tit3 .
-
-    DISPLAY 
-        str-tit3 FORMAT "x(130)" SKIP(1) 
-        WITH FRAME r-top.
-
+       
     SESSION:SET-WAIT-STATE ("general").
  
     IF tb_excel THEN DO:
@@ -1364,7 +1183,7 @@ PROCEDURE run-report :
  
     FOR EACH account NO-LOCK WHERE 
         account.company EQ cocode 
-        WITH FRAME r-mclo:
+        :
        
         IF tb_excel THEN DO:
             IF tb_invalid-period THEN DO:
@@ -1451,12 +1270,7 @@ PROCEDURE run-report :
         IF open-amt EQ 0 
         AND NOT AVAIL glhist THEN 
             NEXT.
-      
-        DISPLAY 
-            account.actnum
-            account.dscr
-            open-amt.
-        DOWN.
+                
         tot-all = tot-all + open-amt.
 
         FOR EACH glhist NO-LOCK WHERE 
@@ -1467,7 +1281,7 @@ PROCEDURE run-report :
             glhist.period  EQ uperiod AND 
             glhist.posted  EQ NO
             BREAK BY glhist.jrnl 
-            WITH FRAME r-mclo:
+            :
 
             IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
 
@@ -1477,37 +1291,15 @@ PROCEDURE run-report :
                 tot-jrnl = tot-jrnl + tr-amt
                 tot-act  = tot-act  + tr-amt.
 
-            IF LAST-OF(glhist.jrnl) THEN DO:
-                DISPLAY 
-                    "" @ account.actnum
-                    "" @ account.dscr
-                    glhist.jrnl
-                    tot-jrnl @ glhist.tr-amt
-                    "" @ open-amt.
-                tot-jrnl = 0.
-                DOWN.
+            IF LAST-OF(glhist.jrnl) THEN DO:                  
+                tot-jrnl = 0.                
             END.
         END. /* each glhist */
 
-        DISPLAY 
-            "" @ account.actnum
-            "" @ account.dscr
-            "" @ glhist.jrnl
-            tot-act @ glhist.tr-amt
-            (tot-act + open-amt) format "->>>,>>>,>>>,>>9.99" @ open-amt
-            "*" with frame r-mclo.
-        DOWN 2.
+        
         tot-act = 0.
     END. /* each account */
-
-    DISPLAY 
-        "" @ account.actnum
-        "" @ account.dscr
-        "TOTAL" @ glhist.jrnl
-        tot-tx  @ glhist.tr-amt
-        tot-all @ open-amt
-        WITH FRAME r-mclo.
-
+    
     IF tb_excel THEN DO:
         OUTPUT STREAM excel CLOSE.
         IF tb_runExcel THEN 
@@ -1520,31 +1312,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetNetIncome C-Win 
-PROCEDURE pGetNetIncome :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcAccount AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdNetAmount AS DECIMAL NO-UNDO.
-
-    DEFINE BUFFER bContra FOR account.
-    
-    FIND FIRST bContra NO-LOCK WHERE 
-        bContra.company EQ cocode AND 
-        bContra.actnum  EQ ipcAccount NO-ERROR. 
-    DO i = 1 TO company.num-per:
-        opdNetAmount = opdNetAmount + bContra.cyr[i].
-    END.
- 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME            
-            
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :

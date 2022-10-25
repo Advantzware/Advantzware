@@ -55,6 +55,8 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source
+
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
@@ -91,19 +93,19 @@ DEFINE FRAME F-Main
          SIZE 170 BY 19.52
          BGCOLOR 15  WIDGET-ID 100.
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 170 BY 2
-         BGCOLOR 21  WIDGET-ID 200.
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1
          SIZE 31.4 BY 2
          BGCOLOR 15  WIDGET-ID 300.
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 170 BY 2
+         BGCOLOR 21  WIDGET-ID 200.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -112,7 +114,7 @@ DEFINE FRAME message-frame
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -267,6 +269,14 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_exit ).
        RUN set-position IN h_exit ( 1.00 , 128.80 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 8.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/movecol.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_movecol ).
+       RUN set-position IN h_movecol ( 1.05 , 121.20 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -278,14 +288,6 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_folder ( 3.00 , 1.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 17.52 , 170.00 ) NO-ERROR.
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/movecol.w':U ,
-             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
-             INPUT  '':U ,
-             OUTPUT h_movecol ).
-       RUN set-position IN h_movecol ( 1.05 , 121.20 ) NO-ERROR.
-       /* Size in UIB:  ( 1.81 , 7.80 ) */
-
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
@@ -293,19 +295,19 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_materialtype , 'attach':U , h_options3 ).
        RUN add-link IN adm-broker-hdl ( h_materialtype , 'spec':U , h_options3 ).
 
-       /* Links to SmartFolder h_folder. */
-       RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
-
        /* Links to SmartObject h_movecol. */
        RUN add-link IN adm-broker-hdl ( h_materialtype , 'move-columns':U , h_movecol ).
+
+       /* Links to SmartFolder h_folder. */
+       RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options3 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_movecol ,
              h_exit , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -321,10 +323,11 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartBrowser h_materialtype. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_materialtype ).
+       RUN add-link IN adm-broker-hdl ( h_materialtype , 'Record':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_materialtype ,
-             h_folder , 'AFTER':U ).
+             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -333,7 +336,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_materialtype-2 ).
        RUN set-position IN h_materialtype-2 ( 4.81 , 35.00 ) NO-ERROR.
-       /* Size in UIB:  ( 5.24 , 71.00 ) */
+       /* Size in UIB:  ( 7.62 , 71.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-updsav.w':U ,

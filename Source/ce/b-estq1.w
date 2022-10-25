@@ -155,7 +155,8 @@ END.
     IF lv-sort-by EQ "cad-no"  THEN eb.cad-no  ELSE ~
     IF lv-sort-by EQ "plate-no"  THEN eb.plate-no  ELSE ~
     IF lv-sort-by EQ "entered-id"  THEN est.entered-id  ELSE ~
-    IF lv-sort-by EQ "updated-id"  THEN est.updated-id  ELSE ""
+    IF lv-sort-by EQ "updated-id"  THEN est.updated-id  ELSE ~
+    IF lv-sort-by EQ "board"       THEN ef.board  ELSE ""
 
 &SCOPED-DEFINE sortby BY est.est-no BY eb.form-no BY eb.blank-no
 
@@ -209,10 +210,10 @@ eb.part-no display-qty() @ est-qty.eqty est-qty.eqty eb.ord-no ~
 display-qty() @ est-qty.eqty eb.stock-no eb.style eb.part-dscr1 ef.medium ~
 ef.flute eb.cust-% display-qty-set() @ eb.cust-% eb.die-no eb.cad-no ~
 display-qty-set() @ eb.cust-% eb.plate-no est.entered-id est.updated-id ~
-eb.len est.est-date eb.wid eb.pur-man eb.dep 
+eb.len est.est-date eb.wid eb.pur-man eb.dep ef.board
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table est.est-no eb.cust-no ~
 eb.part-no est-qty.eqty eb.ord-no eb.stock-no eb.style eb.part-dscr1 ~
-ef.medium ef.flute eb.cust-% eb.die-no eb.cad-no eb.plate-no est.est-date 
+ef.medium ef.flute eb.cust-% eb.die-no eb.cad-no eb.plate-no est.est-date ef.board
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table est eb est-qty ef
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table est
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table eb
@@ -472,13 +473,14 @@ DEFINE BROWSE Browser-Table
     WIDTH 15 LABEL-BGCOLOR 14
     est.updated-id COLUMN-LABEL "Modifed By" FORMAT "X(8)":U
     WIDTH 15 LABEL-BGCOLOR 14
-    eb.len LABEL-BGCOLOR 14
+    eb.len FORMAT ">>9.99999" LABEL-BGCOLOR 14
     est.est-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-    eb.wid LABEL-BGCOLOR 14
+    eb.wid FORMAT ">>9.99999" LABEL-BGCOLOR 14
     eb.pur-man COLUMN-LABEL "Purch/Manuf" FORMAT "Purchased/Manufacture":U
-    eb.dep LABEL-BGCOLOR 14
+    eb.dep FORMAT ">>9.99999" LABEL-BGCOLOR 14
     get-type() @ cEstType COLUMN-LABEL "Est Type" FORMAT "x(21)":U
             WIDTH 29.4
+    ef.board FORMAT "x(12)":U LABEL-BGCOLOR 14       
 
   ENABLE
       est.est-no
@@ -716,17 +718,19 @@ eb.est-no = lv-last-est-no"
      _FldNameList[20]   > ASI.est.updated-id
 "est.updated-id" "Modifed By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
-"eb.len" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.est.est-date
 "est.est-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
-"eb.wid" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.eb.pur-man
 "eb.pur-man" "Purch/Manuf" ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > "_<CALC>"
-"eb.dep" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.dep" ? ">>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
     _FldNameList[26]   > "_<CALC>"
 "get-type() @ cEstType" "Est Type" "x(21)" "character" ? ? ? ? ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[27]   > ASI.ef.board
+"ef.board" ? "x(12)" "character" ? ? ? 14 ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

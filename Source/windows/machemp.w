@@ -354,7 +354,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_machemp1 ).
        RUN add-link IN adm-broker-hdl ( h_machemp1 , 'Record':U , THIS-PROCEDURE ).
 
+       /* Links to SmartViewer h_export. */
+       RUN add-link IN adm-broker-hdl ( h_machemp1 , 'export-xl':U , h_export ).
+       
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export ,
+             h_machemp1 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_machemp1 ,
              h_folder , 'AFTER':U ).
     END. /* Page 1 */
@@ -408,7 +413,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export-2 ).
-       RUN set-position IN h_export-2 ( 1.00 , 77.00 ) NO-ERROR.
+       RUN set-position IN h_export-2 ( 1.00 , 75.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -419,7 +424,12 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_machtran ( 4.81 , 4.00 ) NO-ERROR.
        RUN set-size IN h_machtran ( 19.52 , 144.00 ) NO-ERROR.
 
+       /* Links to SmartViewer h_export-2. */
+       RUN add-link IN adm-broker-hdl ( h_machtran , 'export-xl':U , h_export-2 ).
+       
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export-2 ,
+             h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_machtran ,
              h_folder , 'AFTER':U ).
     END. /* Page 3 */
@@ -488,7 +498,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export-3 ).
-       RUN set-position IN h_export-3 ( 1.00 , 77.00 ) NO-ERROR.
+       RUN set-position IN h_export-3 ( 1.00 , 75.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -515,8 +525,13 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartQuery h_q-emp. */
        RUN add-link IN adm-broker-hdl ( h_machemp1 , 'Record':U , h_q-emp ).
+       
+       /* Links to SmartViewer h_export-3. */
+       RUN add-link IN adm-broker-hdl ( h_machemp3 , 'export-xl':U , h_export-3 ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_export-3 ,
+             h_machemp3 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_machemp3 ,
              h_folder , 'AFTER':U ).
     END. /* Page 5 */

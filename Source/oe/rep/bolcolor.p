@@ -1,6 +1,5 @@
 /* ---------------------------------------------- oe/rep/bolcolor.p 07/09 GDM */
 /* N-K BOLFMT = COLOR                                                         */
-/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 {sys/inc/var.i shared}
@@ -30,7 +29,7 @@ def var v-part-comp         as   char format "x".
 def var v-part-qty          as   dec.
 def var v-ord-no            like oe-boll.ord-no.
 def var v-po-no             like oe-bolh.po-no.
-def var v-job-no            as   char format "x(13)" no-undo.
+def var v-job-no            as   char format "x(9)" no-undo.
 def var v-phone-num         as   char format "x(13)" no-undo.
 
 def var v-ship-id    like shipto.ship-id.
@@ -134,40 +133,6 @@ form oe-ordl.i-no                         format "x(15)"
     with frame bol-mid2 down no-box no-labels stream-io width 100.
 
 ASSIGN tmpstore = fill("-",130).
-
-DEFINE VARIABLE ls-full-img1 AS CHARACTER FORM "x(200)" NO-UNDO.
-DEFINE VARIABLE cRtnChar     AS CHARACTER               NO-UNDO.
-DEFINE VARIABLE cMessage     AS CHARACTER               NO-UNDO.
-DEFINE VARIABLE lRecFound    AS LOGICAL                 NO-UNDO.
-DEFINE VARIABLE lValid       AS LOGICAL                 NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN
-    ls-full-img1 = cRtnChar + ">"
-    .
-
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "BOLFMT" no-lock no-error.
@@ -346,9 +311,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
       ASSIGN
         v-salesman = trim(v-salesman)
         v-po-no = oe-boll.po-no
-        v-job-no = IF oe-boll.job-no = "" THEN "" ELSE 
-                   TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', oe-boll.job-no, oe-boll.job-no2))).
-        
+        v-job-no = IF oe-boll.job-no = "" THEN "" ELSE (oe-boll.job-no + "-" + STRING(oe-boll.job-no2,">>")).
+
       FIND FIRST reftable WHERE
            reftable.reftable EQ "oe-bolh.lot-no" AND
            reftable.rec_key  EQ oe-bolh.rec_key

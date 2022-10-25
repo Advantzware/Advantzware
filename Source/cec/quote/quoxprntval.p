@@ -104,38 +104,14 @@ DEFINE VARIABLE ls-full-img1    AS CHARACTER FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lPrintSecDscr   AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
 
 ASSIGN 
     tmpstore = FILL("-",130).
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-    
- IF lRecFound AND cRtnChar NE "" THEN DO:
-     cRtnChar = DYNAMIC-FUNCTION (
-                    "fFormatFilePath",
-                    cRtnChar
-                    ).
-                    
-     /* Validate the N-K-1 BusinessFormLogo image file */
-     RUN FileSys_ValidateFile(
-         INPUT  cRtnChar,
-         OUTPUT lValid,
-         OUTPUT cMessage
-         ) NO-ERROR.
- 
-     IF NOT lValid THEN DO:
-         MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-             VIEW-AS ALERT-BOX ERROR.
-     END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
     AND sys-ctrl.name    EQ "QUOPRINT" NO-LOCK NO-ERROR.
@@ -187,6 +163,18 @@ FIND FIRST cust
     WHERE cust.company EQ xquo.company
     AND cust.cust-no EQ xquo.cust-no
     NO-LOCK NO-ERROR.
+
+IF AVAIL cust THEN ASSIGN cCustomerNo       = cust.cust-no
+                            cCustomerLocation = cust.loc .
+      
+  RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        	      
+  IF NOT lValid THEN
+  DO:
+     MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+  END.
+      
+  ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 IF AVAILABLE cust THEN
     v-over-under = TRIM(STRING(cust.over-pct,">>9%")) + "-" +

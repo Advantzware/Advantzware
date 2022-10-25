@@ -82,6 +82,9 @@ DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Invoice#,Bol#,Customer,Cust Name,Inv Date,GL Account#,Acc Desc,FG Item#,Item Name," +
@@ -519,6 +522,7 @@ ON HELP OF FRAME Dialog-Frame /* Customer Invoice Excel Export */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Customer Invoice Excel Export */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -596,6 +600,7 @@ ON LEAVE OF begin_po-no IN FRAME Dialog-Frame /* From Cust Po# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -631,7 +636,9 @@ ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
             END.
         END.  /* IF NOT tb_OpenCSV THEN  */
-    
+        ELSE DO:
+	      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+        END.
         IF tbAutoClose:CHECKED THEN 
             APPLY "END-ERROR":U TO SELF.
 
@@ -1326,7 +1333,7 @@ PROCEDURE run-report :
                     WHEN "ar-inv.cust-name" THEN 
                         cVarValue  = STRING(ar-inv.cust-name). 
                     WHEN "ar-inv.inv-date" THEN 
-                        cVarValue   = IF ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date) ELSE "". 
+                        cVarValue   = IF ar-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) ELSE "". 
                     WHEN "ar-invl.actnum"  THEN 
                         cVarValue   = STRING(ar-invl.actnum). 
                     WHEN "ar-invl.i-no"    THEN 
@@ -1352,7 +1359,7 @@ PROCEDURE run-report :
                     WHEN "ar-inv.terms-d" THEN 
                         cVarValue    = STRING(ar-inv.terms-d).
                     WHEN "ar-inv.due-date" THEN 
-                        cVarValue   = IF ar-inv.due-date NE ? THEN  STRING(ar-inv.due-date) ELSE "" .
+                        cVarValue   = IF ar-inv.due-date NE ? THEN  DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.due-date) ELSE "" .
                     WHEN "ar-inv.disc-%" THEN 
                         cVarValue     = STRING( ar-inv.disc-% ).
                     WHEN "ar-inv.disc-taken" THEN 
@@ -1441,7 +1448,7 @@ PROCEDURE run-report :
                         cVarValue         = STRING(ar-invl.ediPriceUOM).  
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(LOOKUP(ENTRY(i,cSelectedList),cTextListToSelect),cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1461,8 +1468,6 @@ PROCEDURE run-report :
         IF tb_excel THEN 
         DO:
             OUTPUT STREAM excel CLOSE.
-            IF tb_OpenCSV THEN
-                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
         END.
 
         RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -59,6 +59,16 @@ DEFINE            VARIABLE cDieNo           AS CHARACTER   FORMAT "x(15)" NO-UND
 DEFINE TEMP-TABLE w-lo NO-UNDO
     FIELD layout LIKE v-layout.
 
+define temp-table ttnotesort like notes
+    field deptseq as int
+    field deptdesc as char
+    index isort 
+        deptseq 
+        note_form_no
+        note_date   
+        note_time  
+ .
+
 DEFINE NEW SHARED BUFFER xjob-hdr FOR job-hdr.
 
 DEFINE            BUFFER b-eb     FOR eb.
@@ -183,6 +193,11 @@ DEFINE TEMP-TABLE tt-fgitm NO-UNDO
     FIELD qty    AS INTEGER 
     FIELD i-dscr AS cha
     FIELD po-no  AS cha.
+    
+DEFINE TEMP-TABLE ttOderQuantity NO-UNDO 
+    FIELD i-no     AS CHARACTER
+    FIELD Quantity AS INTEGER. 
+    
 DEFINE VARIABLE v-board-po      LIKE oe-ordl.po-no-po NO-UNDO.
 DEFINE VARIABLE v-plate-printed AS LOG NO-UNDO.
 DEFINE BUFFER xoe-ordl FOR oe-ordl.
@@ -1038,7 +1053,11 @@ PROCEDURE pPrintHeader :
 END PROCEDURE.
 
 PROCEDURE pPrintData:
+            
        DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .       
+              
+       DEFINE VARIABLE inInkCount AS INTEGER NO-UNDO.
+               
        FIND FIRST bf-xeb WHERE ROWID(bf-xeb) EQ ipriRowid NO-LOCK NO-ERROR. 
        ASSIGN cDieNo = bf-xeb.die-no.
          RUN pPrintHeader(1) .
@@ -1109,7 +1128,12 @@ PROCEDURE pPrintData:
                          AND fg-set.part-no EQ bf-eb.stock-no NO-ERROR.
                     IF AVAILABLE fg-set THEN
                       iDisplayOrderQty =  iDisplayOrderQty * fg-set.qtyPerSet.                        
-                END.                                         
+                END.                        
+                
+                CREATE ttOderQuantity.
+                
+                ASSIGN ttOderQuantity.i-no     = bf-eb.stock-no
+                       ttOderQuantity.Quantity = iDisplayOrderQty.                  
                                                          
                 PUT "<C1.5>" STRING(string(iCount) + "." ) FORMAT "x(2)" 
                     "<C4>"  bf-eb.stock-no FORMAT "x(15)"
@@ -1172,7 +1196,8 @@ PROCEDURE pPrintData:
             x      = 2
             i      = 1
             v-ink1 = ""
-            v-ink2 = "".
+            v-ink2 = ""
+            inInkCount = 0.
 
         FOR EACH wrk-ink WHERE wrk-ink.form-no = bf-xeb.form-no
              AND wrk-ink.Iform EQ 1 
@@ -1198,18 +1223,24 @@ PROCEDURE pPrintData:
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
-                  i         = i + 1         . 
+                  i         = i + 1.
+                  
+                  IF wrk-ink.i-unit NE 0 THEN
+                    ASSIGN inInkCount = inInkCount + 1.         
+                  
           DELETE wrk-ink. 
         END. /* each wrk-ink */
+        
         ASSIGN
             v-skip          = NO
             v-plate-printed = NO.
         iCount = 1 .
-        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(bf-xeb.i-col) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
+        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(inInkCount) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   bf-xeb.i-coldscr FORMAT "x(35)" SKIP.
         
         PUT "<P9><#5>" "<FGCOLOR=GREEN> F  COLORS      DESCRIPTION <C37.3>Per<C42.2>U <C44.4>S <FGCOLOR=BLACK>" SKIP. 
+        
         DO j = 1 TO 12:
             IF TRIM(v-ink1[j]) = "-" THEN v-ink1[j] = "".               
             IF v-ink1[j] <> "" THEN do:
@@ -1237,7 +1268,7 @@ PROCEDURE pPrintData:
          
             lv-line-chars = 80.
             FIND FIRST job OF job-hdr NO-LOCK NO-ERROR.       
-            {custom/notespr5.i job v-inst2 40 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ tt-reftable.val[12] OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
+            {custom/notespr10.i job v-inst2 40 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ bf-xeb.form-no OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
             DO i = 1 TO 40:
                 v-dept-inst[i] = v-inst2[i].
             END.
@@ -1334,8 +1365,10 @@ END PROCEDURE.
 
 
 PROCEDURE pPrintDetail:
-   DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
+   DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO.
    
+   DEFINE VARIABLE inOrderqty AS INTEGER NO-UNDO.
+   DEFINE VARIABLE inInkCount AS INTEGER NO-UNDO.
    FIND FIRST bf-xeb WHERE ROWID(bf-xeb) EQ ipriRowid NO-LOCK NO-ERROR.
 
    PAGE.
@@ -1354,8 +1387,16 @@ PROCEDURE pPrintDetail:
                  v-spec-inst[v-spec-cnt] = v-inst2[i].
              END.
          END.
-                  
-
+         
+         
+         FIND FIRST ttOderQuantity 
+                WHERE ttOderQuantity.i-no = itemfg.i-no NO-ERROR.
+                
+         IF AVAILABLE ttOderQuantity THEN
+             ASSIGN inOrderqty = ttOderQuantity.Quantity.
+         ELSE 
+             ASSIGN inOrderqty = 0.
+         
         PUT "<FGCOLOR=GREEN><C1>CUSTOMER                          SHIP TO"            "<P12><C59>Job#: <FGCOLOR=BLACK>"  TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2) + "-" + STRING(bf-xeb.form-no,"99") + "-" + STRING(bf-xeb.blank-no,"99"))) FORM "x(19)" "<P10>" SKIP
             v-cust-name            v-shipto[1] AT 35                    "<C60><FGCOLOR=GREEN>  ORDER#: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.ord-no) ELSE "")  SKIP        
             v-cus[2]  v-shipto[2] AT 35                                 "<C60><FGCOLOR=GREEN> Cust Po: <FGCOLOR=BLACK>"  (if avail oe-ord THEN string(oe-ord.po-no) ELSE "")  FORMAT "x(15)"         SKIP 
@@ -1363,7 +1404,7 @@ PROCEDURE pPrintDetail:
             v-cus[4]  v-shipto[4] AT 35                                 "<C60><FGCOLOR=GREEN>Due Date: <FGCOLOR=BLACK>"   (if avail oe-ord THEN string(oe-ord.due-date) ELSE "")  FORMAT "x(10)"   SKIP
             "<C60><FGCOLOR=GREEN>Estimate#: <FGCOLOR=BLACK>"   trim(job-hdr.est-no) FORM "X(8)"        SKIP
             v-fill SKIP
-            "<FGCOLOR=GREEN>ORDER QUANTITY:<FGCOLOR=BLACK>" iDisplayOrderQty   "<C25><FGCOLOR=GREEN>OVER:<FGCOLOR=BLACK>" v-over-pct FORMAT ">>>>%" "<C36><FGCOLOR=GREEN>UNDER:<FGCOLOR=BLACK>" dUnderPct FORMAT ">>>>%" 
+            "<FGCOLOR=GREEN>ORDER QUANTITY:<FGCOLOR=BLACK>" inOrderqty   "<C25><FGCOLOR=GREEN>OVER:<FGCOLOR=BLACK>" v-over-pct FORMAT ">>>>%" "<C36><FGCOLOR=GREEN>UNDER:<FGCOLOR=BLACK>" dUnderPct FORMAT ">>>>%" 
              "<C54><FGCOLOR=GREEN>PRINT #UP:<FGCOLOR=BLACK>"bf-xeb.num-UP FORM ">>9" "    <FGCOLOR=GREEN>DIE CUT #UP:<FGCOLOR=BLACK>" v-tot-up  FORM ">>9"  /*"<C51><FGCOLOR=GREEN>TOTAL COLORS<FGCOLOR=BLACK> "   eb.i-coldscr*/ SKIP
             "<C1><FGCOLOR=GREEN>   FG ITEM: <FGCOLOR=BLACK>" bf-xeb.stock-no FORMAT "x(15)"      "<C25><FGCOLOR=GREEN>DESC:<FGCOLOR=BLACK>" bf-xeb.part-dscr1 FORMAT "x(30)"        "<C54><FGCOLOR=GREEN>STYLE: <FGCOLOR=BLACK>" v-stypart FORMAT "x(30)" SKIP
             "<C1><FGCOLOR=GREEN> CUST PART: <FGCOLOR=BLACK>" bf-xeb.part-no FORMAT "x(15)"     "<C29>"    bf-xeb.part-dscr2 FORMAT "x(30)"          "<C54><FGCOLOR=GREEN> SIZE: <FGCOLOR=BLACK>" string(STRING(bf-xeb.len) + "x" + string(bf-xeb.wid) + "x" + string(bf-xeb.dep)) FORMAT "x(40)" SKIP
@@ -1419,7 +1460,8 @@ PROCEDURE pPrintDetail:
             x      = 2
             i      = 1
             v-ink1 = ""
-            v-ink2 = "".
+            v-ink2     = ""
+            inInkCount = 0.
 
         FOR EACH wrk-ink WHERE wrk-ink.form-no = bf-xeb.form-no
             AND wrk-ink.blank-no EQ bf-xeb.blank-no
@@ -1446,14 +1488,18 @@ PROCEDURE pPrintDetail:
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
-                  i         = i + 1         . 
+                  i          = i + 1.
+                  
+                  IF wrk-ink.i-unit NE 0 THEN
+                    ASSIGN inInkCount = inInkCount + 1. 
             DELETE wrk-ink.
         END. /* each wrk-ink */
         ASSIGN
             v-skip          = NO
             v-plate-printed = NO.
-        iCount = 1 .    
-        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(bf-xeb.i-col) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
+        iCount = 1 . 
+           
+        PUT "<R-1><FGCOLOR=GREEN>INKS: <FGCOLOR=BLACK>" string(inInkCount) FORMAT "x(3)" "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>" string(bf-xeb.i-pass) FORMAT "x(3)" "<FGCOLOR=GREEN>COATS: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat) FORMAT "x(3)"
              "<FGCOLOR=GREEN>PASSES: <FGCOLOR=BLACK>"  string(bf-xeb.i-coat-p) FORMAT "x(3)"   SKIP
             "<FGCOLOR=GREEN>INK DESCRIPTION:<FGCOLOR=BLACK> "   bf-xeb.i-coldscr FORMAT "x(35)" SKIP.
         

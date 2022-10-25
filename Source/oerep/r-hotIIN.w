@@ -94,15 +94,18 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
 DEFINE VARIABLE hdJobProcs         AS HANDLE    NO-UNDO.
 RUN jc/Jobprocs.p   PERSISTENT SET hdJobProcs.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
     cTextListToSelect  = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
-                           "Order #,Sales,Rel Qty,Rel Date,Rel#,Order Line Prom Date,Style," +
+                           "Order #,Unit Price,Rel Qty,Rel Date,Rel#,Order Line Prom Date,Style," +
                            "Line Promise Date Change Reason,Last Machine,Job#,Job Promise Date,Order Promise Date," +
                            "Order LINE Promise Date Priority,LastActionOnJob,Full Job Number"
     cFieldListToSelect = "qty-hand,cust-name,item,desc,cat,po," +
-                            "order,sales,rel-qty,rel-date,rel,pro-date,style," +
+                            "order,unitPrice,rel-qty,rel-date,rel,pro-date,style," +
                             "pro-date-reason,last-mch,job-no,job-prom-date,ord-prom-date," + 
                             "prom-code,LastActionOnJob,full-job-no"
                             
@@ -113,7 +116,7 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 ASSIGN 
     cTextListToDefault = "Qty on Hand,Customer Name,Item Code,Description,Cat,Po #," +
-                           "Order #,Sales,Rel Qty,Rel Date,Rel#" .
+                           "Order #,Unit Price,Rel Qty,Rel Date,Rel#" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -709,6 +712,7 @@ ON END-ERROR OF C-Win /* Hots Report by Release Number */
 ON WINDOW-CLOSE OF C-Win /* Hots Report by Release Number */
     DO:
         DELETE OBJECT hdJobProcs.
+        DELETE PROCEDURE hdOutputProcs.
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -821,6 +825,7 @@ ON LEAVE OF begin_userid IN FRAME FRAME-A /* Beginning User ID */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -862,6 +867,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1840,8 +1848,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM st-excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -58,14 +58,14 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 
 ASSIGN 
-    cTextListToSelect  = "Carrier,Description,Location,Loc Description,Charge Method,Inactive"
+    cTextListToSelect  = "Carrier,Description,Location,Loc Description,Charge Method,Inactive,SCAC"
 
-    cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method,inactive"
+    cFieldListToSelect = "carrier,dscr,loc,loc-dsce,chg-method,inactive,scac"
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "Carrier,Description,Location,Loc Description,Charge Method,Inactive" .
+    cTextListToDefault = "Carrier,Description,Location,Loc Description,Charge Method,Inactive,SCAC" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -401,7 +401,10 @@ ON CHOOSE OF btn-ok IN FRAME rd-fgexp /* OK */
                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
             END.
         END.  /* IF NOT tb_OpenCSV THEN */
-    
+        ELSE DO:
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+        END.
+                    
         IF tbAutoClose:CHECKED THEN 
             APPLY "END-ERROR":U TO SELF.
   
@@ -940,8 +943,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

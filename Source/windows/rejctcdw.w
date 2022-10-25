@@ -34,6 +34,10 @@ DEFINE VARIABLE ip-code-label AS CHARACTER NO-UNDO INITIAL "{2}".
 DEFINE VARIABLE ip-desc-label AS CHARACTER NO-UNDO INITIAL "{3}".
 DEFINE VARIABLE ip-win-title AS CHARACTER NO-UNDO INITIAL "{4}".
 
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
+
+RUN spGetSessionParam("Location", OUTPUT cLocation).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -123,7 +127,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "ip-win-title"
+         TITLE              = ip-win-title
          HEIGHT             = 24
          WIDTH              = 149.8
          MAX-HEIGHT         = 320
@@ -244,6 +248,10 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+
+{&WINDOW-NAME}:TITLE = ip-win-title
+                     + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
+                     + system.SessionConfig:Instance:GetValue("CompanyName") + " - " + cLocation.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

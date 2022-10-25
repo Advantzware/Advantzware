@@ -59,13 +59,16 @@ DEFINE VARIABLE v-counted-date     AS DATE      NO-UNDO.
 DEFINE VARIABLE v-cust-no          LIKE itemfg.cust-no NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Account Number,Account Description,Run #,Journal," +
-                           "Reference,AP Description,Date,Amount,Balance"
-    cFieldListToSelect = "actnum,actdesc,run,jour," + "ref,ap-desc,date,amt,bal" 
-    cFieldLength       = "25,40,8,8," + "52,30,10,15,19"
-    cFieldType         = "c,c,i,i," + "c,c,c,i,i"
+                           "Reference,AP Description,Date,Amount,Balance,Document Id"
+    cFieldListToSelect = "actnum,actdesc,run,jour," + "ref,ap-desc,date,amt,bal,documentID" 
+    cFieldLength       = "25,40,8,8," + "52,30,10,15,19,32"
+    cFieldType         = "c,c,i,i," + "c,c,c,i,i,c"
     .
 ASSIGN 
     cTextListToDefault = "Account Number,Account Description,Run #,Journal," +
@@ -455,6 +458,7 @@ ON END-ERROR OF C-Win /* G L  Account History */
 ON WINDOW-CLOSE OF C-Win /* G L  Account History */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -489,6 +493,7 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -532,6 +537,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1604,6 +1612,8 @@ PROCEDURE run-report :
                     cVarValue = /* string(w-data.i-no)*/ "" .
                 WHEN "amt"     THEN 
                     cVarValue = /*IF AVAIL itemfg THEN STRING(itemfg.procat) ELSE*/ "".
+                WHEN "documentID" THEN 
+                    cVarValue = "" .
                 WHEN "bal"      THEN 
                     cVarValue = STRING(open-amt,"->>,>>>,>>>,>>>.99") .
 
@@ -1699,14 +1709,20 @@ PROCEDURE run-report :
                             cVarValue = STRING(glhist.tr-date,"99/99/99") .
                         WHEN "amt"     THEN 
                             cVarValue = STRING(glhist.tr-amt,"(>>,>>>,>>9.99)") .
+                        WHEN "documentID" THEN 
+                            cVarValue =  STRING(glhist.documentID,"x(32)") .
                         WHEN "bal"     THEN 
                             cVarValue =  "" .
 
                     END CASE.
-                    cExcelVarValue = cVarValue.  
+                    
+                    IF cTmpField = "date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",glhist.tr-date) .
+            
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
+                    cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
 
                 END.
                 PUT UNFORMATTED cDisplay SKIP.
@@ -1846,13 +1862,18 @@ PROCEDURE run-report :
                                 cVarValue = STRING(glhist.tr-date,"99/99/99") .
                             WHEN "amt"     THEN 
                                 cVarValue = STRING(tmp-amt,"(>>,>>>,>>9.99)") .
+                            WHEN "documentID" THEN 
+                                cVarValue =  STRING(glhist.documentID,"x(32)") .
                             WHEN "bal"     THEN 
                                 cVarValue =  "" .
                         END CASE.
-                        cExcelVarValue = cVarValue.  
+                        
+                        IF cTmpField = "date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",glhist.tr-date) .
+                        
+                        ELSE cExcelVarValue = cVarValue.  
                         cDisplay = cDisplay + cVarValue +
                             FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-                        cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
+                        cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
 
                     END.
                     PUT UNFORMATTED cDisplay SKIP.
@@ -1922,6 +1943,8 @@ PROCEDURE run-report :
                         cVarValue = "" .
                     WHEN "date"    THEN 
                         cVarValue = "" .
+                    WHEN "documentID" THEN 
+                        cVarValue = "" .
                     WHEN "amt"     THEN 
                         cVarValue = STRING(tot-act,"->>,>>>,>>9.99") .
                     WHEN "bal"     THEN 
@@ -1982,6 +2005,8 @@ PROCEDURE run-report :
                 cVarValue = "" .
             WHEN "amt"     THEN 
                 cVarValue = "" .
+            WHEN "documentID" THEN 
+                cVarValue = "" .
             WHEN "bal"     THEN 
                 cVarValue = STRING(tot-all,"->>,>>>,>>>,>>9.99") + "*" .
         END CASE.
@@ -2005,8 +2030,6 @@ PROCEDURE run-report :
         /* RUN excel-total-proc(INPUT "TOTAL", INPUT tot-all, INPUT 0). */
 
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

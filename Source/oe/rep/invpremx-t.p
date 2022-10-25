@@ -479,43 +479,7 @@ ELSE IF company.company EQ '006' THEN
                 cTaxCode   = 'Sales Tax'
                 cCompanyID = ''
                 .
-RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.    
-
-IF cRtnChar NE "" THEN 
-DO:
-    ASSIGN 
-        lChkImage    = YES
-        ls-full-img1 = SEARCH(ls-full-img1)
-        ls-full-img1 = cRtnChar + ">".
-END.
-DO:
-    ASSIGN 
-        ls-image1           = SEARCH("images\premierinv.jpg")
-        FILE-INFO:FILE-NAME = ls-image1.
-    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
-END.
-
-    
+  
 ASSIGN 
     v-comp-add1 = ""
     v-comp-add2 = ""
@@ -532,6 +496,26 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     FIND FIRST cust WHERE cust.company = xar-inv.company
         AND cust.cust-no = xar-inv.cust-no NO-LOCK NO-ERROR.
+
+    RUN FileSys_GetBusinessFormLogo(cocode, cust.cust-no, cust.loc, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+                          
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    IF cRtnChar NE "" THEN 
+    DO:
+        ASSIGN 
+            lChkImage    = YES
+            ls-full-img1 = SEARCH(ls-full-img1)
+            ls-full-img1 = cRtnChar + ">".
+    END.
+    DO:
+        ASSIGN 
+            ls-image1           = SEARCH("images\premierinv.jpg")
+            FILE-INFO:FILE-NAME = ls-image1.
+        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+    END.
 
     /* rstark 05291402 */
     IF ccXMLOutput NE '' THEN 
@@ -1009,7 +993,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     "<P10><=2><R+5>"
                     "<FCourier New>"
                     SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
-                    SPACE(12) "REMIT TO: MCI PACKAGING" SKIP
+                    SPACE(12) "REMIT TO: MCI PACKAGING GROUP LLC" SKIP
                     SPACE(12) "          PO BOX 39505" SKIP
                     SPACE(12) "          Louisville, KY 40233" SKIP (2)
                     SPACE(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
@@ -1179,7 +1163,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                             "<P10><=2><R+5>"
                             "<FCourier New>"
                             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
-                            SPACE(12) "REMIT TO: MCI PACKAGING" SKIP
+                            SPACE(12) "REMIT TO: MCI PACKAGING GROUP LLC" SKIP
                             SPACE(12) "          PO BOX 39505" SKIP
                             SPACE(12) "          Louisville, KY 40233" SKIP (2)
                             SPACE(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
@@ -1519,7 +1503,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                             "<P10><=2><R+5>"
                             "<FCourier New>"
                             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
-                            SPACE(12) "REMIT TO: MCI PACKAGING" SKIP
+                            SPACE(12) "REMIT TO: MCI PACKAGING GROUP LLC" SKIP
                             SPACE(12) "          PO BOX 39505" SKIP
                             SPACE(12) "          Louisville, KY 40233" SKIP (2)
                             SPACE(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP

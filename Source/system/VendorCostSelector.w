@@ -38,7 +38,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-//{methods/prgsecur.i}
+
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
 
@@ -65,8 +65,11 @@ DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE cAdderValue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iIndex      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cVendorCostMatrixUseEstimate AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-item FOR ITEM.
+
+RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixUseEstimate).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -87,11 +90,11 @@ DEFINE BUFFER bf-item FOR ITEM.
 &Scoped-define INTERNAL-TABLES ttVendItemCost
 
 /* Definitions for BROWSE brVendItemCost                                */
-&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup /* ttVendItemCost.costSetup */ ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid // ttVendItemCost.note //   
+&Scoped-define FIELDS-IN-QUERY-brVendItemCost ttVendItemCost.vendorID ttVendItemCost.customerID ttvendItemCost.estimateNo + (IF ttvendItemCost.formNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.formNo ) )) + (IF ttvendItemCost.blankNo = 0 THEN '' ELSE ('-' + string(ttvendItemCost.blankNo ) )) ttVendItemCost.costPerVendorUOM ttVendItemCost.vendorUOM ttVendItemCost.costSetup ttVendItemCost.costTotal ttVendItemCost.vendorItem ttVendItemCost.effectiveDate ttVendItemCost.expirationDate ttVendItemCost.isValid ttVendItemCost.reasonNotValid   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) AND (ttVendItemCost.estimateNo = ipcEstimateNo OR ttVendItemCost.estimateNo = "") by ttVendItemCost.costTotal ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
@@ -231,6 +234,8 @@ DEFINE BROWSE brVendItemCost
   QUERY brVendItemCost NO-LOCK DISPLAY
       ttVendItemCost.vendorID           COLUMN-LABEL "Vendor ID"       
             LABEL-BGCOLOR 14    FORMAT "x(10)"
+      ttVendItemCost.customerID           COLUMN-LABEL "Customer ID"       
+            LABEL-BGCOLOR 14    FORMAT "x(10)"
       ttvendItemCost.estimateNo +  
         (IF  ttvendItemCost.formNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.formNo ) )) +
         (IF  ttvendItemCost.blankNo  =  0 THEN '' ELSE  ('-' + string(ttvendItemCost.blankNo ) )) LABEL-BGCOLOR 14  COLUMN-LABEL "Estimate" 
@@ -239,9 +244,7 @@ DEFINE BROWSE brVendItemCost
       ttVendItemCost.vendorUOM    COLUMN-LABEL "UOM"  
              LABEL-BGCOLOR 14   FORMAT "x(5)"    
       ttVendItemCost.costSetup    COLUMN-LABEL "Setup" 
-             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99" 
-     /* ttVendItemCost.costSetup   COLUMN-LABEL "Additional Cost" 
-             LABEL-BGCOLOR 14*/
+             LABEL-BGCOLOR 14   FORMAT "->>,>>9.99"      
       ttVendItemCost.costTotal      COLUMN-LABEL "Total Cost"        
              LABEL-BGCOLOR 14   FORMAT "->,>>>,>>9.99" 
       ttVendItemCost.vendorItem COLUMN-LABEL "Vendor Item"   
@@ -253,9 +256,7 @@ DEFINE BROWSE brVendItemCost
       ttVendItemCost.isValid      COLUMN-LABEL "Valid"        
              LABEL-BGCOLOR 14   FORMAT "Yes/No" 
       ttVendItemCost.reasonNotValid COLUMN-LABEL "Invalid Reason"  
-             LABEL-BGCOLOR 14   FORMAT "x(100)"  
-          //  ttVendItemCost.note COLUMN-LABEL "Note"   FORMAT "x(32)":U
-           // WIDTH 24 LABEL-BGCOLOR 14
+             LABEL-BGCOLOR 14   FORMAT "x(100)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 158.4 BY 13.52
@@ -452,6 +453,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bCancel C-Win
 ON CHOOSE OF bCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
+    ASSIGN 
+        oplError = TRUE 
+        opcMessage = "User cancelled the vendor selection.".
   APPLY 'CLOSE' TO THIS-PROCEDURE.
 END.
 
@@ -465,16 +469,31 @@ ON CHOOSE OF bOk IN FRAME DEFAULT-FRAME /* Ok */
 DO:
     IF AVAILABLE ttVendItemCost THEN
     DO:
-        IF ttVendItemCost.IsValid = FALSE THEN 
+        IF ttVendItemCost.IsValid = FALSE THEN DO:
             MESSAGE "This Vendor cost is invalid." SKIP
                 "Reason: " + ttVendItemCost.Reason SKIP
                 "Please select a valid Vendor Cost."        
-                VIEW-AS ALERT-BOX. 
-        ELSE    
-        DO:
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END. 
+        ELSE DO:
+            MESSAGE 
+                "Selected vendor code: " + ttVendItemCost.vendorID + "." skip
+                "Is this correct?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lCorrect AS LOG.
+            IF NOT lCorrect THEN RETURN NO-APPLY.
+            ASSIGN 
+                oplError = FALSE  
+                opcMessage = "".
             ttVendItemCost.isSelected = TRUE.
             APPLY 'CLOSE' TO THIS-PROCEDURE.
         END.
+    END.
+    ELSE DO:
+        ASSIGN 
+            oplError = TRUE  
+            opcMessage = "No Vendor/Item/Cost record was available/selected.".
+        APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
 END.
 
@@ -484,6 +503,27 @@ END.
 
 &Scoped-define BROWSE-NAME brVendItemCost
 &Scoped-define SELF-NAME brVendItemCost
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
+ON MOUSE-SELECT-CLICK OF brVendItemCost IN FRAME DEFAULT-FRAME
+DO:
+    APPLY 'value-changed' TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
+ON MOUSE-SELECT-DBLCLICK OF brVendItemCost IN FRAME DEFAULT-FRAME
+DO:
+    APPLY 'value-changed' TO SELF.
+    APPLY 'CHOOSE' TO bOK IN FRAME default-frame.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
 ON START-SEARCH OF brVendItemCost IN FRAME DEFAULT-FRAME
 DO:
@@ -570,6 +610,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      OUTPUT  oplError,
      OUTPUT  opcMessage).
      
+     FOR EACH ttVendItemCost:
+       ASSIGN ttVendItemCost.isSelected = NO.
+     END.
      
     RUN enable_UI.
 
@@ -610,6 +653,7 @@ END.
 
 &Scoped-define sdBrowseName brVendItemCost
 {methods/sortByProc.i "pByVendorID" "ttVendItemCost.vendorID"}
+{methods/sortByProc.i "pByCustomerID" "ttVendItemCost.customerID"}
 {methods/sortByProc.i "pByCostPerVendorUOM" "ttVendItemCost.costPerVendorUOM"}
 {methods/sortByProc.i "pByVendorUOM" "ttVendItemCost.vendorUOM"}
 {methods/sortByProc.i "pByCostSetup" "ttVendItemCost.costSetup"}
@@ -678,6 +722,8 @@ PROCEDURE pReOpenBrowse :
     CASE cColumnLabel:
         WHEN "vendorID" THEN
             RUN pByVendorID.
+        WHEN "customerID" THEN
+            RUN pByCustomerID.
         WHEN "costPerVendorUOM" THEN
             RUN pByCostPerVendorUOM.
         WHEN "vendorUOM" THEN

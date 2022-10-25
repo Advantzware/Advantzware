@@ -1,0 +1,108 @@
+UPDATE FIELD "part-no" OF "ar-invl"
+  FORMAT "x(15)"
+
+UPDATE FIELD "customerPartID" OF "costHeader"
+  FORMAT "x(15)"
+
+UPDATE FIELD "part-no" OF "cust-part"
+  FORMAT "x(12)"
+
+UPDATE FIELD "part-no" OF "eb"
+  FORMAT "x(15)"
+
+UPDATE FIELD "part-no" OF "ed"
+  FORMAT "x(15)"
+
+ADD FIELD "hoursSetup" OF "estCostHeader" AS decimal
+  DESCRIPTION "Setup/Make Ready Hours for cost header quantity"
+  FORMAT "->>,>>9.99"
+  POSITION 65
+  INITIAL "0"
+  LABEL "Setup Hours"
+  DECIMALS 6
+  ORDER 1100
+  MAX-WIDTH 21
+
+ADD FIELD "hoursRun" OF "estCostHeader" AS decimal
+  DESCRIPTION "Run Hours for cost header quantity"
+  FORMAT "->>,>>9.99"
+  POSITION 66
+  INITIAL "0"
+  LABEL "Run Hours"
+  DECIMALS 6
+  ORDER 1110
+  MAX-WIDTH 21
+
+UPDATE FIELD "customerPart" OF "estCostItem"
+  FORMAT "x(30)"
+
+ADD FIELD "isCorrugator" OF "estCostOperation" AS logical
+  DESCRIPTION "Is Operation a corrugator?"
+  FORMAT "yes/no"
+  POSITION 79
+  INITIAL "no"
+  HELP "Enter if operation is corrugator"
+  LABEL "Corrugator?"
+  COLUMN-LABEL "Corrugator?"
+  ORDER 810
+  MAX-WIDTH 1
+
+UPDATE FIELD "part-no" OF "fg-hist"
+  FORMAT "x(20)"
+
+UPDATE FIELD "part-no" OF "fg-rcpts"
+  FORMAT "x(20)"
+
+UPDATE FIELD "part-no" OF "fg-set"
+  FORMAT "x(15)"
+
+UPDATE FIELD "part-no" OF "inv-line"
+  FORMAT "x(15)"
+
+UPDATE FIELD "part-no" OF "item-comm"
+  FORMAT "x(12)"
+
+UPDATE FIELD "part-no" OF "itemfg"
+  FORMAT "x(12)"
+
+UPDATE FIELD "part-no" OF "itemfgdtl"
+  FORMAT "x(20)"
+
+UPDATE FIELD "part_number" OF "jobitems"
+  FORMAT "X(15)"
+
+UPDATE FIELD "part-no" OF "oe-ordl"
+  FORMAT "x(15)"
+
+UPDATE FIELD "part-no" OF "oe-retl"
+  FORMAT "x(15)"
+
+UPDATE FIELD "part-no" OF "probeit"
+  FORMAT "x(20)"
+
+UPDATE FIELD "part-no" OF "quoteit"
+  FORMAT "x(20)"
+
+UPDATE FIELD "part-no" OF "quoteitm"
+  FORMAT "x(20)"
+
+UPDATE FIELD "part-no" OF "rfqitem"
+  FORMAT "x(15)"
+
+UPDATE FIELD "cust-part-no" OF "vend-whse-item"
+  FORMAT "x(12)"
+
+UPDATE FIELD "cust-part-no" OF "vend-whse-trans"
+  FORMAT "x(12)"
+
+UPDATE FIELD "cust-part-no" OF "vend-whse-trans-hist"
+  FORMAT "x(12)"
+
+UPDATE FIELD "OneUpCustomerPartNumber" OF "XMLLayoutsFormDesign"
+  FORMAT "x(15)"
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002208

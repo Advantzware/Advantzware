@@ -72,6 +72,7 @@ if sys-ctrl.char-fld eq "TRIAD" then do transaction:  /* Fuel Surcharge */
         assign
          inv-line.company    = cocode
          inv-line.r-no       = inv-head.r-no
+         inv-line.inv-no     = inv-head.inv-no
          inv-line.i-no       = itemfg.i-no
          inv-line.cas-cnt    = 1
          inv-line.stat       = "B"

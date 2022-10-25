@@ -17,23 +17,32 @@
    if est-op.op-pass eq 0 then est-op.op-pass = 1.
    if est-op.dept eq "PR" or est-op.dept eq "CT" then do:
      maxco = 0.
-     find first w-ink
-         where w-ink.form-no eq est-op.s-num
-           and w-ink.pass    eq est-op.op-pass
-         no-lock no-error.
-
-     IF AVAIL w-ink THEN DO:
-       IF est-op.num-col + est-op.num-coat EQ 0 THEN
-         ASSIGN
-          est-op.num-col  = w-ink.inks
-          est-op.num-coat = w-ink.varn.
-       ELSE
-         ASSIGN
-          w-ink.inks = est-op.num-col
-          w-ink.varn = est-op.num-coat.
-
-       maxco = MIN(w-ink.inks + w-ink.varn,mach.max-color).
-     END.
+     
+       /* In case of NK1 settings Color count wil be determined by Unit#*/
+       IF glAssignUnitsForInk THEN
+           RUN Estimate_CalcInkUsingUnitNo (est-op.company, est-op.est-no, est-op.s-num, 0, est-op.op-pass, OUTPUT est-op.num-col, OUTPUT est-op.num-coat, OUTPUT lUnitSetup).
+  
+       IF NOT glAssignUnitsForInk OR NOT lUnitSetup THEN
+       DO:
+           find first w-ink
+               where w-ink.form-no eq est-op.s-num
+               and w-ink.pass    eq est-op.op-pass
+               no-lock no-error.
+    
+           IF AVAIL w-ink THEN 
+           DO:
+               IF est-op.num-col + est-op.num-coat EQ 0 THEN
+                   ASSIGN
+                       est-op.num-col  = w-ink.inks
+                       est-op.num-coat = w-ink.varn.
+               ELSE
+                   ASSIGN
+                       w-ink.inks = est-op.num-col
+                       w-ink.varn = est-op.num-coat.
+           END.
+       END. 
+         
+       maxco = MIN(est-op.num-col + est-op.num-coat,mach.max-color).
    END.
 
    {sys/inc/roundup.i cumul}

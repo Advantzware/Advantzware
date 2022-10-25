@@ -1,0 +1,287 @@
+ADD TABLE "estMisc"
+  AREA "Data"
+  LABEL "Estimate Cost Misc"
+  DUMP-NAME "estMisc"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estMisc.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estMisc.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estMisc.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estMisc" AS character 
+  DESCRIPTION "Unique ID Acroos DB for Record"
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "estimateNo" OF "estMisc" AS character 
+  DESCRIPTION "Estimate #"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 3
+  MAX-WIDTH 6
+  COLUMN-LABEL "Estimate #"
+  HELP "Enter estimate #."
+  ORDER 21
+  MANDATORY
+
+ADD FIELD "costDescription" OF "estMisc" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Cost Description"
+  POSITION 9
+  MAX-WIDTH 80
+  COLUMN-LABEL "Cost Description"
+  ORDER 100
+
+ADD FIELD "flatFeeCharge" OF "estMisc" AS decimal 
+  FORMAT ">>,>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Flat Fee Amount"
+  POSITION 11
+  MAX-WIDTH 1
+  COLUMN-LABEL "Flat Fee Amount"
+  ORDER 80
+
+ADD FIELD "chargePercent" OF "estMisc" AS decimal 
+  FORMAT ">>,>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Charge Percent"
+  POSITION 12
+  MAX-WIDTH 21
+  COLUMN-LABEL "Charge Percent"
+  DECIMALS 6
+  ORDER 90
+
+ADD FIELD "estCostCategoryID" OF "estMisc" AS character 
+  DESCRIPTION "Category ID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Category"
+  POSITION 13
+  MAX-WIDTH 64
+  COLUMN-LABEL "Category"
+  ORDER 160
+
+ADD FIELD "estCostCalcBy" OF "estMisc" AS character 
+  DESCRIPTION "Calculate Cost By Group/Level"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Calculate Cost By"
+  POSITION 14
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculate Cost By"
+  ORDER 140
+
+ADD FIELD "estCostCalcSource" OF "estMisc" AS character 
+  DESCRIPTION "Calculate Cost On GroupID/LevelID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Cost Source"
+  POSITION 15
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculate Cost On"
+  ORDER 150
+
+ADD FIELD "formNo" OF "estMisc" AS integer 
+  DESCRIPTION "Form #"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Form #"
+  POSITION 16
+  MAX-WIDTH 6
+  COLUMN-LABEL "Form #"
+  HELP "Enter Form #."
+  ORDER 20
+
+ADD FIELD "company" OF "estMisc" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 17
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 22
+  MANDATORY
+
+ADD FIELD "sequenceID" OF "estMisc" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Sequence"
+  POSITION 18
+  MAX-WIDTH 4
+  COLUMN-LABEL "Sequence"
+  ORDER 170
+
+ADD INDEX "rec_key" ON "estMisc" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Find a estMisc by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "estimateNo" ON "estMisc" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "estimateNo" ASCENDING 
+
+ADD TABLE "estMiscControl"
+  AREA "Data"
+  LABEL "Estimate Cost Misc Control"
+  DUMP-NAME "estMiscControl"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estMiscControl.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estMiscControl.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estMiscControl.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estMiscControl" AS character 
+  DESCRIPTION "Unique ID Acroos DB for Record"
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "company" OF "estMiscControl" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "costDescription" OF "estMiscControl" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Cost Description"
+  POSITION 9
+  MAX-WIDTH 80
+  COLUMN-LABEL "Cost Description"
+  ORDER 100
+
+ADD FIELD "sequenceID" OF "estMiscControl" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Sequence"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "Sequence"
+  ORDER 170
+
+ADD FIELD "flatFeeCharge" OF "estMiscControl" AS decimal 
+  FORMAT ">>,>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Flat Fee Amount"
+  POSITION 11
+  MAX-WIDTH 1
+  COLUMN-LABEL "Flat Fee Amount"
+  ORDER 80
+
+ADD FIELD "chargePercent" OF "estMiscControl" AS decimal 
+  FORMAT ">>,>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Charge Percent"
+  POSITION 12
+  MAX-WIDTH 21
+  COLUMN-LABEL "Charge Percent"
+  DECIMALS 6
+  ORDER 90
+
+ADD FIELD "estCostCategoryID" OF "estMiscControl" AS character 
+  DESCRIPTION "Category ID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Category"
+  POSITION 13
+  MAX-WIDTH 64
+  COLUMN-LABEL "Category"
+  ORDER 160
+
+ADD FIELD "estCostCalcBy" OF "estMiscControl" AS character 
+  DESCRIPTION "Calculate Cost By Group/Level"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Calculate Cost By"
+  POSITION 14
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculate Cost By"
+  ORDER 140
+
+ADD FIELD "estCostCalcSource" OF "estMiscControl" AS character 
+  DESCRIPTION "Calculate Cost On GroupID/LevelID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Cost Source"
+  POSITION 15
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculate Cost On"
+  ORDER 150
+
+ADD INDEX "rec_key" ON "estMiscControl" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Find a estMiscControl by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "company" ON "estMiscControl" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+
+UPDATE FIELD "check-no" OF "ap-chk"
+  FORMAT ">>999999"
+
+UPDATE FIELD "check-no" OF "ap-dis"
+  FORMAT ">>999999"
+
+UPDATE FIELD "check-no" OF "ap-disl"
+  FORMAT ">>999999"
+
+UPDATE FIELD "line" OF "ap-invl" AS int64
+
+UPDATE FIELD "check-no" OF "ap-payl"
+  FORMAT ">>999999"
+
+UPDATE FIELD "check-no" OF "ap-sel"
+  FORMAT ">>999999"
+
+ADD FIELD "scac" OF "carrier" AS character
+  DESCRIPTION "Standard Carrier Alpha Code"
+  FORMAT "x(8)"
+  POSITION 32
+  INITIAL ""
+  HELP "Standard Carrier Alpha Code"
+  LABEL "SCAC"
+  COLUMN-LABEL "SCAC"
+  ORDER 310
+  MAX-WIDTH 16
+
+ADD FIELD "itemNotes" OF "item" AS character
+  FORMAT "x(1000)"
+  POSITION 109
+  INITIAL ""
+  HELP "Item Notes"
+  LABEL "Item Notes"
+  COLUMN-LABEL "Item Notes"
+  ORDER 1080
+  MAX-WIDTH 2000
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000006572

@@ -545,6 +545,27 @@ PROCEDURE FileSys_CreateFile:
         ) NO-ERROR.
 END PROCEDURE.
 
+PROCEDURE FileSys_GetBusinessFormLogo:
+    /*------------------------------------------------------------------------------
+     Purpose: Public wrapper procedure to Get Value of BusinessFormLogo form NK6
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomer         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBusinessFormLogo AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid            AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+
+    RUN pGetBusinessFormLogo(INPUT  ipcCompany,
+                             INPUT  ipcCustomer,
+                             INPUT  ipcLocation,
+                             OUTPUT opcBusinessFormLogo,
+                             OUTPUT oplValid,
+                             OUTPUT opcMessage
+                             ) NO-ERROR.
+END PROCEDURE.
+
 PROCEDURE pGetSessionTempDirectory PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Procedure to fetch the TEMP-DIRECTORY attribute from SESSION handle
@@ -954,6 +975,51 @@ PROCEDURE pCreateDirectory PRIVATE:
             opcMessage = "Directory " + ipcPath + " created"
             .
 END PROCEDURE.
+
+PROCEDURE pGetBusinessFormLogo PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Procedure to Get Value of BusinessFormLogo form NK6
+     Notes:  
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany          AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomer         AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation         AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBusinessFormLogo AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValid            AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage          AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByNameAndLocation ("BusinessFormLogo", ipcCustomer, ipcLocation, OUTPUT cRtnChar).
+
+    ASSIGN oplValid = YES.
+    
+    IF cRtnChar NE "" THEN DO:
+        cRtnChar = DYNAMIC-FUNCTION (
+                       "fFormatFilePath",
+                       cRtnChar
+                       ).
+                   
+        /* Validate the N-K-6 BusinessFormLogo image file */
+        RUN FileSys_ValidateFile(
+            INPUT  cRtnChar,
+            OUTPUT oplValid,
+            OUTPUT cMessage
+            ) NO-ERROR.
+
+        IF NOT oplValid THEN DO:
+            ASSIGN 
+                opcBusinessFormLogo = ""
+                opcMessage          =  "Unable to find image file '" + cRtnChar + "' in N-K-6 setting for BusinessFormLogo" 
+                .
+        END.
+        ELSE ASSIGN opcBusinessFormLogo = cRtnChar .
+        
+    END.
+    
+END PROCEDURE.
+
 
 FUNCTION fFormatFilePath RETURNS CHARACTER
   ( ipcFilePath AS CHARACTER ) :

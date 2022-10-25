@@ -560,6 +560,9 @@ DO:
   RUN pCheckUser.
   if v-invalid-inv then return no-apply.
   
+  RUN pCheckBlankdate.
+  if v-invalid-inv then return no-apply.
+  
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
@@ -879,7 +882,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN
              begin_user:SCREEN-VALUE = USERID("ASI")
              end_user:SCREEN-VALUE   = USERID("ASI").
-        IF cAPPostingUserId EQ "No" THEN
+        IF cAPPostingUserId EQ "No" AND NOT lAPSecure THEN
            ASSIGN
                begin_user:SENSITIVE    = NO
                end_user:SENSITIVE      = NO .
@@ -1300,6 +1303,8 @@ PROCEDURE post-gl :
     DEFINE VARIABLE v-dep     AS DECIMAL.
     DEFINE VARIABLE v-bwt     AS DECIMAL.
     DEFINE VARIABLE ll-rcpth  AS LOG.
+    DEFINE VARIABLE lUnBalance AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE dAmountBalance AS CHARACTER NO-UNDO.
 
     /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
     g2 = 0.
@@ -1797,6 +1802,32 @@ FIND FIRST currency NO-LOCK
         END. 
           
     END.
+    
+    RUN GL_CheckRunBalance(cocode,
+        v-trnum,
+        OUTPUT dAmountBalance,
+        OUTPUT lUnBalance).
+    IF lUnBalance THEN
+    DO:  
+         FIND FIRST gl-ctrl NO-LOCK
+              WHERE gl-ctrl.company EQ cocode NO-ERROR.
+         IF AVAIL gl-ctrl THEN
+         DO:          
+             RUN GL_SpCreateGLHist(cocode,
+                        gl-ctrl.balanceAccount,
+                        "ACPAY",
+                        "Rounding adjustment",
+                        tran-date,
+                        dAmountBalance,
+                        v-trnum,
+                        tran-period,
+                        "A",
+                        tran-date,
+                        "Balancing Account",
+                        "AP").    
+         END.           
+    END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2058,11 +2089,48 @@ PROCEDURE valid-date :
             IF AVAIL bf-period THEN
             ASSIGN
                 begin_date:SCREEN-VALUE = STRING(bf-period.pst)
-                end_date:SCREEN-VALUE = STRING(bf-period.pend).
+                end_date:SCREEN-VALUE = STRING(bf-period.pend)
+                tran-period:SCREEN-VALUE = STRING(bf-period.pnum,"99").
 
             ll-warned = YES.
         END.
     END.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckBlankdate C-Win 
+PROCEDURE pCheckBlankdate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE BUFFER bf-period FOR period.
+   
+   v-invalid-inv = NO.
+   DO WITH FRAME {&FRAME-NAME}:
+     IF DATE(tran-date:SCREEN-VALUE) EQ ? THEN
+     DO:                        
+         MESSAGE TRIM(tran-date:LABEL) + " is blank, Please enter Post Date" 
+         VIEW-AS ALERT-BOX INFO.
+         v-invalid-inv = YES.          
+     END. 
+     ELSE IF tran-period:SCREEN-VALUE EQ "" THEN
+     DO:
+         FIND FIRST bf-period NO-LOCK
+               WHERE bf-period.company EQ cocode
+               AND bf-period.pst     LE DATE(tran-date:SCREEN-VALUE)
+               AND bf-period.pend    GE DATE(tran-date:SCREEN-VALUE)
+           NO-ERROR.
+       
+           IF AVAIL bf-period THEN
+           ASSIGN                
+               tran-period:SCREEN-VALUE = STRING(bf-period.pnum,"99").         
+     END.
+   END.
     
 END PROCEDURE.
 

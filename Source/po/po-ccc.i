@@ -45,13 +45,13 @@
          "<R28><C5><FROM><R30><C5><LINE>" SKIP
          "<R28><C15><FROM><R30><C15><LINE>" SKIP
          "<R28><C20><FROM><R30><C20><LINE>" SKIP 
-         "<R28><C44><FROM><R30><C44><LINE>" SKIP
-         "<R28><C54><FROM><R30><C54><LINE>" SKIP
+         "<R28><C42><FROM><R30><C42><LINE>" SKIP
+         "<R28><C51><FROM><R30><C51><LINE>" SKIP
          "<R28><C62><FROM><R30><C62><LINE>" SKIP
          "<R28><C68><FROM><R30><C68><LINE>" 
          "<R28><C72.5><FROM><R30><C72.5><LINE>" SKIP
          .
 
-  PUT "<FArial><=5><R+1> Line         Quantity        UOM    Our Item/Description/Vendor Item                Due Date          Job#            Cost     UOM      Ext Cost" SKIP(1).
+  PUT "<FArial><=5><R+1> Line         Quantity        UOM    Our Item/Description/Vendor Item        Due Date                Job#            Cost     UOM      Ext Cost" SKIP(1).
   PUT "<FCourier New>"          .
   v-printline = v-printline + 8.

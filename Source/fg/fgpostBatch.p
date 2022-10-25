@@ -406,6 +406,40 @@ PROCEDURE add-rel-for-qty:
 
 END PROCEDURE.
 
+PROCEDURE pConvertFGToRM PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-itemfg FOR itemfg.
+    DEFINE OUTPUT PARAMETER oplError    AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage  AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE hdInventoryProcs AS HANDLE.
+
+    IF NOT AVAILABLE ipbf-itemfg THEN DO:
+        ASSIGN
+            oplError   = TRUE
+            opcMessage = "Invalid itemfg buffer"
+            .
+        
+        RETURN.
+    END.
+    
+    RUN inventory/inventoryprocs.p PERSISTENT SET hdInventoryProcs.
+
+    RUN Inventory_ConvertFGToRM IN hdInventoryProcs (
+        INPUT  ipbf-itemfg.company,
+        INPUT  ipbf-itemfg.i-no,
+        INPUT  ipbf-itemfg.receiveAsRMItemID,
+        OUTPUT oplError,
+        OUTPUT opcMessage
+        ).
+    
+    DELETE PROCEDURE hdInventoryProcs.
+
+END PROCEDURE.
+
 PROCEDURE pCopyShipNote PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Copies Ship Note from rec_key to rec_key
@@ -547,6 +581,8 @@ PROCEDURE fg-post:
     DEFINE VARIABLE cJob           LIKE oe-ordl.job-no NO-UNDO.
     DEFINE VARIABLE iJobNo2        LIKE oe-ordl.job-no2 NO-UNDO.
     DEFINE VARIABLE iRNo           AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lError         AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
     /*##PN - variable for FGSetAssembly setting*/
 
     DEFINE VARIABLE lFound         AS LOGICAL   NO-UNDO.
@@ -732,6 +768,9 @@ PROCEDURE fg-post:
         IF w-fg-rctd.rita-code = "R" THEN DO: /* Creates tt-email records */
             {fg/fgemails.i}
         END.             
+
+        IF w-fg-rctd.rita-code EQ "R" AND itemfg.receiveAsRMItemID NE "" THEN
+            RUN pConvertFGToRM(BUFFER itemfg, OUTPUT lError, OUTPUT cMessage).
     END.  /* for each w-fg-rctd */
 
         

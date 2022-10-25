@@ -12,6 +12,7 @@ PROCEDURE build-table:
     DEFINE VARIABLE iTotBack    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotAvail   AS INTEGER NO-UNDO.
     DEFINE VARIABLE iTotReOrder AS INTEGER NO-UNDO.
+    DEFINE VARIABLE opiTotOnHoldQty AS INTEGER FORMAT "->>,>>>,>>9" NO-UNDO.
     
     EMPTY TEMP-TABLE w-jobs.
     EMPTY TEMP-TABLE w-job.
@@ -41,6 +42,10 @@ PROCEDURE build-table:
         WHERE loc.company EQ itemfg-loc.company
           AND loc.loc     EQ itemfg-loc.loc
         :
+        
+        ASSIGN opiTotOnHoldQty = 0 .
+        RUN pGetOnHoldQty ({1}itemfg.company , {1}itemfg.i-no , itemfg-loc.loc , OUTPUT opiTotOnHoldQty ) . 
+        
         CREATE w-jobs.
         ASSIGN 
             w-jobs.i-no         = {1}itemfg.i-no
@@ -50,6 +55,7 @@ PROCEDURE build-table:
             w-jobs.ord-max      = itemfg-loc.ord-max
             w-jobs.ord-min      = itemfg-loc.ord-min
             w-jobs.onHand       = itemfg-loc.q-onh
+            w-jobs.onHoldQty    = opiTotOnHoldQty
             w-jobs.onOrder      = itemfg-loc.q-ono
             w-jobs.allocated    = itemfg-loc.q-alloc
             w-jobs.backOrder    = itemfg-loc.q-back
@@ -67,6 +73,10 @@ PROCEDURE build-table:
         w-jobs.loc-desc = loc.dscr.    
         RELEASE w-jobs.
     END. /* each itemfg-loc */
+    
+    ASSIGN opiTotOnHoldQty = 0 .
+    RUN pGetOnHoldQty ({1}itemfg.company , {1}itemfg.i-no , "AllLocation" , OUTPUT opiTotOnHoldQty ) .
+    
     CREATE w-jobs.
     ASSIGN 
         w-jobs.i-no         = {1}itemfg.i-no
@@ -77,6 +87,7 @@ PROCEDURE build-table:
         w-jobs.ord-max      = {1}itemfg.ord-max
         w-jobs.ord-min      = {1}itemfg.ord-min
         w-jobs.onHand       = {1}itemfg.q-onh
+        w-jobs.onHoldQty    = opiTotOnHoldQty
         w-jobs.onOrder      = {1}itemfg.q-ono
         w-jobs.allocated    = {1}itemfg.q-alloc
         w-jobs.backOrder    = {1}itemfg.q-back
@@ -110,4 +121,33 @@ PROCEDURE build-table:
             .
     END.
 
+END PROCEDURE.
+
+PROCEDURE pGetOnHoldQty:
+/*------------------------------------------------------------------------------
+  Purpose:                 /** Get On Hold Quantity **/
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcItemNo    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation  AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiOnHoldQty  AS INTEGER FORMAT "->>,>>>,>>9" NO-UNDO.
+    
+    DEFINE VARIABLE iTotalOnHoldQty AS INTEGER FORMAT "->>,>>>,>>9" NO-UNDO.
+    
+    ASSIGN iTotalOnHoldQty = 0.
+    
+    FOR EACH fg-bin NO-LOCK
+       WHERE fg-bin.company  EQ ipcCompany
+         AND fg-bin.i-no     EQ ipcItemNo
+         AND (fg-bin.loc     EQ ipcLocation OR
+              ipcLocation    EQ "AllLocation")
+        :
+        
+        IF fg-bin.onHold THEN iTotalOnHoldQty = iTotalOnHoldQty + fg-bin.qty .
+    END.
+
+    ASSIGN opiOnHoldQty = iTotalOnHoldQty .
+    
 END PROCEDURE.

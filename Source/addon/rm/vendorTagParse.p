@@ -104,11 +104,11 @@ END.
 FOR EACH ttParseVal:
     CASE ttParseVal.cValueFor:
         WHEN "P" THEN 
-            opiPOnumber = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)).
+            opiPOnumber = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)) NO-ERROR.
         WHEN "L" THEN 
-            opiPOline   = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)).
+            opiPOline   = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)) NO-ERROR.
         WHEN "Q" THEN
-            opiQuantity = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)).
+            opiQuantity = INT(SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength)) NO-ERROR.
         WHEN "X" THEN
             opcAddInfo = SUBSTRING(ipcTagno,ttParseVal.iStartPos,ttParseVal.iStrlength).    
     END CASE.

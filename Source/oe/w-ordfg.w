@@ -36,14 +36,14 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&SCOPED-DEFINE winReSize  
+&SCOPED-DEFINE h_Browse01 h_locw
+&SCOPED-DEFINE h_Object01 h_p-fg-bj
+&SCOPED-DEFINE h_Object02 h_p-calcq
+&SCOPED-DEFINE local-destroy local-destroy
+&SCOPED-DEFINE LocalInitApply
 
 DEF VAR ll-secure AS LOG INIT NO NO-UNDO.
-DEFINE VARIABLE rec_key_value AS CHARACTER NO-UNDO.
-DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
-
-{methods/defines/hndldefs.i}
-{methods/prgsecur.i "WIN"}
-
 def var li-current-page as int INIT 1 no-undo.
 def var li-prev-page as int INIT 1 no-undo.
 DEF VAR li-page-b4VendCost AS INT NO-UNDO.
@@ -121,6 +121,8 @@ DEFINE VARIABLE h_q-ordlfg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-eitem AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-fgimg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vendcostmtx AS HANDLE NO-UNDO.
+
+DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
@@ -128,6 +130,13 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 174 BY 28.57.
+         
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 3 ROW 1
+         SIZE 1 BY 1
+         BGCOLOR 15 .         
 
 
 /* *********************** Procedure Settings ************************ */
@@ -151,11 +160,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          TITLE              = "FG Item"
          HEIGHT             = 28.57
          WIDTH              = 174
-         MAX-HEIGHT         = 28.57
-         MAX-WIDTH          = 174
-         VIRTUAL-HEIGHT     = 28.57
-         VIRTUAL-WIDTH      = 174
-         RESIZE             = no
+         MAX-HEIGHT         = 320
+         MAX-WIDTH          = 320
+         VIRTUAL-HEIGHT     = 320
+         VIRTUAL-WIDTH      = 320
+         RESIZE             = YES
          SCROLL-BARS        = no
          STATUS-AREA        = yes
          BGCOLOR            = ?
@@ -171,7 +180,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/containr.i}
-
+{methods/template/windows.i}
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -185,6 +194,10 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
    FRAME-NAME                                                           */
+   
+ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE
+       .
+ FRAME message-frame:HIDDEN  = TRUE.      
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -239,12 +252,21 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-{sys/inc/f3helpw.i}
 {sys/inc/var.i new shared}
 ASSIGN 
     cocode = g_Company
     locode = g_Loc.
-{sys/inc/vendItemCost.i}
+{sys/inc/vendItemCost.i}      
+
+/* Set the option frame size and colour to give blue background to icons and 
+   add the handle of scope define object to temptable for resizizng */
+RUN beforeinitialize IN THIS-PROCEDURE NO-ERROR.
+/* Add the handle of all smart object to be resized/shifted on resize to the temptable and 
+   Shift all the icons towards right */
+RUN afterinitialize IN THIS-PROCEDURE NO-ERROR. 
+  
+/* Include custom  Main Block code for SmartWindows. */
+{custom/initializeprocs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -813,50 +835,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE allow-create W-Win 
-PROCEDURE allow-create :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  &Scoped-define ACCESSTYPE create
-  {methods/template/security.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE allow-delete W-Win 
-PROCEDURE allow-delete :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  &Scoped-define ACCESSTYPE delete
-   {methods/template/security.i}
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE allow-update W-Win 
-PROCEDURE allow-update :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-&Scoped-define ACCESSTYPE update
-  {methods/template/security.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE changeRecord W-Win 
 PROCEDURE changeRecord :
@@ -960,25 +938,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-g_rec_key W-Win 
-PROCEDURE get-g_rec_key :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER op-rec_key AS CHARACTER NO-UNDO.
-/*
-  IF g_rec_key NE "" THEN
-  op-rec_key = ENTRY(NUM-ENTRIES(g_rec_key),g_rec_key).
-*/ 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE hideVendorCost W-Win
 PROCEDURE hideVendorCost:
@@ -1025,7 +984,7 @@ PROCEDURE local-change-page:
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {methods/winReSizePgChg.i}
 
 
 END PROCEDURE.
@@ -1108,6 +1067,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy W-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+       
+  /* Dispatch standard ADM method.                             */
+  {custom/userWindow.i} 
+  
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
@@ -1133,26 +1113,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize W-Win 
-PROCEDURE local-initialize :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLocalInit W-Win 
+PROCEDURE pLocalInit :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  IF access-close THEN DO:  /* YSK  not leave window on after closed */
-      APPLY 'CLOSE' TO THIS-PROCEDURE.
-      RETURN.
-  END.
-
+------------------------------------------------------------------------------*/ 
   DEFINE VARIABLE IsASet AS LOGICAL NO-UNDO.
-  
+      
   RUN IsASet IN h_itemfg (OUTPUT IsASet).
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "PAGE-SOURCE", OUTPUT char-hdl).
   IF IsASet THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (5) NO-ERROR.
@@ -1163,35 +1131,7 @@ PROCEDURE local-initialize :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE mf-message W-Win 
-PROCEDURE mf-message :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEFINE INPUT PARAMETER ip-misc-flds AS LOGICAL NO-UNDO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE notes-message W-Win 
-PROCEDURE notes-message :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER ip-notes AS LOGICAL NO-UNDO.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME  
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pViewDetail W-Win 
 PROCEDURE pViewDetail :
@@ -1254,25 +1194,6 @@ PROCEDURE set-loc :
 
     IF VALID-HANDLE(h_fgijob-2) THEN
     RUN set-pass-loc IN h_fgijob-2 (INPUT ip-loc).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-rec-key_header W-Win 
-PROCEDURE set-rec-key_header :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- DEFINE INPUT PARAMETER ip-rec_key AS CHARACTER NO-UNDO.
-  DEFINE INPUT PARAMETER ip-header AS CHARACTER NO-UNDO.
-
-  ASSIGN
-    rec_key_value = ip-rec_key
-    header_value = ip-header.
 
 END PROCEDURE.
 

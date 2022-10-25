@@ -1,0 +1,10 @@
+ADD INDEX "posted" ON "dmiTrans"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Posted"
+  INDEX-FIELD "posted" ASCENDING
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000000132

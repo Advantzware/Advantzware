@@ -1,6 +1,5 @@
 /* ---------------------------------------------- oe/rep/bolcolr1.i 07/09 GDM */
 /* N-K BOLFMT = COLOR                                                         */
-/* Mod: Ticket - 103137 (Format Change for Order No. and Job No.              */
 /* -------------------------------------------------------------------------- */
 
 v-tot-cases = 0.

@@ -73,6 +73,8 @@ DEF VAR v-memo-state AS CHAR FORMAT "x(2)"           NO-UNDO.
 DEF VAR v-memo-zip   AS CHAR FORMAT "x(10)"          NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustomerNo         AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cCustomerLocation   AS CHARACTER NO-UNDO .
 
 ASSIGN 
     v-comp-add1  = ""
@@ -86,35 +88,6 @@ ASSIGN
     v-memo-state = ""
     v-memo-zip   = ""
     .
-
-/*ASSIGN
-    ls-image1 = "images\premier.jpg"
-    FILE-INFO:FILE-NAME = ls-image1
-    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-OUTPUT cRtnChar, OUTPUT lRecFound).
-IF lRecFound AND cRtnChar NE "" THEN DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-                   "fFormatFilePath",
-                   cRtnChar
-                   ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN ls-full-img1 = cRtnChar + ">" .
 
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 
@@ -158,6 +131,21 @@ FOR EACH ar-cash
     BREAK BY ar-cash.cust-no
           BY ar-cash.check-no:
 
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ cocode
+           AND cust.cust-no EQ ar-cash.cust-no NO-ERROR.
+    
+    IF AVAIL cust THEN ASSIGN cCustomerNo       = cust.cust-no
+                              cCustomerLocation = cust.loc .
+
+    RUN FileSys_GetBusinessFormLogo(cocode, cCustomerNo, cCustomerLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+
+    IF NOT lValid THEN
+    DO:
+      MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+          
     FIND FIRST reftable 
         WHERE reftable.reftable = "ARCASHHOLD" 
           AND reftable.rec_key = ar-cash.rec_key 
@@ -204,6 +192,8 @@ FOR EACH ar-cash
               AND ar-inv.cust-no EQ ar-cashl.cust-no
               AND ar-inv.inv-no  EQ ar-cashl.inv-no NO-ERROR.
         IF AVAIL ar-inv THEN DO:
+            IF FIRST(ar-cashl.check-no) 
+            THEN 
             ASSIGN 
                 v-memo-name    = ar-inv.cust-name
                 v-memo-addr[1] = ar-inv.addr[1] 
@@ -296,7 +286,7 @@ FOR EACH ar-cash
         END.
 
 
-        IF FIRST-OF(ar-cashl.check-no) 
+        IF FIRST(ar-cashl.check-no) 
           THEN DO:
 
             FIND FIRST cust NO-LOCK
@@ -348,10 +338,10 @@ FOR EACH ar-cash
             v-po-no                 FORMAT "x(11)"      SPACE(1)
             v-ord-no                FORMAT "x(8)"       SPACE(1)
             v-item-no               FORMAT "x(15)"      SPACE(5)
-            lv-desc                 FORMAT "x(30)"      SPACE(3)
+            lv-desc                 FORMAT "x(30)"      SPACE(2)
             IF v-creamt NE 0 
             THEN v-creamt 
-            ELSE  v-debamt          FORMAT "->>,>>9.99" .
+            ELSE  v-debamt          FORMAT "->>>,>>9.99" .
        PUT v-cust-part AT 33 
             SKIP(1).
         

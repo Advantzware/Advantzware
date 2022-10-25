@@ -222,7 +222,7 @@ IF AVAIL itemfg THEN DO:
           AND eb.est-no   EQ oe-ordl.est-no
           AND eb.stock-no EQ oe-ordl.i-no NO-ERROR.
 
-   cFullJobNo = IF w-ord.job-no NE "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))) + 
+   cFullJobNo = IF w-ord.job-no NE "" THEN TRIM(w-ord.job-no) + "-" + STRING(w-ord.job-no2,"999") + 
    (if avail eb then "-" + string(eb.form-no,"99") + "-" + string(eb.blank-no,"99") ELSE "") ELSE "". 
 
    RUN getLastActivity in hdJobProcs(INPUT cocode, INPUT w-ord.job-no, INPUT w-ord.job-no2, OUTPUT cLastAction ).   
@@ -249,7 +249,7 @@ IF AVAIL itemfg THEN DO:
                          WHEN "cat"   THEN cVarValue = STRING(itemfg.procat,"x(5)") .
                          WHEN "po"  THEN cVarValue = STRING(w-ord.po-num,"x(15)") .
                          WHEN "order"   THEN cVarValue = TRIM(STRING(w-ord.ord-no,">>>>>>>9")) .
-                         WHEN "sales"  THEN cVarValue = STRING(w-ord.price,"->>>,>>9.999999") .
+                         WHEN "unitPrice"  THEN cVarValue = STRING(w-ord.price,"->>>,>>9.999999") .
 
                          WHEN "rel-qty"  THEN cVarValue = STRING(w-ord.rel-qty,"->>,>>>,>>9") .
                          WHEN "rel-date"   THEN cVarValue = IF w-ord.rel-date NE ? THEN STRING(date(w-ord.rel-date),"99/99/99") ELSE "" .
@@ -258,7 +258,7 @@ IF AVAIL itemfg THEN DO:
                          WHEN "style"   THEN cVarValue = STRING(itemfg.style ,"x(6)").
                          WHEN "pro-date-reason"   THEN cVarValue = IF AVAIL rejct-cd THEN STRING(w-ord.prom-date-reason + " " + rejct-cd.dscr ,"x(30)") ELSE "".
                          WHEN "last-mch"   THEN cVarValue = STRING(lv-routing ,"x(12)").
-                         WHEN "job-no"   THEN cVarValue = IF w-ord.job-no NE "" THEN TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2))) ELSE "".
+                         WHEN "job-no"   THEN cVarValue = IF w-ord.job-no NE "" THEN TRIM(w-ord.job-no) + "-" + STRING(w-ord.job-no2,"999") ELSE "".
 			             WHEN "ord-prom-date"   THEN cVarValue = IF w-ord.ord-prom-date ne ? THEN STRING(w-ord.ord-prom-date,"99/99/9999") ELSE "".
                          WHEN "job-prom-date"   THEN cVarValue = IF w-ord.job-prom-date ne ? THEN STRING(w-ord.job-prom-date,"99/99/9999") ELSE "".
                          WHEN "prom-code"   THEN cVarValue = IF w-ord.prom-code ne ? THEN STRING(w-ord.prom-code,"x(10)") ELSE "".
@@ -266,11 +266,16 @@ IF AVAIL itemfg THEN DO:
                          WHEN "LastActionOnJob" THEN cVarValue = STRING(cLastAction ,"x(15)") . 
 			
                     END CASE.
+                    
+                    IF cTmpField = "rel-date" THEN cExcelVarValue = IF w-ord.rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.rel-date) ELSE "" .
+                    ELSE IF cTmpField = "pro-date" THEN cExcelVarValue = IF w-ord.prom-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.prom-date) ELSE "" .
+                    ELSE IF cTmpField = "ord-prom-date" THEN cExcelVarValue = IF w-ord.ord-prom-date ne ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.ord-prom-date) ELSE "" .
+                    ELSE IF cTmpField = "job-prom-date" THEN cExcelVarValue = IF w-ord.job-prom-date ne ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.job-prom-date) ELSE "" .
                       
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.

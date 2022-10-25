@@ -145,6 +145,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha       NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /*"i-no,i-cod,name,mat-typ,desc,cst-ty,est-dsc,cat," +
                             "cal,sh-len,sh-wid,bas-wt,reg,rol-wid,shrnk," +
@@ -605,6 +608,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 ON WINDOW-CLOSE OF C-Win /* Raw Materials Cost */
 DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -661,6 +665,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -704,6 +709,9 @@ DO:
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)). 
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -4104,10 +4112,14 @@ PROCEDURE run-report :
                     WHEN "pur-man" THEN 
                         cVarValue = IF item.pur-man EQ YES THEN "P" ELSE "M" .                
                 END CASE.
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "beg-date" THEN
+                     cExcelVarValue = IF ITEM.beg-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ITEM.beg-date) ELSE "".
+                ELSE IF  cTmpField = "last-date" THEN
+                     cExcelVarValue = IF ITEM.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ITEM.last-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
         END.
@@ -4197,8 +4209,6 @@ PROCEDURE run-report :
     IF rd-dest EQ 3 THEN 
     DO:
         OUTPUT STREAM s-temp close.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(v-exp-name)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -1044,9 +1044,10 @@ PROCEDURE select_attcust :
  DEF BUFFER b-cust FOR cust.
 
  DEF VAR v-order-no AS INT NO-UNDO.
-
+ 
+ IF AVAILABLE inv-head THEN    
  FIND FIRST b-inv-head WHERE
-      b-inv-head.rec_key EQ rec_key_value
+      b-inv-head.rec_key EQ inv-head.rec_key
       NO-LOCK NO-ERROR.
 
  IF AVAIL b-inv-head THEN
