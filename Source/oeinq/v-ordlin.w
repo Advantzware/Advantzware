@@ -41,6 +41,7 @@ assign cocode = g_company
        locode = g_loc.
 {oe/oe-sysct1.i NEW}
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -87,7 +88,7 @@ oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.job-no oe-ordl.job-no2 ~
 oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.ship-qty 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
-&Scoped-Define DISPLAYED-OBJECTS lv-inv-qty dEstWeight dActWeight
+&Scoped-Define DISPLAYED-OBJECTS lv-inv-qty dEstWeight dActWeight iTotalPallet
 
 
 /* Custom List Definitions                                              */
@@ -115,6 +116,13 @@ FUNCTION fGetEstWeight RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetActWeight V-table-Win 
 FUNCTION fGetActWeight RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalPallet B-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -160,8 +168,13 @@ DEFINE VARIABLE dEstWeight AS DECIMAL FORMAT "->>,>>>,>>9.99<<<<"
 DEFINE VARIABLE dActWeight AS DECIMAL FORMAT "->>,>>>,>>9.99<<<<"  
      LABEL "Actual FG Weight"
      VIEW-AS FILL-IN            
-     SIZE 12.6 BY 1 .     
+     SIZE 12.6 BY 1 .  
      
+DEFINE VARIABLE iTotalPallet AS DECIMAL FORMAT "->>,>>>,>>9"  
+     LABEL "Total # of Pallets (FG)"
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1.     
+          
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 145 BY 13.57 .
@@ -297,7 +310,8 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
      dEstWeight AT ROW 13.14 COL 96 COLON-ALIGNED                      
-     dActWeight AT ROW 13.14 COL 130 COLON-ALIGNED                          
+     dActWeight AT ROW 13.14 COL 130 COLON-ALIGNED 
+     iTotalPallet AT ROW 8.38 COL 136 COLON-ALIGNED           
      RECT-2 AT ROW 1 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -407,7 +421,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ordl.tax IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN lv-inv-qty IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
+   NO-ENABLE 2 4                                                        */ 
+/* SETTINGS FOR FILL-IN iTotalPallet IN FRAME F-Main
+   NO-ENABLE 2 4                                                        */   
 /* SETTINGS FOR FILL-IN dEstWeight IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN dActWeight IN FRAME F-Main
@@ -526,11 +542,12 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    DISABLE  lv-inv-qty dEstWeight dActWeight.
+    DISABLE  lv-inv-qty dEstWeight dActWeight iTotalPallet.
      ASSIGN
           lv-inv-qty:SCREEN-VALUE = STRING(get-inv-qty())
           dEstWeight:SCREEN-VALUE = STRING(fGetEstWeight())
-          dActWeight:SCREEN-VALUE = STRING(fGetActWeight()).
+          dActWeight:SCREEN-VALUE = STRING(fGetActWeight())
+          iTotalPallet:SCREEN-VALUE = STRING(fGetTotalPallet()) .
   END.   
   
 END PROCEDURE.
@@ -781,6 +798,29 @@ FUNCTION fGetActWeight RETURNS DECIMAL
   RETURN dWeightPerTon.
  
   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalPallet V-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE opiTotalPallet AS INTEGER NO-UNDO.
+
+  opiTotalPallet = 0.
+  dPalletCount = oe-ordl.cas-cnt * oe-ordl.cases-unit.
+  dRoundup = INT(oe-ordl.qty) / IF dPalletCount NE 0 THEN dPalletCount ELSE 1.
+  {sys/inc/roundup.i dRoundup}
+  opiTotalPallet = dRoundup.
+  RETURN opiTotalPallet.
 
 END FUNCTION.
 

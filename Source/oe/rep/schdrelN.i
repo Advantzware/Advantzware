@@ -7,6 +7,7 @@ DEFINE VARIABLE hdJobProcs  AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iFormNo     AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iBlankNo    AS INTEGER   NO-UNDO.
 DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+DEFINE VARIABLE iTotalPallet AS INTEGER NO-UNDO.
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
 if chosen eq 2 then DO:
@@ -25,7 +26,8 @@ if chosen eq 2 then DO:
        
        ASSIGN
        iCount = INT((INT(itemfg.case-count) * INT(itemfg.case-pall))
-                   + INT(itemfg.quantityPartial)).
+                   + INT(itemfg.quantityPartial))
+       iTotalPallet = INT(w-ord.rel-qty / iCount).
                    
     /*{oe/rep/schdrel3N.i}*/
 
@@ -388,6 +390,7 @@ if chosen eq 2 then DO:
                 WHEN "dock-appointment" THEN cVarValue = IF v-dockTime NE ? THEN STRING(v-dockTime,"99/99/9999 HH:MM") ELSE "" .
             
                 WHEN "pallet-count-quantity" THEN cVarValue = string(iCount).
+                WHEN "iTotalPallet" THEN cVarValue = STRING(iTotalPallet, "->>,>>>,>>9").
                 WHEN "xls-rel-date" THEN cVarValue = IF w-ord.xls-rel-date NE ? THEN STRING(w-ord.xls-rel-date,"99/99/9999") ELSE "" .
                 WHEN "last-date" THEN cVarValue = IF w-ord.last-date NE ? THEN STRING(w-ord.last-date) ELSE "" .
                 WHEN "promiseDate" THEN cVarValue = IF w-ord.promiseDate NE ? THEN STRING(w-ord.promiseDate) ELSE "" .

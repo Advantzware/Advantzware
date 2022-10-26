@@ -4,6 +4,8 @@ DEFINE VARIABLE dNetprct LIKE probe.net-profit.
 DEFINE VARIABLE cUsers-id AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cInks AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iTotalPallet AS INTEGER NO-UNDO .
+DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
 DEFINE BUFFER bf-eb FOR eb.
@@ -585,8 +587,10 @@ FORMAT wkrecap.procat
             v-sname
             SKIP(1).
     END.
-    
-
+    ASSIGN
+        dPalletCount = oe-ordl.cas-cnt * oe-ordl.cases-unit
+        iTotalPallet = oe-ordl.qty / (IF dPalletCount NE 0 THEN dPalletCount ELSE 1).  
+  
     FIND FIRST oe-ord NO-LOCK
         WHERE oe-ord.company EQ cocode
           AND oe-ord.ord-no  EQ w-data.ord-no
@@ -740,6 +744,7 @@ FORMAT wkrecap.procat
 		         WHEN "oe-ord.due-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date) ELSE "".
 		         WHEN "oe-ord.ord-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
                  WHEN "est-wt-per-ton" THEN cVarValue = IF AVAILABLE ef THEN STRING((ef.weight * w-data.t-sqft) / 2000) ELSE "".
+                 WHEN "iTotalPallet" THEN cVarValue = STRING(iTotalPallet,"->>,>>>,>>9").
                  WHEN "act-wt-per-ton" THEN DO:
                     IF AVAILABLE itemfg AND itemfg.est-no NE "" THEN
                     DO:
@@ -857,6 +862,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+                   WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -939,6 +945,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+                   WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1029,6 +1036,7 @@ FORMAT wkrecap.procat
 		        WHEN "oe-ord.due-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date) ELSE "".
 		        WHEN "oe-ord.ord-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
                 WHEN "est-wt-per-ton" THEN cVarValue = IF AVAILABLE ef THEN STRING((ef.weight * w-data.t-sqft) / 2000) ELSE "".
+                WHEN "iTotalPallet" THEN cVarValue = string(iTotalPallet,"->>,>>>,>>9").
                 WHEN "act-wt-per-ton" THEN DO:
                     IF AVAILABLE itemfg AND itemfg.est-no NE "" THEN
                     DO:
@@ -1141,7 +1149,8 @@ FORMAT wkrecap.procat
                    WHEN "status" THEN cVarValue = "" .
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "" . 
-		           WHEN "approved-date" THEN cVarValue = "" .	
+		           WHEN "approved-date" THEN cVarValue = "" .
+                   WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1223,6 +1232,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+                   WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
