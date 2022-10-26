@@ -126,7 +126,7 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
                             "FG ITEM#,LAST USER ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR,ACK. DATE," +
                             "UOM,SHIP FROM,MACHINE,INKS,PRINT SHEET#,COST/$M,TOTAL STD COST,FULL COST,ENTERED BY,STATUS,PO RECEIVED,PREV ORDER#," +
-                            "APPROVED DATE,Total # of Pallets (FG)"
+                            "APPROVED DATE,TOTAL # OF PALLETS (FG)"
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.cust-no,cust.name,w-data.procat," +
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,price,v-revenue,v-profit,t-tons,v-price-per-t," +

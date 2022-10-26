@@ -87,7 +87,7 @@ oe-ordl.prom-code oe-ordl.prom-date oe-ordl.po-no-po oe-ordl.s-man[1] ~
 oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.vend-no oe-ordl.s-man[2] ~
 oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.job-no oe-ordl.job-no2 ~
 oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] get-inv-qty () @ lv-inv-qty ~
-oe-ordl.ship-qty fGetTotalPallet(oe-ordl.i-no , INT(oe-ordl.qty) ) @ iTotalPallet
+oe-ordl.ship-qty fGetTotalPallet(INT(oe-ordl.qty) ) @ iTotalPallet
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
 
@@ -110,7 +110,7 @@ FUNCTION get-inv-qty RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalPallet B-table-Win 
 FUNCTION fGetTotalPallet RETURNS INTEGER
-  ( ipcItemNo AS CHARACTER , ipiQty AS INTEGER )  FORWARD.
+  ( ipiQty AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -657,28 +657,20 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalPallet V-table-Win 
 FUNCTION fGetTotalPallet RETURNS INTEGER
-  ( ipcItemNo AS CHARACTER , ipiQty AS INTEGER ) :
+  ( ipiQty AS INTEGER ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEFINE BUFFER bf-itemfg FOR itemfg.
-
+  DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO .
   DEFINE VARIABLE opiTotalPallet AS INTEGER NO-UNDO.
 
   opiTotalPallet = 0.
-  
-  FIND FIRST bf-itemfg NO-LOCK
-    WHERE bf-itemfg.company EQ cocode
-      AND bf-itemfg.i-no    EQ ipcItemNo 
-      NO-ERROR.
-      
-  IF AVAIL bf-itemfg AND bf-itemfg.case-pall NE 0 THEN
-  DO:
-       opiTotalPallet = INT(ipiQty / bf-itemfg.case-pall).
-  END.
-  ELSE opiTotalPallet = 0.
-
+  dPalletCount = oe-ordl.cas-cnt * oe-ordl.cases-unit.
+  dRoundup = ipiQty / IF dPalletCount NE 0 THEN dPalletCount ELSE 1.
+  {sys/inc/roundup.i dRoundup}
+  opiTotalPallet = dRoundup.
   RETURN opiTotalPallet.
 
 END FUNCTION.

@@ -27,7 +27,7 @@ if chosen eq 2 then DO:
        ASSIGN
        iCount       = INT((INT(itemfg.case-count) * INT(itemfg.case-pall))
                         + INT(itemfg.quantityPartial))
-       iTotalPallet = IF itemfg.case-pall NE 0 THEN INT(w-ord.rel-qty / itemfg.case-pall) ELSE 0          
+       iTotalPallet = INT(w-ord.rel-qty / iCount)           
        .
                    
     /*{oe/rep/schdrel3N.i}*/

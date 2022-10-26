@@ -5,6 +5,7 @@ DEFINE VARIABLE cUsers-id AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cInks AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iTotalPallet AS INTEGER NO-UNDO .
+DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
          FORMAT oe-ord.due-date COLUMN-LABEL " !Due!Date"
@@ -584,10 +585,10 @@ FORMAT wkrecap.procat
             v-sname
             SKIP(1).
     END.
-    
 
     ASSIGN
-        iTotalPallet = IF itemfg.case-pall NE 0 THEN INT(oe-ordl.qty / itemfg.case-pall) ELSE 0.
+        dPalletCount = oe-ordl.cas-cnt * oe-ordl.cases-unit
+        iTotalPallet = oe-ordl.qty / (IF dPalletCount NE 0 THEN dPalletCount ELSE 1).
     
     FIND FIRST oe-ord NO-LOCK
         WHERE oe-ord.company EQ cocode
