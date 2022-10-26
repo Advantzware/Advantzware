@@ -77,13 +77,15 @@ DEFINE VARIABLE v-m-code            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
 
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN cTextListToSelect = "Qty OnHand,Customer Name,Ship To,PO#,Order#,Rel#,Item,Description,Style," +  /*9*/
                            "Rel Qty,Rel Date,Ship Date,Due Alert,Carrier,Sales Value,Order Qty,MSF,Job#,Shipped Qty,Cust#,Part Number#," + /*12*/
                            "Del Zone,Terr,Skids"  /*Credit Rating,Routing,Rel Stat,Tot Qty OH*/
            cFieldListToSelect = "w-ord.onh-qty,w-ord.cust-name,w-ord.ship-id,w-ord.po-num,w-ord.ord-no,w-ord.rel-no,w-ord.i-no,w-ord.i-name,style," +
-                                "w-ord.rel-qty,w-ord.xls-rel-date,w-ord-last-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.cust-no,w-ord.part-no," +
+                                "w-ord.rel-qty,xls-rel-date,w-ord-last-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.cust-no,w-ord.part-no," +
                                 "v-del-zone,v-terr,w-ord.palls" /* v-crRate,routing,w-ord.xls-status,w-ord.tot-qty*/
            cFieldLength = "10,30,8,15,8,6,15,25,8," + "11,8,9,9,7,11,13,8,13,14,9,15," + "8,4,6"  /*13,25,8,10*/
            cFieldType = "i,c,c,c,i,i,c,c,c," + "i,c,c,c,c,i,i,i,c,i,c,c," + "c,c,i"  /* c,c,c,i*/
@@ -716,6 +718,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Scheduled Releases */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -816,6 +819,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 

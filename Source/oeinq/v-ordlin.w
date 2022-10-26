@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 assign cocode = g_company
        locode = g_loc.
 {oe/oe-sysct1.i NEW}
-DEF VAR lv-inv-qty LIKE oe-ordl.inv-qty NO-UNDO.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -85,10 +85,10 @@ oe-ordl.disc oe-ordl.req-code oe-ordl.req-date oe-ordl.t-price ~
 oe-ordl.prom-code oe-ordl.prom-date oe-ordl.po-no-po oe-ordl.s-man[1] ~
 oe-ordl.s-pct[1] oe-ordl.s-comm[1] oe-ordl.vend-no oe-ordl.s-man[2] ~
 oe-ordl.s-pct[2] oe-ordl.s-comm[2] oe-ordl.job-no oe-ordl.job-no2 ~
-oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] get-inv-qty () @ lv-inv-qty ~
-oe-ordl.ship-qty 
+oe-ordl.s-man[3] oe-ordl.s-pct[3] oe-ordl.s-comm[3] oe-ordl.ship-qty 
 &Scoped-define DISPLAYED-TABLES oe-ordl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ordl
+&Scoped-Define DISPLAYED-OBJECTS lv-inv-qty dEstWeight dActWeight iTotalPallet
 
 
 /* Custom List Definitions                                              */
@@ -102,6 +102,27 @@ oe-ordl.ship-qty
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-inv-qty V-table-Win 
 FUNCTION get-inv-qty RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetEstWeight V-table-Win 
+FUNCTION fGetEstWeight RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetActWeight V-table-Win 
+FUNCTION fGetActWeight RETURNS DECIMAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalPallet B-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
@@ -134,9 +155,29 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE lv-inv-qty LIKE oe-ordl.inv-qty 
+     LABEL "Quantity Invoiced" 
+     VIEW-AS FILL-IN            
+     SIZE 16.6 BY 1 .
+     
+DEFINE VARIABLE dEstWeight AS DECIMAL FORMAT "->>,>>>,>>9.99<<<<" 
+     LABEL "Est FG Weight"  
+     VIEW-AS FILL-IN            
+     SIZE 12.6 BY 1 .
+     
+DEFINE VARIABLE dActWeight AS DECIMAL FORMAT "->>,>>>,>>9.99<<<<"  
+     LABEL "Actual FG Weight"
+     VIEW-AS FILL-IN            
+     SIZE 12.6 BY 1 .  
+     
+DEFINE VARIABLE iTotalPallet AS DECIMAL FORMAT "->>,>>>,>>9"  
+     LABEL "Total # of Pallets (FG)"
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1.     
+          
 DEFINE RECTANGLE RECT-2
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 145 BY 13.57.
+     SIZE 145 BY 13.57 .
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -263,14 +304,14 @@ DEFINE FRAME F-Main
           LABEL "Comm% 3"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     lv-inv-qty AT ROW 13.14 COL 24 COLON-ALIGNED
-          LABEL "Quantity Invoiced"
-          VIEW-AS FILL-IN 
-          SIZE 25 BY 1
-     oe-ordl.ship-qty AT ROW 13.14 COL 81 COLON-ALIGNED
+     lv-inv-qty AT ROW 13.14 COL 24 COLON-ALIGNED                     
+     oe-ordl.ship-qty AT ROW 13.14 COL 61 COLON-ALIGNED
           LABEL "Quantity Shipped"
           VIEW-AS FILL-IN 
-          SIZE 21.6 BY 1
+          SIZE 16.6 BY 1
+     dEstWeight AT ROW 13.14 COL 96 COLON-ALIGNED                      
+     dActWeight AT ROW 13.14 COL 130 COLON-ALIGNED 
+     iTotalPallet AT ROW 8.38 COL 136 COLON-ALIGNED           
      RECT-2 AT ROW 1 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -379,6 +420,14 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ordl.tax IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN lv-inv-qty IN FRAME F-Main
+   NO-ENABLE 2 4                                                        */ 
+/* SETTINGS FOR FILL-IN iTotalPallet IN FRAME F-Main
+   NO-ENABLE 2 4                                                        */   
+/* SETTINGS FOR FILL-IN dEstWeight IN FRAME F-Main
+   NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR FILL-IN dActWeight IN FRAME F-Main
+   NO-ENABLE 2 4                                                        */   
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -474,6 +523,33 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
+PROCEDURE local-display-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+    /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE  lv-inv-qty dEstWeight dActWeight iTotalPallet.
+     ASSIGN
+          lv-inv-qty:SCREEN-VALUE = STRING(get-inv-qty())
+          dEstWeight:SCREEN-VALUE = STRING(fGetEstWeight())
+          dActWeight:SCREEN-VALUE = STRING(fGetActWeight())
+          iTotalPallet:SCREEN-VALUE = STRING(fGetTotalPallet()) .
+  END.   
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -637,6 +713,116 @@ FUNCTION get-inv-qty RETURNS DECIMAL
   RETURN lp-inv-qty.
  
   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetEstWeight V-table-Win 
+FUNCTION fGetEstWeight RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.     
+  DEFINE VARIABLE dWeightPerTon AS DECIMAL NO-UNDO.
+  
+  find first itemfg NO-LOCK
+       where itemfg.company eq cocode
+       and itemfg.i-no      eq oe-ordl.i-no
+       NO-ERROR.
+  
+  RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT dSqft).
+  
+  IF AVAILABLE itemfg AND oe-ordl.est-no NE "" THEN
+  DO:
+     RELEASE ef.
+     FIND FIRST eb NO-LOCK WHERE eb.company EQ cocode
+          AND eb.est-no  EQ oe-ordl.est-no
+          AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+     IF AVAILABLE eb THEN        
+     FIND FIRST ef NO-LOCK
+          WHERE ef.company EQ eb.company 
+          AND ef.est-no EQ eb.est-no 
+          AND ef.form-no EQ eb.form-no NO-ERROR.
+              
+     dWeightPerTon = IF AVAILABLE ef THEN (ef.weight * oe-ordl.qty * dSqft ) / 2000 ELSE 0.        
+  END.
+  
+  RETURN dWeightPerTon.
+ 
+  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetActWeight V-table-Win 
+FUNCTION fGetActWeight RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dWeightPerTon AS DECIMAL NO-UNDO.
+  DEFINE BUFFER bf-eb FOR eb.
+  DEFINE BUFFER bf-ef FOR ef.
+      
+  find first itemfg NO-LOCK
+       where itemfg.company eq cocode
+       and itemfg.i-no      eq oe-ordl.i-no
+       NO-ERROR.
+  
+  RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT dSqft).
+  
+  IF AVAILABLE itemfg AND itemfg.est-no NE "" THEN
+  DO:
+     FIND FIRST bf-eb NO-LOCK
+            WHERE bf-eb.company EQ cocode 
+              AND bf-eb.est-no EQ itemfg.est-no
+              AND bf-eb.stock-no EQ itemfg.i-no NO-ERROR.
+      IF AVAILABLE bf-eb THEN
+      FIND FIRST bf-ef NO-LOCK
+            WHERE bf-ef.company EQ cocode 
+              AND bf-ef.est-no EQ bf-eb.est-no
+              AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+              
+      dWeightPerTon = IF AVAILABLE bf-ef THEN (bf-ef.weight * itemfg.q-onh * dSqft ) / 2000 ELSE 0.        
+
+  END.
+  
+  RETURN dWeightPerTon.
+ 
+  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalPallet V-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE opiTotalPallet AS INTEGER NO-UNDO.
+
+  ASSIGN
+      opiTotalPallet = 0
+      dPalletCount   = oe-ordl.cas-cnt * oe-ordl.cases-unit
+      dRoundup       = INT(oe-ordl.qty) / IF dPalletCount NE 0 THEN dPalletCount ELSE 1
+      .
+  {sys/inc/roundup.i dRoundup}
+  opiTotalPallet = dRoundup.
+  RETURN opiTotalPallet.
 
 END FUNCTION.
 

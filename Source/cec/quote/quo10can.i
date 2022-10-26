@@ -62,8 +62,17 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
       lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                       ELSE xqitm.part-dscr1.
-      PUT trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) lv-part-dscr1.  
+                      
+      IF LENGTH(xqitm.part-no) LE 20 THEN
+        PUT  "<C1>" TRIM(lv-est-no) FORM "x(8)"
+            "<C8.5>" xqitm.part-no  FORMAT "x(20)"           
+            "<C26>" TRIM(lv-part-dscr1) FORMAT "x(30)".
+      ELSE do: 
+         PUT "<C1>" TRIM(lv-est-no) FORM "x(8)"
+          "<C8.5>" xqitm.part-no  FORMAT "x(30)".
+         IF lv-part-dscr1 NE "" THEN
+          PUT SKIP "<C26>" TRIM(lv-part-dscr1) FORMAT "x(30)". 
+      END.
          
     END.
     ELSE
@@ -400,6 +409,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   END.
   IF NOT LAST(xqitm.part-no) THEN
   put skip(1) .
+
+  IF LAST-OF(xqitm.part-no) AND lSpecNotes THEN
+  DO:
+        RUN pPrintSpecNotes(xqitm.i-no).
+  END.
 END.
 
 numfit = 0.

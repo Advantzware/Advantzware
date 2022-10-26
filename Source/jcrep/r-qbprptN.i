@@ -161,11 +161,14 @@ jcrep\qbprpt.i
                          WHEN "ord-sts"  THEN cVarValue =  STRING(cstat) .
                          
                     END CASE.
-                      
-                    cExcelVarValue = cVarValue.
+                    
+                    IF cTmpField = "date" THEN cExcelVarValue = IF job-hdr.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job-hdr.due-date) ELSE "".
+                    
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
           
             PUT UNFORMATTED cDisplay SKIP.

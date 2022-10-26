@@ -1212,8 +1212,8 @@ DEFINE BUTTON btnShowDowntime
 
 DEFINE VARIABLE boardSize AS CHARACTER FORMAT "X(256)":U INITIAL "Maximize" 
      LABEL "Board Size" 
-     VIEW-AS COMBO-BOX INNER-LINES 6
-     LIST-ITEMS "800x600","1024x768","1152x864","1280x960","1280x1024","Maximize" 
+     VIEW-AS COMBO-BOX INNER-LINES 14
+     LIST-ITEMS "800x600","1024x768","1280x720","1280x768","1280x800","1280x1024","1360x768","1366x768","1400x1050","1440x900","1600x900","1680x1050","1920x1080","Maximize" 
      DROP-DOWN-LIST
      SIZE 17 BY 1 NO-UNDO.
 
@@ -5233,12 +5233,11 @@ PROCEDURE getConfiguration :
       statusCheckoffTypeValue
       .
     FIND FIRST module NO-LOCK
-         WHERE module.db-name EQ "ASI"
-           AND module.module  EQ "sbHTML"
+         WHERE module.module  EQ "Scheduling"
          NO-ERROR.
     lDisableHTMLPageLocation = AVAILABLE module AND
-                              (NOT module.is-used OR
-                               module.expire-date LT TODAY).
+                              (NOT module.licensed OR
+                               module.expDate LT TODAY).
     IF lDisableHTMLPageLocation EQ NO THEN 
     ENABLE btnHTMLPageLocation.
     IF customValueList EQ '' THEN

@@ -609,7 +609,10 @@ DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
               END.
-           END. /* WHEN 4 THEN DO: */
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END.
+           END. /* WHEN 3 THEN DO: */
        WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &TYPE=" "
@@ -1648,12 +1651,6 @@ OUTPUT STREAM st-excel CLOSE.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
-
-    IF rd-dest = 3  THEN 
-    DO:
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-    END. 
 
 
 END PROCEDURE.

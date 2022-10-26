@@ -104,7 +104,7 @@ DEFINE QUERY external_tables FOR itemfg.
 itemfg.i-name itemfg.part-dscr1 itemfg.part-dscr2 itemfg.part-dscr3 ~
 itemfg.spare-char-1 itemfg.est-no itemfg.designID itemfg.style ~
 itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no itemfg.spc-no ~
-itemfg.upc-no itemfg.spare-int-2 itemfg.poStatus itemfg.receiveAsRMItemID ~
+itemfg.upc-no itemfg.iReleaseSeq itemfg.poStatus itemfg.receiveAsRMItemID ~
 itemfg.cust-no itemfg.cust-name itemfg.stat itemfg.pur-man itemfg.ship-meth ~
 itemfg.i-code itemfg.sell-price itemfg.sell-uom itemfg.curr-code[1] ~
 itemfg.procat itemfg.procat-desc itemfg.type-code itemfg.def-loc ~
@@ -124,7 +124,7 @@ RECT-9 RECT-11 RECT-12
 itemfg.i-name itemfg.part-dscr1 itemfg.part-dscr2 itemfg.part-dscr3 ~
 itemfg.spare-char-1 itemfg.exempt-disc itemfg.est-no itemfg.designID ~
 itemfg.style itemfg.style-desc itemfg.die-no itemfg.plate-no itemfg.cad-no ~
-itemfg.spc-no itemfg.upc-no itemfg.spare-int-2 itemfg.poStatus ~
+itemfg.spc-no itemfg.upc-no itemfg.iReleaseSeq itemfg.poStatus ~
 itemfg.receiveAsRMItemID itemfg.setupBy itemfg.modifiedBy itemfg.setupDate ~
 itemfg.modifiedDate itemfg.cust-no itemfg.cust-name itemfg.stat ~
 itemfg.pur-man itemfg.ship-meth itemfg.i-code itemfg.sell-price ~
@@ -221,9 +221,9 @@ DEFINE VARIABLE tb_taxable AS LOGICAL INITIAL no
      SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tg-Freeze-weight AS LOGICAL INITIAL no 
-     LABEL "" 
+     LABEL "Lock" 
      VIEW-AS TOGGLE-BOX
-     SIZE 3 BY .81 NO-UNDO.
+     SIZE 9 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -299,7 +299,7 @@ DEFINE FRAME F-Main
           LABEL "UPC #" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
-     itemfg.spare-int-2 AT ROW 16.91 COL 11 COLON-ALIGNED HELP
+     itemfg.iReleaseSeq AT ROW 16.91 COL 11 COLON-ALIGNED HELP
           "" WIDGET-ID 16
           LABEL "Rel Seq" FORMAT ">>>>>>9"
           VIEW-AS FILL-IN 
@@ -430,12 +430,12 @@ DEFINE FRAME F-Main
      itemfg.weight-100 AT ROW 10.52 COL 81.6 COLON-ALIGNED
           LABEL "ShipWt/100"
           VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-     tg-Freeze-weight AT ROW 10.52 COL 100 WIDGET-ID 14
-     itemfg.prod-notes AT ROW 10.52 COL 114 COLON-ALIGNED
+          SIZE 13.4 BY 1
+     tg-Freeze-weight AT ROW 10.52 COL 97 WIDGET-ID 14
+     itemfg.prod-notes AT ROW 10.52 COL 115 COLON-ALIGNED
           LABEL "Pk Note"
           VIEW-AS FILL-IN 
-          SIZE 28 BY 1
+          SIZE 27 BY 1
      itemfg.weightPerEA AT ROW 11.57 COL 81.6 COLON-ALIGNED WIDGET-ID 18
           LABEL "Weight/EA"
           VIEW-AS FILL-IN 
@@ -681,7 +681,7 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.spare-dec-1 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN itemfg.spare-int-2 IN FRAME F-Main
+/* SETTINGS FOR FILL-IN itemfg.iReleaseSeq IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN itemfg.spc-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
@@ -703,6 +703,8 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR TOGGLE-BOX tb_taxable IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR TOGGLE-BOX tg-Freeze-weight IN FRAME F-Main
+   NO-ENABLE 2 4                                                        */   
 /* SETTINGS FOR FILL-IN itemfg.total-std-cost IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.trNo IN FRAME F-Main
@@ -1923,9 +1925,9 @@ PROCEDURE local-assign-record :
   
 
     IF tg-freeze-weight THEN
-        itemfg.spare-int-1 = 1.
+        itemfg.lLockWeightCalc = YES.
     ELSE
-        itemfg.spare-int-1 = 0.
+        itemfg.lLockWeightCalc = NO.
 
     IF adm-new-record AND NOT adm-adding-record AND AVAILABLE b-i THEN 
     DO: /* copy */
@@ -2129,6 +2131,9 @@ PROCEDURE local-create-record :
             tb_taxable:SCREEN-VALUE = STRING(itemfg.taxable).
     /*      rd_status:SCREEN-VALUE      = "A"   */
     /*      tb_exempt-disc:SCREEN-VALUE = "no". */
+        IF itemfg.poStatus EQ "" 
+        OR itemfg.poStatus EQ ? THEN ASSIGN 
+            poStatus:SCREEN-VALUE = '<none>'.
     END.
 
    
@@ -2170,7 +2175,7 @@ PROCEDURE local-display-fields :
             itemfg.cust-name:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cust.name.
      
         ASSIGN 
-            tg-freeze-weight:CHECKED = (IF itemfg.spare-int-1 = 1 THEN TRUE ELSE FALSE).
+            tg-freeze-weight:CHECKED = (IF itemfg.lLockWeightCalc THEN TRUE ELSE FALSE).
         RUN SetPurMan(itemfg.isaset).
         RUN pCalCount .
         RUN pGetSourceEst .

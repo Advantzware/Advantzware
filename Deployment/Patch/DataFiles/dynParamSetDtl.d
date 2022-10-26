@@ -513,3 +513,8 @@
 190 35 "Includedonotcarry" "Zero Standard MR from Previous Date?" "" "" "" "" "no" 1 41 3 1.71 yes ? "" "202206031122909508799"
 192 11 "JobNumber-DateTime" "Print" "" "" "" "Job Number,1,Job Date and Time,2" "1" 1 39 9 1.71 yes "HORIZONTAL" "" "202206031185509508803"
 193 12 "ShowDetail" "Show Detail" "" "" "" "" "yes" 1 15 3 1.71 yes ? "" "202206248404709640064"
+194 12 "DoNotShowNoCrewMessage" "Don't Show No Crew Is Entered Message" "" "" "" "" "no" 1 43 3 1.71 yes ? "" "20220920_23:15:48_10155849"
+195 12 "RebuildAllFromHistory" "Rebuild All Bin Quantities from History" "" "" "" "" "no" 1 40 3 1.71 yes ? "" "20220926_17:38:51_10174693"
+195 12 "DeleteZeroBins" "Delete Bins with Zero Quantity" "" "" "" "" "no" 1 33 3 2.67 yes ? "" "20220926_17:39:42_10174694"
+195 12 "DeleteNegativeBins" "Delete Bins with Negative Quantity" "" "" "" "" "no" 1 37 3 3.62 yes ? "" "20220926_17:40:30_10174695"
+195 12 "IncludeInavtiveItems" "Include Inactive Items" "" "" "" "" "no" 1 25 3 4.57 yes ? "" "20220926_17:41:18_10174696"

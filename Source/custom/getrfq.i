@@ -1,5 +1,6 @@
 /* getrfq.i */
 
+/*
 FIND FIRST asi.module NO-LOCK WHERE module.module EQ 'rfq' NO-ERROR.
 IF AVAILABLE module AND module.is-used THEN DO:
   IF module.expire-date EQ ? OR module.expire-date GE TODAY THEN DO:
@@ -12,3 +13,4 @@ IF AVAILABLE module AND module.is-used THEN DO:
     END. /* connected rfq db */
   END. /* expire-date */
 END. /* avail module */
+*/

@@ -119,8 +119,19 @@ FOR EACH tt-item,
          lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 AND AVAIL itemfg THEN itemfg.i-name
                          ELSE xqitm.part-dscr1.
       /*lv-part-dscr1 = IF s-print-2nd-dscr AND AVAIL itemfg THEN ITEMfg.i-NAME ELSE lv-part-dscr1.*/
-      put trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) lv-part-dscr1 .
+
+      IF LENGTH(xqitm.part-no) LE 20 THEN
+        PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+          xqitm.part-no AT 10 FORMAT "x(20)"           
+          TRIM(lv-part-dscr1) AT 31 FORMAT "x(30)".
+      ELSE do: 
+         PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+          xqitm.part-no AT 10 FORMAT "x(30)".
+          IF lv-part-dscr1 NE "" THEN
+          PUT 
+            SKIP           
+            TRIM(lv-part-dscr1) AT 31 FORMAT "x(30)".
+      END.
     END.
 
     ELSE
@@ -294,8 +305,8 @@ FOR EACH tt-item,
        v-pricea = IF xqqty.uom EQ "EA" THEN string(xqqty.price,">>>>9.9999") 
                                        ELSE string(xqqty.price,"->>,>>9.99").
       
-        PUT xqqty.qty           TO 68   FORMAT ">,>>>,>>9"
-            xqqty.rels          TO 72   FORMAT ">>9"   
+        PUT xqqty.qty           TO 69   FORMAT ">,>>>,>>9"
+            xqqty.rels          TO 73   FORMAT ">>9"   
             v-pricea            TO 84   /*FORMAT "->>>,>>9.99"*/ .
 
         IF xqqty.uom NE "L" THEN

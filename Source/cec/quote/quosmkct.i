@@ -76,10 +76,17 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                       ELSE xqitm.part-dscr1.
 
 
-      PUT TRIM(lv-est-no) FORM "x(8)" AT 1
-          xqitm.part-no AT 10 FORMAT "x(21)"
-          TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)". 
-
+      PUT "<C1>"TRIM(lv-est-no) FORM "x(8)" .
+      IF length(xqitm.part-no) LE 18 THEN   
+      PUT "<C8.5>" xqitm.part-no FORMAT "x(18)"
+          "<C26>" TRIM(lv-part-dscr1) FORMAT "x(28)". 
+      ELSE DO:
+           put "<C8.5>" xqitm.part-no FORM "x(30)" . 
+           IF lv-part-dscr1 NE "" THEN
+           PUT
+             SKIP
+             "<C26>" TRIM(lv-part-dscr1) FORMAT "x(28)" . 
+      END.
     END.
     ELSE
     IF i EQ 2 THEN DO:

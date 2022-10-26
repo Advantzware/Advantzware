@@ -86,7 +86,7 @@ ASSIGN
                             "RM Item Code,FG Item Code,Style from Job,Buyer ID,User ID,Po Line," +
                             "ShipTo Customer,Drop Shipment Type,RM Category,RM Category description,FG Category,FG Category description,Required Date," +
                             "PoDate Change Notes,Required Date Change Notes,Last Ship Date Change Notes,Due Date Change Notes," +
-                            "Ordered PO Line Cost,Received PO Line Cost,Balance PO Line Cost".
+                            "Ordered PO Line Cost,Received PO Line Cost,Balance PO Line Cost,Weight per Ton".
 cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-id,po-ord.ship-name," +
     "po-ord.ship-addr[1],po-ord.ship-addr[2],po-ord.ship-city,po-ord.ship-state,po-ord.ship-zip," +
     "po-ord.carrier,po-ord.t-freight,po-ord.frt-pay,po-ord.fob-code," +
@@ -103,7 +103,7 @@ cFieldListToSelect = "po-ordl.po-no,po-ord.vend-no,po-ordl.due-date,po-ord.ship-
     "rm-item,fg-item,style-job,po-ord.buyer,po-ord.user-id,po-ordl.line," +
     "shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-ord.due-date," +
     "po-date-notes,required-date-note,lastShip-date-notes,due-date-notes," +
-    "ord-po-line-cost,rec-po-line-cost,bal-po-line-cost".
+    "ord-po-line-cost,rec-po-line-cost,bal-po-line-cost,wt-per-ton".
 
 /*vend.name
        lv_vend-add1:SCREEN-VALUE  = vend.add1
@@ -211,6 +211,13 @@ FUNCTION getValue-po-ordl RETURNS CHARACTER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getValue-vend rd-poexp 
 FUNCTION getValue-vend RETURNS CHARACTER
     ( BUFFER ipb-buffer FOR vend, ipc-field AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTons rd-poexp 
+FUNCTION fGetTons RETURNS DECIMAL
+  (iplType AS LOGICAL, ipcItem AS CHARACTER, ipdQty AS DECIMAL)  FORWARD.  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -794,6 +801,9 @@ ON CHOOSE OF btn-ok IN FRAME rd-poexp /* OK */
             DO:
                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
             END.
+        END.
+        ELSE DO:
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
         END.
         IF tbAutoClose:CHECKED THEN 
             APPLY "END-ERROR":U TO SELF.                 
@@ -1460,7 +1470,7 @@ PROCEDURE run-report :
     
         FOR EACH ttRptSelected:
 
-            IF LOOKUP(ttRptSelected.FieldList,"po-ordl.job-no,cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-date-notes,required-date-note,lastShip-date-notes,due-date-notes,ord-po-line-cost,rec-po-line-cost,Bal-po-line-cost") EQ 0 THEN 
+            IF LOOKUP(ttRptSelected.FieldList,"po-ordl.job-no,cust-part,adders,rm-item,fg-item,style-job,shipto-cust,dropshipment,rm-cat,rm-cat-dscr,fg-cat,fg-cat-dscr,po-date-notes,required-date-note,lastShip-date-notes,due-date-notes,ord-po-line-cost,rec-po-line-cost,Bal-po-line-cost,wt-per-ton") EQ 0 THEN 
             DO:
                 v-excel-detail-lines = v-excel-detail-lines + 
                     appendXLLine(getValue(BUFFER po-ordl,BUFFER po-ord,BUFFER vend,ttRptSelected.FieldList)).
@@ -1615,7 +1625,10 @@ PROCEDURE run-report :
                             dReceivedCost = po-ordl.t-cost - dReceivedCost.
                             v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(dReceivedCost)).  
                         END.      
-                     
+                    WHEN "wt-per-ton" THEN 
+                        DO:                             
+                            v-excel-detail-lines = v-excel-detail-lines + appendXLLine(STRING(fGetTons( INPUT po-ordl.item-type, INPUT po-ordl.i-no, INPUT po-ordl.ord-qty),"->>,>>>,>>9.999")).  
+                        END.             
                     WHEN "adders" THEN 
                         DO:
 
@@ -1735,8 +1748,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2111,3 +2122,34 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTons rd-poexp 
+FUNCTION fGetTons RETURNS DECIMAL
+  ( iplType AS LOGICAL, ipcItem AS CHARACTER, ipdQty AS DECIMAL ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+     FIND FIRST item NO-LOCK
+         WHERE item.company EQ cocode
+         AND item.i-no    EQ ipcItem
+         NO-ERROR.
+     IF iplType EQ TRUE AND AVAIL ITEM AND item.mat-type EQ "B" THEN do:    
+         IF ITEM.cons-uom EQ "TON" THEN
+         dResult = ipdQty.
+         ELSE
+         RUN custom/convquom.p(cocode, item.cons-uom,"TON", item.basis-w,
+                                   (IF item.r-wid EQ 0 THEN item.s-len
+                                                        ELSE 12),
+                                    (IF item.r-wid EQ 0 THEN item.s-wid
+                                                        ELSE item.r-wid),
+                                    item.s-dep,                    
+                                    ipdQty, OUTPUT dResult).     
+    END.                            
+	RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

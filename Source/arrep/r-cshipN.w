@@ -483,7 +483,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             ASSIGN {&displayed-objects}.
         END.
    
-        IF rd-dest = 3 THEN
+        IF rd-dest = 3 OR td-expt-impt:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" THEN
         DO:
             ASSIGN 
                 fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
@@ -530,59 +530,57 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
             RUN run-report. 
 
         STATUS DEFAULT "Processing Complete".
-        CASE rd-dest:
-            WHEN 1 THEN RUN output-to-printer.
-            WHEN 2 THEN RUN output-to-screen.
-            WHEN 3 THEN 
-                DO:
-                    IF NOT tb_OpenCSV THEN 
-                    DO:        
-                        MESSAGE "CSV file have been created." SKIP(1)
-                            "~"OK"~" to open CSV file?"
-                            VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
-                            TITLE "" UPDATE lChoice AS LOGICAL.
-                 
-                        IF lChoice THEN
+        
+        IF td-expt-impt:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "Yes" THEN
+        DO:
+            CASE rd-dest:
+                WHEN 1 THEN RUN output-to-printer.
+                WHEN 2 THEN RUN output-to-screen.
+                WHEN 3 THEN 
+                    DO:
+                        RUN pOpenCSV.
+                    END. /* WHEN 3 THEN DO: */
+                WHEN 4 THEN 
+                    DO:
+                        /*run output-to-fax.*/
+                        {custom/asifax.i &begin_cust=begin_cust-no
+                                &END_cust=END_cust-no
+                                &fax-subject="Customer Shipto List"
+                                &fax-body="Customer Shipto List"
+                                &fax-file=list-name }
+                    END.
+                WHEN 5 THEN 
+                    DO:
+                        IF is-xprint-form THEN 
                         DO:
-                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                            RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                            {custom/asimail.i &TYPE = "CUSTOMER"
+                                 &begin_cust= begin_cust-no
+                                 &END_cust=end_cust-no
+                                 &mail-subject="Customer Shipto List"
+                                 &mail-body="Customer Shipto List"
+                                 &mail-file=lv-pdf-file + ".pdf" }
                         END.
-                    END.
-                END. /* WHEN 3 THEN DO: */
-            WHEN 4 THEN 
-                DO:
-                    /*run output-to-fax.*/
-                    {custom/asifax.i &begin_cust=begin_cust-no
-                            &END_cust=END_cust-no
-                            &fax-subject="Customer Shipto List"
-                            &fax-body="Customer Shipto List"
-                            &fax-file=list-name }
-                END.
-            WHEN 5 THEN 
-                DO:
-                    IF is-xprint-form THEN 
-                    DO:
-                        RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                        {custom/asimail.i &TYPE = "CUSTOMER"
-                             &begin_cust= begin_cust-no
-                             &END_cust=end_cust-no
-                             &mail-subject="Customer Shipto List"
-                             &mail-body="Customer Shipto List"
-                             &mail-file=lv-pdf-file + ".pdf" }
-                    END.
-                    ELSE 
-                    DO:
-                        {custom/asimailr.i &TYPE = "CUSTOMER"
-                                  &begin_cust= begin_cust-no
-                                  &END_cust=end_cust-no
-                                  &mail-subject="Customer Shipto List"
-                                  &mail-body="Customer Shipto List"
-                                  &mail-file=list-name }
+                        ELSE 
+                        DO:
+                            {custom/asimailr.i &TYPE = "CUSTOMER"
+                                      &begin_cust= begin_cust-no
+                                      &END_cust=end_cust-no
+                                      &mail-subject="Customer Shipto List"
+                                      &mail-body="Customer Shipto List"
+                                      &mail-file=list-name }
 
-                    END.
+                        END.
 
-                END. 
-            WHEN 6 THEN RUN output-to-port.
-        END CASE.
+                    END. 
+                WHEN 6 THEN RUN output-to-port.
+            END CASE.
+        END.
+        ELSE DO:
+            RUN pOpenCSV.
+        END.
+        
+        
         IF tbAutoClose:CHECKED THEN 
             APPLY 'CLOSE' TO THIS-PROCEDURE.
     END.
@@ -940,6 +938,8 @@ ON VALUE-CHANGED OF td-expt-impt IN FRAME FRAME-A /* Export for Import? */
                     Btn_down:SENSITIVE IN FRAME {&FRAME-NAME}    = NO 
                     rd-dest:SENSITIVE IN FRAME {&FRAME-NAME}     = NO.
 
+        RUN pChangeDest.
+    
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1622,8 +1622,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1642,7 +1640,7 @@ PROCEDURE run-report2 :
     /* ------------------------------------------------ ar/rep/shipto.p 10/94 rd */
     /* customer shipto report                                                    */
     /* ------------------------------------------------------------------------ */
-
+    
     {sys/form/r-topw.f}
 
     DEFINE VARIABLE v-cust-no   LIKE cust.cust-no EXTENT 2 INITIAL [" ", "ZZZZZZZZ"].
@@ -1652,9 +1650,6 @@ PROCEDURE run-report2 :
     DEFINE VARIABLE lst-name    AS CHARACTER NO-UNDO .
     DEFINE VARIABLE v-dbu       AS INTEGER   INIT 1 NO-UNDO .
     DEFINE VARIABLE lSelected   AS LOG       INIT YES NO-UNDO.
-    DEFINE VARIABLE cFileName2  LIKE fi_file NO-UNDO .
-
-    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName2) .
 
     FORM 
         v-dbu LABEL "DBU"
@@ -1704,7 +1699,7 @@ PROCEDURE run-report2 :
     DO:
         IF tb_excel THEN 
         DO:
-            OUTPUT STREAM excel TO VALUE(cFileName2).
+            OUTPUT STREAM excel TO VALUE(cFileName).
             excelheader = "DBU,ZONE,ADDRESS 1,ADDRESS 2,CITY,STATE,ZIP,PHONE,FIRST NAME,LAST NAME,COMPANY,SHIP ID,WHSE".
             PUT STREAM excel UNFORMATTED 
                 '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1714,7 +1709,7 @@ PROCEDURE run-report2 :
         DO:
             IF tb_excel THEN 
             DO:
-                OUTPUT STREAM excel TO VALUE(cFileName2).
+                OUTPUT STREAM excel TO VALUE(cFileName).
                 excelheader = "DBU,ZONE,FIRST NAME,LAST NAME,COMPANY,ADDRESS 1,ADDRESS 2,CITY,STATE,ZIP,PHONE".
                 PUT STREAM excel UNFORMATTED 
                     '"' REPLACE(excelheader,',','","') '"' SKIP.
@@ -1865,8 +1860,6 @@ PROCEDURE run-report2 :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName2)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1985,7 +1978,7 @@ PROCEDURE pChangeDest :
      Notes:      
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-        IF rd-dest:SCREEN-VALUE EQ "3" THEN
+        IF rd-dest:SCREEN-VALUE EQ "3" OR td-expt-impt:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes" THEN
             ASSIGN
                 tb_OpenCSV:SCREEN-VALUE = "Yes"
                 fi_file:SENSITIVE       = YES
@@ -2001,6 +1994,37 @@ PROCEDURE pChangeDest :
                 .
         ASSIGN 
             fi_file:SCREEN-VALUE = "c:\tmp\PastDueAging.csv".    
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pOpenCSV C-Win 
+PROCEDURE pOpenCSV :
+    /*------------------------------------------------------------------------------
+     Purpose:    
+     Parameters:  <none>
+     Notes:      
+    ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF NOT tb_OpenCSV THEN 
+        DO:        
+            MESSAGE "CSV file have been created." SKIP(1)
+                "~"OK"~" to open CSV file?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                TITLE "" UPDATE lChoice AS LOGICAL.
+     
+            IF lChoice THEN
+            DO:
+                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+            END.
+        END. /* IF NOT tb_OpenCSV THEN */
+        ELSE DO:
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+        END.
+    
     END.
 
 END PROCEDURE.

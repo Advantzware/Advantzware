@@ -550,7 +550,7 @@ DO:
         DEFINE VARIABLE lSave AS LOG NO-UNDO.
 
         IF users.securityLevel LT 900 THEN RETURN NO-APPLY.
-    
+/*    
         ix = COLOR-TABLE:NUM-ENTRIES.
         COLOR-TABLE:NUM-ENTRIES = ix + 1.
         COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
@@ -562,6 +562,7 @@ DO:
             rBgColor:FGCOLOR = ix
             rBgColor:BGCOLOR = ix
             company.cBgColor:SCREEN-VALUE = "".
+*/
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,7 +676,7 @@ DO:
     DEFINE VARIABLE lSave AS LOG NO-UNDO.
 
     IF users.securityLevel LT 900 THEN RETURN NO-APPLY.
-    
+/*    
     ix = COLOR-TABLE:NUM-ENTRIES.
     COLOR-TABLE:NUM-ENTRIES = ix + 1.
     COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
@@ -690,6 +691,7 @@ DO:
                                STRING(COLOR-TABLE:get-green-value(ix)) + "," +
                                STRING(COLOR-TABLE:get-blue-value(ix)).
     END.
+ */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -977,7 +979,7 @@ PROCEDURE local-display-fields :
     DEFINE VARIABLE blue  AS INTEGER NO-UNDO INITIAL 127.
     DEFINE VARIABLE green AS INTEGER NO-UNDO INITIAL 127.
     DEFINE VARIABLE ix    AS INTEGER NO-UNDO.
-
+/*
     ix = COLOR-TABLE:NUM-ENTRIES.
     COLOR-TABLE:NUM-ENTRIES = ix + 1.
 
@@ -985,7 +987,7 @@ PROCEDURE local-display-fields :
     COLOR-TABLE:SET-RED-VALUE(ix, red).
     COLOR-TABLE:SET-GREEN-VALUE(ix, green).
     COLOR-TABLE:SET-BLUE-VALUE(ix, blue).
-  
+*/
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1008,6 +1010,7 @@ PROCEDURE local-display-fields :
                                 lv-prd-dt1 = period.pst
                                 lv-prd-dt2 = period.pend.
     DISPLAY lv-first-year lv-prd-num lv-prd-dt1 lv-prd-dt2 WITH FRAME {&FRAME-NAME}.
+/*    
     IF company.cBgColor NE "" THEN DO:
         COLOR-TABLE:SET-DYNAMIC(ix, TRUE).
         COLOR-TABLE:SET-RED-VALUE(ix, INTEGER(ENTRY(1,company.cBgColor))).
@@ -1023,7 +1026,7 @@ PROCEDURE local-display-fields :
     ASSIGN 
         rBgColor:FGCOLOR = ix
         rBgColor:BGCOLOR = ix.
-        
+*/        
   END.
 
 END PROCEDURE.

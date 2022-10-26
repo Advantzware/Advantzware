@@ -48,6 +48,10 @@ DEFINE VARIABLE lcConcatJobPrepData    AS LONGCHAR  NO-UNDO.
     
 /*Job Material variables*/
 DEFINE VARIABLE cCrossGrain            AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cBoardCode             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cGrain                 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCylinder              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cTray                  AS CHARACTER NO-UNDO.
     
 /*Job Machine variables*/
     
@@ -206,9 +210,17 @@ DO:
     DO:  
         FOR EACH job-mat NO-LOCK
             WHERE job-mat.company EQ job.company
+              AND job-mat.job     EQ job.job
               AND job-mat.job-no  EQ job.job-no
               AND job-mat.job-no2 EQ job.job-no2:
-                
+
+            ASSIGN 
+                cBoardCode = ""
+                cCylinder  = ""
+                cTray      = ""
+                cGrain     = ""
+                .
+
             lcJobMatData = bf-APIOutboundDetail.data.
                         
             FOR EACH job-hdr NO-LOCK
@@ -238,12 +250,14 @@ DO:
                         WHERE item.company EQ job-hdr.company
                           AND item.i-no    EQ bf-job-mat.i-no
                           AND INDEX("BPR",item.mat-type) GT 0:
-                        oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "BoardCode", item.i-name).
-                        oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Grain", ef.xgrain).
-                        oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder", STRING(ef.gsh-len)).      
+                        ASSIGN 
+                            cBoardCode = TRIM(item.i-name)
+                            cGrain     = TRIM(ef.xgrain)
+                            cCylinder  = TRIM(STRING(ef.gsh-len)) 
+                            .       
                     END.
                             
-                    oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Tray", eb.layer-pad).
+                    cTray = TRIM(eb.layer-pad).
                 END.
             END.
 
@@ -253,7 +267,11 @@ DO:
                           ELSE job-mat.xgrain.
 
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "CrossGrain", cCrossGrain).
-
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "BoardCode",cBoardCode).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Grain",cGrain).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Cylinder",cCylinder).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcJobMatData, "Tray",cTray).
+                
             lcJobMatData = oAttribute:ReplaceAttributes(lcJobMatData, BUFFER job-mat:HANDLE).
 
             RUN pUpdateRMItemInfo (job-mat.company, job-mat.i-no, INPUT-OUTPUT lcJobMatData).

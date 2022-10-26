@@ -1088,6 +1088,7 @@ DO:
   RUN paper-clip-image-proc(INPUT oe-ordl.rec_key).
 
   RUN spec-book-image-proc.
+  RUN GearWheelsImageProc.
   RUN dept-pan-image-proc.
 
   FIND FIRST b-cust WHERE
@@ -1585,6 +1586,8 @@ PROCEDURE dept-pan-image-proc :
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
    FIND FIRST notes WHERE notes.rec_key = oe-ordl.rec_key
+       AND notes.note_type <> "S" 
+       AND notes.note_type <> "o"
        NO-LOCK NO-ERROR.
 
    IF AVAILABLE notes THEN
@@ -1998,6 +2001,8 @@ PROCEDURE navigate-browser :
 
   IF ROWID(oe-ordl) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
+    
+  APPLY "value-changed" TO BROWSE {&browse-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2790,6 +2795,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GearWheelsImageProc B-table-Win 
+PROCEDURE GearWheelsImageProc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE v-spec AS LOG NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+   v-spec = AVAILABLE oe-ordl AND
+            CAN-FIND(FIRST notes
+                     WHERE notes.rec_key   EQ oe-ordl.rec_key
+                       AND notes.note_type EQ "O").
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'optonote-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN pUpdateGearWheelsImage IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -3074,7 +3103,7 @@ FUNCTION get-inv-qty RETURNS INT
 
   DEF VAR lp-inv-qty AS INT NO-UNDO.
 
-  ASSIGN lp-inv-qty = oe-ordl.inv-qty - int(getReturned("ReturnedInv")) NO-ERROR .   
+  ASSIGN lp-inv-qty = oe-ordl.t-inv-qty - int(getReturned("ReturnedInv")) NO-ERROR .   
 
   RETURN lp-inv-qty.
 
@@ -3137,37 +3166,20 @@ DO:
 /*              iTotalProdQty = iTotalProdQty + fg-rdtlh.qty. */
 /*         END.                                               */
 /*      ELSE                                                  */
-    FOR EACH job-hdr FIELDS(company job-no job-no2 i-no) 
-        WHERE job-hdr.company EQ cocode 
-          AND job-hdr.ord-no EQ oe-ordl.ord-no 
-          AND job-hdr.i-no EQ oe-ordl.i-no
-        USE-INDEX ord-no
-/*         NO-LOCK,                                       */
-/*         EACH fg-rcpth FIELDS(r-no rita-code)           */
-/*         WHERE fg-rcpth.company   EQ cocode             */
-/*           AND fg-rcpth.job-no    EQ job-hdr.job-no     */
-/*           AND fg-rcpth.job-no2   EQ job-hdr.job-no2    */
-/*           AND fg-rcpth.i-no      EQ oe-ordl.i-no       */
-/*           AND fg-rcpth.rita-code EQ "R"                */
-/*         USE-INDEX job                                  */
-/*         NO-LOCK,                                       */
-/*         EACH fg-rdtlh FIELDS(qty)                      */
-/*         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no      */
-/*           AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code */
-        NO-LOCK
-        BREAK BY job-hdr.job-no
-        BY job-hdr.job-no2:
-        IF FIRST-OF(job-hdr.job-no2) THEN DO:
-            RUN fg/GetProductionQty.p (INPUT job-hdr.company,
-                                   INPUT job-hdr.job-no,
-                                   INPUT job-hdr.job-no2,
-                                   INPUT job-hdr.i-no,
+    IF oe-ordl.job-no NE "" THEN DO:
+        iTotalProdQty = 0.
+        FOR EACH job NO-LOCK
+            WHERE job.company EQ oe-ord.company
+              AND job.job-no EQ oe-ordl.job-no: 
+            RUN fg/GetProductionQty.p (INPUT oe-ord.company,
+                                   INPUT oe-ordl.job-no,
+                                   INPUT job.job-no2,
+                                   INPUT oe-ordl.i-no,
                                    INPUT NO,
                                    OUTPUT iJobProdQty).
-            iTotalProdQty = iTotalProdQty + iJobProdQty.
+            iTotalProdQty = iTotalProdQty + iJobProdQty.   
         END.
-    END.
-
+    END.           
     IF oe-ordl.po-no-po NE 0 THEN
         FOR EACH fg-rcpth FIELDS(r-no rita-code)
             WHERE fg-rcpth.company   EQ cocode 
@@ -3722,11 +3734,11 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
                          + (IF fi_est-no  NE "" THEN " AND oe-ordl.est-no BEGINS "    + QUOTER(fi_est-no)   ELSE "")
                          + (IF fi_job-no  NE "" THEN " AND " + 'FILL(" ",' + STRING(iJobLen) + ' - length(TRIM(oe-ordl.job-no))) +' + " trim(oe-ordl.job-no) BEGINS "    + QUOTER(fi_job-no)   ELSE "")
                          + (IF fi_job-no  NE "" AND fi_job-no2 NE 0 THEN " AND oe-ordl.job-no2 EQ " + STRING(fi_job-no2)  ELSE "")
-                         + (IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "    + QUOTER (fi_i-no)    ELSE "")
-                         + (IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "   + QUOTER(fi_part-no)  ELSE "")
-                         + (IF fiItemPo   NE "" THEN " AND oe-ordl.po-no BEGINS "     + QUOTER(fiItemPo)    ELSE "")
+                         + (IF INDEX(fi_i-no,'*') NE 0 THEN " AND oe-ordl.i-no MATCHES "   + QUOTER(fi_i-no) ELSE IF fi_i-no    NE "" THEN " AND oe-ordl.i-no   BEGINS "    + QUOTER (fi_i-no)    ELSE "")
+                         + (IF INDEX(fi_part-no,'*') NE 0 THEN " AND oe-ordl.part-no MATCHES "   + QUOTER(fi_part-no) ELSE IF fi_part-no NE "" THEN " AND oe-ordl.part-no BEGINS "   + QUOTER(fi_part-no)  ELSE "")
+                         + (IF INDEX(fiItemPo,'*') NE 0 THEN " AND oe-ordl.po-no MATCHES "   + QUOTER(fiItemPo) ELSE IF fiItemPo   NE "" THEN " AND oe-ordl.po-no BEGINS "     + QUOTER(fiItemPo)    ELSE "")
                          + (IF fi_sman    NE "" THEN " AND oe-ordl.s-man[1] BEGINS "  + QUOTER(fi_sman)     ELSE "")
-                         + (IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "    + QUOTER(fi_i-name)   ELSE "") . 
+                         + (IF INDEX(fi_i-name,'*') NE 0 THEN " AND oe-ordl.i-name MATCHES "   + QUOTER(fi_i-name) ELSE IF fi_i-name  NE "" THEN " AND oe-ordl.i-name BEGINS "    + QUOTER(fi_i-name)   ELSE "") . 
      
     END.     
     RETURN cWhereCriteria.      

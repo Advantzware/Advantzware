@@ -75,6 +75,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS cha       NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 ASSIGN 
     cTextListToSelect  = "PO #,Vendor #,Job #,Item #,Due Date,Rec Date,MSF,Vendor $," +
                            "Bought $,Diff $,MPV %,Overs %,Adder code1,Adder code2"
@@ -583,6 +586,7 @@ ON END-ERROR OF C-Win /* PO Purchased Variance */
 ON WINDOW-CLOSE OF C-Win /* PO Purchased Variance */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -662,6 +666,7 @@ ON LEAVE OF begin_vend-no IN FRAME FRAME-A /* Beginning Vendor# */
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO: 
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
     END.
 
@@ -702,6 +707,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -2306,10 +2314,14 @@ PROCEDURE run-report :
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF  cTmpField = "due-dt" THEN
+                         cExcelVarValue = IF DueDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DueDate) ELSE "".
+                    ELSE IF  cTmpField = "rcd-dt" THEN
+                         cExcelVarValue = IF receiptDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",receiptDate) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
                 END.
                 PUT UNFORMATTED cDisplay SKIP.
                 IF rd-dest = 3 THEN 
@@ -2367,10 +2379,14 @@ PROCEDURE run-report :
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF  cTmpField = "due-dt" THEN
+                         cExcelVarValue = IF DueDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DueDate) ELSE "".
+                    ELSE IF  cTmpField = "rcd-dt" THEN
+                         cExcelVarValue = IF receiptDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",receiptDate) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
                 END.
                 PUT UNFORMATTED cDisplay SKIP.
                 IF rd-dest = 3 THEN 
@@ -2566,8 +2582,6 @@ PROCEDURE run-report :
     SESSION:SET-WAIT-STATE ("").
 
     /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
-    IF rd-dest = 3 AND tb_OpenCSV THEN
-        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 
 END PROCEDURE.
 

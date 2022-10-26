@@ -796,13 +796,15 @@ FUNCTION FormatForCSV RETURNS CHARACTER
     DEFINE VARIABLE chChar    AS CHARACTER NO-UNDO.                    
              
     /* Add escape character (double quote) to exceptional characters */
-    ASSIGN
-        ipcValue  = REPLACE(ipcValue,'"','""')
-        ipcValue  = REPLACE(ipcValue,',',' ')
+    ASSIGN       
         iZeroCode = ASC("0")
         iNineCode = ASC("9")
         chChar    = SUBSTRING(ipcValue,1,1)
         .
+    IF (ASC(chChar) GE iZeroCode AND ASC(chChar) LE iNineCode) THEN
+    ASSIGN
+        ipcValue  = REPLACE(ipcValue,'"','""')
+        ipcValue  = REPLACE(ipcValue,',',' ').
         
     IF glAddTab THEN DO:
         IF (ASC(chChar) GE iZeroCode AND ASC(chChar) LE iNineCode) THEN 

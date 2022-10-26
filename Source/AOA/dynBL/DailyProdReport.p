@@ -19,9 +19,8 @@ DEFINE TEMP-TABLE ttDailyProdReport NO-UNDO
     FIELD cCSRCode    AS CHARACTER FORMAT "x(8)"            LABEL "CSR Code"
     FIELD cCSRName    AS CHARACTER FORMAT "x(30)"           LABEL "CSR Name"
     FIELD cStat       AS CHARACTER FORMAT "x(10)"           LABEL "Status"
-    FIELD iJobQty     AS INTEGER   FORMAT "->>,>>>,>>>,>>9" LABEL "Job Qty"         
-    FIELD iOrdQty     AS INTEGER   FORMAT "->>,>>>,>>>,>>9" LABEL "Ord Qty"
-    FIELD iProdQty    AS INTEGER   FORMAT "->>,>>>,>>>,>>9" LABEL "Prod.Qty"
+    FIELD iPlannedQty AS INTEGER   FORMAT "->>>,>>>,>>9"    LABEL "Planned Qty"         
+    FIELD iActQty     AS INTEGER   FORMAT "->>>,>>>,>>9"    LABEL "Actual Qty"
     FIELD dOverUnderPercentage      AS DECIMAL   FORMAT "->>,>>>,>>9.99"  LABEL "O/U%"
     FIELD cMachine    AS CHARACTER FORMAT "x(6)"            LABEL "Machine"
     FIELD dtOpDate    AS DATE      FORMAT "99/99/9999"      LABEL "Operation Date"
@@ -37,7 +36,7 @@ DEFINE TEMP-TABLE ttDailyProdReport NO-UNDO
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pBusinessLogic:    
-    DEFINE VARIABLE iProdQty      AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iQty          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iOuPct        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iCount        AS INTEGER   NO-UNDO.
     
@@ -62,30 +61,26 @@ PROCEDURE pBusinessLogic:
         BY job-hdr.job-no2 DESCENDING
         :
         ASSIGN
-            iProdQty = 0
+            iQty     = 0
             iOuPct   = 0
             .
         FIND FIRST itemfg NO-LOCK
              WHERE itemfg.company EQ job-hdr.company
                AND itemfg.i-no    EQ job-hdr.i-no
              NO-ERROR.
-                
-        FIND FIRST oe-ordl NO-LOCK
-             WHERE oe-ordl.company EQ job-hdr.company
-               AND oe-ordl.i-no    EQ job-hdr.i-no
-               AND oe-ordl.ord-no  EQ job-hdr.ord-no
-             NO-ERROR.          
-        RUN fg/GetProductionQty.p (
-            job-hdr.company,
-            job-hdr.job-no,
-            job-hdr.job-no2,
-            job-hdr.i-no,
-            NO,
-            OUTPUT iProdQty
-            ).  
-        IF job-hdr.qty NE 0 THEN 
+        
+        FIND FIRST job-mch NO-LOCK
+             WHERE job-mch.company EQ job.company
+               AND job-mch.job     EQ job.job
+               AND job-mch.job-no  EQ job.job-no
+               AND job-mch.job-no2 EQ job.job-no2
+               AND job-mch.m-code  EQ mch-act.m-code
+             NO-ERROR.
+        
+        IF AVAIL job-mch AND job-mch.run-qty NE 0 THEN 
         DO:
-            iOuPct = (job-hdr.qty / iProdQty) * 100.
+            iQty = (mch-act.qty - job-mch.run-qty) .
+            iOuPct =  (iQty / job-mch.run-qty) * 100.
             IF iOuPct EQ 0 THEN iOuPct = 100.
             IF iOuPct EQ -100 THEN iOuPct = 0.
         END.
@@ -110,10 +105,9 @@ PROCEDURE pBusinessLogic:
             ttDailyProdReport.cCSRName    = IF AVAIL users THEN users.user_name ELSE ""
             ttDailyProdReport.cStat       = IF job-hdr.opened THEN "Opened" ELSE "Closed"
             
-            ttDailyProdReport.iOrdQty     = IF AVAIL oe-ordl THEN oe-ordl.qty ELSE 0 
-            ttDailyProdReport.iProdQty    = iProdQty
+            ttDailyProdReport.iPlannedQty = IF AVAIL job-mch THEN job-mch.run-qty ELSE 0 
+            ttDailyProdReport.iActQty     = mch-act.qty
             ttDailyProdReport.dOverUnderPercentage      = iOuPct
-            ttDailyProdReport.iJobQty     = job-hdr.qty
             
             ttDailyProdReport.cMachine    = mch-act.m-code
             ttDailyProdReport.dtOpDate    = mch-act.op-date 

@@ -381,6 +381,7 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
                 INPUT  po-ordl.company,
                 INPUT  po-ordl.po-no,
                 INPUT  po-ordl.line,
+                INPUT  "",
                 OUTPUT lv-val,
                 OUTPUT lv-typ
                 ).

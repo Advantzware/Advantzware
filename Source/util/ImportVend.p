@@ -214,6 +214,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportVend.BankAcct, YES, INPUT-OUTPUT bf-vend.Bank-Acct).
     RUN pAssignValueC (ipbf-ttImportVend.SwiftBIC, YES, INPUT-OUTPUT bf-vend.SwiftBIC).
     RUN pAssignValueC (ipbf-ttImportVend.BankRTN, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.Bank-RTN).
+    RUN pAssignValueC (ipbf-ttImportVend.VendType, iplIgnoreBlanks, INPUT-OUTPUT bf-vend.type).
     
     IF bf-vend.country = "Canada" THEN 
         bf-vend.curr-code = "CAD".

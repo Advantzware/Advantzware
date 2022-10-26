@@ -33,7 +33,7 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE iCount          AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iRecordID       AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iShiftStartTime AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE iShiftEndTime   AS INTEGER   NO-UNDO INITIAL 86400.
+    DEFINE VARIABLE iShiftEndTime   AS INTEGER   NO-UNDO INITIAL 86400000.
     
     DEFINE QUERY qMachTran FOR machtran, mach, job, est, ef, eb SCROLLING.
     DEFINE QUERY qMachEmp  FOR machemp, employee.
@@ -54,11 +54,11 @@ PROCEDURE pBusinessLogic:
         cStartShift,
         cEndShift,
         cEndTime,
-        OUTPUT iShiftStartTime
+        OUTPUT iShiftEndTime
         ).
     IF dtStartTransDate EQ dtEndTransDate  AND
        iShiftEndTime    LT iShiftStartTime THEN
-    iShiftEndTime = 86400.
+    iShiftEndTime = 86400000.
     
     OPEN QUERY qMachTran
     FOR EACH machtran NO-LOCK

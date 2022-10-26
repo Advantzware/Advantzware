@@ -1725,6 +1725,8 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE cDateChangeReason AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cCustomerNumber   AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cDropShipment     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   EMPTY TEMP-TABLE tt-ord-no.
@@ -1867,9 +1869,23 @@ PROCEDURE local-assign-record :
            ASSIGN
             notes.rec_key   = po-ordl.rec_key
             notes.note_date = TODAY.
+         END.            
+     END.
+     
+     IF TRIM(v-postatus-cha) EQ "Hold" THEN DO:
+       po-ord.stat = "H" .
+     END.
+     ELSE IF TRIM(v-postatus-cha) EQ "User Limit"  THEN
+     DO:
+         RUN PO_CheckPurchaseLimit IN hdPOProcs(BUFFER po-ord, OUTPUT lHoldPoStatus, OUTPUT dPurchaseLimit) .
+         IF lHoldPoStatus THEN DO: 
+            po-ord.stat = "H" .
+            scInstance = SharedConfig:instance.
+            scInstance:SetValue("PurchaseLimit",TRIM(STRING(dPurchaseLimit))).
+            RUN displayMessage ( INPUT 57).
          END.
      END.
-
+     
      /* need to delete dummy po-ordl record created from local-create-record */
      IF iv-poline-copied THEN DO:
         FIND FIRST bx-poline WHERE
@@ -2169,6 +2185,28 @@ PROCEDURE local-display-fields :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+        
+    IF VALID-HANDLE (hdPOProcs) THEN
+       DELETE PROCEDURE hdPOProcs.   
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

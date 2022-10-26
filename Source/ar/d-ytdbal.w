@@ -28,17 +28,22 @@
 DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
+//{custom/globdefs.i}
+{custom/gperiod.i}
+{custom/persist.i}
 
+{methods/defines/hndldefs.i}
 {sys/inc/var.i new shared}
 
 assign
  cocode = g_company
- locode = g_loc.
+ locode = g_loc.  
 
 DEF VAR start-date AS DATE EXTENT 2 INIT 01/01/0001.
 DEF VAR end-date LIKE start-date INIT 01/01/0001.
 
+{custom/getperd.i}
+                   
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -310,7 +315,8 @@ END PROCEDURE.
 PROCEDURE run-process :
 /* ------------------------------------------------ sys/ref/updytd.p 1/97 FWK */
 /* -------------------------------------------------------------------------- */
-
+ DEFINE VARIABLE lCurrentPeriod AS LOGICAL NO-UNDO.
+ DEFINE BUFFER bf-period FOR period.
 /* if start-date = 01/01/0001 or end-date = 01/01/0001 then undo, leave. */
 
 if start-date[1] ne 01/01/0001 and end-date[1] ne 01/01/0001 then
@@ -423,8 +429,15 @@ for each cust
 */
          cust.ytd-sales = 0
          cust.cost[5]   = 0
-         cust.comm[5]   = 0.
-
+         cust.comm[5]   = 0
+         cust.cost[1]   = 0
+         cust.comm[1]   = 0
+        .
+  FIND FIRST bf-period NO-LOCK
+         WHERE bf-period.company EQ cocode
+           AND bf-period.pstat   EQ YES
+           AND bf-period.pnum    EQ gperiod NO-ERROR.
+           
   status default "Please wait...  Updating Customer: " + trim(cust.cust-no).
   for each ar-ledger where ar-ledger.company = cocode and
                            ar-ledger.tr-date >= start-date[2] and
@@ -436,8 +449,12 @@ for each cust
                             ar-inv.cust-no = cust.cust-no and
                             ar-inv.posted and
                             ar-inv.inv-no = INT(SUBSTRING(ar-ledger.ref-num,6,LENGTH(ar-ledger.ref-num)))
-                            USE-INDEX posted no-lock no-error.
-
+                            USE-INDEX posted no-lock no-error.                            
+                  
+    lCurrentPeriod = NO.
+    IF AVAIL bf-period AND ar-ledger.tr-date GE bf-period.pst AND ar-ledger.tr-date LE bf-period.pend THEN
+    lCurrentPeriod = YES.
+    
     if avail ar-inv then
     do:
       for each ar-invl where ar-invl.company = cocode and
@@ -464,6 +481,10 @@ for each cust
                     ((if ar-inv.gross gt ar-inv.net then ar-inv.gross else ar-inv.net) - ar-inv.tax-amt)
              cust.cost[5] = cust.cost[5] + ar-inv.t-cost
              cust.comm[5] = cust.comm[5] + ar-inv.t-comm.
+      IF lCurrentPeriod THEN
+      ASSIGN           
+          cust.cost[1] = cust.cost[1] + ar-inv.t-cost
+          cust.comm[1] = cust.comm[1] + ar-inv.t-comm.
     end. /* if avail ar-inv */
   end. /* for each ar-ledger INV */
 

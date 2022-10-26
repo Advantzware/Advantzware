@@ -50,7 +50,7 @@ ASSIGN
     dSqin = ipbf-itemfg.t-sqin
     dSqft = ipbf-itemfg.t-sqft
     .
-IF ipbf-itemfg.spare-int-2 NE 1 AND (dSqin EQ 0.0 OR dSqft EQ 0.0) THEN DO:  /*not locked*/ 
+IF NOT ipbf-itemfg.lLockDimensions AND (dSqin EQ 0.0 OR dSqft EQ 0.0) THEN DO:  /*not locked*/ 
     IF dSqin EQ 0 THEN
         dSqin = ipbf-itemfg.t-len * ipbf-itemfg.t-wid.
     IF dSqft EQ 0 THEN
