@@ -221,9 +221,9 @@ DEFINE VARIABLE tb_taxable AS LOGICAL INITIAL no
      SIZE 15 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tg-Freeze-weight AS LOGICAL INITIAL no 
-     LABEL "" 
+     LABEL "Lock" 
      VIEW-AS TOGGLE-BOX
-     SIZE 3 BY .81 NO-UNDO.
+     SIZE 9 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -430,12 +430,12 @@ DEFINE FRAME F-Main
      itemfg.weight-100 AT ROW 10.52 COL 81.6 COLON-ALIGNED
           LABEL "ShipWt/100"
           VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-     tg-Freeze-weight AT ROW 10.52 COL 100 WIDGET-ID 14
-     itemfg.prod-notes AT ROW 10.52 COL 114 COLON-ALIGNED
+          SIZE 13.4 BY 1
+     tg-Freeze-weight AT ROW 10.52 COL 97 WIDGET-ID 14
+     itemfg.prod-notes AT ROW 10.52 COL 115 COLON-ALIGNED
           LABEL "Pk Note"
           VIEW-AS FILL-IN 
-          SIZE 28 BY 1
+          SIZE 27 BY 1
      itemfg.weightPerEA AT ROW 11.57 COL 81.6 COLON-ALIGNED WIDGET-ID 18
           LABEL "Weight/EA"
           VIEW-AS FILL-IN 
@@ -703,6 +703,8 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR TOGGLE-BOX tb_taxable IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR TOGGLE-BOX tg-Freeze-weight IN FRAME F-Main
+   NO-ENABLE 2 4                                                        */   
 /* SETTINGS FOR FILL-IN itemfg.total-std-cost IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN itemfg.trNo IN FRAME F-Main
