@@ -93,6 +93,7 @@ DO:
                "<R24><C70><FROM><R26><C70><LINE>" SKIP
                .
 
+        PUT "<FArial><=5><C9>FG Item #".
         PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                         Ordered            Price         UOM   Extended Total" SKIP(1).
 
 END.
@@ -107,6 +108,7 @@ ELSE DO:
                "<R24><C72><FROM><R26><C72><LINE>" SKIP
                .
 
+        PUT "<FArial><=5><C9>FG Item #".
         PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                             Ordered                             Price          UOM" SKIP(1).
 
 END.
