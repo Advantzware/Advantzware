@@ -47,6 +47,11 @@ DEFINE {1} SHARED VARIABLE lPrintGrandTotMsf AS LOGICAL NO-UNDO.
 DEF VAR lv-val LIKE reftable.val EXTENT 20 NO-UNDO.
 DEF VAR lv-typ LIKE reftable.dscr EXTENT 20 NO-UNDO.
 DEF VAR lv-int AS INT NO-UNDO.
+DEFINE VARIABLE cScorePanelType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWidScore AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWidScoreValue LIKE reftable.val EXTENT 20 NO-UNDO.
+DEFINE VARIABLE cWidScoreType LIKE reftable.dscr EXTENT 20 NO-UNDO.
+DEFINE VARIABLE clscoreWidth AS CHARACTER NO-UNDO.
 
 def var v-last-page         as   int.
 def var v-page-tot          as   int.
