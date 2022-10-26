@@ -1160,7 +1160,8 @@ PROCEDURE pGetFormQtys PRIVATE:
    
     DEFINE BUFFER bff-job-hdr FOR job-hdr.
     DEFINE BUFFER bff-oe-ordl FOR oe-ordl.
-     
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+                 
     FOR EACH bff-job-hdr NO-LOCK
           WHERE bff-job-hdr.company EQ ipcCompany 
             AND bff-job-hdr.job-no EQ ipcJobID 
@@ -1177,13 +1178,6 @@ PROCEDURE pGetFormQtys PRIVATE:
             AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
             NO-LOCK NO-ERROR.
 
-      IF AVAIL bff-job-hdr AND bff-job-hdr.ord-no EQ 0 AND NOT AVAILABLE bff-oe-ordl THEN
-      FIND FIRST bff-oe-ordl
-            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
-            AND bff-oe-ordl.job-no  EQ bff-job-hdr.job-no
-            AND bff-oe-ordl.job-no2 EQ bff-job-hdr.job-no2
-            AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
-            NO-LOCK NO-ERROR.      
       IF bff-job-hdr.ord-no NE 0 AND NOT AVAILABLE bff-oe-ordl THEN
       FIND FIRST bff-oe-ordl
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
@@ -1194,8 +1188,21 @@ PROCEDURE pGetFormQtys PRIVATE:
       FIND FIRST bff-oe-ordl
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
            AND bff-oe-ordl.ord-no  EQ bff-job-hdr.ord-no
-           NO-ERROR.    
+           NO-ERROR. 
       
+      IF NOT AVAILABLE bff-oe-ordl THEN
+      DO:
+         FIND FIRST bf-job-hdr NO-LOCK
+              WHERE bf-job-hdr.company EQ ipcCompany 
+                AND bf-job-hdr.job-no  EQ ipcJobID 
+                AND bf-job-hdr.job-no2 EQ ipiJobID2
+                AND bf-job-hdr.ord-no  NE 0 NO-ERROR.                         
+         IF AVAILABLE bf-job-hdr AND bf-job-hdr.ord-no NE 0 THEN
+         FIND FIRST bff-oe-ordl
+              WHERE bff-oe-ordl.company EQ bf-job-hdr.company
+                AND bff-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
+                NO-ERROR.                
+      END.              
       
       opiReturnReqQty = opiReturnReqQty + (IF AVAIL bff-oe-ordl THEN bff-oe-ordl.qty ELSE bff-job-hdr.qty ) .
       
@@ -1476,10 +1483,11 @@ PROCEDURE pGetJobQty :
     DEFINE INPUT PARAMETER ipcJobNo AS CHARACTER NO-UNDO .
     DEFINE INPUT PARAMETER ipiJobNo2 AS INTEGER NO-UNDO .
     DEFINE INPUT PARAMETER ipiFornNo AS INTEGER NO-UNDO .
-    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO .     
     DEFINE OUTPUT PARAMETER opiReturnQty AS INTEGER NO-UNDO .
     DEFINE OUTPUT PARAMETER opiReturnReqQty AS INTEGER NO-UNDO .
     DEFINE BUFFER bff-job-hdr FOR job-hdr.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
     DEFINE BUFFER bff-oe-ordl FOR oe-ordl.
          
      FIND FIRST bff-job-hdr NO-LOCK
@@ -1499,13 +1507,6 @@ PROCEDURE pGetJobQty :
             AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
             NO-LOCK NO-ERROR.
 
-      IF AVAIL bff-job-hdr AND bff-job-hdr.ord-no EQ 0 AND NOT AVAILABLE bff-oe-ordl THEN
-      FIND FIRST bff-oe-ordl
-            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
-            AND bff-oe-ordl.job-no  EQ bff-job-hdr.job-no
-            AND bff-oe-ordl.job-no2 EQ bff-job-hdr.job-no2
-            AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
-            NO-LOCK NO-ERROR.
       IF AVAIL bff-job-hdr AND bff-job-hdr.ord-no NE 0 AND NOT AVAILABLE bff-oe-ordl THEN
       FIND FIRST bff-oe-ordl
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
@@ -1516,7 +1517,20 @@ PROCEDURE pGetJobQty :
       FIND FIRST bff-oe-ordl
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
            AND bff-oe-ordl.ord-no  EQ bff-job-hdr.ord-no
-           NO-ERROR.          
+           NO-ERROR.  
+      IF NOT AVAILABLE bff-oe-ordl AND AVAIL bff-job-hdr THEN
+      DO:
+         FIND FIRST bf-job-hdr NO-LOCK
+              WHERE bf-job-hdr.company EQ bff-job-hdr.company 
+                AND bf-job-hdr.job-no  EQ ipcJobNo 
+                AND bf-job-hdr.job-no2 EQ ipiJobNo2
+                AND bf-job-hdr.ord-no  NE 0 NO-ERROR.                         
+         IF AVAILABLE bf-job-hdr AND bf-job-hdr.ord-no NE 0 THEN
+         FIND FIRST bff-oe-ordl
+              WHERE bff-oe-ordl.company EQ bf-job-hdr.company
+                AND bff-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
+                NO-ERROR.                
+      END.              
       
       opiReturnReqQty = IF AVAIL bff-oe-ordl THEN bff-oe-ordl.qty ELSE IF AVAIL bff-job-hdr THEN bff-job-hdr.qty ELSE 0  . 
 
