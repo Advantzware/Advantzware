@@ -234,13 +234,34 @@ PROCEDURE prodAceDetail :
       END. /* not avail ttbljob */
       FIND job-mch NO-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
       &ELSE
-      iJobMchID = INTEGER(ENTRY(2,ttblProdAce.prodAceJob,".")).
-      FIND FIRST job-mch NO-LOCK
-           WHERE job-mch.job-mchID EQ iJobMchID
-           NO-ERROR.
+      IF NUM-ENTRIES(ttblProdAce.prodAceJob,".") GT 1 THEN DO:
+          iJobMchID = INTEGER(ENTRY(2,ttblProdAce.prodAceJob,".")).
+          FIND FIRST job-mch NO-LOCK
+               WHERE job-mch.job-mchID EQ iJobMchID
+               NO-ERROR.
+      END. // if job-mchid exists
+      ELSE DO:
+          FIND FIRST job-hdr NO-LOCK
+               WHERE job-hdr.company EQ cCompany
+                 AND job-hdr.job-no  BEGINS FILL(" ",6 - LENGTH(ttblProdAce.prodAceJob)) + ttblProdAce.prodAceJob
+                 AND job-hdr.opened  EQ YES
+               NO-ERROR.
+          IF NOT AVAILABLE job-hdr THEN NEXT.
+          FIND FIRST job-mch NO-LOCK
+               WHERE job-mch.company EQ job-hdr.company
+                 AND job-mch.m-code  EQ ttblProdAce.prodAceResource
+                 AND job-mch.job-no  EQ job-hdr.job-no
+                 AND job-mch.job-no2 EQ job-hdr.job-no2
+               NO-ERROR.
+      END. // else
       &ENDIF
     END. /* first-of job */
     IF NOT AVAILABLE job-mch THEN NEXT.
+    IF ttblProdAce.prodAceStartDate     EQ ttblProdAce.prodAceEndDate AND
+       ttblProdAce.prodAceStartTime     EQ ttblProdAce.prodAceEndTime AND
+       ttblProdAce.prodAceTranRunQty    EQ 0 AND
+       ttblProdAce.prodAceTranRejectQty EQ 0 THEN
+    NEXT.
     IF CAN-FIND(FIRST machtran
                 WHERE machtran.company       EQ job-mch.company
                   AND machtran.machine       EQ ttblProdAce.prodAceResource
