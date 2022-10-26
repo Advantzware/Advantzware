@@ -2289,9 +2289,11 @@ FUNCTION fGetTotalPallet RETURNS INTEGER
   DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO .
   DEFINE VARIABLE opiTotalPallet AS INTEGER NO-UNDO.
 
-  opiTotalPallet = 0.
-  dPalletCount = oe-ordl.cas-cnt * oe-ordl.cases-unit.
-  dRoundup = ipiQty / IF dPalletCount NE 0 THEN dPalletCount ELSE 1.
+  ASSIGN
+      opiTotalPallet = 0
+      dPalletCount   = oe-ordl.cas-cnt * oe-ordl.cases-unit
+      dRoundup       = ipiQty / IF dPalletCount NE 0 THEN dPalletCount ELSE 1
+      .
   {sys/inc/roundup.i dRoundup}
   opiTotalPallet = dRoundup.
   RETURN opiTotalPallet.
