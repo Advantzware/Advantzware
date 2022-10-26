@@ -253,7 +253,7 @@ DO:
                     itemfg.t-wid  = 0
                     itemfg.t-sqin = 0
                     itemfg.t-sqft = 0.
-                IF NOT itemfg.spare-int-1 EQ 1 THEN   /* freeze weight flag */
+                IF NOT itemfg.lLockWeightCalc THEN   /* freeze weight flag */
                     itemfg.weight-100 = 0.
             END. 
 
@@ -281,7 +281,7 @@ DO:
                 itemfg.t-len  = itemfg.t-len      + (xitemfg.t-len      * tt-fg-set.part-qty-dec)
                 itemfg.t-sqin = itemfg.t-sqin     + (xitemfg.t-sqin     * tt-fg-set.part-qty-dec)
                 itemfg.t-sqft = itemfg.t-sqft     + (xitemfg.t-sqft     * tt-fg-set.part-qty-dec).
-            IF NOT itemfg.spare-int-1 EQ 1 THEN
+            IF NOT itemfg.lLockWeightCalc THEN
                 itemfg.weight-100  = itemfg.weight-100 + (xitemfg.weight-100 * tt-fg-set.part-qty-dec).
 
             IF xoe-ord.type NE "T" THEN

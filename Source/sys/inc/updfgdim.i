@@ -110,16 +110,16 @@ IF AVAIL updfgdim-{1} THEN DO:
   IF ROWID(updfgdim-{1}) NE ROWID({1}) THEN
     {2}itemfg.t-len = {2}itemfg.t-len * 2.
 
-  IF NOT {2}itemfg.spare-int-2 EQ 1 THEN 
+  IF NOT {2}itemfg.lLockDimensions THEN 
       ASSIGN /*take windowing out before weight calc*/
        {2}itemfg.t-sqin = ({2}itemfg.t-wid * {2}itemfg.t-len) - updfgdim-{1}.t-win
        {2}itemfg.t-sqft = IF v-corr THEN {2}itemfg.t-sqin * .007
                                     ELSE {2}itemfg.t-sqin / 144.
     
-  IF AVAIL ef AND ef.board NE "" AND {2}itemfg.spare-int-1 NE 1 THEN
+  IF AVAIL ef AND ef.board NE "" AND NOT {2}itemfg.lLockWeightCalc THEN
    RUN fg\SetFGWeights.p (ROWID ({2}itemfg)).
   
-  IF NOT {2}itemfg.spare-int-2 EQ 1 THEN   
+  IF NOT {2}itemfg.lLockDimensions THEN   
       ASSIGN
        {2}itemfg.t-sqin = ({2}itemfg.t-wid * {2}itemfg.t-len)
        {2}itemfg.t-sqft = IF v-corr THEN {2}itemfg.t-sqin * .007
