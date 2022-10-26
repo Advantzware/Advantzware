@@ -89,16 +89,18 @@ ASSIGN
                             "Shipped Qty,Job On Hand,Sell Price,UOM,Unit Count,Pallet Count,Skids,Status,Due Date," +
                             "Customer Name,Est#,Job#,CAD#,Invoice Qty,Act. Rel. Quantity,Production Balance,O/U%,Rep," +
                             "Rep Name,Release Date,Carrier,Ship To Code,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
-                            "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,# of Pallets"
+                            "Scheduled Rel. Qty,Ship From,Ship To Name,Posted Date,Weight/100,Total Weight,# of Pallets," +
+                            "Estimated Weight,Actual FG Weight"
 
     cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
                             "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
                             "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
-                            "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet"
+                            "sch-rel-qty,ship-from,ship-name,post-date,weight-100,tot-wt,Pallet," +
+                            "est-weight,act-fg-weight"
                             
-    cFieldLength       = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30,15,15,15,15"
-    cFieldType         = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c"
+    cFieldLength       = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18,9,30,15,15,15,15," + "16,16"
+    cFieldType         = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c," + "i,i"
     .
 
 {sys/inc/ttRptSel.i}
@@ -141,6 +143,20 @@ tb_print-del sl_avail sl_selected fi_file tb_OpenCSV tbAutoClose
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GEtFieldValue Dialog-Frame 
 FUNCTION GEtFieldValue RETURNS CHARACTER
     ( hipField AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetEstWeight Dialog-Frame 
+FUNCTION fGetEstWeight RETURNS DECIMAL
+  ( ipcEstimate AS CHARACTER, ipcFGItem AS CHARACTER, ipdQty AS DECIMAL )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetActWeight Dialog-Frame 
+FUNCTION fGetActWeight RETURNS DECIMAL
+  ( ipcFGItem AS CHARACTER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1622,8 +1638,12 @@ PROCEDURE run-report :
                         END.    
                         WHEN "approved-date" THEN 
                             cVarValue = IF oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE ""    .
+                        WHEN "est-weight" THEN 
+                            cVarValue = STRING(fGetEstWeight(oe-ordl.est-no, oe-ordl.i-no, DECIMAL(oe-ordl.qty)),"->>>,>>>,>>9.99<<<<").
+                        WHEN "act-fg-weight" THEN 
+                            cVarValue = STRING(fGetActWeight(oe-ordl.i-no),"->>>,>>>,>>9.99<<<<").    
                         WHEN "sch-rel-qty" THEN 
-                            cVarValue = STRING(dSchRelQty).
+                            cVarValue = STRING(dSchRelQty).    
                         WHEN "ship-from" THEN 
                             cVarValue = STRING(cShipFr,"x(9)").
                         WHEN "ship-name" THEN 
@@ -1736,3 +1756,91 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetEstWeight Dialog-Frame 
+FUNCTION fGetEstWeight RETURNS DECIMAL
+  ( ipcEstimate AS CHARACTER, ipcFGItem AS CHARACTER, ipdQty AS DECIMAL ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.     
+  DEFINE VARIABLE dWeightPerTon AS DECIMAL NO-UNDO.
+  DEFINE BUFFER bf-eb FOR eb.
+  DEFINE BUFFER bf-ef FOR ef.
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+  
+  find first bf-itemfg NO-LOCK
+       where bf-itemfg.company eq cocode
+       and bf-itemfg.i-no      eq ipcFGItem
+       NO-ERROR.
+  
+  RUN fg/GetFGArea.p (ROWID(bf-itemfg), "MSF", OUTPUT dSqft).
+  RUN util/rjust.p (INPUT-OUTPUT ipcEstimate,8).
+  IF AVAILABLE bf-itemfg AND ipcEstimate NE "" THEN
+  DO:       
+     FIND FIRST bf-eb NO-LOCK 
+          WHERE bf-eb.company EQ cocode
+          AND bf-eb.est-no  EQ ipcEstimate
+          AND bf-eb.stock-no EQ ipcFGItem NO-ERROR .
+     IF AVAILABLE bf-eb THEN        
+     FIND FIRST bf-ef NO-LOCK
+          WHERE bf-ef.company EQ bf-eb.company 
+          AND bf-ef.est-no EQ bf-eb.est-no 
+          AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+           
+     dWeightPerTon = IF AVAILABLE bf-ef THEN (bf-ef.weight * ipdQty * dSqft ) / 2000 ELSE 0.        
+  END.
+  
+  RETURN dWeightPerTon.
+ 
+  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetActWeight Dialog-Frame 
+FUNCTION fGetActWeight RETURNS DECIMAL
+  ( ipcFGItem AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dWeightPerTon AS DECIMAL NO-UNDO.
+  DEFINE BUFFER bf-eb FOR eb.
+  DEFINE BUFFER bf-ef FOR ef.
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+  
+  find first bf-itemfg NO-LOCK
+       where bf-itemfg.company eq cocode
+       and bf-itemfg.i-no      eq ipcFGItem
+       NO-ERROR.
+  
+  RUN fg/GetFGArea.p (ROWID(bf-itemfg), "MSF", OUTPUT dSqft).
+  
+  IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE "" THEN
+  DO:
+     FIND FIRST bf-eb NO-LOCK
+            WHERE bf-eb.company EQ cocode 
+              AND bf-eb.est-no EQ bf-itemfg.est-no
+              AND bf-eb.stock-no EQ bf-itemfg.i-no NO-ERROR.
+      IF AVAILABLE bf-eb THEN
+      FIND FIRST bf-ef NO-LOCK
+            WHERE bf-ef.company EQ cocode 
+              AND bf-ef.est-no EQ bf-eb.est-no
+              AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+              
+      dWeightPerTon = IF AVAILABLE bf-ef THEN (bf-ef.weight * bf-itemfg.q-onh * dSqft ) / 2000 ELSE 0.        
+
+  END.
+  
+  RETURN dWeightPerTon.
+ 
+  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

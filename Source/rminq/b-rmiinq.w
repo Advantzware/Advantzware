@@ -60,6 +60,7 @@ DEFINE VARIABLE cVenTag AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE dtDateChar AS DATE NO-UNDO .
+DEFINE VARIABLE dTons AS DECIMAL NO-UNDO.
 
 DEF BUFFER rm-rcpth-1 FOR rm-rcpth.
 DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
@@ -146,7 +147,7 @@ rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num rm-rcpth.trans-date ~
 rm-rcpth.rita-code rm-rdtlh.loc rm-rdtlh.loc-bin rm-rdtlh.tag fnVenTag () @ cVenTag rm-rdtlh.qty ~
 rm-rcpth.pur-uom rm-rdtlh.cost disp-uom () @ rm-rcpth.loc rm-rcpth.loc ~
 disp-uom () @ rm-rcpth.loc rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost ~
-rm-rdtlh.tag2 rm-rdtlh.user-id  ~
+rm-rdtlh.tag2 rm-rdtlh.user-id fGetTons () @ dTons   ~
 rm-rcpth.adjustmentCode rm-rdtlh.enteredBy rm-rdtlh.enteredDT 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rcpth.i-no ~
 rm-rcpth.po-no rm-rcpth.job-no rm-rcpth.job-no2 rm-rdtlh.s-num ~
@@ -202,6 +203,9 @@ FUNCTION fnVenTag RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
    
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  (/* parameter-definitions */)  FORWARD.     
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -363,6 +367,7 @@ DEFINE BROWSE Browser-Table
                       DROP-DOWN-LIST 
       rm-rdtlh.enteredBy COLUMN-LABEL "Scanned By" FORMAT "x(12)":U
       rm-rdtlh.enteredDT COLUMN-LABEL "Scanned Date/Time" FORMAT "99/99/9999 HH:MM:SS.SSS":U
+      fGetTons () @ dTons COLUMN-LABEL "Weight in Tons " FORMAT "->>,>>>,>>9.99<<<<":U 
   ENABLE
       rm-rcpth.i-no
       rm-rcpth.po-no
@@ -554,6 +559,8 @@ ASSIGN
 "rm-rdtlh.enteredDT" "Scanned Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
 "fnVenTag () @ cVenTag" "Vendor Tag#" "x(25)" "character" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[24]   > "_<CALC>"
+"fGetTons () @ dTons" "Weight in Tons" "->>,>>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -2110,3 +2117,35 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.        
+    FIND FIRST item NO-LOCK
+         WHERE item.company EQ cocode
+         AND item.i-no    EQ rm-rcpth.i-no
+         NO-ERROR.
+    IF AVAIL item THEN DO:        
+       IF ITEM.cons-uom EQ "TON" THEN
+         dResult = rm-rdtlh.qty.
+       ELSE
+         RUN custom/convquom.p(cocode, item.cons-uom,"TON", item.basis-w,
+                               (IF item.r-wid EQ 0 THEN item.s-len
+                                                    ELSE 12),
+                                (IF item.r-wid EQ 0 THEN item.s-wid
+                                                    ELSE item.r-wid),
+                                item.s-dep,                    
+                                rm-rdtlh.qty, OUTPUT dResult).
+    END.                            
+    
+	RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

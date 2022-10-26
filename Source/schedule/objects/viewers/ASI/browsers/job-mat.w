@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+DEFINE VARIABLE dTons          AS DECIMAL NO-UNDO.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -68,7 +68,8 @@ DEFINE QUERY external_tables FOR job-mch.
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table job-mat.i-no item.i-name ~
 item.mat-type job-mat.qty job-mat.qty-uom job-mat.wid job-mat.len ~
-job-mat.n-up job-mat.basis-w po-ordl.po-no po-ordl.t-rec-qty 
+job-mat.n-up job-mat.basis-w po-ordl.po-no po-ordl.t-rec-qty ~
+fGetTons () @ dTons
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH job-mat WHERE job-mat.company EQ job-mch.company ~
 AND job-mat.job EQ job-mch.job ~
@@ -156,6 +157,12 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  (/* parameter-definitions */)  FORWARD.  
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -184,6 +191,7 @@ DEFINE BROWSE br_table
       job-mat.basis-w FORMAT ">>9.99":U
       po-ordl.po-no COLUMN-LABEL "PO" FORMAT ">>>>>>>9":U
       po-ordl.t-rec-qty FORMAT "->>>,>>>,>>9.9<<<<<":U
+      fGetTons () @ dTons COLUMN-LABEL "Weight in Tons " FORMAT "->>,>>>,>>9.99<<<<":U 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 159 BY 7.43 ROW-HEIGHT-CHARS .52.
@@ -287,7 +295,9 @@ AND po-ordl.i-no EQ job-mat.i-no"
      _FldNameList[9]   = asi.job-mat.basis-w
      _FldNameList[10]   > asi.po-ordl.po-no
 "po-ordl.po-no" "PO" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   = asi.po-ordl.t-rec-qty
+     _FldNameList[11]   = asi.po-ordl.t-rec-qty     
+     _FldNameList[12]   > "_<CALC>"
+"fGetTons () @ dTons" "Weight in Tons" "->>,>>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -494,3 +504,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+     IF ITEM.cons-uom EQ "TON" THEN
+     dResult = job-mat.qty.
+     ELSE
+     RUN custom/convquom.p(job-mat.company, item.cons-uom,"TON", item.basis-w,
+                               (IF item.r-wid EQ 0 THEN item.s-len
+                                                    ELSE 12),
+                                (IF item.r-wid EQ 0 THEN item.s-wid
+                                                    ELSE item.r-wid),
+                                item.s-dep,                    
+                                job-mat.qty, OUTPUT dResult).     
+	RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
