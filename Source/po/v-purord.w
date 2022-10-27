@@ -1723,6 +1723,10 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE dtOldPoDate   AS DATE     NO-UNDO.
   DEFINE VARIABLE rwRowid       AS ROWID    NO-UNDO.
   DEFINE VARIABLE cDateChangeReason AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cCustomerNumber   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cDropShipment     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
   EMPTY TEMP-TABLE tt-ord-no.
@@ -1734,7 +1738,9 @@ PROCEDURE local-assign-record :
   dtOldPoDate      = po-ord.po-date
   cOldLoc          = po-ord.loc 
   cPoStatus        = po-ord.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-  lPriceHold       = po-ord.PriceHold.
+  lPriceHold       = po-ord.PriceHold
+  cCustomerNumber  = po-ord.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+  cDropShipment    = rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} .
   
      FIND bx-poord WHERE RECID(bx-poord) = iv-copy-from-rec NO-LOCK NO-ERROR.
      IF AVAILABLE bx-poord THEN DO:
@@ -1768,6 +1774,11 @@ PROCEDURE local-assign-record :
    po-ord.ship-no = lv-ship-no
    po-ord.cust-no = ls-drop-custno
    po-ord.stat    = cPoStatus.
+   IF adm-new-record AND NOT adm-adding-record AND cDropShipment EQ "C" 
+      AND ls-drop-custno EQ "" THEN
+   DO:
+     po-ord.cust-no = cCustomerNumber.
+   END.
   DO WITH FRAME {&FRAME-NAME} :
      IF lPriceHold NE po-ord.priceHold AND NOT po-ord.priceHold THEN 
      DO:
@@ -1858,9 +1869,23 @@ PROCEDURE local-assign-record :
            ASSIGN
             notes.rec_key   = po-ordl.rec_key
             notes.note_date = TODAY.
+         END.            
+     END.
+     
+     IF TRIM(v-postatus-cha) EQ "Hold" THEN DO:
+       po-ord.stat = "H" .
+     END.
+     ELSE IF TRIM(v-postatus-cha) EQ "User Limit"  THEN
+     DO:
+         RUN PO_CheckPurchaseLimit IN hdPOProcs(BUFFER po-ord, OUTPUT lHoldPoStatus, OUTPUT dPurchaseLimit) .
+         IF lHoldPoStatus THEN DO: 
+            po-ord.stat = "H" .
+            scInstance = SharedConfig:instance.
+            scInstance:SetValue("PurchaseLimit",TRIM(STRING(dPurchaseLimit))).
+            RUN displayMessage ( INPUT 57).
          END.
      END.
-
+     
      /* need to delete dummy po-ordl record created from local-create-record */
      IF iv-poline-copied THEN DO:
         FIND FIRST bx-poline WHERE
@@ -2160,6 +2185,28 @@ PROCEDURE local-display-fields :
 
 END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdOutboundProcs) THEN
+        DELETE PROCEDURE hdOutboundProcs.
+        
+    IF VALID-HANDLE (hdPOProcs) THEN
+       DELETE PROCEDURE hdPOProcs.   
+        
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

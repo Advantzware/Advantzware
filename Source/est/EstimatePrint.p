@@ -87,6 +87,9 @@ FUNCTION fTypePrintsLayout RETURNS LOGICAL PRIVATE
 
 FUNCTION fTypePrintsBoard RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.
+
+FUNCTION fTypeIsFoam RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER) FORWARD.  
     
 FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
     (ipcEstType AS CHARACTER) FORWARD.    
@@ -1620,17 +1623,27 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
     DEFINE VARIABLE cLabelNet     AS CHARACTER INIT "Net:" NO-UNDO  .
     DEFINE VARIABLE cLabelGross   AS CHARACTER INIT "Gross:" NO-UNDO  .
     DEFINE VARIABLE lWoodEstimate AS LOGICAL   NO-UNDO.
+
+    DEFINE VARIABLE lFoamEstimate AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE l16ths        AS LOGICAL   NO-UNDO.   
+    DEFINE VARIABLE lHasDepth     AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE iUOMColumn    AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE iDecPlaceVal  AS INTEGER   NO-UNDO.
     
     DEFINE VARIABLE opdConvertTo16th LIKE estCostBlank.blankWidth NO-UNDO.
     DEFINE VARIABLE dGrossQtyRequiredTotalWeightInTons AS DECIMAL NO-UNDO.
    
     DEFINE VARIABLE iColumn       AS INTEGER   EXTENT 10 INITIAL [12,22,32,45,58,72,80].
+    DEFINE VARIABLE iColumnWDepth AS INTEGER   EXTENT 10 INITIAL [12,22,32,55,65,72,80,42].
+    
     
     ASSIGN 
+        lFoamEstimate = fTypeIsFoam(ipbf-estCostHeader.estType)
         lWoodEstimate = fTypeIsWood(ipbf-estCostHeader.estType)         
-        l16ths = ipbf-ttCEFormatConfig.showDimensionsIn16ths.
-        
+        l16ths = ipbf-ttCEFormatConfig.showDimensionsIn16ths
+        lHasDepth = ipbf-estCostForm.grossDepth GT 0 OR ipbf-estCostForm.netDepth GT 0 OR ipbf-estCostForm.dieDepth GT 0 OR lFoamEstimate
+        iDecPlaceVal = IF ipbf-ttCEFormatConfig.showDimensionsIn16ths THEN 2 ELSE 5.         
+
     IF lWoodEstimate THEN
     DO:
         ASSIGN
@@ -1639,12 +1652,21 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
             cLabelGross = "Raw Wood Size" .
     END.
              
+    IF lHasDepth THEN 
+        ASSIGN 
+            iColumn = iColumnWDepth
+            iUOMColumn = iColumn[8] + 1.
+    ELSE 
+        iUOMColumn = iColumn[3] + 1. 
+        
     ASSIGN dGrossQtyRequiredTotalWeightInTons = ipbf-estCostForm.grossQtyRequiredTotalWeight / 2000 .
        
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[2], "Width", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[3], "Length", NO, YES, YES).
+    IF lHasDepth THEN 
+        RUN pWriteToCoordinates(iopiRowCount, iColumn[8], "Depth", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4], "Area", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[5], "#Up/Out", NO, YES, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6], "Weight", NO, YES, YES).
@@ -1653,52 +1675,61 @@ PROCEDURE pPrintLayoutInfoForForm PRIVATE:
         WHERE estCostBlank.estCostFormID EQ ipbf-estCostForm.estCostFormID:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelBlank + TRIM(STRING(estCostBlank.blankNo,">>9")) + ":", NO, NO, YES).
-
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], fFormatDimension(estCostBlank.blankWidth, l16ths), 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], fFormatDimension(estCostBlank.blankLength, l16ths), 4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, estCostBlank.dimUOM , NO, NO, NO).
+        
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], fFormatDimension(estCostBlank.blankWidth, l16ths), 4, iDecPlaceVal, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], fFormatDimension(estCostBlank.blankLength, l16ths), 4, iDecPlaceVal, NO, YES, NO, NO, YES).
+        RUN pWriteToCoordinates(iopiRowCount, iUOMColumn, estCostBlank.dimUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], estCostBlank.blankArea, 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, estCostBlank.areaUOM , NO, NO, NO). 
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], estCostBlank.numOut, 4, 0, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], estCostBlank.weightPerBlank * 1000, 8, 4, NO, YES, NO, NO, YES). 
         RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, estCostBlank.weightUOM + "/M", NO, NO, NO).
+        IF lHasDepth THEN 
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], fFormatDimension(estCostBlank.blankDepth, l16ths), 4, 5, NO, YES, NO, NO, YES).
     END.
-    IF NOT lWoodEstimate THEN
+    IF NOT lWoodEstimate AND NOT lHasDepth THEN
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[1], "Die:", NO, NO, YES).
 
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], fFormatDimension(ipbf-estCostForm.dieWidth, l16ths), 4, 5, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], fFormatDimension(ipbf-estCostForm.dieLength, l16ths) ,4, 5, NO, YES, NO, NO, YES).
-        RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, ipbf-estCostForm.dimUOM , NO, NO, NO).
+        RUN pWriteToCoordinates(iopiRowCount, iUOMColumn, ipbf-estCostForm.dimUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostForm.dieArea, 4, 5, NO, YES, NO, NO, YES).        
         RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, ipbf-estCostForm.areaUOM , NO, NO, NO).
         RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostForm.weightDieSheet, 5, 4, NO, YES, NO, NO, YES).
         RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, ipbf-estCostForm.weightDieUOM, NO, NO, NO).
-
+        IF lHasDepth THEN 
+            RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], fFormatDimension(ipbf-estCostForm.dieDepth, l16ths) ,4, 5, NO, YES, NO, NO, YES).
     END.
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelNet, NO, NO, YES).
 
+
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], fFormatDimension(ipbf-estCostForm.netWidth, l16ths), 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], fFormatDimension(ipbf-estCostForm.netLength, l16ths),4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, ipbf-estCostForm.dimUOM , NO, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iUOMColumn, ipbf-estCostForm.dimUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostForm.netArea, 4, 5, NO, YES, NO, NO, YES).    
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, ipbf-estCostForm.areaUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[5], ipbf-estCostForm.numOutNet, 4, 0, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostForm.weightNetSheet, 5, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, ipbf-estCostForm.weightNetUOM, NO, NO, NO).
+    IF lHasDepth THEN 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], fFormatDimension(ipbf-estCostForm.netDepth, l16ths) ,4, 5, NO, YES, NO, NO, YES).
     
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[1], cLabelGross, NO, NO, YES).
+
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[2], fFormatDimension(ipbf-estCostForm.grossWidth, l16ths), 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[3], fFormatDimension(ipbf-estCostForm.grossLength, l16ths), 4, 5, NO, YES, NO, NO, YES).
-    RUN pWriteToCoordinates(iopiRowCount, iColumn[3] + 1, ipbf-estCostForm.dimUOM , NO, NO, NO).
+    RUN pWriteToCoordinates(iopiRowCount, iUOMColumn, ipbf-estCostForm.dimUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[4], ipbf-estCostForm.grossArea, 4, 5, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[4] + 1, ipbf-estCostForm.areaUOM , NO, NO, NO).
     RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[6], ipbf-estCostForm.weightGrossSheet, 5, 4, NO, YES, NO, NO, YES).
     RUN pWriteToCoordinates(iopiRowCount, iColumn[6] + 1, ipbf-estCostForm.weightGrossUOM, NO, NO, NO).
+    IF lHasDepth THEN 
+        RUN pWriteToCoordinatesNum(iopiRowCount, iColumn[8], fFormatDimension(ipbf-estCostForm.grossDepth, l16ths) ,4, 5, NO, YES, NO, NO, YES).
     IF ipbf-estCostForm.rollWidth NE 0 THEN 
     DO:
         RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
@@ -2950,4 +2981,14 @@ FUNCTION fTypeIsWood RETURNS LOGICAL PRIVATE
     
 END FUNCTION.
 
+FUNCTION fTypeIsFoam RETURNS LOGICAL PRIVATE
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if given type should print Wood specific fields
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsFoamType", ipcEstType).
+    
+END FUNCTION.
 

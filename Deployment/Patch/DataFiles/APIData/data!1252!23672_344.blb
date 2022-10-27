@@ -1,0 +1,19 @@
+$QuoteHeaderHeader$<|10><R23><C1><#4><FROM><R27><C80><RECT>
+<R25><C1><FROM><R25><C80><LINE> 
+<R23><C11><FROM><R27><C11><LINE>
+<R23><C21.5><FROM><R27><C21.5><LINE>
+<R23><C38><FROM><R27><C38><LINE>
+<R23><C52><FROM><R27><C52><LINE>
+<R23><C70><FROM><R27><C70><LINE>
+<FArial><=4><R+1> Quote Date         FOB                     Ship Via                                  Terms                      Sales Person                       Over-Under %
+<FCourier New><=4><R+3> $QuoteDate|MM-DD-YYYY|DATE|$  $FOBCode|X(11)|$ $CarrierDescription|X(20)|$ $TermsDescription|X(15)|$ $SalesPersonName|X(20)|$  $OverPercent|>>9%|INT|$-$UnderPercent|>>9%|INT|$
+<|10><R28><C1><#5><FROM><R30><C80><RECT>
+<R28><C8><FROM><R30><C8><LINE>
+<R28><C21><FROM><R30><C21><LINE>
+<R28><C48><FROM><R30><C48><LINE>
+<R28><C57><FROM><R30><C57><LINE>
+<R28><C65><FROM><R30><C65><LINE>
+<R28><C73><FROM><R30><C73><LINE>  
+<FArial><=5><R+1> Est#/Qt#    Part#/Description               Item/Style/Color/Board                             Quantity         Release            Price           UOM
+<FCourier New>
+$QuoteItems$$LastCustomer||||IF["yes","$QuoteHeaderFooter$","$formfeed$"]|$

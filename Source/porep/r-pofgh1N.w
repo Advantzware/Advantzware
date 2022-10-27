@@ -74,6 +74,9 @@ DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cColumnInit        AS LOG       INIT YES NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Customer,PO#,Vendor,Vendor Name,Cust Part#,FG Item#,Item Name,Width,Length," +
@@ -621,6 +624,7 @@ ON END-ERROR OF C-Win /* PO RM/FG History by Customer */
 ON WINDOW-CLOSE OF C-Win /* PO RM/FG History by Customer */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -710,6 +714,7 @@ ON LEAVE OF begin_vend IN FRAME FRAME-A /* Beginning Vendor# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -754,6 +759,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                             DO:
                                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                             END.
+                        END.
+                        ELSE DO:
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
                     END. /* WHEN 3 THEN DO: */
                 WHEN 4 THEN 
@@ -1856,8 +1864,6 @@ END. */
 
 IF rd-dest = 3 THEN DO:
    OUTPUT STREAM s-temp CLOSE.
-   IF tb_OpenCSV THEN
-      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -163,7 +163,7 @@ rm-rctd.loc rm-rctd.loc-bin rm-rctd.rct-date rm-rctd.po-no rm-rctd.job-no ~
 rm-rctd.job-no2 rm-rctd.s-num rm-rctd.i-no rm-rctd.i-name rm-rctd.qty ~
 rm-rctd.pur-uom rm-rctd.cost rm-rctd.cost-uom calc-ext-cost() @ ext-cost ~
 display-dimension('W') @ lv-po-wid display-dimension('L') @ lv-po-len ~
-rm-rctd.user-id 
+rm-rctd.user-id rm-rctd.po-line
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table rm-rctd.tag ~
 rm-rctd.loc rm-rctd.loc-bin rm-rctd.i-no rm-rctd.qty 
 &Scoped-define ENABLED-TABLES-IN-QUERY-Browser-Table rm-rctd
@@ -292,6 +292,7 @@ DEFINE BROWSE Browser-Table
       display-dimension('W') @ lv-po-wid COLUMN-LABEL "Width"
       display-dimension('L') @ lv-po-len COLUMN-LABEL "Length"
       rm-rctd.user-id COLUMN-LABEL "User ID" FORMAT "x(8)":U WIDTH 15
+      rm-rctd.po-line COLUMN-LABEL "PO Line" FORMAT ">99":U 
   ENABLE
       rm-rctd.tag
       rm-rctd.loc
@@ -385,7 +386,7 @@ ASSIGN
 
 ASSIGN 
        Browser-Table:ALLOW-COLUMN-SEARCHING IN FRAME F-Main = TRUE.
-
+       rm-rctd.po-line:VISIBLE IN BROWSE {&browse-name}   = FALSE.
 /* SETTINGS FOR FILL-IN fi_sortby IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -444,6 +445,8 @@ OR (lv-do-what NE ""Delete"" AND rm-rctd.qty GE 0))"
 "display-dimension('L') @ lv-po-len" "Length" ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > asi.rm-rctd.user-id
 "rm-rctd.user-id" "User ID" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[20]   > asi.rm-rctd.po-line
+"rm-rctd.po-line" "PO Line" ? "Integer" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -508,6 +511,7 @@ DO:
                      rm-rctd.i-name:screen-value in browse {&BROWSE-NAME} = entry(3,char-val)
                      rm-rctd.job-no:screen-value in browse {&BROWSE-NAME} = entry(4,char-val)
                      rm-rctd.job-no2:screen-value in browse {&BROWSE-NAME} = entry(5,char-val)
+                     rm-rctd.po-line:screen-value in browse {&BROWSE-NAME} = entry(6,char-val)
                      .
              find po-ordl where po-ordl.company = rm-rctd.company and
                                 po-ordl.po-no = integer(entry(1,char-val)) and
@@ -691,7 +695,9 @@ DO:
                    AND bpo-ordl.job-no2 EQ loadtag.job-no2
                    AND bpo-ordl.i-no EQ loadtag.i-no NO-ERROR.
             IF AVAILABLE bpo-ordl THEN
-            rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num).
+            ASSIGN
+            rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num)
+            rm-rctd.po-line:SCREEN-VALUE = STRING(bpo-ordl.LINE).
             IF lv-do-what EQ 'Delete' THEN
             rm-rctd.qty:SCREEN-VALUE = STRING(DEC(rm-rctd.qty:SCREEN-VALUE) * -1).
             RETURN NO-APPLY.
@@ -800,7 +806,9 @@ DO:
                AND bpo-ordl.job-no2 EQ loadtag.job-no2
                AND bpo-ordl.i-no EQ loadtag.i-no NO-ERROR.
         IF AVAILABLE bpo-ordl THEN
-        rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num).
+        ASSIGN        
+        rm-rctd.s-num:SCREEN-VALUE = STRING(bpo-ordl.s-num)
+        rm-rctd.po-line:SCREEN-VALUE = STRING(bpo-ordl.LINE).
         IF lv-do-what EQ 'Delete' THEN
         rm-rctd.qty:SCREEN-VALUE = STRING(DEC(rm-rctd.qty:SCREEN-VALUE) * -1).
         
@@ -1609,7 +1617,9 @@ PROCEDURE display-po-job :
     lv-rowid = ?.
     FOR EACH  po-ordl
         WHERE po-ordl.company   EQ rm-rctd.company
-          AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) 
+          AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+          AND (po-ordl.LINE     EQ INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+              OR INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0)
           AND po-ordl.item-type EQ YES
           AND (( po-ordl.job-no  EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} AND
                 po-ordl.job-no2 EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})                                                                                    AND
@@ -1647,6 +1657,8 @@ PROCEDURE find-exact-po :
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ rm-rctd.company
           AND po-ordl.po-no     EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
+          AND (po-ordl.line   EQ INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) OR 
+               INT(rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0)
           AND po-ordl.job-no    EQ rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
           AND po-ordl.job-no2   EQ INT(rm-rctd.job-no2:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
           AND po-ordl.s-num     EQ INT(rm-rctd.s-num:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
@@ -1703,6 +1715,7 @@ if ip-first-disp AND
 
   find first po-ordl where po-ordl.company = rm-rctd.company
                        and po-ordl.po-no = integer(rm-rctd.po-no)
+                       and (po-ordl.LINE = integer(rm-rctd.po-line) OR integer(rm-rctd.po-line) EQ 0 )
                        and po-ordl.i-no  = rm-rctd.i-no
                        and po-ordl.job-no = rm-rctd.job-no
                        and po-ordl.job-no2 = rm-rctd.job-no2
@@ -1813,6 +1826,8 @@ if NOT ip-first-disp                                        AND
 
   find first po-ordl where po-ordl.company = rm-rctd.company
                        and po-ordl.po-no = integer(rm-rctd.po-no:screen-value in browse {&browse-name})
+                       and (po-ordl.LINE = integer(rm-rctd.po-no:screen-value in browse {&browse-name})
+                           OR integer(rm-rctd.po-line:screen-value in browse {&browse-name}) EQ 0)
                        and po-ordl.i-no  = rm-rctd.i-no:screen-value
                        and po-ordl.job-no = rm-rctd.job-no:screen-value
                        and po-ordl.job-no2 = integer(rm-rctd.job-no2:screen-value)
@@ -2019,12 +2034,7 @@ PROCEDURE local-assign-record:
   ASSIGN 
         rm-rctd.enteredBy = USERID("asi")
         rm-rctd.enteredDT = DATETIME(TODAY, MTIME) 
-        .
-  FIND CURRENT po-ordl NO-LOCK NO-ERROR .
-  IF NOT AVAIL po-ordl THEN
-      FIND po-ordl WHERE ROWID(po-ordl) EQ lv-rowid NO-LOCK NO-ERROR.
-  IF AVAIL po-ordl THEN
-      rm-rctd.po-line = po-ordl.LINE .
+        .  
 
 END PROCEDURE.
 	
@@ -2056,7 +2066,8 @@ PROCEDURE local-assign-statement :
     rm-rctd.i-name = rm-rctd.i-name:SCREEN-VALUE
     rm-rctd.pur-uom = rm-rctd.pur-uom:SCREEN-VALUE
     rm-rctd.cost = DEC(rm-rctd.cost:SCREEN-VALUE)
-    rm-rctd.cost-uom = rm-rctd.cost-uom:SCREEN-VALUE.
+    rm-rctd.cost-uom = rm-rctd.cost-uom:SCREEN-VALUE
+    rm-rctd.po-line = INT(rm-rctd.po-line:SCREEN-VALUE).
 
 END PROCEDURE.
 
@@ -2211,7 +2222,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2588,6 +2599,7 @@ PROCEDURE update-from-po-line :
       rm-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}  = po-ordl.pr-qty-uom
       rm-rctd.cost:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}     = STRING(po-ordl.cost)  /* po-ordl.cost*/
       rm-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = po-ordl.pr-uom
+      rm-rctd.po-line:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}  = STRING(po-ordl.LINE)
       lv-po-wid:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}        = STRING(po-ordl.s-wid)
       lv-po-len:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}        = STRING(po-ordl.s-len)
       ll-warned                                              = NO.

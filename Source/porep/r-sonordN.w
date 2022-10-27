@@ -65,6 +65,9 @@ DEFINE VARIABLE vLength            AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE vFGItem#           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 /*  DATE  ORDER        QUANTITY           QUANTITY  ------ VENDOR ------              P/O FG ITEM         RM ITEM           MSF        COST
      DUE     NO         ORDERED UOM       RECEIVED  ------- NAME -------  MACHINE  NUMBER NUMBER          NUMBER         REMAIN      REMAIN
 ---
@@ -87,7 +90,7 @@ display wk-sh-ord.due-date
 ASSIGN 
     cTextListToSelect  = "Due Date,Order#,Customer Name,Vendor Name,Order Qty,Rcpt Qty," + 
                            "Cost Due,MSF Due,Machine#,P/O#,FG Item#,RM Item#,Width,Length,UOM,Job#,Job Due" 
-    cFieldListToSelect = "wk-sh-ord.due-date,v-ord-no,v-cust-name,v-vend-name,ld-oqty,ld-rqty," +
+    cFieldListToSelect = "due-date,v-ord-no,v-cust-name,v-vend-name,ld-oqty,ld-rqty," +
                             "v-cst-rem,v-msf-rem,wk-sh-ord.machine,po-ordl.po-no,vFGItem#,po-ordl.i-no,v-wid,v-len,lv-uom,v-job-no,v-jobDueDate"
     cFieldLength       = "8,8,30,30,15,15," + "10,10,8,6,15,15,10,10,4,13,10" 
     cFieldType         = "i,i,c,c,i,i," + "i,i,c,i,c,c,i,i,c,c,c"
@@ -552,6 +555,7 @@ ON END-ERROR OF C-Win /* Sheets On Order Report */
 ON WINDOW-CLOSE OF C-Win /* Sheets On Order Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -586,6 +590,7 @@ ON LEAVE OF begin_vend-no IN FRAME FRAME-A /* Beginning Vendor# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -632,6 +637,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1741,7 +1749,7 @@ PROCEDURE run-report :
                     cDisplay = cDisplay + cTmpField + 
                         FILL(" ",INT(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                         .
-                    cExcelDisplay = cExcelDisplay + QUOTER(GetFieldValue(hField)) + ",".                    
+                    cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,GetFieldValue(hField))) + ",".                    
                 END.
                 ELSE 
                 DO:
@@ -1755,10 +1763,15 @@ PROCEDURE run-report :
                 CASE cTmpField:                                   
                 {porep/r-sonordN1.i}
                 END CASE.
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "v-jobDueDate" THEN
+                    cExcelVarValue = IF v-JobDueDate <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-jobDueDate) ELSE "".
+                IF  cTmpField = "due-date" THEN
+                    cExcelVarValue = IF bwk-sh.due-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",bwk-sh.due-date) ELSE "".
+                ELSE
+                    cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",INT(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
         END.
         PUT UNFORMATTED cDisplay SKIP.
@@ -1984,8 +1997,6 @@ PROCEDURE run-report :
     IF rd-dest = 3 THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -832,7 +832,7 @@ PROCEDURE pPostBols :
                 fDebugMsg("before each w-except after bolcheck " + STRING(AVAILABLE(bf-oe-bolh))).
                 FOR EACH w-except 
                     WHERE w-except.bol-no EQ bf-oe-bolh.bol-no BY w-except.lAvailOnhQty DESC :
-                    IF w-except.lAvailOnhQty AND lSingleBol THEN 
+                    IF w-except.lAvailOnhQty AND lSingleBol AND NOT w-except.lNotValidAllOnhQty THEN 
                     DO:                                                   
                          RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs(cocode, w-except.b-no, w-except.cLocBin).  
                          DELETE w-except.

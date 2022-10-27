@@ -84,6 +84,9 @@ DEF VAR cFieldType AS CHARACTER NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN cTextListToSelect = "BANK NAME,BANK ACT.,REC#,NAME,DATE,AMOUNT,G/L DISTRIBUTION" 
@@ -446,6 +449,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Miscellaneous Cash Receipts Report */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -469,6 +473,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -540,6 +545,9 @@ DO:
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+	                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
        when 4 then do:
@@ -1494,13 +1502,13 @@ SESSION:SET-WAIT-STATE("general").
                          WHEN "bank-act"    THEN cVarValue = IF AVAIL bank THEN  string(bank.actnum,"x(15)") ELSE "No Record Found" .
                          WHEN "rec"    THEN cVarValue = string(ar-mcash.m-no,">>>>>>") .
                          WHEN "name"   THEN cVarValue = string(ar-mcash.payer,"x(20)").
-                         WHEN "date"   THEN cVarValue = STRING(ar-mcash.check-date,"99/99/9999").
+                         WHEN "date"   THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-mcash.check-date).
                          WHEN "amt"  THEN cVarValue = STRING(tt-post.curr-amt,"->,>>>,>>>,>>9.99") .
                          WHEN "gl-dis"   THEN cVarValue = STRING(ar-mcash.actnum) .
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1544,7 +1552,7 @@ SESSION:SET-WAIT-STATE("general").
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1592,7 +1600,7 @@ SESSION:SET-WAIT-STATE("general").
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1809,15 +1817,10 @@ SESSION:SET-WAIT-STATE("general").
           SKIP.
 
       OUTPUT STREAM excel CLOSE.
-
-      IF tb_OpenCSV THEN
-         OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
    END.
 */
   IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_OpenCSV THEN
-      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
   END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

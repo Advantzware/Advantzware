@@ -254,7 +254,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
          w-oe-rell.set-no = oe-rell.i-no
          oe-rell.printed  = yes.
          IF lSortRelSeq THEN
-             ASSIGN w-oe-rell.relseq = itemfg.spare-int-2 .
+             ASSIGN w-oe-rell.relseq = itemfg.iReleaseSeq .
 
         /* gdm - 03230907 */
         IF v-print-components AND
@@ -277,7 +277,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-oe-rell.i-no   = fg-set.part-no
              w-oe-rell.qty    = w-oe-rell.qty * v-part-qty.
             IF lSortRelSeq THEN
-             ASSIGN w-oe-rell.relseq = itemfg.spare-int-2 .
+             ASSIGN w-oe-rell.relseq = itemfg.iReleaseSeq .
           end.
 
         v-weight = v-weight + (oe-rell.qty * itemfg.weight-100 / 100).

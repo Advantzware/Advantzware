@@ -2461,6 +2461,8 @@ PROCEDURE run-report :
         AND (v-stat EQ "A"                         OR
         (v-stat EQ "C" AND NOT po-ord.opened) OR
         (v-stat EQ "O" AND po-ord.opened)):
+        FIND FIRST w-file NO-LOCK WHERE w-file.w-key EQ ROWID(po-ord) NO-ERROR.
+        IF NOT AVAILABLE w-file THEN
         RUN from-po.
     END. /* each po-ord */
 

@@ -271,10 +271,8 @@ IF AVAIL probe THEN DO:
         AND style.style   EQ eb.style: 
      
       ASSIGN
-       ld-len = ((style.sqft-len-trim - TRUNC(style.sqft-len-trim,0)) * 6.25) +
-                TRUNC(style.sqft-len-trim,0)
-       ld-wid = ((style.sqft-wid-trim - TRUNC(style.sqft-wid-trim,0)) * 6.25) +
-                TRUNC(style.sqft-wid-trim,0).
+       ld-len = style.sqft-len-trim
+       ld-wid = style.sqft-wid-trim.
 
     ld-sqi = eb.t-sqin / (eb.t-len * eb.t-wid).
 

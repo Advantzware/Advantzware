@@ -32,7 +32,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD CreditHold    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Credit Hold" HELP "Optional - Yes or N0"  
     FIELD CustType      AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Customer Type" HELP "Required - Size:8"   
     FIELD Terms         AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Terms Code" HELP "Required - Size:5" 
-    FIELD FedID         AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:8"   
+    FIELD FedID         AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:15"   
     FIELD Note1         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Note 1" HELP "Optional - Size:30"  
     FIELD Note2         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Note 2" HELP "Optional - Size:30"  
     FIELD Note3         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Note 3" HELP "Optional - Size:30"  
@@ -80,7 +80,6 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD cTaxable      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Required - must be Yes or No - Size:4"
     FIELD cTaxPrepCode  AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Prep Code" HELP "Optional - Size:10"
     FIELD cTaxGr        AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Group" HELP "Optional - Size:10"
-    FIELD cTaxResale    AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:10"
     FIELD cExpDate      AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Exp Date" HELP "Optional - Date"  
     FIELD cEmail        AS CHARACTER FORMAT "X(60)" COLUMN-LABEL "Email" HELP "Optional - Date" 
     FIELD cGroup        AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Group" HELP "Optional - Character" 
@@ -530,7 +529,6 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.cTaxable, YES, INPUT-OUTPUT bf-cust.sort).
     RUN pAssignValueC (ipbf-ttImportCust.cTaxPrepCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.spare-char-1).
     RUN pAssignValueC (ipbf-ttImportCust.cTaxGr, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-gr).
-    RUN pAssignValueC (ipbf-ttImportCust.cTaxResale, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-id).
     RUN pAssignValueCToDt (ipbf-ttImportCust.cExpDate, YES, INPUT-OUTPUT bf-cust.date-field[2]).
     RUN pAssignValueC (ipbf-ttImportCust.industryID, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.industryID).
     

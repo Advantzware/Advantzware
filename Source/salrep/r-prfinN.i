@@ -565,10 +565,12 @@ IF NOT v-smr THEN
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "" .
                  WHEN "cust-lot" THEN cVarValue =  STRING(cCustLot,"x(15)")  .
             END CASE.
-            cExcelVarValue = cVarValue.  
+            IF  cTmpField = "inv-date" THEN
+                 cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+            ELSE cExcelVarValue = cVarValue.  
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
        
    END.
    PUT UNFORMATTED cDisplay SKIP.
@@ -1133,10 +1135,12 @@ IF NOT v-smr THEN
                  WHEN "sqft" THEN cVarValue = IF AVAIL itemfg THEN STRING(itemfg.t-sqft,"->>>>9.999") ELSE "".
                  WHEN "cust-lot" THEN cVarValue =  STRING(cCustLot,"x(15)")  .
             END CASE.
-            cExcelVarValue = cVarValue.  
+            IF  cTmpField = "inv-date" THEN
+                 cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
        
    END.
    PUT UNFORMATTED cDisplay SKIP.

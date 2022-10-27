@@ -14,3 +14,4 @@ WHEN "v-len" THEN cVarValue = string(po-ordl.s-len,">>,>>9.99<<<").
 WHEN "v-job-no" THEN cVarValue = IF po-ordl.job-no <> "" then TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) 
                                  + "-" + STRING(po-ordl.s-num,"99") ELSE "".
 WHEN "v-jobDueDate" THEN cVarValue = IF v-JobDueDate <> ? THEN string(v-jobDueDate) ELSE "".
+WHEN "due-date" THEN cVarValue = IF bwk-sh.due-date <> ? THEN string(bwk-sh.due-date) ELSE "".

@@ -18,7 +18,7 @@
                SPACE(7) v-comp-name v-ship-name AT 65 skip
                SPACE(7) v-comp-addr[1] v-ship-addr[1] AT 65 SKIP
                SPACE(7) v-comp-addr[2] v-ship-addr[2] AT 65 SKIP
-               SPACE(7) v-comp-addr3 v-ship-addr3 AT 65 SKIP
+               SPACE(7) v-comp-addr3 v-ship-cityline AT 65 SKIP
         "<R3><C46><#3>" SKIP
      /* "<P14><=#3>" /*<C-20><R-2> <B>Bill Of Lading</B>*/ "<P10>" SKIP
                 "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" SKIP */

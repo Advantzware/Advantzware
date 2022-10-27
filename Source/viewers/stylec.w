@@ -2106,11 +2106,14 @@ PROCEDURE pGetTotalScoreAllowance PRIVATE :
         OUTPUT opdTotalScoreAllowance
         ).
 
-    RUN ConvertDecimalTo16ths IN hdFormulaProcs (
-        INPUT-OUTPUT opdTotalScoreAllowance
-        ).
-       
-    opdTotalScoreAllowance = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632", ipcCompany, opdTotalScoreAllowance).
+    IF v-cecscrn-char EQ "16th's" THEN 
+        RUN ConvertDecimalTo16ths IN hdFormulaProcs (
+            INPUT-OUTPUT opdTotalScoreAllowance
+            ).
+    ELSE IF v-cecscrn-char EQ "32nd's" THEN
+        RUN ConvertDecimalTo32nds IN hdFormulaProcs (
+            INPUT-OUTPUT opdTotalScoreAllowance
+            ).
 
 END PROCEDURE.
 

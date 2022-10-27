@@ -1,0 +1,1 @@
+$BatchEmail||||IF["yes","<PREVIEW=PDF><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=7mm><PDF-TOP=4mm><PDF-OUTPUT=$FileSavePath$\Inv_$InvoiceID$.pdf>","<COPIES=1><PREVIEW><LEFT=4mm><MODAL=NO>"]|$</PROGRESS><FArial><C+25><#1><=1><FArial>$ReportHeader$$InvoiceGroupHeader$$Invoices$$InvoiceGroupFooter$$ReportFooter$

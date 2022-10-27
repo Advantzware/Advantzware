@@ -733,10 +733,12 @@
                   
             END CASE.
             IF cTmpField = "totl-cst" AND NOT v-print-cost THEN NEXT.
-            cExcelVarValue = cVarValue.
+            IF cTmpField = "inv-date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-inv-date) .
+            
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END. 
       END.
       PUT UNFORMATTED cDisplay SKIP.

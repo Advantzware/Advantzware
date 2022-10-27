@@ -43,17 +43,6 @@ FIND first report where report.term-id eq v-term-id NO-LOCK NO-ERROR.
 FIND first xquo  where recid(xquo) eq report.rec-id NO-LOCK NO-ERROR.
 IF NOT AVAIL xquo THEN RETURN.
 
-format xquo.est-no        to 8
-       xqitm.part-no      to 34   format "x(25)"
-       trim-size          TO 60   format "x(24)"
-       xqqty.qty          to 67   format ">>>>>>9"
-       xqqty.price        to 78   format ">>,>>9.99"
-       xqqty.uom          to 83
-
-      header "Est #    Description                Siz/Styl/Brd/C" +
-             "olors         QTY      Price  UOM" format "x(83)"
-      with frame item-10p no-box no-labels down width 83 STREAM-IO.
-
   find first est where est.company = xquo.company
                    AND est.est-no eq xquo.est-no no-lock no-error.
   find first sman

@@ -57,6 +57,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -427,6 +430,7 @@ ON END-ERROR OF C-Win /* Tax Schedule by Customer */
 ON WINDOW-CLOSE OF C-Win /* Tax Schedule by Customer */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -472,6 +476,7 @@ ON VALUE-CHANGED OF begin_year IN FRAME FRAME-A /* For Year */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -516,6 +521,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+	                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1573,7 +1581,8 @@ FOR EACH tt-report
                 WHEN "cust-name"        THEN 
                     cVarValue = tt-report.key-02 .
                 WHEN "date"                 THEN 
-                    cVarValue = ((IF AVAILABLE ar-cash AND ar-cash.check-date NE ? THEN STRING(ar-cash.check-date,"99/99/9999")  ELSE IF AVAILABLE ar-inv AND ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date,"99/99/9999") ELSE "" )) .
+                    cVarValue = ((IF AVAILABLE ar-cash AND ar-cash.check-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date)  
+                                ELSE IF AVAILABLE ar-inv AND ar-inv.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) ELSE "" )) .
                 WHEN "inv"                THEN  
                     cVarValue = (IF AVAILABLE ar-cashl THEN STRING(ar-cashl.inv-no) ELSE IF AVAILABLE ar-inv THEN STRING(ar-inv.inv-no) ELSE "") .
                 WHEN "grs-sal"          THEN 
@@ -1585,7 +1594,7 @@ FOR EACH tt-report
                 WHEN "net-sal"             THEN 
                     cVarValue = STRING(v-sal-gro[1]  - v-freight[1],"->>,>>>,>>9.99") .
             END CASE.
-            cExcelVarValue = cVarValue.
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1639,7 +1648,7 @@ DO:
             WHEN "net-sal"             THEN 
                 cVarValue = STRING(v-sal-gro[2] - v-freight[2],"->>,>>>,>>9.99")   .
         END CASE.
-        cExcelVarValue = cVarValue.
+        cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
         cDisplay = cDisplay + cVarValue +
             FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
         cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1687,7 +1696,7 @@ DO i = 1 TO NUM-ENTRIES(cSelectedlist):
         WHEN "net-sal"             THEN 
             cVarValue = STRING(v-sal-gro[3] - v-freight[3],"->>,>>>,>>9.99")   .
     END.
-    cExcelVarValue = cVarValue.
+    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
     cDisplay = cDisplay + cVarValue +
         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1702,8 +1711,6 @@ END.
 IF tb_excel THEN 
 DO:
     OUTPUT STREAM excel CLOSE.
-    IF tb_OpenCSV THEN
-        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 SESSION:SET-WAIT-STATE ("").

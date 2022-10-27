@@ -24,6 +24,8 @@ DEFINE TEMP-TABLE ttImportGL
     FIELD Inactive            AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Inactive" HELP "Optional - Yes or No(Blank no)" 
     FIELD CyrOpen             AS DECIMAL   FORMAT "->>>,>>>,>>>,>>9.99" COLUMN-LABEL "Current Year Open Balance" HELP "Optional - Decimal" 
     FIELD LyrOpen             AS DECIMAL   FORMAT "->>>,>>>,>>>,>>9.99" COLUMN-LABEL "Last Year Open Balance" HELP "Optional - Decimal" 
+    FIELD cSalesReport        AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Sales" HELP "Optional - Yes or No(Blank no)"
+    FIELD cCommReport         AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Commission" HELP "Optional - Yes or No(Blank no)"
         .
     
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
@@ -139,6 +141,8 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueCToL (ipbf-ttImportGL.Inactive, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-account.Inactive).
     RUN pAssignValueD (ipbf-ttImportGL.CyrOpen, iplIgnoreBlanks, INPUT-OUTPUT bf-account.cyr-open).
     RUN pAssignValueD (ipbf-ttImportGL.LyrOpen, iplIgnoreBlanks, INPUT-OUTPUT bf-account.lyr-open).
+    RUN pAssignValueCToL (ipbf-ttImportGL.cSalesReport, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-account.salesReport).
+    RUN pAssignValueCToL (ipbf-ttImportGL.cCommReport, "Yes", iplIgnoreBlanks, INPUT-OUTPUT bf-account.commReport).
     
     RELEASE bf-account.
 

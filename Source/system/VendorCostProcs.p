@@ -441,7 +441,7 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                     WHERE bf-vendItemCost.company EQ ipcCompany
                     AND bf-vendItemCost.itemID EQ ipcItemID
                     AND bf-vendItemCost.itemType EQ ipcItemType
-                    AND (bf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
+                    AND (bf-vendItemCost.estimateNo EQ "" OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
                     AND bf-vendItemCost.effectiveDate LE TODAY
                     AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                     AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -458,9 +458,9 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                     WHERE bf-vendItemCost.company EQ ipcCompany
                     AND bf-vendItemCost.itemID EQ ipcItemID
                     AND bf-vendItemCost.itemType EQ ipcItemType
-                    AND (bf-vendItemCost.estimateNo EQ ipcEstimateNo OR cVendorCostMatrixUseEstimate EQ "No")
-                    AND (bf-vendItemCost.formNo EQ ipiFormNo OR cVendorCostMatrixUseEstimate EQ "No")
-                    AND (bf-vendItemCost.blankNo EQ ipiBlankNo OR cVendorCostMatrixUseEstimate EQ "No")
+                    AND (bf-vendItemCost.estimateNo EQ ipcEstimateNo OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
+                    AND (bf-vendItemCost.formNo EQ ipiFormNo OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
+                    AND (bf-vendItemCost.blankNo EQ ipiBlankNo OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
                     AND bf-vendItemCost.effectiveDate LE TODAY
                     AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                     AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -474,7 +474,7 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                         WHERE bf-vendItemCost.company EQ ipcCompany
                         AND bf-vendItemCost.itemID EQ ipcItemID
                         AND bf-vendItemCost.itemType EQ ipcItemType
-                        AND (bf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
+                        AND (bf-vendItemCost.estimateNo EQ "" OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
                         AND bf-vendItemCost.effectiveDate LE TODAY
                         AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                         AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)

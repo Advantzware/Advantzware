@@ -220,7 +220,6 @@ DEFINE BROWSE BROWSE-1
     VIEW-AS COMBO-BOX INNER-LINES 4 
         LIST-ITEM-PAIRS "Mail Check Payee"," ",
                      "Overnight Delivery Payee","01",
-                     "Overnight To Payor","02",
                      "Mail to Payor","03"
         DROP-DOWN-LIST 
     ENABLE tt-sel.inv-no

@@ -69,6 +69,9 @@ DEF VAR cFieldType AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN cTextListToSelect = "Job Number,Job2,Customer,Cust Name,FG Item,Estimate,Order#,Start Date,Close Date," + 
@@ -538,6 +541,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Machines MSF Produced by Job */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -584,6 +588,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1424,10 +1429,14 @@ FOR EACH job-hdr NO-LOCK
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF cTmpField = "start-date" THEN cExcelVarValue = IF job.start-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.start-date) ELSE "" .
+                    ELSE IF cTmpField = "close-date" THEN cExcelVarValue = IF job.close-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",job.close-date) ELSE "" .
+                    
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

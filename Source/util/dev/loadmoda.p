@@ -70,6 +70,7 @@ DEFINE TEMP-TABLE ttbl-menu NO-UNDO
       ttbl-menu.menu-count = 1.      
     END.
     ttbl-menu.menu-count = ttbl-menu.menu-count + 1.
+    /*
     /* build modules for liscense */
     FIND FIRST asi.module WHERE asi.module.module = ttbl.menu1 NO-LOCK NO-ERROR.
     IF NOT AVAIL asi.module THEN DO:
@@ -80,6 +81,7 @@ DEFINE TEMP-TABLE ttbl-menu NO-UNDO
               asi.module.dscr = IF AVAIL prgrms THEN prgrms.prgtitle ELSE ""
               asi.module.is-used = YES.
     END.
+    */
   END.
   INPUT CLOSE.
   SESSION:SET-WAIT-STATE("").

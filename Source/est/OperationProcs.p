@@ -3177,7 +3177,7 @@ PROCEDURE pGetEstOPDataFromJobMch PRIVATE:
                 ttEstOp.op-crew[1] = bf-mach.mr-crusiz
                 ttEstOp.op-crew[2] = bf-mach.run-crusiz
                 .
-            RUN pGetEstOpCalcFields (BUFFER ipbf-eb, BUFFER bf-mach, BUFFER ttEstOp, ipcLocation, ipbf-job-mch.m-code, ipbf-job-mch.dept ,ipbf-job-mch.pass ).
+            RUN pGetEstOpCalcFields (BUFFER bf-mach, BUFFER ttEstOp).
         END.
     END.
     

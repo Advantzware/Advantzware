@@ -95,6 +95,10 @@ DEFINE NEW SHARED VARIABLE v-fg-desc3          AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE LvOutputSelection   AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE CallingParameter    AS CHARACTER NO-UNDO.
 
+DEFINE TEMP-TABLE tt-specCd NO-UNDO
+    FIELD tt-char-val AS CHARACTER
+    INDEX chr-1 tt-char-val.
+
 DEFINE            VARIABLE retcode             AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE cRtnChar            AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE lRecFound           AS LOGICAL   NO-UNDO.
@@ -146,15 +150,15 @@ begin_quo# end_quo# tb_booked tb_inst tb_notesSpanPage begin_dept end_dept ~
 rd_sort rs_note tb_note tb_prt-box tb_fg-desc2 tb_prt-desc1 ~
 tb_boardDescription tb_comm tb_prt-comp tb_prt-quoimage tb_fg-desc3 ~
 tb_print-2nd-dscr tb_prt-item tb_terms tb_prt-shp2 rs-act-inact lv-termFile ~
-tb_BatchMail tb_HideDialog tb_page rd-dest run_format tbAutoClose btn-ok ~
-btn-cancel 
+spec_codes tb_spec-note tb_BatchMail tb_HideDialog tb_page rd-dest ~
+run_format tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS v-quo-list begin_cust end_cust begin_quo# ~
 end_quo# tb_booked tb_inst tb_notesSpanPage begin_dept end_dept lbl_sort-3 ~
 rd_sort rs_note tb_note tb_prt-box tb_fg-desc2 tb_prt-desc1 ~
 tb_boardDescription tb_comm tb_prt-comp tb_prt-quoimage tb_fg-desc3 ~
 tb_print-2nd-dscr tb_prt-item tb_terms tb_prt-shp2 rs-act-inact lv-termFile ~
-tb_BatchMail tb_HideDialog tb_page rd-dest run_format tbAutoClose ~
-lbl_Item-status 
+spec_codes tb_spec-note tb_BatchMail tb_HideDialog tb_page rd-dest ~
+run_format tbAutoClose lbl_Item-status 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -167,315 +171,326 @@ lbl_Item-status
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE v-quo-list          AS CHARACTER 
-    VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-    SIZE 82 BY 3.1 NO-UNDO.
+DEFINE VARIABLE v-quo-list AS CHARACTER 
+     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
+     SIZE 82 BY 3.1 NO-UNDO.
 
-DEFINE VARIABLE begin_cust          AS CHARACTER FORMAT "X(8)" 
-    LABEL "Beginning Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
+     LABEL "Beginning Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_dept          AS CHARACTER FORMAT "X(2)" 
-    LABEL "Beginning Department" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_dept AS CHARACTER FORMAT "X(2)" 
+     LABEL "Beginning Department" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_quo#          AS INTEGER   FORMAT ">>>>>>>>" INITIAL 0 
-    LABEL "Beginning Quote#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_quo# AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
+     LABEL "Beginning Quote#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_cust            AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
-    LABEL "Ending Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "Ending Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_dept            AS CHARACTER FORMAT "X(2)" INITIAL "zz" 
-    LABEL "Ending Department" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_dept AS CHARACTER FORMAT "X(2)" INITIAL "zz" 
+     LABEL "Ending Department" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_quo#            AS INTEGER   FORMAT ">>>>>>>>" INITIAL 99999999 
-    LABEL "Ending Quote#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_quo# AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999 
+     LABEL "Ending Quote#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE lbl_Item-status     AS CHARACTER FORMAT "X(256)":U INITIAL "Item Status:" 
-    LABEL "" 
-    VIEW-AS TEXT 
-    SIZE 13.4 BY 1 NO-UNDO.
+DEFINE VARIABLE lbl_Item-status AS CHARACTER FORMAT "X(256)":U INITIAL "Item Status:" 
+     LABEL "" 
+      VIEW-AS TEXT 
+     SIZE 13.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort-3          AS CHARACTER FORMAT "X(256)":U INITIAL "Sort by?" 
-    VIEW-AS FILL-IN 
-    SIZE 10 BY 1 NO-UNDO.
+DEFINE VARIABLE lbl_sort-3 AS CHARACTER FORMAT "X(256)":U INITIAL "Sort by?" 
+     VIEW-AS FILL-IN 
+     SIZE 10 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page      AS INTEGER   FORMAT ">>":U INITIAL 99 
-    LABEL "Lines Per Page" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Lines Per Page" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name        AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=12 (10 cpi for 132 column Report)" 
-    VIEW-AS FILL-IN 
-    SIZE 62 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=12 (10 cpi for 132 column Report)" 
+     VIEW-AS FILL-IN 
+     SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no          AS CHARACTER FORMAT "X(256)":U INITIAL "15" 
-    LABEL "Font" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "15" 
+     LABEL "Font" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-termFile         AS CHARACTER FORMAT "X(256)":U 
-    LABEL "Terms File" 
-    VIEW-AS FILL-IN 
-    SIZE 42.6 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-termFile AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Terms File" 
+     VIEW-AS FILL-IN 
+     SIZE 42.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE run_format          AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Format" 
-    VIEW-AS FILL-IN 
-    SIZE 25 BY 1 NO-UNDO.
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE v-group-title       AS CHARACTER FORMAT "X(8)" INITIAL "EMAIL" 
-    LABEL "Send to Title" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE spec_codes AS CHARACTER FORMAT "X(256)":U INITIAL "QA" 
+     VIEW-AS FILL-IN 
+     SIZE 25.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt             AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Portrait", "P",
-    "Landscape", "L"
-    SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE v-group-title AS CHARACTER FORMAT "X(8)" INITIAL "EMAIL" 
+     LABEL "Send to Title" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd-dest             AS INTEGER   INITIAL 2 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "To Printer", 1,
-    "To Screen", 2,
-    "To Email", 5,
-    "To File", 3
-    SIZE 17 BY 5.76 NO-UNDO.
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Portrait", "P",
+"Landscape", "L"
+     SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd_sort             AS CHARACTER INITIAL "Quote#" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Estimate#", "Estimate#",
-    "Cust Part#", "Cust Part#",
-    "Quote#", "Quote#",
-    "As Entered", "As Entered"
-    SIZE 64 BY 1 NO-UNDO.
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "To Printer", 1,
+"To Screen", 2,
+"To Email", 5,
+"To File", 3
+     SIZE 17 BY 5.52 NO-UNDO.
 
-DEFINE VARIABLE rs-act-inact        AS CHARACTER INITIAL "Both" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Active", "Active",
-    "Inactive", "Inactive",
-    "Both", "Both"
-    SIZE 36.6 BY .95 NO-UNDO.
+DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Quote#" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Estimate#", "Estimate#",
+"Cust Part#", "Cust Part#",
+"Quote#", "Quote#",
+"As Entered", "As Entered"
+     SIZE 64 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rs_note             AS CHARACTER INITIAL "Corr" 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "Corr Note", "Corr",
-    "Fold Note", "Fold",
-    "Corr/Fold Note", "Corr/Fold",
-    "No Note", "NoNote"
-    SIZE 19 BY 3.43 NO-UNDO.
+DEFINE VARIABLE rs-act-inact AS CHARACTER INITIAL "Both" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Active", "Active",
+"Inactive", "Inactive",
+"Both", "Both"
+     SIZE 36.6 BY .95 NO-UNDO.
+
+DEFINE VARIABLE rs_note AS CHARACTER INITIAL "Corr" 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Corr Note", "Corr",
+"Fold Note", "Fold",
+"Corr/Fold Note", "Corr/Fold",
+"No Note", "NoNote"
+     SIZE 19 BY 3.43 NO-UNDO.
 
 DEFINE VARIABLE tb_boardDescription AS CHARACTER INITIAL "Est" 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "Estimate Board Description", "Est",
-    "Quote  Board Description", "Quote"
-    SIZE 30 BY 1.67 NO-UNDO.
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Estimate Board Description", "Est",
+"Quote  Board Description", "Quote"
+     SIZE 30 BY 1.67 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 109 BY 6.48.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 109 BY 6.19.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 109 BY 15.95.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 109 BY 16.43.
 
-DEFINE VARIABLE tbAutoClose       AS LOGICAL INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_BatchMail      AS LOGICAL INITIAL NO 
-    LABEL "&Batch E-Mail" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 19.4 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_BatchMail AS LOGICAL INITIAL no 
+     LABEL "&Batch E-Mail" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_booked         AS LOGICAL INITIAL NO 
-    LABEL "Booked Orders Only?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 28.8 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_booked AS LOGICAL INITIAL no 
+     LABEL "Booked Orders Only?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_comm           AS LOGICAL INITIAL NO 
-    LABEL "Print SalesRep Commission?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 32 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_comm AS LOGICAL INITIAL no 
+     LABEL "Print SalesRep Commission?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_fg-desc2       AS LOGICAL INITIAL YES 
-    LABEL "Print FG Description 2?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 25.8 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_fg-desc2 AS LOGICAL INITIAL yes 
+     LABEL "Print FG Description 2?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_fg-desc3       AS LOGICAL INITIAL YES 
-    LABEL "Print FG Description 3?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 25.8 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_fg-desc3 AS LOGICAL INITIAL yes 
+     LABEL "Print FG Description 3?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_HideDialog     AS LOGICAL INITIAL NO 
-    LABEL "&Hide Dialog-Box" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 19.4 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_HideDialog AS LOGICAL INITIAL no 
+     LABEL "&Hide Dialog-Box" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_inst           AS LOGICAL INITIAL NO 
-    LABEL "Print Department Manufacturing Instructions?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 47 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_inst AS LOGICAL INITIAL no 
+     LABEL "Print Department Manufacturing Instructions?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_note           AS LOGICAL INITIAL YES 
-    LABEL "Print Notes per Item or Form?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 32 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_note AS LOGICAL INITIAL yes 
+     LABEL "Print Notes per Item or Form?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_notesSpanPage  AS LOGICAL INITIAL NO 
-    LABEL "Instructions Span Multiple Pages" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 35 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_notesSpanPage AS LOGICAL INITIAL no 
+     LABEL "Instructions Span Multiple Pages" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 35 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_page           AS LOGICAL INITIAL NO 
-    LABEL "Separate Page Each Quote #" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 32 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_page AS LOGICAL INITIAL no 
+     LABEL "Separate Page Each Quote #" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 32 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-2nd-dscr AS LOGICAL INITIAL NO 
-    LABEL "Print 2nd Item Description Line?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 33.8 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_print-2nd-dscr AS LOGICAL INITIAL no 
+     LABEL "Print 2nd Item Description Line?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-box        AS LOGICAL INITIAL NO 
-    LABEL "Print Box Design?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 20.8 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_prt-box AS LOGICAL INITIAL no 
+     LABEL "Print Box Design?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-comp       AS LOGICAL INITIAL YES 
-    LABEL "Print Components?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21.8 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_prt-comp AS LOGICAL INITIAL yes 
+     LABEL "Print Components?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-desc1      AS LOGICAL INITIAL YES 
-    LABEL "Print FG Description 1?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 25.8 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_prt-desc1 AS LOGICAL INITIAL yes 
+     LABEL "Print FG Description 1?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 25.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-item       AS LOGICAL INITIAL NO 
-    LABEL "Est/FG Item Name?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 23.8 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_prt-item AS LOGICAL INITIAL no 
+     LABEL "Est/FG Item Name?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-quoimage   AS LOGICAL INITIAL YES 
-    LABEL "Print Quote Image?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 28 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_prt-quoimage AS LOGICAL INITIAL yes 
+     LABEL "Print Quote Image?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-shp2       AS LOGICAL INITIAL NO 
-    LABEL "Print Ship To?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 18.8 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_prt-shp2 AS LOGICAL INITIAL no 
+     LABEL "Print Ship To?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_terms          AS LOGICAL INITIAL NO 
-    LABEL "Print Terms?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 17.4 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_spec-note AS LOGICAL INITIAL no 
+     LABEL "Spec Notes?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm      AS LOGICAL INITIAL NO 
-    LABEL "Show Parameters?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 24 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_terms AS LOGICAL INITIAL no 
+     LABEL "Print Terms?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 17.4 BY .81 NO-UNDO.
+
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+     LABEL "Show Parameters?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    v-quo-list AT ROW 3.05 COL 15.6 NO-LABELS
-    begin_cust AT ROW 6.38 COL 35.6 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number"
-    end_cust AT ROW 6.38 COL 78.6 COLON-ALIGNED HELP
-    "Enter Ending Customer Number"
-    begin_quo# AT ROW 7.33 COL 35.6 COLON-ALIGNED HELP
-    "Enter Beginning Quote Number"
-    end_quo# AT ROW 7.33 COL 78.6 COLON-ALIGNED HELP
-    "Enter Ending QuoteNumber"
-    tb_booked AT ROW 8.38 COL 37.6 HELP
-    "Check to only print quotes with booked orders" WIDGET-ID 22
-    tb_inst AT ROW 9.52 COL 16.4
-    tb_notesSpanPage AT ROW 9.52 COL 63.4
-    begin_dept AT ROW 10.48 COL 35.6 COLON-ALIGNED HELP
-    "Enter Beginning Department"
-    end_dept AT ROW 10.48 COL 78.6 COLON-ALIGNED HELP
-    "Enter Endng Department"
-    lbl_sort-3 AT ROW 11.76 COL 17.8 COLON-ALIGNED NO-LABELS
-    rd_sort AT ROW 11.76 COL 29.8 NO-LABELS
-    rs_note AT ROW 12.48 COL 91 NO-LABELS WIDGET-ID 2
-    tb_note AT ROW 13 COL 35.2 RIGHT-ALIGNED
-    tb_prt-box AT ROW 13.05 COL 38.4
-    tb_fg-desc2 AT ROW 13.05 COL 60
-    tb_prt-desc1 AT ROW 13.05 COL 61.2
-    tb_boardDescription AT ROW 13.1 COL 61.2 NO-LABELS
-    tb_comm AT ROW 13.91 COL 35.2 RIGHT-ALIGNED
-    tb_prt-comp AT ROW 13.91 COL 38.4
-    tb_prt-quoimage AT ROW 13.95 COL 60
-    tb_fg-desc3 AT ROW 14.76 COL 61.2
-    tb_print-2nd-dscr AT ROW 14.81 COL 37 RIGHT-ALIGNED
-    tb_prt-item AT ROW 14.81 COL 38.4
-    tb_terms AT ROW 15.1 COL 38.4 WIDGET-ID 20
-    tb_prt-shp2 AT ROW 15.67 COL 4.2 WIDGET-ID 6
-    rs-act-inact AT ROW 15.86 COL 17.6 NO-LABELS WIDGET-ID 24
-    lv-termFile AT ROW 15.86 COL 65 COLON-ALIGNED WIDGET-ID 18
-    tb_BatchMail AT ROW 18.38 COL 30
-    tb_HideDialog AT ROW 18.38 COL 50.6
-    tb_page AT ROW 18.38 COL 71.6
-    rd-dest AT ROW 18.57 COL 5 NO-LABELS
-    lv-font-name AT ROW 19.24 COL 46 COLON-ALIGNED NO-LABELS
-    lv-font-no AT ROW 19.33 COL 38 COLON-ALIGNED
-    lines-per-page AT ROW 20.29 COL 104 COLON-ALIGNED
-    lv-ornt AT ROW 20.52 COL 60 NO-LABELS
-    td-show-parm AT ROW 20.76 COL 37
-    v-group-title AT ROW 21.71 COL 41 COLON-ALIGNED HELP
-    "Enter Email Title"
-    run_format AT ROW 23.19 COL 79.8 COLON-ALIGNED WIDGET-ID 12
-    tbAutoClose AT ROW 24.62 COL 31.2 WIDGET-ID 64
-    btn-ok AT ROW 25.48 COL 31
-    btn-cancel AT ROW 25.48 COL 65
-    lbl_Item-status AT ROW 14.91 COL 2.6 COLON-ALIGNED WIDGET-ID 124
-    " Output Destination" VIEW-AS TEXT
-    SIZE 19 BY .62 AT ROW 17.67 COL 4
-    " Enter Quotes separated by comma" VIEW-AS TEXT
-    SIZE 36 BY .62 AT ROW 2.19 COL 36.6
-    BGCOLOR 14 
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.24 COL 4
-    RECT-6 AT ROW 18.1 COL 3
-    RECT-7 AT ROW 1.71 COL 3
+     v-quo-list AT ROW 3.05 COL 15.6 NO-LABEL
+     begin_cust AT ROW 6.38 COL 35.6 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number"
+     end_cust AT ROW 6.38 COL 78.6 COLON-ALIGNED HELP
+          "Enter Ending Customer Number"
+     begin_quo# AT ROW 7.33 COL 35.6 COLON-ALIGNED HELP
+          "Enter Beginning Quote Number"
+     end_quo# AT ROW 7.33 COL 78.6 COLON-ALIGNED HELP
+          "Enter Ending QuoteNumber"
+     tb_booked AT ROW 8.38 COL 37.6 HELP
+          "Check to only print quotes with booked orders" WIDGET-ID 22
+     tb_inst AT ROW 9.52 COL 16.4
+     tb_notesSpanPage AT ROW 9.52 COL 63.4
+     begin_dept AT ROW 10.48 COL 35.6 COLON-ALIGNED HELP
+          "Enter Beginning Department"
+     end_dept AT ROW 10.48 COL 78.6 COLON-ALIGNED HELP
+          "Enter Endng Department"
+     lbl_sort-3 AT ROW 11.76 COL 17.8 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 11.76 COL 29.8 NO-LABEL
+     rs_note AT ROW 12.48 COL 91 NO-LABEL WIDGET-ID 2
+     tb_note AT ROW 13 COL 35.2 RIGHT-ALIGNED
+     tb_prt-box AT ROW 13.05 COL 38.4
+     tb_fg-desc2 AT ROW 13.05 COL 60
+     tb_prt-desc1 AT ROW 13.05 COL 61.2
+     tb_boardDescription AT ROW 13.1 COL 61.2 NO-LABEL
+     tb_comm AT ROW 13.91 COL 35.2 RIGHT-ALIGNED
+     tb_prt-comp AT ROW 13.91 COL 38.4
+     tb_prt-quoimage AT ROW 13.95 COL 60
+     tb_fg-desc3 AT ROW 14.76 COL 61.2
+     tb_print-2nd-dscr AT ROW 14.81 COL 37 RIGHT-ALIGNED
+     tb_prt-item AT ROW 14.81 COL 38.4
+     tb_terms AT ROW 15.1 COL 38.4 WIDGET-ID 20
+     tb_prt-shp2 AT ROW 15.67 COL 4.2 WIDGET-ID 6
+     rs-act-inact AT ROW 15.86 COL 17.6 NO-LABEL WIDGET-ID 24
+     lv-termFile AT ROW 15.86 COL 65 COLON-ALIGNED WIDGET-ID 18
+     spec_codes AT ROW 16.76 COL 21.6 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     tb_spec-note AT ROW 16.86 COL 4.4 WIDGET-ID 126
+     tb_BatchMail AT ROW 18.71 COL 30
+     tb_HideDialog AT ROW 18.71 COL 50.6
+     tb_page AT ROW 18.71 COL 71.6
+     rd-dest AT ROW 18.76 COL 5 NO-LABEL
+     lv-font-name AT ROW 19.57 COL 46 COLON-ALIGNED NO-LABEL
+     lv-font-no AT ROW 19.67 COL 38 COLON-ALIGNED
+     lines-per-page AT ROW 20.62 COL 104 COLON-ALIGNED
+     lv-ornt AT ROW 20.86 COL 60 NO-LABEL
+     td-show-parm AT ROW 21.1 COL 37
+     v-group-title AT ROW 22.05 COL 41 COLON-ALIGNED HELP
+          "Enter Email Title"
+     run_format AT ROW 23.19 COL 79.8 COLON-ALIGNED WIDGET-ID 12
+     tbAutoClose AT ROW 24.62 COL 31.2 WIDGET-ID 64
+     btn-ok AT ROW 25.48 COL 31
+     btn-cancel AT ROW 25.48 COL 65
+     lbl_Item-status AT ROW 14.91 COL 2.6 COLON-ALIGNED WIDGET-ID 124
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 18.14 COL 4
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 4
+     " Enter Quotes separated by comma" VIEW-AS TEXT
+          SIZE 36 BY .62 AT ROW 2.19 COL 36.6
+          BGCOLOR 14 
+     RECT-6 AT ROW 18.38 COL 3
+     RECT-7 AT ROW 1.71 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 113.2 BY 26.81
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 113.2 BY 26.81
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -492,30 +507,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Print Quotes"
-        HEIGHT             = 25.86
-        WIDTH              = 112.8
-        MAX-HEIGHT         = 33.29
-        MAX-WIDTH          = 204.8
-        VIRTUAL-HEIGHT     = 33.29
-        VIRTUAL-WIDTH      = 204.8
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Print Quotes"
+         HEIGHT             = 25.86
+         WIDTH              = 112.8
+         MAX-HEIGHT         = 33.29
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.29
+         VIRTUAL-WIDTH      = 204.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -530,117 +545,140 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    begin_cust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_dept:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_dept:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_quo#:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_quo#:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    end_cust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_dept:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_dept:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_quo#:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_quo#:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lbl_Item-status IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_Item-status:PRIVATE-DATA IN FRAME FRAME-A = "rs-act-inact".
+       lbl_Item-status:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rs-act-inact".
 
 /* SETTINGS FOR FILL-IN lbl_sort-3 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_sort-3:PRIVATE-DATA IN FRAME FRAME-A = "rd_sort".
+       lbl_sort-3:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_sort".
 
 /* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    rd_sort:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       rd_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_booked:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_booked:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_comm IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_comm:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_comm:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_fg-desc2:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_fg-desc2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_fg-desc3:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_fg-desc3:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_HideDialog:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_HideDialog:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_inst:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_inst:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_note IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_note:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_note:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_print-2nd-dscr IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_print-2nd-dscr:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-2nd-dscr:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_prt-desc1:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_prt-desc1:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_prt-item:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_prt-item:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_terms:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_terms:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
+       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN v-group-title IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    v-group-title:HIDDEN IN FRAME FRAME-A       = TRUE
-    v-group-title:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       v-group-title:HIDDEN IN FRAME FRAME-A           = TRUE
+       v-group-title:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    v-quo-list:RETURN-INSERTED IN FRAME FRAME-A = TRUE.
+       v-quo-list:RETURN-INSERTED IN FRAME FRAME-A  = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -663,7 +701,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Print Quotes */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -677,7 +715,7 @@ ON END-ERROR OF C-Win /* Print Quotes */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Print Quotes */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         IF VALID-HANDLE (hdOutboundProcs) THEN
             DELETE PROCEDURE hdOutboundProcs.
@@ -693,7 +731,7 @@ ON WINDOW-CLOSE OF C-Win /* Print Quotes */
 &Scoped-define SELF-NAME begin_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -704,7 +742,7 @@ ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 &Scoped-define SELF-NAME begin_dept
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_dept C-Win
 ON LEAVE OF begin_dept IN FRAME FRAME-A /* Beginning Department */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -715,7 +753,7 @@ ON LEAVE OF begin_dept IN FRAME FRAME-A /* Beginning Department */
 &Scoped-define SELF-NAME begin_quo#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_quo# C-Win
 ON LEAVE OF begin_quo# IN FRAME FRAME-A /* Beginning Quote# */
-    DO:
+DO:
         ASSIGN {&self-name}.  
         RUN activateBookedOrderOption.
     END.
@@ -726,7 +764,7 @@ ON LEAVE OF begin_quo# IN FRAME FRAME-A /* Beginning Quote# */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_quo# C-Win
 ON VALUE-CHANGED OF begin_quo# IN FRAME FRAME-A /* Beginning Quote# */
-    DO:
+DO:
         DO WITH FRAME {&FRAME-NAME}:
 
             IF rs_note:HIDDEN EQ NO AND
@@ -762,7 +800,7 @@ ON VALUE-CHANGED OF begin_quo# IN FRAME FRAME-A /* Beginning Quote# */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -773,7 +811,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
 
         DEFINE VARIABLE lv-loc    LIKE quotehd.loc NO-UNDO.
         DEFINE VARIABLE li        AS INTEGER NO-UNDO.
@@ -847,7 +885,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                 s-print-2nd-dscr   = tb_print-2nd-dscr
                 v-prt-shp2         = tb_prt-shp2
                 v-terms            = tb_terms
-                v-termfile         = lv-termFile.
+                v-termfile         = lv-termFile
+                lSpecNotes         = tb_spec-note
+                cSpecNotesCode     = spec_codes.
 
             IF rs-act-inact:HIDDEN EQ NO THEN
                 cItemStatus = SUBSTRING(rs-act-inact,1,1).
@@ -991,7 +1031,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &Scoped-define SELF-NAME end_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1002,7 +1042,7 @@ ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 &Scoped-define SELF-NAME end_dept
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_dept C-Win
 ON LEAVE OF end_dept IN FRAME FRAME-A /* Ending Department */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1013,7 +1053,7 @@ ON LEAVE OF end_dept IN FRAME FRAME-A /* Ending Department */
 &Scoped-define SELF-NAME end_quo#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_quo# C-Win
 ON LEAVE OF end_quo# IN FRAME FRAME-A /* Ending Quote# */
-    DO:
+DO:
         ASSIGN {&self-name}.
         RUN activateBookedOrderOption.
     END.
@@ -1025,7 +1065,7 @@ ON LEAVE OF end_quo# IN FRAME FRAME-A /* Ending Quote# */
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1036,7 +1076,7 @@ ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -1051,7 +1091,7 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         ASSIGN lv-font-no.
     END.
 
@@ -1062,7 +1102,7 @@ ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN lv-ornt.
     END.
 
@@ -1072,7 +1112,7 @@ ON LEAVE OF lv-ornt IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         {custom/chgfont.i}
     END.
 
@@ -1083,7 +1123,7 @@ ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 &Scoped-define SELF-NAME lv-termFile
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-termFile C-Win
 ON HELP OF lv-termFile IN FRAME FRAME-A /* Terms File */
-    DO:
+DO:
         DEFINE VARIABLE chFile AS CHARACTER NO-UNDO.
         DEFINE VARIABLE ll-ok  AS LOG       NO-UNDO.
 
@@ -1111,7 +1151,7 @@ ON HELP OF lv-termFile IN FRAME FRAME-A /* Terms File */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-termFile C-Win
 ON LEAVE OF lv-termFile IN FRAME FRAME-A /* Terms File */
-    DO:
+DO:
         ASSIGN {&self-name}.  
     END.
 
@@ -1122,7 +1162,7 @@ ON LEAVE OF lv-termFile IN FRAME FRAME-A /* Terms File */
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1133,7 +1173,7 @@ ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd_sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1144,7 +1184,7 @@ ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
 &Scoped-define SELF-NAME rs-act-inact
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rs-act-inact C-Win
 ON VALUE-CHANGED OF rs-act-inact IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1155,7 +1195,7 @@ ON VALUE-CHANGED OF rs-act-inact IN FRAME FRAME-A
 &Scoped-define SELF-NAME rs_note
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rs_note C-Win
 ON VALUE-CHANGED OF rs_note IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&SELF-NAME}.
     END.
 
@@ -1166,7 +1206,7 @@ ON VALUE-CHANGED OF rs_note IN FRAME FRAME-A
 &Scoped-define SELF-NAME run_format
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON HELP OF run_format IN FRAME FRAME-A /* Format */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
     
         RUN windows/l-syschrL.w (gcompany,"QuoPrint",run_format:SCREEN-VALUE,OUTPUT char-val).
@@ -1189,7 +1229,7 @@ ON HELP OF run_format IN FRAME FRAME-A /* Format */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
-    DO:
+DO:
         ASSIGN run_format.
 
         IF v-print-fmt NE run_format THEN 
@@ -1207,10 +1247,61 @@ ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME spec_codes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL spec_codes C-Win
+ON HELP OF spec_codes IN FRAME FRAME-A
+DO:
+        DEFINE VARIABLE char-val    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE ip-char-val AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE i-cnt       AS INTEGER   NO-UNDO.
+
+        ASSIGN spec_codes
+            ip-char-val = "".
+
+        EMPTY TEMP-TABLE tt-specCd.
+        DO i-cnt = 1 TO NUM-ENTRIES(spec_codes):
+
+            IF TRIM(ENTRY(i-cnt,spec_codes))  EQ "" THEN NEXT.
+
+            CREATE tt-specCd.
+            ASSIGN 
+                tt-char-val = TRIM(ENTRY(i-cnt,spec_codes)).
+        END.
+
+        FOR FIRST  tt-specCd NO-LOCK 
+            BY tt-specCd.tt-char-val:
+
+            ASSIGN 
+                ip-char-val = TRIM(tt-specCd.tt-char-val).
+        END.
+
+        RUN cec/l-itspec.w (cocode, ip-char-val, OUTPUT char-val).
+        IF char-val NE "" AND {&self-name}:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
+        DO:
+            ASSIGN
+                {&self-name}:SCREEN-VALUE = {&self-name}:SCREEN-VALUE + "," + ENTRY(1,char-val)
+                {&self-name}:SCREEN-VALUE = LEFT-TRIM({&self-name}:SCREEN-VALUE,",").
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL spec_codes C-Win
+ON LEAVE OF spec_codes IN FRAME FRAME-A
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_BatchMail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_BatchMail C-Win
 ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch E-Mail */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1221,7 +1312,7 @@ ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch E-Mail */
 &Scoped-define SELF-NAME tb_boardDescription
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_boardDescription C-Win
 ON VALUE-CHANGED OF tb_boardDescription IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&SELF-NAME}.
     END.
 
@@ -1232,7 +1323,7 @@ ON VALUE-CHANGED OF tb_boardDescription IN FRAME FRAME-A
 &Scoped-define SELF-NAME tb_booked
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_booked C-Win
 ON VALUE-CHANGED OF tb_booked IN FRAME FRAME-A /* Booked Orders Only? */
-    DO:
+DO:
         ASSIGN {&self-name}.   
     END.
 
@@ -1243,7 +1334,7 @@ ON VALUE-CHANGED OF tb_booked IN FRAME FRAME-A /* Booked Orders Only? */
 &Scoped-define SELF-NAME tb_comm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_comm C-Win
 ON VALUE-CHANGED OF tb_comm IN FRAME FRAME-A /* Print SalesRep Commission? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1254,7 +1345,7 @@ ON VALUE-CHANGED OF tb_comm IN FRAME FRAME-A /* Print SalesRep Commission? */
 &Scoped-define SELF-NAME tb_fg-desc2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_fg-desc2 C-Win
 ON VALUE-CHANGED OF tb_fg-desc2 IN FRAME FRAME-A /* Print FG Description 2? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1265,7 +1356,7 @@ ON VALUE-CHANGED OF tb_fg-desc2 IN FRAME FRAME-A /* Print FG Description 2? */
 &Scoped-define SELF-NAME tb_fg-desc3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_fg-desc3 C-Win
 ON VALUE-CHANGED OF tb_fg-desc3 IN FRAME FRAME-A /* Print FG Description 3? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1276,7 +1367,7 @@ ON VALUE-CHANGED OF tb_fg-desc3 IN FRAME FRAME-A /* Print FG Description 3? */
 &Scoped-define SELF-NAME tb_HideDialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_HideDialog C-Win
 ON VALUE-CHANGED OF tb_HideDialog IN FRAME FRAME-A /* Hide Dialog-Box */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1287,7 +1378,7 @@ ON VALUE-CHANGED OF tb_HideDialog IN FRAME FRAME-A /* Hide Dialog-Box */
 &Scoped-define SELF-NAME tb_inst
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_inst C-Win
 ON VALUE-CHANGED OF tb_inst IN FRAME FRAME-A /* Print Department Manufacturing Instructions? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1298,7 +1389,7 @@ ON VALUE-CHANGED OF tb_inst IN FRAME FRAME-A /* Print Department Manufacturing I
 &Scoped-define SELF-NAME tb_note
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_note C-Win
 ON VALUE-CHANGED OF tb_note IN FRAME FRAME-A /* Print Notes per Item or Form? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1309,7 +1400,7 @@ ON VALUE-CHANGED OF tb_note IN FRAME FRAME-A /* Print Notes per Item or Form? */
 &Scoped-define SELF-NAME tb_notesSpanPage
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_notesSpanPage C-Win
 ON VALUE-CHANGED OF tb_notesSpanPage IN FRAME FRAME-A /* Instructions Span Multiple Pages */
-    DO:
+DO:
         ASSIGN {&SELF-NAME}.
     END.
 
@@ -1320,7 +1411,7 @@ ON VALUE-CHANGED OF tb_notesSpanPage IN FRAME FRAME-A /* Instructions Span Multi
 &Scoped-define SELF-NAME tb_print-2nd-dscr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-2nd-dscr C-Win
 ON VALUE-CHANGED OF tb_print-2nd-dscr IN FRAME FRAME-A /* Print 2nd Item Description Line? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1331,7 +1422,7 @@ ON VALUE-CHANGED OF tb_print-2nd-dscr IN FRAME FRAME-A /* Print 2nd Item Descrip
 &Scoped-define SELF-NAME tb_prt-desc1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-desc1 C-Win
 ON VALUE-CHANGED OF tb_prt-desc1 IN FRAME FRAME-A /* Print FG Description 1? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1342,7 +1433,7 @@ ON VALUE-CHANGED OF tb_prt-desc1 IN FRAME FRAME-A /* Print FG Description 1? */
 &Scoped-define SELF-NAME tb_prt-item
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-item C-Win
 ON VALUE-CHANGED OF tb_prt-item IN FRAME FRAME-A /* Est/FG Item Name? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1353,9 +1444,24 @@ ON VALUE-CHANGED OF tb_prt-item IN FRAME FRAME-A /* Est/FG Item Name? */
 &Scoped-define SELF-NAME tb_prt-shp2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prt-shp2 C-Win
 ON VALUE-CHANGED OF tb_prt-shp2 IN FRAME FRAME-A /* Print Ship To? */
-    DO:
+DO:
         ASSIGN {&self-name}.   
 
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_spec-note
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_spec-note C-Win
+ON VALUE-CHANGED OF tb_spec-note IN FRAME FRAME-A /* Spec Notes? */
+DO:
+        ASSIGN {&self-name}.
+        IF tb_spec-note = YES THEN
+            spec_codes:HIDDEN IN FRAME FRAME-A = NO.
+        ELSE
+            spec_codes:HIDDEN IN FRAME FRAME-A = YES.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1365,7 +1471,7 @@ ON VALUE-CHANGED OF tb_prt-shp2 IN FRAME FRAME-A /* Print Ship To? */
 &Scoped-define SELF-NAME tb_terms
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_terms C-Win
 ON VALUE-CHANGED OF tb_terms IN FRAME FRAME-A /* Print Terms? */
-    DO:
+DO:
         ASSIGN {&self-name}.
 
         IF v-print-fmt EQ "Simkins"
@@ -1380,7 +1486,7 @@ ON VALUE-CHANGED OF tb_terms IN FRAME FRAME-A /* Print Terms? */
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1391,7 +1497,7 @@ ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 &Scoped-define SELF-NAME v-group-title
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-group-title C-Win
 ON HELP OF v-group-title IN FRAME FRAME-A /* Send to Title */
-    DO:
+DO:
         DEFINE VARIABLE v-title AS cha NO-UNDO.
 
         RUN windows/l-ttlcod.w (FOCUS:SCREEN-VALUE, OUTPUT v-title).
@@ -1404,7 +1510,7 @@ ON HELP OF v-group-title IN FRAME FRAME-A /* Send to Title */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-group-title C-Win
 ON LEAVE OF v-group-title IN FRAME FRAME-A /* Send to Title */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1415,7 +1521,7 @@ ON LEAVE OF v-group-title IN FRAME FRAME-A /* Send to Title */
 &Scoped-define SELF-NAME v-quo-list
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-quo-list C-Win
 ON LEAVE OF v-quo-list IN FRAME FRAME-A
-    DO:
+DO:
         DEFINE VARIABLE v-first-quote-no AS INTEGER NO-UNDO.
 
         DO WITH FRAME {&FRAME-NAME}:
@@ -1457,7 +1563,7 @@ ON LEAVE OF v-quo-list IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-quo-list C-Win
 ON VALUE-CHANGED OF v-quo-list IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1587,7 +1693,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE activateBookedOrderOption C-Win 
 PROCEDURE activateBookedOrderOption :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1610,7 +1716,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BatchMail C-Win 
 PROCEDURE BatchMail :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1727,7 +1833,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE batchmail-2-proc C-Win 
 PROCEDURE batchmail-2-proc :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1823,18 +1929,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1842,31 +1948,33 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY v-quo-list begin_cust end_cust begin_quo# end_quo# tb_booked tb_inst 
-        tb_notesSpanPage begin_dept end_dept lbl_sort-3 rd_sort rs_note 
-        tb_note tb_prt-box tb_fg-desc2 tb_prt-desc1 tb_boardDescription 
-        tb_comm tb_prt-comp tb_prt-quoimage tb_fg-desc3 tb_print-2nd-dscr 
-        tb_prt-item tb_terms tb_prt-shp2 rs-act-inact lv-termFile tb_BatchMail 
-        tb_HideDialog tb_page rd-dest run_format tbAutoClose lbl_Item-status 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-6 RECT-7 v-quo-list begin_cust end_cust begin_quo# end_quo# 
-        tb_booked tb_inst tb_notesSpanPage begin_dept end_dept rd_sort rs_note 
-        tb_note tb_prt-box tb_fg-desc2 tb_prt-desc1 tb_boardDescription 
-        tb_comm tb_prt-comp tb_prt-quoimage tb_fg-desc3 tb_print-2nd-dscr 
-        tb_prt-item tb_terms tb_prt-shp2 rs-act-inact lv-termFile tb_BatchMail 
-        tb_HideDialog tb_page rd-dest run_format tbAutoClose btn-ok btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY v-quo-list begin_cust end_cust begin_quo# end_quo# tb_booked tb_inst 
+          tb_notesSpanPage begin_dept end_dept lbl_sort-3 rd_sort rs_note 
+          tb_note tb_prt-box tb_fg-desc2 tb_prt-desc1 tb_boardDescription 
+          tb_comm tb_prt-comp tb_prt-quoimage tb_fg-desc3 tb_print-2nd-dscr 
+          tb_prt-item tb_terms tb_prt-shp2 rs-act-inact lv-termFile spec_codes 
+          tb_spec-note tb_BatchMail tb_HideDialog tb_page rd-dest run_format 
+          tbAutoClose lbl_Item-status 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-6 RECT-7 v-quo-list begin_cust end_cust begin_quo# end_quo# 
+         tb_booked tb_inst tb_notesSpanPage begin_dept end_dept rd_sort rs_note 
+         tb_note tb_prt-box tb_fg-desc2 tb_prt-desc1 tb_boardDescription 
+         tb_comm tb_prt-comp tb_prt-quoimage tb_fg-desc3 tb_print-2nd-dscr 
+         tb_prt-item tb_terms tb_prt-shp2 rs-act-inact lv-termFile spec_codes 
+         tb_spec-note tb_BatchMail tb_HideDialog tb_page rd-dest run_format 
+         tbAutoClose btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1874,7 +1982,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateMail C-Win 
 PROCEDURE GenerateMail :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1931,7 +2039,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -1989,7 +2097,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2003,7 +2111,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-mail C-Win 
 PROCEDURE output-to-mail :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2020,7 +2128,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2034,7 +2142,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2053,7 +2161,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2072,9 +2180,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound C-Win
-PROCEDURE pCallAPIOutbound PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound C-Win 
+PROCEDURE pCallAPIOutbound PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -2131,15 +2238,13 @@ PROCEDURE pCallAPIOutbound PRIVATE:
         
     RUN Outbound_ResetContext IN hdOutboundProcs. 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
 PROCEDURE pRunFormatValueChanged :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2280,6 +2385,24 @@ PROCEDURE pRunFormatValueChanged :
                 lv-termFile:SCREEN-VALUE = ""
                 lv-termFile              = ""
                 lv-termFile:SENSITIVE    = NO.
+                        
+        IF tb_spec-note:SCREEN-VALUE = "YES" THEN
+            spec_codes:HIDDEN IN FRAME FRAME-A = NO.
+        ELSE
+            spec_codes:HIDDEN IN FRAME FRAME-A = YES.    
+            
+        IF LOOKUP(v-print-fmt,"quoprint 1,quoprint 2,quoprint 10,quoprint 20,xprint,quoprint10-CAN,quoprint 11,GC") NE 0 THEN 
+            ASSIGN
+                tb_spec-note:SENSITIVE   = YES
+                tb_spec-note:HIDDEN      = NO 
+                spec_codes:SENSITIVE     = YES.    
+         ELSE
+         ASSIGN
+                tb_spec-note:SENSITIVE   = NO
+                tb_spec-note:HIDDEN      = YES
+                spec_codes:SENSITIVE     = NO
+                spec_codes:HIDDEN        = YES                
+              .        
     END.
 END PROCEDURE.
 
@@ -2288,7 +2411,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2331,7 +2454,10 @@ PROCEDURE run-report :
         v-notesPageSpan    = tb_notesSpanPage
         v-boardDescription = tb_boardDescription
         s-print-2nd-dscr   = tb_print-2nd-dscr
-        v-prt-shp2         = tb_prt-shp2.
+        v-prt-shp2         = tb_prt-shp2
+        lSpecNotes         = tb_spec-note
+        cSpecNotesCode     = spec_codes
+        .
     IF dQuoteValue EQ 0 THEN dQuoteValue = 4 .
     IF rs-act-inact:HIDDEN EQ NO THEN
         cItemStatus = SUBSTRING(rs-act-inact,1,1).
@@ -2655,7 +2781,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report-sys-ctrl-shipto C-Win 
 PROCEDURE run-report-sys-ctrl-shipto :
-    DEFINE INPUT PARAMETER icCustNo AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER icCustNo AS CHARACTER NO-UNDO.
 
     {sys/form/r-top.i}
 
@@ -2875,7 +3001,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SendMail-1 C-Win 
 PROCEDURE SendMail-1 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2907,7 +3033,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetGlobalVariables C-Win 
 PROCEDURE SetGlobalVariables :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2922,7 +3048,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetQuoForm C-Win 
 PROCEDURE SetQuoForm :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3232,7 +3358,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       

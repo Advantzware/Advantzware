@@ -713,6 +713,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                     OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                 END.
             END.  /* IF NOT tb_OpenCSV THEN  */
+            ELSE DO:
+                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+            END.
         END.  /* IF rd-dest = 4 THEN */
         
         IF tbAutoClose:CHECKED THEN 
@@ -2898,8 +2901,6 @@ PROCEDURE run-report :
     IF rd-dest = 4 THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

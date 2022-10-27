@@ -363,7 +363,7 @@ IF AVAIL itemfg THEN DO:
        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
          cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
          
-         IF INDEX(cTmpField,".") > 0 THEN DO:
+         IF INDEX(cTmpField,".") > 0 AND LOOKUP(cTmpField, "w-ord.rel-date,w-ord.last-date") EQ 0 THEN DO:
                  cFieldName = cTmpField.
                  cTmpField = SUBSTRING(cTmpField,INDEX(cTmpField,".") + 1).
                  hField = BUFFER bw-ord:BUFFER-FIELD(cTmpField) .
@@ -379,7 +379,7 @@ IF AVAIL itemfg THEN DO:
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
-                     cExcelDisplay = cExcelDisplay + quoter(GetFieldValue(hField)) + ",".
+                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, GetFieldValue(hField))) + ",".
                  END.
                  ELSE DO:
                     cTmpField = substring(cFieldName,1,int( entry( getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength) ) ).                  
@@ -405,11 +405,18 @@ IF AVAIL itemfg THEN DO:
                  WHEN "skids" THEN cVarValue = STRING(w-ord.palls,"->>>,>>9").
                  WHEN "ship-zip" THEN cVarValue = string(cShipZip,"x(10)").
                  WHEN "lot-no"   THEN cVarValue = string(w-ord.lot-no,"x(15)").
+                 WHEN "w-ord.rel-date" THEN cVarValue = STRING(w-ord.rel-date).
+                 WHEN "w-ord.last-date" THEN cVarValue = STRING(w-ord.last-date).
             END CASE.
-            cExcelVarValue = cVarValue.
+            
+            IF  cTmpField = "w-ord.rel-date" THEN
+                 cExcelVarValue = IF w-ord.rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.rel-date) ELSE "".
+            ELSE IF  cTmpField = "w-ord.last-date" THEN
+                 cExcelVarValue = IF w-ord.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.last-date) ELSE "".
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
       END.
       PUT UNFORMATTED cDisplay SKIP.
