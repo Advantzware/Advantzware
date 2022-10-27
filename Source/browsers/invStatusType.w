@@ -272,7 +272,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       inventoryStatusType.statusID FORMAT "x(5)":U LABEL-BGCOLOR 14
       inventoryStatusType.description FORMAT "x(32)":U LABEL-BGCOLOR 14
-      inventoryStatusType.inActive FORMAT "yes/no":U LABEL-BGCOLOR 14
+      inventoryStatusType.inActive COLUMN-LABEL "Inactive" FORMAT "yes/no":U LABEL-BGCOLOR 14
       inventoryStatusType.onHold FORMAT "yes/no":U WIDTH 10.8 LABEL-BGCOLOR 14
       inventoryStatusType.createDate FORMAT "99/99/99":U LABEL-BGCOLOR 14       
       STRING(inventoryStatusType.createTime,'HH:MM:SS am') @ createTime
@@ -397,7 +397,7 @@ ASSIGN
      _FldNameList[2]   > asi.inventoryStatusType.description
 "inventoryStatusType.description" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.inventoryStatusType.inActive
-"inventoryStatusType.inActive" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inventoryStatusType.inActive" "Inactive" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.inventoryStatusType.onHold
 "inventoryStatusType.onHold" ? ? "logical" ? ? ? 14 ? ? no ? no no "10.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.inventoryStatusType.createDate

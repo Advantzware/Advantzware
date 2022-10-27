@@ -141,6 +141,7 @@ DEFINE FRAME F-Main
           SIZE 15 BY 1
           BGCOLOR 15 
      inventoryStatusType.inActive AT ROW 1.48 COL 65
+          LABEL "Inactive"
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY 1
           BGCOLOR 15 
@@ -252,7 +253,9 @@ ASSIGN
 /* SETTINGS FOR FILL-IN inventoryStatusType.updateUser IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN cCreateTime IN FRAME F-Main
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                      */  
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                      */ 
+/* SETTINGS FOR FILL-IN inventoryStatusType.inActive IN FRAME F-Main
+   EXP-LABEL                                                           */    
 /* SETTINGS FOR FILL-IN cUpdateTime IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                      */    
 /* _RUN-TIME-ATTRIBUTES-END */
