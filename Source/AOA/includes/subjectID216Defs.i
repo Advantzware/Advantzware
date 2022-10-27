@@ -1,9 +1,14 @@
-/* subjectID216Defs.i - auto generated 10.25.2022 @ 11:33:06 pm */
+/* subjectID216Defs.i - auto generated 10.27.2022 @  7:00:26 pm */
 
 {AOA/includes/dynRunBusinessLogicDefs.i}
 
 /* parameter values loaded into these variables */
 DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllMachines AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cStartMachine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cStartMachDescription AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndMachine AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cEndMachDescription AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAllJobNo AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cStartJobNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iStartJobNo2 AS INTEGER NO-UNDO.
@@ -18,13 +23,18 @@ DEFINE VARIABLE cDatePickList-3 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dtEndDueDate AS DATE NO-UNDO.
 DEFINE VARIABLE cDatePickList-4 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cSbID AS CHARACTER NO-UNDO.
-DEFINE VARIABLE lReload AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cDepartments AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lReload AS LOGICAL NO-UNDO.
 
 PROCEDURE pAssignParamVariables:
     /* load dynamic parameter values into variables */
     ASSIGN
         cCompany = DYNAMIC-FUNCTION("fGetDynParamValue","company")
+        lAllMachines = DYNAMIC-FUNCTION("fGetDynParamValue","allMachines") EQ "YES"
+        cStartMachine = DYNAMIC-FUNCTION("fGetDynParamValue","startMachine")
+        cStartMachDescription = DYNAMIC-FUNCTION("fGetDynParamValue","startMachDescription")
+        cEndMachine = DYNAMIC-FUNCTION("fGetDynParamValue","endMachine")
+        cEndMachDescription = DYNAMIC-FUNCTION("fGetDynParamValue","endMachDescription")
         lAllJobNo = DYNAMIC-FUNCTION("fGetDynParamValue","allJobNo") EQ "YES"
         cStartJobNo = DYNAMIC-FUNCTION("fGetDynParamValue","startJobNo")
         iStartJobNo2 = DYNAMIC-FUNCTION("fGetDynParamValue","startJobNo2")
@@ -43,7 +53,7 @@ PROCEDURE pAssignParamVariables:
         cDatePickList-4 = DYNAMIC-FUNCTION("fGetDynParamValue","DatePickList-4")
         dtEndDueDate = DYNAMIC-FUNCTION("fDateOptionDate",cDatePickList-4,dtEndDueDate)
         cSbID = DYNAMIC-FUNCTION("fGetDynParamValue","sbID")
-        lReload = DYNAMIC-FUNCTION("fGetDynParamValue","Reload") EQ "YES"
         cDepartments = DYNAMIC-FUNCTION("fGetDynParamValue","Departments")
+        lReload = DYNAMIC-FUNCTION("fGetDynParamValue","Reload") EQ "YES"
         .
 END PROCEDURE.

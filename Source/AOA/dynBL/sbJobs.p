@@ -72,7 +72,9 @@ PROCEDURE pBusinessLogic:
     RUN getScenario.
     FOR EACH ttblJob
         :
-        IF ttblJob.jobSort   LT cStartJobNo    OR
+        IF ttblJob.resource  LT cStartMachine  OR
+           ttblJob.resource  GT cEndMachine    OR
+           ttblJob.jobSort   LT cStartJobNo    OR
            ttblJob.jobSort   GT cEndJobNo      OR
            ttblJob.startDate LT dtStartDate    OR
            ttblJob.startDate GT dtEndDate      OR
