@@ -1170,22 +1170,22 @@ PROCEDURE pGetFormQtys PRIVATE:
             
       opiReturnJobQty = opiReturnJobQty +  bff-job-hdr.qty .
       
-      FIND FIRST bff-oe-ordl
+      FIND FIRST bff-oe-ordl NO-LOCK
             WHERE bff-oe-ordl.company EQ bff-job-hdr.company
             AND bff-oe-ordl.ord-no  EQ bff-job-hdr.ord-no
             AND bff-oe-ordl.job-no  EQ bff-job-hdr.job-no
             AND bff-oe-ordl.job-no2 EQ bff-job-hdr.job-no2
             AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
-            NO-LOCK NO-ERROR.
+            NO-ERROR.
 
       IF bff-job-hdr.ord-no NE 0 AND NOT AVAILABLE bff-oe-ordl THEN
-      FIND FIRST bff-oe-ordl
+      FIND FIRST bff-oe-ordl NO-LOCK
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
            AND bff-oe-ordl.ord-no  EQ bff-job-hdr.ord-no
            AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
           NO-ERROR.
       IF bff-job-hdr.ord-no NE 0 AND NOT AVAILABLE bff-oe-ordl THEN
-      FIND FIRST bff-oe-ordl
+      FIND FIRST bff-oe-ordl NO-LOCK
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
            AND bff-oe-ordl.ord-no  EQ bff-job-hdr.ord-no
            NO-ERROR. 
@@ -1198,7 +1198,7 @@ PROCEDURE pGetFormQtys PRIVATE:
                 AND bf-job-hdr.job-no2 EQ ipiJobID2
                 AND bf-job-hdr.ord-no  NE 0 NO-ERROR.                         
          IF AVAILABLE bf-job-hdr AND bf-job-hdr.ord-no NE 0 THEN
-         FIND FIRST bff-oe-ordl
+         FIND FIRST bff-oe-ordl NO-LOCK
               WHERE bff-oe-ordl.company EQ bf-job-hdr.company
                 AND bff-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
                 NO-ERROR.                
@@ -1499,22 +1499,22 @@ PROCEDURE pGetJobQty :
       opiReturnQty = IF AVAIL bff-job-hdr THEN bff-job-hdr.qty ELSE 0 .
       
       IF AVAIL bff-job-hdr THEN 
-      FIND FIRST bff-oe-ordl
+      FIND FIRST bff-oe-ordl NO-LOCK
             WHERE bff-oe-ordl.company EQ bff-job-hdr.company
             AND bff-oe-ordl.ord-no  EQ bff-job-hdr.ord-no
             AND bff-oe-ordl.job-no  EQ bff-job-hdr.job-no
             AND bff-oe-ordl.job-no2 EQ bff-job-hdr.job-no2
             AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
-            NO-LOCK NO-ERROR.
+            NO-ERROR.
 
       IF AVAIL bff-job-hdr AND bff-job-hdr.ord-no NE 0 AND NOT AVAILABLE bff-oe-ordl THEN
-      FIND FIRST bff-oe-ordl
+      FIND FIRST bff-oe-ordl NO-LOCK
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
            AND bff-oe-ordl.ord-no  EQ bff-job-hdr.ord-no
            AND bff-oe-ordl.i-no    EQ bff-job-hdr.i-no
           NO-ERROR.
       IF AVAIL bff-job-hdr AND bff-job-hdr.ord-no NE 0 AND NOT AVAILABLE bff-oe-ordl THEN
-      FIND FIRST bff-oe-ordl
+      FIND FIRST bff-oe-ordl NO-LOCK
            WHERE bff-oe-ordl.company EQ bff-job-hdr.company
            AND bff-oe-ordl.ord-no  EQ bff-job-hdr.ord-no
            NO-ERROR.  
@@ -1526,7 +1526,7 @@ PROCEDURE pGetJobQty :
                 AND bf-job-hdr.job-no2 EQ ipiJobNo2
                 AND bf-job-hdr.ord-no  NE 0 NO-ERROR.                         
          IF AVAILABLE bf-job-hdr AND bf-job-hdr.ord-no NE 0 THEN
-         FIND FIRST bff-oe-ordl
+         FIND FIRST bff-oe-ordl NO-LOCK
               WHERE bff-oe-ordl.company EQ bf-job-hdr.company
                 AND bff-oe-ordl.ord-no  EQ bf-job-hdr.ord-no
                 NO-ERROR.                
