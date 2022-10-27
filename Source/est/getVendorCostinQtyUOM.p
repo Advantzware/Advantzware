@@ -48,7 +48,7 @@ DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cVendorID   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dCostDeviation AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cScope         AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE cVendorItemID  AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-Item FOR Item.
 
@@ -79,7 +79,8 @@ DO:
             OUTPUT dCostPerUOM, 
             OUTPUT dCostSetup, 
             OUTPUT cCostUOM,
-            OUTPUT dCostTotal, 
+            OUTPUT dCostTotal,
+            OUTPUT cVendorItemID,
             OUTPUT lError, 
             OUTPUT cMessage).
             

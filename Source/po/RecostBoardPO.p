@@ -192,6 +192,7 @@ PROCEDURE GetNewCostsN:
     DEFINE VARIABLE dCostTotal AS DECIMAL NO-UNDO.
     DEFINE VARIABLE lError AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
     
     FOR EACH ttPOGroups 
         WHERE ttPOGroups.Multi:
@@ -217,6 +218,7 @@ PROCEDURE GetNewCostsN:
             OUTPUT dCostSetup, 
             OUTPUT cCostUOM,
             OUTPUT dCostTotal, 
+            OUTPUT cVendorItemID,
             OUTPUT lError, 
             OUTPUT cMessage).      
             

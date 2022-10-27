@@ -4763,6 +4763,7 @@ PROCEDURE pCreateAndUpdateAdders PRIVATE :
     DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
    
     DEFINE BUFFER bf-job-mat FOR job-mat.
     
@@ -4831,7 +4832,8 @@ PROCEDURE pCreateAndUpdateAdders PRIVATE :
                 OUTPUT dCostPerUOM, 
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
-                OUTPUT dCostTotal, 
+                OUTPUT dCostTotal,
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage
                 ).  
@@ -5005,6 +5007,7 @@ PROCEDURE po-adder2 :
 
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
     
     FIND xjob-mat WHERE RECID(xjob-mat) EQ ip-recid1 NO-LOCK.
 
@@ -5079,6 +5082,7 @@ PROCEDURE po-adder2 :
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
                 OUTPUT dCostTotal, 
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage
                 ).  
@@ -6779,6 +6783,7 @@ PROCEDURE vend-cost :
     DEFINE VARIABLE dAddersSetupCost AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dQtyInCostUOM    AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dTotalCost       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cVendorItemID    AS CHARACTER NO-UNDO.
     
     RUN zero-vend-cost-related.
     EMPTY TEMP-TABLE tt-ei.
@@ -6831,7 +6836,8 @@ PROCEDURE vend-cost :
                 OUTPUT dCostPerUOM, 
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
-                OUTPUT dCostTotal, 
+                OUTPUT dCostTotal,
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).  
             RUN Conv_ValueFromUOMtoUOM(cocode, 
@@ -6867,6 +6873,7 @@ PROCEDURE vend-cost :
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
                 OUTPUT dCostTotal, 
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).        
             RUN Conv_ValueFromUOMtoUOM(cocode, 
@@ -6896,6 +6903,7 @@ PROCEDURE vend-cost :
                 po-ordl.setup:SCREEN-VALUE     = STRING(dCostSetup + dAddersSetupCost,po-ordl.setup:FORMAT)
                 po-ordl.cons-cost:SCREEN-VALUE = STRING(dCostPerUOMCons,po-ordl.cons-cost:FORMAT)
                 po-ordl.pr-uom:SCREEN-VALUE    = cCostUOM
+                po-ordl.vend-i-no:SCREEN-VALUE = cVendorItemID
                 .
             IF po-ordl.pr-uom:SCREEN-VALUE EQ "" THEN po-ordl.pr-uom:SCREEN-VALUE = "EA".
             IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.pr-qty-uom:SCREEN-VALUE THEN 

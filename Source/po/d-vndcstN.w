@@ -476,6 +476,7 @@ PROCEDURE build-table :
   DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
   DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO. 
+  DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
         
   FOR EACH bf-report NO-LOCK WHERE bf-report.term-id EQ v-term :
       FIND report WHERE ROWID(report) EQ ROWID(bf-report) EXCLUSIVE-LOCK.
@@ -538,7 +539,8 @@ PROCEDURE build-table :
               OUTPUT dCostPerUOM, 
               OUTPUT dCostSetup, 
               OUTPUT cCostUOM,
-              OUTPUT dCostTotal, 
+              OUTPUT dCostTotal,
+              OUTPUT cVendorItemID,
               OUTPUT lError, 
               OUTPUT cMessage).  
         

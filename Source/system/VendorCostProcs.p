@@ -882,6 +882,7 @@ PROCEDURE GetVendorCost:
     DEFINE OUTPUT PARAMETER opdCostSetup AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcCostUOM AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdCostTotal AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcVendorItem AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage AS CHARACTER NO-UNDO.
 
@@ -899,7 +900,8 @@ PROCEDURE GetVendorCost:
     IF NOT oplError AND AVAILABLE bf-vendItemCost THEN 
     DO:
         ASSIGN 
-            opcCostUOM = bf-vendItemCost.vendorUOM.
+            opcCostUOM = bf-vendItemCost.vendorUOM
+            opcVendorItem = bf-vendItemCost.vendorItemID.  MESSAGE "vendor cost process opcVendorItem " VIEW-AS ALERT-BOX ERROR.
         IF opcCostUOM NE ipcQuantityUOM THEN 
         DO:  
             RUN pConvertQuantity(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
@@ -1823,7 +1825,7 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
     DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
-      
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.  
     DEFINE VARIABLE cRtnChar    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lRecFound   AS LOGICAL   NO-UNDO.
     
@@ -1899,7 +1901,8 @@ PROCEDURE pBuildVendorCostFromReportUsingNewTables PRIVATE:
                 OUTPUT dCostPerUOM, 
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
-                OUTPUT dCostTotal, 
+                OUTPUT dCostTotal,
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage
                 ).  

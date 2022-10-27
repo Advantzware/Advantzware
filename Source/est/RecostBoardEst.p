@@ -68,7 +68,8 @@ PROCEDURE pGetNewCosts PRIVATE:
     DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostTotal  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.    
-    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.    
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cVendorItemID  AS CHARACTER NO-UNDO.
     
     FOR EACH ttRecostBoardGroups 
         WHERE ttRecostBoardGroups.Multi:
@@ -93,7 +94,8 @@ PROCEDURE pGetNewCosts PRIVATE:
             OUTPUT dCostPerUOM, 
             OUTPUT dCostSetup, 
             OUTPUT cCostUOM,
-            OUTPUT dCostTotal, 
+            OUTPUT dCostTotal,
+            OUTPUT cVendorItemID,
             OUTPUT oploError, 
             OUTPUT opchMessage).
 

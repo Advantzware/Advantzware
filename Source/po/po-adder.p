@@ -33,6 +33,7 @@ DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdPOProcs   AS HANDLE    NO-UNDO.
+DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
 
 def buffer xjob-mat for job-mat.
 
@@ -96,6 +97,7 @@ do with frame po-ordlf:
             OUTPUT dCostSetup, 
             OUTPUT cCostUOM,
             OUTPUT dCostTotal, 
+            OUTPUT cVendorItemID,
             OUTPUT lError, 
             OUTPUT cMessage).  
             

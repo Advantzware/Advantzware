@@ -435,6 +435,7 @@ PROCEDURE pPOVendCostCalc PRIVATE:
 
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorItemID    AS CHARACTER NO-UNDO.
 
     iPO# = 105207.
     
@@ -484,6 +485,7 @@ PROCEDURE pPOVendCostCalc PRIVATE:
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
                 OUTPUT dCostTotal, 
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).  
               
@@ -527,6 +529,7 @@ PROCEDURE pPOVendCostCalc PRIVATE:
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
                 OUTPUT dCostTotal, 
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).  
         END.
@@ -673,7 +676,8 @@ PROCEDURE pTestSampleFG PRIVATE:
 
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
-
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
+    
     FIND FIRST itemfg NO-LOCK 
         WHERE itemfg.company EQ gcCompany
         AND itemfg.i-no EQ "ZOVPURCH"
@@ -710,7 +714,8 @@ PROCEDURE pTestSampleFG PRIVATE:
         OUTPUT dCostPerUOM, 
         OUTPUT dCostSetup, 
         OUTPUT cCostUOM,
-        OUTPUT dCostTotal, 
+        OUTPUT dCostTotal,
+        OUTPUT cVendorItemID,
         OUTPUT lError, 
         OUTPUT cMessage).  
         
@@ -737,6 +742,7 @@ PROCEDURE pTestSampleRM PRIVATE:
 
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
 
     FIND FIRST item NO-LOCK 
         WHERE item.company EQ gcCompany
@@ -774,6 +780,7 @@ PROCEDURE pTestSampleRM PRIVATE:
         OUTPUT dCostSetup, 
         OUTPUT cCostUOM,
         OUTPUT dCostTotal, 
+        OUTPUT cVendorItemID,
         OUTPUT lError, 
         OUTPUT cMessage).  
         
