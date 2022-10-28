@@ -12,7 +12,7 @@
                      ipcEnv - current Environment 
                      ipcFromVer - from Env version
                      ipcToVer - to Env version
-                     ipiLevel - users security level
+                     ipiLevel - users security level 
                      iplNeedBackup - backup database?
   Output Parameters: oplSuccess - upgrade successful
   Author: MYT
@@ -308,7 +308,7 @@ DEF VAR hFormulaProcs AS HANDLE    NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 fiLicensedUsers eStatus 
+&Scoped-Define ENABLED-OBJECTS RECT-6 eStatus 
 &Scoped-Define DISPLAYED-OBJECTS fiSiteName fiHostname fiEnvironment ~
 fiAsiDbName fiAudDbName fiAsiPortNo fiAudPortNo fiFromVer fiToVer ~
 fiLicensedUsers eStatus 
@@ -455,8 +455,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Update - Programs/Data"
-         COLUMN             = 5
-         ROW                = 2
+         COLUMN             = 3
+         ROW                = 1.48
          HEIGHT             = 22.91
          WIDTH              = 84
          MAX-HEIGHT         = 34.29
@@ -498,6 +498,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiFromVer IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiHostname IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN fiLicensedUsers IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fiSiteName IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
@@ -659,7 +661,7 @@ PROCEDURE enable_UI :
   DISPLAY fiSiteName fiHostname fiEnvironment fiAsiDbName fiAudDbName 
           fiAsiPortNo fiAudPortNo fiFromVer fiToVer fiLicensedUsers eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-6 fiLicensedUsers eStatus 
+  ENABLE RECT-6 eStatus 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1525,72 +1527,72 @@ DISABLE TRIGGERS FOR LOAD OF reftable.
 &SCOPED-DEF cFileName usr
 &SCOPED-DEF cFieldName uid
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName user-print
 &SCOPED-DEF cFieldName user-id
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
         IF {&cFileName}.{&cFieldName} = "" THEN NEXT.
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName usercomp
 &SCOPED-DEF cFieldName user_id
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
         IF {&cFileName}.{&cFieldName} = "" THEN NEXT.
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName usercust
 &SCOPED-DEF cFieldName user_id
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName userEula
 &SCOPED-DEF cFieldName user_id
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
         IF {&cFileName}.{&cFieldName} = "" THEN NEXT.
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName userLog
 &SCOPED-DEF cFieldName user_id
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName usersman
 &SCOPED-DEF cFieldName user_id
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName userVend
 &SCOPED-DEF cFieldName user_id
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName usr-grp
 &SCOPED-DEF cFieldName uid
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
         IF {&cFileName}.{&cFieldName} = "" THEN NEXT.
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName usr-menu
 &SCOPED-DEF cFieldName user_id
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
         IF {&cFileName}.{&cFieldName} = "" THEN NEXT.
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 &SCOPED-DEF cFileName usrx
 &SCOPED-DEF cFieldName uid
     FOR EACH {&cFileName} EXCLUSIVE WHERE NOT CAN-FIND (users WHERE users.user_id EQ {&cFileName}.{&cFieldName}):
-        DELETE {&cFileName}.
+        DELETE {&cFileName} NO-ERROR.
     END. 
 
 DISABLE TRIGGERS FOR LOAD OF reftable.
@@ -1598,31 +1600,31 @@ DISABLE TRIGGERS FOR LOAD OF reftable.
     FOR EACH reftable EXCLUSIVE WHERE reftable.reftable EQ "users.user-docs":
         IF NOT CAN-FIND(users WHERE 
                         users.user_id EQ reftable.company) THEN
-            DELETE reftable.
+            DELETE reftable NO-ERROR.
     END.
 
     FOR EACH reftable EXCLUSIVE WHERE reftable.reftable EQ "users.phone-no":
         IF NOT CAN-FIND(users WHERE 
                         users.user_id EQ reftable.company) THEN
-            DELETE reftable.
+            DELETE reftable NO-ERROR.
     END.
 
     FOR EACH reftable EXCLUSIVE WHERE reftable.reftable EQ "users.fax-no":
         IF NOT CAN-FIND(users WHERE 
                         users.user_id EQ reftable.company) THEN
-            DELETE reftable.
+            DELETE reftable NO-ERROR.
     END.
 
     FOR EACH reftable EXCLUSIVE WHERE reftable.reftable EQ "users.phone-cnty":
         IF NOT CAN-FIND(users WHERE 
                         users.user_id EQ reftable.company) THEN
-            DELETE reftable.
+            DELETE reftable NO-ERROR.
     END.
 
     FOR EACH reftable EXCLUSIVE WHERE reftable.reftable EQ "users.fax-cnty":
         IF NOT CAN-FIND(users WHERE 
                         users.user_id EQ reftable.company) THEN
-            DELETE reftable.
+            DELETE reftable NO-ERROR.
     END.
 
 END PROCEDURE.
@@ -3165,8 +3167,7 @@ PROCEDURE ipDataFix160850 :
     RUN ipStatus ("  Data Fix 160850...").
 
     RUN ipRemoveUserMenu.
-    RUN ipFixUserPrint.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3733,25 +3734,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220105 C-Win
-PROCEDURE ipDataFix220105:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220105 C-Win 
+PROCEDURE ipDataFix220105 :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     RUN ipStatus ("  Data Fix 220105...").
     
-    RUN ipUpdateAdwantzwareAccountID.
+    RUN ipUpdateAdvantzwareAccountID.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220205-Win
-PROCEDURE ipDataFix220205 PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220205 C-Win 
+PROCEDURE ipDataFix220205 PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3760,11 +3758,24 @@ PROCEDURE ipDataFix220205 PRIVATE:
 
     RUN ipFixMaterialTypeGroup.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix220310 C-Win 
+PROCEDURE ipDataFix220310 :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220310...").
+    
+    RUN ipFixStyleAddToLengthAndWidth.
+    
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix230310 C-Win
@@ -3881,8 +3892,11 @@ PROCEDURE ipDelBadData :
     END.
 
     /* Remove userlogs for proper user control counting */
-    IF lNeedUsercontrol THEN FOR EACH userlog:
-        DELETE userlog.
+    /* MYT - modified 7/22/22 - mark users logged out to preserve history; don't delete */ 
+    IF lNeedUsercontrol THEN FOR EACH userlog EXCLUSIVE:
+        ASSIGN 
+            userLog.logoutDateTime = DATETIME(TODAY, MTIME)
+            userLog.userStatus     = "User Logged Out".
     END.
 
     ASSIGN 
@@ -4561,8 +4575,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixMaterialTypeGroup C-Win
-PROCEDURE ipFixMaterialTypeGroup PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixMaterialTypeGroup C-Win 
+PROCEDURE ipFixMaterialTypeGroup PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -4585,7 +4599,7 @@ PROCEDURE ipFixMaterialTypeGroup PRIVATE:
         END.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4628,9 +4642,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixStyleAddToLengthAndWidth C-Win
-PROCEDURE ipFixStyleAddToLengthAndWidth PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixStyleAddToLengthAndWidth C-Win 
+PROCEDURE ipFixStyleAddToLengthAndWidth PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -4651,31 +4664,6 @@ PROCEDURE ipFixStyleAddToLengthAndWidth PRIVATE:
             style.sqft-wid-trim = iIntPart + (deDecPart / k_frac)
             .
     END.
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipFixUserPrint C-Win 
-PROCEDURE ipFixUserPrint :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("    Change 'asi' userprint records to 'admin'").
-
-    DISABLE TRIGGERS FOR LOAD OF user-print.
-    
-    FOR EACH user-print EXCLUSIVE WHERE
-        user-print.user-id EQ "asi":
-        ASSIGN 
-            user-print.user-id = "admin".
-    END. 
-         
-
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6451,8 +6439,12 @@ PROCEDURE ipRefTableConv :
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-est FOR est.
     DEFINE BUFFER recalc-mr FOR reftable.
+    DEFINE BUFFER bf-reftable FOR reftable.
 
     DEF VAR cThisElement AS CHAR NO-UNDO.
+    DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+    RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+    
     DISABLE TRIGGERS FOR LOAD OF reftable.
     DISABLE TRIGGERS FOR LOAD OF reftable1.
     DISABLE TRIGGERS FOR LOAD OF oe-rel.
@@ -6544,6 +6536,17 @@ PROCEDURE ipRefTableConv :
          END. 
     END.
     RELEASE bf-est.
+    
+    FOR EACH bf-reftable EXCLUSIVE-LOCK
+        WHERE bf-reftable.reftable EQ "STYFLU"
+          AND bf-reftable.code     EQ "DIM-FIT":
+        FOR EACH company NO-LOCK:
+          RUN Formula_SaveSquareBoxFitForStyleAndFlute IN hdFormulaProcs (company.company, bf-reftable.company, bf-reftable.loc, "Decimal", INPUT bf-reftable.val[1]).
+        END.
+        DELETE bf-reftable.
+    END. 
+    IF VALID-HANDLE(hdFormulaProcs) THEN
+    DELETE PROCEDURE hdFormulaProcs.
 
     ASSIGN 
         lSuccess = TRUE.
@@ -7438,6 +7441,91 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdwantzwareAccountID C-Win 
+PROCEDURE ipUpdateAdwantzwareAccountID PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lcAccountData     AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE hdEncryptionProcs AS HANDLE   NO-UNDO.
+    
+    DEFINE BUFFER bf-company FOR company.
+    
+    RUN ipStatus ("Updating Advantzware Account ID").
+    
+    COPY-LOB FROM FILE cUpdDataDir + "\CustomerAccountList" TO lcAccountData NO-ERROR.
+    
+    IF lcAccountData EQ "" THEN DO:
+        RUN ipStatus ("Error: CustomerAccountList file contains no data").
+        
+        RETURN.
+    END.
+    
+    RUN system/EncryptionProcs.p PERSISTENT SET hdEncryptionProcs.  
+    
+    /* File DataFiles/CustomerAccountList is encrypted and needs to be decrypted before reading into temp-table. File is encrypted with password "Advantzware" */
+    RUN DecryptString IN hdEncryptionProcs (lcAccountData, "Advantzware" /* Password to decrypt */, OUTPUT lcAccountData).
+    
+    TEMP-TABLE ttAccount:READ-JSON("LONGCHAR", lcAccountData) NO-ERROR.
+    
+    IF ERROR-STATUS:ERROR THEN DO:
+        RUN ipStatus ("Error: Failed parsing decrypted data. " + ERROR-STATUS:GET-MESSAGE(1)).
+        
+        RETURN.
+    END.
+    
+    FIND FIRST bf-company NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE bf-company THEN
+        RETURN.
+    
+    FIND FIRST ttAccount
+         WHERE ttAccount.accountName EQ bf-company.name
+         NO-ERROR.
+    IF AVAILABLE ttAccount THEN
+        RUN spSetSettingByName ("AdvantzwareAccountID", ttAccount.accountID).
+        
+    FINALLY:
+        IF VALID-HANDLE(hdEncryptionProcs) THEN
+            DELETE PROCEDURE hdEncryptionProcs.         
+    END FINALLY.        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateInvLineInvNo C-Win 
+PROCEDURE ipUpdateInvLineInvNo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    RUN ipStatus ("Updating Invoice Line Records").
+
+    ASSIGN 
+        lSuccess = FALSE.
+    DISABLE TRIGGERS FOR LOAD OF inv-line.
+    
+    FOR EACH inv-head NO-LOCK
+        WHERE inv-head.inv-no NE 0:
+       FOR EACH bf-inv-line EXCLUSIVE-LOCK
+           WHERE bf-inv-line.r-no EQ inv-head.r-no 
+             AND bf-inv-line.inv-no EQ 0:
+             ASSIGN
+              bf-inv-line.inv-no = inv-head.inv-no. 
+       END.
+    END.
+    RELEASE bf-inv-line.
+    ASSIGN 
+        lSuccess = TRUE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateJobMchID C-Win 
 PROCEDURE ipUpdateJobMchID :
 /*------------------------------------------------------------------------------
@@ -7507,62 +7595,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdwantzwareAccountID C-Win
-PROCEDURE ipUpdateAdwantzwareAccountID PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE lcAccountData     AS LONGCHAR NO-UNDO.
-    DEFINE VARIABLE hdEncryptionProcs AS HANDLE   NO-UNDO.
-    
-    DEFINE BUFFER bf-company FOR company.
-    
-    RUN ipStatus ("Updating Advantzware Account ID").
-    
-    COPY-LOB FROM FILE cUpdDataDir + "\CustomerAccountList" TO lcAccountData NO-ERROR.
-    
-    IF lcAccountData EQ "" THEN DO:
-        RUN ipStatus ("Error: CustomerAccountList file contains no data").
-        
-        RETURN.
-    END.
-    
-    RUN system/EncryptionProcs.p PERSISTENT SET hdEncryptionProcs.  
-    
-    /* File DataFiles/CustomerAccountList is encrypted and needs to be decrypted before reading into temp-table. File is encrypted with password "Advantzware" */
-    RUN DecryptString IN hdEncryptionProcs (lcAccountData, "Advantzware" /* Password to decrypt */, OUTPUT lcAccountData).
-    
-    TEMP-TABLE ttAccount:READ-JSON("LONGCHAR", lcAccountData) NO-ERROR.
-    
-    IF ERROR-STATUS:ERROR THEN DO:
-        RUN ipStatus ("Error: Failed parsing decrypted data. " + ERROR-STATUS:GET-MESSAGE(1)).
-        
-        RETURN.
-    END.
-    
-    FIND FIRST bf-company NO-LOCK NO-ERROR.
-    IF NOT AVAILABLE bf-company THEN
-        RETURN.
-    
-    FIND FIRST ttAccount
-         WHERE ttAccount.accountName EQ bf-company.name
-         NO-ERROR.
-    IF AVAILABLE ttAccount THEN
-        RUN spSetSettingByName ("AdvantzwareAccountID", ttAccount.accountID).
-        
-    FINALLY:
-        IF VALID-HANDLE(hdEncryptionProcs) THEN
-            DELETE PROCEDURE hdEncryptionProcs.		
-    END FINALLY.        
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateMaster C-Win 
 PROCEDURE ipUpdateMaster :
@@ -8034,7 +8066,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipValidateDB C-Win 
