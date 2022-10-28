@@ -278,7 +278,8 @@ and inv-no le 611040:
             inv-line.b-no           = ar-invl.b-no           
             inv-line.company        = ar-invl.company        
             inv-line.ord-no         = ar-invl.ord-no         
-            inv-line.cust-no        = ar-invl.cust-no        
+            inv-line.cust-no        = ar-invl.cust-no 
+            inv-line.inv-no         = ar-invl.inv-no
  
             v-xline                 = ar-invl.line           
             inv-line.est-no         = ar-invl.est-no         

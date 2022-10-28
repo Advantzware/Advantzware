@@ -2987,6 +2987,25 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
             OUTPUT cMessage                 /* Status message */
             ) NO-ERROR.
 
+        ASSIGN 
+            cTriggerID   = IF iplReprint THEN "ReprintOrder" ELSE "PrintOrder"
+            cAPIID       = "SendOrder"
+            cPrimaryID   = STRING(ipbf-oe-ord.ord-no)
+            cDescription = cAPIID + " triggered by " + cTriggerID + " from r-acknow.w for Order: " + cPrimaryID
+            . 
+        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
+            INPUT  ipbf-oe-ord.company,                /* Company Code (Mandatory) */
+            INPUT  ipbf-oe-ord.loc,               /* Location Code (Mandatory) */
+            INPUT  cAPIID,                  /* API ID (Mandatory) */
+            INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
+            INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
+            INPUT  "oe-ord",               /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-oe-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,       /* Event's description (Optional) */
+            OUTPUT lSuccess,                /* Success/Failure flag */
+            OUTPUT cMessage                 /* Status message */
+            ) NO-ERROR.
 
         RUN Outbound_ResetContext IN hdOutboundProcs.
     END.

@@ -232,8 +232,7 @@ DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2
     RADIO-BUTTONS 
     "To Printer", 1,
     "To Screen", 2,
-    "To Email", 5,
-    "To CSV", 3
+    "To Email", 5
     SIZE 15 BY 5.43 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
@@ -1721,32 +1720,13 @@ PROCEDURE run-asistmt :
     DEFINE VARIABLE ls-image1    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE ls-full-img1 AS cha       FORM "x(200)" NO-UNDO.
 
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "RFC" OR v-stmt-char EQ "Badger" THEN 
     DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
-        END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+        END.   
     END.
 
     FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
@@ -1976,6 +1956,7 @@ PROCEDURE run-asistmt :
                     tt-inv.trans-date = ar-inv.inv-date
                     tt-inv.old-day    = (TODAY - ar-inv.inv-date)
                     tt-inv.inv-no     = ar-inv.inv-no
+                    tt-inv.terms      = ar-inv.terms
                     tt-inv.type       = IF ar-inv.type GT ' ' THEN ar-inv.type ELSE 'I'
                     tt-inv.amount     = IF v-detail THEN
                            IF ar-inv.net     EQ
@@ -2013,6 +1994,7 @@ PROCEDURE run-asistmt :
                             tt-inv.old-day     = (TODAY - ar-inv.inv-date)
                             tt-inv.trans-date  = ar-cash.check-date
                             tt-inv.inv-no      = ar-cashl.inv-no
+                            tt-inv.terms       = ar-inv.terms
                             tt-inv.description = ar-cashl.dscr
                             tt-inv.po-no       = (IF AVAILABLE ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
                             tt-inv.bol-no      = (IF AVAILABLE ar-invl AND ar-invl.bol-no <> 0 THEN STRING(ar-invl.bol-no,">>>>>>>>") ELSE "").
@@ -2270,18 +2252,20 @@ PROCEDURE run-asistmt :
                             ELSE IF v-stmt-char = "Badger" THEN
                                     PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
                                         "<=1><R+7><C+54><B><P22>Statement</B><P12>" SKIP
-                                        "<=1><R+9>Attn:" cust.contact "<C53>Statement Date  Account #" SKIP
+                                        "<=1><R+9><C53>Statement Date  Account #" 
+                                        "<=1><R+11>Attn:" cust.contact SKIP
                                         "<=1><R+10><C+52><FROM><C+13><LINE>" SKIP
                                         "<=1><R+10><C+68><FROM><C+10><LINE>" 
                                         "<=1><R+10><C+52>" v-stmt-date
                                         "<=1><R+10><C+68>" cust.cust-no SKIP
-                                        "<=1><R+11><C1>" ws_addr[1] SKIP
-                                        "<=1><R+12><C1>" ws_addr[2] v-remitto[1] SKIP 
-                                        "<=1><R+13><C1>" ws_addr[3] v-remitto[2] SKIP
-                                        "<=1><R+14><C1>" ws_addr[4] v-remitto[3] SKIP
-                                        "<=1><R+15><C1>" ws_addr[5] v-remitto[4] SKIP
-                                        "<=1><R+17>Date     Code  Inv# Description               Days <C60>Amount        Balance" SKIP
-                                        "<=1><R+18><FROM><C+82><LINE>"
+                                        "<=1><R+12><C1>" ws_addr[1] SKIP
+                                        "<=1><R+13><C1>" ws_addr[2] v-remitto[1] SKIP 
+                                        "<=1><R+14><C1>" ws_addr[3] v-remitto[2] SKIP
+                                        "<=1><R+15><C1>" ws_addr[4] v-remitto[3] SKIP
+                                        "<=1><R+16><C1>" ws_addr[5] v-remitto[4] SKIP
+                                        "<=1><R+18>Date    Code Terms    Inv# Customer PO  Description <C53>Days <C62>Amount        Balance" SKIP
+                                        "<=1><R+19><FROM><C+82><LINE>"
+                                        "<P10>"
                                         . 
 
                                 ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
@@ -2360,18 +2344,16 @@ PROCEDURE run-asistmt :
             DO:
                 IF v-stmt-char = "Badger" THEN 
                 DO:
-                    DISPLAY
-                        tt-inv.trans-date
-                        tt-inv.type
-                        tt-inv.inv-no  
-                        WHEN tt-inv.inv-no GT 0                                        
-                        (IF v-stmt-char = "LoyLang" OR v-stmt-char = "Printers" THEN tt-inv.bol-no + " " + string(tt-inv.po-no) ELSE tt-inv.description) @ tt-inv.description
-                        /*(IF v-stmt-char = "LoyLang" THEN string(tt-inv.po-no) ELSE tt-inv.description) @ tt-inv.description*/
-                        tt-inv.old-day
-                        tt-inv.amount
-                        v-balance 
-                        WITH FRAME stmt-line .
-                    DOWN 1 WITH FRAME stmt-line.
+                    PUT 
+                        "<C1>" tt-inv.trans-date
+                        "<C9>" tt-inv.type
+                        "<C14>" tt-inv.terms
+                        "<C20>" tt-inv.inv-no FORMAT ">>>>>>>9"
+                        "<C28>" STRING(tt-inv.po-no) FORMAT "x(15)"
+                        "<C41>" tt-inv.description FORMAT "X(13)"
+                        "<C49>" tt-inv.old-day
+                        "<C58>" tt-inv.amount
+                        "<C71>" v-balance  SKIP.
                 END.
                 ELSE IF v-stmt-char = "RFC" THEN 
                     DO:
@@ -2574,32 +2556,12 @@ PROCEDURE run-asistmt-mail :
             + v-inv-type-array[xx] + ' '.
     END.
 
-
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "RFC" OR v-stmt-char EQ "Badger" THEN 
     DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         END.
     END.
 
@@ -2632,16 +2594,6 @@ PROCEDURE run-asistmt-mail :
         tt-inv.amount      
         v-balance       
         WITH FRAME stmt-line NO-BOX STREAM-IO WIDTH 85 DOWN NO-LABELS.
-
-    FORM
-        tt-inv.trans-date 
-        tt-inv.type FORM "x(3)"
-        tt-inv.inv-no FORMAT ">>>>>>>9"
-        tt-inv.description FORM "x(20)"
-        tt-inv.old-day FORMAT ">>>9"
-        tt-inv.amount      
-        v-balance       
-        WITH FRAME stmt-line-badger NO-BOX STREAM-IO WIDTH 80 DOWN NO-LABELS.
 
 
 
@@ -2912,6 +2864,7 @@ PROCEDURE run-asistmt-mail :
                     tt-inv.old-day    = (TODAY - ar-inv.inv-date)
                     tt-inv.trans-date = ar-inv.inv-date
                     tt-inv.inv-no     = ar-inv.inv-no
+                    tt-inv.terms      = ar-inv.terms
                     tt-inv.type       = IF ar-inv.type GT ' ' THEN ar-inv.type ELSE 'I'
                     tt-inv.amount     = IF v-detail THEN
                            IF ar-inv.net     EQ
@@ -2941,6 +2894,7 @@ PROCEDURE run-asistmt-mail :
                             tt-inv.old-day     = (TODAY - ar-inv.inv-date)
                             tt-inv.trans-date  = ar-cash.check-date
                             tt-inv.inv-no      = ar-cashl.inv-no
+                            tt-inv.terms       = ar-inv.terms
                             tt-inv.description = ar-cashl.dscr
                             tt-inv.po-no       = (IF AVAILABLE ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "").
 
@@ -3051,7 +3005,6 @@ PROCEDURE run-asistmt-mail :
         v-aged = 0. /* clear aging buckets */
         CLEAR FRAME stmt-header NO-PAUSE.
         CLEAR FRAME stmt-line ALL NO-PAUSE.
-        CLEAR FRAME stmt-line-badger ALL NO-PAUSE.
         CLEAR FRAME stmt-total NO-PAUSE.
         ws_addr = ''.
         IF AVAILABLE cust THEN
@@ -3182,18 +3135,20 @@ PROCEDURE run-asistmt-mail :
                             ELSE IF v-stmt-char = "Badger" THEN
                                     PUT "<C1><#1><R+11><C+45><IMAGE#1=" ls-full-img1 SKIP
                                         "<=1><R+7><C+54><B><P22>Statement</B><P12>" SKIP
-                                        "<=1><R+9>Attn:" cust.contact "<C53>Statement Date  Account #" SKIP
+                                        "<=1><R+9><C53>Statement Date  Account #" 
+                                        "<=1><R+11>Attn:" cust.contact SKIP
                                         "<=1><R+10><C+52><FROM><C+13><LINE>" SKIP
                                         "<=1><R+10><C+68><FROM><C+10><LINE>" 
                                         "<=1><R+10><C+52>" v-stmt-date
                                         "<=1><R+10><C+68>" cust.cust-no SKIP
-                                        "<=1><R+11><C1>" ws_addr[1] SKIP
-                                        "<=1><R+12><C1>" ws_addr[2] v-remitto[1] SKIP 
-                                        "<=1><R+13><C1>" ws_addr[3] v-remitto[2] SKIP
-                                        "<=1><R+14><C1>" ws_addr[4] v-remitto[3] SKIP
-                                        "<=1><R+15><C1>" ws_addr[5] v-remitto[4] SKIP
-                                        "<=1><R+17>Date     Code  Inv# Description          Days <C55>Amount        Balance" SKIP
-                                        "<=1><R+18><FROM><C+80><LINE>"
+                                        "<=1><R+12><C1>" ws_addr[1] SKIP
+                                        "<=1><R+13><C1>" ws_addr[2] v-remitto[1] SKIP 
+                                        "<=1><R+14><C1>" ws_addr[3] v-remitto[2] SKIP
+                                        "<=1><R+15><C1>" ws_addr[4] v-remitto[3] SKIP
+                                        "<=1><R+16><C1>" ws_addr[5] v-remitto[4] SKIP
+                                        "<=1><R+18>Date    Code Terms    Inv# Customer PO  Description <C53>Days <C62>Amount        Balance" SKIP
+                                        "<=1><R+19><FROM><C+82><LINE>"
+                                        "<P10>"
                                         . 
 
                                 ELSE IF v-stmt-char = "RFC" THEN          /* task 12231305 */
@@ -3255,17 +3210,16 @@ PROCEDURE run-asistmt-mail :
 
             IF v-stmt-char = "Badger" THEN 
             DO:
-                DISPLAY
-                    tt-inv.trans-date
-                    tt-inv.type
-                    tt-inv.inv-no  
-                    WHEN tt-inv.inv-no GT 0
-                    tt-inv.description
-                    tt-inv.old-day
-                    tt-inv.amount
-                    v-balance 
-                    WITH FRAME stmt-line-badger .
-                DOWN 1 WITH FRAME stmt-line-badger.
+                PUT 
+                    "<C1>" tt-inv.trans-date
+                    "<C9>" tt-inv.type
+                    "<C14>" tt-inv.terms
+                    "<C20>" tt-inv.inv-no FORMAT ">>>>>>>9"
+                    "<C28>" STRING(tt-inv.po-no) FORMAT "x(15)"
+                    "<C41>" tt-inv.description FORMAT "X(13)"
+                    "<C49>" tt-inv.old-day
+                    "<C58>" tt-inv.amount
+                    "<C71>" v-balance  SKIP.
             END.
             ELSE IF v-stmt-char = "RFC" THEN 
                 DO:
@@ -3452,31 +3406,12 @@ PROCEDURE run-protagonstmt :
 
     v-asi-excel = IF v-stmt-char EQ "ASIExcel" OR v-stmt-char EQ "SouleExcel" THEN TRUE ELSE FALSE.
 
-    RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-        OUTPUT cRtnChar, OUTPUT lRecFound).
-
     IF v-stmt-char EQ "StdStatement10" OR v-stmt-char EQ "StdStatement2" OR v-stmt-char EQ "ARStmt3C" THEN 
-    DO:
-        IF lRecFound AND cRtnChar NE "" THEN 
+    DO:                                 
+        RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+        IF NOT lValid THEN
         DO:
-            cRtnChar = DYNAMIC-FUNCTION (
-                "fFormatFilePath",
-                cRtnChar
-                ).
-                   
-            /* Validate the N-K-1 BusinessFormLogo image file */
-            RUN FileSys_ValidateFile(
-                INPUT  cRtnChar,
-                OUTPUT lValid,
-                OUTPUT cMessage
-                ) NO-ERROR.
-
-            IF NOT lValid THEN 
-            DO:
-                MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-                    VIEW-AS ALERT-BOX ERROR.
-            END.
+	        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
         END.
     END.
 
@@ -3800,6 +3735,7 @@ PROCEDURE run-protagonstmt :
                     tt-inv.inv-date   = ar-inv.inv-date
                     tt-inv.trans-date = ar-inv.inv-date
                     tt-inv.inv-no     = ar-inv.inv-no
+                    tt-inv.terms      = ar-inv.terms
                     tt-inv.type       = IF ar-inv.type GT ' ' THEN ar-inv.type ELSE 'I'
                     tt-inv.inv-amt    = ar-inv.gross
                     tt-inv.amount     = IF v-detail OR  NOT lCheckCaseInv THEN
@@ -3839,6 +3775,7 @@ PROCEDURE run-protagonstmt :
                             tt-inv.inv-date    = ar-inv.inv-date
                             tt-inv.trans-date  = ar-cash.check-date
                             tt-inv.inv-no      = ar-cashl.inv-no
+                            tt-inv.terms       = ar-inv.terms
                             tt-inv.inv-amt     = ar-inv.gross
                             tt-inv.description = ar-cashl.dscr
                             tt-inv.po-no       = (IF AVAILABLE ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
@@ -4707,6 +4644,7 @@ PROCEDURE run-report :
                     tt-inv.inv-date   = ar-inv.inv-date
                     tt-inv.trans-date = ar-inv.inv-date
                     tt-inv.inv-no     = ar-inv.inv-no
+                    tt-inv.terms      = ar-inv.terms
                     tt-inv.type       = IF ar-inv.type GT ' ' THEN ar-inv.type ELSE 'I'
                     tt-inv.amount     = IF v-detail THEN
                            IF ar-inv.net     EQ
@@ -4735,6 +4673,7 @@ PROCEDURE run-report :
                             tt-inv.inv-date    = ar-inv.inv-date
                             tt-inv.trans-date  = ar-cash.check-date
                             tt-inv.inv-no      = ar-cashl.inv-no
+                            tt-inv.terms       = ar-inv.terms
                             tt-inv.description = ar-cashl.dscr
                             tt-inv.po-no       = (IF AVAILABLE ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "").
 
@@ -5266,6 +5205,7 @@ PROCEDURE run-report-mail :
                     tt-inv.inv-date   = ar-inv.inv-date
                     tt-inv.trans-date = ar-inv.inv-date
                     tt-inv.inv-no     = ar-inv.inv-no
+                    tt-inv.terms      = ar-inv.terms
                     tt-inv.type       = IF ar-inv.type GT ' ' THEN ar-inv.type ELSE 'I'
                     tt-inv.amount     = IF v-detail THEN
                            IF ar-inv.net     EQ
@@ -5294,6 +5234,7 @@ PROCEDURE run-report-mail :
                             tt-inv.inv-date    = ar-inv.inv-date
                             tt-inv.trans-date  = ar-cash.check-date
                             tt-inv.inv-no      = ar-cashl.inv-no
+                            tt-inv.terms       = ar-inv.terms
                             tt-inv.description = ar-cashl.dscr
                             tt-inv.po-no       = (IF AVAILABLE ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "").
 

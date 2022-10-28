@@ -238,7 +238,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
          w-oe-rell.set-no = oe-rell.i-no
          oe-rell.printed  = yes.
          IF lSortRelSeq THEN
-             ASSIGN w-oe-rell.relseq = itemfg.spare-int-2 .
+             ASSIGN w-oe-rell.relseq = itemfg.iReleaseSeq .
 
         /* gdm - 03230907 */
         IF v-print-components AND
@@ -261,7 +261,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-oe-rell.i-no   = fg-set.part-no
              w-oe-rell.qty    = w-oe-rell.qty * v-part-qty.
             IF lSortRelSeq THEN
-             ASSIGN w-oe-rell.relseq = itemfg.spare-int-2 .
+             ASSIGN w-oe-rell.relseq = itemfg.iReleaseSeq .
           end.
 
         v-weight = v-weight + (oe-rell.qty * itemfg.weight-100 / 100).
@@ -805,7 +805,7 @@ IF v-ship-i[1] NE "" OR
 PUT "<R56><C1>"
     "<R57><C1><FROM><C80><LINE>" SKIP
     "<|10><C1><R58><#8><FROM><C80><R60><RECT> " 
-    "<FArial><P9><=8>   Paletes                                Preparado por                               Enviado por                            N° do reboque                                  N° da doca" SKIP
+    "<FArial><P9><=8>   Paletes                                Preparado por                               Enviado por                         N° do reboque                           N° da doca" SKIP
     "<R58><C16><FROM><R60><C16><Line>" 
     "<R58><C32><FROM><R60><C32><Line>" 
     "<R58><C48><FROM><R60><C48><Line>"

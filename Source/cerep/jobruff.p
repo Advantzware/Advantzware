@@ -59,6 +59,16 @@ DEFINE            VARIABLE cDieNo           AS CHARACTER   FORMAT "x(15)" NO-UND
 DEFINE TEMP-TABLE w-lo NO-UNDO
     FIELD layout LIKE v-layout.
 
+define temp-table ttnotesort like notes
+    field deptseq as int
+    field deptdesc as char
+    index isort 
+        deptseq 
+        note_form_no
+        note_date   
+        note_time  
+ .
+
 DEFINE NEW SHARED BUFFER xjob-hdr FOR job-hdr.
 
 DEFINE            BUFFER b-eb     FOR eb.
@@ -1213,8 +1223,11 @@ PROCEDURE pPrintData:
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
-                  i         = i + 1         
-                  inInkCount = inInkCount + 1. 
+                  i         = i + 1.
+                  
+                  IF wrk-ink.i-unit NE 0 THEN
+                    ASSIGN inInkCount = inInkCount + 1.         
+                  
           DELETE wrk-ink. 
         END. /* each wrk-ink */
         
@@ -1255,7 +1268,7 @@ PROCEDURE pPrintData:
          
             lv-line-chars = 80.
             FIND FIRST job OF job-hdr NO-LOCK NO-ERROR.       
-            {custom/notespr5.i job v-inst2 40 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ tt-reftable.val[12] OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
+            {custom/notespr10.i job v-inst2 40 "notes.rec_key = job.rec_key and notes.note_code <> '' AND (notes.note_form_no EQ bf-xeb.form-no OR notes.note_form_no EQ 0) AND LOOKUP(notes.note_code,v-exc-depts) EQ 0"}
             DO i = 1 TO 40:
                 v-dept-inst[i] = v-inst2[i].
             END.
@@ -1475,8 +1488,10 @@ PROCEDURE pPrintDetail:
                   string(wrk-ink.i-dscr,"x(30)") + " " + string(wrk-ink.i-per,">>>%") + " " + STRING(wrk-ink.i-unit,">>>") + "  " + STRING(wrk-ink.side)
                   /*v-item[i]*/
                   /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
-                  i          = i + 1         
-                  inInkCount = inInkCount + 1. 
+                  i          = i + 1.
+                  
+                  IF wrk-ink.i-unit NE 0 THEN
+                    ASSIGN inInkCount = inInkCount + 1. 
             DELETE wrk-ink.
         END. /* each wrk-ink */
         ASSIGN

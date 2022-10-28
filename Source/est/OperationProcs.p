@@ -260,7 +260,7 @@ PROCEDURE Operations_GetNumout:
     FIND FIRST bf-ef NO-LOCK
         WHERE bf-ef.company EQ bf-est.company
         AND bf-ef.est-no  EQ bf-est.est-no
-        AND bf-ef.form-no EQ ipiFormNo NO-ERROR.
+        AND bf-ef.form-no EQ MAX(ipiFormNo,1) NO-ERROR.
     
     IF NOT AVAILABLE bf-ef THEN
         RETURN.
@@ -1769,7 +1769,7 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
         FIND FIRST bf-eb NO-LOCK 
             WHERE bf-eb.company  EQ bf-est-op.company
             AND bf-eb.est-no   EQ bf-est-op.est-no
-            AND bf-eb.form-no  EQ bf-est-op.s-num
+            AND bf-eb.form-no  EQ MAX(bf-est-op.s-num,1)
             AND bf-eb.blank-no EQ MAX(bf-est-op.b-num,1) NO-ERROR.
             
         IF NOT AVAILABLE bf-eb THEN RETURN.
@@ -3177,7 +3177,7 @@ PROCEDURE pGetEstOPDataFromJobMch PRIVATE:
                 ttEstOp.op-crew[1] = bf-mach.mr-crusiz
                 ttEstOp.op-crew[2] = bf-mach.run-crusiz
                 .
-            RUN pGetEstOpCalcFields (BUFFER ipbf-eb, BUFFER bf-mach, BUFFER ttEstOp, ipcLocation, ipbf-job-mch.m-code, ipbf-job-mch.dept ,ipbf-job-mch.pass ).
+            RUN pGetEstOpCalcFields (BUFFER bf-mach, BUFFER ttEstOp).
         END.
     END.
     
@@ -3541,7 +3541,7 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
     FIND FIRST bf-eb NO-LOCK 
         WHERE bf-eb.company  EQ bf-est-op.company
         AND bf-eb.est-no   EQ bf-est-op.est-no
-        AND bf-eb.form-no  EQ bf-est-op.s-num
+        AND bf-eb.form-no  EQ MAX(bf-est-op.s-num,1)
         AND bf-eb.blank-no EQ MAX(bf-est-op.b-num,1) NO-ERROR.
         
     IF AVAILABLE bf-eb THEN 

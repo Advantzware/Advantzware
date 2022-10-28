@@ -1,0 +1,4 @@
+<R58><C60><#8><FROM><R+8><C+20><RECT>
+<=8><C61>Sub Total<C70>:$InvoiceLineTotalAmount|->>,>>9.99|DEC|R|$
+<=8><R+1><C61>Freight<C70>:$BillFreight||||IF["yes","$InvoiceFreightAmount|->>>>>9.99|DEC|R|$","      0.00"]|$
+$TaxDetailByTaxGroup$<=8><R+7><C61>Grand Total<C70>:$TotalInvoicedRevenue|->>,>>9.99|DEC|R|$$LastInvoice||||IF["yes","","$formfeed$"]|$

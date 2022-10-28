@@ -991,7 +991,7 @@ PROCEDURE buildRptRecs :
                     ) NO-ERROR.
             ELSE 
                 DO:                    
-                    if lNew then   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++          
+                    if lNew THEN DO:   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++          
                         RUN system/vendorcostSelector.w(
                             INPUT  bf-w-job-mat.company, //ipcCompany ,
                             INPUT  bf-w-job-mat.i-no , //ipcItemID
@@ -1012,7 +1012,16 @@ PROCEDURE buildRptRecs :
                             OUTPUT  TABLE ttVendItemCost,
                             OUTPUT  lError ,
                             OUTPUT  cMessage 
-                            ).  
+                            ).
+                        IF lError THEN DO:
+                            MESSAGE
+                                "PO creation was NOT successful:" SKIP  
+                                cMessage SKIP 
+                                "You should create the PO manually, or delete and re-enter this line."
+                                VIEW-AS ALERT-BOX ERROR.
+                            RETURN.
+                        END.  
+                    END.
                     ELSE   //---------------------------------------------------------------------------
                         DO:           
                             IF lNewVendorItemCost THEN 
@@ -1047,7 +1056,7 @@ PROCEDURE buildRptRecs :
                         v-item-cost  = ttVendItemCost.costPerVendorUOM                       
                         v-setup-cost = ttVendItemCost.costSetup
                         v-setup      = ttVendItemCost.costTotal
-                        v-vend-item  = ttVendItemCost.itemID.   
+                        v-vend-item  = ttVendItemCost.vendorItemID.   
                         
                     FIND FIRST vend
                         WHERE vend.company EQ cocode
@@ -1190,7 +1199,7 @@ PROCEDURE vendorSelector:
         END.
     END.
                   
-    IF AVAIL bf-job-mat THEN
+    IF AVAIL bf-job-mat THEN DO:
         RUN system/vendorcostSelector.w(
             INPUT  bf-job-mat.company, //ipcCompany ,
             INPUT  bf-job-mat.i-no ,
@@ -1212,6 +1221,15 @@ PROCEDURE vendorSelector:
             OUTPUT  TABLE ttVendItemCost,
             OUTPUT  lError ,
             OUTPUT  cMessage).
+        IF lError THEN DO:
+            MESSAGE
+                "PO creation was NOT successful:" SKIP  
+                cMessage SKIP 
+                "You should create the PO manually, or delete and re-enter this line."
+                VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.  
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

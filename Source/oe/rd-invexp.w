@@ -61,6 +61,10 @@ DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 /*
 DEF TEMP-TABLE tt-report NO-UNDO
     FIELD i-no    AS CHAR
@@ -83,7 +87,7 @@ ASSIGN
                                                 "CSR,Line Item Tax,OrderHeader ShipTo State,Order Line No,Billing Note,Auto Approval,Tag,Accountant,Invoice Comment,Tax Amount,Freight Amount," +
                                                 "Customer Tax Status,Customer Tax Group,Customer Tax Id,Customer Tax Expiration Date,Ship To Tax Group,Ship To Taxable Status," +
                                                 "Edi Price,Edi Price UOM,Site ID"
-    cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-head.inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
+    cFieldListToSelect = "inv-head.inv-no,inv-head.cust-no,inv-head.cust-name,inv-date,inv-head.bol-no,ord-no,inv-head.printed,inv-head.t-inv-rev," +
                                         "stat,inv-head.sold-no,inv-head.sold-name,inv-head.contact,inv-head.tax-gr,inv-head.terms,inv-head.frt-pay," +
                                         "po-no,inv-head.carrier,inv-head.fob-code,job-no,job-no2,est-no,i-no," +
                                         "i-name,part-no,qty,part-dscr1,part-dscr2," +
@@ -478,6 +482,7 @@ ON HELP OF FRAME Dialog-Frame /* Invoice Maintenance Excel Export */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Invoice Maintenance Excel Export */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "END-ERROR":U TO SELF.
     END.
 
@@ -555,6 +560,7 @@ ON LEAVE OF begin_part IN FRAME Dialog-Frame /* From Customer Part# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel Dialog-Frame
 ON CHOOSE OF btn-cancel IN FRAME Dialog-Frame /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -590,6 +596,9 @@ ON CHOOSE OF btn-ok IN FRAME Dialog-Frame /* OK */
             DO:
                 OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
             END.
+        END.
+        ELSE DO:
+            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
         END.
   
         RUN valid-bill-owner(OUTPUT lReturnError) NO-ERROR.
@@ -1496,13 +1505,19 @@ PROCEDURE run-report:
                         WHEN "ediPriceUom"           THEN 
                             cVarValue = STRING(inv-line.ediPriceUOM).
                         WHEN "siteID"           THEN 
-                            cVarValue = STRING(cSiteId).                        
+                            cVarValue = STRING(cSiteId).
+                        WHEN "inv-date"           THEN 
+                            cVarValue = IF AVAIL inv-head AND inv-head.inv-date NE ? THEN STRING(inv-head.inv-date) ELSE "" .                        
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    IF cTmpField = "taxExpDate" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",cExpDate) .
+                    ELSE IF cTmpField = "inv-date" THEN cExcelVarValue = IF AVAIL inv-head AND inv-head.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",inv-head.inv-date) ELSE "" .
+                    
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".
                 END.   
             END.
       
@@ -1737,13 +1752,19 @@ PROCEDURE run-report:
                         WHEN "ediPriceUom"           THEN 
                             cVarValue = STRING(inv-line.ediPriceUOM).
                         WHEN "siteID"           THEN 
-                            cVarValue = STRING(cSiteId).    
+                            cVarValue = STRING(cSiteId).
+                        WHEN "inv-date"           THEN 
+                            cVarValue = IF AVAIL inv-head AND inv-head.inv-date NE ? THEN STRING(inv-head.inv-date) ELSE "".    
                     END CASE.
+                    
+                    IF cTmpField = "taxExpDate" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",cExpDate) .
+                    IF cTmpField = "inv-date" THEN cExcelVarValue = IF AVAIL inv-head AND inv-head.inv-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",inv-head.inv-date) ELSE "".
 
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
+                    
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                 END.
             END.
       
@@ -1758,9 +1779,6 @@ PROCEDURE run-report:
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

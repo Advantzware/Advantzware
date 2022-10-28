@@ -24,6 +24,7 @@ CREATE WIDGET-POOL.
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
+DEFINE INPUT  PARAMETER ipcAction         AS CHARACTER NO-UNDO. /* View, Add, Update */
 DEFINE INPUT  PARAMETER ipcEstCostGroupID AS CHARACTER NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -32,6 +33,9 @@ DEFINE INPUT  PARAMETER ipcEstCostGroupID AS CHARACTER NO-UNDO.
 {methods/defines/globdefs.i}
 
 {est/ttEstSysConfig.i}
+
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -50,10 +54,10 @@ DEFINE INPUT  PARAMETER ipcEstCostGroupID AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fil-costGroupLabel lst-Group btnCancel ~
-fil-estCostGroupDesc 
+&Scoped-Define ENABLED-OBJECTS fil-estCostGroupID fil-costGroupLabel ~
+fil-estCostGroupDesc lst-level fiSequence btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS fil-estCostGroupID fil-costGroupLabel ~
-lst-Group fil-estCostGroupDesc 
+fil-estCostGroupDesc lst-level fiSequence 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -89,9 +93,14 @@ DEFINE VARIABLE fil-estCostGroupDesc AS CHARACTER FORMAT "x(50)"
 DEFINE VARIABLE fil-estCostGroupID AS CHARACTER FORMAT "X(50)" INITIAL "0" 
      LABEL "GroupID" 
      VIEW-AS FILL-IN 
-     SIZE 45 BY 1.1 NO-UNDO.
+     SIZE 45 BY 1.14 NO-UNDO.
 
-DEFINE VARIABLE lst-Group AS CHARACTER 
+DEFINE VARIABLE fiSequence AS INTEGER FORMAT ">>>>>>9":U INITIAL 0 
+     LABEL "Print Sequence" 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1 NO-UNDO.
+
+DEFINE VARIABLE lst-level AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
      SIZE 45 BY 3 NO-UNDO.
 
@@ -103,14 +112,15 @@ DEFINE FRAME D-Dialog
           "Enter the alternate design number for this style." WIDGET-ID 2
      fil-costGroupLabel AT ROW 3.52 COL 27 COLON-ALIGNED HELP
           "Enter the Cost Group Label to appear on reports and forms" WIDGET-ID 4 FORMAT "x(20)"
-     lst-Group AT ROW 7 COL 29.6 NO-LABEL WIDGET-ID 12
-     btnSave AT ROW 10.76 COL 34.2 WIDGET-ID 40
-     btnCancel AT ROW 10.76 COL 52 WIDGET-ID 42
      fil-estCostGroupDesc AT ROW 5.19 COL 27 COLON-ALIGNED HELP
           "Enter the Cost Group Label to appear on reports and forms" WIDGET-ID 44
+     lst-level AT ROW 7 COL 29.6 NO-LABEL WIDGET-ID 12
+     fiSequence AT ROW 10.43 COL 27.6 COLON-ALIGNED WIDGET-ID 46
+     btnSave AT ROW 11.86 COL 34.2 WIDGET-ID 40
+     btnCancel AT ROW 11.86 COL 52 WIDGET-ID 42
      "Group Level:" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 7.1 COL 14 WIDGET-ID 36
-     SPACE(54.79) SKIP(5.94)
+          SIZE 15 BY .62 AT ROW 7.14 COL 14 WIDGET-ID 36
+     SPACE(54.79) SKIP(5.90)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -153,8 +163,6 @@ ASSIGN
    1 LIKE = ASI.estCostGroup.costGroupLabel EXP-FORMAT EXP-SIZE         */
 /* SETTINGS FOR FILL-IN fil-estCostGroupDesc IN FRAME D-Dialog
    1                                                                    */
-/* SETTINGS FOR FILL-IN fil-estCostGroupID IN FRAME D-Dialog
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -262,9 +270,20 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME lst-Group
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lst-Group D-Dialog
-ON VALUE-CHANGED OF lst-Group IN FRAME D-Dialog
+&Scoped-define SELF-NAME fiSequence
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiSequence D-Dialog
+ON LEAVE OF fiSequence IN FRAME D-Dialog /* Print Sequence */
+DO:
+    RUN pTrackChngs.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lst-level
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lst-level D-Dialog
+ON VALUE-CHANGED OF lst-level IN FRAME D-Dialog
 DO:
   RUN pTrackChngs.
 END.
@@ -368,9 +387,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fil-estCostGroupID fil-costGroupLabel lst-Group fil-estCostGroupDesc 
+  DISPLAY fil-estCostGroupID fil-costGroupLabel fil-estCostGroupDesc lst-level 
+          fiSequence 
       WITH FRAME D-Dialog.
-  ENABLE fil-costGroupLabel lst-Group btnCancel fil-estCostGroupDesc 
+  ENABLE fil-estCostGroupID fil-costGroupLabel fil-estCostGroupDesc lst-level 
+         fiSequence btnCancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -406,22 +427,30 @@ PROCEDURE pDisplayRecord PRIVATE :
     
     DO WITH FRAME {&FRAME-NAME}:
     END.
-    
-    FIND FIRST ttEstCostGroup NO-lOCK
-        WHERE ttEstCostGroup.estCostGroupID = ipcEstGrpId NO-ERROR.
+
+    IF ipcAction EQ "Update" THEN DO:
+        FIND FIRST ttEstCostGroup NO-lOCK
+            WHERE ttEstCostGroup.estCostGroupID = ipcEstGrpId NO-ERROR.
+            
+        IF NOT AVAILABLE ttEstCostGroup THEN
+        DO:
+            MESSAGE "Invalid estCostGroupID: " ipcEstGrpId
+            VIEW-AS ALERT-BOX ERROR.
+            RETURN.
+        END.
         
-    IF NOT AVAILABLE ttEstCostGroup THEN
-    DO:
-        MESSAGE "Invalid estCostGroupID: " ipcEstGrpId
-        VIEW-AS ALERT-BOX.
-        RETURN.
+        fil-estCostGroupID:SENSITIVE = FALSE.
     END.
+    
+    IF ipcAction EQ "Add" THEN
+        CREATE ttEstCostGroup.
     
     ASSIGN
         fil-estCostGroupID:SCREEN-VALUE   = ttEstCostGroup.estCostGroupID
         fil-estCostGroupDesc:SCREEN-VALUE = ttEstCostGroup.estCostGroupDesc
         fil-costGroupLabel:SCREEN-VALUE   = ttEstCostGroup.costGroupLabel
-        lst-group:SCREEN-VALUE            = STRING(ttEstCostGroup.estCostGroupLevelID)
+        lst-level:SCREEN-VALUE            = STRING(ttEstCostGroup.estCostGroupLevelID)
+        fiSequence:SCREEN-VALUE           = STRING(ttEstCostGroup.costGroupSequence)
         .
        
       btnSave:SENSITIVE = NO. 
@@ -438,18 +467,48 @@ PROCEDURE pSaveRecord PRIVATE:
     
     DEFINE BUFFER bf-estCostGroup       FOR estCostGroup.
     DEFINE BUFFER bf-ExclestCostGroup   FOR estCostGroup.
-       
+    DEFINE BUFFER bf-EstCostGroupSystem FOR estCostGroupSystem.
+           
     DO WITH FRAME {&frame-name}:
     END.
     
-    FIND FIRST ttEstCostGroup NO-lOCK
-        WHERE ttEstCostGroup.estCostGroupID = fil-estCostGroupID:SCREEN-VALUE NO-ERROR.
-        
-    IF NOT AVAILABLE ttEstCostGroup THEN
-    DO:
-        MESSAGE "Invalid estCostGroupID: " fil-estCostGroupID:SCREEN-VALUE
-        VIEW-AS ALERT-BOX.
+    IF lst-level:SCREEN-VALUE EQ ? OR lst-level:SCREEN-VALUE EQ "" THEN DO:
+        MESSAGE "Level cannot be empty"
+        VIEW-AS ALERT-BOX ERROR.
         RETURN.
+    END.
+        
+    IF ipcAction EQ "Update" THEN DO:
+        FIND FIRST ttEstCostGroup NO-lOCK
+            WHERE ttEstCostGroup.estCostGroupID = fil-EstCostGroupID:SCREEN-VALUE NO-ERROR.
+            
+        IF NOT AVAILABLE ttEstCostGroup THEN DO:
+            MESSAGE "Invalid EstCostGroupID: " fil-EstCostGroupID:SCREEN-VALUE
+            VIEW-AS ALERT-BOX.
+            RETURN.
+        END.
+    END.
+    ELSE IF ipcAction EQ "Add" THEN DO:   
+        FIND FIRST bf-EstCostGroup NO-LOCK
+             WHERE bf-EstCostGroup.company           EQ cCompany
+               AND bf-EstCostGroup.estCostGroupID EQ fil-EstCostGroupID:SCREEN-VALUE 
+             NO-ERROR.
+        IF AVAILABLE bf-EstCostGroup THEN DO:
+            MESSAGE "Group '" + fil-EstCostGroupID:SCREEN-VALUE + "' already exists. Please enter a different name"
+            VIEW-AS ALERT-BOX ERROR.
+            
+            RETURN.
+        END.
+
+        FIND FIRST bf-EstCostGroupSystem NO-LOCK
+             WHERE bf-EstCostGroupSystem.estCostGroupID EQ fil-EstCostGroupID:SCREEN-VALUE 
+             NO-ERROR.
+        IF AVAILABLE bf-EstCostGroupSystem THEN DO:
+            MESSAGE "Group '" + fil-EstCostGroupID:SCREEN-VALUE + "' already exists. Do you want to overwrite the existing Group?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+            IF NOT lChoice THEN 
+                RETURN.
+        END.
     END.
     
     DO TRANSACTION:
@@ -461,13 +520,16 @@ PROCEDURE pSaveRecord PRIVATE:
         DO:
             CREATE bf-estCostGroup.
             ASSIGN
-                bf-estCostGroup.estCostGroupID = fil-estCostGroupID:SCREEN-VALUE. 
+                bf-estCostGroup.estCostGroupID = fil-estCostGroupID:SCREEN-VALUE
+                bf-estCostGroup.company        = cCompany
+                . 
         END.
            
         ASSIGN
             bf-estCostGroup.estCostGroupDesc    = fil-estCostGroupDesc:SCREEN-VALUE
             bf-estCostGroup.costGroupLabel      = fil-costGroupLabel:SCREEN-VALUE
-            bf-estCostGroup.estCostGroupLevelID = INTEGER(lst-group:SCREEN-VALUE)
+            bf-estCostGroup.estCostGroupLevelID = INTEGER(lst-level:SCREEN-VALUE)
+            bf-estCostGroup.costGroupSequence   = INTEGER(fiSequence:SCREEN-VALUE)
             .
     END. /* DO TRANSACTION: */
         
@@ -497,7 +559,8 @@ PROCEDURE pInit :
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
       
-    RUN Estimate_GetSystemDataForEstimate(INPUT "",
+    RUN Estimate_GetSystemDataForEstimate(
+        INPUT  cCompany,
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
         OUTPUT TABLE ttEstCostGroupLevel).
@@ -508,7 +571,7 @@ PROCEDURE pInit :
                    
     END.
     
-    lst-Group:LIST-ITEM-PAIRS  = cListGroups.
+    lst-level:LIST-ITEM-PAIRS  = cListGroups.
    
 END PROCEDURE.
 
@@ -527,7 +590,8 @@ PROCEDURE pTrackChngs :
 
     IF ttEstCostGroup.estCostGroupDesc NE fil-estCostGroupDesc:SCREEN-VALUE
         OR ttEstCostGroup.costGroupLabel NE fil-costGroupLabel:SCREEN-VALUE
-        OR ttEstCostGroup.estCostGroupLevelID NE INTEGER(lst-group:SCREEN-VALUE) THEN
+        OR ttEstCostGroup.estCostGroupLevelID NE INTEGER(lst-level:SCREEN-VALUE)
+        OR ttEstCostGroup.costGroupSequence NE INTEGER(fiSequence:SCREEN-VALUE) THEN
     DO:
         btnSave:SENSITIVE = YES.  
             

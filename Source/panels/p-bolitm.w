@@ -78,7 +78,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add  ~
 Btn-Delete Btn-Cancel 
 
 /* Custom List Definitions                                              */

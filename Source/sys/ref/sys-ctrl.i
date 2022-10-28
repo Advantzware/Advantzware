@@ -18,8 +18,8 @@ name-fld-list =
 "BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan,capacityPage,OEPriceMatrixCheck,BOLPartial,OEAutoDateUpdate,FGUnderOver,OEPriceHold," + 
 /*  162       163        164        165        166        167     168       169         170        171     172          173       174            175               176*         177            178              179                     180                      181           182   183        184       185             186          187       188       189            190 */
 "CEUpdate,ValidShipTo,PriceHold,CreditHold,CustomerPO,UniquePO,ValidUoM,PriceGtCost,CustomerPN,CEOpRates,CERequestYield,CINVOICE,BOLPartialFlag,POLoadtag,FreightCalculation,OnHandInventory,MiscEstimateSource,SalesTaxRoundingMethod,SalesTaxCalcMethod,FGTagValidation,CEFormat,ItemHold,DuplicateItem,EstimateExists,DateRule,Alliflutes1,FGMasterLoc,FGOversDefault,cXMLCustomerPartSource," +
-/*  191          192                193             194       195               196                  197        198          199                 200                        201           202             203         204         205     */
-"TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,OutputCSV,SSIssueDefaultRM,QuoteExpirationDays,CEGOTOCALC,APIRequestMethod,VendItemCostMaximum,PriceMatrixPricingMethod,CEVendorDefault,ARCashEntry,CEOpStandards,CEShipWeight,CECostSource" 
+/*  191          192                193             194       195               196                  197        198          199                 200                        201           202             203         204         205         206*/
+"TruckPlan,SSJobInquiryAdjust,SSJobInquiryIssue,OutputCSV,SSIssueDefaultRM,QuoteExpirationDays,CEGOTOCALC,APIRequestMethod,VendItemCostMaximum,PriceMatrixPricingMethod,CEVendorDefault,ARCashEntry,CEOpStandards,CEShipWeight,CECostSource,CESetHeaderForm" 
 .
 
 DEFINE VARIABLE str-init AS CHARACTER EXTENT 250 NO-UNDO.
@@ -122,7 +122,7 @@ ASSIGN
                 "jobcardc 1,jobcardc 2,Printers,Valley,jobcardc 20,Valley20,Delta10,HoneyCell,AtlanticBox,PkgAtlanta,AmCarton," +
                 "Fluted,PreCorr,McElroy,Burt,PExpress,Onducorr" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
-                "jobcardf 1,jobcardf 2,xml,Wingate,Ruffino,McLean,Henry,Burt"
+                "jobcardf 1,jobcardf 2,xml,Wingate,Ruffino,McLean,Henry,Burt,GPI-STN"
  str-init[34] = "Manual,Matrix"
  str-init[35] = "ShipTo,Header"
  str-init[36] = "ShipTo,FGFile"
@@ -299,6 +299,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[203] = "Estimate,Machine if Not Locked"
        str-init[204] = "Net,Gross"
        str-init[205] = "VendorCostOnly,VendorCostThenLast,VendorCostThenAverage"
+       str-init[206] = "Existing Form 1,Separate Form 0"
        .
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" THEN DO:

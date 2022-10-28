@@ -74,6 +74,9 @@ DEFINE VARIABLE v-lst-m-code        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN cTextListToSelect = "Job Qty OH,Tot Qty OH,Customer Name,Ship To,PO#,Order#,Rel#,Item,Description," +  /*9*/
                            "Rel Qty,Rel Date,Due Alert,Carrier,Sales Value,Order Qty,MSF,Job#,Shipped Qty,Rel Stat,Cust#,Customer Part#," + /*12*/
@@ -82,19 +85,20 @@ ASSIGN cTextListToSelect = "Job Qty OH,Tot Qty OH,Customer Name,Ship To,PO#,Orde
                            "Sal Rep,Last User ID,Ship To Add1,Ship To Add2,ShipTo City,ShipTo State,Ship To Zip,Ship To Name,Due Date,Style,Run Complete,FG Category,OverRun %," +
                            "Job Hold Code,Job Hold Desc,Order Date,Order MFG Date,Completion Date,CSR,Entered By,Release Due Date,Order Due Date,Printed,Order Promise Date," +
                            "Order Priority,Vendor ID,Vendor Name,Vendor PO#,PO Due Date,PO RM Item ID,PO RM item Name,PO UOM,PO Ordered Qty,PO Received Qty," +
-                           "Last Ship Date,Price,Price UOM,Remaining routing,Dock Appointment,Pallet Count Quantity"                           
+                           "Last Ship Date,Price,Price UOM,Remaining routing,Dock Appointment,Pallet Count Quantity,Estimated FG Weight,Actual FG Weight,Total # of Pallets (FG)"                           
+                           
            cFieldListToSelect = "w-ord.onh-qty,w-ord.tot-qty,w-ord.cust-name,w-ord.ship-id,w-ord.po-num,w-ord.ord-no,w-ord.rel-no,w-ord.i-no,w-ord.i-name," +
-                                "w-ord.rel-qty,w-ord.xls-rel-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.xls-status,w-ord.cust-no,w-ord.part-no," +
+                                "w-ord.rel-qty,xls-rel-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.xls-status,w-ord.cust-no,w-ord.part-no," +
                                 "v-del-zone,v-terr,v-crRate,routing,w-ord.palls,oh-relqty," +
                                 "sa-ship-date,dock-ship-date,ear-ship-date,lat-ship-date,trans-day,stat,ttl-alc,ttl-avl,w-ord.ship-from,notes," +
                                 "w-ord.sman,w-ord.upd-user,ship-add1,ship-add2,ship-cty,ship-stat,ship-zip,ship-name,due-dt,style,run-comp,fg-cat,over-run," +
-                                "job-h-code,job-h-desc,ord-date,mfg-date,comp-date,w-ord.csrUser_id,w-ord.entered-id,w-ord.rel-due-date,w-ord.ord-due-date,w-ord.Printed,w-ord.promiseDate," +
-                                "w-ord.priority,w-ord.vend-id,w-ord.vend-name,w-ord.vend-po,w-ord.po-due-date,w-ord.po-rm-item,w-ord.po-rm-item-name,w-ord.po-uom,w-ord.po-ord-qty,w-ord.po-rec-qty," +
-                                "w-ord.last-date,w-ord.price,w-ord.pr-uom,remaining-routing,dock-appointment,pallet-count-quantity"
+                                "job-h-code,job-h-desc,ord-date,mfg-date,comp-date,w-ord.csrUser_id,w-ord.entered-id,rel-due-date,ord-due-date,w-ord.Printed,promiseDate," +
+                                "w-ord.priority,w-ord.vend-id,w-ord.vend-name,w-ord.vend-po,po-due-date,w-ord.po-rm-item,w-ord.po-rm-item-name,w-ord.po-uom,w-ord.po-ord-qty,w-ord.po-rec-qty," +
+                                "last-date,w-ord.price,w-ord.pr-uom,remaining-routing,dock-appointment,pallet-count-quantity,est-wt-per-ton,act-wt-per-ton,iTotalPallet"
            cFieldLength = "10,10,15,8,15,8,6,15,15," + "11,8,9,7,11,13,8,13,14,8,9,15," + "8,4,13,35,8,11," + "11,10,10,10,12,5,11,11,11,20," + "7,12,30,30,15,12,15,30,10,5,12,11,9," + "13,15,10,14,15,9,10,16,14,7,18," + 
-                          "14,9,30,10,11,13,30,6,14,15," + "15,15,10,35,20,23"
+                          "14,9,30,10,11,13,30,6,14,15," + "15,15,10,35,20,23,19,16,23"
            cFieldType = "i,i,c,c,c,i,i,c,c," + "i,c,c,c,i,i,i,c,i,c,c,c," + "c,c,c,c,i,i," + "c,c,c,c,i,c,i,i,c,c,"  + "c,c,c,c,c,c,c,c,c,c,c,c,i," + "c,c,c,c,c,c,c,c,c,c,c," +
-                        "i,c,c,i,c,c,c,c,i,i," + "c,i,c,c,c,c"
+                        "i,c,c,i,c,c,c,c,i,i," + "c,i,c,c,c,c,i,i,i"
            .
 
 {sys/inc/ttRptSel.i}
@@ -963,6 +967,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Scheduled Releases */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1111,6 +1116,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 

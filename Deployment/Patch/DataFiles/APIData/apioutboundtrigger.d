@@ -276,3 +276,4 @@
 "" "202206244369105193993" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-24T12:08:11.034 "admin" "_default6" 281 80
 "" "202206245645005194159" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-24T15:40:50.628 "admin" "_default7" 282 81
 "" "202206234589105193477" "PrintPurchaseOrder" "PrintPurchaseOrder" "Trigger to print a purchase order" yes 2022-06-23T12:44:51.803 "admin" "_default5" 283 82
+"" "202207074971509696610" "SendEstimate" "ShareEstimate" "Share an estimate" no 2022-07-11T13:18:24.065 "asi" "_default" 284 83

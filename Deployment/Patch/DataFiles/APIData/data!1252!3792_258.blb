@@ -1,0 +1,7 @@
+
+         <ConfirmationItem lineNumber="$OrderLineID$" quantity="$LineQuantity$">
+            <UnitOfMeasure>$QuantityUOM||||IF["","EA","!VALUE!"]|$</UnitOfMeasure>
+            <ConfirmationStatus type="accept" deliveryDate="$DueDate|YYYY-MM-DDThh:mm:sstz|DATE|$" quantity="$LineQuantity$">
+               <UnitOfMeasure>$QuantityUOM$</UnitOfMeasure>
+            </ConfirmationStatus>
+         </ConfirmationItem>

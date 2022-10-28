@@ -113,8 +113,21 @@ RUN methods/prgsecur.p
              OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE lCADFile AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCADFile AS CHARACTER NO-UNDO.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CADFILE", "L" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     lCADFile = logical(cRecValue) NO-ERROR. 
+RUN sys/ref/nk1look.p (INPUT cocode, "CADFILE", "C" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     cCADFile = cRecValue NO-ERROR.     
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -437,15 +450,15 @@ DEFINE FRAME fold
      ef.brd-dscr AT ROW 11.71 COL 49 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 57 BY 1
-     eb.len AT ROW 12.91 COL 25 COLON-ALIGNED
+     eb.len AT ROW 12.91 COL 25 COLON-ALIGNED FORMAT ">>9.99999"
           LABEL "Length"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     eb.wid AT ROW 12.91 COL 57 COLON-ALIGNED
+     eb.wid AT ROW 12.91 COL 57 COLON-ALIGNED FORMAT ">>9.99999"
           LABEL "Width"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     eb.dep AT ROW 12.91 COL 88 COLON-ALIGNED
+     eb.dep AT ROW 12.91 COL 88 COLON-ALIGNED FORMAT ">>9.99999"
           LABEL "Depth"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -501,7 +514,7 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      eb.t-sqin AT ROW 16 COL 126 COLON-ALIGNED
-          LABEL "Blank Sq. In." FORMAT ">>>9.9999"
+          LABEL "Blank Sq. In." FORMAT ">>>>>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      eb.bl-qty AT ROW 2.67 COL 86 COLON-ALIGNED
@@ -614,7 +627,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.cust-no IN FRAME fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.dep IN FRAME fold
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.die-no IN FRAME fold
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 ASSIGN 
@@ -642,7 +655,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.k-wid IN FRAME fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.len IN FRAME fold
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.lin-in IN FRAME fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.lock IN FRAME fold
@@ -702,7 +715,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.upc-no IN FRAME fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.wid IN FRAME fold
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -980,7 +993,7 @@ DO:
     cArtiosCAD = cRecValue NO-ERROR.
     
   ASSIGN
-    initDir = cArtiosCAD
+    initDir = IF lArtiosCAD THEN cArtiosCAD ELSE IF lCADFile THEN cCADFile ELSE cArtiosCAD.
     cadfile = ''.
   IF lArtiosCAD THEN
      iInitialFilter = 2.
@@ -1866,6 +1879,7 @@ assign
  itemfg.pur-man           = xeb.pur-man 
  itemfg.alloc             = xeb.set-is-assembled
  itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+ itemfg.trno              = xeb.tr-no
  .
 
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").

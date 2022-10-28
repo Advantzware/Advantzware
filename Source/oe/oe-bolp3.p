@@ -474,6 +474,7 @@ PROCEDURE ipCreateInvLine:
     DEFINE PARAMETER BUFFER bf-oe-boll FOR oe-boll.
     DEFINE PARAMETER BUFFER bf-oe-ordl FOR oe-ordl.   
     DEFINE INPUT  PARAMETER ipiRNo AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiInvoiceNo AS INTEGER NO-UNDO.
     DEFINE INPUT  PARAMETER ipcEstType LIKE oe-ord.est-type NO-UNDO.
     DEFINE INPUT  PARAMETER ipdOrdDate AS DATE NO-UNDO.
     DEFINE INPUT  PARAMETER ipdRelPrice AS DECIMAL NO-UNDO.
@@ -527,6 +528,7 @@ PROCEDURE ipCreateInvLine:
         inv-line.taxGroup     = ipcTaxGroupHeader
         inv-line.ediPrice     = bf-oe-ordl.ediPrice
         inv-line.ediPriceUOM  = bf-oe-ordl.ediPriceUOM
+        inv-line.inv-no       = ipiInvoiceNo
         .
     
     IF bf-oe-boll.zeroPrice EQ 1 THEN
@@ -964,7 +966,7 @@ PROCEDURE ipPostSingleBOL:
         IF NOT AVAILABLE inv-line THEN 
         DO:
             /* If not avail oe-rel then error */
-            RUN ipCreateInvLine (BUFFER oe-boll, BUFFER oe-ordl, inv-head.r-no,  oe-ord.est-type, oe-ord.ord-date, 
+            RUN ipCreateInvLine (BUFFER oe-boll, BUFFER oe-ordl, inv-head.r-no, inv-head.inv-no, oe-ord.est-type, oe-ord.ord-date, 
                 (IF AVAILABLE(oe-rel) THEN oe-rel.price ELSE 0), ROWID(inv-head), bf-ttPreInvLine.tempInvLn, inv-head.tax-gr , OUTPUT rCreatedInvLine).
             FIND FIRST inv-line EXCLUSIVE-LOCK WHERE ROWID(inv-line) EQ rCreatedInvLine NO-ERROR.
 

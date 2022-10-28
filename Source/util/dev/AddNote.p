@@ -31,7 +31,6 @@
     DO:
         FIND FIRST bf-notes EXCLUSIVE-LOCK 
             WHERE bf-notes.rec_key EQ ipcRecKey 
-            AND bf-notes.note_text EQ ipcText 
             AND bf-notes.note_title EQ ipcTitle 
             AND bf-notes.note_code EQ ipcCode 
             AND bf-notes.note_type EQ ipcType 
@@ -47,6 +46,7 @@
                 .
         END.
         ASSIGN 
+            bf-notes.note_text  = ipcText
             bf-notes.note_date  = TODAY
             bf-notes.note_time  = TIME            
             bf-notes.user_id    = USERID("NOSWEAT")            

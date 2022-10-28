@@ -16,7 +16,8 @@
 {system/VendorCostProcs.i}
 {po/ttVendCostReport.i}
 {oe/ttPriceHold.i}
-{util/ttInactiveQuotes.i} 
+{util/ttInactiveQuotes.i}
+{est/ttEstimateQuantity.i} 
 
 /*Constants*/
 DEFINE VARIABLE gcItemTypeFG       AS CHARACTER NO-UNDO INITIAL "FG".
@@ -284,6 +285,70 @@ PROCEDURE BuildVendItemCostsWithAdders:
     
 END PROCEDURE.
 
+PROCEDURE GetNextPriceBreak:
+    /*------------------------------------------------------------------------------
+     Purpose: Given company, item and item properties, it calculate the next price
+              break for quantity
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttEstimateQuantity.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemType AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcEstNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipdformlength  AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdformwidth  AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipdformdepth  AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER iprowidEF     AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER ipinumup      AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcVendorID   AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdNextQuantity AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cVendCostUOM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iN-out AS INTEGER NO-UNDO.
+    
+    RUN est/ef-#out.p (iprowidEF, OUTPUT iN-out).
+    FIND FIRST item NO-LOCK 
+          WHERE ITEM.company EQ ipcCompany
+            AND item.i-no EQ ipcItemID NO-ERROR.
+    
+    FOR EACH vendItemCost NO-LOCK
+        WHERE vendItemCost.company  EQ ipcCompany
+        AND vendItemCost.itemType EQ ipcItemType
+        AND vendItemCost.itemID EQ ipcItemID
+        AND (vendItemCost.vendorID EQ ipcVendorID OR ipcVendorID EQ "")
+        AND (ipcItemType EQ "FG" AND (vendItemCost.estimateNo   EQ ipcEstNo
+        AND vendItemCost.formNo  EQ ipiFormNo
+        AND vendItemCost.blankNo EQ ipiBlankNo)
+        OR (ipcItemType EQ "RM" AND vendItemCost.estimateNo EQ ""))
+        BREAK BY vendItemCost.vendorID:
+        IF FIRST(vendItemCost.vendorID) THEN 
+        DO:    
+            iIndex = 0.
+            FOR EACH vendItemCostLevel NO-LOCK WHERE vendItemCostLevel.vendItemCostID = vendItemCost.vendItemCostId
+                BY vendItemCostLevel.quantityBase:
+                cVendCostUOM = IF vendItemCost.vendorUOM <> "" THEN vendItemCost.vendorUOM ELSE "EA".
+                iIndex = iIndex + 1.
+                IF iIndex LE 20 AND ttEstimateQuantity.EstQuantity[iIndex] GT 0 THEN 
+                DO: 
+                    RUN sys/ref/convquom.p(cVendCostUOM, "EA", (IF AVAILABLE ITEM THEN item.basis-w ELSE 0),
+                        ipdformlength, ipdformwidth, ipdformdepth,
+                        vendItemCostLevel.quantityBase, OUTPUT opdNextQuantity).
+                    opdNextQuantity = opdNextQuantity * ipinumup * iN-out.                     
+                    opdNextQuantity = IF opdNextQuantity - INT64(opdNextQuantity) GT 0 THEN (INT64 (opdNextQuantity) + 1)
+                                      ELSE INT64 (opdNextQuantity).         
+                    IF opdNextQuantity GT ttEstimateQuantity.EstQuantity[iIndex] THEN  
+                        ASSIGN ttEstimateQuantity.EstNextQuantity[iIndex] = opdNextQuantity. 
+                END.                  
+            END.
+        END. 
+    END.
+
+END PROCEDURE.
+
 PROCEDURE pBuildVendItemCosts PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Given company, item, and item properties and quantity, build
@@ -376,7 +441,7 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                     WHERE bf-vendItemCost.company EQ ipcCompany
                     AND bf-vendItemCost.itemID EQ ipcItemID
                     AND bf-vendItemCost.itemType EQ ipcItemType
-                    AND (bf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
+                    AND (bf-vendItemCost.estimateNo EQ "" OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
                     AND bf-vendItemCost.effectiveDate LE TODAY
                     AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                     AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -393,9 +458,9 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                     WHERE bf-vendItemCost.company EQ ipcCompany
                     AND bf-vendItemCost.itemID EQ ipcItemID
                     AND bf-vendItemCost.itemType EQ ipcItemType
-                    AND (bf-vendItemCost.estimateNo EQ ipcEstimateNo OR cVendorCostMatrixUseEstimate EQ "No")
-                    AND (bf-vendItemCost.formNo EQ ipiFormNo OR cVendorCostMatrixUseEstimate EQ "No")
-                    AND (bf-vendItemCost.blankNo EQ ipiBlankNo OR cVendorCostMatrixUseEstimate EQ "No")
+                    AND (bf-vendItemCost.estimateNo EQ ipcEstimateNo OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
+                    AND (bf-vendItemCost.formNo EQ ipiFormNo OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
+                    AND (bf-vendItemCost.blankNo EQ ipiBlankNo OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
                     AND bf-vendItemCost.effectiveDate LE TODAY
                     AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                     AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)
@@ -409,7 +474,7 @@ PROCEDURE pBuildVendItemCosts PRIVATE:
                         WHERE bf-vendItemCost.company EQ ipcCompany
                         AND bf-vendItemCost.itemID EQ ipcItemID
                         AND bf-vendItemCost.itemType EQ ipcItemType
-                        AND (bf-vendItemCost.estimateNo EQ "" OR cVendorCostMatrixUseEstimate EQ "No")
+                        AND (bf-vendItemCost.estimateNo EQ "" OR (cVendorCostMatrixUseEstimate EQ "No" AND ipcItemID NE ""))
                         AND bf-vendItemCost.effectiveDate LE TODAY
                         AND (bf-vendItemCost.expirationDate GE TODAY OR bf-vendItemCost.expirationDate EQ ? OR bf-vendItemCost.expirationDate EQ 01/01/0001)
                         AND (bf-vendItemCost.vendorID NE "" OR iplIncludeBlankVendor)

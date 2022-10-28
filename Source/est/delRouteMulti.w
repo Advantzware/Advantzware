@@ -527,6 +527,13 @@ PROCEDURE pRunImport :
                   AND xef.form-no EQ bf-est-op.s-num
                   NO-ERROR.
                   
+             IF NOT AVAILABLE xef AND xest.est-type EQ 6 THEN
+             FIND FIRST xef NO-LOCK
+                  WHERE xef.company EQ bf-est-op.company
+                  AND xef.est-no  EQ bf-est-op.est-no
+                  AND xef.form-no EQ 1
+                  NO-ERROR.
+                  
              FIND FIRST xeb
                 WHERE xeb.company   EQ xef.company
                 AND xeb.est-no    EQ xef.est-no

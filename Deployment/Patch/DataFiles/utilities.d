@@ -260,6 +260,7 @@ If no invoice, it will set BOL to unposted as well as all lines." 900
 "unPostBOLs.r" "UTIL" "" "UnPost multiple BOLs from input or file" "Unpost multiple BOLs" 1000
 "unPostRel.r" "OP" "OT1" "Unpost Releases where the release post fails" "Allows user to enter a company and release, set it back to unposted." 900
 "upd-box.r" "CE" "EB" "Update Box Design Disk Drive Letter" "Update the box design drive or path." 900
+"updapinv.r" "AP" "VU1" "Update AP Invoice" "Update AP Invoice " 900
 "updappay.r" "AP" "" "Update check date of Posted Checks" "Update date of a posted AP check." 900
 "updarcal.r" "AR" "" "Update line item of OP/AR invoice" "Update invoice line details." 900
 "updArDue.r" "AR" "" "Correct amount due on Ar Invoices" "Correct amount due on AR invoices after reviewing spreadsheet." 900

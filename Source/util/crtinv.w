@@ -882,6 +882,7 @@ DEF VAR v-index AS INT NO-UNDO.
            
          ASSIGN
           inv-line.r-no       = v-ref-no
+          inv-line.inv-no     = inv-head.inv-no
           inv-line.company    = oe-bolh.company
           inv-line.ord-no     = oe-boll.ord-no
           inv-line.b-no       = oe-bolh.b-no

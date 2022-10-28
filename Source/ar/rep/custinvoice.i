@@ -46,7 +46,7 @@
            
               DISPLAY cust.cust-no LABEL "Cust #"
                       cust.name LABEL "Name"
-                      ar-inv.inv-date FORMAT "99/99/9999" LABEL "First Inv. Date"
+                      DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) LABEL "First Inv. Date"
                       SKIP.
               DOWN.
              
@@ -54,7 +54,7 @@
                  PUT STREAM excel UNFORMATTED
                      '"' cust.cust-no '",'
                      '"' cust.name  '",'
-                     '"' STRING(ar-inv.inv-date,"99/99/9999") '",'
+                     '"' DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) '",'
                      SKIP.
            END.
 

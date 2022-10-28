@@ -594,41 +594,37 @@ find first company where company.company eq cocode NO-LOCK.
        assign
           v-line-number = v-line-number + 1
           v-printline = v-printline + 1
-          len-score = "".
+          len-score = ""
+          cScorePanelType = "L".
 
        
        {po/poprints.i}       
        IF AVAIL ITEM AND lookup(ITEM.mat-type,"1,2,3,4") > 0 THEN DO: 
        END.
        ELSE DO:
-          if not v-test-scr then do:
-             IF po-ordl.spare-char-1 = "LENGTH" THEN
-             put 
-                 "HOR Score: " AT 3
-                 len-score format "x(80)" SKIP .
-             ELSE
+          IF len-score NE "" AND po-ordl.spare-char-1 = "LENGTH" THEN do:
+                 put 
+                     "HOR Score: " AT 3
+                     len-score format "x(80)" SKIP .
+                 ASSIGN
+                     v-line-number = v-line-number + 1
+                     v-printline = v-printline + 1.
+             END.    
+             ELSE IF len-score NE "" THEN do:
+                 PUT "Score: " AT 3
+                 len-score format "x(80)" SKIP . 
+                 ASSIGN
+                     v-line-number = v-line-number + 1
+                     v-printline = v-printline + 1.
+             END.    
+             IF  cWidScore NE "" THEN do:
                  put 
                      "Score: " AT 3
-                     len-score format "x(80)" SKIP .
-                 
-             ASSIGN
-             v-line-number = v-line-number + 1
-             v-printline = v-printline + 1.
-          end.
-       
-          else
-          if dec(trim(len-score)) ne v-wid then do:
-              IF po-ordl.spare-char-1 = "LENGTH" THEN
-                  put "HOR Score: " AT 3
-                      len-score format "x(80)"  SKIP.
-              ELSE
-                  put "Score: " AT 3
-                      len-score format "x(80)"  SKIP.
-                 
-             ASSIGN
-             v-line-number = v-line-number + 1
-             v-printline = v-printline + 1.
-          END.
+                     cWidScore format "x(80)" SKIP .                     
+                 ASSIGN
+                      v-line-number = v-line-number + 1
+                      v-printline = v-printline + 1. 
+             END.
        END.
          end.
          END.

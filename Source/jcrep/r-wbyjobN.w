@@ -628,7 +628,7 @@ DO:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN DO:
-           IF NOT tb_OpenCSV THEN DO:        
+              IF NOT tb_OpenCSV THEN DO:        
                   MESSAGE "CSV file have been created." SKIP(1)
                            "~"OK"~"Want to open CSV file?"
                   VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
@@ -638,6 +638,9 @@ DO:
                   DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
+              END.
+              ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
               END.
            END. /* WHEN 3 THEN DO: */
        WHEN 5 THEN
@@ -1584,17 +1587,22 @@ for each mch-act
      v-mr-qty   = 0
      v-mr-waste = 0.
 
-    find job-code where job-code.code eq mch-act.code no-lock.
-    if job-code.cat eq "RUN" then
-      assign
-       v-run-qty  = mch-act.qty
-       v-wst-qty  = mch-act.waste.
-    else
-    if job-code.cat eq "MR" then
-      assign
-       v-mr-qty   = mch-act.qty
-       v-mr-waste = mch-act.waste.
-
+    FIND FIRST job-code NO-LOCK
+         WHERE job-code.code EQ mch-act.code
+         NO-ERROR.
+    IF AVAILABLE job-code THEN
+    CASE job-code.cat:
+        WHEN "RUN" then
+        ASSIGN
+            v-run-qty = mch-act.qty
+            v-wst-qty = mch-act.waste
+            .
+        WHEN "MR" THEN
+        ASSIGN
+            v-mr-qty   = mch-act.qty
+            v-mr-waste = mch-act.waste
+            .
+    END CASE.
     assign
      v-up  = 1
      v-out = 1
@@ -1890,8 +1898,6 @@ for each mch-act
 
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
-  IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

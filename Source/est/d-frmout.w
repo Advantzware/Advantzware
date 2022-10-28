@@ -84,6 +84,7 @@ def var iProjectCount as int init 50 no-undo.
 def var lv-copy-qty as int extent 20 no-undo.
 def var lv-copy-rel as int extent 20 no-undo.
 def var lv-estqty-recid as recid no-undo.
+DEFINE VARIABLE lCreateNewFG AS LOGICAL NO-UNDO .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -419,13 +420,14 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
+     DEFINE VARIABLE lError   AS LOGICAL NO-UNDO.
 
      DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
-  RUN valid-fgitem NO-ERROR.
-  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+                  
+  RUN valid-fgitem(OUTPUT lError) NO-ERROR.
+  IF lError THEN RETURN NO-APPLY.
 
   RUN valid-part-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -635,12 +637,23 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
 ON LEAVE OF fg-no IN FRAME D-Dialog /* FG Item Code */
 DO:
+   DEFINE VARIABLE lError AS LOGICAL NO-UNDO .     
    IF LASTKEY NE -1 THEN DO:
    assign {&self-name}.
-   RUN valid-fgitem NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+     RUN valid-fgitem(OUTPUT lError) NO-ERROR.
+     IF lError THEN RETURN NO-APPLY.
     END.
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-no D-Dialog
+ON VALUE-CHANGED OF fg-no IN FRAME D-Dialog /* FG Item Code */
+DO:        
+        ASSIGN 
+            lCreateNewFG = FALSE .
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -744,10 +757,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-name D-Dialog
 ON LEAVE OF item-name IN FRAME D-Dialog /* Item Description */
 DO:
+   DEFINE VARIABLE lError   AS LOGICAL NO-UNDO. 
    IF LASTKEY NE -1 THEN DO:
    assign {&self-name}.
-   RUN valid-fgitem NO-ERROR.
-      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+   RUN valid-fgitem(OUTPUT lError) NO-ERROR.
+      IF lError THEN RETURN NO-APPLY.
     END.
 END.
 
@@ -1317,11 +1331,15 @@ PROCEDURE valid-64-dec :
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
    DEFINE OUTPUT PARAMETER op-dec AS DEC DECIMALS 6 NO-UNDO.
     
-    FIND FIRST tt-64-dec WHERE
-      substring(string(tt-64-dec.DEC),1,3) EQ substring(string(ip-dec),1,3) NO-LOCK NO-ERROR.
-    IF NOT AVAIL tt-64-dec  THEN
-      op-error = YES.
-    ELSE  op-dec = tt-64-dec.DEC .
+   /* This removes the limitation of entering a decimal that equates to a 64th */
+   ASSIGN 
+    op-dec = ip-dec.
+    
+/*    FIND FIRST tt-64-dec WHERE                                                               */
+/*      substring(string(tt-64-dec.DEC),1,3) EQ substring(string(ip-dec),1,3) NO-LOCK NO-ERROR.*/
+/*    IF NOT AVAIL tt-64-dec THEN ASSIGN                                                       */
+/*      op-error = YES.                                                                        */
+/*    ELSE  op-dec = tt-64-dec.DEC .                                                           */
 
 END PROCEDURE.
 
@@ -1335,18 +1353,28 @@ PROCEDURE valid-fgitem :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplOutError AS LOGICAL NO-UNDO .
    DO WITH FRAME {&FRAME-NAME}:
-     
-         IF fg-no:SCREEN-VALUE  NE "" THEN DO:
-           FIND FIRST itemfg
-               WHERE itemfg.company  EQ gcompany
-               AND itemfg.i-no    EQ fg-no:SCREEN-VALUE  NO-LOCK NO-ERROR.
-           IF NOT AVAIL itemfg  THEN DO:
-               MESSAGE "Invalid Fg Item, try help..." VIEW-AS ALERT-BOX ERROR.
-               APPLY "entry" TO fg-no .
-               RETURN ERROR.
-           END.
-       END.
+             
+         IF fg-no:SCREEN-VALUE  NE "" AND NOT lCreateNewFG THEN 
+        DO:           
+            FIND FIRST itemfg
+                WHERE itemfg.company  EQ gcompany
+                AND itemfg.i-no    EQ fg-no:SCREEN-VALUE  NO-LOCK NO-ERROR.
+            IF NOT AVAILABLE itemfg  THEN 
+            DO:
+                MESSAGE "This item does not exist, would you like to add it?" 
+                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                    UPDATE ll-ans AS LOG.
+                IF ll-ans THEN
+                    ASSIGN lCreateNewFG = TRUE .
+                IF NOT ll-ans THEN 
+                DO:
+                    APPLY "entry" TO fg-no .
+                    oplOutError = YES .
+                END.
+            END.
+        END.
   END.
 
 

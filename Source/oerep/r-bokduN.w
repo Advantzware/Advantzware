@@ -71,6 +71,10 @@ DEFINE VARIABLE iColumnLength       AS INTEGER   NO-UNDO.
 DEFine VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 DEFINE BUFFER b-itemfg FOR itemfg .
 
 ASSIGN cTextListToSelect = "Due Date,Customer,Item Name,Style,Test,Adder1,Adder2,Adder3," +
@@ -481,6 +485,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Orders Booked By Due Date */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -542,6 +547,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -1654,10 +1660,13 @@ display "" with frame r-top.
 
             END CASE.
 
-            cExcelVarValue = cVarValue.
+            IF cTmpField = "due-dt" THEN cExcelVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "" .
+            
+            ELSE cExcelVarValue = cVarValue.
+            
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
     END.
 
     PUT UNFORMATTED cDisplay SKIP.

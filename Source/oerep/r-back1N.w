@@ -63,6 +63,9 @@ DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 DEFINE BUFFER b-itemfg FOR itemfg .
 
@@ -612,6 +615,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Order Backlog by Part# */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -680,13 +684,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   do with frame {&frame-name}:
     if pass_word:sensitive then do:
       run enable_ui.
 
       disable pass_word.
     end.
-
+    
     else apply "close" to this-procedure.
   end.
 END.

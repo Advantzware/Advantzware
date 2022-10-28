@@ -1119,11 +1119,13 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
                     AND job-hdr.blank-no EQ INT(iBlank-no)
                     NO-LOCK NO-ERROR.
        
-                IF AVAILABLE job-hdr THEN
-                    ASSIGN 
-                        begin_i-no:SCREEN-VALUE   = job-hdr.i-no 
-                        begin_ord-no:SCREEN-VALUE = STRING(job-hdr.ord-no)
-                        .
+                IF AVAILABLE job-hdr THEN 
+                ASSIGN 
+                    begin_i-no:SCREEN-VALUE   = job-hdr.i-no 
+                    begin_ord-no:SCREEN-VALUE = STRING(job-hdr.ord-no)
+                    .
+                RUN pCheckSetCompItem(INPUT begin_job:SCREEN-VALUE, integer(begin_job2:SCREEN-VALUE), INPUT iForm, INPUT iBlank-no) NO-ERROR.        
+                     
             END.
 
             IF v-auto-print THEN 
@@ -1543,12 +1545,15 @@ PROCEDURE check-release :
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lv-stat   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lCheckRel AS LOGICAL   NO-UNDO .
+   
     IF AVAILABLE oe-ordl THEN
         FOR EACH oe-rel NO-LOCK
             WHERE oe-rel.company EQ oe-ordl.company
             AND oe-rel.ord-no  EQ oe-ordl.ord-no
             AND oe-rel.i-no    EQ oe-ordl.i-no
             AND oe-rel.line    EQ oe-ordl.line
+            AND (oe-rel.rel-date GE date(begin_date:SCREEN-VALUE IN FRAME {&FRAME-NAME}) OR rd_print:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "R" )
+            AND (oe-rel.rel-date LE date(end_date:SCREEN-VALUE IN FRAME {&FRAME-NAME}) OR rd_print:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "R" )
             USE-INDEX ord-item
 
             BREAK BY oe-rel.rel-no
@@ -2044,6 +2049,7 @@ PROCEDURE from-ord :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+    DEFINE INPUT PARAMETER iplCheckStatus AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iRno    AS INTEGER NO-UNDO .
     DEFINE VARIABLE iRelNo  AS INTEGER NO-UNDO .
 
@@ -2051,9 +2057,9 @@ PROCEDURE from-ord :
            
     FIND FIRST oe-ord
         WHERE ROWID(oe-ord) EQ ip-rowid
-        AND (v-stat EQ "A"                                    OR
+        AND ((v-stat EQ "A"                                    OR
         (v-stat EQ "C" AND INDEX("CZ",oe-ord.stat) GT 0) OR
-        (v-stat EQ "O" AND INDEX("CZ",oe-ord.stat) EQ 0))
+        (v-stat EQ "O" AND INDEX("CZ",oe-ord.stat) EQ 0)) OR iplCheckStatus) 
         NO-LOCK NO-ERROR.
 
     IF AVAILABLE oe-ord THEN
@@ -2191,7 +2197,7 @@ PROCEDURE from-ord :
                     IF AVAILABLE oe-rell THEN 
                     DO:
                         w-ord.rel-qty     = oe-rell.qty .
-                        w-ord.rel-no      = oe-relh.release# .
+                        w-ord.rel-no      = IF AVAILABLE oe-relh THEN oe-relh.release# ELSE 0 .
                         FIND FIRST oe-rel WHERE oe-rel.r-no EQ oe-rell.link-no NO-LOCK NO-ERROR.
                     END.
                     ELSE 
@@ -3003,7 +3009,7 @@ PROCEDURE run-report :
             WHERE oe-ord.company EQ cocode
             AND oe-ord.ord-no  EQ v-ford-no
             NO-LOCK:
-            RUN from-ord (ROWID(oe-ord)).
+            RUN from-ord (ROWID(oe-ord), NO).
         END.
 
     /*=======
@@ -3042,7 +3048,12 @@ PROCEDURE run-report :
                
             RUN from-job (ROWID(job),OUTPUT op-warning).
         END.
-
+        FIND FIRST w-ord NO-LOCK NO-ERROR.
+        IF NOT AVAILABLE w-ord THEN
+        DO:
+            RUN pCheckComponents.
+        END.
+        
     FOR EACH w-ord,
         FIRST itemfg
         WHERE itemfg.company EQ cocode
@@ -3662,6 +3673,108 @@ PROCEDURE update-counts :
         END.
     RELEASE itemfg.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckComponents C-Win 
+PROCEDURE pCheckComponents :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+          
+    FIND FIRST job NO-LOCK
+         WHERE job.company EQ cocode
+           AND job.job-no  EQ begin_job
+           AND job.job-no2 EQ INT(begin_job2)
+           AND (v-stat EQ "A"      OR
+           (v-stat EQ "C" AND NOT job.opened) OR
+           (v-stat EQ "O" AND job.opened)) NO-ERROR.
+           
+    IF AVAILABLE job THEN
+    DO:       
+        FIND FIRST itemfg NO-LOCK
+             WHERE itemfg.company EQ cocode
+               AND itemfg.i-no    EQ begin_i-no
+               NO-ERROR.
+            
+        FIND FIRST eb NO-LOCK
+             WHERE eb.company   EQ cocode
+               AND eb.est-no    EQ job.est-no                
+               AND eb.stock-no  EQ begin_i-no
+               NO-ERROR.
+        IF AVAILABLE eb AND AVAILABLE itemfg THEN
+        DO:         
+           FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cocode 
+                  AND oe-ord.ord-no  EQ begin_ord-no                
+                NO-ERROR.   
+             
+           RUN from-ord (ROWID(oe-ord),YES).     
+                
+        END.                      
+    END.               
+               
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckSetCompItem C-Win 
+PROCEDURE pCheckSetCompItem :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcJobNo   AS CHARACTER NO-UNDO.      
+    DEFINE INPUT PARAMETER ipiJobNo2  AS INTEGER NO-UNDO.
+    DEFINE INPUT PARAMETER ipiFormNo  AS INTEGER NO-UNDO.           
+    DEFINE INPUT PARAMETER ipiBlankNo AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
+    FIND FIRST bf-job-hdr NO-LOCK
+         WHERE bf-job-hdr.company EQ cocode
+           AND bf-job-hdr.job-no  EQ ipcJobNo
+           AND bf-job-hdr.job-no2 EQ INT(ipiJobNo2)
+           NO-ERROR.
+    
+    IF AVAILABLE bf-job-hdr THEN
+    DO:                          
+        FIND FIRST eb NO-LOCK
+             WHERE eb.company   EQ cocode
+               AND eb.est-no    EQ bf-job-hdr.est-no                
+               AND eb.form-no   EQ ipiFormNo
+               AND eb.blank-no  EQ ipiBlankNo
+               NO-ERROR.
+        IF AVAILABLE eb AND (eb.est-type EQ 2 OR eb.est-type EQ 6)  THEN
+        DO:         
+           FIND FIRST oe-ord NO-LOCK
+                WHERE oe-ord.company EQ cocode 
+                  AND oe-ord.ord-no  EQ integer(bf-job-hdr.job-no)
+                NO-ERROR.   
+           IF AVAILABLE oe-ord THEN
+           begin_ord-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(oe-ord.ord-no).
+           
+           begin_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}  = eb.stock-no .
+           
+           FIND FIRST oe-ordl NO-LOCK
+                WHERE oe-ordl.company EQ cocode 
+                  AND oe-ordl.ord-no  EQ integer(bf-job-hdr.job-no)
+                  AND oe-ordl.i-no    EQ begin_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+                NO-ERROR.   
+           
+           IF AVAILABLE oe-ordl THEN            
+           RUN check-release .
+           
+        END.                      
+    END.               
+               
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

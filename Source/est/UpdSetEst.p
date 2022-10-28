@@ -422,22 +422,76 @@ FOR EACH ttInputEst NO-LOCK BREAK BY ttInputEst.iFormNo
             NO, /*Prompt to Reset*/
             YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).   
     END.   
-    
+       
     RUN pCalcPacking(ROWID(eb)).
     IF ttInputEst.iStackCode NE "" THEN
         eb.stack-code = ttInputEst.iStackCode .
-        
+                
+    IF ttInputEst.cSourceEst NE "" AND INTEGER(ttInputEst.cSourceEst) NE 0 THEN
+    DO:
+       ASSIGN
+          eb.sourceEstimate  = ttInputEst.cSourceEst
+          eb.flute           = IF ttInputEst.cEstType NE "SetSubAssembly" THEN ttInputEst.cFlute ELSE eb.flute
+          eb.test            = IF ttInputEst.cEstType NE "SetSubAssembly" THEN ttInputEst.cTest ELSE eb.test
+          eb.cad-no          = ttInputEst.cCadID
+          eb.spc-no          = ttInputEst.cProject
+          ef.cost-msh        = ttInputEst.dMSF
+          ef.fr-msh          = ttInputEst.dForceFrt
+          ef.fr-uom          = ttInputEst.cForceFrtUom
+          ef.adder[7]        = ttInputEst.cAddersDscr1
+          ef.adder[8]        = ttInputEst.cAddersDscr2
+          ef.adder[9]        = ttInputEst.cAddersDscr3
+          ef.nc              = IF ttInputEst.cEstType EQ "SetSubAssembly" THEN NOT ttInputEst.lPurchased ELSE YES
+          eb.fr-out-c        = IF ttInputEst.cForceFrtUom EQ "CWT" THEN ttInputEst.dForceFrt ELSE 0
+          eb.fr-out-m        = IF ttInputEst.cForceFrtUom EQ "M" THEN ttInputEst.dForceFrt ELSE 0            
+          .         
+    END.
+    ELSE eb.sourceEstimate  = "".
+    
+    ASSIGN
+         ef.flute = eb.flute
+         ef.test  = eb.test.
+         
+    FIND FIRST style NO-LOCK
+         WHERE style.company = est.company 
+         AND style.style = eb.style NO-ERROR.
+    IF AVAIL style THEN DO:
+       ASSIGN eb.adhesive = style.material[7]
+              eb.gluelap = style.dim-gl
+              eb.fpanel = style.dim-pan5
+              eb.lock = style.dim-fit
+              eb.tuck = style.dim-tk.
+       FIND FIRST ITEM NO-LOCK
+            WHERE ITEM.company = eb.company 
+              AND ITEM.i-no = eb.adhesive NO-ERROR.
+       IF AVAIL ITEM AND index("G,S,T",ITEM.mat-type) > 0 AND ITEM.i-no <> "No Joint"
+       THEN eb.lin-in = eb.dep.
+       FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(eb) NO-LOCK NO-ERROR.
+       {est/u2estc.i eb.gluelap 1}
+    END.  /* avail style */            
+          
+    IF ttInputEst.cEstType EQ "SetSubAssembly" THEN
+    DO:
+       ASSIGN
+           eb.i-col = ttInputEst.iColor
+           eb.i-coat = ttInputEst.iCoating.
+       RUN Estmate_DefaultAssignInks (BUFFER eb).
+    END.    
     IF lBoxDesign THEN
     DO:
         IF NOT lBuildFile THEN
         MESSAGE "Do you wish to reset box design?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
             UPDATE lBuildFile.         
-    END.
+    END.  
+    
     IF lBuildFile AND lBoxDesign THEN
     DO:
+       ASSIGN 
+           eb.k-wid-array2 = 0
+           eb.k-len-array2 = 0.
        RUN est/BuildBoxDesign.p ("B", ROWID(eb)).        
-    END. 
+    END.  
       
     RUN  est/CalcBlankSize.p("C", ROWID(eb)) .
         
@@ -484,13 +538,13 @@ PROCEDURE pCalcPacking:
         FIND FIRST cust NO-LOCK  
             WHERE cust.company EQ eb.company 
             AND cust.cust-no EQ eb.cust-no
-            NO-ERROR.
+            NO-ERROR.         
         IF AVAILABLE cust THEN 
         DO: 
             ASSIGN
-                cPackCode   = IF cust.case-bundle NE '' THEN cust.case-bundle ELSE eb.cas-no 
-                cPalletCode = IF cust.pallet NE '' THEN cust.pallet ELSE eb.tr-no
-                .
+                cPackCode   = IF cust.case-bundle NE '' THEN cust.case-bundle ELSE cPackCode 
+                cPalletCode = IF cust.pallet NE '' THEN cust.pallet ELSE cPalletCode
+                .    
             RUN est/packCodeOverride.p (eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeStyle).
             IF cPackCodeStyle NE '' THEN cPackCode = cPackCodeStyle.
             FIND FIRST shipto NO-LOCK 
@@ -499,12 +553,12 @@ PROCEDURE pCalcPacking:
                 AND shipto.ship-id EQ eb.ship-id
                 NO-ERROR.
             IF AVAILABLE shipto AND shipto.pallet NE '' THEN 
-                cPalletCode = shipto.pallet.
+                cPalletCode = shipto.pallet.  
         END.    
         IF eb.cas-no EQ "" THEN eb.cas-no = cPackCode.
-        IF eb.tr-no EQ "" THEN eb.tr-no = cPalletCode. 
+        IF eb.tr-no EQ "" THEN eb.tr-no = cPalletCode.   
     END.         
-    
+       
     FIND item NO-LOCK 
         WHERE item.company EQ eb.company 
         AND item.i-no EQ eb.cas-no

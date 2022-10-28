@@ -386,15 +386,14 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   END. /* first-of */
 END. /* each ttbljob */
 
-FIND FIRST module NO-LOCK
-     WHERE module.db-name EQ "ASI"
-       AND module.module  EQ "sbHTML"
-     NO-ERROR.
-IF AVAILABLE module AND
-   module.is-used EQ YES AND
-   module.expire-date GE TODAY AND 
-   htmlPageLocation NE "" THEN
-RUN pHTMLPages.
+    FIND FIRST module NO-LOCK
+         WHERE module.module  EQ "Scheduling"
+         NO-ERROR.
+    IF AVAILABLE module AND
+        module.licensed AND
+        module.expDate GE TODAY AND 
+        htmlPageLocation NE "" THEN
+        RUN pHTMLPages.
 
 /*RUN pLoadSBJob.*/
 
@@ -886,7 +885,7 @@ PROCEDURE pLogEntry:
     iLogEntry = iLogEntry + 1.
     RUN spCreateAuditDtl (
         iAuditID, /* audit id     */
-        STRING(iLogEntry,">>9") + " " + ipcField, /* field */
+        STRING(iLogEntry,">>>9") + " " + ipcField, /* field */
         0,        /* extent       */
         ipcValue, /* before value */
         "",       /* after value  */

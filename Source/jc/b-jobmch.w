@@ -984,16 +984,37 @@ PROCEDURE local-assign-record :
   DEF BUFFER b-job-mch FOR job-mch.
   DEF VAR v-mr-completed AS LOG NO-UNDO.
   DEF VAR v-run-completed AS LOG NO-UNDO.
+  DEFINE VARIABLE dMrRate   AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dMrFixoh  AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dMrVaroh  AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dRunRate  AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dRunFixoh AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dRunVaroh AS DECIMAL NO-UNDO.
 
   ASSIGN v-mr-completed = job-mch.mr-complete
          v-run-completed = job-mch.run-complete.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  ASSIGN
+   dMrRate = DECIMAL(job-mch.mr-rate:SCREEN-VALUE IN BROWSE {&browse-name})   
+   dMrFixoh = DECIMAL(job-mch.mr-fixoh:SCREEN-VALUE IN BROWSE {&browse-name})  
+   dMrVaroh = DECIMAL(job-mch.mr-varoh:SCREEN-VALUE IN BROWSE {&browse-name})  
+   dRunRate = DECIMAL(job-mch.run-rate:SCREEN-VALUE IN BROWSE {&browse-name})  
+   dRunFixoh = DECIMAL(job-mch.run-fixoh:SCREEN-VALUE IN BROWSE {&browse-name})
+   dRunVaroh = DECIMAL(job-mch.run-varoh:SCREEN-VALUE IN BROWSE {&browse-name}) .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+   ASSIGN
+   job-mch.mr-rate   = dMrRate
+   job-mch.mr-fixoh  = dMrFixoh
+   job-mch.mr-varoh  = dMrVaroh
+   job-mch.run-rate  = dRunRate
+   job-mch.run-fixoh = dRunFixoh
+   job-mch.run-varoh = dRunVaroh.
+  
   EMPTY TEMP-TABLE w-jm.
 
   FOR EACH b-job-mch

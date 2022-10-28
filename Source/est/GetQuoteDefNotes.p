@@ -20,6 +20,7 @@
 
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER   NO-UNDO.
+DEFINE INPUT  PARAMETER ipcLoc     AS CHARACTER   NO-UNDO.
 DEFINE OUTPUT PARAMETER opcNotes LIKE quotehd.comment   NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -112,11 +113,13 @@ iQuoteNumber = GetNKQuoteNotes(INPUT ipcCompany).
 IF iQuoteNumber NE 0 THEN
     FIND FIRST quotehd 
         WHERE quotehd.company EQ ipcCompany
+          AND quotehd.loc EQ ipcLoc
           AND quotehd.q-no EQ iQuoteNumber
-        NO-LOCK NO-ERROR.
+        NO-LOCK NO-ERROR.        
 IF NOT AVAIL quotehd THEN
     FIND FIRST quotehd 
         WHERE quotehd.company EQ ipcCompany
+          AND quotehd.loc EQ ipcLoc
         USE-INDEX q-no
         NO-LOCK NO-ERROR.
 IF AVAIL quotehd THEN

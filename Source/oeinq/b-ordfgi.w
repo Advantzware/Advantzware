@@ -722,12 +722,15 @@ ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main
 DO:
     DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
     DEFINE VARIABLE dQty AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
   IF v-upd-perms AND AVAIL fg-rcpth THEN DO: 
       dQty = fg-rdtlh.qty .
       RUN viewers/d-fg-rcpth.w (RECID(fg-rcpth),RECID(fg-rdtlh), "update", OUTPUT lv-rowid) .
       IF dQty NE fg-rdtlh.qty THEN
       RUN fg/d-reqtys.w (ROWID(itemfg), YES).
       RUN repo-query (lv-rowid).
+      {methods/run_link.i "container-source" "pUpdateBinBrowser" }
   END.
 END.
 

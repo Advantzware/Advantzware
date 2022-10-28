@@ -30,6 +30,7 @@ DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
 DEFINE VARIABLE gcTypeCombo  AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
 DEFINE VARIABLE gcTypeMisc   AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
 DEFINE VARIABLE gcTypeWood   AS CHARACTER NO-UNDO INITIAL "Wood".
+DEFINE VARIABLE gcTypeFoam   AS CHARACTER NO-UNDO INITIAL "Foam".
 DEFINE VARIABLE gcTypeList   AS CHARACTER NO-UNDO. 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -42,6 +43,9 @@ FUNCTION fEstimate_GetEstimateType RETURNS CHARACTER
 
 FUNCTION fEstimate_GetQuantityPerSet RETURNS DECIMAL 
 	(BUFFER ipbf-eb FOR eb) FORWARD.
+
+FUNCTION fEstimate_IsCombo RETURNS LOGICAL 
+	(ipiEstimateType AS INTEGER ) FORWARD.
 
 FUNCTION fEstimate_IsDepartment RETURNS LOGICAL 
 	(ipcDepartment AS CHARACTER,
@@ -59,6 +63,9 @@ FUNCTION fEstimate_IsMiscType RETURNS LOGICAL
 
 FUNCTION fEstimate_IsBoardMaterial RETURNS LOGICAL 
     (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsFoamType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
 
 FUNCTION fEstimate_IsGlueMaterial RETURNS LOGICAL 
     (ipcMaterialTypeID AS CHARACTER) FORWARD.
@@ -174,6 +181,33 @@ PROCEDURE Estimate_DeleteEstCostCatGroupLevel:
 
 END PROCEDURE.   
    
+PROCEDURE Estimate_GetMSF:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ip-eb-recid  AS RECID.
+DEFINE INPUT PARAMETER iplCorrware AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdNextQuantity AS DECIMAL NO-UNDO.
+DEFINE OUTPUT PARAMETER ipdNextMSF AS DECIMAL NO-UNDO.
+
+DEFINE BUFFER buf-eb FOR eb.
+
+FIND buf-eb NO-LOCK
+    WHERE RECID(buf-eb) EQ ip-eb-recid NO-ERROR.
+    
+IF AVAILABLE buf-eb THEN 
+    ASSIGN ipdNextMSF = (IF iplCorrware THEN (ipdNextQuantity * buf-eb.t-len * buf-eb.t-wid * .007)
+                        ELSE (ipdNextQuantity * buf-eb.t-len * buf-eb.t-wid / 144)) *
+                             (IF buf-eb.est-type EQ 2 THEN
+                             (IF buf-eb.cust-% LT 0 THEN (-1 / buf-eb.cust-%) ELSE buf-eb.cust-%)
+                             ELSE
+                             IF buf-eb.est-type EQ 6 THEN
+                             (IF buf-eb.quantityPerSet LT 0 THEN -1 / (buf-eb.quantityPerSet) ELSE buf-eb.quantityPerSet)
+                             ELSE 1) / 1000.   
+
+END PROCEDURE.
+
 PROCEDURE Estimate_GetSystemDataForEstimate:
 /*------------------------------------------------------------------------------
      Purpose: Returns the system data in Temp-tables
@@ -214,7 +248,19 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         ELSE 
             BUFFER-COPY bf-estCostCategorySystem TO ttEstCostCategory.
     END.
-    
+
+    /* Load the estCostCategory data. User created categories */
+    FOR EACH bf-estCostCategory NO-LOCK
+        WHERE bf-estCostCategory.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostCategory WHERE ttEstCostCategory.estCostCategoryID = bf-estCostCategory.estCostCategoryID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostCategory.
+        
+        BUFFER-COPY bf-estCostCategory TO ttEstCostCategory.
+    END.
+        
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupSystem NO-LOCK:
         
@@ -232,7 +278,19 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
         ELSE 
             BUFFER-COPY bf-estCostGroupSystem TO ttEstCostGroup.
     END.
-   
+
+    /* Load the estCostGroup data. User created groups */
+    FOR EACH bf-estCostGroup NO-LOCK
+        WHERE bf-estCostGroup.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostGroup WHERE ttEstCostGroup.estCostGroupID = bf-estCostGroup.estCostGroupID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostGroup.
+        
+        BUFFER-COPY bf-estCostGroup TO ttEstCostGroup.
+    END.
+       
     /* Load the estCostGroupSystem data. If category data is setup in estCostGroup then overwrite it */
     FOR EACH bf-estCostGroupLevelSystem NO-LOCK:
         
@@ -251,6 +309,17 @@ PROCEDURE Estimate_GetSystemDataForEstimate:
             BUFFER-COPY bf-estCostGroupLevelSystem TO ttEstCostGroupLevel.
     END.
 
+    /* Load the estCostGroupLevel data. User created levels */
+    FOR EACH bf-estCostGroupLevel NO-LOCK
+        WHERE bf-estCostGroupLevel.company EQ ipcCompany:
+        
+        IF CAN-FIND(FIRST ttEstCostGroupLevel WHERE ttEstCostGroupLevel.estCostGroupLevelID = bf-estCostGroupLevel.estCostGroupLevelID ) THEN
+            NEXT.
+        
+        CREATE ttEstCostGroupLevel.
+        
+        BUFFER-COPY bf-estCostGroupLevel TO ttEstCostGroupLevel.
+    END.
 END PROCEDURE.
 
 PROCEDURE Estimate_GetVersionSettings:
@@ -727,7 +796,7 @@ PROCEDURE Estimate_UpdateEstDependencies:
 
     IF ipiNewBlankNo EQ 0 THEN DO:
         FOR EACH bf-loop-reftable NO-LOCK
-            WHERE bf-loop-reftable.reftable EQ "bf-est-MISC"
+            WHERE bf-loop-reftable.reftable EQ "EST-MISC"
               AND bf-loop-reftable.company  EQ ipcCompany
               AND bf-loop-reftable.loc      EQ ipcLocation
               AND bf-loop-reftable.code     EQ TRIM(ipcEstNo) + STRING(ipiFormNo,"/99"):
@@ -1076,7 +1145,7 @@ END PROCEDURE.
 PROCEDURE Estimate_UpdateEfFormLayout:
     /*------------------------------------------------------------------------------
      Purpose: This procedure will update the ef record's dimension fields for a given
-              estimate number. This code is to replace calc-dim.p and calc-dim1.p programs,
+              estimate number. This code is to replace calc-dim.p programs,
               where it updates the EF and eb fields for an estimate.
               It calculates EF Gross, net, die size and other dimension fields
      Notes: This will be called across codebase to calculate layout fields
@@ -1088,46 +1157,30 @@ PROCEDURE Estimate_UpdateEfFormLayout:
     IF NOT AVAILABLE ipbf-ef OR NOT AVAILABLE ipbf-eb THEN
         RETURN.
 
-    RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
-        INPUT ROWID(ipbf-eb),
-        OUTPUT TABLE ttLayoutSize).
+    RUN pUpdateEfFormLayout (BUFFER ipbf-ef, BUFFER ipbf-eb, INPUT NO).
     
-        
-    FOR FIRST ttLayoutSize:
-        
-        ASSIGN
-            ipbf-ef.lsh-len  = ttLayoutSize.dLayoutSheetLength    
-            ipbf-ef.lsh-wid  = ttLayoutSize.dLayoutSheetWidth     
-            ipbf-ef.nsh-len  = ttLayoutSize.dNetSheetLength       
-            ipbf-ef.nsh-wid  = ttLayoutSize.dNetSheetWidth        
-            ipbf-ef.nsh-dep  = ttLayoutSize.dNetSheetDepth        
-            ipbf-ef.gsh-len  = ttLayoutSize.dGrossSheetLength     
-            ipbf-ef.gsh-wid  = ttLayoutSize.dGrossSheetWidth      
-            ipbf-ef.gsh-dep  = ttLayoutSize.dGrossSheetDepth      
-            ipbf-ef.trim-l   = ttLayoutSize.dDieSizeLength        
-            ipbf-ef.trim-w   = ttLayoutSize.dDieSizeWidth         
-            ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
-            ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
-            ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired    
-            ipbf-ef.i-code   = ttLayoutSize.cBoardItemCode        
-            ipbf-ef.weight   = ttLayoutSize.cBoardItemBasisWeight 
-            ipbf-ef.cal      = ttLayoutSize.dBoardItemCaliper     
-            ipbf-ef.roll     = ttLayoutSize.IsRollMaterial        
-            ipbf-ef.n-out    = ttLayoutSize.iNumOutWidth          
-            ipbf-ef.n-out-l  = ttLayoutSize.iNumOutLength         
-            ipbf-ef.n-out-d  = ttLayoutSize.iNumOutDepth          
-            ipbf-ef.n-cuts   = ttLayoutSize.iNumberCuts           
-            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp           
-            ipbf-eb.num-wid  = ttLayoutSize.iBlankNumOnWidth      
-            ipbf-eb.num-len  = ttLayoutSize.iBlankNumOnLength     
-            ipbf-eb.num-dep  = ttLayoutSize.iBlankNumOnDepth 
-            .     
-   
-    END.     
-
-
+    
 
 END PROCEDURE.
+
+PROCEDURE Estimate_UpdateEfFormLayoutSizeOnly:
+    /*------------------------------------------------------------------------------
+     Purpose: This procedure will update the ef record's dimension fields for a given
+              estimate number. This code is to replace calc-dim1.p programs,
+              where it updates the EF fields for an estimate.
+              It calculates EF Gross, net, die size and other dimension fields
+     Notes: It won't update Num On or Num Out fields
+    ------------------------------------------------------------------------------*/
+
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    
+    RUN pUpdateEfFormLayout (BUFFER ipbf-ef, BUFFER ipbf-eb, INPUT YES).
+
+END PROCEDURE.
+
+
 
 PROCEDURE Estimate_UpdateEfFormQty PRIVATE:
 /*------------------------------------------------------------------------------
@@ -1188,6 +1241,11 @@ PROCEDURE pGetAdders PRIVATE:
         ASSIGN opcAdders = bf-ef.adder.       
 
 END PROCEDURE.
+
+PROCEDURE Estmate_DefaultAssignInks:
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    RUN pDefaultAssignInks(BUFFER ipbf-eb). 
+END.
 
 PROCEDURE Estmate_GetAddersList:
     DEFINE INPUT  PARAMETER ipchCompanyId  LIKE  estCostMaterial.company    NO-UNDO.
@@ -1265,6 +1323,182 @@ PROCEDURE pBuildQuantityList PRIVATE:
     
     opcQtyList = TRIM(opcQtyList, ipcDelimiter).
     
+END PROCEDURE.
+
+PROCEDURE pDefaultAssignInks PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    
+    DEFINE VARIABLE kCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE counter  AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jCount   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE save_id  AS RECID   NO-UNDO.
+    DEFINE VARIABLE save_id2 AS RECID   NO-UNDO.
+    DEFINE BUFFER bf-Item FOR item .
+    DEFINE VARIABLE choice AS LOG NO-UNDO.
+    DEFINE BUFFER bf-eb FOR eb.        
+                 
+    FIND FIRST style NO-LOCK
+        WHERE style.company EQ ipbf-eb.company 
+        AND style.style EQ ipbf-eb.style NO-ERROR. 
+         
+    IF AVAILABLE style THEN 
+    DO:
+        IF kCount = 0 THEN kCount = INTEGER(style.material[3]). 
+         
+        RELEASE ITEM.
+
+        IF AVAILABLE style AND style.material[2] NE "" THEN
+            FIND FIRST item WHERE
+                item.company = ipbf-eb.company AND
+                item.i-no = style.material[2]
+                NO-LOCK NO-ERROR.
+
+        IF AVAILABLE item THEN kCount = IF AVAILABLE style THEN INTEGER(style.material[3]) ELSE 0.
+
+        RELEASE bf-Item.
+
+        IF AVAILABLE style AND style.material[6] NE "" THEN
+            FIND FIRST bf-Item NO-LOCK
+                WHERE bf-Item.company  = ipbf-eb.company  
+                AND bf-Item.mat-type = "V" 
+                AND bf-Item.i-no     = style.material[6] NO-ERROR.
+    END.
+    IF NOT AVAILABLE item OR NOT AVAILABLE bf-Item OR (kCount = 0) THEN 
+    DO:
+        FIND FIRST ce-ctrl WHERE ce-ctrl.company = ipbf-eb.company AND
+            ce-ctrl.loc = ipbf-eb.loc
+            NO-LOCK NO-ERROR.
+        IF kCount = 0 THEN kCount = ce-ctrl.def-inkcov.
+        IF NOT AVAILABLE item THEN 
+        DO:
+
+            FIND FIRST item WHERE item.company = ipbf-eb.company AND
+                item.i-no = ce-ctrl.def-ink NO-LOCK NO-ERROR.
+        END.
+        IF NOT AVAILABLE bf-Item THEN
+            FIND FIRST bf-Item NO-LOCK
+                WHERE bf-Item.company  = ipbf-eb.company  
+                AND bf-Item.mat-type = "V"     
+                AND bf-Item.i-no     = ce-ctrl.def-coat NO-ERROR.
+    END.
+        
+    ASSIGN
+        save_id  = RECID(item)
+        save_id2 = RECID(bf-Item)
+        jCount   = (INTEGER(ipbf-eb.i-col)
+          + integer(ipbf-eb.i-coat))
+        counter  = 1
+        choice   = TRUE.
+
+    {sys/inc/roundup.i jCount}
+             
+    FIND bf-eb OF ipbf-eb EXCLUSIVE-LOCK.    
+    IF ipbf-eb.i-col > 0 THEN ASSIGN bf-eb.i-pass = 1.
+    IF ipbf-eb.i-coat > 0 THEN ASSIGN bf-eb.i-coat-p = 1.
+    IF choice THEN 
+    DO iCount = 1 TO 10:
+        IF iCount LE integer(ipbf-eb.i-col) THEN 
+        DO:
+            FIND item WHERE RECID(item) = save_id NO-LOCK NO-ERROR.
+
+            ASSIGN 
+                bf-eb.i-ps[iCount]   = counter
+                bf-eb.i-code[iCount] = item.i-no
+                bf-eb.i-dscr[iCount] = item.i-name
+                bf-eb.i-%[iCount]    = kCount.
+        END.
+        ELSE IF (iCount > integer(ipbf-eb.i-col)) AND
+                (iCount <= (INTEGER(ipbf-eb.i-col) + 
+                integer(ipbf-eb.i-coat)) )
+                THEN 
+            DO:
+                FIND bf-Item WHERE RECID(bf-Item) = save_id2 NO-LOCK NO-ERROR.
+                ASSIGN 
+                    bf-eb.i-ps[iCount]   = counter
+                    bf-eb.i-code[iCount] = IF AVAILABLE bf-Item THEN bf-Item.i-no ELSE ""
+                    bf-eb.i-dscr[iCount] = IF AVAILABLE bf-Item THEN bf-Item.i-name ELSE ""
+                    bf-eb.i-%[iCount]    = 100.
+            END.
+            ELSE IF (iCount >  (ipbf-eb.i-col + ipbf-eb.i-coat) )
+                    THEN 
+                DO:
+                    ASSIGN 
+                        bf-eb.i-ps[iCount]   = 0  
+                        bf-eb.i-code[iCount] = ""
+                        bf-eb.i-dscr[iCount] = "" 
+                        bf-eb.i-%[iCount]    = 0.  
+        
+                END.
+        IF jCount <> 0 AND iCount MODULO jCount = 0 THEN counter = counter + 1.
+        IF counter > (ipbf-eb.i-pass) THEN counter = ipbf-eb.i-pass.  
+    END.
+END PROCEDURE.
+    
+PROCEDURE pUpdateEfFormLayout PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ef FOR ef.
+    DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE INPUT  PARAMETER iplCalcSizeOnly AS LOGICAL NO-UNDO.
+    
+    IF NOT AVAILABLE ipbf-ef OR NOT AVAILABLE ipbf-eb THEN
+        RETURN.
+
+    RUN est/CalcLayoutSize.p (INPUT ROWID(ipbf-ef),
+        INPUT ROWID(ipbf-eb),
+        INPUT iplCalcSizeOnly,
+        OUTPUT TABLE ttLayoutSize).
+    
+        
+    FOR FIRST ttLayoutSize:
+        
+        ASSIGN
+            ipbf-ef.lsh-len  = ttLayoutSize.dLayoutSheetLength    
+            ipbf-ef.lsh-wid  = ttLayoutSize.dLayoutSheetWidth     
+            ipbf-ef.nsh-len  = ttLayoutSize.dNetSheetLength       
+            ipbf-ef.nsh-wid  = ttLayoutSize.dNetSheetWidth        
+            ipbf-ef.nsh-dep  = ttLayoutSize.dNetSheetDepth        
+            ipbf-ef.gsh-len  = ttLayoutSize.dGrossSheetLength     
+            ipbf-ef.gsh-wid  = ttLayoutSize.dGrossSheetWidth      
+            ipbf-ef.gsh-dep  = ttLayoutSize.dGrossSheetDepth      
+            ipbf-ef.trim-l   = ttLayoutSize.dDieSizeLength        
+            ipbf-ef.trim-w   = ttLayoutSize.dDieSizeWidth         
+            ipbf-ef.trim-d   = ttLayoutSize.dDieSizeDepth         
+            ipbf-ef.roll-wid = ttLayoutSize.dRollWidth            
+            ipbf-ef.die-in   = ttLayoutSize.dDieInchesRequired
+            ipbf-eb.num-up   = ttLayoutSize.iBlankNumUp  
+            ipbf-ef.n-out    = ttLayoutSize.iNumOutWidth          
+            ipbf-ef.n-out-l  = ttLayoutSize.iNumOutLength         
+            ipbf-ef.n-out-d  = ttLayoutSize.iNumOutDepth          
+            ipbf-ef.n-cuts   = ttLayoutSize.iNumberCuts          
+            . 
+            
+        /* Assign Num ON and Num Out fields only. In case error calculating Size only use full layout calc */    
+        IF iplCalcSizeOnly = NO OR (iplCalcSizeOnly = YES AND ttLayoutSize.lRecalcFullLayout = YES) THEN 
+            ASSIGN
+                ipbf-ef.i-code  = ttLayoutSize.cBoardItemCode        
+                ipbf-ef.weight  = ttLayoutSize.cBoardItemBasisWeight 
+                ipbf-ef.cal     = ttLayoutSize.dBoardItemCaliper     
+                ipbf-ef.roll    = ttLayoutSize.IsRollMaterial        
+                ipbf-ef.n-out   = ttLayoutSize.iNumOutWidth          
+                ipbf-ef.n-out-l = ttLayoutSize.iNumOutLength         
+                ipbf-ef.n-out-d = ttLayoutSize.iNumOutDepth          
+                ipbf-ef.n-cuts  = ttLayoutSize.iNumberCuts 
+                ipbf-eb.num-wid = ttLayoutSize.iBlankNumOnWidth      
+                ipbf-eb.num-len = ttLayoutSize.iBlankNumOnLength     
+                ipbf-eb.num-dep = ttLayoutSize.iBlankNumOnDepth 
+                .  
+   
+    END.     
+
+
 END PROCEDURE.
 
 PROCEDURE pUpdateFormBoard PRIVATE:
@@ -1345,6 +1579,15 @@ FUNCTION fEstimate_GetQuantityPerSet RETURNS DECIMAL
 
 END FUNCTION.
 
+FUNCTION fEstimate_IsCombo RETURNS LOGICAL 
+	( ipiEstimateType AS INTEGER ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    RETURN DYNAMIC-FUNCTION("fEstimate_IsComboType", DYNAMIC-FUNCTION("fEstimate_GetEstimateType", ipiEstimateType, "")).
+END FUNCTION.
+
 FUNCTION fEstimate_IsDepartment RETURNS LOGICAL 
     (ipcDepartment AS CHARACTER, ipcDepartmentList AS CHARACTER EXTENT 4):
     /*------------------------------------------------------------------------------
@@ -1417,6 +1660,15 @@ FUNCTION fEstimate_IsBoardMaterial RETURNS LOGICAL
 		
 END FUNCTION.
 
+FUNCTION fEstimate_IsFoamType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Single Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeFoam.
+    
+END FUNCTION.
 
 FUNCTION fEstimate_IsGlueMaterial RETURNS LOGICAL 
     ( ipcMaterialTypeID AS CHARACTER ):

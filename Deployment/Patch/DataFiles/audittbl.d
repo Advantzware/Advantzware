@@ -165,6 +165,8 @@
 "estCostOperation" yes yes no yes yes yes yes yes 0 0
 "estCostSummary" yes yes no yes yes yes yes yes 0 0
 "estMaterial" yes yes no yes yes yes yes yes 0 0
+"estMisc" no no no no no no no no 0 0
+"estMiscControl" no no no no no no no no 0 0
 "estPacking" no no no no no no no no 0 0
 "estRelease" no no no no no no no no 0 0
 "exchange" no no no no no no no no 0 0

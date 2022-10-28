@@ -82,6 +82,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE glCustListActive   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 DEFINE BUFFER b-itemfg FOR itemfg .
 
@@ -479,6 +482,7 @@ ON END-ERROR OF C-Win /* AR Accounts by Customer */
 ON WINDOW-CLOSE OF C-Win /* AR Accounts by Customer */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -539,6 +543,7 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -1886,7 +1891,7 @@ chWorkbook:Worksheets:Add(,chWorksheet).
                 WHEN "date"    THEN 
                     ASSIGN 
                         cVarValue      = IF tt-report.tr-date NE ? THEN STRING(tt-report.tr-date,"99/99/9999") ELSE ""  
-                        cExcelVarValue = cVarValue  .
+                        cExcelVarValue = IF tt-report.tr-date NE ? THEN DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,DYNAMIC-FUNCTION("sfFormat_Date",tt-report.tr-date)) ELSE ""  .
                 WHEN "amt"     THEN 
                     ASSIGN 
                         cVarValue      = STRING(tt-report.amt,"->>,>>>,>>9.99")

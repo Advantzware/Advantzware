@@ -304,6 +304,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END. /* if avail */
   END. /* do idx */
   iAuditTables:DELETE("None").
+  IF iTableCount EQ 0 THEN DO:
+      MESSAGE 
+      "No Tables Available to Query Audit History"
+          VIEW-AS ALERT-BOX.
+      RETURN.
+  END. // no radio-buttons
   RUN enable_UI.
   IF iTableCount EQ 1 THEN DO:
       APPLY "CHOOSE":U TO btnOK IN FRAME {&FRAME-NAME}.

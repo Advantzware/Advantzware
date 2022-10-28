@@ -194,7 +194,7 @@ ttSetting.scopeField3  FORMAT "X(15)" WIDTH 15
 ttSetting.inactive     FORMAT "Inactive/Active" WIDTH 10 
 ttSetting.settingUser  FORMAT "X(15)" WIDTH 12
 ttSetting.programID    FORMAT "X(10)" WIDTH 25
-ttSetting.settingValue FORMAT "X(30)" WIDTH 25
+ttSetting.settingValue FORMAT "X(80)" WIDTH 45
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 138 BY 27.38
@@ -310,6 +310,17 @@ ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main
+DO:
+  DEFINE VARIABLE phandle AS HANDLE NO-UNDO.
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  {methods/run_link.i "container-source" "select-page" "(2)"}
 END.
 
 /* _UIB-CODE-BLOCK-END */

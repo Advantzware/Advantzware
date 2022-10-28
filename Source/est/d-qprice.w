@@ -97,7 +97,7 @@ DEFINE VARIABLE h_b-qprice-2 AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn_select 
-     LABEL "&Select" 
+     LABEL "&XFER Items to Quote" 
      SIZE 39 BY 1.67
      FONT 6.
 

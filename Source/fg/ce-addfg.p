@@ -75,6 +75,7 @@ assign
  itemfg.alloc             = NOT xeb.set-is-assembled
  itemfg.setupDate         = TODAY
  itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+ itemfg.trNo              = xeb.tr-no
  .
   
  RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").

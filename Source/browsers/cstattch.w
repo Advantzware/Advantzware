@@ -461,6 +461,49 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item B-table-Win 
+PROCEDURE add-item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lv-rec_key   AS CHARACTER    NO-UNDO.
+   DEFINE VARIABLE lv-ord-no    AS CHARACTER    NO-UNDO.   
+   
+   DO TRANSACTION:
+   {sys/inc/pushpin.i}
+   END.
+   
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+   RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key,OUTPUT lv-ord-no).
+
+   FIND FIRST oe-ord WHERE oe-ord.company = g_company
+       AND oe-ord.ord-no = int(lv-ord-no) NO-LOCK NO-ERROR.
+   IF AVAIL oe-ord THEN
+   FIND FIRST sys-ctrl-shipto OF sys-ctrl WHERE 
+        sys-ctrl-shipto.cust-vend-no = oe-ord.cust-no NO-LOCK NO-ERROR.
+   
+    IF AVAIL sys-ctrl-shipto THEN do:
+        pushpin-char = sys-ctrl-shipto.char-fld .
+    END.
+   
+   /* get pushpin-char - nk1 */
+   
+   RUN system\quickAttachProcs.p("oe-ord",       /* ipcContext */
+                                 g_company,      /* company  */
+                                 lv-rec_key,     /* rec-key */
+                                 lv-ord-no,      /* ipcContextValue */
+                                 pushpin-char    /* Directory */
+                                 ).    
+        
+   RUN dispatch ("open-query").
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------

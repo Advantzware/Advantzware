@@ -2006,6 +2006,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConSpareIntField C-Win
+PROCEDURE ipConSpareIntField:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEF VAR i AS INTEGER.
+
+    FOR EACH itemfg EXCLUSIVE-LOCK:
+      ASSIGN
+        itemfg.lLockWeightCalc  = IF itemfg.spare-int-1 EQ 1 THEN TRUE ELSE FALSE
+        itemfg.lLockDimensions  = IF itemfg.spare-int-2 EQ 1 THEN TRUE ELSE FALSE
+        itemfg.iReleaseSeq      = itemfg.spare-int-2.       
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipConvertCustomerX C-Win 
 PROCEDURE ipConvertCustomerX PRIVATE :
 /*------------------------------------------------------------------------------
@@ -3757,6 +3777,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix230310 C-Win
+PROCEDURE ipDataFix220310:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN ipStatus ("  Data Fix 220310...").
+    
+    RUN ipFixStyleAddToLengthAndWidth.
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
 PROCEDURE ipDataFix999999 :
 /*------------------------------------------------------------------------------
@@ -3797,9 +3835,11 @@ PROCEDURE ipDataFix999999 :
     RUN ipRefTableConv.
     iopiStatus = 78.
     RUN util/dAOAFormatUpdate.p.
-    iopiStatus = 79. 
+    iopiStatus = 79.
     RUN ipUserPrintJobNo.
     iopiStatus = 80.
+    RUN ipConSpareIntField.
+    iopiStatus = 81.
     
 END PROCEDURE.
 
@@ -3888,7 +3928,7 @@ PROCEDURE ipDeleteAudit :
         module.module EQ "Audit"
         NO-ERROR.
     IF NOT AVAIL module
-    OR module.is-used EQ FALSE THEN ASSIGN 
+    OR module.licensed EQ FALSE THEN ASSIGN 
         lAuditLicensed = FALSE.
         
     ASSIGN
@@ -5656,7 +5696,6 @@ PROCEDURE ipLoadModules :
         CREATE tt{&tablename}.
         IMPORT tt{&tablename}.
         FIND FIRST {&tablename} EXCLUSIVE WHERE 
-            {&tablename}.db-name EQ tt{&tablename}.db-name AND 
             {&tablename}.module EQ tt{&tablename}.module
             NO-ERROR.
         IF NOT AVAIL {&tablename} THEN 
@@ -5664,7 +5703,7 @@ PROCEDURE ipLoadModules :
             CREATE {&tablename}.
             BUFFER-COPY tt{&tablename} TO {&tablename}.
             ASSIGN 
-                {&tablename}.is-Used = FALSE.
+                {&tablename}.licensed = FALSE.
         END.
     END.
     INPUT CLOSE.
@@ -5672,7 +5711,6 @@ PROCEDURE ipLoadModules :
     /* Delete records no longer used */
     FOR EACH {&tablename} EXCLUSIVE WHERE 
         NOT CAN-FIND(FIRST tt{&tablename} WHERE 
-                    tt{&tablename}.db-name EQ {&tablename}.db-name AND
                     tt{&tablename}.module EQ {&tablename}.module):
         DELETE {&tablename}.
     END.
@@ -7611,6 +7649,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateInvLineInvNo C-Win 
+PROCEDURE ipUpdateInvLineInvNo :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-inv-line FOR inv-line.
+    RUN ipStatus ("Updating Invoice Line Records").
+
+    ASSIGN 
+        lSuccess = FALSE.
+    DISABLE TRIGGERS FOR LOAD OF inv-line.
+    
+    FOR EACH inv-head NO-LOCK
+        WHERE inv-head.inv-no NE 0:
+       FOR EACH bf-inv-line EXCLUSIVE-LOCK
+           WHERE bf-inv-line.r-no EQ inv-head.r-no 
+             AND bf-inv-line.inv-no EQ 0:
+             ASSIGN
+              bf-inv-line.inv-no = inv-head.inv-no. 
+       END.
+    END.
+    RELEASE bf-inv-line.
+    ASSIGN 
+        lSuccess = TRUE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateNK1s C-Win 
 PROCEDURE ipUpdateNK1s :
 /*------------------------------------------------------------------------------
@@ -7973,8 +8044,9 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUserPrintJobNo C-Win 
-PROCEDURE ipUserPrintJobNo :
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUserPrintJobNo C-Win
+PROCEDURE ipUserPrintJobNo:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -7991,9 +8063,10 @@ PROCEDURE ipUserPrintJobNo :
     END.
 
 END PROCEDURE.
-
+	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipValidateDB C-Win 
 PROCEDURE ipValidateDB :

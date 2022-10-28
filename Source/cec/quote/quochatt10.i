@@ -1,7 +1,7 @@
 /* Mod: Ticket - 103137 (Format Change for Order No. and Job No.    */
 /* cec/quote/quochatt10.i */
   
-PUT "<C2><R2><#1><R+11><C+50><IMAGE#1=" ls-full-img1  SKIP
+PUT "<C2><R2><#1><R+11><C+45><IMAGE#1=" ls-full-img1  SKIP
     "<FCourier New>"
     "Bill To:"  space(40) "Ship To:"  xquo.shipto[5] SKIP
     SPACE(5) bill[1]  xquo.shipto[1] AT 55 skip

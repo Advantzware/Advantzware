@@ -179,7 +179,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueCToL (ipbf-ttImportFG.ExemptFromDiscount, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.exempt-disc).
     RUN pAssignValueCToL (ipbf-ttImportFG.Taxable, "Y", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.taxable).
     RUN pAssignValueC (ipbf-ttImportFG.Varied, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-char-2).
-    RUN pAssignValueI (ipbf-ttImportFG.ReleaseSequence, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.spare-int-2).
+    RUN pAssignValueI (ipbf-ttImportFG.ReleaseSequence, iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.iReleaseSeq).
     RUN pAssignValueC (ipbf-ttImportFG.ActiveStatus, YES, INPUT-OUTPUT bf-itemfg.stat).
     RUN pAssignValueCToL (ipbf-ttImportFG.Purchased, "P", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.pur-man).      
     RUN pAssignValueCToL (ipbf-ttImportFG.ShipByCas, "C,CASE", iplIgnoreBlanks, INPUT-OUTPUT bf-itemfg.ship-meth).
@@ -417,7 +417,7 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList ("Stock Item", ipbf-ttImportFG.StockItem, "S,C", OUTPUT oplValid, OUTPUT cValidNote).            
 
         IF oplValid AND ipbf-ttImportFG.TrNo NE "" THEN   
-            RUN pIsValidItemForType (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
+            RUN pIsValidPallet (ipbf-ttImportFG.TrNo,"D", YES, ipbf-ttImportFG.Company, OUTPUT oplValid, OUTPUT cValidNote).
     END.
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
     

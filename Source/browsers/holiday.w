@@ -66,10 +66,12 @@ CREATE WIDGET-POOL.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table reftable.loc reftable.code 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH reftable WHERE ~{&KEY-PHRASE} ~
-      AND reftable.reftable = "Holiday" NO-LOCK ~
+      AND reftable.reftable EQ "Holiday" AND ~
+reftable.company EQ g_company NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH reftable WHERE ~{&KEY-PHRASE} ~
-      AND reftable.reftable = "Holiday" NO-LOCK ~
+      AND reftable.reftable EQ "Holiday" AND ~
+reftable.company EQ g_company NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table reftable
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table reftable
@@ -206,7 +208,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -226,11 +228,12 @@ ASSIGN
      _TblList          = "ASI.reftable"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "ASI.reftable.reftable = ""Holiday"""
+     _Where[1]         = "reftable.reftable EQ ""Holiday"" AND
+reftable.company EQ g_company"
      _FldNameList[1]   > ASI.reftable.loc
-"loc" "Date" "x(12)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"reftable.loc" "Date" "x(12)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.reftable.code
-"code" "Holiday" "x(24)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"reftable.code" "Holiday" "x(24)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

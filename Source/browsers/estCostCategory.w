@@ -43,6 +43,9 @@ CREATE WIDGET-POOL.
 DEFINE VARIABLE char-hdl  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle   AS HANDLE    NO-UNDO.
 
+DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
+RUN spGetSessionParam ("Company", OUTPUT cCompany).
+
 {est/ttEstSysConfig.i}
 
 &SCOP adm-attribute-dlg browsers\setting-support.w
@@ -331,6 +334,23 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Add-Record B-table-Win
+PROCEDURE Add-Record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN est/destcostcat.w ("Add", INPUT "").
+    
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
@@ -352,6 +372,60 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Delete-Record B-table-Win
+PROCEDURE Delete-Record:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-estCostCategory       FOR estCostCategory. 
+    DEFINE BUFFER bf-estCostCategorySystem FOR estCostCategorySystem.
+    
+    IF NOT AVAILABLE ttEstCostCategory THEN
+        RETURN.
+        
+    FIND FIRST bf-estCostCategorySystem NO-LOCK
+         WHERE bf-estCostCategorySystem.estCostCategoryID EQ ttEstCostCategory.estCostCategoryID
+         NO-ERROR.
+    IF NOT AVAILABLE bf-estCostCategorySystem THEN DO:
+        {custom/askdel.i}.
+        
+        FIND FIRST bf-estCostCategory EXCLUSIVE-LOCK
+             WHERE bf-estCostCategory.company           EQ ttEstCostCategory.company 
+               AND bf-estCostCategory.estCostCategoryID EQ ttEstCostCategory.estCostCategoryID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostCategory THEN
+            DELETE bf-estCostCategory.
+    END.
+    ELSE DO:
+        FIND FIRST bf-estCostCategory NO-LOCK
+             WHERE bf-estCostCategory.company           EQ ttEstCostCategory.company 
+               AND bf-estCostCategory.estCostCategoryID EQ ttEstCostCategory.estCostCategoryID
+             NO-ERROR.
+        IF AVAILABLE bf-estCostCategory THEN DO:
+            MESSAGE "Do you want to reset the category to system default?" 
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lChoice AS LOGICAL.
+            IF lChoice THEN DO:
+                FIND CURRENT bf-estCostCategory EXCLUSIVE-LOCK NO-ERROR.
+                IF AVAILABLE bf-estCostCategory THEN
+                    DELETE bf-estCostCategory.
+            END.                
+        END.    
+        ELSE DO:
+            MESSAGE "Cannot delete system record"
+            VIEW-AS ALERT-BOX ERROR.
+        END.
+    END.
+    
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'OPEN-QUERY':U ) .
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisableBrowse B-table-Win 
 PROCEDURE DisableBrowse :
@@ -385,6 +459,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableAdd B-table-Win
+PROCEDURE EnableAdd:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableAdd AS LOGICAL NO-UNDO.
+    
+    oplEnableAdd = TRUE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableBrowse B-table-Win 
 PROCEDURE EnableBrowse :
 /*------------------------------------------------------------------------------
@@ -398,6 +489,58 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableDelete B-table-Win
+PROCEDURE EnableDelete:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableDelete AS LOGICAL NO-UNDO.
+    
+    oplEnableDelete = TRUE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableRestore B-table-Win
+PROCEDURE EnableRestore:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableRestore AS LOGICAL NO-UNDO.
+    
+    oplEnableRestore = TRUE.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE EnableUpdate B-table-Win
+PROCEDURE EnableUpdate:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplEnableUpdate AS LOGICAL NO-UNDO.
+    
+    oplEnableUpdate = TRUE.
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win
@@ -487,7 +630,8 @@ PROCEDURE pInit :
     EMPTY TEMP-TABLE ttEstCostGroup.
     EMPTY TEMP-TABLE ttEstCostGroupLevel.
       
-    RUN Estimate_GetSystemDataForEstimate(INPUT "",
+    RUN Estimate_GetSystemDataForEstimate(
+        INPUT  cCompany,
         OUTPUT TABLE ttEstCostCategory,
         OUTPUT TABLE ttEstCostGroup,
         OUTPUT TABLE ttEstCostGroupLevel).    
@@ -572,7 +716,7 @@ PROCEDURE Update-Record :
 ------------------------------------------------------------------------------*/
 
     IF ttEstCostCategory.estCostCategoryID NE "" THEN 
-        RUN est/destcostcat.w (INPUT ttEstCostCategory.estCostCategoryID).
+        RUN est/destcostcat.w ("Update", INPUT ttEstCostCategory.estCostCategoryID).
     
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
     

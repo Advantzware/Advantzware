@@ -206,7 +206,7 @@ FOR EACH ar-cash
                   FIND FIRST oe-retl WHERE
                        oe-retl.company EQ oe-reth.company AND
                        oe-retl.r-no EQ oe-reth.r-no AND
-                       oe-retl.LINE EQ ar-cashl.LINE
+                       oe-retl.LINE EQ ar-cashl.invoiceLine
                        NO-LOCK no-error.
               
                   IF AVAIL oe-retl THEN
@@ -248,7 +248,7 @@ FOR EACH ar-cash
             ELSE
             FOR EACH ar-invl NO-LOCK
                 WHERE ar-invl.x-no EQ ar-inv.x-no
-                AND ar-invl.LINE EQ ar-cashl.LINE:
+                AND ar-invl.LINE EQ ar-cashl.invoiceLine:
 
                 ASSIGN
                      v-cust-part = String(ar-invl.part-no)

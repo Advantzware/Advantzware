@@ -543,12 +543,12 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     v-inv-total = v-subtot-lines + /*v-t-tax[1] + v-t-tax[2] + v-t-tax[3] AH 03-10-10 */ ar-inv.tax-amt + v-inv-freight
         .
 
-    PUT "<R58><C58.5><#8><FROM><R+5><C+23><RECT> " 
-        "<=8> Subtotal do    :" v-subtot-lines FORM "->>,>>9.99"
-        "<=8><R+1> imposto sobre  :" v-inv-freight
-        "<=8><R+2> " cTaxCode FORMAT "x(15)" ":" ar-inv.tax-amt FORM "->>,>>9.99"
+    PUT "<R58><C54><#8><FROM><R+5><C+27><RECT> " 
+        "<=8> Subtotal do imposto:" v-subtot-lines FORM "->>,>>9.99"
+        "<=8><R+1> sobre              :" v-inv-freight
+        "<=8><R+2> " cTaxCode FORMAT "x(19)" ":" ar-inv.tax-amt FORM "->>,>>9.99"
         "<=8><R+3>" "" 
-        "<=8><R+4> Fatura         :" v-inv-total FORM "->>,>>9.99" . /* ar-inv.gross*/
+        "<=8><R+4> Fatura             :" v-inv-total FORM "->>,>>9.99" . /* ar-inv.gross*/
 
 
     PUT "<FArial><R58><C1><#9><P12><B> OBRIGADO. </B> <P9> " SKIP

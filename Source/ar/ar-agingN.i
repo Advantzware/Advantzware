@@ -52,7 +52,7 @@ def var sman-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var arclass-t     as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var arclass-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var arclass-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
-DEF VAR v-current-trend-days AS INT NO-UNDO FORMAT "->>9".
+DEF VAR v-current-trend-days AS INT NO-UNDO FORMAT "->>>9".
 def var curr-t     as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var curr-t-pri as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
 def var curr-t-fc  as dec extent 6 format "->,>>>,>>>,>>9.99" NO-UNDO.
@@ -92,11 +92,15 @@ DEFINE VARIABLE cBolNo AS CHARACTER NO-UNDO.
 DEF VAR cJobStr AS CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTotalNet  AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cTermsCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dOpeningBalance AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dArClassAmount AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iARClassForReceivablesAccount AS INTEGER NO-UNDO.
 DEFINE VARIABLE cSalesPerson AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
                                FIELD sorter    LIKE cust.cust-no
@@ -106,8 +110,14 @@ DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
 
 DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
                                FIELD inv-no    LIKE ar-inv.inv-no
+                               FIELD net       LIKE ar-inv.net
+                               FIELD spare-char-1 LIKE ar-inv.spare-char-1
+                               FIELD spare-int-2  LIKE ar-inv.spare-int-2
                                FIELD row-id    AS   ROWID
                                INDEX tt-inv sorter inv-no.
+                               
+DEF BUFFER bf-tt-inv FOR tt-inv.
+
 DEFINE TEMP-TABLE ttArClass NO-UNDO
                   FIELD arclass AS INTEGER 
                   FIELD cust-no AS CHARACTER
@@ -118,7 +128,8 @@ DEFINE TEMP-TABLE ttArClass NO-UNDO
     FOR EACH ar-inv                                ~
         FIELDS(company posted cust-no inv-date     ~
                terms x-no due-date net gross       ~
-               freight tax-amt inv-no)             ~
+               due spare-char-1 spare-int-2        ~
+               freight tax-amt inv-no postedDate)             ~
         NO-LOCK                                    ~
         WHERE ar-inv.company     EQ cust.company   ~
           AND ar-inv.posted      EQ YES            ~
@@ -202,6 +213,8 @@ ASSIGN
 DEF VAR lv-text AS cha NO-UNDO.
 DEF VAR v-Inv-note AS cha FORM "x(80)" EXTENT 8 NO-UNDO.
 DEF VAR v-Collection-note AS cha FORM "x(80)" EXTENT 8 NO-UNDO.
+DEF VAR cInvoiceNote AS CHARACTER NO-UNDO.
+DEF VAR cCollectionNote AS CHARACTER NO-UNDO.
 
 FORMAT HEADER
   SKIP(1)
@@ -374,6 +387,9 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
       ASSIGN
        tt-inv.sorter = INT(ar-inv.{&sort-by2})
        tt-inv.inv-no = ar-inv.inv-no
+       tt-inv.spare-char-1 = ar-inv.spare-char-1
+       tt-inv.spare-int-2 = ar-inv.spare-int-2
+       tt-inv.net = ar-inv.net
        tt-inv.row-id = ROWID(ar-inv).
     END.
 
@@ -387,6 +403,9 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
         ASSIGN
          tt-inv.sorter = INT(ar-inv.{&sort-by2})
          tt-inv.inv-no = ar-inv.inv-no
+         tt-inv.spare-char-1 = ar-inv.spare-char-1
+         tt-inv.spare-int-2 = ar-inv.spare-int-2
+         tt-inv.net = ar-inv.net
          tt-inv.row-id = ROWID(ar-inv).
       END.
 
@@ -399,10 +418,38 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
         ASSIGN
          tt-inv.sorter = INT(ar-inv.{&sort-by2})
          tt-inv.inv-no = ar-inv.inv-no
+         tt-inv.spare-char-1 = ar-inv.spare-char-1
+         tt-inv.spare-int-2 = ar-inv.spare-int-2
+         tt-inv.net = ar-inv.net
          tt-inv.row-id = ROWID(ar-inv).
       END.
     END.
-
+    
+    
+    IF NOT v-inc THEN DO:
+        FOR EACH tt-inv:
+            ASSIGN dTotalNet = 0.
+            
+            FOR EACH bf-tt-inv NO-LOCK
+                WHERE bf-tt-inv.spare-int-2 EQ tt-inv.inv-no
+                AND bf-tt-inv.spare-char-1 EQ "Credit"
+                :
+                dTotalNet = dTotalNet + bf-tt-inv.net.
+            END. /* FOR EACH bf-tt-inv */
+            IF tt-inv.net + dTotalNet = 0 THEN DO:
+                FOR EACH bf-tt-inv NO-LOCK
+                WHERE bf-tt-inv.spare-int-2 EQ tt-inv.inv-no
+                AND bf-tt-inv.spare-char-1 EQ "Credit"
+                :
+                    DELETE bf-tt-inv.
+                END.
+                DELETE tt-inv.
+            END. /* IF tt-inv.net + dTotalNet = 0 */
+            
+        END. /* FOR EACH tt-inv */
+    END.  /* IF NOT v-inc */
+    
+    
     FOR EACH tt-inv,
         FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
         BY tt-inv.sorter
@@ -573,6 +620,19 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
        END.
       
       if det-rpt = 1 THEN DO:
+      
+          ASSIGN 
+            cInvoiceNote    = ""
+            cCollectionNote = ""
+            .
+          IF sPrtInvNote THEN RUN Display-InvNote.
+          IF sPrtCollectionNote THEN RUN Display-CollectionNote.
+          DO i = 1 TO 5:
+            ASSIGN
+                cInvoiceNote    = cInvoiceNote + v-inv-note[i] + " " 
+                cCollectionNote = cCollectionNote + v-Collection-note[i] + " " .
+          END.
+      
           IF iLinePerPage  GE (iline - 5)  THEN DO:
               PAGE.
               PUT str-tit6 FORMAT "x(400)" SKIP 
@@ -609,7 +669,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "amount"    THEN cVarValue = STRING(amt,"->>>,>>>,>>9.99").
                      WHEN "current"   THEN cVarValue = STRING(v-dec[1],"->>>,>>>,>>9.99").
                      WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
-                     WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
+                     WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>>9").
                      WHEN "per-1"     THEN cVarValue = STRING(v-dec[2],"->>>,>>>,>>9.99") .
                      WHEN "per-2"     THEN cVarValue = STRING(v-dec[3],"->>>,>>>,>>9.99").
                      WHEN "per-3"     THEN cVarValue = STRING(v-dec[4],"->>>,>>>,>>9.99") .
@@ -620,25 +680,37 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  . 
                      WHEN "tot-due"  THEN cVarValue = STRING(dAmountDue,"->,>>>,>>>.99")  .
                      WHEN "arclass"  THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
-                     WHEN "inv-note"  THEN  NEXT  .
-                     WHEN "coll-note" THEN  NEXT  .
+                     WHEN "inv-note"  THEN DO:
+                        IF v-export THEN DO: 
+                                cVarValue = cInvoiceNote .
+                        END.
+                        ELSE NEXT  .
+                     END. /* WHEN "inv-note"  THEN DO: */
+                     WHEN "coll-note" THEN DO:
+                        IF v-export THEN DO: 
+                                cVarValue = cCollectionNote .
+                        END.
+                        ELSE NEXT  .
+                     END. /* WHEN "coll-note" THEN DO: */
                     
                 END CASE.
+                
+                IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-inv.inv-date) .
                   
-                cExcelVarValue = cVarValue.
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 IF cTmpField EQ "cust-name" THEN
                    cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
         iLinePerPage = iLinePerPage + 1 .
 
-        IF sPrtInvNote THEN RUN Display-InvNote.
-        IF sPrtCollectionNote THEN RUN Display-CollectionNote.
-
+        IF sPrtInvNote THEN RUN DisplayNotes("Invoice").
+        IF sPrtCollectionNote THEN RUN DisplayNotes("Collection").
+        
         IF v-export THEN DO:
              PUT STREAM s-temp UNFORMATTED  
                    cExcelDisplay SKIP.
@@ -740,6 +812,8 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
           if det-rpt = 1 then do:
             if v-disc-type eq "DISC" then do:
              
+             IF sPrtInvNote THEN RUN Display-InvNote.
+             
                 IF iLinePerPage  GE (iline - 5)  THEN DO:
                     PAGE.
                     PUT str-tit6 FORMAT "x(400)" SKIP 
@@ -776,7 +850,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt,"->>>,>>>,>>9.99").
                          WHEN "current"   THEN cVarValue = /*STRING(v-dec[1],"->>>>>>>>9.99")*/ "".
                          WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
-                         WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
+                         WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>>9").
                          WHEN "per-1"     THEN cVarValue = /*STRING(v-dec[2],"->>>>>>>>9.99")"*/ "" .
                          WHEN "per-2"     THEN cVarValue = /*STRING(v-dec[3],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
@@ -787,16 +861,28 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                          WHEN "tot-due"  THEN cVarValue = "0"  .
-                         WHEN "inv-note"  THEN NEXT .
-                         WHEN "coll-note" THEN NEXT .
+                         WHEN "inv-note"  THEN DO:
+                            IF v-export THEN DO: 
+                                    cVarValue = cInvoiceNote .
+                            END.
+                            ELSE NEXT  .
+                         END. /* WHEN "inv-note"  THEN DO: */
+                         WHEN "coll-note" THEN DO:
+                            IF v-export THEN DO: 
+                                    cVarValue = cCollectionNote .
+                            END.
+                            ELSE NEXT  .
+                         END. /* WHEN "coll-note" THEN DO: */
                      END CASE.
 
-                     cExcelVarValue = cVarValue.
+                     IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) .
+                  
+                     ELSE cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",". 
 
             END.
 
@@ -806,9 +892,12 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                 PUT STREAM s-temp UNFORMATTED  
                     cExcelDisplay SKIP.
              END.
-             IF sPrtInvNote THEN RUN Display-InvNote.
+             IF sPrtInvNote THEN RUN DisplayNotes("Invoice").
+             
          end.
             
+             IF sPrtInvNote THEN RUN Display-InvNote.
+             
              IF iLinePerPage  GE (iline - 5)  THEN DO:
                  PAGE.
                  PUT str-tit6 FORMAT "x(400)" SKIP 
@@ -845,7 +934,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "amount"    THEN cVarValue = STRING(v-disc-amt,"->>>,>>>,>>9.99").
                          WHEN "current"   THEN cVarValue = /*STRING(v-dec[1],"->>>>>>>>9.99")*/ "".
                          WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
-                         WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
+                         WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>>9").
                          WHEN "per-1"     THEN cVarValue = /*STRING(v-dec[2],"->>>>>>>>9.99")"*/ "" .
                          WHEN "per-2"     THEN cVarValue = /*STRING(v-dec[3],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
@@ -856,16 +945,29 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "arclass"  THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                          WHEN "tot-due"  THEN cVarValue = "0"  .
-                         WHEN "inv-note"  THEN NEXT .
-                         WHEN "coll-note" THEN NEXT .
+                         WHEN "inv-note"  THEN DO:
+                            IF v-export THEN DO: 
+                                    cVarValue = cInvoiceNote .
+                            END.
+                            ELSE NEXT  .
+                         END. /* WHEN "inv-note"  THEN DO: */
+                         WHEN "coll-note" THEN DO:
+                            IF v-export THEN DO: 
+                                    cVarValue = cCollectionNote .
+                            END.
+                            ELSE NEXT  .
+                         END. /* WHEN "coll-note" THEN DO: */
                      END CASE.
 
-                     cExcelVarValue = cVarValue.
+                     IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ar-cash.check-date) .
+                  
+                     ELSE cExcelVarValue = cVarValue.
+                     
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -874,7 +976,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                 PUT STREAM s-temp UNFORMATTED  
                     cExcelDisplay SKIP.
              END.
-             IF sPrtInvNote THEN RUN Display-InvNote.
+             IF sPrtInvNote THEN RUN DisplayNotes("Invoice").
                     
           end.
         end.
@@ -908,6 +1010,8 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
               v-check-date = ar-cash.check-date.
          
               IF det-rpt = 1 THEN do:
+                   IF sPrtInvNote THEN RUN Display-InvNote.
+                   
                    IF iLinePerPage  GE (iline - 5)  THEN DO:
                        PAGE.
                        PUT str-tit6 FORMAT "x(400)" SKIP 
@@ -944,7 +1048,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt,"->>>,>>>,>>9.99").
                          WHEN "current"   THEN cVarValue = /*STRING(v-dec[1],"->>>>>>>>9.99")*/ "".
                          WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
-                         WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
+                         WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>>9").
                          WHEN "per-1"     THEN cVarValue = /*STRING(v-dec[2],"->>>>>>>>9.99")"*/ "" .
                          WHEN "per-2"     THEN cVarValue = /*STRING(v-dec[3],"->>>>>>>>9.99")*/ "" .
                          WHEN "per-3"     THEN cVarValue = /*STRING(v-dec[4],"->>>>>>>>9.99")*/ "" .
@@ -955,16 +1059,28 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                          WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                          WHEN "tot-due"  THEN cVarValue = /*STRING(dAmountDue,"->,>>>,>>>.99")*/ ""  .
                          WHEN "arclass"  THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
-                         WHEN "inv-note"  THEN NEXT .
-                         WHEN "coll-note" THEN NEXT .
+                         WHEN "inv-note"  THEN DO:
+                            IF v-export THEN DO: 
+                                    cVarValue = cInvoiceNote .
+                            END.
+                            ELSE NEXT  .
+                         END. /* WHEN "inv-note"  THEN DO: */
+                         WHEN "coll-note" THEN DO:
+                            IF v-export THEN DO: 
+                                    cVarValue = cCollectionNote .
+                            END.
+                            ELSE NEXT  .
+                         END. /* WHEN "coll-note" THEN DO: */
                      END CASE.
 
-                     cExcelVarValue = cVarValue.
+                     IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
+                  
+                     ELSE cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                          FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                     cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -973,7 +1089,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                 PUT STREAM s-temp UNFORMATTED  
                     cExcelDisplay SKIP.
              END.
-             IF sPrtInvNote THEN RUN Display-InvNote.
+             IF sPrtInvNote THEN RUN DisplayNotes("Invoice").
 
               END. /* det-prt = 1 */
 
@@ -1167,7 +1283,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>,>>>,>>9.99").
                      WHEN "current"   THEN cVarValue = STRING(unapp[1],"->>>,>>>,>>9.99").
                      WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
-                     WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
+                     WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>>9").
                      WHEN "per-1"     THEN cVarValue = STRING(unapp[2],"->>>,>>>,>>9.99") .
                      WHEN "per-2"     THEN cVarValue = STRING(unapp[3],"->>>,>>>,>>9.99").
                      WHEN "per-3"     THEN cVarValue = STRING(unapp[4],"->>>,>>>,>>9.99") .
@@ -1178,17 +1294,29 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                      WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                      WHEN "tot-due"  THEN cVarValue = "0"  .
-                     WHEN "inv-note"  THEN NEXT .
-                     WHEN "coll-note" THEN NEXT .
+                     WHEN "inv-note"  THEN DO:
+                        IF v-export THEN DO: 
+                                cVarValue = cInvoiceNote .
+                        END.
+                        ELSE NEXT  .
+                     END. /* WHEN "inv-note"  THEN DO: */
+                     WHEN "coll-note" THEN DO:
+                        IF v-export THEN DO: 
+                                cVarValue = cCollectionNote .
+                        END.
+                        ELSE NEXT  .
+                     END. /* WHEN "coll-note" THEN DO: */
                     
                 END CASE.
                   
-                cExcelVarValue = cVarValue.
+                IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
+                  
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -1284,7 +1412,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "amount"    THEN cVarValue = STRING(v-cr-db-amt + v-disc-amt,"->>>,>>>,>>9.99").
                      WHEN "current"   THEN cVarValue = /*STRING(unapp[1],"->>>>>>>>9.99")*/ "".
                      WHEN "adtp"      THEN cVarValue = STRING(cust.avg-pay,">>>9").
-                     WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>9").
+                     WHEN "td"        THEN cVarValue = STRING(v-current-trend-days,"->>>9").
                      WHEN "per-1"     THEN cVarValue = /*STRING(unapp[2],"->>>>>>>>9.99")*/ "" .
                      WHEN "per-2"     THEN cVarValue = /*STRING(unapp[3],"->>>>>>>>9.99")*/ "" .
                      WHEN "per-3"     THEN cVarValue = /*STRING(unapp[4],"->>>>>>>>9.99")*/ "" .
@@ -1295,18 +1423,30 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                      WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
                      WHEN "tot-due"  THEN cVarValue = "0"  .
-                     WHEN "inv-note"  THEN NEXT .
-                     WHEN "coll-note" THEN NEXT .
+                     WHEN "inv-note"  THEN DO:
+                        IF v-export THEN DO: 
+                                cVarValue = cInvoiceNote .
+                        END.
+                        ELSE NEXT  .
+                     END. /* WHEN "inv-note"  THEN DO: */
+                     WHEN "coll-note" THEN DO:
+                        IF v-export THEN DO: 
+                                cVarValue = cCollectionNote .
+                        END.
+                        ELSE NEXT  .
+                     END. /* WHEN "coll-note" THEN DO: */
                     
                 END CASE.
                   
-                cExcelVarValue = cVarValue.
+                IF cTmpField = "inv-date"  THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-check-date) .
+                  
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 IF cTmpField EQ "cust-name" THEN
                         cExcelVarValue = REPLACE(cust.NAME, ',', ' ').
                 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay FORMAT "x(400)" SKIP.
@@ -1817,7 +1957,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
         trim(string(v-field-06,"->>>,>>>,>>9.99"))                
         trim(string(v-field-07,"->>>,>>>,>>9.99"))  
         TRIM(STRING(cust.avg-pay,">>9"))                /*Task# 11151304*/
-        TRIM(STRING(v-current-trend-days,"->>9"))       /*Task# 11151304*/ 
+        TRIM(STRING(v-current-trend-days,"->>>9"))       /*Task# 11151304*/ 
         trim(string(v-field-08,"->>>,>>>,>>9.99"))                
         trim(string(v-field-09,"->>>,>>>,>>9.99"))                
         trim(string(v-field-10,"->>>,>>>,>>9.99"))
@@ -1828,12 +1968,48 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
   end.
   
    /*-----------------------------------------------------------------------------*/
+  PROCEDURE DisplayNotes:
+    DEF INPUT PARAMETER ipcNotesType AS CHAR NO-UNDO.
+
+    IF (v-Inv-Note[1] <> "" AND ipcNotesType EQ "Invoice") OR
+       (v-Collection-Note[1] <> "" AND ipcNotesType EQ "Collection" )
+    THEN DO:
+        IF iLinePerPage  GE (iline - 5)  THEN DO:
+            PAGE.
+            PUT str-tit6 FORMAT "x(400)" SKIP 
+                str-tit7 FORMAT "x(400)" SKIP .
+            iLinePerPage = 9 .
+        END.
+       
+       IF ipcNotesType EQ "Invoice" THEN DO: 
+           PUT SKIP(1) "Invoice Note: " v-Inv-Note[1] SKIP.       
+           DO i = 2 TO 5:
+              IF v-Inv-Note[i] > "" THEN do: 
+                PUT v-Inv-Note[i] SKIP.
+                iLinePerPage = iLinePerPage + 1 .
+              END.
+           END.
+       END. /* IF ipcNotesType EQ "Invoice" THEN DO: */
+       ELSE IF ipcNotesType EQ "Collection" THEN DO:
+           PUT SKIP(1) "Collection Note: " v-Collection-Note[1] SKIP.
+           DO i = 2 TO 5:
+             IF v-Collection-Note[i] > "" THEN do:
+               PUT v-Collection-Note[i] SKIP.
+               iLinePerPage = iLinePerPage + 1 .
+             END.
+           END.
+       END. /* ELSE IF ipcNotesType EQ "Collection" THEN DO: */
+       
+       PUT SKIP(1) .
+       iLinePerPage = iLinePerPage + 3 .
+    END.
+  END.
+   /*-----------------------------------------------------------------------------*/
   PROCEDURE Display-InvNote:
     DEF VAR li AS INT NO-UNDO.
 
     ASSIGN lv-text = ""
-           v-Inv-note = ""
-           v-Collection-note = "".
+           v-Inv-note = "".
 
     FOR EACH tt-formtext:
         DELETE tt-formtext.
@@ -1856,32 +2032,13 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
            i = i + 1.
            IF  i <= 8 THEN v-inv-note[i] = tt-formtext.tt-text.      
     END.
-    
-     
-    IF v-Inv-Note[1] <> "" THEN DO:
-        IF iLinePerPage  GE (iline - 5)  THEN DO:
-            PAGE.
-            PUT str-tit6 FORMAT "x(400)" SKIP 
-                str-tit7 FORMAT "x(400)" SKIP .
-            iLinePerPage = 9 .
-        END.
-       PUT SKIP(1) "Invoice Note: " v-Inv-Note[1] SKIP.
-       DO i = 2 TO 5:
-          IF v-Inv-Note[i] > "" THEN do: 
-            PUT v-Inv-Note[i] SKIP.
-            iLinePerPage = iLinePerPage + 1 .
-          END.
-       END.
-       PUT SKIP(1) .
-       iLinePerPage = iLinePerPage + 3 .
-    END.
-  END.
+
+  END PROCEDURE.
    /*-----------------------------------------------------------------------------*/
   PROCEDURE Display-CollectionNote:
     DEF VAR li AS INT NO-UNDO.
 
     ASSIGN lv-text = ""
-           v-Inv-note = ""
            v-Collection-note = "".
 
     FOR EACH tt-formtext:
@@ -1904,24 +2061,6 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
     FOR EACH tt-formtext:
         i = i + 1.
         IF  i <= 8 THEN v-Collection-note[i] = tt-formtext.tt-text.      
-    END.
-
-    IF v-Collection-Note[1] <> "" THEN DO:
-       IF iLinePerPage  GE (iline - 5)  THEN DO:
-        PAGE.
-        PUT str-tit6 FORMAT "x(400)" SKIP 
-            str-tit7 FORMAT "x(400)" SKIP .
-        iLinePerPage = 9 .
-       END.
-       PUT SKIP(1) "Collection Note: " v-Collection-Note[1] SKIP.
-       DO i = 2 TO 5:
-         IF v-Collection-Note[i] > "" THEN do:
-           PUT v-Collection-Note[i] SKIP.
-           iLinePerPage = iLinePerPage + 1 .
-         END.
-       END.
-       PUT SKIP(1) .
-       iLinePerPage = iLinePerPage + 3 .
     END.
 
   END PROCEDURE.
@@ -2066,10 +2205,12 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
             END.
         END.
 
-
-        
-
  END PROCEDURE.
+ 
+ FINALLY:
+        IF VALID-HANDLE (hdOutputProcs) THEN
+            DELETE PROCEDURE hdOutputProcs.            
+ END FINALLY.
 
 /* End ---------------------------------- Copr. 1997  Advanced Software, Inc. */
 

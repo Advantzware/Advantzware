@@ -92,6 +92,9 @@ DEFINE VARIABLE cColumnInit        AS LOG       INIT YES NO-UNDO.
 DEFINE BUFFER bw-ord FOR w-ord.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO .
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Date,Due,Ordered,Item,Cust Part#,Cust PO#," +
@@ -811,6 +814,7 @@ ON END-ERROR OF C-Win /* Hots Report (O-Z-1) */
 ON WINDOW-CLOSE OF C-Win /* Hots Report (O-Z-1) */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -922,6 +926,7 @@ ON LEAVE OF begin_userid IN FRAME FRAME-A /* Beginning User ID */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -962,6 +967,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1851,9 +1859,6 @@ PROCEDURE run-report :
     DEFINE VARIABLE cFieldName     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedList  AS CHARACTER NO-UNDO.
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-    DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-
-    RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
     ASSIGN 
         rd_print       = "Item Name"
@@ -1894,8 +1899,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM st-excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

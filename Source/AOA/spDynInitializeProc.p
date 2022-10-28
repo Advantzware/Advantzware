@@ -79,6 +79,18 @@ PROCEDURE dynInitCompanyList:
     RETURN cCompanyList.
 END PROCEDURE.
 
+PROCEDURE dynInitDepartmentList:
+    DEFINE VARIABLE cDeptList AS CHARACTER NO-UNDO.
+
+    FOR EACH dept NO-LOCK
+        BY dept.code
+        :
+        cDeptList = cDeptList + dept.code + " - " + dept.dscr + "," + dept.code + ",".
+    END. // each dept
+    cDeptList = TRIM(cDeptList,",").
+    RETURN cDeptList.
+END PROCEDURE.
+
 PROCEDURE dynInitEstTypeCorr:
     cSessionValue = "5 - Single,5,6 - Set,6,7 - Combo/Tandem,7,8 - Combo/Tandem,8,9 - Other,9".
     RETURN cSessionValue.

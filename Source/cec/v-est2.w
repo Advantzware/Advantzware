@@ -144,7 +144,7 @@ ef.leaf-w[4] ef.leaf-l[4] ef.roll ef.spare-int-1
 &Scoped-define DISPLAYED-TABLES ef eb
 &Scoped-define FIRST-DISPLAYED-TABLE ef
 &Scoped-define SECOND-DISPLAYED-TABLE eb
-&Scoped-Define DISPLAYED-OBJECTS ls-dep-label ls-d-up-label 
+&Scoped-Define DISPLAYED-OBJECTS fiWtPerTon ls-dep-label ls-d-up-label 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -235,6 +235,11 @@ DEFINE VARIABLE ls-dep-label AS CHARACTER FORMAT "X(256)":U INITIAL "Depth"
 DEFINE BUTTON btn_board
      LABEL "" 
      SIZE 11 BY 1.
+     
+DEFINE VARIABLE fiWtPerTon AS DECIMAL FORMAT "->>,>>9.99<<":U INITIAL 0 
+     LABEL "WT Per Ton" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.     
 
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -297,9 +302,10 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
      btn_board AT ROW 2.43 COL 3 WIDGET-ID 16
+     fiWtPerTon AT ROW 2.48 COL 88.6 COLON-ALIGNED WIDGET-ID 18
      ef.brd-dscr AT ROW 2.43 COL 28 COLON-ALIGNED NO-LABEL FORMAT "X(50)"
           VIEW-AS FILL-IN 
-          SIZE 70 BY 1
+          SIZE 40 BY 1
      ef.i-code AT ROW 2.43 COL 111 COLON-ALIGNED
           LABEL "Real"
           VIEW-AS FILL-IN 
@@ -671,6 +677,8 @@ ASSIGN
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN ef.fr-uom IN FRAME Corr
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN fiWtPerTon IN FRAME Corr
+   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN ef.gsh-dep IN FRAME Corr
    EXP-FORMAT                                                           */
 ASSIGN 
@@ -2314,7 +2322,11 @@ DO:
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
      xeb.num-len = int(self:screen-value).
-     run cec/calc-dim1.p no-error.
+     
+      IF lCEUseNewLayoutCalc THEN
+          RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
+      ELSE
+          run cec/calc-dim1.p no-error.
      if error-status:error then do:
 
      end.
@@ -2377,7 +2389,11 @@ DO:
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
      xeb.num-wid = int(self:screen-value).
-     run cec/calc-dim1.p no-error.
+     
+      IF lCEUseNewLayoutCalc THEN
+          RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
+      ELSE
+          run cec/calc-dim1.p no-error.
      if error-status:error then do:
 
      end.
@@ -3750,6 +3766,9 @@ PROCEDURE local-display-fields :
     RUN enable-auto-calc IN WIDGET-HANDLE(char-hdl) (ll-one-eb-on-ef OR ll-part-style).
     RUN enable-copy IN WIDGET-HANDLE(char-hdl) (ll-one-ef-on-est).
   END.
+  
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
+  
   do with frame {&frame-name} :  
   IF est.estimateTypeID eq "WOOD" THEN
     ASSIGN  
@@ -3777,8 +3796,9 @@ PROCEDURE local-display-fields :
       .
     
 
-  btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .
+  btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .  
   END.
+  RUN pDisplayWtPerTon(eb.eqty, ef.board).
 
 END PROCEDURE.
 
@@ -4592,6 +4612,44 @@ PROCEDURE proc-enable :
 
      btn_board:HIDDEN = TRUE .
 
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayWtPerTon V-table-Win 
+PROCEDURE pDisplayWtPerTon :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiQty   AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcBoard AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+  FIND FIRST item NO-LOCK
+       WHERE item.company EQ cocode
+       AND item.i-no    EQ ipcBoard
+       NO-ERROR.
+  
+  IF AVAIL item THEN DO:        
+       IF ITEM.cons-uom EQ "TON" THEN
+         dResult = ipiQty.
+       ELSE
+         RUN custom/convquom.p(cocode, item.cons-uom,"TON", item.basis-w,
+                               (IF item.r-wid EQ 0 THEN item.s-len
+                                                    ELSE 12),
+                                (IF item.r-wid EQ 0 THEN item.s-wid
+                                                    ELSE item.r-wid),
+                                item.s-dep,                    
+                                ipiQty, OUTPUT dResult).
+  END.         
+         
+  DO WITH FRAME {&FRAME-NAME}:
+     fiWtPerTon:SCREEN-VALUE = string(dResult) .
   END.
 
 END PROCEDURE.

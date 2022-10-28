@@ -15,6 +15,7 @@
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipriEb AS ROWID.
 DEFINE INPUT PARAMETER iplPromptForQuotes AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER iplSubAssembly AS LOGICAL NO-UNDO.
 
 DEFINE TEMP-TABLE ttQuantityCost
     FIELD iQty       AS INTEGER
@@ -25,6 +26,7 @@ DEFINE VARIABLE cVendorItem         AS CHARACTER NO-UNDO INITIAL "In-house Manuf
 DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMiscEstimateSource AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iCount              AS INTEGER   NO-UNDO.
 
 DEFINE BUFFER bf-vendItemCost      FOR vendItemCost.
 DEFINE BUFFER bf-vendItemCostLevel FOR vendItemCostLevel.
@@ -55,7 +57,7 @@ RUN pCopyInksAndDesign(BUFFER eb).
 RUN pGetCostFrom(INPUT eb.company,OUTPUT cMiscEstimateSource). 
 
 IF cMiscEstimateSource EQ "Estimate" THEN
-    RUN pBuildQuantitiesAndCostsFromProbe(BUFFER eb).
+    RUN pBuildQuantitiesAndCostsFromEstimate(BUFFER eb, iplSubAssembly).
 ELSE IF cMiscEstimateSource EQ "Quote" THEN
     DO:
         RUN pBuildQuantitiesAndCostsFromQuote(BUFFER eb).    
@@ -97,6 +99,10 @@ DO:
         bf-vendItemCost.expirationDate = 12/31/2099
         .
 END.
+iCount = 0.
+FOR EACH ttQuantityCost:
+iCount = iCount + 1.
+END.
 FOR EACH ttQuantityCost:
     FIND FIRST bf-vendItemCostLevel EXCLUSIVE-LOCK
         WHERE bf-vendItemCostLevel.vendItemCostID EQ bf-vendItemCost.vendItemCostID
@@ -111,6 +117,7 @@ FOR EACH ttQuantityCost:
             .
     END.
     bf-vendItemCostLevel.costPerUOM = ttQuantityCost.dCostPerEA.
+    IF iCount EQ 1 THEN bf-vendItemCostLevel.quantityBase = DYNAMIC-FUNCTION("VendCost_GetUnlimitedQuantity").
 END.
 RUN RecalculateFromAndTo (bf-vendItemCost.vendItemCostID, OUTPUT lError, OUTPUT cMessage).
 
@@ -119,20 +126,21 @@ RELEASE bf-vendItemCostLevel.
 
 /* **********************  Internal Procedures  *********************** */
 
-PROCEDURE pBuildQuantitiesAndCostsFromProbe PRIVATE:
+PROCEDURE pBuildQuantitiesAndCostsFromEstimate PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Queries each probe for an estimate, building a tt of unique quantities, 
      starting with the latest probe for a given quantity
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-eb FOR eb.
+    DEFINE INPUT PARAMETER iplSubAssembly AS LOGICAL NO-UNDO.
     
     DEFINE VARIABLE cEstNo AS CHARACTER.
     
     EMPTY TEMP-TABLE ttQuantityCost.
     cEstNo = ipbf-eb.sourceEstimate.
     RUN util/rjust.p (INPUT-OUTPUT cEstNo,8).
-    
+       
     FOR EACH probe NO-LOCK 
         WHERE probe.company EQ ipbf-eb.company
         AND probe.est-no EQ cEstNo
@@ -146,10 +154,11 @@ PROCEDURE pBuildQuantitiesAndCostsFromProbe PRIVATE:
             CREATE ttQuantityCost.
             ASSIGN 
                 ttQuantityCost.iQty       = probe.est-qty
-                ttQuantityCost.dCostPerEA = probe.sell-price / 1000
+                ttQuantityCost.dCostPerEA = IF iplSubAssembly THEN probe.fact-cost / 1000 ELSE probe.sell-price / 1000
                 .  
         END.            
-    END.        
+    END.
+            
 
 END PROCEDURE.  
 

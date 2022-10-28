@@ -553,6 +553,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rm-rctd.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF rm-rctd.loc IN BROWSE Browser-Table /* Whse */
+DO:         
+      IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}  EQ "" AND adm-new-record THEN
+      DO:
+         APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
+         RETURN NO-APPLY.
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME rm-rctd.loc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.loc Browser-Table _BROWSE-COLUMN B-table-Win
@@ -648,6 +662,20 @@ DO:
       APPLY "cursor-right" TO {&self-name} IN BROWSE {&browse-name}.
     END.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rm-rctd.qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.qty Browser-Table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF rm-rctd.qty IN BROWSE Browser-Table /* Whse */
+DO:         
+      IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}  EQ "" AND adm-new-record THEN
+      DO:
+         APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
+         RETURN NO-APPLY.
+      END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -969,8 +997,9 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  DO WITH FRAME {&FRAME-NAME}:
-  
+  DO WITH FRAME {&FRAME-NAME}: 
+             
+     IF NOT adm-new-record THEN
      APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
    
      DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -1032,10 +1061,10 @@ PROCEDURE local-update-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  IF physCnt-log AND AVAILABLE(fg-rctd) THEN 
+  IF physCnt-log AND AVAILABLE(rm-rctd) THEN 
   DO: 
       OUTPUT STREAM sPhysCntSave TO VALUE(cPhysCntSaveFile) APPEND.
-      EXPORT STREAM sPhysCntSave fg-rctd.
+      EXPORT STREAM sPhysCntSave rm-rctd.
       OUTPUT STREAM sPhysCntSave CLOSE.
   END.
     
@@ -1045,8 +1074,36 @@ PROCEDURE local-update-record :
       APPLY 'cursor-left' TO {&BROWSE-NAME}.
     END.
   END.
-
+ 
+  IF NOT lv-add-mode THEN
+  RUN pReOpenQuery(ROWID(rm-rctd)).
+  
+  adm-new-record = NO.
   IF lv-add-mode THEN RUN scan-next.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReOpenQuery B-table-Win 
+PROCEDURE pReOpenQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+
+
+  DO WITH FRAME {&FRAME-NAME}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN DO:
+      RUN local-open-query.
+      REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    END.
+    IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ("row-changed").
+  END.
 
 END PROCEDURE.
 

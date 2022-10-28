@@ -32,13 +32,13 @@ DEF VAR v-phone-num         AS   CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR v-dock-note AS   CHAR FORMAT "x(20)" NO-UNDO.
 
 DEF VAR v-ship-name  LIKE shipto.ship-name NO-UNDO.
-DEF VAR v-ship-addr  LIKE shipto.ship-addr NO-UNDO.
+DEF VAR v-ship-addr  LIKE shipto.ship-addr EXTENT 3 NO-UNDO.
 DEF VAR v-ship-city  LIKE shipto.ship-city NO-UNDO.
 DEF VAR v-ship-state LIKE shipto.ship-state NO-UNDO.
 DEF VAR v-ship-zip   LIKE shipto.ship-zip NO-UNDO.
-DEF VAR v-ship-addr3 AS   CHAR FORMAT "x(30)" NO-UNDO.
+DEF VAR v-ship-cityline AS   CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-name  LIKE company.name NO-UNDO.
-DEF VAR v-comp-addr  LIKE company.addr NO-UNDO.
+DEF VAR v-comp-addr  LIKE company.addr EXTENT 3 NO-UNDO.
 DEF VAR v-comp-city  LIKE company.city NO-UNDO.
 DEF VAR v-comp-state LIKE company.state NO-UNDO.
 DEF VAR v-comp-zip   LIKE company.zip NO-UNDO.
@@ -71,34 +71,6 @@ DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lValid       AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage     AS CHARACTER NO-UNDO.
-
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT cRtnChar, OUTPUT lRecFound).
-
-IF lRecFound AND cRtnChar NE "" THEN 
-DO:
-    cRtnChar = DYNAMIC-FUNCTION (
-        "fFormatFilePath",
-        cRtnChar
-        ).
-                   
-    /* Validate the N-K-1 BusinessFormLogo image file */
-    RUN FileSys_ValidateFile(
-        INPUT  cRtnChar,
-        OUTPUT lValid,
-        OUTPUT cMessage
-        ) NO-ERROR.
-
-    IF NOT lValid THEN 
-    DO:
-        MESSAGE "Unable to find image file '" + cRtnChar + "' in N-K-1 setting for BusinessFormLogo"
-            VIEW-AS ALERT-BOX ERROR.
-    END.
-END.
-
-ASSIGN 
-    ls-full-img1 = cRtnChar + ">" .
 
 DEF VAR ls-image2 AS cha NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
@@ -148,6 +120,7 @@ DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iShipQty AS INTEGER NO-UNDO.
 DEFINE VARIABLE iIntValue AS INTEGER NO-UNDO.
 DEFINE VARIABLE cAddress AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cLocation AS CHARACTER NO-UNDO.
 
 ASSIGN tmpstore = FILL("-",80).
 
@@ -185,7 +158,18 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     NO-LOCK
 
     BREAK BY oe-bolh.bol-no:
-      
+    
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN ASSIGN cLocation = oe-boll.loc .
+    
+    RUN FileSys_GetBusinessFormLogo(cocode, oe-bolh.cust-no, cLocation, OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
+            	      
+    IF NOT lValid THEN
+    DO:
+        MESSAGE cMessage VIEW-AS ALERT-BOX ERROR.
+    END.
+    ASSIGN ls-full-img1 = cRtnChar + ">" .
+    
     IF FIRST-OF(oe-bolh.bol-no) THEN DO:
     FIND FIRST carrier
         WHERE carrier.company EQ oe-bolh.company
@@ -215,16 +199,20 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
      v-ship-name    = shipto.ship-name
      v-ship-addr[1] = shipto.ship-addr[1]
      v-ship-addr[2] = shipto.ship-addr[2]
-     v-ship-addr3   = shipto.ship-city + ", " +
+     v-ship-addr[3] = shipto.spare-char-3
+     v-ship-cityline   = shipto.ship-city + ", " +
                       shipto.ship-state + "  " +
-                      shipto.ship-zip
+                      shipto.ship-zip + "  " +
+                      shipto.country
      v-phone-num    = cust.area-code + cust.phone
      v-comp-name    = cust.name
      v-comp-addr[1] = cust.addr[1]
      v-comp-addr[2] = cust.addr[2]
+     v-comp-addr[3] = cust.spare-char-3
      v-comp-addr3   = cust.city + ", " +
                       cust.state + "  " +
-                      cust.zip
+                      cust.zip + "  " +
+                      cust.fax-country
      v-dock-note = shipto.dock-hour
      dReqDate = oe-bolh.bol-date + shipto.spare-int-2
      lv-prt-date = oe-bolh.upd-date
@@ -238,16 +226,25 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
     
     IF TRIM(v-comp-addr3) EQ "," THEN v-comp-addr3 = "".
               
+    IF v-comp-addr[3] EQ "" THEN
+      ASSIGN
+       v-comp-addr[3] = v-comp-addr3
+       v-comp-addr3   = "".          
     IF v-comp-addr[2] EQ "" THEN
       ASSIGN
-       v-comp-addr[2] = v-comp-addr3
-       v-comp-addr3   = "".
+       v-comp-addr[2] = v-comp-addr[3]
+       v-comp-addr[3]   = "".
+    
+    IF v-ship-addr[3] EQ "" THEN
+      ASSIGN
+       v-ship-addr[3] = v-ship-cityline
+       v-ship-cityline   = "".
     IF v-ship-addr[2] EQ "" THEN
       ASSIGN
-       v-ship-addr[2] = v-ship-addr3
-       v-ship-addr3   = "".
+       v-ship-addr[2] = v-ship-addr[3]
+       v-ship-addr[3] = "".
 
-    IF TRIM(v-ship-addr3) EQ "," THEN v-ship-addr3 = "".
+    IF TRIM(v-ship-cityline) EQ "," THEN v-ship-cityline = "".
     IF TRIM(v-cust-addr3) EQ "," THEN v-cust-addr3 = "".
 
     ASSIGN
@@ -345,12 +342,23 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
      oe-boll.printed = YES.
   END.
   IF LAST-OF(oe-bolh.bol-no) THEN DO:
-     IF v-comp-addr[2] = "" THEN
-           ASSIGN v-comp-addr[2] = v-comp-addr3
-                  v-comp-addr3 = "".
-     IF v-ship-addr[2] = "" THEN
-           ASSIGN v-ship-addr[2] = v-ship-addr3
-                  v-ship-addr3 = "".
+     IF v-comp-addr[3] EQ "" THEN
+      ASSIGN
+       v-comp-addr[3] = v-comp-addr3
+       v-comp-addr3   = "".          
+    IF v-comp-addr[2] EQ "" THEN
+      ASSIGN
+       v-comp-addr[2] = v-comp-addr[3]
+       v-comp-addr[3]   = "".
+    
+    IF v-ship-addr[3] EQ "" THEN
+      ASSIGN
+       v-ship-addr[3] = v-ship-cityline
+       v-ship-cityline   = "".
+    IF v-ship-addr[2] EQ "" THEN
+      ASSIGN
+       v-ship-addr[2] = v-ship-addr[3]
+       v-ship-addr[3] = "".
 
      /* duplicate loop for total freight */
      ASSIGN

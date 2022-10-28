@@ -64,9 +64,10 @@ PROCEDURE pBusinessLogic:
         cCompany,"ProdAceBarScan","L",NO,NO,"","",
          OUTPUT cProdAceBarScan,OUTPUT lProdAceBarScan
         ).
-    lProdAceBarScan = lProdAceBarScan AND cProdAceBarScan EQ "YES".
-
-    lvProdAceDat = SEARCH("schedule\data\" + cSBID + "\ProdAce.dat").
+    ASSIGN
+        lProdAceBarScan = lProdAceBarScan AND cProdAceBarScan EQ "YES"
+        lvProdAceDat    = SEARCH("schedule\data\" + cSBID + "\ProdAce.dat")
+        .
     IF lvProdAceDat NE ? THEN DO:
         RUN getProdAceDatValues.
         lvProdAceDat = SEARCH(lvProdAceDir + "\adware.dat").
@@ -96,6 +97,7 @@ PROCEDURE pBusinessLogic:
             REPEAT:
                 IMPORT STREAM sProdAce UNFORMATTED cProdAceData.
                 cProdAceData = REPLACE(cProdAceData,"'","").
+                IF NUM-ENTRIES(cProdAceData) LT 2 THEN NEXT.
                 IF ENTRY(2,cProdAceData) EQ 'n/f' THEN NEXT.
                 dtStartDate = DATE(ENTRY(10,cProdAceData)).
                 IF ((cShift NE 'All' AND
@@ -110,26 +112,25 @@ PROCEDURE pBusinessLogic:
                     cProdAceJob   = ENTRY(2,cProdAceData)
                     .
                 IF lProdAceBarScan THEN DO:
-                    ASSIGN
-                        cJobNo    = ENTRY(2,cProdAceData)
-                        iJobMchID = INTEGER(ENTRY(2,cJobNo,'.'))
-                        .
-                    FIND FIRST job-mch NO-LOCK
-                         WHERE job-mch.job-mchID EQ iJobMchID
-                         NO-ERROR.
-                    IF AVAILABLE job-mch THEN
-                    ASSIGN
-                        cProdAceJob   = LEFT-TRIM(job-mch.job-no) + '-'
-                                      + STRING(job-mch.job-no2) + '.'
-                                      + STRING(job-mch.frm)
-                        cProdAceForm  = STRING(job-mch.frm)
-                        cProdAceBlank = STRING(job-mch.blank-no)
-                        cProdAcePass  = STRING(job-mch.pass)
-                        .
+                    cJobNo = cProdAceJob.
+                    IF NUM-ENTRIES(cJobNo,".") GT 1 THEN DO:
+                        iJobMchID = INTEGER(ENTRY(2,cJobNo,'.')).
+                        FIND FIRST job-mch NO-LOCK
+                             WHERE job-mch.job-mchID EQ iJobMchID
+                             NO-ERROR.
+                        IF AVAILABLE job-mch THEN
+                        ASSIGN
+                            cProdAceJob   = LEFT-TRIM(job-mch.job-no) + '-'
+                                          + STRING(job-mch.job-no2) + '.'
+                                          + STRING(job-mch.frm)
+                            cProdAceForm  = STRING(job-mch.frm)
+                            cProdAceBlank = STRING(job-mch.blank-no)
+                            cProdAcePass  = STRING(job-mch.pass)
+                            .
+                    END. // if num-entries gt 1
                 END. /* if prod ace bar scanning */
                 ELSE
                 ASSIGN
-                    cProdAceJob   = ENTRY(2,cProdAceData)
                     cProdAceForm  = ENTRY(2,cProdAceJob,'.')
                     cProdAceBlank = ENTRY(3,cProdAceJob,'.')
                     cProdAcePass  = ENTRY(4,cProdAceJob,'.')
@@ -137,17 +138,17 @@ PROCEDURE pBusinessLogic:
                     cProdAceJob   = ENTRY(1,cProdAceJob,'.') + '.'
                                   + cProdAceForm
                                   .
-                cProdAceOperator = ''.
+                ASSIGN
+                    cState           = ENTRY(15,cProdAceData)
+                    cChargeCode      = cState
+                    cProdAceOperator = ''
+                    .
                 DO idx = 19 TO NUM-ENTRIES(cProdAceData):
                     cProdAceOperator[idx - 18] = IF ENTRY(idx,cProdAceData) EQ '' THEN lvProdAceBlankEmployee
                                                  ELSE ENTRY(idx,cProdAceData).
                     IF ENTRY(idx,cProdAceData) EQ '' THEN LEAVE.
                 END. /* do idx */
                 /* get charge code for non run and mr */    
-                ASSIGN
-                    cState      = ENTRY(15,cProdAceData)
-                    cChargeCode = cState
-                    . 
                 IF cState EQ 'DT' AND INTEGER(ENTRY(16,cProdAceData)) NE 0 THEN DO: 
                     FIND FIRST job-code NO-LOCK 
                          WHERE job-code.dmiID EQ INTEGER(ENTRY(16,cProdAceData))
@@ -158,9 +159,16 @@ PROCEDURE pBusinessLogic:
                         cChargeCode = job-code.code
                         .
                 END. /* if dt and dt reason given */
+                IF NOT AVAILABLE job-mch THEN
+                FIND FIRST mach NO-LOCK
+                     WHERE mach.company     EQ cCompany
+                       AND mach.spare-int-2 EQ iProdAceDMIID
+                     NO-ERROR.
                 CREATE ttblProdAce.
                 ASSIGN
-                    ttblProdAce.prodAceResource      = IF AVAILABLE job-mch THEN job-mch.m-code ELSE "Missing"
+                    ttblProdAce.prodAceResource      = IF AVAILABLE job-mch THEN job-mch.m-code
+                                                  ELSE IF AVAILABLE mach    THEN mach.m-code
+                                                  ELSE "Missing"
                     ttblProdAce.prodAceDMIID         = iProdAceDMIID
                     ttblProdAce.prodAceJob           = cProdAceJob
                     ttblProdAce.prodAceItem          = ENTRY(3,cProdAceData)
@@ -218,6 +226,8 @@ PROCEDURE pBusinessLogic:
                         ttblProdAce.dmiTransAdd = YES
                         .
                 END. /* do trans */
+                RELEASE job-mch.
+                RELEASE mach.
             END. /* repeat */
             OUTPUT STREAM sHold CLOSE.
             OUTPUT STREAM sProcessed CLOSE.

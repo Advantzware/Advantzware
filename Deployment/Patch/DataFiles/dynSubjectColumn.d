@@ -3114,7 +3114,7 @@
 208 yes 1 "ttDMIJobCodeAnalysis.dmiID" "DMI ID" ">>9" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 1 no yes "" "" no "" "" "202206270212109212576" no no no "" no "" "" 0 0 "" no no "" "" no
 208 yes 6 "ttDMIJobCodeAnalysis.dscr" "Description" "x(45)" "ttDMIJobCodeAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "202206270212109212578" no no no "" no "" "" 0 0 "" no no "" "" no
 208 yes 3 "ttDMIJobCodeAnalysis.jobCodeDMIID" "Job Code DMI ID" ">>>9" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 2 no no "" "" no "" "" "202206270212109212579" no no no "" no "" "" 0 0 "" no no "" "" no
-208 yes 2 "ttDMIJobCodeAnalysis.totTime" "Total Time" ">,>>>,>>9.99" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 0 no no "" "Report,Sum,[Group] DMI ID,Sum" no "" "" "202206270474009641687" no no no "" no "" "" 0 0 "" no no "" "" no
+208 yes 2 "ttDMIJobCodeAnalysis.totTime" "Total Time" "->,>>>,>>9.99" "ttDMIJobCodeAnalysis" 0 "integer" "ASI" 0 no no "" "Report,Sum,[Group] DMI ID,Sum" no "" "" "202206270474009641687" no no no "" no "" "" 0 0 "" no no "" "" no
 209 yes 1 "ttCostByMachine.dmiID" "DMI ID" ">>9" "ttCostByMachine" 0 "integer" "ASI" 1 no no "" "" no "" "" "202206278539709658944" no no no "" no "" "" 0 0 "" no no "" "" no
 209 yes 4 "ttCostByMachine.itemName" "Description" "x(30)" "ttCostByMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206278539709658945" no no no "" no "" "" 0 0 "" no no "" "" no
 209 yes 3 "ttCostByMachine.itemNo" "Item" "x(15)" "ttCostByMachine" 0 "character" "ASI" 2 no yes "" "" no "" "" "202206278539709658946" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -3124,3 +3124,20 @@
 209 yes 6 "ttCostByMachine.qtyInLbs" "Qty" "->>>,>>9.9<<<" "ttCostByMachine" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" "202206278539709658950" no no no "" no "" "" 0 0 "" no no "" "" no
 209 yes 7 "ttCostByMachine.qtyInTons" "Tons" "->>>,>>9.9<<<" "ttCostByMachine" 0 "decimal" "ASI" 0 no no "" "Report,Sum,[Group] Item,Sum" no "" "" "202206278539709658951" no no no "" no "" "" 0 0 "" no no "" "" no
 209 yes 5 "ttCostByMachine.uom" "UOM" "x(5)" "ttCostByMachine" 0 "character" "ASI" 0 no no "" "" no "" "" "202206278539709658952" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 5 "ttbl_pc-prdd.blank-no" "Blank" ">9" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216062" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 8 "ttbl_pc-prdd.code" "Machine" "x(5)" "ttbl_pc-prdd" 0 "character" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216063" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 15 "ttbl_pc-prdd.complete" "Complete" "Y/N" "ttbl_pc-prdd" 0 "logical" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216064" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 10 "ttbl_pc-prdd.crew" "Crew" "99.9" "ttbl_pc-prdd" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216065" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 16 "ttbl_pc-prdd.emp-id[1]" "Emp ID" "x(5)" "ttbl_pc-prdd" 0 "character" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216066" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 4 "ttbl_pc-prdd.frm" "Form" ">>9" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216067" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 9 "ttbl_pc-prdd.hours" "Hours" ">>9.99-" "ttbl_pc-prdd" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216068" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 7 "ttbl_pc-prdd.i-name" "Description" "x(30)" "ttbl_pc-prdd" 0 "character" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216069" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 6 "ttbl_pc-prdd.i-no" "Item No" "x(15)" "ttbl_pc-prdd" 0 "character" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216070" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 2 "ttbl_pc-prdd.job-no" "Job" "x(9)" "ttbl_pc-prdd" 0 "character" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216071" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 3 "ttbl_pc-prdd.job-no2" "Run #" ">>9" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216072" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 13 "ttbl_pc-prdd.qty" "Quantity" ">>>>>>>9-" "ttbl_pc-prdd" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216073" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 17 "ttbl_pc-prdd.rate[1]" "Rate" ">>>>9.99<<<" "ttbl_pc-prdd" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216074" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 1 "ttbl_pc-prdd.shift" "Shift" ">9" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216075" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 11 "ttbl_pc-prdd.start" "Start" ">>,>>9" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216076" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 12 "ttbl_pc-prdd.stopp" "Stop" ">>,>>9" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216077" no no no "" no "" "" 0 0 "" no no "" "" no
+213 yes 14 "ttbl_pc-prdd.waste" "Waste" ">>>>9-" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216078" no no no "" no "" "" 0 0 "" no no "" "" no

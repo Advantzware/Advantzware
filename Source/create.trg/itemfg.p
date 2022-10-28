@@ -108,6 +108,7 @@ IF AVAILABLE b-{&TABLENAME} THEN DO:
         {&TABLENAME}.alloc          = b-{&TABLENAME}.alloc
         {&TABLENAME}.stat           = b-{&TABLENAME}.stat
         {&TABLENAME}.ship-meth      = b-{&TABLENAME}.ship-meth
+        {&TABLENAME}.poStatus       = b-{&TABLENAME}.poStatus
         .
     IF b-{&TABLENAME}.cust-no NE "" THEN
     {&TABLENAME}.cust-no = b-{&TABLENAME}.cust-no. 

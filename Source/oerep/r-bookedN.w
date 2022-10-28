@@ -95,6 +95,9 @@ DEFINE VARIABLE glCustListActive    AS LOGICAL   NO-UNDO.
 DEFINE BUFFER bf-eb FOR eb.
 
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /*
 (IF {sys/inc/rptDisp.i "oe-ord.due-date"} THEN "DUE DATE " ELSE "" ) +   8
@@ -123,15 +126,15 @@ ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER,CUSTOMER NAME,PROD CODE," 
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
                             "FG ITEM#,LAST USER ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,COMM %,SHIPPED QTY,CSR,ACK. DATE," +
                             "UOM,SHIP FROM,MACHINE,INKS,PRINT SHEET#,COST/$M,TOTAL STD COST,FULL COST,ENTERED BY,STATUS,PO RECEIVED,PREV ORDER#," +
-                            "APPROVED DATE"
+                            "APPROVED DATE,ESTIMATED FG WEIGHT,ACTUAL FG WEIGHT,TOTAL # OF PALLETS (FG)"
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.cust-no,cust.name,w-data.procat," +
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,price,v-revenue,v-profit,t-tons,v-price-per-t," +
                             "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct,w-data.shp-qty,csrUser_id,ack-date," +
                             "oe-ordl.pr-uom,Ship-from,v-mach,v-ink,print-sheet,v-cost,v-t-cost,full-cost,oe-ord.entered-id,status,po-recvdt,prev-order," +
-                            "approved-date"
+                            "approved-date,est-wt-per-ton,act-wt-per-ton,iTotalPallet"
 
-       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9,30,40,20,14,14,14,10,20,11,11," + "13"
+       cFieldLength = "8,14,8,13,9," + "16,14,10,13," + "10,10,13,9,10,14," + "15,8,15,15,15,10,7,14,8,10," + "6,9,30,40,20,14,14,14,10,20,11,11," + "13,19,16,23"
        .
 
 {sys/inc/ttRptSel.i}
@@ -835,6 +838,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Orders Booked */
 DO:
   /* This event will close the window and terminate the procedure.  */
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -939,6 +943,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    APPLY "close" TO THIS-PROCEDURE.
 END.
 

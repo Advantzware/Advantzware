@@ -48,6 +48,7 @@
                 WHEN "v-terr" THEN cVarValue = string(v-terr).                
                 WHEN "v-crRate" THEN cVarValue = string(v-crRate).
                 WHEN "w-ord-last-date" THEN cVarValue = IF w-ord.last-date NE ? THEN STRING(w-ord.last-date) ELSE "".
+                WHEN "xls-rel-date" THEN cVarValue = IF w-ord.xls-rel-date NE ? THEN STRING(w-ord.xls-rel-date) ELSE "".
                     
                 WHEN "routing" THEN do:  /* task 04091206*/
                         ASSIGN v-m-code = "" .
@@ -150,10 +151,14 @@
                                     cVarValue = IF v-m-code NE "" THEN v-m-code ELSE "" .
                 END.
             END CASE.
-            cExcelVarValue = cVarValue.
+            
+            IF cTmpField = "w-ord-last-date" THEN cExcelVarValue = IF w-ord.last-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",w-ord.last-date) ELSE "".
+            ELSE IF cTmpField = "xls-rel-date" THEN cExcelVarValue = IF w-ord.xls-rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(w-ord.xls-rel-date)) ELSE "".
+             
+            ELSE cExcelVarValue = cVarValue.
             cDisplay = cDisplay + cVarValue +
                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-            cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
          END.
          
       END.

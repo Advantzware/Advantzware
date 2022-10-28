@@ -68,6 +68,10 @@ DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS cha NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 DEFINE BUFFER b-itemfg FOR itemfg .
 
 
@@ -515,7 +519,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* On-Time Deliveries */
 DO:
-  /* This event will close the window and terminate the procedure.  */
+  /* This event will close the window and terminate the procedure.  */ 
+  DELETE PROCEDURE hdOutputProcs.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -571,7 +576,8 @@ END.
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-DO:
+DO: 
+   DELETE PROCEDURE hdOutputProcs.
    APPLY "close" TO THIS-PROCEDURE.
 END.
 
@@ -1482,6 +1488,7 @@ DEFINE VARIABLE v-sqft          LIKE itemfg.t-sqft NO-UNDO.
 DEFINE VARIABLE v-compare-dt    AS DATE NO-UNDO.
 DEFINE VARIABLE lcXLLine        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dShipmentValue  AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dtLastRecDate   AS DATE NO-UNDO.
 
 DEFINE VARIABLE cDisplay AS cha NO-UNDO.
 DEFINE VARIABLE cExcelDisplay AS cha NO-UNDO.
@@ -1632,7 +1639,8 @@ SESSION:SET-WAIT-STATE ("general").
       
       ASSIGN
             lv-qty  = 0
-            lv-last = "".
+            lv-last = ""
+            dtLastRecDate = ?.
      
         IF LOOKUP("cLastReceiptDate",cSelectedList) NE 0 THEN DO:
             FIND FIRST fg-rcpth NO-LOCK
@@ -1644,7 +1652,9 @@ SESSION:SET-WAIT-STATE ("general").
                  USE-INDEX tdate
                  NO-ERROR.
             IF AVAILABLE fg-rcpth THEN
-            lv-last = STRING(fg-rcpth.trans-date,"99/99/99").
+            ASSIGN 
+                lv-last = STRING(fg-rcpth.trans-date,"99/99/99")
+                dtLastRecDate = fg-rcpth.trans-date.
 /*            FOR EACH fg-rcpth                                    */
 /*                FIELDS(trans-date) NO-LOCK                       */
 /*                WHERE fg-rcpth.company EQ oe-ordl.company        */
@@ -1762,8 +1772,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "ord-date"  THEN cVarValue = STRING(oe-ord.ord-date,"99/99/99") .
                          WHEN "due-date"   THEN cVarValue = STRING(oe-rel.rel-date,"99/99/99") .
                          WHEN "bol-date"  THEN cVarValue = STRING(oe-bolh.bol-date,"99/99/99") .
-                         WHEN "ontime"   THEN cVarValue = STRING(oe-bolh.bol-date LE v-compare-dt,"Y/N") .
-                         WHEN "prom-dt"  THEN cVarValue = STRING(oe-ordl.prom-date,"99/99/9999") .
+                         WHEN "ontime"   THEN cVarValue = IF oe-bolh.bol-date NE ? AND v-compare-dt NE ? THEN STRING(oe-bolh.bol-date LE v-compare-dt,"Y/N") ELSE "N" .
+                         WHEN "prom-dt"  THEN cVarValue = IF oe-ordl.prom-date NE ? THEN STRING(oe-ordl.prom-date,"99/99/9999") ELSE "" .
                          WHEN "reason"  THEN cVarValue = STRING(oe-rel.spare-char-2) .
                          WHEN "msf"  THEN cVarValue = STRING(v-msf,"->>>,>>>,>>9.99") .
                          WHEN "wt"  THEN cVarValue = STRING(oe-boll.weight,"->>>>>") .
@@ -1775,8 +1785,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "dItemUnitPrice"  THEN cVarValue = STRING(oe-ordl.price,"->>,>>>,>>9.99<<<<").
                          WHEN "dItemPriceUOM"  THEN cVarValue = STRING(oe-ordl.pr-uom,"XXX").
                          WHEN "iPalletCount"  THEN cVarValue = STRING(oe-ordl.cases-unit,">>>>").
-                         WHEN "dtManufactureDate"  THEN cVarValue = STRING(oe-ordl.prom-date,"99/99/9999").
-                         WHEN "dtCompletionDate"  THEN cVarValue = STRING(oe-ordl.req-date,"99/99/9999").
+                         WHEN "dtManufactureDate"  THEN cVarValue = IF oe-ordl.prom-date NE ? THEN  STRING(oe-ordl.prom-date,"99/99/9999") ELSE "".
+                         WHEN "dtCompletionDate"  THEN cVarValue = IF oe-ordl.req-date NE ? THEN STRING(oe-ordl.req-date,"99/99/9999") ELSE "".
                          WHEN "cFGCategory"  THEN cVarValue = STRING(cFGCategory,"x(5)").
                          WHEN "iBOLNumber"  THEN cVarValue = STRING(oe-bolh.bol-no,">>>>>>>9").
                          WHEN "cBOLCarrier"  THEN cVarValue = STRING(oe-bolh.carrier,"x(5)").
@@ -1784,15 +1794,25 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "dShipmentValue"      THEN cVarValue = STRING(dShipmentValue,"->>,>>>,>>9.99").
                          WHEN "iReleaseQuantity"    THEN cVarValue = IF oe-ordl.t-rel-qty GT 0 THEN STRING(oe-ordl.t-rel-qty,">>,>>>,>>9") ELSE "0".
                          WHEN "dtReleaseDueDate"    THEN cVarValue = STRING(ENTRY(1, oe-rel.spare-char-4)).
-                         WHEN "dtReleaseDate"       THEN cVarValue = STRING(oe-rel.rel-date,"99/99/9999").
+                         WHEN "dtReleaseDate"       THEN cVarValue = IF oe-rel.rel-date NE ? THEN STRING(oe-rel.rel-date,"99/99/9999") ELSE "".
                          WHEN "iReleaseNumber"      THEN cVarValue = IF AVAILABLE oe-relh THEN STRING(oe-relh.release#,">>>>>>9") ELSE "".
 
                     END CASE.
+                    
+                    IF cTmpField = "ord-date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) .
+                    ELSE IF cTmpField = "due-date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",oe-rel.rel-date) .
+                    ELSE IF cTmpField = "bol-date" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",oe-bolh.bol-date) .
+                    ELSE IF cTmpField = "prom-dt" THEN cExcelVarValue = IF oe-ordl.prom-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.prom-date) ELSE "".
+                    ELSE IF cTmpField = "cLastReceiptDate" THEN cExcelVarValue = IF dtLastRecDate NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",dtLastRecDate) ELSE STRING(lv-last) .
+                    ELSE IF cTmpField = "dtManufactureDate" THEN cExcelVarValue = IF oe-ordl.prom-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.prom-date) ELSE "".
+                    ELSE IF cTmpField = "dtCompletionDate" THEN cExcelVarValue = IF oe-ordl.req-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ordl.req-date) ELSE "".
+                    ELSE IF cTmpField = "dtReleaseDate" THEN cExcelVarValue = IF oe-rel.rel-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-rel.rel-date) ELSE "".
+                    ELSE IF cTmpField = "dtReleaseDueDate" THEN cExcelVarValue = DYNAMIC-FUNCTION("sfFormat_Date",DATE(ENTRY(1, oe-rel.spare-char-4))).
 
-                    cExcelVarValue = cVarValue.
+                    ELSE cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.

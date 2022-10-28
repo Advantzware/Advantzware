@@ -378,11 +378,15 @@
                   WHEN "qty-on-hand"  THEN cVarValue = IF last-of(tt-report.row-id) THEN STRING(on-hand-qty,"->>,>>>,>>9") ELSE  "" .
                   
              END CASE.
+             
+             IF cTmpField = "ord-date" THEN cExcelVarValue = IF oe-ord.ord-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",oe-ord.ord-date) ELSE "" .
+             ELSE IF cTmpField = "invrel-dt" THEN cExcelVarValue = IF v-dat NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-dat) ELSE "" .
                
-             cExcelVarValue = cVarValue.
+             ELSE cExcelVarValue = cVarValue.
+             
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+             cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
      END.
      
      PUT UNFORMATTED cDisplay SKIP.

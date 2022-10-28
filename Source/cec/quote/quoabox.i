@@ -62,8 +62,16 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       /*      IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.  */
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
 
-      put trim(lv-est-no) FORM "x(8)" SPACE(1) 
-          xqitm.part-no space(1) xqitm.part-dscr1.  
+      IF LENGTH(xqitm.part-no) LE 20 THEN
+        PUT  "<C1>" TRIM(lv-est-no) FORM "x(8)"
+            "<C8.5>" xqitm.part-no  FORMAT "x(20)"           
+            "<C26>" TRIM(xqitm.part-dscr1) FORMAT "x(30)".
+      ELSE do: 
+         PUT "<C1>" TRIM(lv-est-no) FORM "x(8)"
+          "<C8.5>" xqitm.part-no  FORMAT "x(30)".
+         IF xqitm.part-dscr1 NE "" THEN
+          PUT SKIP "<C26>" TRIM(xqitm.part-dscr1) FORMAT "x(30)". 
+      END.
          
     END.
 

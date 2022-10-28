@@ -173,8 +173,7 @@
 
             {1}.invoiced = YES.
           end.   /* avail po-ordl */
-
-          ELSE  
+                    
           IF {1}.job-no ne "" THEN
           FIND FIRST job NO-LOCK
               WHERE job.company EQ cocode
@@ -186,7 +185,26 @@
                                AND job-hdr.job-no  EQ job.job-no
                                AND job-hdr.job-no2 EQ job.job-no2)
               NO-ERROR.
-
+          
+          IF NOT AVAILABLE job AND AVAILABLE po-ordl THEN
+          DO:
+               FIND FIRST oe-ordl NO-LOCK
+                    WHERE oe-ordl.company EQ cocode
+                      AND oe-ordl.ord-no EQ po-ordl.ord-no
+                      AND oe-ordl.i-no   EQ po-ordl.i-no NO-ERROR.  
+              IF AVAILABLE oe-ordl THEN
+                 FIND FIRST job NO-LOCK
+                      WHERE job.company EQ cocode
+                        AND job.job-no  EQ oe-ordl.job-no
+                        AND job.job-no2 EQ oe-ordl.job-no2
+                        AND CAN-FIND(FIRST job-hdr
+                                     WHERE job-hdr.company EQ job.company
+                                       AND job-hdr.job     EQ job.job
+                                       AND job-hdr.job-no  EQ job.job-no
+                                       AND job-hdr.job-no2 EQ job.job-no2)
+                      NO-ERROR.
+              
+          END.
           IF AVAIL job THEN DO:
             v-est-no = job.est-no.
                       
@@ -727,13 +745,8 @@
 
   /* For Receipts increase the quantity in the BIN */
   else 
-  if {1}.rita-code eq "R" then do:
-    ld-cvt-cost = {2}.ext-cost / {2}.t-qty * 1000.
-    IF {2}.cost-uom NE "M" THEN
-      RUN sys/ref/convcuom.p("M", {2}.cost-uom, 0,
-                             IF AVAIL po-ordl THEN po-ordl.s-len ELSE 0,
-                             IF AVAIL po-ordl THEN po-ordl.s-wid ELSE 0,
-                             0, ld-cvt-cost, OUTPUT ld-cvt-cost).
+  if {1}.rita-code eq "R" then do:     
+    ld-cvt-cost = {2}.std-cost.     
     {fg/upd-bin.i "fg-bin" "{2}.cost-uom" "ld-cvt-cost" {2}}
   end.
   else 

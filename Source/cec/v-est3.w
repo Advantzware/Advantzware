@@ -1796,12 +1796,12 @@ PROCEDURE local-assign-record :
            RUN cec/d-layers.w (YES, ROWID(eb), eb.tr-no, eb.tr-dep, eb.cas-cnt,
                                eb.stacks, INPUT-OUTPUT eb.tr-cas, INPUT-OUTPUT eb.tr-cnt).
     END.
-
+    
+    IF ll-unit-calc THEN    
     ASSIGN                                
-     eb.cas-pal = eb.stacks * eb.tr-cas  
-     eb.tr-cnt  = eb.tr-cnt + INTEGER(eb.quantityPartial:SCREEN-VALUE)
-     .
-   
+     eb.cas-pal = eb.stacks * eb.tr-cas       
+     .   
+        
      RUN cec/UpdFgEc.p(INPUT eb.company, INPUT ROWID(eb)) .
 
     DISPLAY eb.cas-pal eb.tr-cnt WITH FRAME {&FRAME-NAME}.
@@ -2037,7 +2037,7 @@ PROCEDURE local-display-fields :
   RELEASE xest.
   RELEASE xeb. 
   RUN check-modified IN THIS-PROCEDURE ('clear':U) NO-ERROR.
-
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

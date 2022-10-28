@@ -40,7 +40,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   FIND FIRST style WHERE style.company = xqitm.company AND
                          style.style = xqitm.style NO-LOCK NO-ERROR.
 
-  DO i = 1 TO numfit WITH FRAME detail:
+  DO i = 1 TO numfit :
     IF i EQ 1 THEN DO:
       trim-size = "".
     
@@ -53,17 +53,25 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       ELSE trim-size = xqitm.size.
 
       IF LINE-COUNTER + numfit GT PAGE-SIZE - 2 THEN PAGE.
-
-      DISPLAY TRIM(xquo.est-no) @ xquo.est-no
-              xqitm.part-no
-              trim-size.
+      IF LENGTH(xqitm.part-no) LE 19 THEN
+      DO:  
+         PUT   TRIM(xquo.est-no) TO 8 format "x(8)" 
+               xqitm.part-no TO 28 format "x(19)"
+               trim-size TO 47 format "x(18)" . 
+      END.
+      ELSE DO:  
+        PUT  TRIM(xquo.est-no) TO 8 format "x(8)" 
+             xqitm.part-no TO 39 format "x(30)" SKIP
+             trim-size TO 47 format "x(18)" .               
+      END.
+      
     END.
 
     ELSE
     IF i EQ 2 THEN
-      DISPLAY xqitm.part-dscr1              @ xqitm.part-no
-              xqitm.style                   @ trim-size.
-
+      PUT  xqitm.part-dscr1 TO 28 format "x(19)"             
+           xqitm.style TO 47 format "x(18)"                
+              .   
     ELSE
     IF i EQ 3 THEN DO:
       v-board = IF AVAIL ef THEN
@@ -77,13 +85,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
       IF v-board EQ "" THEN v-board = xqitm.i-dscr.
 
-      PUT xqitm.part-dscr2                  TO 28       FORMAT "x(19)"
-          v-board                           TO 47       FORMAT "x(18)".
+      PUT xqitm.part-dscr2 TO 28 FORMAT "x(19)"
+          v-board          TO 47 FORMAT "x(18)".
     END.
 
     ELSE
     IF i EQ 4 AND xqitm.i-coldscr NE "" THEN
-	  DISPLAY xqitm.i-coldscr               @ trim-size.
+	  PUT  xqitm.i-coldscr TO 47 .
 
     IF AVAIL xqqty THEN DO:
        xxx    = IF xqqty.uom EQ "L" THEN xqqty.price    ELSE
@@ -91,19 +99,14 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                   ((xqqty.qty / 100) * xqqty.price)     ELSE
                 IF xqqty.uom EQ "M" THEN
                   ((xqqty.qty / 1000) * xqqty.price)    ELSE
-                  (xqqty.qty * xqqty.price).
-              
-      IF i EQ 3 THEN
-        PUT xqqty.qty           TO 55   FORMAT ">>>>>>9"
-            xqqty.price         TO 65   FORMAT ">>,>>9.99"
-            xqqty.uom           TO 69
-	        xxx                 TO 80   FORMAT ">>>,>>9.99".
-
-      ELSE DISPLAY xqqty.qty xqqty.price xqqty.uom xxx.
-    END.
-
-    IF i NE 3 THEN DOWN.
-
+                  (xqqty.qty * xqqty.price).             
+      
+        PUT  xqqty.qty        TO 55      FORMAT ">>>>>>9"
+             xqqty.price      TO 65      FORMAT ">>,>>9.99"
+             xqqty.uom        TO 69   
+	         xxx              TO 80      FORMAT ">>>,>>9.99".       
+    END. 
+    
     FIND NEXT xqqty OF xqitm NO-LOCK NO-ERROR.
   END.
 

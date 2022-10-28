@@ -416,7 +416,7 @@ IF NOT lItemType THEN DO:
              NO-ERROR.
         IF AVAILABLE fg-rctd THEN DO:
             ASSIGN
-                opcMessage = "Tag# (" + ipcInventoryStockID + ") has already been used, please enter a negative quantity."
+                opcMessage = "Tag '" + ipcInventoryStockID + "' has already been rec'd. Please adjust to correct."
                 oplSuccess = NO
                 .
        

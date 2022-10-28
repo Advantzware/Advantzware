@@ -540,6 +540,8 @@ END.
 
 /* Creating a temp-table with table's primary index fields */
 FOR EACH ASI._file NO-LOCK:
+IF ASI._file._tbl-type NE "T" THEN NEXT.
+IF ASI._file._hidden OR ASI._file._for-type EQ "procedure" THEN NEXT.    
     CREATE ttPrimaryIndex.
     ttPrimaryIndex.tableName = ASI._file._file-name.
 
@@ -2170,6 +2172,33 @@ PROCEDURE spGetSettingByNameAndShipTo:
     RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
     
     opcSettingValue = oSetting:GetByNameAndShipTo(ipcSettingName, ipcCustomerID, ipcShipToID).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-spGetSettingByNameAndLocation) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spGetSettingByNameAndLocation Procedure
+PROCEDURE spGetSettingByNameAndLocation:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcSettingName  AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcCustomerID   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation     AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcSettingValue AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE oSetting AS system.Setting NO-UNDO.
+    
+    RUN spGetSettingObject (ipcSettingName, SOURCE-PROCEDURE, OUTPUT oSetting).
+    
+    opcSettingValue = oSetting:GetByNameAndLocation(ipcSettingName, ipcCustomerID, ipcLocation).
 
 END PROCEDURE.
 	

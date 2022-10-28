@@ -575,12 +575,21 @@ PROCEDURE Reset :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
     {methods/run_link.i "JOB-SOURCE" "Reset"}
     {methods/run_link.i "FGItem-SOURCE" "Reset"}
     {methods/run_link.i "QTY-SOURCE" "SetQuantities" "(0,0,0,0)"}
     {methods/run_link.i "COPIES-SOURCE" "SetCopies" "(1)"}
     {methods/run_link.i "USERFIELD-SOURCE" "SetUserFields" "("","","","","","")"}
+    {methods/run_link.i "QTY-SOURCE" "DisableQuantities"}
+    {methods/run_link.i "FGITEM-SOURCE" "DisableFGItem"}   
+    {methods/run_link.i "USERFIELD-SOURCE" "DisableUserFields"}
+    {methods/run_link.i "COPIES-SOURCE" "DisableCopies"}
     {methods/run_link.i "JOB-SOURCE" "Set-Focus"}
+    
+    btCreate:SENSITIVE = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

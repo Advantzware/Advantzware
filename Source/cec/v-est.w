@@ -148,6 +148,14 @@ RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
+DEFINE VARIABLE lCADFile AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CADFILE", "L" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     lCADFile = logical(cRecValue) NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -550,7 +558,7 @@ DEFINE FRAME Corr
           LABEL "Width" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.dep AT ROW 12.91 COL 88 COLON-ALIGNED
+     eb.dep AT ROW 12.91 COL 91 COLON-ALIGNED
           LABEL "Depth" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -573,7 +581,7 @@ DEFINE FRAME Corr
           LABEL "Bottom Flap" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.lock AT ROW 13.86 COL 88 COLON-ALIGNED
+     eb.lock AT ROW 13.86 COL 91 COLON-ALIGNED
           LABEL "Lock Tab" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -589,7 +597,7 @@ DEFINE FRAME Corr
           LABEL "Scores on Length" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.tuck AT ROW 14.81 COL 88 COLON-ALIGNED
+     eb.tuck AT ROW 14.81 COL 91 COLON-ALIGNED
           LABEL "Tuck" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
@@ -1231,8 +1239,9 @@ DO:
     lCEUseNewLayoutCalc = logical(cRecValue) NO-ERROR. 
   
   
+      
   ASSIGN
-    initDir = cArtiosCAD 
+    initDir = IF lArtiosCAD THEN cArtiosCAD ELSE IF lCADFile THEN lv-cad-path ELSE cArtiosCAD
     cadFile = ''.
   IF lArtiosCAD THEN
    iInitialFilter = 2.
@@ -2980,6 +2989,7 @@ assign
  itemfg.pur-man           = xeb.pur-man  
  itemfg.alloc             = xeb.set-is-assembled
  itemfg.receiveAsRMItemID = xeb.receiveAsRMItemID
+ itemfg.trno              = xeb.tr-no
  .
 
  IF itemfg.alloc NE ? THEN itemfg.alloc = NOT itemfg.alloc.
@@ -3836,7 +3846,8 @@ DO WITH FRAME {&FRAME-NAME}:
 
   ASSIGN tb-set:SENSITIVE = FALSE
          bt-new-die:SENSITIVE = FALSE
-         bt-new-plate:SENSITIVE = FALSE.
+         bt-new-plate:SENSITIVE = FALSE
+         fi_lf-blank:SENSITIVE = FALSE.
 
   IF v-cecscrn-char EQ "Decimal" THEN do:
      iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .     
@@ -4086,7 +4097,7 @@ END.
     IF AVAIL b-style AND lookup(b-style.TYPE,'P,R') > 0 THEN
     DO:
        ASSIGN
-          eb.dep:LABEL = "Slot Hei"
+          eb.dep:LABEL = "Slot Height"
           eb.gluelap:LABEL = "Slot Width"
           eb.wid:LABEL = "Height"
           eb.t-wid:LABEL = "Height"
@@ -4136,6 +4147,8 @@ END.
         btn_board:HIDDEN  = TRUE .
     ELSE 
         btn_board:HIDDEN  = FALSE .
+        
+  {methods/run_link.i "CONTAINER-SOURCE" "disable-enable-farm" "(eb.pur-man)"}       
 
   RUN get-current-values (OUTPUT lc-previous-values).              
 END PROCEDURE.
@@ -4163,7 +4176,8 @@ PROCEDURE local-update-record :
   DO WITH frame {&frame-name}:
       ASSIGN tb-set:SENSITIVE = FALSE
              bt-new-die:SENSITIVE = FALSE
-             bt-new-plate:SENSITIVE = FALSE.
+             bt-new-plate:SENSITIVE = FALSE
+             fi_lf-blank:SENSITIVE = FALSE.
   END.
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -4595,7 +4609,8 @@ PROCEDURE proc-enable :
   DO WITH frame {&frame-name}:
       ASSIGN tb-set:SENSITIVE = TRUE
              bt-new-die:SENSITIVE = TRUE
-             bt-new-plate:SENSITIVE = TRUE.
+             bt-new-plate:SENSITIVE = TRUE
+             fi_lf-blank:SENSITIVE = TRUE.
   END.
 
   ASSIGN
@@ -4924,7 +4939,7 @@ PROCEDURE update-sheet :
        xeb.num-len  = 1.
 
         IF lCEUseNewLayoutCalc THEN
-            RUN Estimate_UpdateEfFormLayout (BUFFER xef, BUFFER xeb).
+            RUN Estimate_UpdateEfFormLayoutSizeOnly (BUFFER xef, BUFFER xeb).
         ELSE
             RUN cec/calc-dim1.p NO-ERROR.
 
