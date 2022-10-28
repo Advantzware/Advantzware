@@ -901,7 +901,7 @@ PROCEDURE GetVendorCost:
     DO:
         ASSIGN 
             opcCostUOM = bf-vendItemCost.vendorUOM
-            opcVendorItem = bf-vendItemCost.vendorItemID.  MESSAGE "vendor cost process opcVendorItem " VIEW-AS ALERT-BOX ERROR.
+            opcVendorItem = bf-vendItemCost.vendorItemID.  
         IF opcCostUOM NE ipcQuantityUOM THEN 
         DO:  
             RUN pConvertQuantity(ipcCompany, ipcItemID, ipcItemType, ipdQuantity, ipcQuantityUOM, opcCostUOM, 
