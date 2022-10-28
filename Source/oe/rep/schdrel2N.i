@@ -511,8 +511,9 @@ form header
                              TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', w-ord.job-no, w-ord.job-no2)))
        w-ord.po-num        = v-po-no
        w-ord.ord-qty       = oe-ordl.qty
-       w-ord.due-date   = string(oe-ordl.req-date)
+       w-ord.due-date      = string(oe-ordl.req-date)
        w-ord.shp-qty       = oe-ordl.ship-qty
+       w-ord.t-inv-qty     = oe-ordl.t-inv-qty
        w-ord.msf           = w-ord.rel-qty * itemfg.t-sqft / 1000
        w-ord.prom-code     = oe-ordl.prom-code
        w-ord.last-date     = oe-ord.last-date

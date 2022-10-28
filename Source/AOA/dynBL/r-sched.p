@@ -83,6 +83,13 @@ DEFINE TEMP-TABLE w-ord
     FIELD po-ord-qty AS DECIMAL
     FIELD po-rec-qty AS DECIMAL
     FIELD pr-uom AS CHARACTER 
+    FIELD cRemainRoute AS CHARACTER
+    FIELD dDockApp AS CHARACTER
+    FIELD iPalletCountQty AS INTEGER
+    FIELD dEstWeight AS DECIMAL
+    FIELD dActWeight AS DECIMAL      
+    FIELD iQtyInvoiced AS INTEGER
+    FIELD iPallet AS INTEGER
     .
 DEFINE WORKFILE tt-fg-set LIKE fg-set
     FIELD isaset     LIKE itemfg.isaset
@@ -140,11 +147,15 @@ PROCEDURE pBusinessLogic:
     DEFINE VARIABLE idx              AS INTEGER           NO-UNDO.
     DEFINE VARIABLE cRelDueDate      AS CHARACTER         NO-UNDO.
     DEFINE VARIABLE lPrinted         AS LOGICAL           NO-UNDO.
+    DEFINE VARIABLE dSqft            AS DECIMAL           NO-UNDO.    
+    DEFINE VARIABLE dtDockTime like oe-relh.releaseDockTime NO-UNDO.
 
     DEFINE BUFFER b-oe-ordl  FOR oe-ordl.
     DEFINE BUFFER bf-oe-rell FOR oe-rell.
     DEFINE BUFFER b-itemfg   FOR itemfg.
     DEFINE BUFFER bw-ord     FOR w-ord.
+    DEFINE BUFFER bf-eb      FOR eb.
+    DEFINE BUFFER bf-ef      FOR ef.
     
     ASSIGN
         cocode           = cCompany
@@ -366,6 +377,7 @@ PROCEDURE pBusinessLogic:
                 ASSIGN 
                     iReleaseNo = oe-relh.release#
                     cShipFrom  = oe-rell.loc
+                    dtDockTime = oe-relh.releaseDockTime
                     .
                 IF oe-relh.posted EQ NO AND oe-relh.deleted EQ NO THEN
                 tt-report.rec-id = RECID(oe-rell).
@@ -393,6 +405,7 @@ PROCEDURE pBusinessLogic:
             ASSIGN 
                 iReleaseNo = IF AVAILABLE oe-relh THEN oe-relh.release# ELSE iReleaseNo
                 cShipFrom  = oe-rell.loc
+                dtDockTime = IF AVAIL oe-relh THEN oe-relh.releaseDockTime ELSE dtDockTime
                 .
             FIND FIRST oe-ordl NO-LOCK 
                 WHERE oe-ordl.company EQ oe-rell.company
@@ -491,10 +504,49 @@ PROCEDURE pBusinessLogic:
                 w-ord.promiseDate    = IF oe-ord.promiseDate NE ? THEN STRING(oe-ord.promiseDate) ELSE ""
                 w-ord.priority       = oe-ord.priority
                 w-ord.pr-uom         = oe-ordl.pr-uom
+                w-ord.iQtyInvoiced   = oe-ordl.t-inv-qty                
+                w-ord.iPalletCountQty = INT((INT(itemfg.case-count) * INT(itemfg.case-pall))
+                                          + INT(itemfg.quantityPartial))                  
+                w-ord.dDockApp        = IF dtDockTime NE ? THEN STRING(dtDockTime) ELSE ""
+                w-ord.iPallet         = INT(w-ord.rel-qty / w-ord.iPalletCountQty)
+                w-ord.iPallet         = IF w-ord.iPallet LT 0 THEN w-ord.iPallet * -1 ELSE w-ord.iPallet
                 .
             {sys/inc/roundup.i dPallets}
             IF dPallets LT 0 THEN dPallets = dPallets * -1.
             w-ord.palls = w-ord.palls + dPallets.
+            
+            
+            FIND FIRST eb NO-LOCK
+                 WHERE eb.company EQ cocode
+                   AND eb.est-no  EQ oe-ordl.est-no
+                   AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+            IF AVAILABLE eb THEN        
+            FIND FIRST ef NO-LOCK
+                 WHERE ef.company EQ eb.company 
+                 AND ef.est-no EQ eb.est-no 
+                 AND ef.form-no EQ eb.form-no NO-ERROR. 
+            ELSE RELEASE ef.      
+            ASSIGN
+                w-ord.dEstWeight         = IF AVAILABLE ef THEN (ef.weight * w-ord.msf) / 2000 ELSE 0.              
+            
+            IF AVAILABLE itemfg THEN
+            DO:
+               FIND FIRST bf-eb NO-LOCK
+                    WHERE bf-eb.company EQ cocode 
+                      AND bf-eb.est-no EQ itemfg.est-no
+                      AND bf-eb.stock-no EQ itemfg.i-no NO-ERROR.
+              IF AVAILABLE bf-eb THEN
+              FIND FIRST bf-ef NO-LOCK
+                    WHERE bf-ef.company EQ cocode 
+                      AND bf-ef.est-no EQ bf-eb.est-no
+                      AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+              ELSE RELEASE bf-ef. 
+              RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT dSqft).
+               ASSIGN
+                    w-ord.dActWeight = IF AVAILABLE bf-ef THEN (bf-ef.weight * itemfg.q-onh * dSqft ) / 2000 ELSE 0. 
+               IF w-ord.dActWeight LT 0 THEN  w-ord.dActWeight = 0.      
+            END.  
+            
             IF NOT FIRST-OF(tt-report.key-02) AND cSort EQ "Customer No" THEN w-ord.cust-name = "".
             IF lGetVendorPOInfo THEN
             RUN pGetVendorPOInfo (
@@ -736,6 +788,13 @@ PROCEDURE pBusinessLogic:
                 ttScheduledReleases.lastShipDate    = STRING(w-ord.last-date,"99/99/9999")
                 ttScheduledReleases.priceUOM        = w-ord.pr-uom
                 ttScheduledReleases.price           = w-ord.price
+                
+                ttScheduledReleases.dDockApp        = w-ord.dDockApp
+                ttScheduledReleases.iPalletCountQty = w-ord.iPalletCountQty
+                ttScheduledReleases.iPallet         = w-ord.iPallet
+                ttScheduledReleases.dEstFGWeight    = w-ord.dEstWeight
+                ttScheduledReleases.dActFGWeight    = w-ord.dActWeight
+                ttScheduledReleases.iQtyInvoiced    = w-ord.iQtyInvoiced                                    
                 ttScheduledReleases.recordID        = iRecordID
                 .
         END. /* each w-ord */

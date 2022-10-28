@@ -60,6 +60,7 @@ def temp-table w-ord
   field po-num like oe-ordl.po-no
   field ord-qty like oe-ordl.qty
   field shp-qty like oe-ordl.ship-qty
+  field t-inv-qty like oe-ordl.t-inv-qty
   field msf as dec format "->>9.999"
   field component as int
   field prom-code like oe-ordl.prom-code FORMAT 'X(5)'
