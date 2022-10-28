@@ -12,7 +12,7 @@
                      ipcEnv - current Environment 
                      ipcFromVer - from Env version
                      ipcToVer - to Env version
-                     ipiLevel - users security level
+                     ipiLevel - users security level 
                      iplNeedBackup - backup database?
   Output Parameters: oplSuccess - upgrade successful
   Author: MYT

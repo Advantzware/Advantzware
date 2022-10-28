@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME C-Win
+&Scoped-define WINDOW-NAME C-Win 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
   File:                 asiUpdate1.w
