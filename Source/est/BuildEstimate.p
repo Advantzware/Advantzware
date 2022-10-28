@@ -734,6 +734,9 @@ PROCEDURE pCalcPacking:
             .
         IF eb.cas-pal EQ 0 THEN eb.cas-pal = dUnitsPerPallet.
         IF eb.tr-cnt  EQ 0 THEN eb.tr-cnt = iCountOnPallet.
+        IF eb.pur-man AND (eb.stacks EQ 0 OR eb.stacks EQ ?) THEN eb.stacks = 1. 
+        IF eb.pur-man AND (eb.tr-cas EQ 0 OR eb.tr-cas EQ ?) THEN eb.tr-cas = 1.
+        IF (eb.stack-code EQ ? OR eb.stack-code EQ "")  AND eb.pur-man THEN eb.stack-code = "D".
     END.
     IF eb.tr-cnt EQ 0 THEN 
         eb.tr-cnt = eb.cas-cnt * eb.cas-pal.
