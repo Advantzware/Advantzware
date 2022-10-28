@@ -4,8 +4,12 @@ DEFINE VARIABLE dNetprct LIKE probe.net-profit.
 DEFINE VARIABLE cUsers-id AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cInks AS CHARACTER NO-UNDO .
+DEFINE VARIABLE iTotalPallet AS INTEGER NO-UNDO .
+DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
+DEFINE BUFFER bf-eb FOR eb.
+DEFINE BUFFER bf-ef FOR ef.
          FORMAT oe-ord.due-date COLUMN-LABEL " !Due!Date"
                                 FORMAT "99/99/99"
                 w-data.ord-no
@@ -583,8 +587,10 @@ FORMAT wkrecap.procat
             v-sname
             SKIP(1).
     END.
-    
-
+    ASSIGN
+        dPalletCount = oe-ordl.cas-cnt * oe-ordl.cases-unit
+        iTotalPallet = oe-ordl.qty / (IF dPalletCount NE 0 THEN dPalletCount ELSE 1).  
+  
     FIND FIRST oe-ord NO-LOCK
         WHERE oe-ord.company EQ cocode
           AND oe-ord.ord-no  EQ w-data.ord-no
@@ -631,6 +637,13 @@ FORMAT wkrecap.procat
         FIND FIRST eb NO-LOCK WHERE eb.company EQ cocode
             AND eb.est-no  EQ oe-ordl.est-no
             AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+        IF AVAILABLE eb THEN        
+        FIND FIRST ef NO-LOCK
+             WHERE ef.company EQ eb.company 
+             AND ef.est-no EQ eb.est-no 
+             AND ef.form-no EQ eb.form-no NO-ERROR. 
+       ELSE RELEASE ef.      
+        
     END. /* avail oe-ordl  */
     
     IF AVAIL oe-ord AND AVAIL job AND job.job-no NE "" THEN 
@@ -730,6 +743,27 @@ FORMAT wkrecap.procat
 		         WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
 		         WHEN "oe-ord.due-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date) ELSE "".
 		         WHEN "oe-ord.ord-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
+                 WHEN "est-wt-per-ton" THEN cVarValue = IF AVAILABLE ef THEN STRING((ef.weight * w-data.t-sqft) / 2000) ELSE "".
+                 WHEN "iTotalPallet" THEN cVarValue = STRING(iTotalPallet,"->>,>>>,>>9").
+                 WHEN "act-wt-per-ton" THEN DO:
+                    IF AVAILABLE itemfg AND itemfg.est-no NE "" THEN
+                    DO:
+                       FIND FIRST bf-eb NO-LOCK
+                            WHERE bf-eb.company EQ cocode 
+                              AND bf-eb.est-no EQ itemfg.est-no
+                              AND bf-eb.stock-no EQ itemfg.i-no NO-ERROR.
+                      IF AVAILABLE bf-eb THEN
+                      FIND FIRST bf-ef NO-LOCK
+                            WHERE bf-ef.company EQ cocode 
+                              AND bf-ef.est-no EQ bf-eb.est-no
+                              AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+                      ELSE RELEASE bf-ef.
+                      RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT v-sqft).
+                      cVarValue = IF AVAILABLE bf-ef THEN STRING((ef.weight * (v-sqft * itemfg.q-onh)) / 2000) ELSE "".
+                      IF decimal(cVarValue) LT 0 THEN cVarValue = "".
+                    END.
+                    ELSE cVarValue = "".                       
+                 END.
             END CASE.
             IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
             
@@ -828,6 +862,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+                   WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -910,6 +945,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+                   WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -999,6 +1035,26 @@ FORMAT wkrecap.procat
 		        WHEN "approved-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE "".
 		        WHEN "oe-ord.due-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.due-date NE ? THEN STRING(oe-ord.due-date) ELSE "".
 		        WHEN "oe-ord.ord-date" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.ord-date NE ? THEN STRING(oe-ord.ord-date) ELSE "".
+                WHEN "est-wt-per-ton" THEN cVarValue = IF AVAILABLE ef THEN STRING((ef.weight * w-data.t-sqft) / 2000) ELSE "".
+                WHEN "iTotalPallet" THEN cVarValue = string(iTotalPallet,"->>,>>>,>>9").
+                WHEN "act-wt-per-ton" THEN DO:
+                    IF AVAILABLE itemfg AND itemfg.est-no NE "" THEN
+                    DO:
+                       FIND FIRST bf-eb NO-LOCK
+                            WHERE bf-eb.company EQ cocode 
+                              AND bf-eb.est-no EQ itemfg.est-no
+                              AND bf-eb.stock-no EQ itemfg.i-no NO-ERROR.
+                      IF AVAILABLE bf-eb THEN
+                      FIND FIRST bf-ef NO-LOCK
+                            WHERE bf-ef.company EQ cocode 
+                              AND bf-ef.est-no EQ bf-eb.est-no
+                              AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+                      ELSE RELEASE bf-ef.
+                      RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT v-sqft).
+                      cVarValue = IF AVAILABLE bf-ef THEN STRING((ef.weight * (v-sqft * itemfg.q-onh)) / 2000) ELSE "".
+                    END.
+                    ELSE cVarValue = "".                       
+                 END.
             END CASE.
             IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
             
@@ -1093,7 +1149,8 @@ FORMAT wkrecap.procat
                    WHEN "status" THEN cVarValue = "" .
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "" . 
-		           WHEN "approved-date" THEN cVarValue = "" .	
+		           WHEN "approved-date" THEN cVarValue = "" .
+                   WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1175,6 +1232,7 @@ FORMAT wkrecap.procat
                    WHEN "po-recvdt" THEN cVarValue = "".
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
+                   WHEN "iTotalPallet" THEN cVarValue = "" .
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.

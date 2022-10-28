@@ -1723,6 +1723,8 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE dtOldPoDate   AS DATE     NO-UNDO.
   DEFINE VARIABLE rwRowid       AS ROWID    NO-UNDO.
   DEFINE VARIABLE cDateChangeReason AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cCustomerNumber   AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cDropShipment     AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lHoldPoStatus  AS LOGICAL NO-UNDO.
   DEFINE VARIABLE dPurchaseLimit AS DECIMAL NO-UNDO.
 
@@ -1736,7 +1738,9 @@ PROCEDURE local-assign-record :
   dtOldPoDate      = po-ord.po-date
   cOldLoc          = po-ord.loc 
   cPoStatus        = po-ord.stat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
-  lPriceHold       = po-ord.PriceHold.
+  lPriceHold       = po-ord.PriceHold
+  cCustomerNumber  = po-ord.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+  cDropShipment    = rd_drop-shipment:SCREEN-VALUE IN FRAME {&FRAME-NAME} .
   
      FIND bx-poord WHERE RECID(bx-poord) = iv-copy-from-rec NO-LOCK NO-ERROR.
      IF AVAILABLE bx-poord THEN DO:
@@ -1770,6 +1774,11 @@ PROCEDURE local-assign-record :
    po-ord.ship-no = lv-ship-no
    po-ord.cust-no = ls-drop-custno
    po-ord.stat    = cPoStatus.
+   IF adm-new-record AND NOT adm-adding-record AND cDropShipment EQ "C" 
+      AND ls-drop-custno EQ "" THEN
+   DO:
+     po-ord.cust-no = cCustomerNumber.
+   END.
   DO WITH FRAME {&FRAME-NAME} :
      IF lPriceHold NE po-ord.priceHold AND NOT po-ord.priceHold THEN 
      DO:

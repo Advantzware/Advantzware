@@ -35,6 +35,11 @@ DEF VAR v-fg-cat AS CHAR INIT "" NO-UNDO .
 DEFINE VARIABLE lSelected AS LOGICAL INIT YES NO-UNDO.
 //DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 DEFINE VARIABLE cRelDueDate AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lEstWeight AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lActWeight AS LOGICAL NO-UNDO.
+DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
+DEFINE BUFFER bf-eb FOR eb.
+DEFINE BUFFER bf-ef FOR ef.
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
@@ -133,6 +138,10 @@ form header
   {sys/inc/ctrtext.i str-tit3 142}.
    
   FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
+  
+     IF ttRptSelected.TextList MATCHES "*Estimated FG Weight*" THEN lEstWeight = YES.
+     IF ttRptSelected.TextList MATCHES "*Actual FG Weight*" THEN lActWeight = YES.
+      
      IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
        THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
@@ -525,8 +534,38 @@ form header
        w-ord.Printed           = lPrinted 
        w-ord.promiseDate       = IF oe-ord.promiseDate NE ? THEN  string(oe-ord.promiseDate) ELSE ""
        w-ord.priority          = oe-ord.priority
-       w-ord.pr-uom            = oe-ordl.pr-uom
-       .
+       w-ord.pr-uom            = oe-ordl.pr-uom .
+       IF lEstWeight then
+       DO:
+           FIND FIRST eb NO-LOCK WHERE eb.company EQ cocode
+                AND eb.est-no  EQ oe-ordl.est-no
+                AND eb.stock-no EQ oe-ordl.i-no NO-ERROR .
+            IF AVAILABLE eb THEN        
+            FIND FIRST ef NO-LOCK
+                 WHERE ef.company EQ eb.company 
+                 AND ef.est-no EQ eb.est-no 
+                 AND ef.form-no EQ eb.form-no NO-ERROR. 
+           ELSE RELEASE ef.      
+           ASSIGN
+                w-ord.estWeight         = IF AVAILABLE ef THEN (ef.weight * w-ord.msf) / 2000 ELSE 0.              
+       END.
+       IF lActWeight AND AVAILABLE itemfg THEN
+       DO:
+           FIND FIRST bf-eb NO-LOCK
+                WHERE bf-eb.company EQ cocode 
+                  AND bf-eb.est-no EQ itemfg.est-no
+                  AND bf-eb.stock-no EQ itemfg.i-no NO-ERROR.
+          IF AVAILABLE bf-eb THEN
+          FIND FIRST bf-ef NO-LOCK
+                WHERE bf-ef.company EQ cocode 
+                  AND bf-ef.est-no EQ bf-eb.est-no
+                  AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+          ELSE RELEASE bf-ef. 
+          RUN fg/GetFGArea.p (ROWID(itemfg), "MSF", OUTPUT dSqft).
+           ASSIGN
+                w-ord.actWeight = IF AVAILABLE bf-ef THEN (bf-ef.weight * itemfg.q-onh * dSqft ) / 2000 ELSE 0. 
+           IF w-ord.actWeight LT 0 THEN  w-ord.actWeight = 0.      
+       END.  
 
       {sys/inc/roundup.i ld-palls}
 

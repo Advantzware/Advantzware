@@ -935,6 +935,7 @@ PROCEDURE pViewAs :
             dParamWidth,
             dParamHeight,
             CAN-DO(cAction,"MULTISELECT"),
+            CAN-DO(cAction,"LIST-ITEM-PAIRS"),
             cInitialItems,
             cInitialValue,
             lSensitive,
