@@ -28,7 +28,7 @@ DEFINE VARIABLE giAttributeIDBlankLen         AS INTEGER NO-UNDO INITIAL 4.    /
 DEFINE VARIABLE giAttributeIDBlankWid         AS INTEGER NO-UNDO INITIAL 5.    //Blank Width
 DEFINE VARIABLE giAttributeIDGlueLapLen       AS INTEGER NO-UNDO INITIAL 6.    //Glue Lap Length
 DEFINE VARIABLE giAttributeIDBlankSFSI        AS INTEGER NO-UNDO INITIAL 7.    //Blank Sq In/Sq Ft
-DEFINE VARIABLE giAttributeIDCaliper          AS INTEGER NO-UNDO INITIAL 8.    //Caliper Thickness
+DEFINE VARIABLE giAttributeIDCaliper          AS INTEGER NO-UNDO INITIAL 8.    //Caliper Thickness (integer)
 DEFINE VARIABLE giAttributeIDWeightperMSF     AS INTEGER NO-UNDO INITIAL 9.    //Weight per MSF
 DEFINE VARIABLE giAttributeIDRollWid          AS INTEGER NO-UNDO INITIAL 10.    //Roll Width
 DEFINE VARIABLE giAttributeIDNShtWid          AS INTEGER NO-UNDO INITIAL 11.    //Net Sheet Width
@@ -62,6 +62,7 @@ DEFINE VARIABLE giAttributeIDDieHoursFormula  AS INTEGER NO-UNDO INITIAL 99.    
 DEFINE VARIABLE giAttributeIDStyle            AS INTEGER NO-UNDO INITIAL 101.   //Style
 DEFINE VARIABLE giAttributeIDBoardItemID      AS INTEGER NO-UNDO INITIAL 102.   //Board ItemID
 DEFINE VARIABLE giAttributeIDBoxDepth         AS INTEGER NO-UNDO INITIAL 104.   //Box Depth
+DEFINE VARIABLE giAttributeIDCaliperDecimal   AS INTEGER NO-UNDO INITIAL 105.   //Caliper as decimal
  
 
 DEFINE VARIABLE gcDeptsForPrinters                   AS CHARACTER NO-UNDO INITIAL "PR".
@@ -2148,7 +2149,7 @@ PROCEDURE pGetMatrixSpeedReduction PRIVATE:
     DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cName             AS CHARACTER NO-UNDO.
      
-    RUN pGetAttribute(giAttributeIDCaliper, OUTPUT cCaliper, OUTPUT cName, OUTPUT oplError, OUTPUT cMessage).
+    RUN pGetAttribute(giAttributeIDCaliperDecimal, OUTPUT cCaliper, OUTPUT cName, OUTPUT oplError, OUTPUT cMessage).
     dCaliper = DECIMAL(cCaliper).
     RUN pGetAttribute(giAttributeIDBoxDepth, OUTPUT cDepth, OUTPUT cName, OUTPUT oplError, OUTPUT cMessage).
     dDepth = DECIMAL(cDepth).
@@ -2168,7 +2169,7 @@ PROCEDURE pGetMatrixSpeedReduction PRIVATE:
             DO:
                 ASSIGN 
                     dDepthReduction = ipbf-mstd.depth-reduc[iIndex] / 100
-                    cDepthMessage   = "Depth reduction of " + STRING(opdReduction) + " for depth of " + cDepth + " index level " + STRING(iIndex).
+                    cDepthMessage   = "Depth reduction of " + STRING(dDepthReduction) + " for depth of " + cDepth + " index level " + STRING(iIndex).
                 .
                 LEAVE.
             END.
@@ -3003,6 +3004,7 @@ PROCEDURE pSetAttributesForm PRIVATE:
     
     RUN pSetAttribute(giAttributeIDBoardItemID, "Board ItemID", ipbf-ef.board).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDCaliper, STRING(fGetOperationsCalThickness(BUFFER ipbf-ef))).
+    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDCaliperDecimal, STRING(ipbf-ef.cal)).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDWeightperMSF, STRING(ipbf-ef.weight)). 
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDRollWid, STRING(ipbf-ef.roll-wid)).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNShtWid, STRING(ipbf-ef.nsh-wid)).
