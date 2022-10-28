@@ -13,7 +13,7 @@
     12/19/2017 - MYT -  updated to handle 16.6.9 data fixes
                         added Clean Before Install to suppress deletion
                         of existing programs/resources directories prior
-                        to install of new (lets customers stay live)
+                        to install of new (lets customers stay live) 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
@@ -551,6 +551,8 @@ PROCEDURE ipBackupDBs :
         IF SEARCH(cLockFile) EQ ? THEN ASSIGN 
             cCmdLine = REPLACE(cCmdLine," online","").
         
+        ASSIGN
+            iopiStatus = 6.
         RUN ipStatus ("  Backing Up database " + ipcAsiDbName).
         
         OS-COMMAND SILENT VALUE(cCmdLine).
@@ -563,6 +565,7 @@ PROCEDURE ipBackupDBs :
         END.
         ELSE DO:
             ASSIGN
+                iopiStatus = 8
                 lSuccess = FALSE.
             RUN ipStatus ("    " + ipcAsiDbName + " Backup FAILED").
         END.
@@ -591,6 +594,8 @@ PROCEDURE ipBackupDBs :
         IF SEARCH(cLockFile) EQ ? THEN ASSIGN 
             cCmdLine = REPLACE(cCmdLine," online","").
         
+        ASSIGN
+            iopiStatus = 9.
         RUN ipStatus ("  Backing Up database " + ipcAudDbName).
         
         OS-COMMAND SILENT VALUE(cCmdLine).
@@ -603,6 +608,7 @@ PROCEDURE ipBackupDBs :
         END.
         ELSE DO:
             ASSIGN
+                iopiStatus = 11
                 lSuccess = FALSE.
             RUN ipStatus ("    " + ipcAudDbName + " Backup FAILED").
         END.
