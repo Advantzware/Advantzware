@@ -21,15 +21,11 @@
             &f={1}.dust  &o={1}.lock}
     end.
 
-    else do:
-      find first reftable
-          where reftable.reftable eq "STYFLU"
-            and reftable.company  eq {1}.style
-            and reftable.loc      eq {1}.flute
-            and reftable.code     eq "DIM-FIT"
-          no-lock no-error.
-
-      v-dim-fit = if avail reftable then (reftable.val[1] / 6.25 * k_frac) else 0.
+    else do:       
+            
+      RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs ({1}.company, {1}.style, {1}.flute, OUTPUT dBoxFit).
+                 
+      v-dim-fit = dBoxFit / 6.25 * k_frac.
 
       tmpstore = style.formula[1].
          {cec/kstyle.i &for=1 &l={1}.len &w={1}.wid &d={1}.dep

@@ -145,6 +145,7 @@ DEFINE VARIABLE hdArtiosProcs AS HANDLE.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs. 
 RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
 DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 

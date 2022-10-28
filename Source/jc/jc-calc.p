@@ -143,6 +143,10 @@ DO TRANSACTION:
     {sys/inc/graphic.i}
 END.
 
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
 DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
 hProc = SESSION:FIRST-PROCEDURE.
 DO WHILE VALID-HANDLE(hProc):
@@ -1480,6 +1484,9 @@ END. /* if iauditid */
 
 IF VALID-HANDLE(hPrepProcs) THEN 
 DELETE OBJECT hPrepProcs.
+
+IF VALID-HANDLE(hdFormulaProcs) THEN
+DELETE PROCEDURE hdFormulaProcs.
 
 /* **********************  Internal Procedures  *********************** */
 

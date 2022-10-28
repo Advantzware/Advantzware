@@ -770,13 +770,7 @@ PROCEDURE calc-blank-size :
                                         rfq.rfq-no = rfqitem.rfq-no
                                         no-lock.        
 
-   if lv-is-corr then do:
-      find first reftable
-          where reftable.reftable eq "STYFLU"
-            and reftable.company  eq rfqitem.style
-            and reftable.loc      eq rfqitem.flute
-            and reftable.code     eq "DIM-FIT"
-          no-lock no-error.
+   if lv-is-corr then do:     
 
       DO i = 1 TO EXTENT(rfqitem.k-wid-array2):
          ASSIGN
