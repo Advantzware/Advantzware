@@ -1146,25 +1146,13 @@ END.
                    ld-wid = ld-wid * ld-metric
                    ld-dep = ld-dep * ld-metric.
 
-                  {sys/inc/roundup.i ld-len}
-                  {sys/inc/roundup.i ld-wid}
-                  {sys/inc/roundup.i ld-dep}
+                END.
 
                   ASSIGN
-                   vs-len = STRING(ld-len,"->>,>>>mm")
-                   vs-wid = STRING(ld-wid,"->>,>>>mm")
-                   vs-dep = STRING(ld-dep,"->>,>>>mm").
-                END.
+                   vs-len = STRING(ld-len,"->>,>>>.99mm")
+                   vs-wid = STRING(ld-wid,"->>,>>>.99mm")
+                   vs-dep = STRING(ld-dep,"->>,>>>.99mm").
 
-                ELSE DO:
-                  RUN sys/inc/dec-frac.p (ld-len, 64, OUTPUT vs-len).
-                  RUN sys/inc/dec-frac.p (ld-wid, 64, OUTPUT vs-wid).
-                  RUN sys/inc/dec-frac.p (ld-dep, 64, OUTPUT vs-dep).
-
-                  IF SUBSTR(vs-len,1,1) = "-" THEN vs-len = SUBSTR(vs-len,2).
-                  IF SUBSTR(vs-wid,1,1) = "-" THEN vs-wid = SUBSTR(vs-wid,2).
-                  IF SUBSTR(vs-dep,1,1) = "-" THEN vs-dep = SUBSTR(vs-dep,2).
-                END.
 
                 v-size[1] = TRIM(vs-len) + " x " + TRIM(vs-wid) + " x " + TRIM(vs-dep).
 

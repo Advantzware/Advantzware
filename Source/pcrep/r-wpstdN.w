@@ -71,6 +71,9 @@ DEFINE VARIABLE cFieldType         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-m-code           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Machine#,DP,F,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
@@ -79,7 +82,7 @@ ASSIGN
                          "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
                          "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches,Tot Job Run Qty," + /*8*/     
                          "Cust#,Cust Name,Price,UOM,Sales Value,User ID,Cuts" /* 7 */
-    cFieldListToSelect = "mch-act.m-code,deprt,mch-act.frm,mch-act.blank-no,pass,mch-act.code,job-code,mch-act.op-date,job-no,mch-act.shift,mch-act.hours,start,stop,crew,mch-act.qty," +
+    cFieldListToSelect = "mch-act.m-code,deprt,mch-act.frm,mch-act.blank-no,pass,mch-act.code,job-code,op-date,job-no,mch-act.shift,mch-act.hours,start,stop,crew,mch-act.qty," +
                          "mch-act.waste,comp,stock-no,style,len,wid,dep,t-len,t-wid," +
                          "t-sqin,board,cal,ld-msf,weight,roll-wid," +
                          "gsh-wid,gsh-len,nsh-wid,nsh-len," +
@@ -542,6 +545,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 ON WINDOW-CLOSE OF C-Win /* WIP Standards Detail Report */
 DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -587,6 +591,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -633,6 +638,9 @@ DO:
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
         END CASE.
@@ -1588,8 +1596,6 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                 IF hField <> ? THEN 
                 DO:                 
                     cTmpField = SUBSTRING(GetFieldValue(hField),1,int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
-                    IF ENTRY(i,cSelectedList) = "Date" THEN  
-                        cTmpField =  IF cTmpField <> ? THEN  STRING(mch-act.op-date,"99/99/99") ELSE "".   
                     IF ENTRY(i,cSelectedList) = "Hours" THEN  
                         cTmpField =  IF cTmpField <> "" THEN  STRING(mch-act.hours,"->>>9.9<<") ELSE "". 
                     IF ENTRY(i,cSelectedList) = "Qty" THEN  
@@ -1712,12 +1718,16 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                         END. /* sale-value */
                     WHEN "n-cuts" THEN
                         cVarValue = IF AVAILABLE ef THEN STRING(ef.n-cuts,">>>,>>9") ELSE "".
+                    WHEN "op-date" THEN
+                        cVarValue = IF mch-act.op-date NE ? THEN STRING(mch-act.op-date,"99/99/99") ELSE "".
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "op-date" THEN
+                     cExcelVarValue = IF mch-act.op-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",mch-act.op-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
             END. 
         END.
       
@@ -1746,8 +1756,6 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM st-excell CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */

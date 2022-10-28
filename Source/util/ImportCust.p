@@ -32,7 +32,7 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD CreditHold    AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Credit Hold" HELP "Optional - Yes or N0"  
     FIELD CustType      AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Customer Type" HELP "Required - Size:8"   
     FIELD Terms         AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "Terms Code" HELP "Required - Size:5" 
-    FIELD FedID         AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:8"   
+    FIELD FedID         AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:15"   
     FIELD Note1         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Note 1" HELP "Optional - Size:30"  
     FIELD Note2         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Note 2" HELP "Optional - Size:30"  
     FIELD Note3         AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Note 3" HELP "Optional - Size:30"  
@@ -80,7 +80,6 @@ DEFINE TEMP-TABLE ttImportCust
     FIELD cTaxable      AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Taxable" HELP "Required - must be Yes or No - Size:4"
     FIELD cTaxPrepCode  AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Prep Code" HELP "Optional - Size:10"
     FIELD cTaxGr        AS CHARACTER FORMAT "X(3)" COLUMN-LABEL "Tax Group" HELP "Optional - Size:10"
-    FIELD cTaxResale    AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "Tax Resale#" HELP "Optional - Size:10"
     FIELD cExpDate      AS CHARACTER FORMAT "X(10)" COLUMN-LABEL "Exp Date" HELP "Optional - Date"  
     FIELD cEmail        AS CHARACTER FORMAT "X(60)" COLUMN-LABEL "Email" HELP "Optional - Date" 
     FIELD cGroup        AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Group" HELP "Optional - Character" 
@@ -452,6 +451,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportCust FOR ttImportCust.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    DEFINE VARIABLE riNote AS ROWID NO-UNDO.
     DEFINE BUFFER bf-cust FOR cust .
     DEFINE BUFFER bf-shipto FOR shipto .
     DEFINE BUFFER bf-soldto FOR soldto .
@@ -529,7 +529,6 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.cTaxable, YES, INPUT-OUTPUT bf-cust.sort).
     RUN pAssignValueC (ipbf-ttImportCust.cTaxPrepCode, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.spare-char-1).
     RUN pAssignValueC (ipbf-ttImportCust.cTaxGr, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-gr).
-    RUN pAssignValueC (ipbf-ttImportCust.cTaxResale, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.tax-id).
     RUN pAssignValueCToDt (ipbf-ttImportCust.cExpDate, YES, INPUT-OUTPUT bf-cust.date-field[2]).
     RUN pAssignValueC (ipbf-ttImportCust.industryID, iplIgnoreBlanks, INPUT-OUTPUT bf-cust.industryID).
     
@@ -605,59 +604,19 @@ PROCEDURE pProcessRecord PRIVATE:
             .
     END.
             
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note1,
-        "Misc Message 1",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note2,
-        "Misc Message 2",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note3,
-        "Mfg. Inst.",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note4,
-        "B/L Message",
-        "",
-        "C"). 
+    IF ipbf-ttImportCust.Note1 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note1, "Misc Message 1", "", "C", OUTPUT riNote).
+    IF ipbf-ttImportCust.Note2 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note2, "Misc Message 2", "", "C", OUTPUT riNote).
+    IF ipbf-ttImportCust.Note3 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note3, "Mfg. Inst.", "", "C", OUTPUT riNote).
+    IF ipbf-ttImportCust.Note4 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note4, "B/L Message", "", "C", OUTPUT riNote). 
+    
     RELEASE bf-cust.
     RELEASE bf-shipto.
     RELEASE bf-soldto .
     
-END PROCEDURE.
-
-PROCEDURE pAddNote:
-    /*------------------------------------------------------------------------------
-     Purpose: Adds a note to supplied rec_key and parameters
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcText AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcTitle AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcCode AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER.
-    DEFINE BUFFER bf-notes FOR notes.
-    
-    IF ipcText NE "" THEN 
-    DO:
-        CREATE bf-notes.
-        ASSIGN
-            bf-notes.rec_key    = ipcRecKey
-            bf-notes.note_date  = TODAY
-            bf-notes.note_time  = TIME
-            bf-notes.note_text  = ipcText
-            bf-notes.note_title = ipcTitle
-            bf-notes.note_code  = ipcCode
-            bf-notes.user_id    = "asi"
-            bf-notes.note_type  = ipcType
-            .                    
-    END.                           
-    RELEASE bf-notes.
 END PROCEDURE.
 
 PROCEDURE pGetSalesRep:

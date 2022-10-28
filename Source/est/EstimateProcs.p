@@ -30,6 +30,7 @@ DEFINE VARIABLE gcTypeSet    AS CHARACTER NO-UNDO INITIAL "Set".
 DEFINE VARIABLE gcTypeCombo  AS CHARACTER NO-UNDO INITIAL "Combo/Tandem".
 DEFINE VARIABLE gcTypeMisc   AS CHARACTER NO-UNDO INITIAL "Miscellaneous".
 DEFINE VARIABLE gcTypeWood   AS CHARACTER NO-UNDO INITIAL "Wood".
+DEFINE VARIABLE gcTypeFoam   AS CHARACTER NO-UNDO INITIAL "Foam".
 DEFINE VARIABLE gcTypeList   AS CHARACTER NO-UNDO. 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -62,6 +63,9 @@ FUNCTION fEstimate_IsMiscType RETURNS LOGICAL
 
 FUNCTION fEstimate_IsBoardMaterial RETURNS LOGICAL 
     (ipcMaterialTypeID AS CHARACTER) FORWARD.
+
+FUNCTION fEstimate_IsFoamType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER) FORWARD.
 
 FUNCTION fEstimate_IsGlueMaterial RETURNS LOGICAL 
     (ipcMaterialTypeID AS CHARACTER) FORWARD.
@@ -792,7 +796,7 @@ PROCEDURE Estimate_UpdateEstDependencies:
 
     IF ipiNewBlankNo EQ 0 THEN DO:
         FOR EACH bf-loop-reftable NO-LOCK
-            WHERE bf-loop-reftable.reftable EQ "bf-est-MISC"
+            WHERE bf-loop-reftable.reftable EQ "EST-MISC"
               AND bf-loop-reftable.company  EQ ipcCompany
               AND bf-loop-reftable.loc      EQ ipcLocation
               AND bf-loop-reftable.code     EQ TRIM(ipcEstNo) + STRING(ipiFormNo,"/99"):
@@ -1656,6 +1660,15 @@ FUNCTION fEstimate_IsBoardMaterial RETURNS LOGICAL
 		
 END FUNCTION.
 
+FUNCTION fEstimate_IsFoamType RETURNS LOGICAL 
+    (ipcEstType AS CHARACTER):
+    /*------------------------------------------------------------------------------
+     Purpose:  Returns the constant value for Single Estimate Type
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    RETURN ipcEstType EQ gcTypeFoam.
+    
+END FUNCTION.
 
 FUNCTION fEstimate_IsGlueMaterial RETURNS LOGICAL 
     ( ipcMaterialTypeID AS CHARACTER ):

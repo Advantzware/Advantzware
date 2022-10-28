@@ -691,6 +691,8 @@ DO:
        "(CAN-FIND(FIRST notes WHERE notes.rec_key = job.rec_key))"}
 
    RUN spec-image-proc.
+   
+   RUN GearWheelsImageProc.
 
    RUN dept-image-proc.
 
@@ -1438,6 +1440,7 @@ PROCEDURE navigate-browser :
   IF ROWID(job-hdr) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
+  APPLY "value-changed" TO BROWSE {&browse-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1500,6 +1503,7 @@ PROCEDURE navigate-browser2 :
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
 
+  APPLY "value-changed" TO BROWSE {&browse-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1842,7 +1846,10 @@ PROCEDURE dept-image-proc :
    DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
-   FIND FIRST notes NO-LOCK WHERE notes.rec_key = job.rec_key NO-ERROR.
+   FIND FIRST notes NO-LOCK WHERE notes.rec_key = job.rec_key 
+       AND notes.note_type <> "S" 
+       AND notes.note_type <> "o"
+       NO-ERROR.
 
    IF AVAIL notes THEN
       v-spec = TRUE.
@@ -1852,6 +1859,30 @@ PROCEDURE dept-image-proc :
 
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GearWheelsImageProc B-table-Win 
+PROCEDURE GearWheelsImageProc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE v-spec AS LOG NO-UNDO.
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+
+   v-spec = AVAILABLE job AND
+            CAN-FIND(FIRST notes
+                     WHERE notes.rec_key   EQ job.rec_key
+                       AND notes.note_type EQ "O").
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'optonote-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN pUpdateGearWheelsImage IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

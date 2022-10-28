@@ -48,7 +48,7 @@ if avail itemfg and itemfg.isaset then do:
        itemfg.t-sqin     = 0
        itemfg.t-sqft     = 0.
 
-    IF itemfg.spare-int-1 NE 1 THEN
+    IF NOT itemfg.lLockWeightCalc THEN
        itemfg.weight-100 = 0.
        
     ASSIGN
@@ -71,7 +71,7 @@ if avail itemfg and itemfg.isaset then do:
           and item.i-no    eq ef.board
         no-lock:
 
-      IF NOT itemfg.spare-int-1 EQ 1 THEN   /* freeze-weight flag */
+      IF NOT itemfg.lLockWeightCalc THEN   /* freeze-weight flag */
       itemfg.weight-100 = itemfg.weight-100 +
                           (((if v-corr then
                               (b-eb.t-sqin * .007) else

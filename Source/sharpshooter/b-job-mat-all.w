@@ -59,6 +59,9 @@ DEFINE VARIABLE lReturnError   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE char-hdl       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle        AS HANDLE    NO-UNDO.
 DEFINE VARIABLE iAvailQty      AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dLinearFeet    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE iFGQty         AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dTons          AS DECIMAL NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -84,7 +87,8 @@ DEFINE VARIABLE iAvailQty      AS INTEGER   NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr getAvailQty() @ iAvailQty job-mat.qty-all job-mat.qty-uom job-mat.all-flg cEmptyColumn   
+&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr getAvailQty() @ iAvailQty job-mat.qty-all job-mat.qty-uom job-mat.all-flg ~
+fGetLinearFeet() @ dLinearFeet item.s-len item.s-wid item.cal fGetFGQty() @ iFGQty cEmptyColumn fGetTons () @ dTons    
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table job-mat
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table job-mat
@@ -119,6 +123,26 @@ FUNCTION getAvailQty RETURNS INTEGER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetLinearFeet B-table-Win 
+FUNCTION fGetLinearFeet RETURNS DECIMAL
+  ( )  FORWARD.
+  
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetFGQty B-table-Win 
+FUNCTION fGetFGQty RETURNS INTEGER
+  ( )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  (/* parameter-definitions */)  FORWARD.  
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
@@ -188,6 +212,12 @@ DEFINE BROWSE br_table
     getAvailQty() @ iAvailQty COLUMN-LABEL "Qty Available" FORMAT "->>>,>>>,>>9.9<<<<<":U WIDTH 29      
     job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
     job-mat.all-flg FORMAT "Yes/No":U WIDTH 18 COLUMN-LABEL "Allocated"
+    fGetLinearFeet() @ dLinearFeet COLUMN-LABEL "Total Linear Feet" FORMAT "->,>>>,>>9.99":U WIDTH 29
+    item.s-len COLUMN-LABEL "Board Length" FORMAT ">>,>>9.99<<<":U WIDTH 22
+    item.s-wid COLUMN-LABEL "Board Width" FORMAT ">>,>>9.99<<<":U WIDTH 22
+    item.cal COLUMN-LABEL "Board Caliper" FORMAT "9.99999":U WIDTH 22
+    fGetFGQty() @ iFGQty COLUMN-LABEL "Total FG Qty for Job" FORMAT ">>,>>>,>>9":U WIDTH 35
+    fGetTons () @ dTons COLUMN-LABEL "Weight per Ton" FORMAT "->>,>>>,>>9.99<<<<":U 
     cEmptyColumn COLUMN-LABEL ""          
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -718,6 +748,98 @@ FUNCTION getAvailQty RETURNS INTEGER
     END.
     RETURN iResult.   /* Function return value. */
     
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetLinearFeet B-table-Win 
+FUNCTION fGetLinearFeet RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE dResult   AS DECIMAL   NO-UNDO.
+    
+    ASSIGN dResult = 0.
+    
+    FIND FIRST job-hdr
+          WHERE job-hdr.company  EQ job-mat.company
+            AND job-hdr.job      EQ job-mat.job
+            AND job-hdr.job-no   EQ job-mat.job-no
+            AND job-hdr.job-no2  EQ job-mat.job-no2
+            AND job-hdr.frm      EQ job-mat.frm
+          NO-LOCK NO-ERROR.
+
+    IF AVAILABLE job-hdr THEN
+    FIND FIRST eb WHERE
+                eb.company  EQ job-hdr.company AND
+                eb.est-no   EQ job-hdr.est-no AND
+                eb.form-no  EQ job-hdr.frm 
+                NO-LOCK NO-ERROR.
+       
+       dResult = IF AVAIL eb AND eb.t-len NE ? THEN (eb.t-len / 12) * eb.eqty  
+                 ELSE 0 .
+          
+    RETURN dResult.   /* Function return value. */
+    
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetFGQty B-table-Win 
+FUNCTION fGetFGQty RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lc-result AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iResult   AS INTEGER   NO-UNDO.
+    
+    ASSIGN iResult = 0.
+    
+    FIND FIRST job-hdr
+          WHERE job-hdr.company  EQ job-mat.company
+            AND job-hdr.job      EQ job-mat.job 
+            AND job-hdr.job-no   EQ job-mat.job-no
+            AND job-hdr.job-no2  EQ job-mat.job-no2
+            AND job-hdr.frm      EQ job-mat.frm            
+          NO-LOCK NO-ERROR.
+    
+    IF AVAILABLE job-hdr AND job-hdr.qty NE ? THEN DO: 
+       iResult = job-hdr.qty.
+    END.
+    RETURN iResult.   /* Function return value. */
+    
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+     IF ITEM.cons-uom EQ "TON" THEN
+     dResult = job-mat.qty-all.
+     ELSE
+     RUN custom/convquom.p(job-mat.company, item.cons-uom,"TON", item.basis-w,
+                               (IF item.r-wid EQ 0 THEN item.s-len
+                                                    ELSE 12),
+                                (IF item.r-wid EQ 0 THEN item.s-wid
+                                                    ELSE item.r-wid),
+                                item.s-dep,                    
+                                job-mat.qty-all, OUTPUT dResult).     
+	RETURN dResult.
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

@@ -343,6 +343,7 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_b-qtitm. */
        RUN add-link IN adm-broker-hdl ( h_p-addupd , 'TableIO':U , h_b-qtitm ).
+       RUN add-link IN adm-broker-hdl ( h_v-qthd , 'bottom':U , h_b-qtitm ).
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_b-qtitm ).
        /* Links to SmartViewer h_vp-prmtx. */
        RUN add-link IN adm-broker-hdl ( h_v-qthd , 'Record':U , h_vp-prmtx ).
@@ -359,6 +360,8 @@ PROCEDURE adm-create-objects :
              h_p-quote , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-qtitm ,
              h_vp-prmtx , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-addupd ,
+             h_b-qtitm , 'AFTER':U ).
        
 
     END. /* Page 2 */

@@ -1737,6 +1737,7 @@ IF CAN-FIND(FIRST xprobe
 /*         FIND FIRST bf-qhd NO-LOCK NO-ERROR. */
 /*         IF AVAIL bf-qhd THEN                */
           RUN est/GetQuoteDefNotes.p (INPUT quotehd.company,
+                                      INPUT quotehd.loc,
                                       OUTPUT cNotes).
             ASSIGN  quotehd.comment[1] = cNotes[1]
                     quotehd.comment[2] = cNotes[2]

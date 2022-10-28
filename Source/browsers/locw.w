@@ -164,7 +164,7 @@ DEFINE QUERY external_tables FOR itemfg.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days   
+&Scoped-define FIELDS-IN-QUERY-br_table w-jobs.loc w-jobs.loc-desc w-jobs.onHand w-jobs.onOrder w-jobs.allocated w-jobs.backOrder w-jobs.qtyAvailable w-jobs.ord-level w-jobs.ord-min w-jobs.ord-max w-jobs.lead-days w-jobs.onHoldQty   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table w-jobs.loc   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table w-jobs
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table w-jobs
@@ -243,6 +243,7 @@ DEFINE BROWSE br_table
     w-jobs.ord-min  
     w-jobs.ord-max
     w-jobs.lead-days
+    w-jobs.onHoldQty
   ENABLE w-jobs.loc
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

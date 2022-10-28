@@ -39,10 +39,12 @@ DEFINE VARIABLE gcSourceTypeProfit                    AS CHARACTER NO-UNDO INITI
 
 DEFINE VARIABLE gcDeptsForPrinters                    AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                      AS CHARACTER NO-UNDO INITIAL "GL,QS".
+DEFINE VARIABLE gcDeptsForWindowLeafers               AS CHARACTER NO-UNDO INITIAL "WN,WS".
+DEFINE VARIABLE gcDeptsForFoilLeafers                 AS CHARACTER NO-UNDO INITIAL "FB,FS".
 DEFINE VARIABLE gcDeptsForLeafers                     AS CHARACTER NO-UNDO INITIAL "WN,WS,FB,FS".
 DEFINE VARIABLE gcDeptsForSheeters                    AS CHARACTER NO-UNDO INITIAL "RC,RS,CR".
 DEFINE VARIABLE gcDeptsForCoaters                     AS CHARACTER NO-UNDO INITIAL "PR,CT".
-DEFINE VARIABLE gcDeptsForCorrugators                  AS CHARACTER NO-UNDO INITIAL "CR,LM".
+DEFINE VARIABLE gcDeptsForCorrugators                 AS CHARACTER NO-UNDO INITIAL "CR,LM".
 
 DEFINE VARIABLE gcIndustryFolding                     AS CHARACTER NO-UNDO INITIAL "Folding".
 DEFINE VARIABLE gcIndustryCorrugated                  AS CHARACTER NO-UNDO INITIAL "Corrugated".
@@ -1381,7 +1383,7 @@ PROCEDURE pAddGlue PRIVATE:
                 ttGlue.cItemID       = bf-item.i-no
                 ttGlue.cDescription  = IF bf-item.est-dscr NE "" THEN bf-item.est-dscr ELSE bf-item.i-name
                 ttGlue.cMaterialType = bf-item.mat-type
-                ttGlue.cQtyUOM       = bf-item.cons-uom   
+                ttGlue.cQtyUOM       = IF bf-item.cons-uom NE "" THEN bf-item.cons-uom ELSE "LB"
                 ttGlue.dMinLbsPerJob = bf-item.min-lbs
                 .
         END.
@@ -1608,7 +1610,7 @@ PROCEDURE pAddLeaf PRIVATE:
             
             IF ttLeaf.lIsWax AND bf-item.shrink NE 0 THEN 
                 ASSIGN 
-                    ttLeaf.dAreaInSqIn  = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-ttEstCostForm.basisWeight) * bf-item.shrink
+                    ttLeaf.dAreaInSqIn  = ((ttLeaf.dAreaInSQIn / 144000) * ipbf-ttEstCostForm.basisWeight) * bf-item.shrink / 100
                     ttLeaf.dQtyRequiredPerLeaf = ttLeaf.dAreaInSqIn
                     ttLeaf.dCoverageRate = 1                    
                     .
@@ -5440,42 +5442,86 @@ PROCEDURE pProcessLeafs PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ef            FOR ef.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostHeader FOR ttEstCostHeader.
     DEFINE PARAMETER BUFFER ipbf-ttEstCostForm FOR ttEstCostForm.
-
-    DEFINE VARIABLE dQtyRequiredPerFeed AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE cDepartmentList     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound              AS LOGICAL   NO-UNDO.
     
     RUN pBuildLeafForEf(BUFFER ipbf-ef, BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm).
     
     FOR EACH ttLeaf NO-LOCK
         WHERE ttLeaf.estHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
-        AND ttLeaf.estFormID EQ ipbf-ttEstCostForm.estCostFormID
-        ,
-        FIRST ttEstCostOperation NO-LOCK 
-        WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
-        AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
-        AND ttEstCostOperation.isLeafer
-        AND (ttEstCostOperation.feedType EQ "S" AND ttLeaf.lIsSheetFed OR NOT ttLeaf.lIsSheetFed)  /*If leaf is not for a specific blank, must have a sheet fed leafer*/
-        BY ttEstCostOperation.sequenceOfOperation DESCENDING:
+        AND ttLeaf.estFormID EQ ipbf-ttEstCostForm.estCostFormID:
+        IF ttLeaf.cMaterialType = "W" THEN
+            cDepartmentList = gcDeptsForWindowLeafers.
+        ELSE IF ttLeaf.cMaterialType = "F" THEN
+            cDepartmentList = gcDeptsForFoilLeafers.
         
-        IF ttEstCostOperation.feedType NE "B" AND ttLeaf.iBlankNo NE 0 THEN  /*Allow blank specific leaf/window to be consumed by sheet fed machines*/
-        DO:            
-            FIND FIRST ttEstCostBlank NO-LOCK 
-                WHERE ttEstCostBlank.estCostHeaderID EQ ttLeaf.estHeaderID
-                AND ttEstCostBlank.estCostFormID EQ ttLeaf.estFormID 
-                AND ttEstCostBlank.blankNo EQ ttLeaf.iBlankNo
-                NO-ERROR.
-            IF AVAILABLE ttEstCostBlank THEN 
-                dQtyRequiredPerFeed = ttEstCostBlank.numOut * ttLeaf.dQtyRequiredPerLeaf.
-        END.
-        ELSE 
-            dQtyRequiredPerFeed = ttLeaf.dQtyRequiredPerLeaf.
-            
-        RUN pProcessLeaf(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER ttEstCostOperation, BUFFER ttLeaf, dQtyRequiredPerFeed).    
+        lFound = FALSE.
         
-    END.
-
-   
+        RUN pProcessLeafByDepartment (
+            BUFFER ipbf-ttEstCostHeader,
+            BUFFER ipbf-ttEstCostForm,
+            BUFFER ttLeaf,
+            INPUT  cDepartmentList,
+            OUTPUT lFound
+            ).
+        IF NOT lFound THEN
+            RUN pProcessLeafByDepartment (
+                BUFFER ipbf-ttEstCostHeader,
+                BUFFER ipbf-ttEstCostForm,
+                BUFFER ttLeaf,
+                INPUT  "",   /* Department List */
+                OUTPUT lFound
+                ).                    
+    END.   
 END PROCEDURE.
 
+PROCEDURE pProcessLeafByDepartment PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostHeader FOR ttEstCostHeader.
+    DEFINE PARAMETER BUFFER ipbf-ttEstCostForm   FOR ttEstCostForm.
+    DEFINE PARAMETER BUFFER ipbf-ttLeaf          FOR ttLeaf.
+    DEFINE INPUT  PARAMETER ipcDepartmentList    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplFound             AS LOGICAL   NO-UNDO.
+                
+    DEFINE VARIABLE dQtyRequiredPerFeed AS DECIMAL NO-UNDO.
+                    
+    FOR EACH ttEstCostOperation NO-LOCK 
+        WHERE ttEstCostOperation.estCostHeaderID EQ ipbf-ttEstCostForm.estCostHeaderID
+          AND ttEstCostOperation.estCostFormID EQ ipbf-ttEstCostForm.estCostFormID
+          AND ttEstCostOperation.isLeafer EQ YES
+          AND (ttEstCostOperation.feedType EQ "S"
+          AND ipbf-ttLeaf.lIsSheetFed EQ YES
+           OR ipbf-ttLeaf.lIsSheetFed EQ NO)  /*If leaf is not for a specific blank, must have a sheet fed leafer*/
+        BY ttEstCostOperation.sequenceOfOperation DESCENDING:
+        
+        IF ipcDepartmentList NE "" AND LOOKUP(ttEstCostOperation.departmentIDPrimary, ipcDepartmentList) LE 0 THEN
+            NEXT.
+        
+        oplFound = TRUE.
+        
+        IF ttEstCostOperation.feedType NE "B" AND ipbf-ttLeaf.iBlankNo NE 0 THEN  /*Allow blank specific leaf/window to be consumed by sheet fed machines*/
+        DO:            
+            FIND FIRST ttEstCostBlank NO-LOCK 
+                 WHERE ttEstCostBlank.estCostHeaderID EQ ipbf-ttLeaf.estHeaderID
+                   AND ttEstCostBlank.estCostFormID   EQ ipbf-ttLeaf.estFormID 
+                   AND ttEstCostBlank.blankNo         EQ ipbf-ttLeaf.iBlankNo
+                NO-ERROR.
+            IF AVAILABLE ttEstCostBlank THEN 
+                dQtyRequiredPerFeed = ttEstCostBlank.numOut * ipbf-ttLeaf.dQtyRequiredPerLeaf.
+        END.
+        ELSE 
+            dQtyRequiredPerFeed = ipbf-ttLeaf.dQtyRequiredPerLeaf.
+            
+        RUN pProcessLeaf(BUFFER ipbf-ttEstCostHeader, BUFFER ipbf-ttEstCostForm, BUFFER ttEstCostOperation, BUFFER ipbf-ttLeaf, dQtyRequiredPerFeed).
+        
+        LEAVE.    
+    END.
+END.
+    
 PROCEDURE pProcessPacking PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: for a given form, build the ttEstCostMaterial for packing material with the 

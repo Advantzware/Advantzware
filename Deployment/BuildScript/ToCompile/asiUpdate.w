@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME C-Win
+&Scoped-define WINDOW-NAME C-Win 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
   File:                 asiUpdate1.w
@@ -358,7 +358,7 @@ DEFINE RECTANGLE rStatusBar
      BGCOLOR 3 FGCOLOR 3 .
 
 DEFINE VARIABLE slDBList AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
+     VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL  
      SIZE 26 BY 2.38 NO-UNDO.
 
 DEFINE VARIABLE slEnvList AS CHARACTER 
@@ -644,7 +644,9 @@ OR CHOOSE OF bUpdate
                         ASSIGN 
                             cOutFile = cOutDir + "-FAILED.txt".
                         RUN ipSendVerification.
-                        RUN ipStatus("Upgrade Failed.").
+                        ASSIGN  
+                            iStatus = 100.
+                        RUN ipStatus("Upgrade Failed").
                         MESSAGE 
                             "There was an issue with update processing." SKIP 
                             "Please contact Advantzware Support."
@@ -789,7 +791,7 @@ DO:
                     slDbList:ADD-LAST(ENTRY(iCtr,cDbList)).
                 END.                
             END.
-            IF NUM-ENTRIES(slDbList:LIST-ITEMS) EQ 1 THEN DO:
+            IF NUM-ENTRIES(slDbList:LIST-ITEMS) LE 2 THEN DO: /* synch lists in most cases */
                 ASSIGN 
                     slDbList:{&SV} = ENTRY(1,slDbList:LIST-ITEMS).
                 APPLY 'value-changed' TO slDbList.
@@ -902,6 +904,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         iStatus             = 2
         lSuccess            = TRUE 
         .
+    RUN ipStatus("  Var names expanded").
 
     RUN ipGetPatchList.
     IF NOT lSuccess THEN DO:
@@ -928,6 +931,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    STRING(DAY(TODAY),"99") + "-" + slEnvList:SCREEN-VALUE
         iStatus = 3
         .    
+    RUN ipStatus("  FTP set up").
     
     EMPTY TEMP-TABLE ttUpdateHist.
     EMPTY TEMP-TABLE ttUpdateLog. 
@@ -941,7 +945,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     ASSIGN 
         iStatus = 4.
-    RUN ipStatus("Initialize").
+    RUN ipStatus("Initialization complete").
     
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1341,7 +1345,7 @@ PROCEDURE ipProcess :
     DO:
         ASSIGN 
             iStatus = 5.
-        RUN ipStatus("Database requires upgrade/backup...").
+        RUN ipStatus("Database requires upgrade/backup").
         
         ASSIGN
             iEnv = LOOKUP (slEnvList:{&SV},slEnvList:list-items)
@@ -1448,7 +1452,7 @@ PROCEDURE ipProcess :
     RUN ipStatus("    " + cConnect).
 
     CONNECT VALUE(cConnect) NO-ERROR.
-
+    MTIME(3).
     IF NOT CONNECTED ("asi") THEN 
     DO:
         RUN ipStatus("  ASI DB connection failed.  Cancelling.").

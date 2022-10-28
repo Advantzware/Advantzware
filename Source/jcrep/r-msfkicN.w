@@ -63,6 +63,10 @@ DEFINE VARIABLE cFieldType          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength       AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName           AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
+
 DEFINE BUFFER b-itemfg FOR itemfg .
 
 
@@ -459,6 +463,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Job Backlog by Machine */
 DO:
+  DELETE PROCEDURE hdOutputProcs.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -505,6 +510,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   DELETE PROCEDURE hdOutputProcs.
    apply "close" to this-procedure.
 END.
 
@@ -544,6 +550,9 @@ DO:
                   DO:
                      OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                   END.
+              END.
+              ELSE DO:
+                  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
               END.
            END. /* WHEN 3 THEN DO: */
   END CASE. 
@@ -1499,10 +1508,13 @@ SESSION:SET-WAIT-STATE ("general").
 
                 END CASE.  
 
-                cExcelVarValue = cVarValue.
+                IF cTmpField = "job-dt" THEN cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "" .
+                
+                ELSE cExcelVarValue = cVarValue.
+                
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
         END.
 
         PUT UNFORMATTED cDisplay SKIP.
@@ -1583,7 +1595,7 @@ SESSION:SET-WAIT-STATE ("general").
         PUT UNFORMATTED v-date " Daily Totals " substring(cDisplay,23,300) SKIP(1).
         IF rd-dest EQ 3 THEN DO:
              PUT STREAM excel UNFORMATTED  
-                   v-date " Daily Totals " + substring(cExcelDisplay,3,300) SKIP.
+                  DYNAMIC-FUNCTION("sfFormat_Date",v-date) " Daily Totals " + substring(cExcelDisplay,3,300) SKIP.
         END.
 
         assign
@@ -1600,8 +1612,6 @@ SESSION:SET-WAIT-STATE ("general").
 
 IF rd-dest EQ 3 THEN DO:
   OUTPUT STREAM excel CLOSE.
-  IF tb_OpenCSV THEN
-    OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -69,6 +69,12 @@ DEFINE VARIABLE cLineItemRecKey AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cReportTermID   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lPrintMetric    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cContentValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPrintCustomerCode  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPrintFirstResource AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPrintGrandTotalMSF AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPrintScoreType     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lPrintPrintPrices   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cMachCode           AS CHARACTER NO-UNDO .
 
 /* Calculate Fields */
 DEFINE VARIABLE dPOLineQuantity            AS DECIMAL   NO-UNDO.
@@ -90,6 +96,7 @@ DEFINE VARIABLE cPOLineSpecNotes           AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAdderAvailable            AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE dTotalSquareFeet           AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dQuantityInMSF             AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dPOLineTotal               AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dPOSubTotal                AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cPOLineFlute               AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cPOLineTest                AS CHARACTER NO-UNDO.
@@ -151,6 +158,21 @@ ELSE DO:
         lPrintMetric = LOGICAL(system.SharedConfig:Instance:GetValue("PrintPurchaseOrder_PrintMetric")) NO-ERROR.
         IF lPrintMetric EQ ? THEN
             lPrintMetric = YES.
+        lPrintCustomerCode = LOGICAL(system.SharedConfig:Instance:GetValue("PrintPurchaseOrder_PrintCustomerCode")) NO-ERROR.
+        IF lPrintCustomerCode EQ ? THEN
+            lPrintCustomerCode = YES.
+        lPrintFirstResource = LOGICAL(system.SharedConfig:Instance:GetValue("PrintPurchaseOrder_PrintFirstResource")) NO-ERROR.
+        IF lPrintFirstResource EQ ? THEN
+            lPrintFirstResource = YES.
+        lPrintGrandTotalMSF = LOGICAL(system.SharedConfig:Instance:GetValue("PrintPurchaseOrder_PrintGrandTotalMSF")) NO-ERROR.
+        IF lPrintGrandTotalMSF EQ ? THEN
+            lPrintGrandTotalMSF = YES.
+        lPrintScoreType = LOGICAL(system.SharedConfig:Instance:GetValue("PrintPurchaseOrder_PrintScoreTypes")) NO-ERROR.
+        IF lPrintScoreType EQ ? THEN
+            lPrintScoreType = YES.
+        lPrintPrintPrices = LOGICAL(system.SharedConfig:Instance:GetValue("PrintPurchaseOrder_PrintPrintPrices")) NO-ERROR.
+        IF lPrintPrintPrices EQ ? THEN
+            lPrintPrintPrices = YES.
         
         RUN pGetRequestData ("PrintPurchaseOrder", "PurchaseOrder", OUTPUT lcPurchaseOrderData).
         RUN pGetRequestData ("PrintPurchaseOrder", "PurchaseOrderHeader", OUTPUT lcPurchaseOrderHeader).
@@ -296,6 +318,7 @@ ELSE DO:
                 INPUT  po-ordl.company,
                 INPUT  po-ordl.po-no,
                 INPUT  po-ordl.line,
+                INPUT  "",
                 OUTPUT dScoreSize,
                 OUTPUT cScoreType
                 ).
@@ -354,6 +377,8 @@ ELSE DO:
                     ).
             
             dTotalSquareFeet = dTotalSquareFeet + (dQuantityInMSF * 1000).
+            dPOLineTotal = po-ordl.t-cost - po-ordl.setup.
+            
             
             IF lPrintMetric THEN
                 ASSIGN
@@ -361,6 +386,18 @@ ELSE DO:
                     dPOLineWidth  = ROUND(dPOLineWidth * 25.4, 0)
                     dPOLineDepth  = ROUND(dPOLineDepth * 25.4, 0)
                     .
+                    
+            IF lPrintFirstResource THEN DO:
+                cMachCode = "" .
+                FOR EACH job-mch WHERE job-mch.company EQ po-ordl.company
+                    AND job-mch.job-no EQ po-ordl.job-no
+                    AND job-mch.job-no2 EQ po-ordl.job-no2
+                    AND job-mch.frm EQ po-ordl.s-num use-index line-idx NO-LOCK:
+
+                    ASSIGN cMachCode = job-mch.m-code .
+                    LEAVE.
+                END.
+            END.
                 
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPurchaseOrderLine, "POLineCost", STRING(dPOLineCost)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPurchaseOrderLine, "POLineQuantity", STRING(dPOLineQuantity)).
@@ -378,6 +415,9 @@ ELSE DO:
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPurchaseOrderLine, "POLineFlute", cPOLineFlute).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPurchaseOrderLine, "POLineTest", cPOLineTest).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPurchaseOrderLine, "AdderAvailable", STRING(lAdderAvailable)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcPurchaseOrderLine, "POLineQuantityInMSF", STRING(dQuantityInMSF)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcPurchaseOrderLine, "POLineTotal", STRING(dPOLineTotal)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcPurchaseOrderLine, "MachCode", cMachCode).
             
             lcPurchaseOrderLine = oAttribute:ReplaceAttributes(lcPurchaseOrderLine, BUFFER po-ordl:HANDLE).
     
@@ -459,6 +499,10 @@ ELSE DO:
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "BusinessFormLogo", cBusinessFormLogo).
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "DisplayCompanyAddress", cDisplayCompanyAddress).
     oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "PrintMetric", STRING(lPrintMetric)).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "PrintGrandTotalMSF", STRING(lPrintGrandTotalMSF)).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "PrintCustomerCode", STRING(lPrintCustomerCode)).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "PrintScoreType", STRING(lPrintScoreType)).
+    oAttribute:UpdateRequestData(INPUT-OUTPUT ioplcRequestData, "PrintPrintPrices", STRING(lPrintPrintPrices)).
     
     ASSIGN   
         opcMessage       = ""

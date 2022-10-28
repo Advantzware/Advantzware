@@ -72,6 +72,9 @@ DEFINE VARIABLE cFieldLength       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /* 10 + 6 + 8 = 24 columns */
 ASSIGN 
@@ -81,9 +84,9 @@ ASSIGN
                            "CATGY,UNIT COST,UNIT SELL,SUOM,PROMISE DATE,ORD DUE DATE,START DATE,SHIPTO,SHIPTO NAME,ORDER#," +
                            "BEFORE QTY,BIN CHANGE,BOL#,REASON,REASON CODE,REASON DESCRIPTION,CUSTOMER NAME," + 
                            "ITEM MAT COST,ITEM DL COS,ITEM VOH COST,ITEM FOH COST,BIN MAT COST,BIN DL COST,BIN VOH COST,BIN FOH COST,STYLE CODE"
-    cFieldListToSelect = "fg-rcpth.trans-date,fg-rcpth.i-no,fg-rcpth.i-name,fg-rcpth.po-no,fg-rcpth.job-no," +
+    cFieldListToSelect = "trans-date,fg-rcpth.i-no,fg-rcpth.i-name,fg-rcpth.po-no,fg-rcpth.job-no," +
                             "po-ord.vend-no,v-tran-type,v-tag,v-rfid#,v-cases,v-qty-case,fg-rdtlh.loc-bin,lv-cost-uom,v-fg-qty,v-fg-cost,v-fg-value," +
-                            "itemfg.part-no,itemfg.die-no,v-numUp,itemfg.cad-no,itemfg.plate-no,v-numColors,v-SheetSize,v-Caliper,fg-rcpth.user-id,loc,wt-h,rec-time,fg-rcpth.post-date," +
+                            "itemfg.part-no,itemfg.die-no,v-numUp,itemfg.cad-no,itemfg.plate-no,v-numColors,v-SheetSize,v-Caliper,fg-rcpth.user-id,loc,wt-h,rec-time,post-date," +
                             "itemfg.procat,unt-cst,unt-sel,suom,prom-date,due-date,job-start,shipto,shipname,order-no," +
                             "bef-qty,bin-qty,bol-no,Reason,Reason-cd,Reason-dscr,itemfg.cust-name," + 
                             "itemfg.std-mat-cost,itemfg.std-lab-cost,itemfg.std-var-cost,itemfg.std-fix-cost,bin-mat-cost,bin-dl-cost,bin-voh-cost,bin-foh-cost,itemfg.style"
@@ -596,6 +599,7 @@ ON END-ERROR OF C-Win /* Finished Goods Posting History Report */
 ON WINDOW-CLOSE OF C-Win /* Finished Goods Posting History Report */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -656,6 +660,7 @@ ON LEAVE OF begin_user IN FRAME FRAME-A /* Beginning Order User ID */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -710,6 +715,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -2449,8 +2457,6 @@ PROCEDURE run-report :
     IF rd-dest = 3 THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -2843,7 +2849,7 @@ PROCEDURE run-report_Save :
 
         IF rd-dest = 3 THEN 
             PUT STREAM excel UNFORMATTED
-                '"' STRING(fg-rcpth.trans-date)                              '",'
+                '"' DYNAMIC-FUNCTION("sfFormat_Date",fg-rcpth.trans-date)    '",'
                 '"' STRING(fg-rcpth.i-no)                                    '",'
                 '"' fg-rcpth.i-name                                          '",'
                 '"' fg-rcpth.po-no                                           '",'

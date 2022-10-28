@@ -1154,6 +1154,7 @@ PROCEDURE local-assign-record :
   /* update rfqitem qty - start */
 
   IF quotehd.rfq NE '' THEN DO:
+    /*
     FIND FIRST asi.module NO-LOCK WHERE module.module EQ 'rfq' NO-ERROR.
     IF AVAILABLE module AND module.is-used THEN DO:
       IF module.expire-date EQ ? OR module.expire-date GE TODAY THEN DO:
@@ -1173,6 +1174,7 @@ PROCEDURE local-assign-record :
         END. /* if connected */
       END. /* expire-date */
     END. /* avail module */
+    */
   END. /* if rfq */
   /* update rfqitem qty - end */
 
@@ -1263,8 +1265,9 @@ PROCEDURE local-create-record :
   assign /*quotehd.company = gcompany
          quotehd.loc = gloc
          quotehd.q-no = li-next-qno*/
-         quotehd.quo-date = today.
+         quotehd.quo-date = today.  
     RUN est/GetQuoteDefNotes.p (INPUT quotehd.company,
+                                INPUT quotehd.loc,
                                 OUTPUT cNotes).
     ASSIGN  
         quotehd.comment[1] = cNotes[1]

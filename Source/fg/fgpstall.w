@@ -207,6 +207,7 @@ DEFINE VARIABLE v-source-handle AS HANDLE    NO-UNDO.
 DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cOutputFileName AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAvailOutputFileName AS LOGICAL NO-UNDO.
 DEFINE VARIABLE hdOutputProcs   AS HANDLE.
 RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
@@ -4077,9 +4078,9 @@ PROCEDURE run-report PRIVATE :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
+    
+    ASSIGN lAvailOutputFileName = NO .
     
     FIND FIRST ttFGExceptionList NO-LOCK NO-ERROR.
     IF AVAILABLE ttFGExceptionList THEN
@@ -4106,7 +4107,6 @@ PROCEDURE run-report PRIVATE :
                 OUTPUT lSuccess,
                 OUTPUT cMessage
                 ).  
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cOutputFileName)).  
         END.
     END.
 
@@ -4364,6 +4364,11 @@ PROCEDURE show-report :
 
     IF ip-run-what EQ "" THEN
     DO WITH FRAME {&FRAME-NAME}:
+    
+    IF lAvailOutputFileName THEN DO:
+        OS-COMMAND NO-WAIT VALUE(SEARCH(cOutputFileName)).
+    END.
+    
         CASE rd-dest :
             WHEN 1 THEN RUN output-to-printer.
             WHEN 2 THEN RUN output-to-screen.
@@ -4380,6 +4385,9 @@ PROCEDURE show-report :
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 

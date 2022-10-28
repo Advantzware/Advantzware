@@ -990,9 +990,13 @@ PROCEDURE valid-64-dec :
    DEFINE INPUT PARAMETER ip-dec AS DEC DECIMALS 6 NO-UNDO.
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
 
-   IF NOT CAN-FIND(FIRST tt-64-dec WHERE
-      tt-64-dec.DEC EQ ip-dec) THEN
-      op-error = YES.
+   /* This removes the limitation of entering a decimal that equates to a 64th */
+   ASSIGN 
+    op-error = FALSE.
+       
+/*   IF NOT CAN-FIND(FIRST tt-64-dec WHERE*/
+/*      tt-64-dec.DEC EQ ip-dec) THEN     */
+/*      op-error = YES.                   */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

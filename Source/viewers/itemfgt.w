@@ -558,7 +558,7 @@ PROCEDURE local-assign-record :
   
    ASSIGN 
     itemfg.factored = v-factor-item
-    itemfg.spare-int-2 =  IF tb_LockArea THEN 1 ELSE 0.
+    itemfg.lLockDimensions =  IF tb_LockArea THEN YES ELSE NO.
 
 END PROCEDURE.
 
@@ -607,7 +607,9 @@ PROCEDURE local-display-fields :
       fi_blank-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cWidth
 /*      v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL reftable THEN reftable.code2 ELSE "NO".*/
       v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL itemfg THEN STRING(itemfg.factored) ELSE "NO"
-      tb_lockArea:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAILABLE itemfg AND itemfg.spare-int-2 EQ 1 THEN "YES" ELSE "NO".
+      tb_lockArea:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAILABLE itemfg AND itemfg.lLockDimensions THEN "YES" ELSE "NO"
+      tb_lockArea:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+      v-factor-item:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
 
   IF v-cecscrn-char = "Decimal" THEN
      ASSIGN

@@ -425,6 +425,7 @@ DO:
              /*  ===*/
              IF CAN-FIND(FIRST bf-tmp WHERE bf-tmp.company = g_company AND
                 bf-tmp.tag = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} AND
+                bf-tmp.rita-code = "I" AND
                 RECID(bf-tmp) <> RECID(fg-rctd)) THEN DO:
                 MESSAGE "This Tag Number Has Already Been Used." skip
                         "Please Enter A Unique Tag Number." 
@@ -544,8 +545,9 @@ DO:
 
    IF CAN-FIND(FIRST bf-tmp WHERE
       bf-tmp.company = g_company AND
-      bf-tmp.tag = SELF:SCREEN-VALUE
-      AND RECID(bf-tmp) <> RECID(fg-rctd)) THEN DO:
+      bf-tmp.tag = SELF:SCREEN-VALUE AND
+      bf-tmp.rita-code = "I" AND
+      RECID(bf-tmp) <> RECID(fg-rctd)) THEN DO:
        /*
       MESSAGE "This Tag Number Has Already Been Used." skip
               "Please Enter A Unique Tag Number." 
@@ -1792,6 +1794,7 @@ PROCEDURE validate-record :
     IF CAN-FIND(FIRST bf-tmp WHERE
        bf-tmp.company = g_company AND
        bf-tmp.tag = fg-rctd.tag:SCREEN-VALUE AND
+       bf-tmp.rita-code = "I" AND
        RECID(bf-tmp) <> RECID(fg-rctd)) THEN
        DO:
           MESSAGE "This Tag Number Has Already Been Used." skip

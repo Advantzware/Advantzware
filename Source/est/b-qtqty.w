@@ -773,7 +773,7 @@ PROCEDURE reprice-quote :
           END.
           
         END. /* each quotehd */
-        
+        /*
         /* connect to rfq database - start */
         FIND FIRST asi.module NO-LOCK WHERE module.module EQ 'rfq' NO-ERROR.
         IF AVAILABLE module AND module.is-used THEN DO:
@@ -783,7 +783,7 @@ PROCEDURE reprice-quote :
           END. /* expire-date */
         END. /* avail module */
         /* connect to rfq database - end */
-        
+        */
         IF CONNECTED('rfq') THEN
         FOR EACH quotehd OF quoteitm NO-LOCK,
             EACH bf-qty NO-LOCK

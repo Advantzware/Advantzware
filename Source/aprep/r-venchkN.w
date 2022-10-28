@@ -85,6 +85,9 @@ DEFINE VARIABLE iColumnLength      AS INTEGER   NO-UNDO.
 DEFINE BUFFER b-itemfg FOR itemfg .
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -92,7 +95,7 @@ ASSIGN
 
     cFieldListToSelect = "chk,chk-date,inv,vend,vend-name,due-date,gross-amt,dis,net-amt,bank,status,manual,period,void-date" 
 
-    cFieldLength       = "8,8,12,8,30,8,14,10,14,8,8,8,8,8" /*+ "7,15,7,4,20,6,13,12"*/
+    cFieldLength       = "8,10,12,8,30,10,14,10,14,8,8,8,8,10" /*+ "7,15,7,4,20,6,13,12"*/
     cFieldType         = "i,c,c,c,c,c,i,i,i,c,c,c,i,c" /*+ "c,c,c,i,c,i,i,i" */
     .
 
@@ -551,6 +554,7 @@ ON END-ERROR OF C-Win /* AP Check Register */
 ON WINDOW-CLOSE OF C-Win /* AP Check Register */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -607,6 +611,7 @@ ON LEAVE OF begin_vend IN FRAME FRAME-A /* Beginning Vendor# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -650,6 +655,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+	                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1522,7 +1530,7 @@ PROCEDURE print-gl-acct :
                         (ap-inv.freight / (ap-inv.net + ap-inv.freight)).
 
         PUT ap-payl.check-no FORMAT ">>>>>>>>" AT 6
-            ap-inv.inv-date         AT 41   FORMAT "99/99/99"
+            DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date)         AT 41   
             SPACE(1)
             ap-inv.vend-no
             SPACE(1)
@@ -1549,7 +1557,7 @@ PROCEDURE print-gl-acct :
                 '"' v-acct-dscr '",'
                 '"' ap-payl.check-no '",'
                 '"' "" '",'
-                '"' ap-inv.inv-date '",'
+                '"' DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date) '",'
                 '"' ap-inv.vend-no '",'
                 '"' ap-inv.inv-no '",'
                 '"' "" '",'
@@ -1626,7 +1634,7 @@ PROCEDURE print-gl-acct :
         PUT ap-payl.check-no FORMAT ">>>>>>>>" AT 6
             ap-invl.po-no         AT 34
             SPACE(1)
-            ap-inv.inv-date       FORMAT "99/99/99"
+            DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date)
             SPACE(1)
             ap-inv.vend-no
             SPACE(1)
@@ -1658,7 +1666,7 @@ PROCEDURE print-gl-acct :
                 '"' v-acct-dscr '",'
                 '"' ap-payl.check-no '",'
                 '"' ap-invl.po-no '",'
-                '"' ap-inv.inv-date '",'
+                '"' DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.inv-date) '",'
                 '"' ap-inv.vend-no '",'
                 '"' ap-inv.inv-no '",'
                 '"' {ap/invlline.i -1} '",'
@@ -2018,7 +2026,7 @@ PROCEDURE run-report :
                         WHEN "chk"    THEN 
                             cVarValue = STRING(tt-report.check-no,">>>>>>>9") .
                         WHEN "chk-date"   THEN 
-                            cVarValue = IF tt-report.check-date <> ? THEN STRING(tt-report.check-date,"99/99/99") ELSE "".
+                            cVarValue = IF tt-report.check-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.check-date) ELSE "".
                         WHEN "inv"   THEN 
                             cVarValue = STRING(tt-report.inv-no,"x(12)").
                         WHEN "vend"  THEN 
@@ -2026,7 +2034,7 @@ PROCEDURE run-report :
                         WHEN "vend-name"   THEN 
                             cVarValue = STRING(tt-report.vend-name,"x(30)") .
                         WHEN "due-date"  THEN 
-                            cVarValue = IF tt-report.due-date <> ? THEN STRING(tt-report.due-date,"99/99/99") ELSE "" .
+                            cVarValue = IF tt-report.due-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.due-date) ELSE "" .
                         WHEN "gross-amt"   THEN 
                             cVarValue = STRING(tt-report.gross-amt,"->>,>>>,>>9.99") .
                         WHEN "dis"  THEN 
@@ -2042,10 +2050,10 @@ PROCEDURE run-report :
                         WHEN "period"    THEN 
                             cVarValue = STRING(tt-report.period) .
                         WHEN "void-date" THEN 
-                            cVarValue = IF tt-report.void-date <> ? THEN STRING(tt-report.void-date,"99/99/99") ELSE "" .
+                            cVarValue = IF tt-report.void-date <> ? THEN DYNAMIC-FUNCTION("sfFormat_Date",tt-report.void-date) ELSE "" .
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -2099,7 +2107,7 @@ PROCEDURE run-report :
                         cVarValue = "" .
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -2133,8 +2141,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END. 
 
 

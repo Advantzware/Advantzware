@@ -1,0 +1,11 @@
+$PageSeparator$<C40>$PrintGrandTotalMSF||||IF["yes","Grand Total MSF: $TotalSquareFeet|>>>,>>9.9<<|DEC|$$linefeed$",""]|$<LEFT=4.5mm>$PONotes||||IF["","","!VALUE!"]|$<LEFT=0mm>$PageSeparator$
+$PrintPrintPrices||||IF["yes","<R58><C60><#8><FROM><R+5><C+20><RECT> 
+<=8><R+1> Sub Total<C70>: <DECIMAL=C+6>$POSubTotal|->>,>>9.99|DEC|$
+<=8><R+2> 
+<=8><R+3>
+<=8><R+4> Grand Total<C70>: <DECIMAL=C+6>$POTotalCost|->>,>>9.99|DEC|$",""]|$
+
+<FArial><R58><C1><P12><B> Términos y Condiciones </B>
+<P9><C2>Acknowledge this order verifying price, freight terms, quantity and delivery date.
+<C2>Invoices will be paid to this purchase order only. 
+$LastPurchaseOrder||||IF["yes","","$formfeed$"]|$

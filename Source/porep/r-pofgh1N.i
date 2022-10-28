@@ -400,10 +400,14 @@ DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO .
         
                    END CASE.
         
-                   cExcelVarValue = cVarValue.
+                    IF  cTmpField = "rcp-dt" THEN
+                         cExcelVarValue = IF v-trns-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(v-trns-date)) ELSE "".
+                    ELSE IF  cTmpField = "du-dt" THEN
+                         cExcelVarValue = IF po-ordl.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",po-ordl.due-date) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.
                    cDisplay = cDisplay + cVarValue +
                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                   cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                   cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
            END.
         
            PUT UNFORMATTED cDisplay SKIP.
@@ -463,10 +467,14 @@ DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO .
                      
                 END CASE.
                   
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "rcp-dt" THEN
+                     cExcelVarValue = IF v-trns-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(v-trns-date)) ELSE "".
+                ELSE IF  cTmpField = "du-dt" THEN
+                     cExcelVarValue = IF po-ordl.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",po-ordl.due-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay SKIP.
@@ -503,10 +511,14 @@ DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO .
                      
                 END CASE.
                   
-                cExcelVarValue = cVarValue.
+                IF  cTmpField = "rcp-dt" THEN
+                     cExcelVarValue = IF v-trns-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(v-trns-date)) ELSE "".
+                ELSE IF  cTmpField = "du-dt" THEN
+                     cExcelVarValue = IF po-ordl.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",po-ordl.due-date) ELSE "".
+                ELSE cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cExcelVarValue)) + ",".            
         END.
         
         PUT UNFORMATTED cDisplay SKIP.

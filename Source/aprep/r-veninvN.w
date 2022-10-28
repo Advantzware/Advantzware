@@ -73,6 +73,9 @@ DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lAPInvoiceLength   AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cNK1Value          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 RUN sys/ref/nk1look.p (INPUT cocode, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -479,6 +482,7 @@ ON END-ERROR OF C-Win /* AP Invoices by Vendor */
 ON WINDOW-CLOSE OF C-Win /* AP Invoices by Vendor */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -524,6 +528,7 @@ ON LEAVE OF begin_vend IN FRAME FRAME-A /* Beginning Vendor# */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -566,6 +571,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+	                OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -1449,7 +1457,7 @@ PROCEDURE run-report :
                 WHEN "dscr"            THEN 
                     cVarValue = STRING(ap-invl.dscr,"x(30)").
                 WHEN "date"                   THEN 
-                    cVarValue = STRING(tt-ap-inv.inv-date).
+                    cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",tt-ap-inv.inv-date).
                 WHEN "amt"              THEN 
                     cVarValue = STRING(tt-ap-inv.net,"->>>,>>>,>>>,>>9.99").
                 WHEN "line-amt"           THEN 
@@ -1459,7 +1467,7 @@ PROCEDURE run-report :
 
             END CASE.
 
-            cExcelVarValue = cVarValue.
+            cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
             cDisplay = cDisplay + cVarValue +
                 FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1513,7 +1521,7 @@ PROCEDURE run-report :
 
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1579,7 +1587,7 @@ PROCEDURE run-report :
 
                 END CASE.
 
-                cExcelVarValue = cVarValue.
+                cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, cVarValue).
                 cDisplay = cDisplay + cVarValue +
                     FILL(" ",int(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
@@ -1600,8 +1608,6 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).

@@ -2281,6 +2281,21 @@ PROCEDURE Convert32ndsToDecimal:
         ).    
 END PROCEDURE.
 
+PROCEDURE ConvertDecimalTo32nds:
+    /*------------------------------------------------------------------------------
+     Purpose: Converts the size format from decimal to 16ths
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT-OUTPUT PARAMETER iopdSize AS DECIMAL NO-UNDO.
+
+    RUN SwitchPanelSizeFormat (
+        INPUT  "Decimal",
+        INPUT  "32nd's",
+        INPUT  iopdSize,
+        OUTPUT iopdSize
+        ).    
+END PROCEDURE.
+
 PROCEDURE pUpdatePanelDetailsPOLegacy PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Updates the legacy reftable based on Panel Details

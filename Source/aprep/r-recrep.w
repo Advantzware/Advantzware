@@ -961,10 +961,14 @@ PROCEDURE run-report :
         tt-report.rpt-date     COLUMN-LABEL "Date"
         tt-report.period       COLUMN-LABEL "P"
         tt-report.check-amt    COLUMN-LABEL "Amount"
+        tt-report.key-05       COLUMN-LABEL "GL Period" FORMAT "x(9)"
+        tt-report.key-06       COLUMN-LABEL "GL Date"  FORMAT "x(10)"
+        tt-report.key-07       COLUMN-LABEL "GL Year" FORMAT "x(7)"
+        tt-report.key-04       COLUMN-LABEL "GL Run#" FORMAT "x(8)"
         tt-report.cleared      COLUMN-LABEL "CLR"
         FORMAT "x(4)"
 
-        WITH STREAM-IO WIDTH 102 FRAME a NO-ATTR-SPACE NO-BOX DOWN.
+        WITH STREAM-IO WIDTH 137 FRAME a NO-ATTR-SPACE NO-BOX DOWN.
 
     ASSIGN
         str-tit2    = c-win:TITLE
@@ -1068,8 +1072,10 @@ PROCEDURE run-report :
                 tt-report.check-amt = IF NOT ll-skipped THEN ap-pay.check-amt * -1 ELSE ap-pay.check-amt
                 tt-report.cleared   = IF ll-skipped     THEN "Void" ELSE
                              IF ap-pay.cleared THEN "***"  ELSE
-                             IF tb_clr         THEN "CLR"  ELSE "".
-
+                             IF tb_clr         THEN "CLR"  ELSE ""
+                tt-report.key-04    = string(ap-ledger.trnum).
+                
+            RUN pGetGlDetail(ap-ledger.trnum, OUTPUT tt-report.key-05, OUTPUT tt-report.key-06, OUTPUT tt-report.key-07).
             IF ap-pay.vend-no EQ "" THEN
             DO:
                 FIND FIRST ap-dis WHERE
@@ -1113,8 +1119,10 @@ PROCEDURE run-report :
                     tt-report.rpt-date  = ap-ledger.tr-date
                     tt-report.period    = ap-ledger.period
                     tt-report.check-amt = ap-pay.check-amt
-                    tt-report.cleared   = "VOID".
+                    tt-report.cleared   = "VOID"
+                    tt-report.key-04    = string(ap-ledger.trnum).
 
+                RUN pGetGlDetail(ap-ledger.trnum, OUTPUT tt-report.key-05, OUTPUT tt-report.key-06, OUTPUT tt-report.key-07).    
                 IF ap-pay.vend-no EQ "" THEN
                 DO:
                     FIND FIRST ap-dis WHERE
@@ -1177,7 +1185,10 @@ PROCEDURE run-report :
                     tt-report.check-amt = v-amt
                     tt-report.cleared   = IF ar-cash.cleared THEN "***" ELSE
                                IF tb_clr THEN "CLR" ELSE ""
-                    v-amt               = 0.
+                    v-amt               = 0
+                    tt-report.key-04    = string(ar-ledger.tr-num).
+                    
+                    RUN pGetGlDetail(ar-ledger.tr-num, OUTPUT tt-report.key-05, OUTPUT tt-report.key-06, OUTPUT tt-report.key-07).
             END.
 
             IF tb_clr AND NOT ar-cash.cleared THEN ar-cash.cleared = YES.
@@ -1237,7 +1248,10 @@ PROCEDURE run-report :
                 tt-report.misc-chk  = IF AVAILABLE reftable AND 
                                (TRIM(reftable.code2) NE "" OR
                                 reftable.code2 NE "0000000000")
-                               THEN reftable.code2 ELSE "".
+                               THEN reftable.code2 ELSE ""
+                tt-report.key-04    = string(ar-ledger.tr-num) .
+                
+                RUN pGetGlDetail(ar-ledger.tr-num, OUTPUT tt-report.key-05, OUTPUT tt-report.key-06, OUTPUT tt-report.key-07).
 
             IF tb_clr AND ar-mcash-ref.val[2] EQ 0 THEN ar-mcash-ref.val[2] = 1.
             IF tb_unclr AND ar-mcash-ref.val[2] NE 0 THEN ar-mcash-ref.val[2] = 0.
@@ -1306,13 +1320,17 @@ PROCEDURE run-report :
             IF v-bank-hld GT "" THEN PAGE.
             v-bank-hld = tt-report.check-act.
         END.
-
+            
         DISPLAY tt-report.check-act
             tt-report.check-no
             tt-report.vend-no
             tt-report.rpt-date
             tt-report.period
-            tt-report.check-amt
+            tt-report.check-amt 
+            tt-report.key-05
+            tt-report.key-06
+            tt-report.key-07
+            tt-report.key-04
             tt-report.cleared
             SPACE(22)
             tt-report.misc-chk NO-LABELS
@@ -1409,3 +1427,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetGlDetail C-Win 
+PROCEDURE pGetGlDetail :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiRunNumber AS INTEGER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcPeriod AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcDate AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcYear AS CHARACTER NO-UNDO.
+    
+    FIND FIRST glhist NO-LOCK
+         WHERE glhist.company EQ cocode
+           AND glhist.tr-num EQ ipiRunNumber NO-ERROR.
+    IF AVAILABLE glhist THEN
+    DO:
+        ASSIGN
+             opcPeriod = STRING(glhist.period)
+             opcDate   = STRING(glhist.tr-date)
+             opcYear   = STRING(glhist.glYear).
+    END.
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

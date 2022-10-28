@@ -46,7 +46,7 @@
    terms.dscr FORM "x(15)" space(5) sman.sname space(5) v-over-under SKIP.
 
 PUT "<||3><R23><C1><#5><FROM><R25><C80><RECT>" SKIP    
-             "<R23><C8><FROM><R25><C8><LINE>" SKIP
+             "<R23><C7.5><FROM><R25><C7.5><LINE>" SKIP
              "<R23><C28><FROM><R25><C28><LINE>" SKIP
              "<R23><C48><FROM><R25><C48><LINE>" SKIP
              "<R23><C55><FROM><R25><C55><LINE>" SKIP
@@ -54,7 +54,7 @@ PUT "<||3><R23><C1><#5><FROM><R25><C80><RECT>" SKIP
              "<R23><C72><FROM><R25><C72><LINE>" SKIP
              .
 /* gdm - 02230903 */
-  PUT "<FMS Mincho><=5><R+1> Est#/Qt#    Part#/Description            Item/Style/Color/Board    Quantity   Release       Price       UOM "
+  PUT "<FMS Mincho><=5><R+1><C+0.5>Est#/Qt#    Part#/Description            Item/Style/Color/Board    Quantity   Release       Price       UOM "
        "<FMS Mincho>"
        SKIP(1).
 /**

@@ -80,6 +80,9 @@ DEFINE VARIABLE cRtnChar           AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound          AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE lTagFormat         AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE cFileName          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE hdOutputProcs      AS HANDLE    NO-UNDO.
+
+RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 
 ASSIGN 
@@ -89,7 +92,7 @@ ASSIGN
     cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
                             "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid,sht-size,adder,cycle-count"
-    cFieldLength       = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30,13,10,10,10,10,20,30,11"
+    cFieldLength       = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,10,7," + "6,25,30,13,10,10,10,10,20,30,11"
     cFieldType         = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,i,i,i,i,c,c,c"
     .
 
@@ -592,6 +595,7 @@ ON END-ERROR OF C-Win /* RM Inventory By Bin/Tag */
 ON WINDOW-CLOSE OF C-Win /* RM Inventory By Bin/Tag */
     DO:
         /* This event will close the window and terminate the procedure.  */
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
     END.
@@ -670,6 +674,7 @@ ON LEAVE OF begin_whs IN FRAME FRAME-A /* Beginning Warehouse */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
     DO:
+        DELETE PROCEDURE hdOutputProcs.
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -715,6 +720,9 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                         DO:
                             OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                         END.
+                    END.
+                    ELSE DO:
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
                     END.
                 END. /* WHEN 3 THEN DO: */
             WHEN 4 THEN 
@@ -2213,7 +2221,11 @@ PROCEDURE run-report :
                         WHEN "cycle-count" THEN 
                             cVarValue = STRING(item.cc-code,"x(2)").
                     END CASE.
-                    cExcelVarValue = cVarValue.  
+                    IF  cTmpField = "trans-date" THEN
+                         cExcelVarValue = IF lv-lstdt NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(lv-lstdt)) ELSE "".
+                    ELSE IF  cTmpField = "cLstRcd" THEN
+                         cExcelVarValue = IF lv-fistdt NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",DATE(lv-fistdt)) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.  
                     IF cTmpField = "tag" OR cTmpField = "cVendTag" THEN 
                     DO:
                         cVarValue = REPLACE(cVarValue,'"','')  .
@@ -2221,7 +2233,7 @@ PROCEDURE run-report :
                     END.
                     cDisplay = cDisplay + cVarValue +
                         FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).
-                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
+                    cExcelDisplay = cExcelDisplay + quoter(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
                 END.
             END.
             PUT UNFORMATTED cDisplay SKIP.
@@ -2864,8 +2876,6 @@ PROCEDURE run-report :
     IF rd-dest EQ 3 THEN 
     DO:
         OUTPUT STREAM excel CLOSE.
-        IF tb_OpenCSV THEN
-            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
     END.
 
 

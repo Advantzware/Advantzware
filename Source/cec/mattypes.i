@@ -124,7 +124,7 @@ CASE fi_mat-type:SCREEN-VALUE:
     &ENDIF
   END.
   &Scoped-define group# 5
-  WHEN '1' OR WHEN '2' OR WHEN '3' or when '4' THEN
+  WHEN '1' OR WHEN '2' OR WHEN '3' or when '4' or when '9' THEN
   DO:
     DISPLAY {&group{&group#}}.
     assign
@@ -157,7 +157,7 @@ CASE fi_mat-type:SCREEN-VALUE:
 END CASE.
 &UNDEFINE group#
 
-    IF lDisplayWood AND INDEX("1234",fi_mat-type:SCREEN-VALUE) GT 0 THEN DO:
+    IF lDisplayWood AND INDEX("12349",fi_mat-type:SCREEN-VALUE) GT 0 THEN DO:
        ASSIGN
           item.flute:LABEL       = "Lumber"              
           item.s-dep:LABEL       = "Thickness"

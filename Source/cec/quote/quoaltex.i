@@ -110,10 +110,18 @@ FOR EACH xqitm OF xquo NO-LOCK
                 THEN itemfg.i-name
                 ELSE xqitm.part-dscr1.
 
-
-            PUT TRIM(lv-est-no) FORM "x(8)" AT 1
-                xqitm.part-no AT 10 FORMAT "x(21)"          
-                TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)". 
+              IF LENGTH(xqitm.part-no) LE 20 THEN
+                 PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+                  xqitm.part-no AT 10 FORMAT "x(20)"           
+                  TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)".
+              ELSE do: 
+                 PUT TRIM(lv-est-no) FORM "x(8)" AT 1
+                  xqitm.part-no AT 10 FORMAT "x(30)".
+                  IF lv-part-dscr1 NE "" THEN
+                  PUT 
+                    SKIP           
+                    TRIM(lv-part-dscr1) AT 31 FORMAT "x(28)".
+              END.
 
         END.
         ELSE

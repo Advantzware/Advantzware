@@ -488,6 +488,7 @@ PROCEDURE pCreateDynParameters :
                 dynParamSetDtl.paramWidth,
                 dynParamSetDtl.paramHeight,
                 CAN-DO(dynParamSetDtl.action,"MULTISELECT"),
+                CAN-DO(dynParamSetDtl.action,"LIST-ITEM-PAIRS"),
                 cInitItems,
                 cParamValue,
                 lSensitive,
@@ -968,6 +969,7 @@ PROCEDURE pSelectionList:
     DEFINE INPUT  PARAMETER ipdWidth     AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipdHeight    AS DECIMAL   NO-UNDO.
     DEFINE INPUT  PARAMETER iplMultiple  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplItemPairs AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipcListItems AS CHARACTER NO-UNDO.    
     DEFINE INPUT  PARAMETER ipcValue     AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER iplSensitive AS LOGICAL   NO-UNDO.
@@ -992,7 +994,7 @@ PROCEDURE pSelectionList:
         HEIGHT = ipdHeight
         SCROLLBAR-VERTICAL = YES
         MULTIPLE = iplMultiple
-        LIST-ITEMS = ipcListItems
+        //LIST-ITEMS = ipcListItems
         SCREEN-VALUE = ipcValue
         SENSITIVE = iplSensitive
         MOVABLE = lMovable
@@ -1007,6 +1009,10 @@ PROCEDURE pSelectionList:
       ON VALUE-CHANGED
         PERSISTENT RUN pParamValidate IN THIS-PROCEDURE (ophWidget).
     END TRIGGERS.
+    IF iplItemPairs THEN
+    ophWidget:LIST-ITEM-PAIRS = ipcListItems.
+    ELSE
+    ophWidget:LIST-ITEMS = ipcListItems.
     IF ipcLabel NE "" AND lShowLabel THEN
     ASSIGN
         hLabel = fCreateLabel(ipcPoolName, iphFrame, ipcLabel, ipdRow, ipdHeight)

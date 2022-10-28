@@ -1342,6 +1342,8 @@ PROCEDURE local-display-fields :
               box-design-hdr.box-3d-image <> "" THEN DO:
               /*  box-image:auto-resize = yes. */
               ll-dummy = box-image-2:load-image(box-design-hdr.box-3d-image) IN FRAME {&frame-name} NO-ERROR.
+             ASSIGN box-design-hdr.box-text:HIDDEN = YES
+                box-image-2:HIDDEN             = NO .
               /*assign box-image:height-pixels = box-image:height-pixels - 10
                 box-image:width-pixels =  box-image:width-pixels - 10.            
               */

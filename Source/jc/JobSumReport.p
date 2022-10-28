@@ -178,15 +178,7 @@ PROCEDURE pBuildDepartmentsAndOperations PRIVATE:
     IF AVAILABLE ipbf-estCostHeader THEN
     DO:
         FOR EACH estCostOperation NO-LOCK 
-            WHERE estCostOperation.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID,
-            FIRST job-mch NO-LOCK 
-            WHERE job-mch.company EQ ipbf-estCostHeader.company
-            AND job-mch.job-no EQ ipbf-estCostHeader.jobID
-            AND job-mch.job-no2 EQ ipbf-estCostHeader.jobID2
-            AND job-mch.frm EQ estCostOperation.formNo
-            AND job-mch.blank-no EQ estCostOperation.blankNo
-            AND job-mch.pass EQ estCostOperation.pass
-            AND job-mch.m-code EQ estCostOperation.operationID
+            WHERE estCostOperation.estCostHeaderID EQ ipbf-estCostHeader.estCostHeaderID
             BY estCostOperation.sequenceOfOperation:
             CREATE ttOperation.
             ASSIGN                
