@@ -2013,7 +2013,9 @@ PROCEDURE ipConSpareIntField:
  Notes:
 ------------------------------------------------------------------------------*/
     DEF VAR i AS INTEGER.
-
+    
+    DISABLE TRIGGERS FOR LOAD OF itemfg.
+    
     FOR EACH itemfg EXCLUSIVE-LOCK:
       ASSIGN
         itemfg.lLockWeightCalc  = IF itemfg.spare-int-1 EQ 1 THEN TRUE ELSE FALSE
@@ -3776,23 +3778,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix230310 C-Win
-PROCEDURE ipDataFix220310:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    RUN ipStatus ("  Data Fix 220310...").
-    
-    RUN ipFixStyleAddToLengthAndWidth.
-    
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipDataFix999999 C-Win 
@@ -7649,38 +7634,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateInvLineInvNo C-Win 
-PROCEDURE ipUpdateInvLineInvNo :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-    DEFINE BUFFER bf-inv-line FOR inv-line.
-    RUN ipStatus ("Updating Invoice Line Records").
-
-    ASSIGN 
-        lSuccess = FALSE.
-    DISABLE TRIGGERS FOR LOAD OF inv-line.
-    
-    FOR EACH inv-head NO-LOCK
-        WHERE inv-head.inv-no NE 0:
-       FOR EACH bf-inv-line EXCLUSIVE-LOCK
-           WHERE bf-inv-line.r-no EQ inv-head.r-no 
-             AND bf-inv-line.inv-no EQ 0:
-             ASSIGN
-              bf-inv-line.inv-no = inv-head.inv-no. 
-       END.
-    END.
-    RELEASE bf-inv-line.
-    ASSIGN 
-        lSuccess = TRUE.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateNK1s C-Win 
 PROCEDURE ipUpdateNK1s :

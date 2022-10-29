@@ -1,7 +1,7 @@
 "001" "1099MISC" "1099-MISC Print Format" 0 10 "1Up1099" 10/10/19 yes "AP" "0914201107350946" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 901 "" "" ? 0 0 no "" "" "Test Desciption" "" no no
 "001" "2PIECECD" "Setup / 2 Piece Box Default Freight Cost Calcualtion" 0 0 "Z Trailr" ? no "CE" "0426200400525348" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 699 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "Account" "Account on Zoho Support Portal" 0 0 "Delta Corrugated" ? no "" "0525201700553336" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "ACKHEAD" "Order Acknowlegement Busiess Form" 0 0 "ACPI" ? yes "OE" "1107200100023862" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 100 "Business Form" "Acknowledgement" "" "" no 900 900 "3CPack" "Business Form Name" ? 0 0 no "" "Left Margin (mm)" "" "" no yes
+"001" "ACKHEAD" "Order Acknowlegement Busiess Form" 0 0 "ackhead 1" ? yes "OE" "1107200100023862" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 100 "Business Form" "Acknowledgement" "" "" no 900 900 "3CPack" "Business Form Name" ? 0 0 no "" "Left Margin (mm)" "" "" no yes
 "001" "ACKMASTER" "Order Acknowledgment Internal Format" 0 1 "AckMaster 1" ? yes "OP" "0813201409351944" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "AckSPS" "Generate SPS Acknowledgement?" 0 0 "C:\tmp\" ? no "" "201906185187503588570" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "ADDPREP" "Prompt to Update Prep File for Die# and/or Plate#?" 1 0 "" ? yes "" "0106200601452673" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -56,12 +56,12 @@
 "001" "AUTOREL" "Prompt to Release all items on the order entry screen?" 0 0 "" ? yes "OU1" "1107200100023365" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BACKLOG" "Print Cost & Profit on Order Backlog Report?" 0 0 "" ? yes "OR1" "0106200601452329" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BankTransmittalLocation" "Enter Bank Transmittal Location" 0 0 ".\CustFiles\APChecks" ? yes "AP" "201909245396004010681" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "BARDIR" "C:\BA\label" 0 0 "logo.xpr" ? yes "OU7" "0531200200020108" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "BARDIR" "C:\BA\label\" 0 0 "logo.xpr" ? yes "OU7" "0531200200020108" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "Batch" "Batch Output Destination" 0 0 "C:\tmp" ? no "" "0525201700553341" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BitMap" ".\custfiles\images\customersfirst.jpg" 0 0 "H:\PubUpdates\CurrentPatch\logo-advantzware.png" ? no "" "201812092383602739888" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
-"001" "BOLCERT" "Print Certificate of Compliance / Commercial Invoice?" 0 0 "unipak-xl" ? yes "OS3" "0106200601452328" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "BOLCERT" "Print Certificate of Compliance / Commercial Invoice?" 0 0 "ccc2" ? yes "OS3" "0106200601452328" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BOLDATE" "When Posting Releases, set BOL Date to..." 0 0 "Current" ? yes "OP" "0106200601452444" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "BOLFMT" "BOL Format" 1 0 "NSTOCK" ? yes "OS3" "1107200100023366" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "BOLFMT" "BOL Format" 1 0 "CCC" ? yes "OS3" "1107200100023366" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BOLFMTTran" "Transfer Bill of Lading Creation" 0 0 "GPI" ? no "" "0525201700553342" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BOLFMTX" "Brokers BIll of Lading Format." 0 0 "ACPIX" ? yes "OP" "1106200802968109" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BOLFreight" "Bill of Lading Freight" 0 0 "Shipto Delivery Zone" ? yes "" "1128201107475551" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -71,7 +71,7 @@
 "001" "BOLPartialFlag" "BOL P/C value based upon Order or Release quantity" 0 0 "Order Quantity" ? yes "" "202001024992404558840" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BOLPOST" "Post BOL if BOL Qty > Bin Qty" 0 0 "Bin>Qty" ? yes "OS5" "0106200601452356" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BolPostTime" "Parameter to post Time of Invoice Creation" 0 0 "BolCreation" ? yes "OS5" "0525201700553344" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "BOLPRINT" "Print Bill of Lading on Plain Paper" 1 0 "Soule" ? yes "OS3" "1107200100023367" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "BOLPRINT" "Print Bill of Lading on Plain Paper" 1 0 "CCC" ? yes "OS3" "1107200100023367" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BOLQtyPopup" "Show BOL Qty Warning Message" 0 0 "" ? yes "" "0525201700553345" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BOLSavePDF" "Posting Bol Pdf fields Save Path" 1 0 "c:\tmp" ? no "" "201905075522503502735" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "BOLSIGN" "Signed Bill of Lading Path" 0 0 "N:\SignedBOLs" ? yes "OP" "0914201107350895" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -120,8 +120,8 @@
 "001" "CEDICADC" "When changing Die/CAD/Image, Prompt to Update Corrugated Estimates" 0 0 "" ? yes "CE" "0914201107350938" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CEDICADF" "When changing Die/CAD/Image, Prompt to Update Folding Estimates" 0 0 "" ? no "CE" "0914201107350937" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CEFGITEM" "Change Color of Inactive FG Item Code in Estimating to Teal?" 0 0 "" ? yes "OU1" "0914201107350949" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "CEFormat" "Format for Estimate Printing" 0 0 "Config" ? no "CEClc" "201907287030903652688" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "CEFormatConfig" "Configuration file for Estimate printing (JSON)" 0 0 ".\CustFiles\Estimates\CEFormatConfig.json" ? no "CEClc" "202011234433405874944" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "CEFormat" "Format for Estimate Printing" 0 0 "By Form With Summary First" ? no "CEClc" "201907287030903652688" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "CEFormatConfig" "Configuration file for Estimate printing (JSON)" 0 0 ".\CustFiles\Estimates\CEFormatSub.json" ? no "CEClc" "202011234433405874944" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CEFormatFont" "Font for Estimate Printing" 0 0 "Calibri" ? no "CEClc" "201907287030903652689" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CEGOTO" "Display Request/Yield Qtys after adding each Combo Part#?" 0 0 "" ? no "CE" "0106200601452431" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CEGOTOCALC" "Use enhanced GOTO Screen from Estimate?" 0 0 "RequestAlways" ? yes "" "202105276374007348966" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -140,7 +140,7 @@
 "001" "CEMiscDefaultStyle" "Default on new Misc Estimate for Style" 0 0 "RSC" ? no "" "201908295811003781970" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CENewLayoutCalc" "Use new Layout calculation routine?" 0 0 "" ? no "" "202112305322608422713" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CEOpRates" "Machine Rates separate for MR and Run" 0 0 "Selected" ? yes "CEClc" "201908296394103783865" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "CEOpStandards" "Calc source for Machine Standards" 0 0 "Estimate" ? yes "" "202110043342708099143" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "CEOpStandards" "Calc source for Machine Standards" 0 0 "Machine if Not Locked" ? yes "" "202110043342708099143" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CePackEnhanced" "Allows for multiple layers of packing details on the Ink/Pack tab" 0 0 "" ? yes "" "201906235395103593394" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CEPANEL" "Check Panel sizes against minimums on Machine File" 0 0 "" ? yes "CE" "0106200601452331" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CEPARTITION" "Default Rev. Grain for Assembled Partitions" 0 0 "" ? no "CE" "0914201107351261" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -194,7 +194,7 @@
 "001" "CORRCHOICE" ".\CustFiles\EDIFiles\POs\CorrChoice" 1 0 "trepaper" ? yes "PU3" "1217200905342244" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CORRTRIM" ".\CustFiles\DataXfer\CorrTrim" 0 0 "Fibre" ? yes "PU3" "0531200200020120" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CORSUPLY" ".\CustFiles\DataXfer\CorSupply\export" 0 0 "TrePaper" ? yes "" "0217200500710121" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "CreditHold" "Credit check fails" 0 0 "INFO" ? no "VAL" "202003244300704738195" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "CreditHold" "Credit check fails" 0 0 "HOLD" ? yes "VAL" "202003244300704738195" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CRMAuthToken" "ZOHO CRM Authorization Token" 0 0 "280d42efb730b6c6af4709f6b6f16b04" ? no "" "0525201700553352" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "CTIDir" "Directory for corrtrim export files" 0 0 ".\CustFiles\DataXfer\CorrTrim" ? no "" "201811194307102710823" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "custBrowse" "# of Records to be displayed in custor Item browser" 999 0 "cust" ? yes "" "0525201700553353" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -257,7 +257,7 @@
 "001" "FGLabel" "Format for FG Label Printing, Int=Copies" 1 0 "fg_label.qdf" ? no "" "201903284715403434161" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "FGMASTER" "Default FG Finished Goods Item# for New FG Items" 0 0 "FGMASTER" ? yes "" "0914201107350928" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "FGMASTERLOC" "Default FG Finished Goods Location for New FG Items" 0 0 "Estimate Shipto" ? yes "" "202009284765605692692" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "FGOECOST" "Order Entry FG Item Cost? Yes=Full No=Direct Factory" 0 0 "" ? no "OU1" "1107200100023385" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "FGOECOST" "Order Entry FG Item Cost? Yes=Full No=Direct Factory" 0 0 "" ? yes "OU1" "1107200100023385" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "FGOversDefault" "Default overs ability to specify overs/under percentage to default" 0 0 "Customer" ? yes "" "202010144057505760589" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "FGPART#" "Customer Part# Must be Unique for New FG Items?" 0 0 "" ? no "" "0106200601452460" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "FGPOCOST" "Update order entry cost for purchased finished goods?" 0 0 "" ? yes "IU" "0106200601452355" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -285,10 +285,10 @@
 "001" "FOAMDATE" "Add Manf. Days to Order Date to calculate Due Date for Foam Jobs" 20 0 "" ? no "" "0106200601452388" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "FREEZENOTE" "Prompt for Password when checking Freeze Notes" 0 0 "yorkie" ? no "OU5" "0829201107295595" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" yes yes
 "001" "FREEZENOTES" "Default Toggle to User's Last Action?" 0 0 "" ? yes "OU5" "0914201107351129" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "FreightCalculation" "Freight Calculation" 1 0 "All" ? yes "" "202004065246504782826" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "FreightCalculation" "Freight Calculation" 0 0 "All" ? yes "" "202004065246504782826" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "FullPalletOnly" "Orders must be even pallet quantities" 0 0 "HOLD" ? no "VAL" "202104173729807169511" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "GLJournalPost" "Prompt if GL journals are out of balance before posting?" 0 0 "" ? yes "" "0525201700553361" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "GLPOST" "Post AP Invoices within current period only? Default to NO" 0 0 "123" ? yes "VU3" "0914201107351313" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "GLPOST" "Post AP Invoices within current period only? Default to NO" 0 0 "123" ? no "VU3" "0914201107351313" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "GP" "c:\tmp\old" 1 0 "PremierPkg" ? yes "" "0911200601692373" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "GRAPHIC" "FG Graphic Image Folder" 0 0 ".\CustFiles\Images\Box" ? no "" "0914201107350942" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "HighBalDays" "Calc High Balance for customer within X days (Leave 0 for no recalc)" 750 0 "" ? yes "" "0525201700553362" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -316,7 +316,7 @@
 "001" "InvoiceSavePDF" "Posting invoice Pdf fils Save Path" 1 0 "c:\tmp" ? yes "" "201905075228103502521" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "INVPASS" "Password to Print O/E Invoices?" 0 0 "yorkie" ? no "" "0914201107351025" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" yes yes
 "001" "INVPOST" "Post Invoice when FG Item Cost is Zero?" 0 0 "" ? yes "OB4" "1107200100023389" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "INVPRINT" "Print Invoice Headers on Invoice Form?" 0 4 "invprint10-CAN" ? yes "" "0108201509554612" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "INVPRINT" "Print Invoice Headers on Invoice Form?" 0 4 "InvPrint 10" ? yes "" "0108201509554612" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "INVSTATUS" "Invoice Status and Post Bills / Create Invoices One at a Time" 0 0 "Batch" ? yes "" "0525201700553363" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "ipaper" ".\CustFiles\DataXfer\iPaper" 0 0 "acpi" ? yes "PU3" "0613201610102463" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "IR12" "Prompt for standard for custom IR12 report" 0 0 "asi" ? yes "FG" "1220201208433944" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -326,9 +326,9 @@
 "001" "JDEDWDIR" "JD Edwards" 1 1 ".\CustFiles\DataXfer\JDEdwards" ? no "" "0111200300174942" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "JOB QTY" "Create Job Quantity with overrun % from OE?" 0 0 "" ? yes "OU1" "1107200100023372" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "JOB#" "Default Job Number. From Estimate Number or Order Number?" 0 0 "Order#" ? no "OU1" "0106200601452336" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "JobBuildVersion" "Version of Job Build Calculation" 0 0 "" ? no "" "202006154588305361150" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "JOBCARDC" "Job Card or Factory Ticket Format (Corrware)" 0 0 "Soule" ? no "OU5" "0106200601452358" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "Job Card Form?" ? 0 0 no "" "" "" "" no yes
-"001" "JOBCARDF" "Job Card or Factory Ticket Format (Foldware)" 1 0 "Ruffino" ? no "" "0525201700553364" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "JobBuildVersion" "Version of Job Build Calculation" 1 0 "New" ? no "" "202006154588305361150" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "JOBCARDC" "Job Card or Factory Ticket Format (Corrware)" 0 0 "SOULE" ? no "OU5" "0106200601452358" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "Job Card Form?" ? 0 0 no "" "" "" "" no yes
+"001" "JOBCARDF" "Job Card or Factory Ticket Format (Foldware)" 0 0 "Keystone" ? no "" "0525201700553364" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "JobCardImage" "Job card image options" 0 0 ".\Custfiles\Images\sample.JPG" ? yes "" "201907155261703619089" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "JobCardPrintScores" "Control print scoring based on style for job ticket" 0 0 "" ? yes "" "201909185511203958323" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "JobCompleteEmail" "Generate Email when Job Run Completes on Last Routing" 1 0 "" ? yes "" "201911066781904444167" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -346,6 +346,7 @@
 "001" "JOBSubAssemblyPrefix" "Enter prefix letter to identify sub assembly jobs" 0 0 "A" ? no "" "202207143094909749438" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "Jobtype" "Defines the default job type (Like Molded Products)" 0 0 "" ? no "" "202011245756805878379" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "JobXML" "JobXML Location of Files to Import" 0 0 "C:\tmp" ? no "" "0525201700553366" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "JocCardC" "Job Card or Factory Ticket Format(Corrware)" 0 0 "Soule" ? no "OU5" "20221011_04:14:32_10219791" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "KIWI" ".\CustFiles\DataXfer\Kiwi" 0 0 "trepaper" ? yes "PU3" "0611201409288804" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "KiwiT" ".\CustFiles\DataXfer\Kiwi" 0 0 "trepaper" ? yes "PU3" "0525201700553367" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "LABEL" "Qty/Set label in estimating." 0 0 "" ? yes "EC" "0531200200020102" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -458,7 +459,7 @@
 "001" "POCOST" "Default PO Cost via Raw Mat'l Vendor Matrix or Job?  Hold Overpices?" 10 10 "Vendor" ? no "PU1" "0219200200040211" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POCOST?" "Prompt for PO Cost Warning when Vendor Cost > Job Cost?" 0 0 "" ? yes "" "0106200601452450" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POEXPORT" "PO Export Interface" 0 0 "VENDOR" ? yes "" "0106200601452378" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "POFarmOutScores" "For all Farm out FG Items, transfer dimensions to the scores button?" 0 0 "" ? no "PU1" "0525201700553383" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "POFarmOutScores" "For all Farm out FG Items, transfer dimensions to the scores button?" 0 0 "" ? yes "PU1" "0525201700553383" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POFGDims" "Use Box L W D for FG POs (specify Style Types optional)" 0 0 "" ? yes "" "201906185187503588593" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POHoldReceipts" "Block Receipts for POs with a Hold Status?" 0 0 "" ? no "" "0525201700553384" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POIMAGE" "PO Image File Location" 0 0 ".\CustFiles\Images\Misc\Advantzware Box Company Logo.png" ? no "" "0914201107350975" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -466,7 +467,7 @@
 "001" "POLoadtag" "Format of the POLoadtag for Drop Shipments" 1 0 "PoLoadtag2" ? no "" "202004034131604777450" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POPaperClip" "PO Attach Default Folder" 1 0 ".\CustFiles\Attachments\PO" ? yes "" "0914201107350988" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POPriceHold" "PO Price Hold" 0 0 "" ? yes "" "202101244395206049689" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "POPRINT" "Print Sheet Size?   16th's or 32nd's?" 1 0 "ACPI" ? yes "PU3" "0525201700553385" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "POPRINT" "Print Sheet Size?   16th's or 32nd's?" 1 0 "Protagon" ? yes "PU3" "0525201700553385" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POQTY" "Auto PO to use Job Qty or Net Sheets?" 0 0 "JobQty" ? no "PU1" "0219200200040204" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POScreen" "PO Cursor Initial Position and Tab Order" 0 0 "Item-Job" ? no "" "0525201700553386" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "POSTATUS" "Set initial status of POs" 0 0 "User Limit" ? no "" "0525201700553387" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -505,7 +506,7 @@
 "001" "RELMERGE" "When creating actual releases, prompt to merge into printed release?" 1 0 "AllOrders" ? yes "" "0106200601452454" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RELPACK" "The heading to be printed on ASI release/pack ticket" 0 0 "RELEASE" ? no "OW3" "1107200100023380" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RELPOST" "Release Posting to Create Nothing, Invoice, BOL Method? Hold?" 0 0 "BOL" ? no "OW4" "0106200601452345" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "RELPRINT" "Print Release Headers on Release/Packing" 1 0 "ACPI" ? no "OT3" "1107200100023381" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "RELPRINT" "Print Release Headers on Release/Packing" 1 0 "PRYSTUP" ? no "OT3" "1107200100023381" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RelSkipRecalc" "Skip inventory recalc for create of actual release" 0 0 "" ? no "" "201906185187503588595" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RELTYPE" "Default scheduled release type (Ship Only,Invoice Only,Both,Transfer)" 1 0 "Bill and Ship" ? no "" "0724201409331324" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RelXML" "Location of XML Release Data to Import" 0 0 "C:\tmp\RelXMLImport" ? yes "OP" "0907201409381113" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -516,7 +517,7 @@
 "001" "RFQPRINT" "RFQ Print Mode" 0 0 "Customer" ? no "" "0914201107350921" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "RM=FG" "Validate RM issues = FG Produced Plus Waste?" 0 0 "" ? no "MU" "0106200601452359" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 1000 1000 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RMAllowAdd" "allow auto creation of new Raw material item" 0 0 "" ? no "" "201906185187503588596" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "RMBARDIR" "C:\BA\Label\" 1 0 "Loadtag1.xpr" ? yes "MU8" "0914201107351204" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
+"001" "RMBARDIR" "C:\BA\Label\" 1 0 "C:\BA\Label\rmloadtag.qdf" ? yes "MU8" "0914201107351204" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RMCountDefaultPath" "Define the path to create the RM Count snapshot" 0 0 ".\custfiles\RmCount" ? no "" "201910223660404386966" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RMEMAILS" "RM post to automatically Email Customer Service for Hot Customers." 0 0 "Receipts" ? no "" "0914201107350977" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "RMHistoryBrowse" "# of Records to be displayed in RM History browser" 0 0 "" 02/11/17 no "" "201902251785502904043" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -579,7 +580,7 @@
 "001" "SSUPDRELPMPT" "Sharpshooter Create BOL Prompt if Saved Release?" 0 0 "" ? no "SS" "0914201107351132" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "SSVendTagOnly" "Scan vendor tag only for the vendor tag" 0 0 "" ? no "" "202005130624505264827" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "SSVersion" "Version of SharpShooter" 0 0 "" ? yes "" "202012064758805902971" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
-"001" "STMTPRINT" "Print Statement Headers on Statement Form" 0 4 "StdStatement10" ? yes "AR4" "0106200601452348" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "Business Form Name?" ? 0 0 yes "" "" "" "" no yes
+"001" "STMTPRINT" "Print Statement Headers on Statement Form" 0 4 "Badger" ? yes "AR4" "0106200601452348" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "Business Form Name?" ? 0 0 yes "" "" "" "" no yes
 "001" "SysLog" "System Error Log Location" 0 0 "C:\tmp\NGErrorLog.csv" ? yes "SA" "0508201509691123" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "TAG#" "Assign RM Receipt Tag# Using PO# and Sequence?" 0 0 "" ? no "M" "0106200601452349" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "TagFormat" "Tag Format string convert of integer value to excel output" 0 0 "" ? yes "" "201906185187503588600" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
@@ -591,14 +592,14 @@
 "001" "TRIALBAL" "Download Trial Balance to Excel" 0 0 "" ? yes "L" "0531200200020105" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "TruckPlan" "Truck Plan output Option" 0 0 "Item Name" ? yes "" "202011064291505824071" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no yes
 "001" "TSAMPMWarn" "AM/PM Toggle Button - Warning when changing AM/PM" 0 0 "" ? no "" "0525201700553396" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
-"001" "TSBREAKS" "Automatically post breaks to machines?" 0 0 "" ? yes "" "0106200601452430" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
+"001" "TSBREAKS" "Automatically post breaks to machines?" 0 0 "" ? no "" "0106200601452430" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "TSBREAKSQTY" "Automatically allocate Run/Waste Qty across Break Transactions" 0 0 "" ? no "" "201901105254102815963" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "TSCLOCK" "Touch-Screen requires CLOCK IN/OUT?" 0 0 "yorkie" ? no "" "0106200601452472" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "TSCOMPLETE" "Show Touchscreen Is Opearation Complete Message?" 0 0 "" ? no "" "0914201107351202" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "TSDOCKSEC" "TS Add Second to Logout Times of Emp. with Dock Min. if shift change" 0 0 "" ? no "" "0914201107351138" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "TSENDWASH" "Complete Always No for TS End Wash Operation?" 0 0 "" ? yes "" "0914201107351214" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "TSFINISH" "Complete All Machines or Last Machine?" 0 0 "Last Machine" ? yes "" "0914201107350916" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
-"001" "TSKEYBOARD" "Display Touch Screen On Screen Keyboard?" 0 0 "" ? no "" "0914201107351212" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
+"001" "TSKEYBOARD" "Display Touch Screen On Screen Keyboard?" 0 0 "" ? yes "" "0914201107351212" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "TSLOGIN" "Prompt Login ID/Password for Touch-Screen" 0 0 "" ? no "" "0914201107351019" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" yes no
 "001" "TSPOST" "Post ACTUAL or STANDARD Direct Labor Costs?" 0 0 "Standard" ? yes "" "0106200601452448" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no
 "001" "TSPOSTFG" "Set Logical Value to Invoke this Logic" 0 0 "" ? no "" "0106200601452685" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "Category" "SubCategory" "" "" no 0 0 "" "" ? 0 0 no "" "" "" "" no no

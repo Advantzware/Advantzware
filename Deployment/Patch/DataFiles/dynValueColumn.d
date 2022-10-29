@@ -2,27 +2,27 @@
 0 "_default" "dynSubjct." 0 2 yes "dynParamValue.subjectID" "Subject ID" ">,>>>,>>9" 0 "Integer" 2 no no "" "" no "" "" yes yes yes "" "202005136533005265123" no "" "" 0 0 "" no no "" "" no
 0 "_default" "dynSubjct." 0 3 yes "dynParamValue.user-id" "User ID" "x(15)" 0 "Character" 3 no no "" "" no "" "" yes yes yes "" "202005136533005265124" no "" "" 0 0 "" no no "" "" no
 0 "_default" "dynSubjct." 0 4 yes "dynParamValue.paramValueID" "Parameter Value ID" ">,>>>,>>9" 0 "Integer" 4 no no "" "" no "" "" yes yes yes "" "202005136533005265125" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 1 yes "ttMachineTransactions.machine" "Machine" "x(6)" 7.8 "character" 1 yes yes "" "" no "" "" no no no "" "20220810_11:02:02_09925648" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 2 yes "ttMachineTransactions.custPartNo" "Cust Part" "x(15)" 15 "character" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925649" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 3 yes "ttMachineTransactions.custName" "Customer" "x(30)" 30 "character" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925650" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 4 yes "ttMachineTransactions.jobNumber" "Job" "X(9)" 7.4 "character" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925651" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 5 yes "ttMachineTransactions.jobSub" "Sub" ">9" 3.6 "integer" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925652" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 6 yes "ttMachineTransactions.formNumber" "Form" ">>9" 4.8 "integer" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925653" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 7 yes "ttMachineTransactions.blankNumber" "Blank" ">9" 5 "integer" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925654" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 8 yes "ttMachineTransactions.passSequence" "Pass" ">>9" 4.4 "integer" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925655" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 9 yes "ttMachineTransactions.chargeCode" "Code" "x(5)" 5 "character" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925656" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 10 yes "ttMachineTransactions.startDate" "Start Date" "99/99/9999" 11.2 "date" 2 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925657" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 11 yes "ttMachineTransactions.endDate" "End Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925658" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 12 yes "ttMachineTransactions.shift" "Shift" "X" 4.4 "character" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925659" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 13 yes "ttMachineTransactions.msf" "MSF" ">>>>>9.999" 11.6 "decimal" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925660" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 14 yes "ttMachineTransactions.totalTime" "Total" "->>>,>>9.99" 12 "decimal" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925661" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 15 yes "ttMachineTransactions.runQty" "Run Qty" "->>>,>>9" 8.8 "integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "20220810_11:02:03_09925662" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 16 yes "ttMachineTransactions.wasteQty" "Waste Qty" "->>>,>>9" 10.4 "integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "20220810_11:02:03_09925663" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 17 yes "ttMachineTransactions.runComplete" "Complete" "yes/no" 9 "logical" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925664" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 18 yes "ttMachineTransactions.loginDateTime" "Log In Date-Time" "x(19)" 19 "character" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925665" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 19 yes "ttMachineTransactions.logoutDateTime" "Log Out Date-Time" "x(19)" 19 "character" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925666" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 20 no "ttMachineTransactions.startTime" "Log In" "hh:mm am" 0 "character" 3 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925667" no "" "" 0 0 "" no no "" "" no
-1 "_default" "dynSubjct." 0 21 no "ttMachineTransactions.recordID" "Record ID" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20220810_11:02:03_09925668" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 1 yes "ttMachineTransactions.machine" "Machine" "x(6)" 7.8 "character" 1 yes yes "" "" no "" "" no no no "" "20221026_15:32:27_10304808" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 2 yes "ttMachineTransactions.custPartNo" "Cust Part" "x(15)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304809" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 3 yes "ttMachineTransactions.custName" "Customer" "x(30)" 30 "character" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304810" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 4 yes "ttMachineTransactions.jobNumber" "Job" "X(9)" 7.4 "character" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304811" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 5 yes "ttMachineTransactions.jobSub" "Sub" ">9" 3.6 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304812" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 6 yes "ttMachineTransactions.formNumber" "Form" ">>9" 4.8 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304813" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 7 yes "ttMachineTransactions.blankNumber" "Blank" ">9" 5 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304814" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 8 yes "ttMachineTransactions.passSequence" "Pass" ">>9" 4.4 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304815" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 9 yes "ttMachineTransactions.chargeCode" "Code" "x(5)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304816" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 10 yes "ttMachineTransactions.startDate" "Start Date" "99/99/9999" 11.2 "date" 2 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304817" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 11 yes "ttMachineTransactions.endDate" "End Date" "99/99/9999" 11.2 "date" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304818" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 12 yes "ttMachineTransactions.shift" "Shift" "X" 4.4 "character" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304819" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 13 yes "ttMachineTransactions.msf" "MSF" ">>>>>9.999" 11.6 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304820" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 14 yes "ttMachineTransactions.totalTime" "Total" "->>>,>>9.99" 12 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304821" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 15 yes "ttMachineTransactions.runQty" "Run Qty" "->>>,>>9" 8.8 "integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "20221026_15:32:27_10304822" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 16 yes "ttMachineTransactions.wasteQty" "Waste Qty" "->>>,>>9" 10.4 "integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "20221026_15:32:27_10304823" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 17 yes "ttMachineTransactions.runComplete" "Complete" "yes/no" 9 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304824" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 18 yes "ttMachineTransactions.loginDateTime" "Log In Date-Time" "x(19)" 19 "character" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304825" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 19 yes "ttMachineTransactions.logoutDateTime" "Log Out Date-Time" "x(19)" 19 "character" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304826" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 20 no "ttMachineTransactions.startTime" "Log In" "hh:mm am" 0 "character" 3 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304827" no "" "" 0 0 "" no no "" "" no
+1 "_default" "dynSubjct." 0 21 no "ttMachineTransactions.recordID" "Record ID" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:32:27_10304828" no "" "" 0 0 "" no no "" "" no
 2 "_default" "dynSubjct." 0 1 yes "AuditHdr.AuditDateTime" "Audit Date Time" "99/99/9999 HH:MM:SS.SSS" 0 "datetime" 1 no no "" "" no "" "" no no no "" "202204147944609189643" no "" "" 0 0 "" no no "" "" no
 2 "_default" "dynSubjct." 0 2 yes "AuditDtl.AuditField" "Audit Field" "x(16)" 0 "STRING" 3 no no "" "" no "" "" no no no "" "202204147944609189644" no "" "" 0 0 "" no no "" "" no
 2 "_default" "dynSubjct." 0 3 yes "AuditDtl.AuditExtent" "Extent" ">>>9" 0 "integer" 2 no no "" "" no "" "" no no no "" "202204147944609189645" no "" "" 0 0 "" no no "" "" no
@@ -74,29 +74,29 @@
 7 "_default" "dynSubjct." 0 3 yes "ttEDI810Exception.invoiceNo" "Invoice" ">>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147945709189736" no "" "" 0 0 "" no no "" "" no
 7 "_default" "dynSubjct." 0 4 yes "ttEDI810Exception.invoiceDate" "Inv Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147945709189737" no "" "" 0 0 "" no no "" "" no
 7 "_default" "dynSubjct." 0 5 yes "ttEDI810Exception.statusDescription" "Status" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147945709189738" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 1 yes "machtran.machine" "Machine" "x(6)" 0 "Character" 1 no yes "" "" no "" "" no no no "" "20220809_00:47:50_09917925" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 2 yes "machtran.job_number" "Job Number" "X(6)" 0 "Character" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917926" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 3 yes "machtran.job_sub" "Job Sub Number" ">9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917927" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 4 yes "machtran.form_number" "Form Number" ">>9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917928" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 5 yes "machtran.blank_number" "Blank Number" ">9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917929" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 6 yes "machtran.pass_sequence" "Pass Sequence" ">>9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917930" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 7 yes "machtran.charge_code" "Charge Code" "X(5)" 0 "Character" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917931" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 8 yes "machtran.start_date" "Start Date" "99/99/9999" 0 "Date" 2 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917932" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 9 yes "CalcStartTime" "Start Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "machtran.start_time" no no no "" "20220809_00:47:50_09917933" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 10 yes "machtran.end_date" "End Date" "99/99/9999" 0 "Date" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917934" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 11 yes "CalcEndTime" "End Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "machtran.end_time" no no no "" "20220809_00:47:50_09917935" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 12 yes "machtran.shift" "Shift" "X" 0 "Character" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917936" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 13 yes "machtran.total_time" "Total Time" "->,>>>,>>9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917937" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 14 yes "machtran.run_qty" "Run Quantity" "->>,>>>,>>9" 0 "Integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "20220809_00:47:50_09917938" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 15 yes "machtran.waste_qty" "Waste Quantity" "->>>>9" 0 "Integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "20220809_00:47:50_09917939" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 16 yes "machtran.completed" "Completed?" "yes/no" 0 "Logical" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917940" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 17 yes "CalcLoginDateTime" "Login Date Time" "x(22)" 0 "Character" 0 no no "" "" yes "calcStringDateTime" "machtran.start_date|machtran.start_time" no no no "" "20220809_00:47:50_09917941" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 18 yes "CalcLogoutDateTime" "Logout Date Time" "x(22)" 0 "Character" 0 no no "" "" yes "calcStringDateTime" "machtran.end_date|machtran.end_time" no no no "" "20220809_00:47:50_09917942" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 19 yes "machtran.posted" "Posted" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917943" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 20 yes "eb.part-no" "Cust Part #" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917944" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 21 no "cust.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917945" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 22 no "cust.name" "Customer Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917946" no "" "" 0 0 "" no no "" "" no
-8 "_default" "dynSubjct." 0 23 no "machtran.start_time" "Start Time" ">>>>9" 0 "Integer" 3 no no "" "" no "" "" no no no "" "20220809_00:47:50_09917947" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 1 yes "machtran.machine" "Machine" "x(6)" 0 "Character" 1 no yes "" "" no "" "" no no no "" "20221026_15:27:14_10304254" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 2 yes "machtran.job_number" "Job Number" "X(6)" 0 "Character" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304255" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 3 yes "machtran.job_sub" "Job Sub Number" ">9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304256" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 4 yes "machtran.form_number" "Form Number" ">>9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304257" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 5 yes "machtran.blank_number" "Blank Number" ">9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304258" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 6 yes "machtran.pass_sequence" "Pass Sequence" ">>9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304259" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 7 yes "machtran.charge_code" "Charge Code" "X(5)" 0 "Character" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304260" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 8 yes "machtran.start_date" "Start Date" "99/99/9999" 0 "Date" 2 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304261" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 9 yes "CalcStartTime" "Start Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "machtran.start_time" no no no "" "20221026_15:27:14_10304262" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 10 yes "machtran.end_date" "End Date" "99/99/9999" 0 "Date" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304263" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 11 yes "CalcEndTime" "End Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "machtran.end_time" no no no "" "20221026_15:27:14_10304264" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 12 yes "machtran.shift" "Shift" "X" 0 "Character" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304265" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 13 yes "machtran.total_time" "Total Time" "->,>>>,>>9" 0 "Integer" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304266" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 14 yes "machtran.run_qty" "Run Quantity" "->>,>>>,>>9" 0 "Integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "20221026_15:27:14_10304267" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 15 yes "machtran.waste_qty" "Waste Quantity" "->>>>9" 0 "Integer" 0 no no "" "Report,Sum,[Group] Machine,Sum" no "" "" no no no "" "20221026_15:27:14_10304268" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 16 yes "machtran.completed" "Completed?" "yes/no" 0 "Logical" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304269" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 17 yes "CalcLoginDateTime" "Login Date Time" "x(22)" 0 "Character" 0 no no "" "" yes "calcStringDateTime" "machtran.start_date|machtran.start_time" no no no "" "20221026_15:27:14_10304270" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 18 yes "CalcLogoutDateTime" "Logout Date Time" "x(22)" 0 "Character" 0 no no "" "" yes "calcStringDateTime" "machtran.end_date|machtran.end_time" no no no "" "20221026_15:27:14_10304271" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 19 yes "machtran.posted" "Posted" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304272" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 20 yes "eb.part-no" "Cust Part #" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304273" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 21 no "cust.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304274" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 22 no "cust.name" "Customer Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304275" no "" "" 0 0 "" no no "" "" no
+8 "_default" "dynSubjct." 0 23 no "machtran.start_time" "Start Time" ">>>>9" 0 "Integer" 3 no no "" "" no "" "" no no no "" "20221026_15:27:14_10304276" no "" "" 0 0 "" no no "" "" no
 9 "_default" "dynSubjct." 0 1 yes "AuditHdr.AuditDateTime" "Audit Date Time" "99/99/9999 HH:MM:SS.SSS" 0 "datetime" 1 yes no "" "" no "" "" no no no "" "202204147946509189798" no "" "" 0 0 "" no no "" "" no
 9 "_default" "dynSubjct." 0 2 yes "AuditHdr.AuditType" "Audit Type" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147946509189799" no "" "" 0 0 "" no no "" "" no
 9 "_default" "dynSubjct." 0 3 yes "AuditHdr.AuditUser" "User ID" "x(16)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147946509189800" no "" "" 0 0 "" no no "" "" no
@@ -429,21 +429,21 @@
 45 "_default" "dynSubjct." 0 6 yes "ttPurge.paramValueID" "Parameter Value ID" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147956809190525" no "" "" 0 0 "" no no "" "" no
 45 "_default" "dynSubjct." 0 7 yes "ttPurge.taskID" "Task ID" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147956809190526" no "" "" 0 0 "" no no "" "" no
 45 "_default" "dynSubjct." 0 8 yes "ttPurge.purgeStatus" "Status" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147956809190527" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 1 yes "inventoryStock.inventoryStockID" "inventoryStockID" "x(14)" 17.8 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190531" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 2 yes "inventoryStock.lastTransTime" "LastTransTime" "99/99/9999 HH:MM:SS.SSS" 25 "datetime" 0 no no "" "" no "" "" no no no "" "202204147957009190532" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 3 yes "inventoryStock.warehouseID" "WarehouseID" "x(8)" 13.2 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190533" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 4 yes "inventoryStock.locationID" "LocationID" "x(8)" 10.2 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190534" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 5 yes "inventoryStock.itemType" "ItemType" "x(8)" 9.2 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190535" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 6 yes "inventoryStock.jobID" "JobID" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190536" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 7 yes "inventoryStock.jobID2" "JobID2" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202204147957009190537" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 8 yes "inventoryStock.formNo" "FormNo" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202204147957009190538" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 9 yes "inventoryStock.blankNo" "BlankNo" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202204147957009190539" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 10 yes "inventoryStock.passNo" "PassNo" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "202204147957009190540" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 11 yes "inventoryStock.wipItemID" "WIPItemID" "x(8)" 10.6 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190541" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 12 yes "inventoryStock.quantity" "Quantity" "->>,>>9.99" 10.8 "decimal" 0 no no "" "" no "" "" no no no "" "202204147957009190542" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 13 yes "inventoryStock.machineID" "MachineID" "x(8)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190543" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 14 yes "inventoryStock.fgItemID" "FGItemID" "x(30)" 23 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190544" no "" "" 0 0 "" no no "" "" no
-46 "_default" "dynSubjct." 0 15 yes "inventoryStock.tag" "Tag" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957009190545" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 1 yes "inventoryStock.inventoryStockID" "inventoryStockID" "x(14)" 17.8 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310370" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 2 yes "inventoryStock.lastTransTime" "LastTransTime" "99/99/9999 HH:MM:SS.SSS" 25 "datetime" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310371" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 3 yes "inventoryStock.warehouseID" "WarehouseID" "x(8)" 13.2 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310372" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 4 yes "inventoryStock.locationID" "LocationID" "x(8)" 10.2 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310373" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 5 yes "inventoryStock.itemType" "ItemType" "x(8)" 9.2 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310374" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 6 yes "inventoryStock.jobID" "JobID" "x(8)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310375" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 7 yes "inventoryStock.jobID2" "JobID2" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310376" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 8 yes "inventoryStock.formNo" "FormNo" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310377" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 9 yes "inventoryStock.blankNo" "BlankNo" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310378" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 10 yes "inventoryStock.passNo" "PassNo" "->,>>>,>>9" 10.8 "integer" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310379" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 11 yes "inventoryStock.wipItemID" "WIPItemID" "x(8)" 10.6 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310380" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 12 yes "inventoryStock.quantity" "Quantity" "->>,>>9.99" 10.8 "decimal" 0 no no "" "" no "" "" no no no "" "20221027_09:14:09_10310381" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 13 yes "inventoryStock.machineID" "MachineID" "x(8)" 10 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:10_10310382" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 14 yes "inventoryStock.fgItemID" "FGItemID" "x(30)" 23 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:10_10310383" no "" "" 0 0 "" no no "" "" no
+46 "_default" "dynSubjct." 0 15 yes "inventoryStock.tag" "Tag" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "20221027_09:14:10_10310384" no "" "" 0 0 "" no no "" "" no
 47 "_default" "dynSubjct." 0 1 yes "inventoryStockAlias.inventoryStockID" "inventoryStockID" "x(14)" 18.8 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957909190576" no "" "" 0 0 "" no no "" "" no
 47 "_default" "dynSubjct." 0 2 yes "inventoryStockAlias.inventoryStockAliasID" "inventoryStockAliasID" "->,>>>,>>9" 21 "integer" 0 no no "" "" no "" "" no no no "" "202204147957909190577" no "" "" 0 0 "" no no "" "" no
 47 "_default" "dynSubjct." 0 3 yes "inventoryStockAlias.stockIDAlias" "StockIDAlias" "x(14)" 17.6 "STRING" 0 no no "" "" no "" "" no no no "" "202204147957909190578" no "" "" 0 0 "" no no "" "" no
@@ -757,83 +757,83 @@
 60 "_default" "dynSubjct." 0 60 yes "ttRmItemFold.q-onh" "Qty On Hand" "->>>,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961009191023" no "" "" 0 0 "" no no "" "" no
 60 "_default" "dynSubjct." 0 61 yes "ttRmItemFold.prep-cust" "Purchase UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147961009191024" no "" "" 0 0 "" no no "" "" no
 60 "_default" "dynSubjct." 0 62 yes "ttRmItemFold.prep-taxable" "Consumption UOM" "x(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147961009191025" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 1 yes "cust.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191035" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 2 yes "cust.name" "Customer Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191036" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 3 yes "cust.addr[1]" "Address[1]" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191037" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 4 yes "cust.addr[2]" "Address[2]" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191038" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 5 yes "cust.city" "City" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191039" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 6 yes "cust.state" "State" "x(2)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191040" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 7 yes "cust.country" "Country" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191041" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 8 yes "cust.zip" "Zip Code" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191042" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 9 yes "cust.sman" "Salesman" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191043" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 10 yes "cust.area-code" "Area Code" "(999)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191044" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 11 yes "cust.phone" "Phone Number" "999-9999" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191045" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 12 yes "cust.fax" "Fax #" "(999) 999-9999" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191046" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 13 yes "cust.cr-lim" "Credit Limit" ">>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191047" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 14 yes "cust.active" "Status" "!" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191048" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 15 yes "cust.cr-hold" "Customer Hold" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191049" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 16 yes "cust.type" "Type" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191050" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 17 yes "cust.terms" "Terms Code" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191051" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 18 yes "cust.tax-id" "Tax Resale#" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191052" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 19 yes "cust.notes[1]" "Notes 1" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191053" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 20 yes "cust.notes[2]" "Notes 2" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191054" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 21 yes "cust.notes[3]" "Notes 3" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191055" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 22 yes "cust.notes[4]" "Notes 4" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191056" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 23 yes "cust.contact" "Contact Name" "x(25)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191057" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 24 yes "cust.date-field[1]" "Date Added" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147961209191058" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 25 yes "cust.csrUser_id" "CSR User ID" "X(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191059" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 26 yes "cust.cr-use" "Cr Acct#" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191060" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 27 yes "cust.cr-rating" "Credit Rating" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191061" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 28 yes "cust.ord-lim" "Order Limit" ">>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191062" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 29 yes "cust.disc" "Discount" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191063" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 30 yes "cust.curr-code" "Currency" "X(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191064" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 31 yes "cust.fin-chg" "Finance Charges" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191065" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 32 yes "cust.auto-reprice" "Auto Reprice" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191066" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 33 yes "cust.an-edi-cust" "EDI Cust" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191067" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 34 yes "cust.factored" "Factored?" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191068" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 35 yes "cust.cr-hold-invdays" "Crdt Hld Days" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147961209191069" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 36 yes "cust.cr-hold-invdue" "Grace $" ">,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191070" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 37 yes "cust.inv-meth" "Invoice Method" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191071" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 38 yes "cust.frt-pay" "FR PAY CD" "x(1)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191072" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 39 yes "cust.fob-code" "FOB Code" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191073" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 40 yes "cust.loc" "Warehouse" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191074" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 41 yes "cust.carrier" "Carrier" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191075" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 42 yes "cust.del-zone" "Delivery Zone" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191076" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 43 yes "cust.terr" "Territory" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191077" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 44 yes "cust.spare-int-1" "Pallet ID" "->>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147961209191078" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 45 yes "cust.under-pct" "Underrun %" ">>9.99%" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191079" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 46 yes "cust.over-pct" "Overrun %" ">>9.99%" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191080" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 47 yes "cust.pallet" "Pallet" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191081" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 48 yes "cust.case-bundle" "Case/Bundle" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191082" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 49 yes "cust.markup" "Mark-Up" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191083" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 50 yes "cust.int-field[1]" "No Load Tags" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147961209191084" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 51 yes "cust.ship-days" "Whse Days" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147961209191085" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 52 yes "cust.manf-day" "Pallet Positions" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147961209191086" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 53 yes "cust.po-mandatory" "PO# Mandatory?" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191087" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 54 yes "cust.show-set" "Show Set Parts" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191088" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 55 yes "cust.log-field[1]" "Paperless Invoice?" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191089" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 56 yes "cust.ship-part" "Partial Ship" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191090" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 57 yes "cust.sort" "Taxable?" "X" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191091" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 58 yes "cust.spare-char-1" "Tax Prep Code" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191092" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 59 yes "cust.tax-gr" "Tax Code" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191093" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 60 yes "cust.date-field[2]" "Exp" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147961209191094" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 61 yes "cust.email" "Email" "x(40)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191095" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 62 yes "cust.spare-char-2" "Group" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191096" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 63 yes "cust.scomm" "Broker Comm%" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191097" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 64 yes "cust.flatCommPct" "Flat Comm %" "->>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147961209191098" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 65 yes "cust.fax-prefix" "Prefix" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191099" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 66 yes "cust.imported" "Contract Pricing" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147961209191100" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 67 yes "cust.Bank-Acct" "Bank Acct" "x(18)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191101" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 68 yes "cust.SwiftBIC" "Swift BIC" "x(11)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191102" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 69 yes "cust.Bank-RTN" "Routing" ">999999999" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147961209191103" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 70 yes "cust.matrixPrecision" "Price Matrix Precision" "9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147961209191104" no "" "" 0 0 "" no no "" "" no
-61 "_default" "dynSubjct." 0 71 yes "cust.matrixRounding" "Price Matrix Rounding" "X" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961209191105" no "" "" 0 0 "" no no "" "" no
-62 "_default" "dynSubjct." 0 1 yes "carrier.carrier" "Carrier" "x(5)" 6.6 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961409191115" no "" "" 0 0 "" no no "" "" no
-62 "_default" "dynSubjct." 0 2 yes "carrier.dscr" "Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961509191116" no "" "" 0 0 "" no no "" "" no
-62 "_default" "dynSubjct." 0 3 yes "carrier.loc" "Location" "x(5)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961509191117" no "" "" 0 0 "" no no "" "" no
-62 "_default" "dynSubjct." 0 4 yes "loc.dscr" "Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961509191118" no "" "" 0 0 "" no no "" "" no
-62 "_default" "dynSubjct." 0 5 yes "CalcChargeMethod" "Charge Method" "x(10)" 0 "Character" 0 no no "" "" yes "calcGetChgMethod" "carrier.chg-method" no no no "" "202204147961509191119" no "" "" 0 0 "" no no "" "" no
-62 "_default" "dynSubjct." 0 6 yes "CalcInactive" "Inactive" "x(10)" 0 "Character" 0 no no "" "" yes "calcGetCarrierInActive" "carrier.company|carrier.carrier" no no no "" "202204147961509191120" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 1 yes "cust.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305823" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 2 yes "cust.name" "Customer Name" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305824" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 3 yes "cust.addr[1]" "Address[1]" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305825" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 4 yes "cust.addr[2]" "Address[2]" "x(30)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305826" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 5 yes "cust.city" "City" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305827" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 6 yes "cust.state" "State" "x(2)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305828" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 7 yes "cust.country" "Country" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305829" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 8 yes "cust.zip" "Zip Code" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305830" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 9 yes "cust.sman" "Salesman" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305831" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 10 yes "cust.area-code" "Area Code" "(999)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305832" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 11 yes "cust.phone" "Phone Number" "999-9999" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305833" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 12 yes "cust.fax" "Fax #" "(999) 999-9999" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305834" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 13 yes "cust.cr-lim" "Credit Limit" ">>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305835" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 14 yes "cust.active" "Status" "!" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305836" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 15 yes "cust.cr-hold" "Customer Hold" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305837" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 16 yes "cust.type" "Type" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305838" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 17 yes "cust.terms" "Terms Code" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305839" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 18 yes "cust.tax-id" "Tax Resale#" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305840" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 19 yes "cust.notes[1]" "Notes 1" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305841" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 20 yes "cust.notes[2]" "Notes 2" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305842" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 21 yes "cust.notes[3]" "Notes 3" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305843" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 22 yes "cust.notes[4]" "Notes 4" "x(60)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305844" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 23 yes "cust.contact" "Contact Name" "x(25)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305845" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 24 yes "cust.date-field[1]" "Date Added" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305846" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 25 yes "cust.csrUser_id" "CSR User ID" "X(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305847" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 26 yes "cust.cr-use" "Cr Acct#" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305848" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 27 yes "cust.cr-rating" "Credit Rating" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305849" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 28 yes "cust.ord-lim" "Order Limit" ">>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305850" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 29 yes "cust.disc" "Discount" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305851" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 30 yes "cust.curr-code" "Currency" "X(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305852" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 31 yes "cust.fin-chg" "Finance Charges" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305853" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 32 yes "cust.auto-reprice" "Auto Reprice" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305854" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 33 yes "cust.an-edi-cust" "EDI Cust" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305855" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 34 yes "cust.factored" "Factored?" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305856" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 35 yes "cust.cr-hold-invdays" "Crdt Hld Days" ">>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305857" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 36 yes "cust.cr-hold-invdue" "Grace $" ">,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305858" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 37 yes "cust.inv-meth" "Invoice Method" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305859" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 38 yes "cust.frt-pay" "FR PAY CD" "x(1)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305860" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 39 yes "cust.fob-code" "FOB Code" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305861" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 40 yes "cust.loc" "Warehouse" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305862" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 41 yes "cust.carrier" "Carrier" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305863" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 42 yes "cust.del-zone" "Delivery Zone" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305864" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 43 yes "cust.terr" "Territory" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305865" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 44 yes "cust.spare-int-1" "Pallet ID" "->>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305866" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 45 yes "cust.under-pct" "Underrun %" ">>9.99%" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305867" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 46 yes "cust.over-pct" "Overrun %" ">>9.99%" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305868" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 47 yes "cust.pallet" "Pallet" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305869" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 48 yes "cust.case-bundle" "Case/Bundle" "x(10)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305870" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 49 yes "cust.markup" "Mark-Up" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305871" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 50 yes "cust.int-field[1]" "No Load Tags" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305872" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 51 yes "cust.ship-days" "Whse Days" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305873" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 52 yes "cust.manf-day" "Pallet Positions" ">>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305874" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 53 yes "cust.po-mandatory" "PO# Mandatory?" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305875" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 54 yes "cust.show-set" "Show Set Parts" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305876" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 55 yes "cust.log-field[1]" "Paperless Invoice?" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305877" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 56 yes "cust.ship-part" "Partial Ship" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305878" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 57 yes "cust.sort" "Taxable?" "X" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305879" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 58 yes "cust.spare-char-1" "Tax Prep Code" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305880" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 59 yes "cust.tax-gr" "Tax Code" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305881" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 60 yes "cust.date-field[2]" "Exp" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305882" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 61 yes "cust.email" "Email" "x(40)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305883" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 62 yes "cust.spare-char-2" "Group" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305884" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 63 yes "cust.scomm" "Broker Comm%" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305885" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 64 yes "cust.flatCommPct" "Flat Comm %" "->>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305886" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 65 yes "cust.fax-prefix" "Prefix" "x(3)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305887" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 66 yes "cust.imported" "Contract Pricing" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305888" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 67 yes "cust.Bank-Acct" "Bank Acct" "x(18)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305889" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 68 yes "cust.SwiftBIC" "Swift BIC" "x(11)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305890" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 69 yes "cust.Bank-RTN" "Routing" ">999999999" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305891" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 70 yes "cust.matrixPrecision" "Price Matrix Precision" "9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305892" no "" "" 0 0 "" no no "" "" no
+61 "_default" "dynSubjct." 0 71 yes "cust.matrixRounding" "Price Matrix Rounding" "X" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221026_15:39:22_10305893" no "" "" 0 0 "" no no "" "" no
+62 "_default" "dynSubjct." 0 1 yes "carrier.carrier" "Carrier" "x(5)" 6.6 "STRING" 0 no no "" "" no "" "" no no no "" "20221020_14:51:00_10266391" no "" "" 0 0 "" no no "" "" no
+62 "_default" "dynSubjct." 0 2 yes "carrier.dscr" "Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "20221020_14:51:00_10266392" no "" "" 0 0 "" no no "" "" no
+62 "_default" "dynSubjct." 0 3 yes "carrier.loc" "Location" "x(5)" 8 "STRING" 0 no no "" "" no "" "" no no no "" "20221020_14:51:00_10266393" no "" "" 0 0 "" no no "" "" no
+62 "_default" "dynSubjct." 0 4 yes "loc.dscr" "Description" "x(30)" 30 "STRING" 0 no no "" "" no "" "" no no no "" "20221020_14:51:00_10266394" no "" "" 0 0 "" no no "" "" no
+62 "_default" "dynSubjct." 0 5 yes "CalcChargeMethod" "Charge Method" "x(10)" 0 "Character" 0 no no "" "" yes "calcGetChgMethod" "carrier.chg-method" no no no "" "20221020_14:51:00_10266395" no "" "" 0 0 "" no no "" "" no
+62 "_default" "dynSubjct." 0 6 yes "CalcInactive" "Inactive" "x(10)" 0 "Character" 0 no no "" "" yes "calcGetCarrierInActive" "carrier.company|carrier.carrier" no no no "" "20221020_14:51:00_10266396" no "" "" 0 0 "" no no "" "" no
 63 "_default" "dynSubjct." 0 1 yes "prep.dscr" "Description" "x(20)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961709191130" no "" "" 0 0 "" no no "" "" no
 63 "_default" "dynSubjct." 0 2 yes "prep.code" "Code" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961709191131" no "" "" 0 0 "" no no "" "" no
 63 "_default" "dynSubjct." 0 3 yes "prep.mat-type" "Mat'l Type" "X" 0 "STRING" 0 no no "" "" no "" "" no no no "" "202204147961709191132" no "" "" 0 0 "" no no "" "" no
@@ -1798,8 +1798,8 @@
 117 "_default" "dynSubjct." 0 34 yes "ar-invl.s-pct[3]" "Percentage[3]" ">>9.99" 13.8 "decimal" 0 no no "" "" no "" "" no no no "" "202204147973209193053" no "" "" 0 0 "" no no "" "" no
 117 "_default" "dynSubjct." 0 35 yes "ar-invl.s-comm[3]" "Commission[3]" ">>9.99" 13.8 "decimal" 0 no no "" "" no "" "" no no no "" "202204147973209193054" no "" "" 0 0 "" no no "" "" no
 117 "_default" "dynSubjct." 0 36 yes "ar-inv.tax-amt" "Tax" "->>,>>9.99" 10.8 "decimal" 0 no no "" "" no "" "" no no no "" "202204147973209193055" no "" "" 0 0 "" no no "" "" no
-118 "_default" "dynSubjct." 0 1 yes "currency.c-code" "Code" "X(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202204147973409193088" no "" "" 0 0 "" no no "" "" no
-118 "_default" "dynSubjct." 0 2 yes "currency.c-desc" "description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202204147973409193089" no "" "" 0 0 "" no no "" "" no
+118 "_default" "dynSubjct." 0 1 yes "currency.c-code" "Code" "X(3)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "20221026_15:44:58_10305907" no "" "" 0 0 "" no no "" "" no
+118 "_default" "dynSubjct." 0 2 yes "currency.c-desc" "Description" "x(30)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "20221026_15:44:58_10305908" no "" "" 0 0 "" no no "" "" no
 120 "_default" "dynSubjct." 0 1 yes "ttRmItemCorrugated.i-no" "Item#" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147973609193093" no "" "" 0 0 "" no no "" "" no
 120 "_default" "dynSubjct." 0 2 yes "ttRmItemCorrugated.i-name" "Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147973609193094" no "" "" 0 0 "" no no "" "" no
 120 "_default" "dynSubjct." 0 3 yes "ttRmItemCorrugated.i-dscr" "Desc" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147973609193095" no "" "" 0 0 "" no no "" "" no
@@ -2118,13 +2118,13 @@
 137 "_default" "dynSubjct." 0 13 yes "ttCustAging.creditAvailable" "Credit Available" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147976509193680" no "" "" 0 0 "" no no "" "" no
 137 "_default" "dynSubjct." 0 14 yes "ttCustAging.balUpdated" "Updated" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147976509193681" no "" "" 0 0 "" no no "" "" no
 137 "_default" "dynSubjct." 0 15 yes "ttCustAging.creditHoldStatus" "Hold Status" "x(80)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147976509193682" no "" "" 0 0 "" no no "" "" no
-138 "_default" "dynSubjct." 0 1 yes "ttblJob.resource" "Resource" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147976709193692" no "" "" 0 0 "" no no "" "" no
-138 "_default" "dynSubjct." 0 2 yes "ttblJob.job" "Job ID" "X(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147976709193693" no "" "" 0 0 "" no no "" "" no
-138 "_default" "dynSubjct." 0 3 yes "ttblJob.dueDate" "Due Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147976709193694" no "" "" 0 0 "" no no "" "" no
-138 "_default" "dynSubjct." 0 4 yes "ttblJob.startDate" "Start Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147976709193695" no "" "" 0 0 "" no no "" "" no
-138 "_default" "dynSubjct." 0 5 yes "CalcStartTime" "Start Time" "x(12)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.startTime" no no no "" "202204147976709193696" no "" "" 0 0 "" no no "" "" no
-138 "_default" "dynSubjct." 0 6 yes "ttblJob.endDate" "End Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147976709193697" no "" "" 0 0 "" no no "" "" no
-138 "_default" "dynSubjct." 0 7 yes "CalcEndTime" "End Time" "X(12)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.endTime" no no no "" "202204147976709193698" no "" "" 0 0 "" no no "" "" no
+138 "_default" "dynSubjct." 0 1 yes "ttblJob.resource" "Resource" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_22:33:52_10274688" no "" "" 0 0 "" no no "" "" no
+138 "_default" "dynSubjct." 0 2 yes "ttblJob.job" "Job ID" "X(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_22:33:52_10274689" no "" "" 0 0 "" no no "" "" no
+138 "_default" "dynSubjct." 0 3 yes "ttblJob.dueDate" "Due Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "20221025_22:33:52_10274690" no "" "" 0 0 "" no no "" "" no
+138 "_default" "dynSubjct." 0 4 yes "ttblJob.startDate" "Start Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "20221025_22:33:52_10274691" no "" "" 0 0 "" no no "" "" no
+138 "_default" "dynSubjct." 0 5 yes "CalcStartTime" "Start Time" "x(12)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.startTime" no no no "" "20221025_22:33:52_10274692" no "" "" 0 0 "" no no "" "" no
+138 "_default" "dynSubjct." 0 6 yes "ttblJob.endDate" "End Date" "99/99/99" 0 "date" 0 no no "" "" no "" "" no no no "" "20221025_22:33:52_10274693" no "" "" 0 0 "" no no "" "" no
+138 "_default" "dynSubjct." 0 7 yes "CalcEndTime" "End Time" "X(12)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.endTime" no no no "" "20221025_22:33:52_10274694" no "" "" 0 0 "" no no "" "" no
 139 "_default" "dynSubjct." 0 1 yes "ttMachineEfficiency.shift" "SHIFT" "x(5)" 5.8 "character" 0 no no "" "" no "" "" no no no "" "202204147976909193708" no "" "" 0 0 "" no no "" "" no
 139 "_default" "dynSubjct." 0 2 yes "ttMachineEfficiency.machCode" "MACH CODE" "X(6)" 12 "character" 0 no no "" "" no "" "" no no no "" "202204147976909193709" no "" "" 0 0 "" no no "" "" no
 139 "_default" "dynSubjct." 0 3 yes "ttMachineEfficiency.cDESC" "DESCRIPTION" "X(30)" 30 "character" 0 no no "" "" no "" "" no no no "" "202204147976909193710" no "" "" 0 0 "" no no "" "" no
@@ -2329,84 +2329,91 @@
 156 "_default" "dynSubjct." 0 2 yes "style.dscr" "Description" "x(25)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202204147979509194072" no "" "" 0 0 "" no no "" "" no
 157 "_default" "dynSubjct." 0 1 yes "fgcat.procat" "Category" "x(5)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202204147979709194076" no "" "" 0 0 "" no no "" "" no
 157 "_default" "dynSubjct." 0 2 yes "fgcat.dscr" "Description" "x(20)" 0 "STRING" 0 no no "" "" no "" "" yes yes yes "" "202204147979709194077" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 1 yes "ttScheduledReleases.jobNo" "Job No" "X(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194082" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 2 yes "ttScheduledReleases.customerName" "Customer Name" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194083" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 3 yes "ttScheduledReleases.shipTo" "ShipTo" "X(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194084" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 4 yes "ttScheduledReleases.poNo" "PO No" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194085" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 5 yes "ttScheduledReleases.orderNo" "Order No" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194086" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 6 yes "ttScheduledReleases.relNo" "Rel No" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194087" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 7 yes "ttScheduledReleases.itemNo" "Item No" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194088" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 8 yes "ttScheduledReleases.itemDescription" "Item Description" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194089" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 9 yes "ttScheduledReleases.relQty" "Rel Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194090" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 10 yes "ttScheduledReleases.relDate" "Rel Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194091" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 11 yes "ttScheduledReleases.relStat" "Rel Stat" "X(1)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194092" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 12 yes "ttScheduledReleases.dueAlert" "Due Alert" "X(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194093" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 13 yes "ttScheduledReleases.carrier" "Carrier" "X(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194094" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 14 yes "ttScheduledReleases.jobQtyOH" "Job Qty OH" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194095" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 15 yes "ttScheduledReleases.totQtyOH" "Tot Qty OH" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194096" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 16 yes "ttScheduledReleases.salesValue" "Sales Value" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194097" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 17 yes "ttScheduledReleases.orderQty" "Order Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194098" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 18 yes "ttScheduledReleases.msf" "MSF" "->,>>>,>>9.999" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147980109194099" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 19 yes "ttScheduledReleases.shippedQty" "Shipped Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194100" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 20 yes "ttScheduledReleases.custNo" "Cust No" "X(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194101" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 21 yes "ttScheduledReleases.customerPartNo" "Customer Part No" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194102" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 22 yes "ttScheduledReleases.delZone" "Del Zone" "X(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194103" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 23 yes "ttScheduledReleases.terr" "Terr" "X(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194104" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 24 yes "ttScheduledReleases.creditRating" "Credit Rating" "X(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194105" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 25 yes "ttScheduledReleases.routing" "Routing" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194106" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 26 yes "ttScheduledReleases.skidQty" "Skid Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194107" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 27 yes "ttScheduledReleases.ohRelQty" "OH Rel Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194108" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 28 yes "ttScheduledReleases.sampleDate" "Sample Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194109" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 29 yes "ttScheduledReleases.dockDate" "Dock Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194110" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 30 yes "ttScheduledReleases.earlyDate" "Early Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194111" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 31 yes "ttScheduledReleases.lateDate" "Late Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194112" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 32 yes "ttScheduledReleases.transitDays" "Transit Days" ">>>>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194113" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 33 yes "ttScheduledReleases.state" "State" "X(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194114" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 34 yes "ttScheduledReleases.totalAlloc" "Total Alloc" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194115" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 35 yes "ttScheduledReleases.totalAvail" "Total Avail" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194116" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 36 yes "ttScheduledReleases.shipFrom" "Ship From" "X(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194117" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 37 yes "ttScheduledReleases.dockNote" "Dock Note" "X(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194118" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 38 yes "ttScheduledReleases.salRep" "Sal Rep" "X(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194119" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 39 yes "ttScheduledReleases.lastUserID" "Last User ID" "X(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194120" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 40 yes "ttScheduledReleases.shipToAdd1" "ShipTo Add1" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194121" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 41 yes "ttScheduledReleases.shipToAdd2" "ShipTo Add2" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194122" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 42 yes "ttScheduledReleases.shipToCity" "ShipTo City" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194123" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 43 yes "ttScheduledReleases.shipToState" "ShipTo State" "X(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194124" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 44 yes "ttScheduledReleases.shipToZip" "ShipTo Zip" "X(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194125" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 45 yes "ttScheduledReleases.shipToName" "ShipTo Name" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194126" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 46 yes "ttScheduledReleases.dueDate" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194127" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 47 yes "ttScheduledReleases.style" "Style" "X(6)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194128" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 48 yes "ttScheduledReleases.runComplete" "Run Complete" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147980109194129" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 49 yes "ttScheduledReleases.fgCategory" "FG Category" "X(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194130" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 50 yes "ttScheduledReleases.overRunPct" "OverRun Pct" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147980109194131" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 51 yes "ttScheduledReleases.jobHoldCode" "Job Hold Code" "X(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194132" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 52 yes "ttScheduledReleases.jobHoldDesc" "Job Hold Desc" "X(45)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194133" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 53 yes "ttScheduledReleases.orderDate" "Order Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194134" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 54 yes "ttScheduledReleases.mfgDate" "MFG Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194135" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 55 yes "ttScheduledReleases.completionDate" "Completion" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194136" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 56 yes "ttScheduledReleases.csrUserID" "CSR" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194137" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 57 yes "ttScheduledReleases.enteredBy" "Entered By" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194138" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 58 yes "ttScheduledReleases.releaseDueDate" "Rel Due Date" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194139" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 59 yes "ttScheduledReleases.orderDueDate" "Order Due Date" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194140" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 60 yes "ttScheduledReleases.printed" "Printed" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "202204147980109194141" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 61 yes "ttScheduledReleases.orderPromDate" "Ord Prom Date" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194142" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 62 yes "ttScheduledReleases.orderPriority" "Priority" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194143" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 63 yes "ttScheduledReleases.vendorID" "Vendor" "x(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194144" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 64 yes "ttScheduledReleases.vendorName" "Vendor Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194145" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 65 yes "ttScheduledReleases.vendorPO" "Vendor PO" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194146" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 66 yes "ttScheduledReleases.poDueDate" "PO Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194147" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 67 yes "ttScheduledReleases.poRMItemNo" "PO RM Item" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194148" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 68 yes "ttScheduledReleases.poRMItemName" "PO RM Item Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194149" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 69 yes "ttScheduledReleases.poOUM" "PO UOM" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194150" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 70 yes "ttScheduledReleases.poOrderQty" "PO Ordered Qty" "->>,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147980109194151" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 71 yes "ttScheduledReleases.poReceivedQty" "PO Received Qty" "->>>,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147980109194152" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 72 yes "ttScheduledReleases.cDockHour" "Dock hour" "X(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194153" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 73 yes "ttScheduledReleases.dLastDate" "Last Receipt Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "202204147980109194154" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 74 yes "ttScheduledReleases.cRelType" "Release Type" "X(12)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194155" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 75 yes "ttScheduledReleases.lastShipDate" "Last Ship Date" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194156" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 76 yes "ttScheduledReleases.price" "Price" ">>,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "202204147980109194157" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 77 yes "ttScheduledReleases.priceUOM" "Price UOM" "x(4)" 0 "character" 0 no no "" "" no "" "" no no no "" "202204147980109194158" no "" "" 0 0 "" no no "" "" no
-159 "_default" "dynSubjct." 0 78 no "ttScheduledReleases.recordID" "Record ID" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "202204147980109194159" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 1 yes "ttScheduledReleases.jobNo" "Job No" "X(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323782" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 2 yes "ttScheduledReleases.customerName" "Customer Name" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323783" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 3 yes "ttScheduledReleases.shipTo" "ShipTo" "X(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323784" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 4 yes "ttScheduledReleases.poNo" "PO No" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323785" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 5 yes "ttScheduledReleases.orderNo" "Order No" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323786" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 6 yes "ttScheduledReleases.relNo" "Rel No" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323787" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 7 yes "ttScheduledReleases.itemNo" "Item No" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323788" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 8 yes "ttScheduledReleases.itemDescription" "Item Description" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323789" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 9 yes "ttScheduledReleases.relQty" "Rel Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323790" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 10 yes "ttScheduledReleases.relDate" "Rel Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323791" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 11 yes "ttScheduledReleases.relStat" "Rel Stat" "X(1)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323792" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 12 yes "ttScheduledReleases.dueAlert" "Due Alert" "X(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323793" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 13 yes "ttScheduledReleases.carrier" "Carrier" "X(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323794" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 14 yes "ttScheduledReleases.jobQtyOH" "Job Qty OH" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323795" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 15 yes "ttScheduledReleases.totQtyOH" "Tot Qty OH" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323796" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 16 yes "ttScheduledReleases.salesValue" "Sales Value" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323797" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 17 yes "ttScheduledReleases.orderQty" "Order Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323798" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 18 yes "ttScheduledReleases.msf" "MSF" "->,>>>,>>9.999" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323799" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 19 yes "ttScheduledReleases.shippedQty" "Shipped Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323800" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 20 yes "ttScheduledReleases.custNo" "Cust No" "X(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323801" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 21 yes "ttScheduledReleases.customerPartNo" "Customer Part No" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323802" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 22 yes "ttScheduledReleases.delZone" "Del Zone" "X(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323803" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 23 yes "ttScheduledReleases.terr" "Terr" "X(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323804" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 24 yes "ttScheduledReleases.creditRating" "Credit Rating" "X(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323805" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 25 yes "ttScheduledReleases.routing" "Routing" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323806" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 26 yes "ttScheduledReleases.skidQty" "Skid Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323807" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 27 yes "ttScheduledReleases.ohRelQty" "OH Rel Qty" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323808" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 28 yes "ttScheduledReleases.sampleDate" "Sample Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323809" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 29 yes "ttScheduledReleases.dockDate" "Dock Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323810" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 30 yes "ttScheduledReleases.earlyDate" "Early Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323811" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 31 yes "ttScheduledReleases.lateDate" "Late Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323812" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 32 yes "ttScheduledReleases.transitDays" "Transit Days" ">>>>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323813" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 33 yes "ttScheduledReleases.state" "State" "X(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323814" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 34 yes "ttScheduledReleases.totalAlloc" "Total Alloc" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323815" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 35 yes "ttScheduledReleases.totalAvail" "Total Avail" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323816" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 36 yes "ttScheduledReleases.shipFrom" "Ship From" "X(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323817" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 37 yes "ttScheduledReleases.dockNote" "Dock Note" "X(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323818" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 38 yes "ttScheduledReleases.salRep" "Sal Rep" "X(3)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323819" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 39 yes "ttScheduledReleases.lastUserID" "Last User ID" "X(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323820" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 40 yes "ttScheduledReleases.shipToAdd1" "ShipTo Add1" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323821" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 41 yes "ttScheduledReleases.shipToAdd2" "ShipTo Add2" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323822" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 42 yes "ttScheduledReleases.shipToCity" "ShipTo City" "X(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323823" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 43 yes "ttScheduledReleases.shipToState" "ShipTo State" "X(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323824" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 44 yes "ttScheduledReleases.shipToZip" "ShipTo Zip" "X(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323825" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 45 yes "ttScheduledReleases.shipToName" "ShipTo Name" "X(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323826" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 46 yes "ttScheduledReleases.dueDate" "Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323827" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 47 yes "ttScheduledReleases.style" "Style" "X(6)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323828" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 48 yes "ttScheduledReleases.runComplete" "Run Complete" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323829" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 49 yes "ttScheduledReleases.fgCategory" "FG Category" "X(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323830" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 50 yes "ttScheduledReleases.overRunPct" "OverRun Pct" ">>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323831" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 51 yes "ttScheduledReleases.jobHoldCode" "Job Hold Code" "X(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323832" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 52 yes "ttScheduledReleases.jobHoldDesc" "Job Hold Desc" "X(45)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323833" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 53 yes "ttScheduledReleases.orderDate" "Order Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323834" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 54 yes "ttScheduledReleases.mfgDate" "MFG Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323835" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 55 yes "ttScheduledReleases.completionDate" "Completion" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323836" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 56 yes "ttScheduledReleases.csrUserID" "CSR" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323837" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 57 yes "ttScheduledReleases.enteredBy" "Entered By" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323838" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 58 yes "ttScheduledReleases.releaseDueDate" "Rel Due Date" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323839" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 59 yes "ttScheduledReleases.orderDueDate" "Order Due Date" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323840" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 60 yes "ttScheduledReleases.printed" "Printed" "Yes/No" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323841" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 61 yes "ttScheduledReleases.orderPromDate" "Ord Prom Date" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323842" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 62 yes "ttScheduledReleases.orderPriority" "Priority" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323843" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 63 yes "ttScheduledReleases.vendorID" "Vendor" "x(9)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323844" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 64 yes "ttScheduledReleases.vendorName" "Vendor Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323845" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 65 yes "ttScheduledReleases.vendorPO" "Vendor PO" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323846" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 66 yes "ttScheduledReleases.poDueDate" "PO Due Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323847" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 67 yes "ttScheduledReleases.poRMItemNo" "PO RM Item" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323848" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 68 yes "ttScheduledReleases.poRMItemName" "PO RM Item Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323849" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 69 yes "ttScheduledReleases.poOUM" "PO UOM" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323850" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 70 yes "ttScheduledReleases.poOrderQty" "PO Ordered Qty" "->>,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323851" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 71 yes "ttScheduledReleases.poReceivedQty" "PO Received Qty" "->>>,>>>,>>9.9<<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323852" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 72 yes "ttScheduledReleases.cDockHour" "Dock hour" "X(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323853" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 73 yes "ttScheduledReleases.dLastDate" "Last Receipt Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323854" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 74 yes "ttScheduledReleases.cRelType" "Release Type" "X(12)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323855" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 75 yes "ttScheduledReleases.lastShipDate" "Last Ship Date" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323856" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 76 yes "ttScheduledReleases.price" "Price" ">>,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323857" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 77 yes "ttScheduledReleases.priceUOM" "Price UOM" "x(4)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323858" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 78 no "ttScheduledReleases.recordID" "Record ID" ">>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323859" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 79 no "ttScheduledReleases.cRemainRoute" "Remaining routing" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323860" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 80 no "ttScheduledReleases.dDockApp" "Dock Appointment" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323861" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 81 no "ttScheduledReleases.iPalletCountQty" "Pallet Count Quantity" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323862" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 82 no "ttScheduledReleases.dEstFGWeight" "Estimated FG Weight" "->>,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323863" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 83 no "ttScheduledReleases.dActFGWeight" "Actual FG Weight" "->>,>>>,>>9.99<<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323864" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 84 no "ttScheduledReleases.iQtyInvoiced" "Order Qty Invoiced" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323865" no "" "" 0 0 "" no no "" "" no
+159 "_default" "dynSubjct." 0 85 no "ttScheduledReleases.iPallet" "Total # of Pallets (FG)" "->>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221028_15:21:44_10323866" no "" "" 0 0 "" no no "" "" no
 160 "_default" "dynSubjct." 0 1 yes "oe-relh.release#" "Release#" "->,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202204147980309194246" no "" "" 0 0 "" no no "" "" no
 160 "_default" "dynSubjct." 0 2 yes "oe-relh.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" yes yes yes "" "202204147980309194247" no "" "" 0 0 "" no no "" "" no
 160 "_default" "dynSubjct." 0 3 yes "oe-relh.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no yes "" "202204147980309194248" no "" "" 0 0 "" no no "" "" no
@@ -3140,3 +3147,162 @@
 213 "_default" "dynSubjct." 0 15 yes "ttbl_pc-prdd.complete" "Complete" "Y/N" 0 "logical" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216143" no "" "" 0 0 "" no no "" "" no
 213 "_default" "dynSubjct." 0 16 yes "ttbl_pc-prdd.emp-id[1]" "Emp ID" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216144" no "" "" 0 0 "" no no "" "" no
 213 "_default" "dynSubjct." 0 17 yes "ttbl_pc-prdd.rate[1]" "Rate" ">>>>9.99<<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20220930_00:01:03_09216145" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 1 yes "ttSalesAnalysis.custNo" "Cust. #" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294877" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 2 yes "ttSalesAnalysis.custName" "Customer Name" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294878" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 3 yes "ttSalesAnalysis.shipTo" "Ship To" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294879" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 4 yes "ttSalesAnalysis.city" "City" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294880" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 5 yes "ttSalesAnalysis.state" "State" "x(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294881" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 6 yes "ttSalesAnalysis.salesRep" "Salesperson/Group Name" "x(20)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294882" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 7 yes "ttSalesAnalysis.invNo" "Invoice" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294883" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 8 yes "ttSalesAnalysis.iMonth" "Month" "99" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294884" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 9 yes "ttSalesAnalysis.iYear1" "Year" "9999" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294885" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 10 yes "ttSalesAnalysis.invDate" "Invoice Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294886" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 11 yes "ttSalesAnalysis.fgItem" "Item No" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294887" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 12 yes "ttSalesAnalysis.fgCat" "Category" "x(5)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294888" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 13 yes "ttSalesAnalysis.OrderNo" "Order No" ">>>>>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294889" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 14 yes "ttSalesAnalysis.qty" "Qty Shipped" "->>>,>>>,>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294890" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 15 yes "ttSalesAnalysis.price" "Unit Price" "->>>,>>>,>>9.99<<" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294891" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 16 yes "ttSalesAnalysis.uom" "UOM" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294892" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 17 yes "ttSalesAnalysis.amount" "Invoice Amt" "->,>>>,>>>,>>9.99" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294893" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 18 yes "ttSalesAnalysis.shipName" "City" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294894" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 19 yes "ttSalesAnalysis.shipAddr1" "Address 1" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294895" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 20 yes "ttSalesAnalysis.shipAddr2" "Address 2" "x(30)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294896" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 21 yes "ttSalesAnalysis.shipAddr3" "Address 3" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294897" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 22 yes "ttSalesAnalysis.shipCity" "City" "x(15)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294898" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 23 yes "ttSalesAnalysis.shipState" "State" "x(2)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294899" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 24 yes "ttSalesAnalysis.shipZip" "Zip" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294900" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 25 yes "ttSalesAnalysis.bolWhs" "BOL Whs" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294901" no "" "" 0 0 "" no no "" "" no
+215 "_default" "dynSubjct." 0 26 yes "ttSalesAnalysis.bolDate" "BOL Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294902" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 1 yes "ttblJob.resource" "Resource" "x(8)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313416" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 2 yes "ttblJob.jobSort" "Job" "x(8)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313417" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 3 yes "ttblJob.startDate" "Start Date" "99/99/99" 10 "date" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313418" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 4 yes "CalcStartTime" "Start Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.startTime" no no no "" "20221027_18:58:48_10313419" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 5 yes "ttblJob.endDate" "End Date" "99/99/99" 8.8 "date" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313420" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 6 yes "CalcEndTime" "End Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.endTime" no no no "" "20221027_18:58:48_10313421" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 7 yes "ttblJob.dueDate" "Due Date" "99/99/99" 9 "date" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313422" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 8 yes "ttblJob.job" "Job ID" "X(20)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313423" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 9 no "ttblJob.userField01" "Customer" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313424" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 10 no "ttblJob.userField02" "Customer Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313425" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 11 no "ttblJob.userField03" "Board" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313426" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 12 no "ttblJob.userField04" "Board Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313427" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 13 no "ttblJob.userField05" "Die" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313428" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 14 no "ttblJob.userField06" "Plate" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313429" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 15 no "ttblJob.userField07" "PO" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313430" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 16 no "ttblJob.userField08" "FG Item" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313431" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 17 no "ttblJob.userField09" "Item Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313432" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 18 no "ttblJob.userField10" "Length" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313433" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 19 no "ttblJob.userField11" "Width" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313434" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 20 no "ttblJob.userField12" "Depth" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313435" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 21 no "ttblJob.userField13" "Style" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313436" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 22 no "ttblJob.userField14" "Color" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313437" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 23 no "ttblJob.userField15" "Run Qty" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313438" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 24 no "ttblJob.userField16" "PO Due" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313439" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 25 no "ttblJob.userField17" "Vendor" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313440" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 26 no "ttblJob.userField18" "Form" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313441" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 27 no "ttblJob.userField19" "Blank" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313442" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 28 no "ttblJob.userField20" "Pass" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313443" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 29 no "ttblJob.userField21" "Category" "x(5)" 7 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313444" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 30 no "ttblJob.userField22" "Caliper" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313445" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 31 no "ttblJob.userField23" "Sheet Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313446" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 32 no "ttblJob.userField24" "Adhesive" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313447" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 33 no "ttblJob.userField25" "Coats" "x(2)" 4 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313448" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 34 no "ttblJob.userField26" "Board L." "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313449" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 35 no "ttblJob.userField27" "Board W." "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313450" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 36 no "ttblJob.userField28" "Color Desc" "x(40)" 42 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313451" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 37 no "ttblJob.userField29" "Total MRP" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313452" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 38 no "ttblJob.userField30" "Mat Length" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313453" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 39 no "ttblJob.userField31" "#Up" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313454" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 40 no "ttblJob.userField32" "Linear Feet" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313455" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 41 no "ttblJob.userField33" "Total Pieces" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313456" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 42 no "ttblJob.userField34" "CAD" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313457" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 43 no "ttblJob.userField35" "PO Qty Recd" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313458" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 44 no "ttblJob.userField36" "Sales Rep" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313459" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 45 no "ttblJob.userField37" "Release Qty" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313460" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 46 no "ttblJob.userField38" "Release Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313461" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 47 no "ttblJob.userField39" "Ship To Addr" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313462" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 48 no "ttblJob.userField40" "Ship To City" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313463" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 49 no "ttblJob.userField41" "Ink-1" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313464" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 50 no "ttblJob.userField42" "Ink-2" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313465" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 51 no "ttblJob.userField43" "Ink-3" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313466" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 52 no "ttblJob.userField44" "Ink-4" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313467" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 53 no "ttblJob.userField45" "Ink-5" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313468" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 54 no "ttblJob.userField46" "Ink-6" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313469" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 55 no "ttblJob.userField47" "Ink-7" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313470" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 56 no "ttblJob.userField48" "Ink-8" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313471" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 57 no "ttblJob.userField49" "Ink-9" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313472" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 58 no "ttblJob.userField50" "Ink-10" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313473" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 59 no "ttblJob.userField51" "Pallet/Unit" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313474" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 60 no "ttblJob.userField52" "Rel MSF" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313475" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 61 no "ttblJob.userField53" "Tab" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313476" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 62 no "ttblJob.userField54" "Run MSF" "x(18)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313477" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 63 no "ttblJob.userField55" "Pallet Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313478" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 64 no "ttblJob.userField56" "Pallet MRP" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313479" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 65 no "ttblJob.userField57" "Prod Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313480" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 66 no "ttblJob.userField58" "Gross Sht L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313481" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 67 no "ttblJob.userField59" "Gross Sht W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313482" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 68 no "ttblJob.userField60" "Pack Code" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313483" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 69 no "ttblJob.userField61" "Mat Type5 Item#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313484" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 70 no "ttblJob.userField62" "Mat Type6 Item#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313485" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 71 no "ttblJob.userField63" "Cust PO#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313486" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 72 no "ttblJob.userField64" "Cust Part#" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313487" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 73 no "ttblJob.userField65" "Internal L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313488" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 74 no "ttblJob.userField66" "End Cell L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313489" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 75 no "ttblJob.userField67" "Internal W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313490" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 76 no "ttblJob.userField68" "End Cell W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313491" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 77 no "ttblJob.userField69" "Current Qty" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313492" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 78 no "ttblJob.userField70" "Varnish" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313493" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 79 no "ttblJob.userField71" "Adders" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313494" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 80 no "ttblJob.userField72" "Adder 1" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313495" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 81 no "ttblJob.userField73" "Adder 2" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313496" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 82 no "ttblJob.userField74" "Adder 3" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313497" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 83 no "ttblJob.userField75" "Adder 4" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313498" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 84 no "ttblJob.userField76" "Adder 5" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313499" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 85 no "ttblJob.userField77" "Adder 6" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313500" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 86 no "ttblJob.userField78" "No. of Cases" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313501" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 87 no "ttblJob.userField79" "Cases Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313502" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 88 no "ttblJob.userField80" "Die Bin" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313503" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 89 no "ttblJob.userField81" "Film Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313504" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 90 no "ttblJob.userField82" "Mfg Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313505" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 91 no "ttblJob.userField83" "Job Status" "x(1)" 3 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313506" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 92 no "ttblJob.userField84" "Total Price" "x(14)" 16 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313507" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 93 no "ttblJob.userField85" "Due Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313508" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 94 no "ttblJob.userField86" "UnderRun%" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313509" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 95 no "ttblJob.userField87" "OverRun%" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313510" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 96 no "ttblJob.userField88" "Speed" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313511" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 97 no "ttblJob.userField89" "Created" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313512" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 98 no "ttblJob.userField90" "DC Prod Qty" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313513" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 99 no "ttblJob.userField91" "First Release" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313514" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 100 no "ttblJob.userField92" "EmpAlert CSR" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313515" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 101 no "ttblJob.userField93" "MatType5 Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313516" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 102 no "ttblJob.userField94" "MatType6 Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313517" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 103 no "ttblJob.userField95" "Required Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313518" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 104 no "ttblJob.userField96" "MR Std Hrs" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313519" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 105 no "ttblJob.userField97" "Run Std Hrs" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313520" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 106 no "ttblJob.userField98" "MSF" "x(18)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313521" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 107 no "ttblJob.userField99" "SqFt" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313522" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 108 no "ttblJob.userField100" "MR Waste" "x(4)" 6 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313523" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 109 no "ttblJob.userField101" "Run Waste" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313524" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 110 no "ttblJob.userField102" "MR Time" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313525" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 111 no "ttblJob.userField103" "Run Time" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313526" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 112 no "ttblJob.userField104" "Job-Run" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313527" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 113 no "ttblJob.userField105" "Tot. Time" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313528" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 114 no "ttblJob.userField106" "Ink LBS" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313529" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 115 no "ttblJob.userField107" "Job Qty" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313530" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 116 no "ttblJob.userField108" "Score (on Width)" "x(24)" 26 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313531" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 117 no "ttblJob.userField109" "Score (on Length)" "x(24)" 26 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313532" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 118 no "ttblJob.userField110" "Promise Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313533" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 119 no "ttblJob.userField111" "Order Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313534" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 120 no "ttblJob.jobStatus[1]" "jobStatus[1]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313535" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 121 no "ttblJob.jobStatus[2]" "jobStatus[2]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313536" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 122 no "ttblJob.jobStatus[3]" "jobStatus[3]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313537" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 123 no "ttblJob.jobStatus[4]" "jobStatus[4]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313538" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 124 no "ttblJob.jobStatus[5]" "jobStatus[5]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313539" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 125 no "ttblJob.jobStatus[6]" "jobStatus[6]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313540" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 126 no "ttblJob.jobStatus[7]" "jobStatus[7]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313541" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 127 no "ttblJob.jobStatus[8]" "jobStatus[8]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313542" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 128 no "ttblJob.jobStatus[9]" "jobStatus[9]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313543" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 129 no "ttblJob.jobStatus[10]" "jobStatus[10]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313544" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 130 no "ttblJob.jobStatus[11]" "jobStatus[11]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313545" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 131 no "ttblJob.jobStatus[12]" "jobStatus[12]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313546" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 132 no "ttblJob.jobStatus[13]" "jobStatus[13]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313547" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 133 no "ttblJob.jobStatus[14]" "jobStatus[14]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313548" no "" "" 0 0 "" no no "" "" no

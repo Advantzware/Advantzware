@@ -1,115 +1,4 @@
-0 "Message" yes 0 0 "Enter Cue Card Text Here" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/14/21 82960 "" "202101148296005948833"
-0 "Message" yes 1 0 "Submitted Run Now Request is Available
-
-File: TaskResults/AgedReceivables.20210809.30742.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/09/21 30762 "Mike" "202108093076207865381"
-0 "Message" yes 2 0 "Submitted Run Now Request is Available
-
-File: TaskResults/AgedReceivables.20210809.31085.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/09/21 31096 "Mike" "202108093109607865417"
-0 "Message" yes 3 0 "Submitted Run Now Request is Available
-
-File: TaskResults/AgedReceivables.20210809.31382.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/09/21 31392 "Mike" "202108093139207865424"
-0 "Message" yes 4 0 "Submitted Run Now Request is Available
-
-File: TaskResults/AgedReceivables.20210809.31474.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/09/21 31480 "Mike" "202108093148007865517"
-0 "Message" yes 5 0 "Submitted Run Now Request is Available
-
-File: TaskResults/AgedReceivables.20210810.56110.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/10/21 56118 "Mike" "202108105611807886920"
-0 "Message" yes 6 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Commissions.20210902.28900.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 28917 "Mike" "202109022891707958330"
-0 "Message" yes 7 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29266.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29277 "Mike" "202109022927707958484"
-0 "Message" yes 8 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29271.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29277 "Mike" "202109022927707958485"
-0 "Message" yes 9 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29287.docx" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29292 "Mike" "202109022929207958489"
-0 "Message" yes 10 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29303.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29308 "Mike" "202109022930807958493"
-0 "Message" yes 11 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29319.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29324 "Mike" "202109022932407958497"
-0 "Message" yes 12 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29443.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29448 "Mike" "202109022944807958504"
-0 "Message" yes 13 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29444.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29450 "Mike" "202109022945007958507"
-0 "Message" yes 14 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29447.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29450 "Mike" "202109022945007958508"
-0 "Message" yes 15 0 "Submitted Run Now Request is Available
-
-File: TaskResults/Carrier.20210902.29448.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/02/21 29463 "Mike" "202109022946307958510"
-0 "Message" yes 16 0 "Submitted Run Now Request is Available
-
-File: TaskResults/InvoiceForm.20210928.73864.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/28/21 73870 "nosweat" "202109287387008077950"
-0 "Message" yes 17 0 "Submitted Run Now Request is Available
-
-File: TaskResults/InvoiceForm.20210928.75825.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 09/28/21 75832 "nosweat" "202109287583208078173"
-0 "Message" yes 18 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.02/AgedReceivables.03.53203.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/03/22 53224 "Mike" "202202035322408536686"
-0 "Message" yes 19 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.02/OpenOrders.03.53256.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/03/22 53282 "Mike" "202202035328208536711"
-0 "Message" yes 20 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.02/Carrier.04.34424.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/04/22 34434 "asi" "202202043443408548516"
-0 "Message" yes 21 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.02/AgedReceivables.04.37170.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/04/22 37177 "Mike" "202202043717708548751"
-0 "Message" yes 22 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.02/BOLPackingList.04.37198.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 02/04/22 37205 "Mike" "202202043720508548786"
-0 "Message" yes 23 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.04/AgedReceivables.20.54220.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 04/20/22 54233 "paul" "202204205423309286613"
-0 "Message" yes 24 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.05/DailyProductionReport.04.43552.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 05/04/22 43559 "Mike" "202205044355909392014"
-0 "Message" yes 25 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.05/DailyProductionReport.17.09529.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72532 "asi" "202206167253209599432"
-0 "Message" yes 26 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.05/WIPStandardsDetail.17.09531.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72532 "_default" "202206167253209599433"
-0 "Message" yes 27 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.05/DailyProductionReport.17.09531.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72532 "asi" "202206167253209599434"
-0 "Message" yes 28 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.05/DailyProductionReport.17.09533.pdf" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72532 "asi" "202206167253209599435"
-0 "Message" yes 29 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.06/MachineTransactionQuery.16.72508.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72533 "_default" "202206167253309599438"
-0 "Message" yes 30 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.06/Locations.16.72512.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72533 "dan3" "202206167253309599439"
-0 "Message" yes 31 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.06/MachineTransactionQuery.16.72567.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 06/16/22 72579 "_default" "202206167257909599446"
-0 "Message" yes 32 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.08/CapacityHTMLPage.02.68329.html" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "alex" "20220802_19:02:20_09859650"
-0 "Message" yes 33 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.08/FGInventoryStatusByCust.02.68421.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "laurel" "20220802_19:02:20_09859651"
-0 "Message" yes 34 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.08/FGInventoryStatusByCust.02.68479.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "laurel" "20220802_19:02:20_09859652"
-0 "Message" yes 35 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.08/FGInventoryStatusByCust.02.68486.csv" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "laurel" "20220802_19:02:20_09859653"
-0 "Message" yes 36 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.08/FGInventoryStatusByCust.02.68483.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "mark" "20220802_19:02:20_09859654"
-0 "Message" yes 37 0 "Submitted Run Now Request is Available
-
-File: TaskResults/2022.08/FGInventoryStatusByCust.02.68506.xls" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 08/02/22 68540 "mark" "20220802_19:02:20_09859655"
+0 "Message" yes 1 0 "Enter Cue Card Text Here" 9 1 5.33 116.2 32 7 15 1 2 1.24 2.2 2.71 2.57 98.4 11.8 1.29 ? ? 6 41.8 4.14 75.8 4.14 47.6 4.19 6 47.6 5.33 6 "NoSweat" 01/14/21 82960 "" "202101148296005948833"
 1 "System" yes 1 1 "Welcome to Version 16.8.0 of Advantzware!
 
 This is our new Cue Card feature.  Cue Cards appear to guide and explain new features and functionality added to Advantzware.
@@ -135,7 +24,7 @@ Pressing the SPACEBAR will clear any previously entered Hotkey values and reset 
 Select the desire Company and/or Location and your selection will be reflected to the left and right of this Icon." 1 1 7.38 76 57.2 2.67 14 1 2 1.24 3 3.14 4.29 67.6 9 2.43 ? ? ? 64.6 7 70.6 7 10.6 7 ? 10 1.48 ? "NoSweat" 10/06/18 85392 "" "201810068539202402791"
 1 "System" yes 4 4 "This Box Icon is a Link to the Advantzware Website.  Click to visit us for information and the latest News about Advanced Software, Inc." 4 2 5.38 69.6 78.4 2.43 14 1 62.2 2.43 43 5 2.57 58.8 3.4 2.14 ? ? ? 58.6 5 64.6 5 4.6 5 ? 4.6 1.29 ? "NoSweat" 10/06/18 85709 "" "201810068570902402792"
 1 "System" yes 5 5 "This Question Mark Icon is a Link to the Advantzware Help Ticket via ZoHo.  If you are an Administrative User and a New Upgrade Version of Advantzware exists, this icon changes its appearance and clicking it will allow you to Auto Upgrade to the latest version." 4 2 6.52 69.6 77.4 4.57 14 1 62.2 2.43 43 6.14 3.71 58.8 3.4 2.14 ? ? ? 58.6 6.14 64.6 6.14 4.6 6.14 ? 4.6 1.29 ? "NoSweat" 10/06/18 85709 "" "201810068570902402792"
-1 "System" yes 6 6 "Using NK1 System Control Parameters, there are 8 MENULINK's that can be utilized to create Web Links of your choosing which will appear in this lower are of the Menu screen.  See your Administrator about having favorite and/or generally used Web Sites accessible with a quick mouse click." 6 3 6.43 84.2 86.2 6.71 14 1 51.4 5.57 3 3.14 3.14 74.8 9.4 2.43 ? ? ? 73 5.86 79 5.86 11.8 5.86 ? 10 1.48 ? "NoSweat" 10/06/18 83235 "" "201810068323502402789"
+1 "System" yes 6 6 "Using NK1 System Control Parameters, there are 8 MENULINK's that can be utilized to create Web Links of your choosing which will appear in this lower are of the Menu screen.  See your Administrator about having favorite and/or generally used Web Sites accessible with a quick mouse click." 6 3 6.43 84.2 86.8 7.62 14 1 51.4 5.57 3 3.14 3.14 74.8 9.4 2.43 ? ? ? 73 5.86 79 5.86 11.8 5.86 ? 10 1.48 ? "NoSweat" 10/06/18 83235 "" "201810068323502402789"
 1 "System" yes 7 7 "We have added the much requested ability to have a Favorites feature.  Simply pulldown here to access the Menu Options most accessed by you.
 
 But wait Advantzware, that's great but how do I add Menu Options to my Favorites?  Click the Next Cue Card and we will show you." 1 1 7.38 78.6 5.2 4.43 14 1 2 1.24 3 3.14 4.29 70 9 2.43 ? ? ? 67 7 73 7 10 7.19 ? 10 1.48 ? "NoSweat" 10/07/18 586 "" "201810070058602402795"
@@ -159,10 +48,10 @@ Simply click the Next Cue Card or the Red ""X"" and we are done!
 
 However, don't forget to click either the Filter Icon or the Gears Icon to view the Cue Cards with information about either of these options." 9 1 7.38 80.2 43.4 7.05 14 1 2 1.24 3 3.14 4.29 71.2 9 2.43 ? ? ? 68.2 7 74.2 7 10 7.19 ? 10 1.48 ? "NoSweat" 10/07/18 2265 "" "201810070226502402798"
 2 "System" yes 1 11 "The same way you accessed this Favorites/Search feature, is how you can close it when done." 1 1 5.67 50.2 3 1.81 14 1 2 1.24 3 3.14 2.57 41.2 9 2.43 ? ? ? 38.2 5.29 44.2 5.29 10.6 5.48 ? 10 1.48 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
-2 "System" yes 2 12 "Enter your Search value here and any matching Menu Options found will display below.
+2 "System" yes 2 13 "Click here to Clear the Search value and results." 5 1 4.71 50.2 51 9.43 14 1 43 3.86 44.2 2.43 1.71 43.2 2.2 1.29 ? ? ? 32.2 3.29 38.2 3.29 3.4 3.29 ? 3.4 4.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
+2 "System" yes 3 12 "Enter your Search value here and any matching Menu Options found will display below.
 
 Once you have located the Option you are looking for, simply Double Mouse Click it." 2 1 8.43 50.2 54.6 1.91 14 1 22.6 1.29 7 1.57 4.29 48 2.2 3 ? ? ? 38.2 7.57 44.2 7.57 3.4 7.57 ? 3.4 8.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
-2 "System" yes 3 13 "Click here to Clear the Search value and results." 5 1 4.71 50.2 51 9.43 14 1 43 3.86 44.2 2.43 1.71 43.2 2.2 1.29 ? ? ? 32.2 3.29 38.2 3.29 3.4 3.29 ? 3.4 4.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
 2 "System" yes 4 14 "At any time you can select a Search Result Menu Option.  If this Icon is a ""+"" (plus) and you click it, the selection is Auto added to your Favorites.  If the highlighted selection changes this icon to a ""-"" (minus), that indicates it's already a Favorite and clicking it now will remove it." 6 1 7.67 50.4 45 6 14 1 7 6.71 45.4 5.86 4.86 43.2 2.2 1.29 ? ? ? 39.4 7.29 45.4 7.29 15.4 7.57 ? 15.4 6.43 ? "NoSweat" 10/07/18 2902 "" "201810070290202402800"
 2 "System" yes 5 27 "Set the Favorite's Order using the Up or Down arrows.  Click the ""X"" to remove the selected Favorite.
 

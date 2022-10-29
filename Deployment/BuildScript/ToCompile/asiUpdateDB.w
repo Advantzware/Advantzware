@@ -1145,6 +1145,7 @@ PROCEDURE ipUpgradeDBs :
         RUN ipStatus ("    Connecting single-user mode").
         CONNECT VALUE(cStatement).
     
+        /* Not required with new licensing 
         /* Test ASI DB to see if audit DB is licensed */
         IF CONNECTED("updDB1") THEN DO:
             RUN ipStatus ("    Creating DICTDB alias").
@@ -1154,6 +1155,10 @@ PROCEDURE ipUpgradeDBs :
             RUN asiAuditTest.r (OUTPUT lAuditLicensed, OUTPUT lHasAllFiles).
             DELETE ALIAS asi.
         END.
+        */
+        ASSIGN
+            lAuditLicensed = TRUE
+            lHasAllFiles   = TRUE.
 
         /* Load the delta */
         RUN ipStatus ("    Loading delta " + STRING(cFullDelta)).
