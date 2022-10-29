@@ -1,635 +1,690 @@
-"" "about." "About" yes 12/12/22 "ASI"
-"" "access." "Access Security by Menu" yes 12/12/22 "ASI"
-"" "account." "GL Accounts" yes 12/12/22 "ASI"
-"" "af" "Build Estimate Files" yes 12/12/22 "ASI"
-"" "aoaDashboard" "AOA Dashboard" yes 12/12/22 "ASI"
-"" "aoaReport" "AOA Report" yes 12/22/22 "ASI"
-"" "ap-ctrl." "Accounts Payable Control" yes 12/12/22 "ASI"
-"" "ar" "Reports for Estimates" yes 12/12/22 "ASI"
-"" "ar-ctrl." "A/R Control" yes 12/12/22 "ASI"
-"" "ar0purge." "Purge Zero Posted AR" yes 12/12/22 "ASI"
-"" "arch-est." "Archive/Delete Estimates" yes 12/12/22 "ASI"
-"" "asiver." "ASI Version" yes 12/12/22 "ASI"
-"" "asset" "Fixed Assets" yes 12/12/22 "ASI"
-"" "Audit" "Audit History" yes 12/12/22 "ASI"
-"" "AutoLogout" "Auto Logout Monitor" yes 12/12/22 "ASI"
-"" "b" "Order Processing" yes 12/12/22 "ASI"
-"" "b1" "Update / Add Orders" yes 12/12/22 "ASI"
-"" "b2" "Tickets for Releases" yes 12/12/22 "ASI"
-"" "b3" "Shipping / Bill of Lading" yes 12/12/22 "ASI"
-"" "b34." "Master BOL Print" yes 12/12/22 "ASI"
-"" "b36." "Truckload BOL Summary" yes 12/12/22 "ASI"
-"" "b4" "Billing / Counter Sales" yes 12/12/22 "ASI"
-"" "b45." "Master Invoice Summary" yes 12/12/22 "ASI"
-"" "b5" "Levy F.G. Returns / Credits" yes 12/12/22 "ASI"
-"" "bank." "Banks" yes 12/12/22 "ASI"
-"" "bf" "File Maintenance for Orders" yes 12/12/22 "ASI"
-"" "bi" "Query Orders" yes 12/12/22 "ASI"
-"" "bldfgbin." "Build FG Warehouse/Bin" yes 12/12/22 "ASI"
-"" "bldstack." "Build Flute/Test Counts" yes 12/12/22 "ASI"
-"" "boltrans." "SS Bill of Lading Transaction" yes 12/12/22 "ASI"
-"" "boxdes." "Box Designs" yes 12/12/22 "ASI"
-"" "br" "Reports for Orders" yes 12/12/22 "ASI"
-"" "buyer." "Buyers" yes 12/12/22 "ASI"
-"" "c" "Materials / Raw Goods" yes 12/12/22 "ASI"
-"" "c1" "Update Materials Transactions" yes 12/12/22 "ASI"
-"" "c2" "Count Raw Goods Inventory" yes 12/12/22 "ASI"
-"" "c3." "" yes 12/12/22 "ASI"
-"" "c6." "" yes 12/12/22 "ASI"
-"" "carrier." "Common Carriers" yes 12/12/22 "ASI"
-"" "ce-ctrl." "Cost Estimate Control" yes 12/12/22 "ASI"
-"" "cf" "File Maintenance for Raw Goods" yes 12/12/22 "ASI"
-"" "cf4." "" yes 12/12/22 "ASI"
-"" "chkdatef." "Fix Cash Receipt Date" yes 12/12/22 "ASI"
-"" "ci" "Query Raw Goods" yes 12/12/22 "ASI"
-"" "ci2." "" yes 12/12/22 "ASI"
-"" "citmrpt" "Reports" yes 12/12/22 "ASI"
-"" "clearrep." "Purge Report File" yes 12/12/22 "ASI"
-"" "cmpltjob." "TS Completed Machine Jobs" yes 12/12/22 "ASI"
-"" "cmpltjo_." "TS Completed Machine Jobs List" yes 12/12/22 "ASI"
-"" "codes" "Codes" yes 12/12/22 "ASI"
-"" "codeslist" "Codes &Listings" yes 12/12/22 "ASI"
-"" "company." "Company" yes 12/12/22 "ASI"
-"" "comp_loc." "Set Company/Location" yes 12/12/22 "ASI"
-"" "config." "Configurations" yes 12/12/22 "ASI"
-"" "contfm" "File Maintenance" yes 12/12/22 "ASI"
-"" "copyest." "Kopy Estimate" yes 12/12/22 "ASI"
-"" "costtype." "Material Cost Types" yes 12/12/22 "ASI"
-"" "cr" "Reports for Raw Goods" yes 12/12/22 "ASI"
-"" "crmContacts" "CRM Contacts" yes 12/12/22 "ASI"
-"" "crmCustomers" "CRM Customers" yes 12/12/22 "ASI"
-"" "crtfgrec." "Create FG Receipt from BOLs" yes 12/12/22 "ASI"
-"" "crtnotes." "Transfer Dept Notes from Cust" yes 12/12/22 "ASI"
-"" "CueCard" "Cue Card" yes 12/12/22 "ASI"
-"" "cust." "Customers" yes 12/12/22 "ASI"
-"" "custproc." "Run Custom Utility Program" yes 12/12/22 "ASI"
-"" "custpurg." "Purge Customers" yes 12/12/22 "ASI"
-"" "custype." "Customer Types" yes 12/12/22 "ASI"
-"" "d" "Inventory / Finished Goods" yes 12/12/22 "ASI"
-"" "d1" "Update Warehouse Transactions" yes 12/12/22 "ASI"
-"" "d2" "Count Finished Goods" yes 12/12/22 "ASI"
-"" "deflocbn." "Set FG Item Warehouse/Bin" yes 12/12/22 "ASI"
-"" "del-data." "Fix Invalid Data" yes 12/12/22 "ASI"
-"" "del0qtyb." "Delete Zero Qty Bins" yes 12/12/22 "ASI"
-"" "dept." "Departments" yes 12/12/22 "ASI"
-"" "df" "File Maintenance for Items" yes 12/12/22 "ASI"
-"" "dfltrate." "TS Employee Default Rates" yes 12/12/22 "ASI"
-"" "di" "Query Finished Goods" yes 12/12/22 "ASI"
-"" "dl" "List More Reports" yes 12/12/22 "ASI"
-"" "dr" "Reports for Finished Goods" yes 12/12/22 "ASI"
-"" "e" "History of Sales" yes 12/12/22 "ASI"
-"" "edcat." "EDI Product Catalog (832)" yes 12/12/22 "ASI"
-"" "edco." "Controls" yes 12/12/22 "ASI"
-"" "edcode." "EDI Transaction Sets" yes 12/12/22 "ASI"
-"" "eddoc." "EDI Document Controls" yes 12/12/22 "ASI"
-"" "edICXRef." "EDI Customer Items" yes 12/12/22 "ASI"
-"" "edivtran." "EDI Invoices (810)" yes 12/12/22 "ASI"
-"" "edmast." "EDI Trading Partners" yes 12/12/22 "ASI"
-"" "edShipTo." "EDI Ship-to Locations" yes 12/12/22 "ASI"
-"" "edshipvia." "EDI Via/SCAC Codes" yes 12/12/22 "ASI"
-"" "emailcod." "Email codes" yes 12/12/22 "ASI"
-"" "empinout." "TS Employee Transaction Summar" yes 12/12/22 "ASI"
-"" "emplogi_." "TS Labor Report" yes 12/12/22 "ASI"
-"" "employee." "TS Employees" yes 12/12/22 "ASI"
-"" "employe_." "TS Employees List" yes 12/12/22 "ASI"
-"" "emp_type." "TS Employee Types" yes 12/12/22 "ASI"
-"" "emp_typ_." "TS Employee Types List" yes 12/12/22 "ASI"
-"" "er" "Reports continued..." yes 12/12/22 "ASI"
-"" "estlabor." "Update Estimate Labor Rates" yes 12/12/22 "ASI"
-"" "exp-est." "Export Estimates" yes 12/12/22 "ASI"
-"" "expjobs." "CorrTrim Downloading Program" yes 12/12/22 "ASI"
-"" "f" "" yes 12/12/22 "ASI"
-"" "fg-adj." "FG Enter/Modify Adjustments" yes 12/12/22 "ASI"
-"" "fg-ctrl." "Finished Goods Control" yes 12/12/22 "ASI"
-"" "fg-phys." "FG Enter/Modify Physical Count" yes 12/12/22 "ASI"
-"" "fg-purge." "Purge Finished Goods" yes 12/12/22 "ASI"
-"" "fg-rcpt." "FG Enter/Modify Receipts" yes 12/12/22 "ASI"
-"" "fg-ship." "" yes 12/12/22 "ASI"
-"" "fg-taxed." "Set Taxable FG Default" yes 12/12/22 "ASI"
-"" "fg-to-rm." "Move FG To Board/Misc RM" yes 12/12/22 "ASI"
-"" "fg-trans." "FG Enter/Modify Transfers" yes 12/12/22 "ASI"
-"" "fgbinbal." "FG Rebuild Bins/Reset Bal" yes 12/12/22 "ASI"
-"" "fgcat." "Finished Goods Categories" yes 12/12/22 "ASI"
-"" "fghispur." "Purge FG History" yes 12/12/22 "ASI"
-"" "fgonhnd0." "Set FG On-Hand Qty to Zero" yes 12/12/22 "ASI"
-"" "fgonord0." "Set FG On-Order Qty to Zero" yes 12/12/22 "ASI"
-"" "fgpstmn." "Post to Finished Goods Files" yes 12/12/22 "ASI"
-"" "fgtrans" "SS Sharp Shooter" yes 12/12/22 "ASI"
-"" "fgtransa." "SS Finished Goods" yes 12/12/22 "ASI"
-"" "file" "File" yes 12/12/22 "ASI"
-"" "file." "System Reference Files" yes 12/12/22 "ASI"
-"" "flute." "Flute & Unit Counts" yes 12/12/22 "ASI"
-"" "fxinvcst." "Fix Invoice Cost" yes 12/12/22 "ASI"
-"" "fxtrncst." "Fix FG Hist Cost" yes 12/12/22 "ASI"
-"" "g" "Data Collection" yes 12/12/22 "ASI"
-"" "g3" "Labor / Misc. Material Costs" yes 12/12/22 "ASI"
-"" "gf" "" yes 12/12/22 "ASI"
-"" "gi" "Query Data Collection" yes 12/12/22 "ASI"
-"" "gl-ctrl." "General Ledger Control" yes 12/12/22 "ASI"
-"" "gl-purge." "Purge GL Accounts" yes 12/12/22 "ASI"
-"" "globpric." "Global Price Increase" yes 12/12/22 "ASI"
-"" "globquot." "Global Quote Price Change" yes 12/12/22 "ASI"
-"" "gr" "Reports for Data Collection" yes 12/12/22 "ASI"
-"" "h" "Job Costing" yes 12/12/22 "ASI"
-"" "h3" "W.I.P. General Ledger Entrys" yes 12/12/22 "ASI"
-"" "h31." "GL Job Detail W.I.P. List" yes 12/12/22 "ASI"
-"" "h32." "GL Summary W.I.P. List" yes 12/12/22 "ASI"
-"" "h33." "Post WIP to General Ledger" yes 12/12/22 "ASI"
-"" "help" "Help" yes 12/12/22 "ASI"
-"" "help." "Help Topics" yes 12/12/22 "ASI"
-"" "helpcont." "" yes 12/12/22 "ASI"
-"" "hf" "File Maintenance for Jobs" yes 12/12/22 "ASI"
-"" "hi" "Query Jobs" yes 12/12/22 "ASI"
-"" "hr" "Reports for Job Costing" yes 12/12/22 "ASI"
-"" "i" "Purchasing" yes 12/12/22 "ASI"
-"" "i1" "Update / Enter Purchase Orders" yes 12/12/22 "ASI"
-"" "if" "File Maintenance for Purchases" yes 12/12/22 "ASI"
-"" "ii" "Query Purchase Orders" yes 12/12/22 "ASI"
-"" "imp-est." "Import Estimates" yes 12/12/22 "ASI"
-"" "impAP." "Import AP Invoices" yes 12/12/22 "ASI"
-"" "impAR." "Import AR Invoices" yes 12/12/22 "ASI"
-"" "impCash." "Import Cash Receipts" yes 12/12/22 "ASI"
-"" "impjobs." "CorrTrim Uploading Program" yes 12/12/22 "ASI"
-"" "impMaster." "Import Master" yes 12/12/22 "ASI"
-"" "ImpPMtx." "Import Price Matrix" yes 12/12/22 "ASI"
-"" "impShipTo." "Import ShipTo" yes 12/12/22 "ASI"
-"" "invdatef." "Fix A/R Invoice Date" yes 12/12/22 "ASI"
-"" "ir" "Reports for Purchasing" yes 12/12/22 "ASI"
-"" "item." "Raw Materials (Folding)" yes 12/12/22 "ASI"
-"" "itemfg." "Finished Good Item" yes 12/12/22 "ASI"
-"" "j" "Accounts Receivable" yes 12/12/22 "ASI"
-"" "j1" "Update / Enter A/R Invoices" yes 12/12/22 "ASI"
-"" "j2" "Write AR Credit/Debit Memos" yes 12/12/22 "ASI"
-"" "j3" "Cash Receipts Processing" yes 12/12/22 "ASI"
-"" "Jasper" "Scheduler AOA" yes 12/12/22 "ASI"
-"" "jc-ctrl." "Job Cost Control" yes 12/12/22 "ASI"
-"" "jc-purge." "Purge Jobs" yes 12/12/22 "ASI"
-"" "jf" "File Maintenance for Customers" yes 12/12/22 "ASI"
-"" "ji" "Query Accounts Receivables" yes 12/12/22 "ASI"
-"" "job-cat." "Job Categories" yes 12/12/22 "ASI"
-"" "job-code." "Machine Charge Codes" yes 12/12/22 "ASI"
-"" "jobseq." "TS Job Sequence" yes 12/12/22 "ASI"
-"" "jobseq_." "" yes 12/12/22 "ASI"
-"" "jr" "Reports for Receivables" yes 12/12/22 "ASI"
-"" "k" "Vouchers / Payables" yes 12/12/22 "ASI"
-"" "k1" "Update / Enter Vendor Invoices" yes 12/12/22 "ASI"
-"" "k2" "Write AP Credit/Debit Memos" yes 12/12/22 "ASI"
-"" "k3" "Build Payment Selection List" yes 12/12/22 "ASI"
-"" "k4" "Check Processing" yes 12/12/22 "ASI"
-"" "k5" "Track Check Reconciliation" yes 12/12/22 "ASI"
-"" "k6" "List Cash Disbursements" yes 12/12/22 "ASI"
-"" "kf" "File Maintenance for Vendors" yes 12/12/22 "ASI"
-"" "ki" "Query Accounts Payable" yes 12/12/22 "ASI"
-"" "kr" "Reports for Payables" yes 12/12/22 "ASI"
-"" "l" "General Ledger" yes 12/12/22 "ASI"
-"" "l1" "Update / Journal Entries" yes 12/12/22 "ASI"
-"" "l5" "Write Financial Statements" yes 12/12/22 "ASI"
-"" "ldtagtrs." "SS Load Tag Creation" yes 12/12/22 "ASI"
-"" "lf" "File Maintenance for G/L" yes 12/12/22 "ASI"
-"" "loc." "Locations and Bins" yes 12/12/22 "ASI"
-"" "lr" "Reports for General Ledger" yes 12/12/22 "ASI"
-"" "m" "EDI" yes 12/12/22 "ASI"
-"" "m1." "EDI Inbound Processing" yes 12/12/22 "ASI"
-"" "m3" "EDI Business Documents" yes 12/12/22 "ASI"
-"" "m32." "EDI Purchase Orders (850)" yes 12/12/22 "ASI"
-"" "m35." "EDI Sales Analysis (852)" yes 12/12/22 "ASI"
-"" "m37." "EDI Organization Struct (816)" yes 12/12/22 "ASI"
-"" "m4" "File Maintenance" yes 12/12/22 "ASI"
-"" "m5" "Reports..." yes 12/12/22 "ASI"
-"" "m51." "EDI Document Controls" yes 12/12/22 "ASI"
-"" "m52." "EDI Purchase Orders (850)" yes 12/12/22 "ASI"
-"" "m53." "EDI Invoices (810)" yes 12/12/22 "ASI"
-"" "m54." "EDI Ship Notices (856)" yes 12/12/22 "ASI"
-"" "m55." "EDI Sales Analysis (852)" yes 12/12/22 "ASI"
-"" "m56." "EDI Product Catalog (832)" yes 12/12/22 "ASI"
-"" "m57." "EDI Organization Struct (816)" yes 12/12/22 "ASI"
-"" "m58." "EDI Trading Partners" yes 12/12/22 "ASI"
-"" "m6" "EDI Purge Options" yes 12/12/22 "ASI"
-"" "m61." "EDI Purge Documents" yes 12/12/22 "ASI"
-"" "m62." "EDI Edit Error Codes" yes 12/12/22 "ASI"
-"" "mach." "Machine File" yes 12/12/22 "ASI"
-"" "machchrg." "TS Machine Assigned Charge Cod" yes 12/12/22 "ASI"
-"" "machchr_." "TS Machine Assigned Chrg Cds L" yes 12/12/22 "ASI"
-"" "machemp." "TS Employee Transactions" yes 12/12/22 "ASI"
-"" "machshft." "TS Machine Assigned Shifts" yes 12/12/22 "ASI"
-"" "machshf_." "TS Machine Assigned Shifts Lis" yes 12/12/22 "ASI"
-"" "machtran." "TS Machine Transactions" yes 12/12/22 "ASI"
-"" "mainmenu" "" yes 12/12/22 "ASI"
-"" "mat." "Material Types" yes 12/12/22 "ASI"
-"" "matprep." "Preparation Material Types" yes 12/12/22 "ASI"
-"" "miscflds." "Misc. Fields Scr Layout Design" yes 12/12/22 "ASI"
-"" "oe-ctrl." "Order Entry Control" yes 12/12/22 "ASI"
-"" "oe-prmtx." "Price Matrix" yes 12/12/22 "ASI"
-"" "oeinvcst." "Update AR/OE Inv Cost & Comm" yes 12/12/22 "ASI"
-"" "oerep/r-invPrtARSuper." "Invoice Printing" yes 12/12/22 "ASI"
-"" "ordpurge." "Purge Orders" yes 12/12/22 "ASI"
-"" "outboundProcess." "EDI Outbound Processing" yes 12/12/22 "ASI"
-"" "ParameterBuilder" "Dynamic Parameter Builder" yes 12/12/22 "ASI"
-"" "parmfile." "Parameter &Files" yes 12/12/22 "ASI"
-"" "parmfil_." "Parameter &Files Listing" yes 12/12/22 "ASI"
-"" "password." "" yes 12/12/22 "ASI"
-"" "po-ctrl." "Purchase Order Control" yes 12/12/22 "ASI"
-"" "po-purge." "Purge POs" yes 12/12/22 "ASI"
-"" "poexport" "nk1" yes 12/12/22 "ASI"
-"" "prep." "Prep and Die File" yes 12/12/22 "ASI"
-"" "prgrms." "Program Master" yes 12/12/22 "ASI"
-"" "prgrms_." "Program Master List" yes 12/12/22 "ASI"
-"" "prgunrel." "Purge Unship/Post/Closed Rels" yes 12/12/22 "ASI"
-"" "procat." "Product Categories" yes 12/12/22 "ASI"
-"" "prod." "Product Line GL Accounts" yes 12/12/22 "ASI"
-"" "purapinv." "Purge Paid AP Invoices" yes 12/12/22 "ASI"
-"" "purarinv." "Purge Paid AR Invoices" yes 12/12/22 "ASI"
-"" "purgeemp." "TS Purge Employee Transaction" yes 12/12/22 "ASI"
-"" "q" "Scheduling" yes 12/12/22 "ASI"
-"" "quopurge." "Purge Quotes" yes 12/12/22 "ASI"
-"" "r-acknow." "Acknowledgements" yes 12/12/22 "ASI"
-"" "r-actest." "Labor Hours vs Estimated" yes 12/12/22 "ASI"
-"" "r-ageinv." "Aged Inventory" yes 12/12/22 "ASI"
-"" "r-aitem." "Inventory by Item Name" yes 12/12/22 "ASI"
-"" "r-alphls." "Alphabetic Item List" yes 12/12/22 "ASI"
-"" "r-apdis." "Disbursements Register" yes 12/12/22 "ASI"
-"" "r-apimp." "Check Register Import" yes 12/12/22 "ASI"
-"" "r-apme&p." "Edit/Post AR Applied Items" yes 12/12/22 "ASI"
-"" "r-apvep." "AP Invoice Posting" yes 12/12/22 "ASI"
-"" "r-araged." "Aged Receivables" yes 12/12/22 "ASI"
-"" "r-ariedt." "AR Invoice Edit List" yes 12/12/22 "ASI"
-"" "r-ariprt." "Print AR Invoices" yes 12/12/22 "ASI"
-"" "r-aripst." "Post AR Invoices" yes 12/12/22 "ASI"
-"" "r-backl." "Order Backlog" yes 12/12/22 "ASI"
-"" "r-backl1." "Order Backlog by Part Number" yes 12/12/22 "ASI"
-"" "r-bckmch." "Job Backlog by Machine" yes 12/12/22 "ASI"
-"" "r-bolcre." "Bill Of Lading Creation" yes 12/12/22 "ASI"
-"" "r-boledt." "BOL Edit List" yes 12/12/22 "ASI"
-"" "r-bolprt." "Print Bills of Lading" yes 12/12/22 "ASI"
-"" "r-bolpst." "Post BOL / Create Invoices" yes 12/12/22 "ASI"
-"" "r-bomprt." "Bill of Materials Print" yes 12/12/22 "ASI"
-"" "r-bookdu." "Orders Booked by Due Date" yes 12/12/22 "ASI"
-"" "r-booked." "Orders Booked" yes 12/12/22 "ASI"
-"" "r-booko#." "Orders Booked by Order No" yes 12/12/22 "ASI"
-"" "r-boomh." "Bookings Highlights" yes 12/12/22 "ASI"
-"" "r-brdrec." "Board Reconciliation" yes 12/12/22 "ASI"
-"" "r-carr." "Carrier List" yes 12/12/22 "ASI"
-"" "r-casetg." "Case Label Creation" yes 12/12/22 "ASI"
-"" "r-cashrq." "Cash Requirements" yes 12/12/22 "ASI"
-"" "r-cashsm." "Cash Receipts by Salesman" yes 12/12/22 "ASI"
-"" "r-chart." "Chart of Accounts" yes 12/12/22 "ASI"
-"" "r-chkreg." "Check Register" yes 12/12/22 "ASI"
-"" "r-clsjob." "Closed Job Analysis" yes 12/12/22 "ASI"
-"" "r-comms." "Commissions" yes 12/12/22 "ASI"
-"" "r-comprm." "Commission By Item Cost" yes 12/12/22 "ASI"
-"" "r-consum." "Roll Stock Consumed Report" yes 12/12/22 "ASI"
-"" "r-crdbmo." "CR/DB Memo Edit List" yes 12/12/22 "ASI"
-"" "r-cshe&p." "Edit/Post AR Cash Receipts" yes 12/12/22 "ASI"
-"" "r-cship." "Customer Shipto List" yes 12/12/22 "ASI"
-"" "r-ctrl." "Control File" yes 12/12/22 "ASI"
-"" "r-curdet." "Current Month Detail" yes 12/12/22 "ASI"
-"" "r-cusinv." "Customer Inventory" yes 12/12/22 "ASI"
-"" "r-cusitm." "Sales by Customer Invoice" yes 12/12/22 "ASI"
-"" "r-cust." "Customer List" yes 12/12/22 "ASI"
-"" "r-custag." "Sales/Value by Cust and Tag" yes 12/12/22 "ASI"
-"" "r-custim." "Sales Values by Cust/Item" yes 12/12/22 "ASI"
-"" "r-cuszip." "Sales by Customer Zip" yes 12/12/22 "ASI"
-"" "r-cycnt." "Physical Count Report" yes 12/12/22 "ASI"
-"" "r-dash." "Management Highlights Summary" yes 12/12/22 "ASI"
-"" "r-daysum." "TS Daily Summary by Employee" yes 12/12/22 "ASI"
-"" "r-dbcr&p." "Post Credit/Debit Memos" yes 12/12/22 "ASI"
-"" "r-dbcrap." "Debit/Credit Register" yes 12/12/22 "ASI"
-"" "r-dbcrpt." "Print AR Credit/Debit Memos" yes 12/12/22 "ASI"
-"" "r-depsit." "Bank Deposit Report" yes 12/12/22 "ASI"
-"" "r-depwst." "Data Collection Waste By Dep." yes 12/12/22 "ASI"
-"" "r-detjnl." "Billing Detail Sales Journal" yes 12/12/22 "ASI"
-"" "r-distrb." "GL Auto Distribution" yes 12/12/22 "ASI"
-"" "r-dlyact." "FG Daily Activity" yes 12/12/22 "ASI"
-"" "r-edtlst." "Print Finished Goods Edit List" yes 12/12/22 "ASI"
-"" "r-emplst." "TS Employee List" yes 12/12/22 "ASI"
-"" "r-empmch." "TS Employee Time by Job and Ma" yes 12/12/22 "ASI"
-"" "r-est." "Estimates List" yes 12/12/22 "ASI"
-"" "r-estsiz." "Estimates by Size" yes 12/12/22 "ASI"
-"" "r-fgcst1." "FG Item Value/Cost Summary" yes 12/12/22 "ASI"
-"" "r-fgeom." "Write End of Period Totals" yes 12/12/22 "ASI"
-"" "r-fgohbb." "Value/Cost by Whs/Bin/Tag" yes 12/12/22 "ASI"
-"" "r-fgpstr." "FG Posting Report By Date" yes 12/12/22 "ASI"
-"" "r-fgreq." "FG Purchase Requirements" yes 12/12/22 "ASI"
-"" "r-fgrord." "Reorder Requirements" yes 12/12/22 "ASI"
-"" "r-fgstat." "Status" yes 12/12/22 "ASI"
-"" "r-fibaud." "Job/Est/PO Audit" yes 12/12/22 "ASI"
-"" "r-fince." "Bill Finance Charges" yes 12/12/22 "ASI"
-"" "r-fnstmt." "Financial Statements" yes 12/12/22 "ASI"
-"" "r-frate." "Freight Report" yes 12/12/22 "ASI"
-"" "r-glhist." "GL History" yes 12/12/22 "ASI"
-"" "r-glimp." "Import Payroll Entries" yes 12/12/22 "ASI"
-"" "r-glinc." "Income Statement Ratios" yes 12/12/22 "ASI"
-"" "r-gljorn." "" yes 12/12/22 "ASI"
-"" "r-gljrn." "Print/Post Journal Entries" yes 12/12/22 "ASI"
-"" "r-glload." "Load Recurring Entries" yes 12/12/22 "ASI"
-"" "r-glmclo." "Close Month" yes 12/12/22 "ASI"
-"" "r-glyclo." "Year End" yes 12/12/22 "ASI"
-"" "r-hisatk." "High Sales Tracking" yes 12/12/22 "ASI"
-"" "r-hots." "Hots List" yes 12/12/22 "ASI"
-"" "r-hsaldt." "High Sales by Date Ranges" yes 12/12/22 "ASI"
-"" "r-ibtag." "Inventory by Bin/Tag" yes 12/12/22 "ASI"
-"" "r-impbud." "Import GL Account Budgets" yes 12/12/22 "ASI"
-"" "r-inctsh." "Sales by Invoice/Cat/Shipto" yes 12/12/22 "ASI"
-"" "r-inkglu." "Ink/Glue Consumption" yes 12/12/22 "ASI"
-"" "r-inkmch." "Inks by Machine" yes 12/12/22 "ASI"
-"" "r-invbal." "Inventory Balances" yes 12/12/22 "ASI"
-"" "r-invedt." "OE Invoice Edit List" yes 12/12/22 "ASI"
-"" "r-invep." "Invoice Post / Update GL" yes 12/12/22 "ASI"
-"" "r-invmh." "Invoice Highlights" yes 12/12/22 "ASI"
-"" "r-invprt." "Print OE Invoices" yes 12/12/22 "ASI"
-"" "r-invslm." "Qty On Hand/Shipd by SMan" yes 12/12/22 "ASI"
-"" "r-invsum." "GL Invoice Summary" yes 12/12/22 "ASI"
-"" "r-itcshp." "Sales by Item/Cust/Ship" yes 12/12/22 "ASI"
-"" "r-itmcus." "Sales by Cust/Item/PO" yes 12/12/22 "ASI"
-"" "r-itmlst." "Item List by Customer" yes 12/12/22 "ASI"
-"" "r-jbbym." "Machine Backlog By Kicks" yes 12/12/22 "ASI"
-"" "r-jobdue." "Jobs Due Tracking" yes 12/12/22 "ASI"
-"" "r-joblog." "Job Log" yes 12/12/22 "ASI"
-"" "r-jobmsf." "MSF by Job" yes 12/12/22 "ASI"
-"" "r-jobsum." "Job Summary" yes 12/12/22 "ASI"
-"" "r-jobven." "Job/Vendor Analysis" yes 12/12/22 "ASI"
-"" "r-labest." "Labor Hours by Charge Code" yes 12/12/22 "ASI"
-"" "r-lastvs." "Last Year vs. This Year" yes 12/12/22 "ASI"
-"" "r-loadtg." "Loadtag Creation" yes 12/12/22 "ASI"
-"" "r-maceff." "Machine Efficiency" yes 12/12/22 "ASI"
-"" "r-mach." "Machine File" yes 12/12/22 "ASI"
-"" "r-mail." "AR Mailing List" yes 12/12/22 "ASI"
-"" "r-maillt." "AP Mailing List" yes 12/12/22 "ASI"
-"" "r-matall." "Materials Allocation" yes 12/12/22 "ASI"
-"" "r-mathst." "Material Receipts History" yes 12/12/22 "ASI"
-"" "r-matjob." "Material Required for Job" yes 12/12/22 "ASI"
-"" "r-mbackl." "Machine Backlog Analysis" yes 12/12/22 "ASI"
-"" "r-mchcst." "Machine Cost By Job" yes 12/12/22 "ASI"
-"" "r-mchtra." "" yes 12/12/22 "ASI"
-"" "r-mise&p." "Edit/Post AR Misc. Receipts" yes 12/12/22 "ASI"
-"" "r-misedt." "Miscellaneous Edit List" yes 12/12/22 "ASI"
-"" "r-mispst." "Transfer Misc. Costs to Job" yes 12/12/22 "ASI"
-"" "r-msfkic." "Job Backlog by MSF/Kicks" yes 12/12/22 "ASI"
-"" "r-mtdsub." "MTD Destination Subtotals" yes 12/12/22 "ASI"
-"" "r-mulsrt." "Sales with Multiple Sorts" yes 12/12/22 "ASI"
-"" "r-notvou." "PO Receipts Not Vouchered" yes 12/12/22 "ASI"
-"" "r-ontim2." "On-Time Deliveries for Jobs" yes 12/12/22 "ASI"
-"" "r-ontime." "On-Time Deliveries" yes 12/12/22 "ASI"
-"" "r-opbdue." "Open Jobs by Due Date/Cust" yes 12/12/22 "ASI"
-"" "r-ordbal." "Order Balance by PO#" yes 12/12/22 "ASI"
-"" "r-ordedt." "Order Edit List" yes 12/12/22 "ASI"
-"" "r-ordpst." "Order Post/Purge Deleted" yes 12/12/22 "ASI"
-"" "r-pakdet." "FG Packing Detail" yes 12/12/22 "ASI"
-"" "r-pce&p." "Post Physical Counts" yes 12/12/22 "ASI"
-"" "r-pcep." "Post RM Physical Counts" yes 12/12/22 "ASI"
-"" "r-period." "Current Period To Date Sales" yes 12/12/22 "ASI"
-"" "r-phce&p." "Post Counts to Finished Goods" yes 12/12/22 "ASI"
-"" "r-poedt." "Print PO Edit List" yes 12/12/22 "ASI"
-"" "r-pofgh1." "PO FG/RM History by Customer" yes 12/12/22 "ASI"
-"" "r-pofghs." "PO FG/RM History" yes 12/12/22 "ASI"
-"" "r-poprt." "Print POs" yes 12/12/22 "ASI"
-"" "r-post." "TS Post TouchData to ASI Datab" yes 12/12/22 "ASI"
-"" "r-postck." "GL Posting Check" yes 12/12/22 "ASI"
-"" "r-postre." "TS RePost TouchData to ASI Dat" yes 12/12/22 "ASI"
-"" "r-postrg." "GL Posting Register" yes 12/12/22 "ASI"
-"" "r-prdcat." "Profit by ProdCat/Slsmn" yes 12/12/22 "ASI"
-"" "r-prep." "Prep File" yes 12/12/22 "ASI"
-"" "r-prffrt." "Profit w/Freight" yes 12/12/22 "ASI"
-"" "r-prfinv." "Profit by Invoice" yes 12/12/22 "ASI"
-"" "r-prfitm." "Value/Profit by Item" yes 12/12/22 "ASI"
-"" "r-prnchk." "Print AP Checks" yes 12/12/22 "ASI"
-"" "r-prod." "TS Production Report" yes 12/12/22 "ASI"
-"" "r-prodep." "Production by Department" yes 12/12/22 "ASI"
-"" "r-prodmh." "Production Highlights" yes 12/12/22 "ASI"
-"" "r-promac." "Production by Machine" yes 12/12/22 "ASI"
-"" "r-prpmat." "Prep List by Mat'l Type" yes 12/12/22 "ASI"
-"" "r-prwcst." "Sales by Product w/Cost" yes 12/12/22 "ASI"
-"" "r-purvar." "PO Purchased Variance" yes 12/12/22 "ASI"
-"" "r-qtytot." "QTY Totals by Cust/Item" yes 12/12/22 "ASI"
-"" "r-qtyval." "Qty/Value by Cust and Job" yes 12/12/22 "ASI"
-"" "r-quolst." "Quoted Price List" yes 12/12/22 "ASI"
-"" "r-quotes." "Quotes List" yes 12/12/22 "ASI"
-"" "r-rctcrd." "Receipts Overages for Credit" yes 12/12/22 "ASI"
-"" "r-recreg." "Reconciliation Register" yes 12/12/22 "ASI"
-"" "r-recrep." "Reconciliation Report" yes 12/12/22 "ASI"
-"" "r-reledt." "Release Edit List" yes 12/12/22 "ASI"
-"" "r-relprt." "Print Release Tickets" yes 12/12/22 "ASI"
-"" "r-relpst." "Create Bill of Lading" yes 12/12/22 "ASI"
-"" "r-reordr." "Reordering Advice" yes 12/12/22 "ASI"
-"" "r-reship." "Reorder Advice By Ship-to" yes 12/12/22 "ASI"
-"" "r-rmcost." "Raw Materials Cost List" yes 12/12/22 "ASI"
-"" "r-rmphct." "Cycle Count Code Report" yes 12/12/22 "ASI"
-"" "r-rmtedt." "Print Raw Material Edit List" yes 12/12/22 "ASI"
-"" "r-rmtpst." "Post to Raw Material Files" yes 12/12/22 "ASI"
-"" "r-rtnedt." "Returns Edit List" yes 12/12/22 "ASI"
-"" "r-rtnpst." "Post Returns" yes 12/12/22 "ASI"
-"" "r-salrmh." "Sales Rep Highlights" yes 12/12/22 "ASI"
-"" "r-saprod." "FG Category Product Sales" yes 12/12/22 "ASI"
-"" "r-sched." "Scheduled Releases" yes 12/12/22 "ASI"
-"" "r-sched1." "Scheduled Releases w/Job" yes 12/12/22 "ASI"
-"" "r-sched2." "Scheduled Releases by Ship-To" yes 12/12/22 "ASI"
-"" "r-schrpt." "Scheduled Receipts" yes 12/12/22 "ASI"
-"" "r-scrap." "Scrap Report" yes 12/12/22 "ASI"
-"" "r-scrapm." "Scrap Report by Machine" yes 12/12/22 "ASI"
-"" "r-selreg." "Selection Register" yes 12/12/22 "ASI"
-"" "r-shpapr." "Shipment Approval Report" yes 12/12/22 "ASI"
-"" "r-shpcar." "Sales by Shipping Carrier" yes 12/12/22 "ASI"
-"" "r-shpcpn." "Shipment By Customer Part" yes 12/12/22 "ASI"
-"" "r-shpitm." "Shipments by Item/Cust" yes 12/12/22 "ASI"
-"" "r-slmpef." "Totals by Salesman  DD/MM/YY" yes 12/12/22 "ASI"
-"" "r-slmprd." "With $/MSF Totals by Salesman" yes 12/12/22 "ASI"
-"" "r-slsbud." "Sales Vs. Budget" yes 12/12/22 "ASI"
-"" "r-slsper." "Sales by Period" yes 12/12/22 "ASI"
-"" "r-smperf." "Salesman Performance" yes 12/12/22 "ASI"
-"" "r-sonord." "Sheets on Order" yes 12/12/22 "ASI"
-"" "r-stajob." "Inventory Status by Job" yes 12/12/22 "ASI"
-"" "r-stax." "Sales Tax Codes" yes 12/12/22 "ASI"
-"" "r-stkrol." "Roll Stock Lot/Tag Report" yes 12/12/22 "ASI"
-"" "r-stmt." "Statements" yes 12/12/22 "ASI"
-"" "r-style." "Style File" yes 12/12/22 "ASI"
-"" "r-svsqty." "Scheduled Ship vs. QOH" yes 12/12/22 "ASI"
-"" "r-taxcus." "Tax Schedule By Customer" yes 12/12/22 "ASI"
-"" "r-taxdis." "Tax Distribution Schedule" yes 12/12/22 "ASI"
-"" "r-taxmon." "Monthly Tax" yes 12/12/22 "ASI"
-"" "r-ticket." "Factory Ticket Print" yes 12/12/22 "ASI"
-"" "r-tonmsf." "Transaction by TON/MSF" yes 12/12/22 "ASI"
-"" "r-trans." "Transaction History" yes 12/12/22 "ASI"
-"" "r-tribal." "Trial Balance" yes 12/12/22 "ASI"
-"" "r-trnjou." "Transaction Report" yes 12/12/22 "ASI"
-"" "r-trnord." "Transactions by Order" yes 12/12/22 "ASI"
-"" "r-unfgdt." "Unshipped FG Detail" yes 12/12/22 "ASI"
-"" "r-unfgsm." "Unshipped FG Summary" yes 12/12/22 "ASI"
-"" "r-v1099." "Vendor 1099 Report" yes 12/12/22 "ASI"
-"" "r-vaging." "Vendor Aging" yes 12/12/22 "ASI"
-"" "r-valjob." "Next Ship Date and Value" yes 12/12/22 "ASI"
-"" "r-vdckrg." "Voided Check Register" yes 12/12/22 "ASI"
-"" "r-venacc." "AP Accounts by Vendor" yes 12/12/22 "ASI"
-"" "r-venanl." "PO Vendor Analysis" yes 12/12/22 "ASI"
-"" "r-venchk." "AP Check Register" yes 12/12/22 "ASI"
-"" "r-vendan." "AP Vendor Analysis" yes 12/12/22 "ASI"
-"" "r-veninv." "AP Invoices by Vendor" yes 12/12/22 "ASI"
-"" "r-venlst." "Vendor Master List" yes 12/12/22 "ASI"
-"" "r-voufgc." "PO's  Vouchered by FG Category" yes 12/12/22 "ASI"
-"" "r-vprice." "Vendor Price List" yes 12/12/22 "ASI"
-"" "r-wbyjob." "Waste Analysis by Job" yes 12/12/22 "ASI"
-"" "r-wipaud." "W.I.P. Job Audit Trail" yes 12/12/22 "ASI"
-"" "r-wipbct." "WIP by Product Category" yes 12/12/22 "ASI"
-"" "r-wipedt." "WIP Hours Preposted Edit List" yes 12/12/22 "ASI"
-"" "r-wiplst." "W.I.P. Job Audit Trail" yes 12/12/22 "ASI"
-"" "r-wippst." "Transfer WIP to Job Cost" yes 12/12/22 "ASI"
-"" "r-wipstd." "WIP Standards Detail" yes 12/12/22 "ASI"
-"" "r-wipsum." "W.I.P. Daily Summary" yes 12/12/22 "ASI"
-"" "r-wiptag." "W.I.P. Tag Report" yes 12/12/22 "ASI"
-"" "r-yeavol." "Yearly Sales Volume" yes 12/12/22 "ASI"
-"" "r-yrtoyr." "High Sales (This Yr vs. Last)" yes 12/12/22 "ASI"
-"" "r-ytdcst." "YTD Cost/Sales by Cust" yes 12/12/22 "ASI"
-"" "rejct-cd." "PO Rejection Codes" yes 12/12/22 "ASI"
-"" "rfq" "RFQ Quote Requests" yes 12/12/22 "ASI"
-"" "rfqctrl." "RFQ File Maintenance" yes 12/12/22 "ASI"
-"" "rfqfm" "RFQ File Maintenance" yes 12/12/22 "ASI"
-"" "rfqlst." "RFQ Single RFQ List" yes 12/12/22 "ASI"
-"" "rfqlst2." "RFQ List" yes 12/12/22 "ASI"
-"" "rfqrpt" "RFQ List Request for Quotes" yes 12/12/22 "ASI"
-"" "rfqtool." "RFQ Request For Quotes" yes 12/12/22 "ASI"
-"" "rm-ctrl." "Raw Materials Control" yes 12/12/22 "ASI"
-"" "rm-mkbin." "RM Rebuild Bins/Reset Balances" yes 12/12/22 "ASI"
-"" "rm-purge." "Purge Raw Materials" yes 12/12/22 "ASI"
-"" "rmdnegbn." "Delete Zero Qty Bins" yes 12/12/22 "ASI"
-"" "rmglobpr." "Global Price Change" yes 12/12/22 "ASI"
-"" "rmloadtg." "RM Loadtag Creation" yes 12/12/22 "ASI"
-"" "rmonhto0." "Set RM On-Hand to Zero" yes 12/12/22 "ASI"
-"" "rmtransa." "SS Materials" yes 12/12/22 "ASI"
-"" "routing." "Machine Routings" yes 12/12/22 "ASI"
-"" "s" "Network / System Administrator" yes 12/12/22 "ASI"
-"" "s1" "Laptop/Server Link" yes 12/12/22 "ASI"
-"" "s11" "Quick Fixes" yes 12/12/22 "ASI"
-"" "s2" "File Cleanup" yes 12/12/22 "ASI"
-"" "s3" "Y More File Cleanup" yes 12/12/22 "ASI"
-"" "s8" "K-Control Parameters" yes 12/12/22 "ASI"
-"" "saddress." "Addresses Search" yes 12/12/22 "ASI"
-"" "sbBasic." "Scheduler Basic" yes 12/12/22 "ASI"
-"" "sbHTML" "SB HTML Page Generation" yes 12/12/22 "ASI"
-"" "sbPro." "Scheduler Pro" yes 12/12/22 "ASI"
-"" "sbView." "Scheduler View" yes 12/12/22 "ASI"
-"" "setaudit." "Select &Tables to Audit" yes 12/12/22 "ASI"
-"" "setwhsbn." "Set FG Blank Warehouse/Bin" yes 12/12/22 "ASI"
-"" "shifts." "TS Shifts" yes 12/12/22 "ASI"
-"" "shifts_." "TS Shifts List" yes 12/12/22 "ASI"
-"" "sman." "Salesman" yes 12/12/22 "ASI"
-"" "smancomm." "Set Salesman Commission" yes 12/12/22 "ASI"
-"" "snotes." "Notes Search" yes 12/12/22 "ASI"
-"" "specitem." "RM/FG Specifications" yes 12/12/22 "ASI"
-"" "sphone." "Phone Info Search" yes 12/12/22 "ASI"
-"" "splchkdn." "Shut&down SpoolRequest Monitor" yes 12/12/22 "ASI"
-"" "spool." "Spool Requests" yes 12/12/22 "ASI"
-"" "sr" "Reports" yes 12/12/22 "ASI"
-"" "sr2." "Printer File" yes 12/12/22 "ASI"
-"" "ss" "Z System Reference Files" yes 12/12/22 "ASI"
-"" "ssreport" "SS Reports" yes 12/12/22 "ASI"
-"" "st-pattn." "Stacking Patterns" yes 12/12/22 "ASI"
-"" "st-size." "Stacking Matrix" yes 12/12/22 "ASI"
-"" "statecod." "State and Province Abbreviatns" yes 12/12/22 "ASI"
-"" "stateco_." "State and Province Abbrev List" yes 12/12/22 "ASI"
-"" "stax." "Tax Codes" yes 12/12/22 "ASI"
-"" "std-code." "Standards Matrix" yes 12/12/22 "ASI"
-"" "stylec." "Corrugated Styles" yes 12/12/22 "ASI"
-"" "stylef." "Folding Styles" yes 12/12/22 "ASI"
-"" "SubjectBuilder" "Dynamic Subject Builder" yes 12/12/22 "ASI"
-"" "sys-ctrl." "System Control Parameters" yes 12/12/22 "ASI"
-"" "system" "System" yes 12/12/22 "ASI"
-"" "systemlist" "System &Listings" yes 12/12/22 "ASI"
-"" "terms." "Terms" yes 12/12/22 "ASI"
-"" "terr." "Territory" yes 12/12/22 "ASI"
-"" "titlcode." "Title Codes" yes 12/12/22 "ASI"
-"" "titlcod_." "Title Codes List" yes 12/12/22 "ASI"
-"" "touchfm" "TS File Maintenance" yes 12/12/22 "ASI"
-"" "touchrpt" "TS Reports" yes 12/12/22 "ASI"
-"" "touchscr" "TS Touch Screen Menu" yes 12/12/22 "ASI"
-"" "touchscr." "TS Data Collection / Login" yes 12/12/22 "ASI"
-"" "track_." "Track Usage List" yes 12/12/22 "ASI"
-"" "u-fntclr." "User Font and Color Settings" yes 12/12/22 "ASI"
-"" "UDFB" "User Defined Fields Builder" yes 12/12/22 "ASI"
-"" "uom." "Units of Measure" yes 12/12/22 "ASI"
-"" "updapinv." "Update AP Invoice" yes 12/12/22 "ASI"
-"" "updcust#." "Update Customer Number" yes 12/12/22 "ASI"
-"" "updest." "Update Est SlsmnComm/PallCase" yes 12/12/22 "ASI"
-"" "updfgitm." "Update FG Item Code" yes 12/12/22 "ASI"
-"" "user" "User" yes 12/12/22 "ASI"
-"" "usergrps." "User Groups" yes 12/12/22 "ASI"
-"" "usergrp_." "User &Groups List" yes 12/12/22 "ASI"
-"" "usermenu." "User's &Menu Structure" yes 12/12/22 "ASI"
-"" "users." "Users" yes 12/12/22 "ASI"
-"" "users." "Users" yes 12/12/22 "ASI"
-"" "users_." "Users List" yes 12/12/22 "ASI"
-"" "utlookmn." "Popup Menu Maintenance" yes 12/12/22 "ASI"
-"" "vend." "Vendors" yes 12/12/22 "ASI"
-"" "ventype." "Vendor Types" yes 12/12/22 "ASI"
-"" "w-apdis." "Enter/Edit Disbursements" yes 12/12/22 "ASI"
-"" "w-apibal." "Invoice Balances" yes 12/12/22 "ASI"
-"" "w-apichk." "Checks/Invoices" yes 12/12/22 "ASI"
-"" "w-apinq." "AP Invoice Inquiry" yes 12/12/22 "ASI"
-"" "w-apinv." "Enter/Edit AP Invoices" yes 12/12/22 "ASI"
-"" "w-arinq." "AR Invoice Inquiry" yes 12/12/22 "ASI"
-"" "w-arinv." "Enter/Edit AR Invoices" yes 12/12/22 "ASI"
-"" "w-aronac." "Apply/Reapply Cash/Memos" yes 12/12/22 "ASI"
-"" "w-batch." "Batch Running Procedure" yes 12/12/22 "ASI"
-"" "w-cash." "Enter/Edit Cash Receipts" yes 12/12/22 "ASI"
-"" "w-ccode." "Currency Code" yes 12/12/22 "ASI"
-"" "w-cldown." "CorrTrim Downloading Inquiry" yes 12/12/22 "ASI"
-"" "w-clhist." "CorrTrim History Inquiry" yes 12/12/22 "ASI"
-"" "w-cloord." "Close / Reopen Orders" yes 12/12/22 "ASI"
-"" "w-clsjc." "Close / Reopen Jobs" yes 12/12/22 "ASI"
-"" "w-clspo." "Close / Reopen POs" yes 12/12/22 "ASI"
-"" "w-cusinq." "Customer Activity" yes 12/12/22 "ASI"
-"" "w-dbcr." "Enter/Edit CR/DB Memos" yes 12/12/22 "ASI"
-"" "w-dbcrap." "Add/Edit DB/CR Memos" yes 12/12/22 "ASI"
-"" "w-est." "Folding Estimates" yes 12/12/22 "ASI"
-"" "w-estc." "Corrugated Box Estimate" yes 12/12/22 "ASI"
-"" "w-fg-set." "Set Maintenance" yes 12/12/22 "ASI"
-"" "w-fgiinq." "FG History" yes 12/12/22 "ASI"
-"" "w-fguncm." "Scheduled Ship vs. Qty On-Hand" yes 12/12/22 "ASI"
-"" "w-finest." "Search for Estimates" yes 12/12/22 "ASI"
-"" "w-glinq." "Query General Ledger History" yes 12/12/22 "ASI"
-"" "w-gljrn." "Enter/Edit Journal Entries" yes 12/12/22 "ASI"
-"" "w-glrpth." "Report Maintenance" yes 12/12/22 "ASI"
-"" "w-head." "Help Maintenance" yes 12/12/22 "ASI"
-"" "w-issue." "Issue Materials to Jobs" yes 12/12/22 "ASI"
-"" "w-item." "Raw Materials(Corrugated)" yes 12/12/22 "ASI"
-"" "w-jobapp." "Approve Jobs" yes 12/12/22 "ASI"
-"" "w-jobcst." "Update / Enter Job" yes 12/12/22 "ASI"
-"" "w-jobinq." "Job Variance" yes 12/12/22 "ASI"
-"" "w-jobsch." "Update Machine Schedule" yes 12/12/22 "ASI"
-"" "w-manchk." "Manual Checks" yes 12/12/22 "ASI"
-"" "w-mcash." "Enter Misc. Receipts" yes 12/12/22 "ASI"
-"" "w-mismat." "Miscellaneous Entry/Maint" yes 12/12/22 "ASI"
-"" "w-oebolh." "Enter/Edit BOL" yes 12/12/22 "ASI"
-"" "w-oecred." "Credit Hold / Approve Orders" yes 12/12/22 "ASI"
-"" "w-oeinv." "Enter/Edit Invoices" yes 12/12/22 "ASI"
-"" "w-oerel." "Enter/Edit Releases" yes 12/12/22 "ASI"
-"" "W-oeweb." "Web Orders Transfer/Approve" yes 12/12/22 "ASI"
-"" "w-order." "Order Entry" yes 12/12/22 "ASI"
-"" "w-ordinq." "Order Status" yes 12/12/22 "ASI"
-"" "w-pcminq." "AP Credit/Debit Memos" yes 12/12/22 "ASI"
-"" "w-phycnt." "Physical Count Processing" yes 12/12/22 "ASI"
-"" "w-po-inq." "PO Inquiry" yes 12/12/22 "ASI"
-"" "w-prdh." "Floor Reporting at Machine" yes 12/12/22 "ASI"
-"" "w-prdhj." "Update/Add Hours via Job Card" yes 12/12/22 "ASI"
-"" "w-pricst." "FG Sell Price/Bin Cost" yes 12/12/22 "ASI"
-"" "w-purord." "Enter/Edit POs" yes 12/12/22 "ASI"
-"" "w-quote." "Quotes" yes 12/12/22 "ASI"
-"" "w-rcminq." "AR Credit/Debit Memos" yes 12/12/22 "ASI"
-"" "w-rcpt." "RM Enter/Modify Receipts" yes 12/12/22 "ASI"
-"" "w-rcrinq." "Cash Receipts" yes 12/12/22 "ASI"
-"" "w-reconl." "Check Reconciliation" yes 12/12/22 "ASI"
-"" "w-return." "Enter/Edit Returns" yes 12/12/22 "ASI"
-"" "w-rmadj." "RM Enter/Modify Adjustments" yes 12/12/22 "ASI"
-"" "w-rmainq." "RM Allocated by Job" yes 12/12/22 "ASI"
-"" "w-rmiinq." "RM History" yes 12/12/22 "ASI"
-"" "w-seldue." "Select by Due Date" yes 12/12/22 "ASI"
-"" "w-selven." "Select by Vendor" yes 12/12/22 "ASI"
-"" "w-trans." "RM Enter/Modify Transfers" yes 12/12/22 "ASI"
-"" "w-usrprt." "Batch Procedure Maintenance" yes 12/12/22 "ASI"
-"" "w-void." "Void AP Checks" yes 12/12/22 "ASI"
-"" "wedshtr." "EDI Ship Notices (856)" yes 12/12/22 "ASI"
-"" "WIP" "Work In Progress" yes 12/12/22 "ASI"
-"" "wQuery." "Query Builder" yes 12/12/22 "ASI"
-"" "xref." "Cross References" yes 12/12/22 "ASI"
-"" "zipcode." "Zip Codes" yes 12/12/22 "ASI"
-"" "zipcode_." "Zip Codes List" yes 12/12/22 "ASI"
-"" "ziploadr." "Zip Codes Loader" yes 12/12/22 "ASI"
-"" "zohoCRM." "CRM Contacts" yes 12/12/22 "ASI"
+"" "about." "About" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "access." "Access Security by Menu" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "account." "GL Accounts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Accounting" "Accounts Payable, General Ledger, Bank Reconciliation" no yes ? "" "BASE" no no ? 2
+"" "Admin Utility" "Data Management Utilities to Correct Data Entry Errors" no yes ? "" "BASE" no no ? 2
+"" "Advanced Scheduling" "Advanced multiple site scheduling - Browser based
+scheduling solution that allows for multiple plants access
+to manage large volumes of tasks (included in All Access plan)" no no ? "" "FULL" yes no ? 3
+"" "af" "Build Estimate Files" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "All Imports" "All imports including Cash receipts / AP Invoices /
+Estimates / A/R Invoices / Price Matrix / Quotes / Releases
+/ Bank Reconciliation / Prep Items / etc." no yes ? "" "FULL" no no ? 3
+"" "aoaDashboard" "AOA Dashboard" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "aoaReport" "AOA Report" yes yes 12/22/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ap-ctrl." "Accounts Payable Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "API" "Advantzware Application Programming Interface" no no ? "" "API" no no ? 4
+"" "ar" "Reports for Estimates" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ar-ctrl." "A/R Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ar0purge." "Purge Zero Posted AR" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "arch-est." "Archive/Delete Estimates" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Archive/Dev System" "Archive Database to archive data annually / Development
+environment for development and API testing / Separate
+Server configuration Option" no no ? "" "API" no no ? 4
+"" "Artios" "Esko Artios - CAD/CAM Integration
+(included in All Access plan)" no no ? "" "API" yes no ? 4
+"" "asiver." "ASI Version" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "asset" "Fixed Assets" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Audit" "Audit History Module (Defined audit details only)" no yes ? "" "BASE" no no ? 2
+"" "Audit" "Audit History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "AutoLogout" "Auto Logout Monitor" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b" "Order Processing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b1" "Update / Add Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b2" "Tickets for Releases" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b3" "Shipping / Bill of Lading" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b34." "Master BOL Print" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b36." "Truckload BOL Summary" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b4" "Billing / Counter Sales" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b45." "Master Invoice Summary" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "b5" "Levy F.G. Returns / Credits" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "bank." "Banks" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "bf" "File Maintenance for Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "bi" "Query Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "bldfgbin." "Build FG Warehouse/Bin" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "bldstack." "Build Flute/Test Counts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "boltrans." "SS Bill of Lading Transaction" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "boxdes." "Box Designs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "br" "Reports for Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "buyer." "Buyers" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "c" "Materials / Raw Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "c1" "Update Materials Transactions" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "c2" "Count Raw Goods Inventory" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "c3." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "c6." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "CAD-AE" "Esko Automation Engine - CAD/CAM Integration
+(included in All Access plan)" no no ? "" "API" yes no ? 4
+"" "carrier." "Common Carriers" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ce-ctrl." "Cost Estimate Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "cf" "File Maintenance for Raw Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "cf4." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "chkdatef." "Fix Cash Receipt Date" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ci" "Query Raw Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ci2." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "citmrpt" "Reports" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "clearrep." "Purge Report File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "cmpltjob." "TS Completed Machine Jobs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "cmpltjo_." "TS Completed Machine Jobs List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "codes" "Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "codeslist" "Codes &Listings" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "company." "Company" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "comp_loc." "Set Company/Location" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "config." "Configurations" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "contfm" "File Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "copyes yest." "Kopy Estimate" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "costtype." "Material Cost Types" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "cr" "Reports for Raw Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "CRM Integration" "Zoho / Hubspot CRM Integration with the standard basic
+functions (included in API and All Access plans)" no no ? "" "FULL" yes no ? 3
+"" "crmContacts" "CRM Contacts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "crmCustomers" "CRM Customers" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "crtfgrec." "Create FG Receipt from BOLs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "crtnotes." "Transfer Dept Notes from Cust" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "CueCard" "Cue Card" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "cust." "Customers" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Custom Fields" "User Defined Fields Module - Add user defined fields
+anywhere in the system" no no ? "" "API" no no ? 4
+"" "Customers" "Customer file maintenance / related customer details" no yes ? "" "EST" no no ? 1
+"" "custproc." "Run Custom Utility Program" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "custpurg." "Purge Customers" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "custype." "Customer Types" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "d" "Inventory / Finished Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "d1" "Update Warehouse Transactions" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "d2" "Count Finished Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "DAOA Reporting" "Dynamic reporting with user defined reports, report
+scheduling, email delivery, custom report capability" no yes ? "" "BASE" no no ? 2
+"" "Data Exports" "Export to CSV files for all key transaction and base data files" no yes ? "" "BASE" no no ? 2
+"" "deflocbn." "Set FG Item Warehouse/Bin" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "del-data." "Fix Invalid Data" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "del0qtyb." "Delete Zero Qty Bins" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "dept." "Departments" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "df" "File Maintenance for Items" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "dfltrate." "TS Employee Default Rates" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "di" "Query Finished Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "dl" "List More Reports" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "DMI" "Integrated direct machine integration to connect machines
+to pull real time data into scheduling and job costing
+(Hardware Additional Per Machine) (included in All Access plan)" no no ? "" "FULL" yes no ? 3
+"" "dr" "Reports for Finished Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "e" "History of Sales" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "edcat." "EDI Product Catalog (832)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "edco." "Controls" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "edcode." "EDI Transaction Sets" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "eddoc." "EDI Document Controls" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "EDI Basics" "Base Outbound EDI - Purchase Orders / Customer Invoices" no yes ? "" "FULL" no no ? 3
+"" "edICXRef." "EDI Customer Items" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "edivtran." "EDI Invoices (810)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "edmast." "EDI Trading Partners" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "edShipTo." "EDI Ship-to Locations" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "edshipvia." "EDI Via/SCAC Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "emailcod." "Email codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "empinout." "TS Employee Transaction Summar" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "emplogi_." "TS Labor Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "employee." "TS Employees" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "employe_." "TS Employees List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "emp_type." "TS Employee Types" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "emp_typ_." "TS Employee Types List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "er" "Reports continued..." yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Estimating" "Cost Estimating (Folding Cartons, Corrugated, Displays,
+Foam, Partitions & Supplies)" no yes ? "" "EST" no no ? 1
+"" "estlabor." "Update Estimate Labor Rates" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "exp-est." "Export Estimates" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "expjobs." "CorrTrim Downloading Program" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "f" "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "FG Items" "Finished Goods Inventory Control and Reporting, Custom
+Jobs, Stock Boxes, Displays & Packaging Supplies" no yes ? "" "BASE" no no ? 2
+"" "fg-adj." "FG Enter/Modify Adjustments" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fg-ctrl." "Finished Goods Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fg-phys." "FG Enter/Modify Physical Count" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fg-purge." "Purge Finished Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fg-rcpt." "FG Enter/Modify Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fg-ship." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fg-taxed." "Set Taxable FG Default" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fg-to-rm." "Move FG To Board/Misc RM" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fg-trans." "FG Enter/Modify Transfers" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fgbinbal." "FG Rebuild Bins/Reset Bal" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fgcat." "Finished Goods Categories" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fghispur." "Purge FG History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fgonhnd0." "Set FG On-Hand Qty to Zero" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fgonord0." "Set FG On-Order Qty to Zero" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fgpstmn." "Post to Finished Goods Files" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fgtrans" "SS Sharp Shooter" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fgtransa." "SS Finished Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "file" "File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "file." "System Reference Files" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "flute." "Flute & Unit Counts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Full Audit" "Custom Audit History Configuration Options and Reporting" no yes ? "" "FULL" no no ? 3
+"" "fxinvcst." "Fix Invoice Cost" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "fxtrncst." "Fix FG Hist Cost" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "g" "Data Collection" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "g3" "Labor / Misc. Material Costs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "gf" "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "gi" "Query Data Collection" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "gl-ctrl." "General Ledger Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "gl-purge." "Purge GL Accounts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Global Record" "Customer specific licensing record" no no ? "" "FULL" no yes 12/31/22 0
+"" "globpric." "Global Price Increase" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "globquot." "Global Quote Price Change" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "gr" "Reports for Data Collection" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "h" "Job Costing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "h3" "W.I.P. General Ledger Entrys" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "h31." "GL Job Detail W.I.P. List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "h32." "GL Summary W.I.P. List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "h33." "Post WIP to General Ledger" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "help" "Help" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "help." "Help Topics" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "helpcont." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "hf" "File Maintenance for Jobs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "hi" "Query Jobs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "hr" "Reports for Job Costing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "i" "Purchasing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "i1" "Update / Enter Purchase Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "if" "File Maintenance for Purchases" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ii" "Query Purchase Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "imp-est." "Import Estimates" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "impAP." "Import AP Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "impAR." "Import AR Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "impCash." "Import Cash Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "impjobs." "CorrTrim Uploading Program" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "impMaster." "Import Master" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Import" "Base Import Module (Customer / Vendors / Ship To / Chart
+of Accounts / Journal Entries / FG Items / RM Items / Users
+/ System Configurations" no yes ? "" "BASE" no no ? 2
+"" "ImpPMtx." "Import Price Matrix" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "impShipTo." "Import ShipTo" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "invdatef." "Fix A/R Invoice Date" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Inventory" "Raw Materials Inventory Control and Reporting, Raw
+Goods, Plates, Dies, Plant Equipment, Supplies" no yes ? "" "BASE" no no ? 2
+"" "ir" "Reports for Purchasing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "item." "Raw Materials (Folding)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "itemfg." "Finished Good Item" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "j" "Accounts Receivable" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "j1" "Update / Enter A/R Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "j2" "Write AR Credit/Debit Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "j3" "Cash Receipts Processing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Jasper" "Scheduler AOA" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "jc-ctrl." "Job Cost Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "jc-purge." "Purge Jobs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "jf" "File Maintenance for Customers" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ji" "Query Accounts Receivables" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Job Cost" "Data Collection, Job Costing, Profitability, Cost vs Estimate" no yes ? "" "BASE" no no ? 2
+"" "job-cat." "Job Categories" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "job-code." "Machine Charge Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "jobseq." "TS Job Sequence" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "jobseq_." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "jr" "Reports for Receivables" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "k" "Vouchers / Payables" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "k1" "Update / Enter Vendor Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "k2" "Write AP Credit/Debit Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "k3" "Build Payment Selection List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "k4" "Check Processing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "k5" "Track Check Reconciliation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "k6" "List Cash Disbursements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "kf" "File Maintenance for Vendors" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ki" "Query Accounts Payable" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "kr" "Reports for Payables" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "l" "General Ledger" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "l1" "Update / Journal Entries" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "l5" "Write Financial Statements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ldtagtrs." "SS Load Tag Creation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "lf" "File Maintenance for G/L" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "loc." "Locations and Bins" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "lr" "Reports for General Ledger" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m" "EDI" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m1." "EDI Inbound Processing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m3" "EDI Business Documents" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m32." "EDI Purchase Orders (850)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m35." "EDI Sales Analysis (852)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m37." "EDI Organization Struct (816)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m4" "File Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m5" "Reports..." yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m51." "EDI Document Controls" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m52." "EDI Purchase Orders (850)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m53." "EDI Invoices (810)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m54." "EDI Ship Notices (856)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m55." "EDI Sales Analysis (852)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m56." "EDI Product Catalog (832)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m57." "EDI Organization Struct (816)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m58." "EDI Trading Partners" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m6" "EDI Purge Options" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m61." "EDI Purge Documents" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "m62." "EDI Edit Error Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "mach." "Machine File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "machchrg." "TS Machine Assigned Charge Cod" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "machchr_." "TS Machine Assigned Chrg Cds L" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "machemp." "TS Employee Transactions" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "machshft." "TS Machine Assigned Shifts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "machshf_." "TS Machine Assigned Shifts Lis" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "machtran." "TS Machine Transactions" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "mainmenu" "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "mat." "Material Types" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "matprep." "Preparation Material Types" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "miscflds." "Misc. Fields Scr Layout Design" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ODBC Access" "ODBC Access and configuration, Database schema, external
+read access" no yes ? "" "FULL" no no ? 3
+"" "oe-ctrl." "Order Entry Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "oe-prmtx." "Price Matrix" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "oeinvcst." "Update AR/OE Inv Cost & Comm" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "oerep/r-invPrtARSuper." "Invoice Printing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Order Processing" "Order Entry, Price Matrix pricing, Release Processing, Bill of
+Lading, Customer Service, Customer Service Inquiry and
+Orders Reporting" no yes ? "" "BASE" no no ? 2
+"" "ordpurge." "Purge Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "outboundProcess." "EDI Outbound Processing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ParameterBuilder" "Dynamic Parameter Builder" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "parmfile." "Parameter &Files" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "parmfil_." "Parameter &Files Listing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "password." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "po-ctrl." "Purchase Order Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "po-purge." "Purge POs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "poexport" "nk1" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "prep." "Prep and Die File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "prgrms." "Program Master" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "prgrms_." "Program Master List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "prgunrel." "Purge Unship/Post/Closed Rels" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "procat." "Product Categories" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "prod." "Product Line GL Accounts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "purapinv." "Purge Paid AP Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "purarinv." "Purge Paid AR Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Purchasing" "Purchasing, Electronic Notifications, Integrated Reorder for
+Prep, Raw Materials and Finished Goods" no yes ? "" "BASE" no no ? 2
+"" "purgeemp." "TS Purge Employee Transaction" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "q" "Scheduling" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "quopurge." "Purge Quotes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-acknow." "Acknowledgements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-actest." "Labor Hours vs Estimated" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ageinv." "Aged Inventory" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-aitem." "Inventory by Item Name" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-alphls." "Alphabetic Item List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-apdis." "Disbursements Register" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-apimp." "Check Register Import" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-apme&p." "Edit/Post AR Applied Items" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-apvep." "AP Invoice Posting" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-araged." "Aged Receivables" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ariedt." "AR Invoice Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ariprt." "Print AR Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-aripst." "Post AR Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-backl." "Order Backlog" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-backl1." "Order Backlog by Part Number" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-bckmch." "Job Backlog by Machine" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-bolcre." "Bill Of Lading Creation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-boledt." "BOL Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-bolprt." "Print Bills of Lading" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-bolpst." "Post BOL / Create Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-bomprt." "Bill of Materials Print" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-bookdu." "Orders Booked by Due Date" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-booked." "Orders Booked" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-booko#." "Orders Booked by Order No" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-boomh." "Bookings Highlights" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-brdrec." "Board Reconciliation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-carr." "Carrier List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-casetg." "Case Label Creation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cashrq." "Cash Requirements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cashsm." "Cash Receipts by Salesman" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-chart." "Chart of Accounts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-chkreg." "Check Register" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-clsjob." "Closed Job Analysis" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-comms." "Commissions" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-comprm." "Commission By Item Cost" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-consum." "Roll Stock Consumed Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-crdbmo." "CR/DB Memo Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cshe&p." "Edit/Post AR Cash Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cship." "Customer Shipto List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ctrl." "Control File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-curdet." "Current Month Detail" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cusinv." "Customer Inventory" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cusitm." "Sales by Customer Invoice" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cust." "Customer List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-custag." "Sales/Value by Cust and Tag" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-custim." "Sales Values by Cust/Item" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cuszip." "Sales by Customer Zip" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-cycnt." "Physical Count Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-dash." "Management Highlights Summary" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-daysum." "TS Daily Summary by Employee" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-dbcr&p." "Post Credit/Debit Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-dbcrap." "Debit/Credit Register" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-dbcrpt." "Print AR Credit/Debit Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-depsit." "Bank Deposit Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-depwst." "Data Collection Waste By Dep." yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-detjnl." "Billing Detail Sales Journal" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-distrb." "GL Auto Distribution" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-dlyact." "FG Daily Activity" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-edtlst." "Print Finished Goods Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-emplst." "TS Employee List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-empmch." "TS Employee Time by Job and Ma" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-est." "Estimates List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-estsiz." "Estimates by Size" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fgcst1." "FG Item Value/Cost Summary" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fgeom." "Write End of Period Totals" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fgohbb." "Value/Cost by Whs/Bin/Tag" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fgpstr." "FG Posting Report By Date" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fgreq." "FG Purchase Requirements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fgrord." "Reorder Requirements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fgstat." "Status" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fibaud." "Job/Est/PO Audit" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fince." "Bill Finance Charges" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-fnstmt." "Financial Statements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-frate." "Freight Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-glhist." "GL History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-glimp." "Import Payroll Entries" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-glinc." "Income Statement Ratios" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-gljorn." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-gljrn." "Print/Post Journal Entries" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-glload." "Load Recurring Entries" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-glmclo." "Close Month" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-glyclo." "Year End" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-hisatk." "High Sales Tracking" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-hots." "Hots List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-hsaldt." "High Sales by Date Ranges" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ibtag." "Inventory by Bin/Tag" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-impbud." "Import GL Account Budgets" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-inctsh." "Sales by Invoice/Cat/Shipto" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-inkglu." "Ink/Glue Consumption" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-inkmch." "Inks by Machine" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-invbal." "Inventory Balances" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-invedt." "OE Invoice Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-invep." "Invoice Post / Update GL" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-invmh." "Invoice Highlights" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-invprt." "Print OE Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-invslm." "Qty On Hand/Shipd by SMan" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-invsum." "GL Invoice Summary" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-itcshp." "Sales by Item/Cust/Ship" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-itmcus." "Sales by Cust/Item/PO" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-itmlst." "Item List by Customer" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-jbbym." "Machine Backlog By Kicks" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-jobdue." "Jobs Due Tracking" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-joblog." "Job Log" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-jobmsf." "MSF by Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-jobsum." "Job Summary" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-jobven." "Job/Vendor Analysis" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-labest." "Labor Hours by Charge Code" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-lastvs." "Last Year vs. This Year" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-loadtg." "Loadtag Creation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-maceff." "Machine Efficiency" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mach." "Machine File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mail." "AR Mailing List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-maillt." "AP Mailing List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-matall." "Materials Allocation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mathst." "Material Receipts History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-matjob." "Material Required for Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mbackl." "Machine Backlog Analysis" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mchcst." "Machine Cost By Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mchtra." "" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mise&p." "Edit/Post AR Misc. Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-misedt." "Miscellaneous Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mispst." "Transfer Misc. Costs to Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-msfkic." "Job Backlog by MSF/Kicks" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mtdsub." "MTD Destination Subtotals" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-mulsrt." "Sales with Multiple Sorts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-notvou." "PO Receipts Not Vouchered" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ontim2." "On-Time Deliveries for Jobs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ontime." "On-Time Deliveries" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-opbdue." "Open Jobs by Due Date/Cust" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ordbal." "Order Balance by PO#" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ordedt." "Order Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ordpst." "Order Post/Purge Deleted" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-pakdet." "FG Packing Detail" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-pce&p." "Post Physical Counts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-pcep." "Post RM Physical Counts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-period." "Current Period To Date Sales" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-phce&p." "Post Counts to Finished Goods" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-poedt." "Print PO Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-pofgh1." "PO FG/RM History by Customer" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-pofghs." "PO FG/RM History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-poprt." "Print POs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-post." "TS Post TouchData to ASI Datab" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-postck." "GL Posting Check" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-postre." "TS RePost TouchData to ASI Dat" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-postrg." "GL Posting Register" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prdcat." "Profit by ProdCat/Slsmn" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prep." "Prep File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prffrt." "Profit w/Freight" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prfinv." "Profit by Invoice" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prfitm." "Value/Profit by Item" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prnchk." "Print AP Checks" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prod." "TS Production Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prodep." "Production by Department" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prodmh." "Production Highlights" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-promac." "Production by Machine" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prpmat." "Prep List by Mat'l Type" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-prwcst." "Sales by Product w/Cost" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-purvar." "PO Purchased Variance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-qtytot." "QTY Totals by Cust/Item" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-qtyval." "Qty/Value by Cust and Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-quolst." "Quoted Price List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-quotes." "Quotes List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-rctcrd." "Receipts Overages for Credit" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-recreg." "Reconciliation Register" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-recrep." "Reconciliation Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-reledt." "Release Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-relprt." "Print Release Tickets" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-relpst." "Create Bill of Lading" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-reordr." "Reordering Advice" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-reship." "Reorder Advice By Ship-to" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-rmcost." "Raw Materials Cost List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-rmphct." "Cycle Count Code Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-rmtedt." "Print Raw Material Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-rmtpst." "Post to Raw Material Files" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-rtnedt." "Returns Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-rtnpst." "Post Returns" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-salrmh." "Sales Rep Highlights" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-saprod." "FG Category Product Sales" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-sched." "Scheduled Releases" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-sched1." "Scheduled Releases w/Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-sched2." "Scheduled Releases by Ship-To" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-schrpt." "Scheduled Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-scrap." "Scrap Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-scrapm." "Scrap Report by Machine" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-selreg." "Selection Register" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-shpapr." "Shipment Approval Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-shpcar." "Sales by Shipping Carrier" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-shpcpn." "Shipment By Customer Part" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-shpitm." "Shipments by Item/Cust" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-slmpef." "Totals by Salesman  DD/MM/YY" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-slmprd." "With $/MSF Totals by Salesman" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-slsbud." "Sales Vs. Budget" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-slsper." "Sales by Period" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-smperf." "Salesman Performance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-sonord." "Sheets on Order" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-stajob." "Inventory Status by Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-stax." "Sales Tax Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-stkrol." "Roll Stock Lot/Tag Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-stmt." "Statements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-style." "Style File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-svsqty." "Scheduled Ship vs. QOH" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-taxcus." "Tax Schedule By Customer" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-taxdis." "Tax Distribution Schedule" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-taxmon." "Monthly Tax" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ticket." "Factory Ticket Print" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-tonmsf." "Transaction by TON/MSF" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-trans." "Transaction History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-tribal." "Trial Balance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-trnjou." "Transaction Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-trnord." "Transactions by Order" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-unfgdt." "Unshipped FG Detail" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-unfgsm." "Unshipped FG Summary" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-v1099." "Vendor 1099 Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-vaging." "Vendor Aging" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-valjob." "Next Ship Date and Value" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-vdckrg." "Voided Check Register" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-venacc." "AP Accounts by Vendor" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-venanl." "PO Vendor Analysis" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-venchk." "AP Check Register" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-vendan." "AP Vendor Analysis" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-veninv." "AP Invoices by Vendor" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-venlst." "Vendor Master List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-voufgc." "PO's  Vouchered by FG Category" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-vprice." "Vendor Price List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wbyjob." "Waste Analysis by Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wipaud." "W.I.P. Job Audit Trail" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wipbct." "WIP by Product Category" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wipedt." "WIP Hours Preposted Edit List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wiplst." "W.I.P. Job Audit Trail" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wippst." "Transfer WIP to Job Cost" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wipstd." "WIP Standards Detail" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wipsum." "W.I.P. Daily Summary" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-wiptag." "W.I.P. Tag Report" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-yeavol." "Yearly Sales Volume" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-yrtoyr." "High Sales (This Yr vs. Last)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "r-ytdcst." "YTD Cost/Sales by Cust" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rejct-cd." "PO Rejection Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rfq" "RFQ Quote Requests" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rfqctrl." "RFQ File Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rfqfm" "RFQ File Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rfqlst." "RFQ Single RFQ List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rfqlst2." "RFQ List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rfqrpt" "RFQ List Request for Quotes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rfqtool." "RFQ Request For Quotes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rm-ctrl." "Raw Materials Control" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rm-mkbin." "RM Rebuild Bins/Reset Balances" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rm-purge." "Purge Raw Materials" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rmdnegbn." "Delete Zero Qty Bins" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rmglobpr." "Global Price Change" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rmloadtg." "RM Loadtag Creation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rmonhto0." "Set RM On-Hand to Zero" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "rmtransa." "SS Materials" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "routing." "Machine Routings" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "s" "Network / System Administrator" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "s1" "Laptop/Server Link" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "s11" "Quick Fixes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "s2" "File Cleanup" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "s3" "Y More File Cleanup" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "s8" "K-Control Parameters" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "saddress." "Addresses Search" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Sales History" "Sales History Reports, Graphs, Sales Trends and Job History" no yes ? "" "BASE" no no ? 2
+"" "sbBasic." "Scheduler Basic" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "sbHTML" "SB HTML Page Generation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "sbPro." "Scheduler Pro" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "sbView." "Scheduler View" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Scheduling" "Machine Schedule Board Integrated with Plant Reporting" no yes ? "" "FULL" no no ? 3
+"" "setaudit." "Select &Tables to Audit" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "setwhsbn." "Set FG Blank Warehouse/Bin" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Sharp Shooter" "Bar Code Scanning of Materials, Finished Goods & Shipping
+for Real Time Transactions (Software Only), Load tags" no yes ? "" "FULL" no no ? 3
+"" "shifts." "TS Shifts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "shifts_." "TS Shifts List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "sman." "Salesman" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "smancomm." "Set Salesman Commission" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "snotes." "Notes Search" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "specitem." "RM/FG Specifications" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "sphone." "Phone Info Search" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "splchkdn." "Shut&down SpoolRequest Monitor" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "spool." "Spool Requests" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "sr" "Reports" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "sr2." "Printer File" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ss" "Z System Reference Files" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ssreport" "SS Reports" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "st-pattn." "Stacking Patterns" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "st-size." "Stacking Matrix" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "statecod." "State and Province Abbreviatns" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "stateco_." "State and Province Abbrev List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "stax." "Tax Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "std-code." "Standards Matrix" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "stylec." "Corrugated Styles" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "stylef." "Folding Styles" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "SubjectBuilder" "Dynamic Subject Builder" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "sys-ctrl." "System Control Parameters" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "system" "System" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "systemlist" "System &Listings" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "terms." "Terms" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "terr." "Territory" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Test System" "Test System to allow testing of upgrades" no yes ? "" "BASE" no no ? 2
+"" "titlcode." "Title Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "titlcod_." "Title Codes List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "Touch Screen" "Touch Screen Sensitive Real Time Plant Data Collection,
+Paperless Job Tickets, Cad & Die Images, Schedule Board" no yes ? "" "BASE" no no ? 2
+"" "touchfm" "TS File Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "touchrpt" "TS Reports" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "touchscr" "TS Touch Screen Menu" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "touchscr." "TS Data Collection / Login" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "track_." "Track Usage List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "u-fntclr." "User Font and Color Settings" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "UDFB" "User Defined Fields Builder" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "uom." "Units of Measure" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "updapinv." "Update AP Invoice" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "updcust#." "Update Customer Number" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "updest." "Update Est SlsmnComm/PallCase" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "updfgitm." "Update FG Item Code" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "user" "User" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "usergrps." "User Groups" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "usergrp_." "User &Groups List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "usermenu." "User's &Menu Structure" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "users." "Users" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "users." "Users" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "users_." "Users List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "utlookmn." "Popup Menu Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "vend." "Vendors" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ventype." "Vendor Types" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-apdis." "Enter/Edit Disbursements" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-apibal." "Invoice Balances" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-apichk." "Checks/Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-apinq." "AP Invoice Inquiry" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-apinv." "Enter/Edit AP Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-arinq." "AR Invoice Inquiry" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-arinv." "Enter/Edit AR Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-aronac." "Apply/Reapply Cash/Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-batch." "Batch Running Procedure" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-cash." "Enter/Edit Cash Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-ccode." "Currency Code" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-cldown." "CorrTrim Downloading Inquiry" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-clhist." "CorrTrim History Inquiry" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-cloord." "Close / Reopen Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-clsjc." "Close / Reopen Jobs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-clspo." "Close / Reopen POs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-cusinq." "Customer Activity" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-dbcr." "Enter/Edit CR/DB Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-dbcrap." "Add/Edit DB/CR Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-est." "Folding Estimates" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-estc." "Corrugated Box Estimate" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-fg-set." "Set Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-fgiinq." "FG History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-fguncm." "Scheduled Ship vs. Qty On-Hand" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-finest." "Search for Estimates" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-glinq." "Query General Ledger History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-gljrn." "Enter/Edit Journal Entries" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-glrpth." "Report Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-head." "Help Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-issue." "Issue Materials to Jobs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-item." "Raw Materials(Corrugated)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-jobapp." "Approve Jobs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-jobcst." "Update / Enter Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-jobinq." "Job Variance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-jobsch." "Update Machine Schedule" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-manchk." "Manual Checks" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-mcash." "Enter Misc. Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-mismat." "Miscellaneous Entry/Maint" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-oebolh." "Enter/Edit BOL" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-oecred." "Credit Hold / Approve Orders" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-oeinv." "Enter/Edit Invoices" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-oerel." "Enter/Edit Releases" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "W-oeweb." "Web Orders Transfer/Approve" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-order." "Order Entry" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-ordinq." "Order Status" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-pcminq." "AP Credit/Debit Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-phycnt." "Physical Count Processing" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-po-inq." "PO Inquiry" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-prdh." "Floor Reporting at Machine" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-prdhj." "Update/Add Hours via Job Card" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-pricst." "FG Sell Price/Bin Cost" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-purord." "Enter/Edit POs" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-quote." "Quotes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-rcminq." "AR Credit/Debit Memos" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-rcpt." "RM Enter/Modify Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-rcrinq." "Cash Receipts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-reconl." "Check Reconciliation" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-return." "Enter/Edit Returns" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-rmadj." "RM Enter/Modify Adjustments" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-rmainq." "RM Allocated by Job" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-rmiinq." "RM History" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-seldue." "Select by Due Date" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-selven." "Select by Vendor" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-trans." "RM Enter/Modify Transfers" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-usrprt." "Batch Procedure Maintenance" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "w-void." "Void AP Checks" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "wedshtr." "EDI Ship Notices (856)" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "WIP" "Work In Progress" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "wQuery." "Query Builder" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "xref." "Cross References" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "zipcode." "Zip Codes" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "zipcode_." "Zip Codes List" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "ziploadr." "Zip Codes Loader" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
+"" "zohoCRM." "CRM Contacts" yes yes 12/12/22 "ASI" "BASE" no no 12/31/2099 0
