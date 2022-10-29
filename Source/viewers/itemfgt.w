@@ -32,6 +32,11 @@ CREATE WIDGET-POOL.
 
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
 DEF VAR char-val AS CHAR NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -553,7 +558,7 @@ PROCEDURE local-assign-record :
   
    ASSIGN 
     itemfg.factored = v-factor-item
-    itemfg.spare-int-2 =  IF tb_LockArea THEN 1 ELSE 0.
+    itemfg.lLockDimensions =  IF tb_LockArea THEN YES ELSE NO.
 
 END PROCEDURE.
 
@@ -602,7 +607,9 @@ PROCEDURE local-display-fields :
       fi_blank-wid:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cWidth
 /*      v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL reftable THEN reftable.code2 ELSE "NO".*/
       v-factor-item:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAIL itemfg THEN STRING(itemfg.factored) ELSE "NO"
-      tb_lockArea:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAILABLE itemfg AND itemfg.spare-int-2 EQ 1 THEN "YES" ELSE "NO".
+      tb_lockArea:SCREEN-VALUE IN FRAME {&FRAME-NAME} = IF AVAILABLE itemfg AND itemfg.lLockDimensions THEN "YES" ELSE "NO"
+      tb_lockArea:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+      v-factor-item:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
 
   IF v-cecscrn-char = "Decimal" THEN
      ASSIGN
@@ -622,6 +629,25 @@ PROCEDURE local-display-fields :
         itemfg.t-sqft:WIDTH = 15.60.
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdFormulaProcs.) THEN
+        DELETE PROCEDURE hdFormulaProcs..
+
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

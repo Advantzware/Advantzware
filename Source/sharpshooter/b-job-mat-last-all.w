@@ -55,6 +55,7 @@ DEFINE VARIABLE cEmptyColumn   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdRMInquiry    AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdRMInquiryWin AS HANDLE    NO-UNDO.
 DEFINE VARIABLE hdJobProcs     AS HANDLE    NO-UNDO.
+DEFINE VARIABLE dTons          AS DECIMAL NO-UNDO.
 
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
@@ -82,7 +83,7 @@ RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr job-mat.qty-all job-mat.qty job-mat.qty-iss job-mat.qty-uom cEmptyColumn   
+&Scoped-define FIELDS-IN-QUERY-br_table job-mat.frm job-mat.blank-no job-mat.rm-i-no item.i-dscr job-mat.qty-all job-mat.qty job-mat.qty-iss job-mat.qty-uom cEmptyColumn fGetTons () @ dTons  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table   
 &Scoped-define SELF-NAME br_table
 &Scoped-define QUERY-STRING-br_table FOR EACH job-mat NO-LOCK WHERE job-mat.company EQ cCompany AND job-mat.job-no EQ cJobNo AND job-mat.job-no NE "" AND job-mat.job-no2 EQ iJobNo2 AND (job-mat.frm EQ iFormNo OR iFormNo EQ ?) AND (job-mat.blank-no EQ iBlankNo OR iBlankNo EQ ?) AND job-mat.qty-all NE 0 USE-INDEX seq-idx, ~
@@ -155,6 +156,13 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  (/* parameter-definitions */)  FORWARD.  
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -180,7 +188,8 @@ DEFINE BROWSE br_table
     job-mat.qty COLUMN-LABEL "Required" FORMAT "->>,>>>,>>9.9<<<<<":U WIDTH 27
     job-mat.qty-iss COLUMN-LABEL "Issued" FORMAT "->>,>>>,>>9.99<<<<":U WIDTH 27
     job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
-    cEmptyColumn COLUMN-LABEL ""
+    fGetTons () @ dTons COLUMN-LABEL "Weight per Ton" FORMAT "->>,>>>,>>9.99<<<<":U 
+    cEmptyColumn COLUMN-LABEL ""     
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 178 BY 18.48
@@ -606,3 +615,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Implementations ***************** */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+     IF ITEM.cons-uom EQ "TON" THEN
+     dResult = job-mat.qty-all.
+     ELSE
+     RUN custom/convquom.p(job-mat.company, item.cons-uom,"TON", item.basis-w,
+                               (IF item.r-wid EQ 0 THEN item.s-len
+                                                    ELSE 12),
+                                (IF item.r-wid EQ 0 THEN item.s-wid
+                                                    ELSE item.r-wid),
+                                item.s-dep,                    
+                                job-mat.qty-all, OUTPUT dResult).     
+	RETURN dResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

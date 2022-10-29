@@ -30,6 +30,10 @@ def var v-in-paren as log init no no-undo.
 /* JLF added 02/28/96 */
 def var v-dim-fit like style.dim-fit.
 /* JLF added 02/28/96 */
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 {sys/inc/f16to32.i}
 
@@ -50,16 +54,8 @@ do on error undo:
       no-lock no-error.
       find first formule no-error.
 
-/* JLF added 02/28/96 */
-      find first reftable
-          where reftable.reftable eq "STYFLU"
-            and reftable.company  eq x2-eb.style
-            and reftable.loc      eq x2-eb.flute
-            and reftable.code     eq "DIM-FIT"
-          no-lock no-error.
-
-      v-dim-fit = if avail reftable then (reftable.val[1] / 6.25 * k_frac) else 0.
-/* JLF added 02/28/96 */
+      RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (x2-eb.company, x2-eb.style, x2-eb.flute, OUTPUT dBoxFit).
+      v-dim-fit = dBoxFit / 6.25 * k_frac.
 
 /* All references to style.dim-fit changed to v-dim-fit -JLF- 02/28/96 */
 
@@ -94,4 +90,6 @@ do on error undo:
             &f=x2-eb.dust  &o=x2-eb.lock &i=v-dim-fit}
 end.
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1993  advanced software, inc. */

@@ -19,6 +19,10 @@ DEFINE        VARIABLE v-part-qty        AS DECIMAL.
 DEFINE        VARIABLE v-q-back          AS INTEGER NO-UNDO.
 DEFINE        VARIABLE v-run-from-steps2 AS LOG     NO-UNDO.
 DEFINE        VARIABLE K_FRAC            AS DECIMAL INIT 6.25 NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 DEFINE BUFFER xitemfg FOR itemfg.
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
@@ -253,7 +257,7 @@ DO:
                     itemfg.t-wid  = 0
                     itemfg.t-sqin = 0
                     itemfg.t-sqft = 0.
-                IF NOT itemfg.spare-int-1 EQ 1 THEN   /* freeze weight flag */
+                IF NOT itemfg.lLockWeightCalc THEN   /* freeze weight flag */
                     itemfg.weight-100 = 0.
             END. 
 
@@ -281,7 +285,7 @@ DO:
                 itemfg.t-len  = itemfg.t-len      + (xitemfg.t-len      * tt-fg-set.part-qty-dec)
                 itemfg.t-sqin = itemfg.t-sqin     + (xitemfg.t-sqin     * tt-fg-set.part-qty-dec)
                 itemfg.t-sqft = itemfg.t-sqft     + (xitemfg.t-sqft     * tt-fg-set.part-qty-dec).
-            IF NOT itemfg.spare-int-1 EQ 1 THEN
+            IF NOT itemfg.lLockWeightCalc THEN
                 itemfg.weight-100  = itemfg.weight-100 + (xitemfg.weight-100 * tt-fg-set.part-qty-dec).
 
             IF xoe-ord.type NE "T" THEN
@@ -315,4 +319,6 @@ DO:
     RELEASE itemfg.
 END.
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1998  advanced software, inc. */

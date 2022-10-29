@@ -316,6 +316,7 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
         INPUT  po-ordl.company,
         INPUT  po-ordl.po-no,
         INPUT  po-ordl.line,
+        INPUT  "",
         OUTPUT lv-val,
         OUTPUT lv-typ
         ).

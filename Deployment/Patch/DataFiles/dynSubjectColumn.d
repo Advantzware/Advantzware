@@ -1799,7 +1799,7 @@
 117 yes 33 "ar-invl.sman[3]" "Salesman Code[3]" "x(3)" "ar-invl" 17.4 "STRING" "ASI" 0 no no "" "" no "" "" "202005262055405316524" no no no "" no "" "" 0 0 "" no no "" "" no
 117 yes 21 "ar-invl.unit-pr" "Price" ">>,>>>,>>9.99<<<<" "ar-invl" 14.4 "decimal" "ASI" 0 no no "" "" no "" "" "202005262055405316525" no no no "" no "" "" 0 0 "" no no "" "" no
 118 yes 1 "currency.c-code" "Code" "X(3)" "currency" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202005271423805318963" yes yes yes "" no "" "" 0 0 "" no no "" "" no
-118 yes 2 "currency.c-desc" "description" "x(30)" "currency" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202005271423805318964" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+118 yes 2 "currency.c-desc" "Description" "x(30)" "currency" 0 "STRING" "ASI" 0 no no "" "" no "" "" "202005271423805318964" yes yes yes "" no "" "" 0 0 "" no no "" "" no
 120 yes 51 "ttRmItemCorrugated.avg-w" "Avg Wt" ">>>9.99" "ttRmItemCorrugated" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202006192323105367529" no no no "" no "" "" 0 0 "" no no "" "" no
 120 yes 20 "ttRmItemCorrugated.basis-w" "Weight/MSF" "->>,>>>,>>9.99" "ttRmItemCorrugated" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202006192323105367530" no no no "" no "" "" 0 0 "" no no "" "" no
 120 yes 52 "ttRmItemCorrugated.box-case" "Boxes/Bundle" ">>>>9" "ttRmItemCorrugated" 0 "integer" "ASI" 0 no no "" "" no "" "" "202006192323105367531" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2334,11 +2334,15 @@
 159 yes 55 "ttScheduledReleases.completionDate" "Completion" "99/99/9999" "ttScheduledReleases" 0 "date" "ASI" 0 no no "" "" no "" "" "202102167419606055592" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 24 "ttScheduledReleases.creditRating" "Credit Rating" "X(3)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055593" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 74 "ttScheduledReleases.cRelType" "Release Type" "X(12)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055594" no no no "" no "" "" 0 0 "" no no "" "" no
+159 no 79 "ttScheduledReleases.cRemainRoute" "Remaining routing" "x(30)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "20221028_15:21:39_10323774" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 56 "ttScheduledReleases.csrUserID" "CSR" "x(10)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055595" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 20 "ttScheduledReleases.custNo" "Cust No" "X(8)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055596" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 2 "ttScheduledReleases.customerName" "Customer Name" "X(30)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055597" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 21 "ttScheduledReleases.customerPartNo" "Customer Part No" "X(15)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055598" no no no "" no "" "" 0 0 "" no no "" "" no
+159 no 83 "ttScheduledReleases.dActFGWeight" "Actual FG Weight" "->>,>>>,>>9.99<<<<" "ttScheduledReleases" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20221028_15:21:39_10323775" no no no "" no "" "" 0 0 "" no no "" "" no
+159 no 80 "ttScheduledReleases.dDockApp" "Dock Appointment" "x(20)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "20221028_15:21:39_10323776" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 22 "ttScheduledReleases.delZone" "Del Zone" "X(5)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055599" no no no "" no "" "" 0 0 "" no no "" "" no
+159 no 82 "ttScheduledReleases.dEstFGWeight" "Estimated FG Weight" "->>,>>>,>>9.99<<<<" "ttScheduledReleases" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20221028_15:21:39_10323777" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 73 "ttScheduledReleases.dLastDate" "Last Receipt Date" "99/99/9999" "ttScheduledReleases" 0 "date" "ASI" 0 no no "" "" no "" "" "202102167419606055600" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 29 "ttScheduledReleases.dockDate" "Dock Date" "99/99/9999" "ttScheduledReleases" 0 "date" "ASI" 0 no no "" "" no "" "" "202102167419606055601" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 37 "ttScheduledReleases.dockNote" "Dock Note" "X(10)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055602" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2347,6 +2351,9 @@
 159 yes 30 "ttScheduledReleases.earlyDate" "Early Date" "99/99/9999" "ttScheduledReleases" 0 "date" "ASI" 0 no no "" "" no "" "" "202102167419606055605" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 57 "ttScheduledReleases.enteredBy" "Entered By" "x(10)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055606" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 49 "ttScheduledReleases.fgCategory" "FG Category" "X(5)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055607" no no no "" no "" "" 0 0 "" no no "" "" no
+159 no 85 "ttScheduledReleases.iPallet" "Total # of Pallets (FG)" "->>,>>>,>>9" "ttScheduledReleases" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221028_15:21:39_10323778" no no no "" no "" "" 0 0 "" no no "" "" no
+159 no 81 "ttScheduledReleases.iPalletCountQty" "Pallet Count Quantity" "->>,>>>,>>9" "ttScheduledReleases" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221028_15:21:39_10323779" no no no "" no "" "" 0 0 "" no no "" "" no
+159 no 84 "ttScheduledReleases.iQtyInvoiced" "Order Qty Invoiced" "->>,>>>,>>9" "ttScheduledReleases" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221028_15:21:39_10323780" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 8 "ttScheduledReleases.itemDescription" "Item Description" "X(30)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055608" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 7 "ttScheduledReleases.itemNo" "Item No" "X(15)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055609" no no no "" no "" "" 0 0 "" no no "" "" no
 159 yes 51 "ttScheduledReleases.jobHoldCode" "Job Hold Code" "X(2)" "ttScheduledReleases" 0 "character" "ASI" 0 no no "" "" no "" "" "202102167419606055610" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -2997,11 +3004,10 @@
 203 yes 1 "ttDailyProdReport.cJob" "Job#" "x(13)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390902" no no no "" no "" "" 0 0 "" no no "" "" no
 203 yes 6 "ttDailyProdReport.cMachine" "Machine" "x(6)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390903" no no no "" no "" "" 0 0 "" no no "" "" no
 203 yes 8 "ttDailyProdReport.cStat" "Status" "x(10)" "ttDailyProdReport" 0 "character" "ASI" 0 no no "" "" no "" "" "202205042515109390904" no no no "" no "" "" 0 0 "" no no "" "" no
-203 yes 14 "ttDailyProdReport.dOverUnderPercentage" "O/U%" "->>,>>>,>>9.99" "ttDailyProdReport" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202205042515109390905" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 13 "ttDailyProdReport.dOverUnderPercentage" "O/U%" "->>,>>>,>>9.99" "ttDailyProdReport" 0 "decimal" "ASI" 0 no no "" "" no "" "" "202205042515109390905" no no no "" no "" "" 0 0 "" no no "" "" no
 203 yes 7 "ttDailyProdReport.dtOpDate" "Operation Date" "99/99/9999" "ttDailyProdReport" 0 "date" "ASI" 0 no no "" "" no "" "" "202205042515109390906" no no no "" no "" "" 0 0 "" no no "" "" no
-203 yes 12 "ttDailyProdReport.iJobQty" "Job Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390907" no no no "" no "" "" 0 0 "" no no "" "" no
-203 yes 11 "ttDailyProdReport.iOrdQty" "Ord Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390908" no no no "" no "" "" 0 0 "" no no "" "" no
-203 yes 13 "ttDailyProdReport.iProdQty" "Prod.Qty" "->>,>>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "202205042515109390909" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 12 "ttDailyProdReport.iActQty" "Actual Qty" "->>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221007_05:28:16_10212524" no no no "" no "" "" 0 0 "" no no "" "" no
+203 yes 11 "ttDailyProdReport.iPlannedQty" "Planned Qty" "->>>,>>>,>>9" "ttDailyProdReport" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221007_05:28:16_10212525" no no no "" no "" "" 0 0 "" no no "" "" no
 204 yes 24 "ttOnTimeDeliveries.cBolCarrier" "BOL Carrier" "x(20)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490529" no no no "" no "" "" 0 0 "" no no "" "" no
 204 yes 13 "ttOnTimeDeliveries.cCustGroup" "Customer Group" "x(20)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490530" no no no "" no "" "" 0 0 "" no no "" "" no
 204 yes 16 "ttOnTimeDeliveries.cCustName" "Customer Name" "X(30)" "ttOnTimeDeliveries" 0 "character" "ASI" 0 no no "" "" no "" "" "202206012471109490531" no no no "" no "" "" 0 0 "" no no "" "" no
@@ -3141,3 +3147,162 @@
 213 yes 11 "ttbl_pc-prdd.start" "Start" ">>,>>9" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216076" no no no "" no "" "" 0 0 "" no no "" "" no
 213 yes 12 "ttbl_pc-prdd.stopp" "Stop" ">>,>>9" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216077" no no no "" no "" "" 0 0 "" no no "" "" no
 213 yes 14 "ttbl_pc-prdd.waste" "Waste" ">>>>9-" "ttbl_pc-prdd" 0 "integer" "ASI" 0 no no "" "" no "" "" "20220929_23:17:54_09216078" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 17 "ttSalesAnalysis.amount" "Invoice Amt" "->,>>>,>>>,>>9.99" "ttSalesAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264494" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 26 "ttSalesAnalysis.bolDate" "BOL Date" "99/99/9999" "ttSalesAnalysis" 0 "date" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264495" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 25 "ttSalesAnalysis.bolWhs" "BOL Whs" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264496" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 4 "ttSalesAnalysis.city" "City" "x(15)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264497" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 2 "ttSalesAnalysis.custName" "Customer Name" "x(30)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264498" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 1 "ttSalesAnalysis.custNo" "Cust. #" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264499" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 12 "ttSalesAnalysis.fgCat" "Category" "x(5)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264500" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 11 "ttSalesAnalysis.fgItem" "Item No" "x(15)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264501" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 8 "ttSalesAnalysis.iMonth" "Month" "99" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264502" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 10 "ttSalesAnalysis.invDate" "Invoice Date" "99/99/9999" "ttSalesAnalysis" 0 "date" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264503" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 7 "ttSalesAnalysis.invNo" "Invoice" ">>>>>>>>9" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264504" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 9 "ttSalesAnalysis.iYear1" "Year" "9999" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264505" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 13 "ttSalesAnalysis.OrderNo" "Order No" ">>>>>>>>9" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264506" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 15 "ttSalesAnalysis.price" "Unit Price" "->>>,>>>,>>9.99<<" "ttSalesAnalysis" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264507" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 14 "ttSalesAnalysis.qty" "Qty Shipped" "->>>,>>>,>>9" "ttSalesAnalysis" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264508" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 6 "ttSalesAnalysis.salesRep" "Salesperson/Group Name" "x(20)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264509" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 19 "ttSalesAnalysis.shipAddr1" "Address 1" "x(30)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264510" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 20 "ttSalesAnalysis.shipAddr2" "Address 2" "x(30)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264511" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 21 "ttSalesAnalysis.shipAddr3" "Address 3" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264512" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 22 "ttSalesAnalysis.shipCity" "City" "x(15)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264513" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 18 "ttSalesAnalysis.shipName" "City" "x(15)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264514" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 23 "ttSalesAnalysis.shipState" "State" "x(2)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264515" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 3 "ttSalesAnalysis.shipTo" "Ship To" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264516" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 24 "ttSalesAnalysis.shipZip" "Zip" "x(10)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264517" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 5 "ttSalesAnalysis.state" "State" "x(2)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264518" no no no "" no "" "" 0 0 "" no no "" "" no
+215 yes 16 "ttSalesAnalysis.uom" "UOM" "x(8)" "ttSalesAnalysis" 0 "character" "ASI" 0 no no "" "" no "" "" "20221020_20:24:54_10264519" no no no "" no "" "" 0 0 "" no no "" "" no
+216 yes 6 "CalcEndTime" "End Time" "x(11)" "" 0 "Character" "ASI" 0 no no "" "" yes "calcStringTime" "ttblJob.endTime" "20221025_22:11:11_10274603" no no no "" no "" "" 0 0 "" no no "" "" no
+216 yes 4 "CalcStartTime" "Start Time" "x(11)" "" 0 "Character" "ASI" 0 no no "" "" yes "calcStringTime" "ttblJob.startTime" "20221025_22:11:11_10274604" no no no "" no "" "" 0 0 "" no no "" "" no
+216 yes 7 "ttblJob.dueDate" "Due Date" "99/99/99" "ttblJob" 9 "date" "ASI" 0 no no "" "" no "" "" "20221025_22:11:11_10274605" no no no "" no "" "" 0 0 "" no no "" "" no
+216 yes 5 "ttblJob.endDate" "End Date" "99/99/99" "ttblJob" 8.8 "date" "ASI" 0 no no "" "" no "" "" "20221025_22:11:11_10274606" no no no "" no "" "" 0 0 "" no no "" "" no
+216 yes 8 "ttblJob.job" "Job ID" "X(20)" "ttblJob" 20 "character" "ASI" 0 no no "" "" no "" "" "20221025_23:57:00_10275137" no no no "" no "" "" 0 0 "" no no "" "" no
+216 yes 2 "ttblJob.jobSort" "Job" "x(8)" "ttblJob" 8 "character" "ASI" 0 no no "" "" no "" "" "20221025_21:53:29_10273958" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 129 "ttblJob.jobStatus[10]" "jobStatus[10]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:22_10277429" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 130 "ttblJob.jobStatus[11]" "jobStatus[11]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277430" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 131 "ttblJob.jobStatus[12]" "jobStatus[12]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277431" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 132 "ttblJob.jobStatus[13]" "jobStatus[13]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277432" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 133 "ttblJob.jobStatus[14]" "jobStatus[14]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277433" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 120 "ttblJob.jobStatus[1]" "jobStatus[1]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277434" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 121 "ttblJob.jobStatus[2]" "jobStatus[2]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277435" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 122 "ttblJob.jobStatus[3]" "jobStatus[3]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277436" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 123 "ttblJob.jobStatus[4]" "jobStatus[4]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277437" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 124 "ttblJob.jobStatus[5]" "jobStatus[5]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277438" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 125 "ttblJob.jobStatus[6]" "jobStatus[6]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277439" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 126 "ttblJob.jobStatus[7]" "jobStatus[7]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277440" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 127 "ttblJob.jobStatus[8]" "jobStatus[8]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277441" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 128 "ttblJob.jobStatus[9]" "jobStatus[9]" "yes/no" "ttblJob" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221027_18:52:23_10277442" no no no "" no "" "" 0 0 "" no no "" "" no
+216 yes 1 "ttblJob.resource" "Resource" "x(8)" "ttblJob" 9 "character" "ASI" 0 no no "" "" no "" "" "20221025_21:53:29_10273959" no no no "" no "" "" 0 0 "" no no "" "" no
+216 yes 3 "ttblJob.startDate" "Start Date" "99/99/99" "ttblJob" 10 "date" "ASI" 0 no no "" "" no "" "" "20221025_22:11:11_10274607" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 9 "ttblJob.userField01" "Customer" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276199" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 10 "ttblJob.userField02" "Customer Name" "x(30)" "ttblJob" 32 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276200" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 11 "ttblJob.userField03" "Board" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276201" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 12 "ttblJob.userField04" "Board Name" "x(30)" "ttblJob" 32 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276202" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 13 "ttblJob.userField05" "Die" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276203" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 14 "ttblJob.userField06" "Plate" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276204" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 15 "ttblJob.userField07" "PO" "x(6)" "ttblJob" 8 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276205" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 16 "ttblJob.userField08" "FG Item" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276206" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 17 "ttblJob.userField09" "Item Name" "x(30)" "ttblJob" 32 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276207" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 18 "ttblJob.userField10" "Length" "x(8)" "ttblJob" 10 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276208" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 108 "ttblJob.userField100" "MR Waste" "x(4)" "ttblJob" 6 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276209" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 109 "ttblJob.userField101" "Run Waste" "x(7)" "ttblJob" 9 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276210" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 110 "ttblJob.userField102" "MR Time" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276211" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 111 "ttblJob.userField103" "Run Time" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276212" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 112 "ttblJob.userField104" "Job-Run" "x(9)" "ttblJob" 11 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276213" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 113 "ttblJob.userField105" "Tot. Time" "x(9)" "ttblJob" 11 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276214" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 114 "ttblJob.userField106" "Ink LBS" "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276215" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 115 "ttblJob.userField107" "Job Qty" "x(13)" "ttblJob" 15 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276216" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 116 "ttblJob.userField108" "Score (on Width)" "x(24)" "ttblJob" 26 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276217" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 117 "ttblJob.userField109" "Score (on Length)" "x(24)" "ttblJob" 26 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276218" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 19 "ttblJob.userField11" "Width" "x(9)" "ttblJob" 11 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276219" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 118 "ttblJob.userField110" "Promise Date" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276220" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 119 "ttblJob.userField111" "Order Date" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276221" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 20 "ttblJob.userField12" "Depth" "x(9)" "ttblJob" 11 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276222" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 21 "ttblJob.userField13" "Style" "x(6)" "ttblJob" 8 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276223" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 22 "ttblJob.userField14" "Color" "x(100)" "ttblJob" 102 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276224" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 23 "ttblJob.userField15" "Run Qty" "x(9)" "ttblJob" 11 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276225" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 24 "ttblJob.userField16" "PO Due" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276226" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 25 "ttblJob.userField17" "Vendor" "x(8)" "ttblJob" 10 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276227" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 26 "ttblJob.userField18" "Form" "x(3)" "ttblJob" 5 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276228" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 27 "ttblJob.userField19" "Blank" "x(3)" "ttblJob" 5 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276229" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 28 "ttblJob.userField20" "Pass" "x(3)" "ttblJob" 5 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276230" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 29 "ttblJob.userField21" "Category" "x(5)" "ttblJob" 7 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:50_10276231" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 30 "ttblJob.userField22" "Caliper" "x(7)" "ttblJob" 9 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276232" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 31 "ttblJob.userField23" "Sheet Qty" "x(11)" "ttblJob" 13 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276233" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 32 "ttblJob.userField24" "Adhesive" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276234" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 33 "ttblJob.userField25" "Coats" "x(2)" "ttblJob" 4 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276235" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 34 "ttblJob.userField26" "Board L." "x(9)" "ttblJob" 11 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276236" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 35 "ttblJob.userField27" "Board W." "x(9)" "ttblJob" 11 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276237" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 36 "ttblJob.userField28" "Color Desc" "x(40)" "ttblJob" 42 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276238" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 37 "ttblJob.userField29" "Total MRP" "x(13)" "ttblJob" 15 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276239" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 38 "ttblJob.userField30" "Mat Length" "x(8)" "ttblJob" 10 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276240" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 39 "ttblJob.userField31" "#Up" "x(3)" "ttblJob" 5 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276241" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 40 "ttblJob.userField32" "Linear Feet" "x(13)" "ttblJob" 15 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276242" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 41 "ttblJob.userField33" "Total Pieces" "x(13)" "ttblJob" 15 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276243" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 42 "ttblJob.userField34" "CAD" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276244" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 43 "ttblJob.userField35" "PO Qty Recd" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276245" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 44 "ttblJob.userField36" "Sales Rep" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276246" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 45 "ttblJob.userField37" "Release Qty" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276247" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 46 "ttblJob.userField38" "Release Date" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276248" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 47 "ttblJob.userField39" "Ship To Addr" "x(30)" "ttblJob" 32 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276249" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 48 "ttblJob.userField40" "Ship To City" "x(30)" "ttblJob" 32 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276250" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 49 "ttblJob.userField41" "Ink-1" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276251" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 50 "ttblJob.userField42" "Ink-2" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276252" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 51 "ttblJob.userField43" "Ink-3" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276253" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 52 "ttblJob.userField44" "Ink-4" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276254" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 53 "ttblJob.userField45" "Ink-5" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276255" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 54 "ttblJob.userField46" "Ink-6" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276256" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 55 "ttblJob.userField47" "Ink-7" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276257" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 56 "ttblJob.userField48" "Ink-8" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276258" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 57 "ttblJob.userField49" "Ink-9" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276259" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 58 "ttblJob.userField50" "Ink-10" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276260" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 59 "ttblJob.userField51" "Pallet/Unit" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276261" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 60 "ttblJob.userField52" "Rel MSF" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276262" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 61 "ttblJob.userField53" "Tab" "x(3)" "ttblJob" 5 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276263" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 62 "ttblJob.userField54" "Run MSF" "x(18)" "ttblJob" 20 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276264" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 63 "ttblJob.userField55" "Pallet Name" "x(30)" "ttblJob" 32 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276265" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 64 "ttblJob.userField56" "Pallet MRP" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276266" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 65 "ttblJob.userField57" "Prod Qty" "x(11)" "ttblJob" 13 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276267" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 66 "ttblJob.userField58" "Gross Sht L." "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276268" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 67 "ttblJob.userField59" "Gross Sht W." "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276269" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 68 "ttblJob.userField60" "Pack Code" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276270" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 69 "ttblJob.userField61" "Mat Type5 Item#" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276271" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 70 "ttblJob.userField62" "Mat Type6 Item#" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276272" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 71 "ttblJob.userField63" "Cust PO#" "x(15)" "ttblJob" 17 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276273" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 72 "ttblJob.userField64" "Cust Part#" "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276274" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 73 "ttblJob.userField65" "Internal L." "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276275" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 74 "ttblJob.userField66" "End Cell L." "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276276" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 75 "ttblJob.userField67" "Internal W." "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276277" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 76 "ttblJob.userField68" "End Cell W." "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276278" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 77 "ttblJob.userField69" "Current Qty" "x(12)" "ttblJob" 14 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276279" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 78 "ttblJob.userField70" "Varnish" "x(100)" "ttblJob" 102 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276280" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 79 "ttblJob.userField71" "Adders" "x(100)" "ttblJob" 102 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276281" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 80 "ttblJob.userField72" "Adder 1" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276282" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 81 "ttblJob.userField73" "Adder 2" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276283" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 82 "ttblJob.userField74" "Adder 3" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276284" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 83 "ttblJob.userField75" "Adder 4" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276285" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 84 "ttblJob.userField76" "Adder 5" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276286" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 85 "ttblJob.userField77" "Adder 6" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276287" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 86 "ttblJob.userField78" "No. of Cases" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276288" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 87 "ttblJob.userField79" "Cases Name" "x(30)" "ttblJob" 32 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276289" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 88 "ttblJob.userField80" "Die Bin" "x(8)" "ttblJob" 10 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276290" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 89 "ttblJob.userField81" "Film Name" "x(30)" "ttblJob" 32 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276291" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 90 "ttblJob.userField82" "Mfg Date" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276292" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 91 "ttblJob.userField83" "Job Status" "x(1)" "ttblJob" 3 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276293" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 92 "ttblJob.userField84" "Total Price" "x(14)" "ttblJob" 16 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276294" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 93 "ttblJob.userField85" "Due Qty" "x(11)" "ttblJob" 13 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276295" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 94 "ttblJob.userField86" "UnderRun%" "x(7)" "ttblJob" 9 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276296" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 95 "ttblJob.userField87" "OverRun%" "x(7)" "ttblJob" 9 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276297" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 96 "ttblJob.userField88" "Speed" "x(6)" "ttblJob" 8 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276298" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 97 "ttblJob.userField89" "Created" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276299" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 98 "ttblJob.userField90" "DC Prod Qty" "x(13)" "ttblJob" 15 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276300" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 99 "ttblJob.userField91" "First Release" "x(10)" "ttblJob" 12 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276301" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 100 "ttblJob.userField92" "EmpAlert CSR" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276302" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 101 "ttblJob.userField93" "MatType5 Qty" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276303" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 102 "ttblJob.userField94" "MatType6 Qty" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276304" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 103 "ttblJob.userField95" "Required Qty" "x(20)" "ttblJob" 22 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276305" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 104 "ttblJob.userField96" "MR Std Hrs" "x(8)" "ttblJob" 10 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276306" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 105 "ttblJob.userField97" "Run Std Hrs" "x(8)" "ttblJob" 10 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276307" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 106 "ttblJob.userField98" "MSF" "x(18)" "ttblJob" 20 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276308" no no no "" no "" "" 0 0 "" no no "" "" no
+216 no 107 "ttblJob.userField99" "SqFt" "x(13)" "ttblJob" 15 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276309" no no no "" no "" "" 0 0 "" no no "" "" no

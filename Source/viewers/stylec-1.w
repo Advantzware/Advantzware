@@ -43,6 +43,9 @@ DEFINE VARIABLE iIntPart AS INTEGER NO-UNDO.
 DEFINE VARIABLE deDecPart AS DECIMAL NO-UNDO.
 &global-define style-formular Corr
 
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
 ASSIGN cocode = g_company
        locode = g_loc.
 /*{sys/inc/f16to32.i}*/
@@ -1008,34 +1011,13 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  DO WITH FRAME {&FRAME-NAME}:
+  END.
+  
   /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-    find first reftable where reftable.reftable = "STYFLU" 
-                        and reftable.company = style.style
-                        and reftable.loc = flute.code
-                        and reftable.code = "DIM-FIT"
-                        no-error.
-    if not avail reftable then do:
-        create reftable.
-        assign 
-            reftable.reftable = "STYFLU"
-            reftable.company = style.style
-            reftable.loc = flute.code
-            reftable.code = "DIM-FIT".
-    end.
-
-    ASSIGN
-        reftable.val[1]     = DEC(ld-box-fit:screen-value in frame {&frame-name}) * k_frac
-        iIntPart = TRUNC(fiSqft-len-trim,0)
-        deDecPart = fiSqft-len-trim - iIntPart  
-        style.sqft-len-trim = iIntPart + (deDecPart * k_frac)
-        iIntPart = TRUNC(fiSqft-wid-trim,0)
-        deDecPart = fiSqft-wid-trim - iIntPart  
-        style.sqft-wid-trim = iIntPart + (deDecPart * k_frac)
-        . 
+    RUN Formula_SaveSquareBoxFitForStyleAndFlute IN hdFormulaProcs (cocode, style.style, flute.code, "16th's", INPUT DECIMAL(ld-box-fit:SCREEN-VALUE)).
 
 END PROCEDURE.
 
@@ -1061,6 +1043,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-HANDLE(hdFormulaProcs) THEN
+      DELETE PROCEDURE hdFormulaProcs.
+      
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -1074,26 +1078,14 @@ PROCEDURE local-display-fields :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-    if not avail style then return.
-
-    find first reftable where reftable.reftable = "STYFLU" 
-                        and reftable.company = style.style
-                        and reftable.loc = flute.code
-                        and reftable.code = "DIM-FIT"
-                        no-lock no-error.
+  if not avail style then return.
+                            
+  RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (cocode, style.style, flute.code, OUTPUT ld-box-fit).
   
-    ASSIGN
-        ld-box-fit = (if avail reftable then reftable.val[1] else style.dim-fit) / k_frac
-        iIntPart = TRUNC(style.sqft-len-trim,0)
-        deDecPart = style.sqft-len-trim - iIntPart
-        fiSqft-len-trim = iIntPart + (deDecPart / k_frac)
-        iIntPart = TRUNC(style.sqft-wid-trim,0)
-        deDecPart = style.sqft-wid-trim - iIntPart
-        fiSqft-wid-trim = iIntPart + (deDecPart / k_frac)
-        .
-
-  disable ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
-  display ld-box-fit fiSqft-len-trim fiSqft-wid-trim with frame {&frame-name}.
+  ld-box-fit = ld-box-fit / k_frac.
+                                              
+  disable ld-box-fit with frame {&frame-name}.
+  display ld-box-fit with frame {&frame-name}.
 
 END PROCEDURE.
 

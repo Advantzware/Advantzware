@@ -56,3 +56,4 @@
 59 "Selection-List" "System" "Selection List" "Character" "x(30)" "Selection-List" "" "" 1 14 10 "dynInitNK1AutoPDC" "" "" ? "" "202108207471607910289"
 60 "Button" "System" "Button" "Character" "" "Button" "" "" 1 14 0 "" "" "" ? "" "202111108044708194139"
 61 "dmiID" "System" "DMI ID" "Integer" ">>9" "Fill-In" "" "" 1 14 0 "" "" "" ? "" "202203114563809079479"
+62 "ActiveStatus" "System" "Status" "Character" "x(8)" "Radio-Set" "Active,A,Inactive,I,Inhouse,X,E-Service,E,All,All" "All" 1 57 0 "" "" "" "HORIZONTAL" "" "20221017_16:09:37_10234098"

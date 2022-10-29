@@ -736,7 +736,7 @@ DO:
           RETURN NO-APPLY.
        END.
    END.
-   RUN new-bin.
+   RUN new-bin(0).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -750,6 +750,17 @@ DO:
   IF LASTKEY NE -1 THEN DO:    
     RUN valid-tag NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END. 
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF fg-rctd.tag IN BROWSE Browser-Table /* Tag */
+DO:
+  IF LASTKEY NE -1 THEN DO:    
+    RUN new-bin(1).
   END. 
 END.
 
@@ -1077,7 +1088,7 @@ PROCEDURE fgbin-help :
        fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}     = fg-bin.tag
       /* fg-rctd.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.cust-no */.
 
-      RUN new-bin.
+      RUN new-bin(0).
     END.
   END.
 
@@ -1130,7 +1141,7 @@ PROCEDURE get-def-values :
 /*            fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}  = fg-bin.job-no            */
 /*            fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.job-no2).  */
 
-    RUN new-bin.
+    RUN new-bin(0).
   END.
 
 END PROCEDURE.
@@ -1445,7 +1456,7 @@ PROCEDURE new-bin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+ DEFINE INPUT PARAMETER ipiQtyCase AS INTEGER NO-UNDO. 
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})).
         
@@ -1469,7 +1480,7 @@ PROCEDURE new-bin :
        ld-cost                                                = fg-bin.std-tot-cost
        lv-uom                                                 = fg-bin.pur-uom.
   
-      IF adm-new-record AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} GT "" AND DECIMAL(fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN
+      IF adm-new-record AND fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} GT "" AND ( DECIMAL(fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 OR ipiQtyCase EQ 1) THEN
         ASSIGN fg-rctd.cases:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)) /* wfk - added this */
                fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(fg-bin.case-count) .
     END.
@@ -1883,7 +1894,7 @@ PROCEDURE valid-tag :
 /*      RETURN ERROR.                                                                                   */
 /*   END.                                                                                               */
 
-  RUN new-bin.
+  RUN new-bin(0).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

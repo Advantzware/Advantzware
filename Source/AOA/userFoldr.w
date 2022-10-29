@@ -360,6 +360,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnArchive C-Win
 ON CHOOSE OF btnArchive IN FRAME optionsFrame /* Archive */
 DO:
+    DEFINE VARIABLE cFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cMessage  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lError    AS LOGICAL   NO-UNDO.
+    
     IF NOT AVAILABLE taskResult THEN
     RETURN NO-APPLY.
     ASSIGN
@@ -378,9 +383,24 @@ DO:
             bTaskResult.viewed     = NO
             taskResult.viewed      = YES
             rRowID                 = ROWID(bTaskResult)
-            .
+            .        
         FIND CURRENT taskResult NO-LOCK.
         OS-COPY VALUE(taskResult.folderFile) VALUE(bTaskResult.folderFile).
+        IF SEARCH(cFolderFile) EQ ? THEN 
+        DO:
+           cFolderFile = REPLACE(cFolderFile,"\","/").
+           DO iCount = 1 TO NUM-ENTRIES(cFolderFile,"/") - 1:
+            cFilePath = cFilePath +  ENTRY(iCount, cFolderFile, "/") + "/".
+           END.
+          
+           RUN FileSys_CreateDirectory(
+           INPUT  cFilePath,              
+           OUTPUT lError,
+           OUTPUT cMessage
+           ) NO-ERROR.
+            
+           OS-COPY VALUE(taskResult.folderFile) VALUE(bTaskResult.folderFile).
+        END.
         RELEASE bTaskResult.
         {&OPEN-QUERY-taskResultBrowse}
         REPOSITION taskResultBrowse TO ROWID rRowID.

@@ -91,7 +91,7 @@ IF AVAIL inv-head THEN DO:
 
          FOR EACH surcharge NO-LOCK
              WHERE surcharge.company  EQ inv-head.company
-               AND surcharge.calc-on  EQ "I"
+               AND (surcharge.calc-on  EQ "I" OR surcharge.calc-on  EQ "G")
                AND surcharge.cust-no EQ inv-head.cust-no:
 
            RUN inv-surcharge.
@@ -102,7 +102,7 @@ IF AVAIL inv-head THEN DO:
          IF v-found-cust-charge = NO THEN
             FOR EACH surcharge NO-LOCK
                 WHERE surcharge.company  EQ inv-head.company
-                  AND surcharge.calc-on  EQ "I"
+                  AND (surcharge.calc-on  EQ "I" OR surcharge.calc-on  EQ "G")
                   AND surcharge.cust-no EQ "":
            
               RUN inv-surcharge.
@@ -212,12 +212,17 @@ PROCEDURE inv-surcharge:
 
   DEF VAR ld-charge AS DEC NO-UNDO.
   DEF VAR ld-factor AS DEC NO-UNDO.
-
+  DEFINE VARIABLE dMiscAmt AS DECIMAL NO-UNDO.
+  
   ld-charge = surcharge.amt / 1000.
-
+      
   CASE surcharge.calc-on:
     WHEN "I" THEN do:
             ld-factor = ld-factor + ( /*IF ld-charge GE 1 THEN 1 ELSE*/ inv-line.t-price).
+    END.
+    WHEN "G" THEN do:
+            RUN pGetOrderMiscAmt(INPUT inv-line.company, INPUT inv-line.ord-no, OUTPUT dMiscAmt).               
+            ld-factor = ld-factor + ( inv-line.t-price) + dMiscAmt .
     END.
     OTHERWISE
     FOR EACH inv-line WHERE inv-line.r-no EQ inv-head.r-no NO-LOCK,
@@ -236,7 +241,7 @@ PROCEDURE inv-surcharge:
     END.
   END CASE.
 
-  IF surcharge.calc-on EQ "I" THEN
+  IF surcharge.calc-on EQ "I" OR surcharge.calc-on EQ "G" THEN
   ld-charge = ld-charge * ld-factor / 100  .
   ELSE ld-charge = ld-charge * ld-factor . 
   IF ld-charge EQ ? THEN ld-charge = 0.    
@@ -276,4 +281,18 @@ PROCEDURE inv-surcharge:
      inv-misc.amt = inv-misc.amt + ld-charge.
   END.
 
+END PROCEDURE.
+
+PROCEDURE pGetOrderMiscAmt: 
+  DEFINE INPUT PARAMETER ipcCompany  AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER ipiOrder    AS INTEGER   NO-UNDO.
+  DEFINE OUTPUT PARAMETER opdMiscAmt AS DECIMAL   NO-UNDO.
+      
+  IF ipiOrder NE 0 THEN  
+  FOR EACH oe-ordm NO-LOCK
+      WHERE oe-ordm.company EQ ipcCompany
+      AND oe-ordm.ord-no  EQ ipiOrder
+      AND oe-ordm.bill    EQ "I" :       
+      opdMiscAmt = opdMiscAmt + oe-ordm.amt. 
+  END.
 END PROCEDURE.

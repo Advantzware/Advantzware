@@ -329,6 +329,7 @@ PROCEDURE PO_GetLineScoresAndTypes:
     DEFINE INPUT  PARAMETER ipcCompany    AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPoID       AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER ipiPoLine     AS INTEGER   NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdScores     AS DECIMAL   NO-UNDO EXTENT 20.
     DEFINE OUTPUT PARAMETER opcScoreTypes AS CHARACTER NO-UNDO EXTENT 20.
     
@@ -361,7 +362,9 @@ PROCEDURE PO_GetLineScoresAndTypes:
         OUTPUT cReverseGrain,
         OUTPUT iEstimateType
         ).
-    
+    IF ipcPanelType NE "" THEN
+    cPanelType = ipcPanelType.
+    ELSE
     cPanelType = IF (cReverseGrain EQ "S" AND iEstimateType GE 5) OR cReverseGrain EQ "B" THEN
                      "L"
                  ELSE

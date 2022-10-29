@@ -35,10 +35,12 @@ DEFINE VARIABLE gcValidOperators        AS CHARACTER NO-UNDO INITIAL "+-/*".
 DEFINE VARIABLE gcValidVariables        AS CHARACTER NO-UNDO INITIAL "LWDTFJBOSI".
 DEFINE VARIABLE gdDecimalFactor         AS DECIMAL   NO-UNDO INITIAL 6.25. 
 
-DEFINE VARIABLE gcPanelLinkTypePO       AS CHARACTER NO-UNDO INITIAL "P".
-DEFINE VARIABLE gcPanelLinkTypeEstimate AS CHARACTER NO-UNDO INITIAL "E".
-DEFINE VARIABLE gcPanelLinkTypeStyle    AS CHARACTER NO-UNDO INITIAL "S".
-DEFINE VARIABLE gcValidPanelDecimals    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE gcPanelLinkTypePO             AS CHARACTER NO-UNDO INITIAL "P".
+DEFINE VARIABLE gcPanelLinkTypeEstimate       AS CHARACTER NO-UNDO INITIAL "E".
+DEFINE VARIABLE gcPanelLinkTypeStyle          AS CHARACTER NO-UNDO INITIAL "S".
+DEFINE VARIABLE gcPanelDetailTypeSquareBoxFit AS CHARACTER NO-UNDO INITIAL "SQBOXFIT". /* Square Box Fit/Dim Fit */
+
+DEFINE VARIABLE gcValidPanelDecimals         AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE iIndex                  AS INTEGER   NO-UNDO.
 
@@ -411,6 +413,135 @@ PROCEDURE Formula_ReBuildBoxDesignForEstimate:
         END. // IF AVAILABLE bf-eb THEN
         
     END.
+END PROCEDURE.
+
+PROCEDURE Formula_SaveSquareBoxFitForStyleAndFlute:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyleID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFluteID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormat       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdValue        AS DECIMAL   NO-UNDO.
+    
+    RUN pSaveStyleAndFluteAttribute (ipcCompany, ipcStyleID, ipcFluteID, gcPanelDetailTypeSquareBoxFit, ipcFormat, ipdValue).
+        
+END PROCEDURE.
+
+PROCEDURE Formula_GetSquareBoxFitForStyleAndFlute:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyleID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFluteID      AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdValue        AS DECIMAL   NO-UNDO.
+    
+    RUN pGetStyleAndFluteAttribute (ipcCompany, ipcStyleID, ipcFluteID, gcPanelDetailTypeSquareBoxFit, OUTPUT opdValue).
+        
+END PROCEDURE.
+    
+PROCEDURE pSaveStyleAndFluteAttribute PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyleID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFluteID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFormat       AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdValue        AS DECIMAL   NO-UNDO.
+    
+    DEFINE VARIABLE iPanelHeaderID AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    DEFINE BUFFER bf-panelDetail FOR panelDetail.
+    
+    FIND FIRST bf-panelHeader NO-LOCK
+         WHERE bf-panelHeader.company      EQ ipcCompany
+           AND bf-panelHeader.linkType     EQ gcPanelLinkTypeStyle
+           AND bf-panelHeader.styleID      EQ ipcStyleID
+           AND bf-panelHeader.fluteID      EQ ipcFluteID
+           AND bf-panelHeader.scoreSetType EQ "FluteAttributes"
+           NO-ERROR.
+    IF NOT AVAILABLE bf-panelHeader THEN  
+        RUN pCreatePanelHeader (
+            INPUT  ipcCompany,
+            INPUT  gcPanelLinkTypeStyle,
+            INPUT  0,                    /* Purchase Order */
+            INPUT  0,                    /* Purchase Order Line */
+            INPUT  "",                   /* Estimate ID */
+            INPUT  0,                    /* Form No */
+            INPUT  0,                    /* Blank No */
+            INPUT  ipcStyleID,           /* Style ID */
+            INPUT  ipcFluteID,           /* Flute ID */
+            INPUT  "FluteAttributes",    /* Score set Type */
+            OUTPUT iPanelHeaderID        
+            ).
+    ELSE
+        iPanelHeaderID = bf-panelHeader.panelHeaderID.
+
+    IF ipcFormat EQ "16th's" THEN
+        RUN Convert16thsToDecimal (INPUT-OUTPUT ipdValue).
+    ELSE IF ipcFormat EQ "32nd's" THEN
+        RUN Convert32ndsToDecimal (INPUT-OUTPUT ipdValue).
+
+    FIND FIRST bf-panelDetail EXCLUSIVE-LOCK
+         WHERE bf-panelDetail.panelHeaderID EQ iPanelHeaderID
+           AND bf-panelDetail.panelType     EQ ipcPanelType
+           AND bf-panelDetail.panelNo       EQ 1
+         NO-ERROR.
+    IF NOT AVAILABLE bf-panelDetail THEN
+        RUN pCreatePanelDetail (
+            INPUT ipcCompany,
+            INPUT iPanelHeaderID,
+            INPUT gcPanelDetailTypeSquareBoxFit,
+            INPUT 1,
+            INPUT "",                           /* Panel Formula */
+            INPUT 0,                            /* Score Allowance */       
+            INPUT "",                           /* Score Type */
+            INPUT ipdValue,                     
+            INPUT ""                            /* Panel Size From Formula */            
+            ).
+    ELSE
+        bf-panelDetail.panelSize = ipdValue.
+END PROCEDURE.
+
+PROCEDURE pGetStyleAndFluteAttribute PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyleID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFluteID      AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcPanelType    AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdValue        AS DECIMAL   NO-UNDO.
+    
+    DEFINE BUFFER bf-panelHeader FOR panelHeader.
+    DEFINE BUFFER bf-panelDetail FOR panelDetail.
+    
+    FIND FIRST bf-panelHeader NO-LOCK
+         WHERE bf-panelHeader.company      EQ ipcCompany
+           AND bf-panelHeader.linkType     EQ gcPanelLinkTypeStyle
+           AND bf-panelHeader.styleID      EQ ipcStyleID
+           AND bf-panelHeader.fluteID      EQ ipcFluteID
+           AND bf-panelHeader.scoreSetType EQ "FluteAttributes"
+           NO-ERROR.
+    IF NOT AVAILABLE bf-panelHeader THEN
+        RETURN.  
+
+    FIND FIRST bf-panelDetail EXCLUSIVE-LOCK
+         WHERE bf-panelDetail.panelHeaderID EQ bf-panelHeader.panelHeaderID
+           AND bf-panelDetail.panelType     EQ ipcPanelType
+           AND bf-panelDetail.panelNo       EQ 1
+         NO-ERROR.
+    IF AVAILABLE bf-panelDetail THEN
+        opdValue = bf-panelDetail.panelSize.
 END PROCEDURE.
 
 PROCEDURE GetSizeFactor:

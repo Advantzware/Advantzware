@@ -317,6 +317,7 @@ do v-local-loop = 1 to v-local-copies:
             INPUT  po-ordl.company,
             INPUT  po-ordl.po-no,
             INPUT  po-ordl.line,
+            INPUT  "",
             OUTPUT lv-val,
             OUTPUT lv-typ
             ).

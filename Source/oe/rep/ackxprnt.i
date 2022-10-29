@@ -84,6 +84,7 @@ PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP
        "<R24><C72><FROM><R26><C72><LINE>" SKIP
        .
 
+PUT "<FArial><=5><C9>FG Item #".
 PUT "<FArial><=5><R+1> Line        Customer Part#           Description                                                             Ordered                             Price          UOM" SKIP(1).
 PUT "<FCourier New>"          .
 v-printline = v-printline + 6.

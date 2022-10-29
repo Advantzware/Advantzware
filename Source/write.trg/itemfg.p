@@ -12,6 +12,9 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
 DEF VAR ld-qalloc AS DEC NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
 DISABLE TRIGGERS FOR LOAD OF eb.
 
 ASSIGN
@@ -170,7 +173,10 @@ DO TRANSACTION:
         IF AVAIL eb THEN
         IF {&TABLENAME}.isaset THEN RUN fg/updsetdm.p (RECID(eb)).
         ELSE DO:
+          RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
           {sys/inc/updfgdim.i eb}
+          IF VALID-HANDLE(hdFormulaProcs) THEN
+          DELETE PROCEDURE hdFormulaProcs.
         END. /* Not isaset */
       END. /* Not isaset */
     END. /* est-no gt "" or dimensions not zero */

@@ -49,6 +49,8 @@ DEF VAR v-lscore-d-dec-text AS CHAR NO-UNDO.
 DEF VAR v-lcum-score-d-dec-text AS CHAR NO-UNDO.
 DEF VAR v-wscore-d-dec-text AS CHAR NO-UNDO.
 DEF VAR v-wcum-score-d-dec-text AS CHAR NO-UNDO.
+DEFINE VARIABLE dBoxFit AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
 
 DEF BUFFER reftable2 FOR reftable.
 
@@ -136,14 +138,11 @@ IF AVAIL eb                           AND
    ( PROGRAM-NAME(2) MATCHES "*b-estitm*" OR
      program-name(2) MATCHES "*v-est*")
 THEN DO:
-    
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "STYFLU"
-        AND reftable.company  EQ eb.style
-        AND reftable.loc      EQ eb.flute
-        AND reftable.code     EQ "DIM-FIT"
-      NO-LOCK NO-ERROR.
-  IF AVAIL reftable THEN v-sq-box = reftable.val[1] / 6.25 * k_frac.
+  RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+  RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (eb.company, eb.style, eb.flute, OUTPUT dBoxFit).
+  v-sq-box = dBoxFit / 6.25 * k_frac.
+  IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 END.
 
 IF AVAIL box-design-hdr THEN DO:

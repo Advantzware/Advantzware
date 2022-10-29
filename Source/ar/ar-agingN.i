@@ -92,6 +92,7 @@ DEFINE VARIABLE cBolNo AS CHARACTER NO-UNDO.
 DEF VAR cJobStr AS CHAR FORMAT "x(13)" NO-UNDO.
 DEF VAR iLinePerPage AS INTEGER NO-UNDO .
 DEFINE VARIABLE dAmountDue AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTotalNet  AS DECIMAL NO-UNDO .
 DEFINE VARIABLE cTermsCode AS CHARACTER NO-UNDO.
 DEFINE VARIABLE dOpeningBalance AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dArClassAmount AS DECIMAL NO-UNDO.
@@ -109,8 +110,14 @@ DEF TEMP-TABLE tt-cust NO-UNDO FIELD curr-code LIKE cust.curr-code
 
 DEF TEMP-TABLE tt-inv NO-UNDO  FIELD sorter    LIKE ar-inv.inv-no
                                FIELD inv-no    LIKE ar-inv.inv-no
+                               FIELD net       LIKE ar-inv.net
+                               FIELD spare-char-1 LIKE ar-inv.spare-char-1
+                               FIELD spare-int-2  LIKE ar-inv.spare-int-2
                                FIELD row-id    AS   ROWID
                                INDEX tt-inv sorter inv-no.
+                               
+DEF BUFFER bf-tt-inv FOR tt-inv.
+
 DEFINE TEMP-TABLE ttArClass NO-UNDO
                   FIELD arclass AS INTEGER 
                   FIELD cust-no AS CHARACTER
@@ -121,6 +128,7 @@ DEFINE TEMP-TABLE ttArClass NO-UNDO
     FOR EACH ar-inv                                ~
         FIELDS(company posted cust-no inv-date     ~
                terms x-no due-date net gross       ~
+               due spare-char-1 spare-int-2        ~
                freight tax-amt inv-no postedDate)             ~
         NO-LOCK                                    ~
         WHERE ar-inv.company     EQ cust.company   ~
@@ -379,6 +387,9 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
       ASSIGN
        tt-inv.sorter = INT(ar-inv.{&sort-by2})
        tt-inv.inv-no = ar-inv.inv-no
+       tt-inv.spare-char-1 = ar-inv.spare-char-1
+       tt-inv.spare-int-2 = ar-inv.spare-int-2
+       tt-inv.net = ar-inv.net
        tt-inv.row-id = ROWID(ar-inv).
     END.
 
@@ -392,6 +403,9 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
         ASSIGN
          tt-inv.sorter = INT(ar-inv.{&sort-by2})
          tt-inv.inv-no = ar-inv.inv-no
+         tt-inv.spare-char-1 = ar-inv.spare-char-1
+         tt-inv.spare-int-2 = ar-inv.spare-int-2
+         tt-inv.net = ar-inv.net
          tt-inv.row-id = ROWID(ar-inv).
       END.
 
@@ -404,10 +418,38 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
         ASSIGN
          tt-inv.sorter = INT(ar-inv.{&sort-by2})
          tt-inv.inv-no = ar-inv.inv-no
+         tt-inv.spare-char-1 = ar-inv.spare-char-1
+         tt-inv.spare-int-2 = ar-inv.spare-int-2
+         tt-inv.net = ar-inv.net
          tt-inv.row-id = ROWID(ar-inv).
       END.
     END.
-
+    
+    
+    IF NOT v-inc THEN DO:
+        FOR EACH tt-inv:
+            ASSIGN dTotalNet = 0.
+            
+            FOR EACH bf-tt-inv NO-LOCK
+                WHERE bf-tt-inv.spare-int-2 EQ tt-inv.inv-no
+                AND bf-tt-inv.spare-char-1 EQ "Credit"
+                :
+                dTotalNet = dTotalNet + bf-tt-inv.net.
+            END. /* FOR EACH bf-tt-inv */
+            IF tt-inv.net + dTotalNet = 0 THEN DO:
+                FOR EACH bf-tt-inv NO-LOCK
+                WHERE bf-tt-inv.spare-int-2 EQ tt-inv.inv-no
+                AND bf-tt-inv.spare-char-1 EQ "Credit"
+                :
+                    DELETE bf-tt-inv.
+                END.
+                DELETE tt-inv.
+            END. /* IF tt-inv.net + dTotalNet = 0 */
+            
+        END. /* FOR EACH tt-inv */
+    END.  /* IF NOT v-inc */
+    
+    
     FOR EACH tt-inv,
         FIRST ar-inv WHERE ROWID(ar-inv) EQ tt-inv.row-id NO-LOCK
         BY tt-inv.sorter
@@ -2163,13 +2205,12 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
             END.
         END.
 
+ END PROCEDURE.
+ 
  FINALLY:
         IF VALID-HANDLE (hdOutputProcs) THEN
             DELETE PROCEDURE hdOutputProcs.            
  END FINALLY.
-        
-
- END PROCEDURE.
 
 /* End ---------------------------------- Copr. 1997  Advanced Software, Inc. */
 

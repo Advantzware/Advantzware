@@ -42,13 +42,7 @@ FIND first report where report.term-id eq v-term-id NO-LOCK NO-ERROR.
 FIND first xquo  where recid(xquo) eq report.rec-id NO-LOCK NO-ERROR.
 IF NOT AVAIL xquo THEN RETURN.
 
-format xquo.est-no        to 8
-       xqitm.part-no    to 34   format "x(25)"
-       trim-size          to 58   format "x(23)"
-       xqqty.qty           to 66   format ">>>>>>9"
-       xqqty.rels             TO 70   format ">>9"
-       xqqty.price         TO 80   format ">>,>>9.99"
-       xqqty.uom         to 83
+FORMAT 
 
       header "Est #    Description               Siz/Styl/Brd/Co" +
              "lors         QTY Rel     PriceUOM" format "x(83)"
@@ -164,6 +158,7 @@ format xquo.est-no        to 8
   view frame quote.
 
   if (not ch-multi) then do:
+    DISPLAY "" WITH FRAME item-10p.
     {cec/quote/quofibre.i 1}
 
     release est.
@@ -233,7 +228,7 @@ format xquo.est-no        to 8
     end.
 
     v-last = last-of(report.key-01).
-
+    DISPLAY "" WITH FRAME item-10p.
     {cec/quote/quofibre.i 2}
    end.
   end.

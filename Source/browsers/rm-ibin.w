@@ -47,6 +47,7 @@ ASSIGN cocode = g_company
 DEF VAR v-acs-code AS cha NO-UNDO.
 DEF VAR v-ext-cost AS DEC NO-UNDO.
 DEF VAR v-msf-cost AS DEC NO-UNDO.
+DEFINE VARIABLE dTons AS DECIMAL NO-UNDO.
 
 DEFINE VARIABLE cVenTag AS CHARACTER NO-UNDO.
 
@@ -83,7 +84,7 @@ DEFINE QUERY external_tables FOR item.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table rm-bin.po-no rm-bin.loc ~
 rm-bin.loc-bin rm-bin.tag fnVenTag () @ cVenTag rm-bin.qty rm-bin.cost ext-cost (1) @ v-ext-cost ~
-msf-cost (1) @ v-msf-cost 
+msf-cost (1) @ v-msf-cost fGetTons () @ dTons 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rm-bin WHERE ~{&KEY-PHRASE} ~
   AND rm-bin.company = item.company ~
@@ -134,6 +135,10 @@ FUNCTION msf-cost RETURNS DECIMAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnVenTag B-table-Win 
 FUNCTION fnVenTag RETURNS CHARACTER
   (/* parameter-definitions */)  FORWARD.
+    
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  (/* parameter-definitions */)  FORWARD.  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -204,6 +209,7 @@ DEFINE BROWSE Browser-Table
       ext-cost (1) @ v-ext-cost COLUMN-LABEL "Ext. Cost" FORMAT "->>>,>>>,>>9.99<<":U
             WIDTH 20
       msf-cost (1) @ v-msf-cost COLUMN-LABEL "Cost/MSF" FORMAT "->>>,>>9.99<<<":U
+      fGetTons () @ dTons COLUMN-LABEL "Weight in Tons " FORMAT "->>,>>>,>>9.99<<<<":U 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 15.24
@@ -331,6 +337,8 @@ ASSIGN
 "msf-cost (1) @ v-msf-cost" "Cost/MSF" "->>>,>>9.99<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "fnVenTag () @ cVenTag" "Vendor Tag#" "x(25)" "character" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   > "_<CALC>"
+"fGetTons () @ dTons" "Weight in Tons" "->>,>>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -779,6 +787,31 @@ FUNCTION fnVenTag RETURNS CHARACTER
                 iResult = (bf-loadtag.misc-char[1]).
         END.
 	    RETURN iResult.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTons B-table-Win 
+FUNCTION fGetTons RETURNS DECIMAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+     DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+     IF ITEM.cons-uom EQ "TON" THEN
+     dResult = rm-bin.qty.
+     ELSE
+     RUN custom/convquom.p(cocode, item.cons-uom,"TON", item.basis-w,
+                               (IF item.r-wid EQ 0 THEN item.s-len
+                                                    ELSE 12),
+                                (IF item.r-wid EQ 0 THEN item.s-wid
+                                                    ELSE item.r-wid),
+                                item.s-dep,                    
+                                rm-bin.qty, OUTPUT dResult).     
+	RETURN dResult.
 
 END FUNCTION.
 

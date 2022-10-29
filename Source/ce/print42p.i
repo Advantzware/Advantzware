@@ -31,7 +31,7 @@ DEF BUFFER bf-probe FOR probe.
 IF xest.metric THEN
   ASSIGN
    ld-metric = 25.4
-   lv-format = "->>,>>>mm".
+   lv-format = "->>,>>>.99".
 
 {cec/get-vend.i}  /* get vendor number */
 
@@ -620,12 +620,6 @@ with frame brd no-labels no-box width 82 stream-io down:
        ld-len = xeb.len * ld-metric
        ld-wid = xeb.wid * ld-metric
        ld-dep = xeb.dep * ld-metric.
-
-      IF ld-metric NE 1 THEN DO:
-        {sys/inc/roundup.i ld-len}
-        {sys/inc/roundup.i ld-wid}
-        {sys/inc/roundup.i ld-dep}
-      END.
 
       ASSIGN
        sizcol[1]  = TRIM(STRING(ld-len,lv-format)) + "x" +

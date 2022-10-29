@@ -664,44 +664,51 @@ v-printline = 0.
         
         assign v-line-number = v-line-number + 1
                v-printline = v-printline + 1
-               len-score = "".
-
+               len-score = ""
+               cScorePanelType = "L".
         
 
         {po/poprints.i}
             IF NOT po-ordl.item-type THEN         
             IF AVAIL itemfg AND v-score-types THEN DO:
-                put 
-                    "Score: " AT 3
-                    len-score format "x(80)" SKIP .
-                
-                ASSIGN
-                    v-line-number = v-line-number + 1
-                    v-printline = v-printline + 1.
+               IF len-score NE "" THEN do:
+                    put 
+                        "Score: " AT 3
+                        len-score format "x(80)" SKIP .
+                    
+                    ASSIGN
+                        v-line-number = v-line-number + 1
+                        v-printline = v-printline + 1.
+                END. 
+                IF cWidScore NE "" THEN do:
+                    put 
+                        "Score: " AT 3
+                        cWidScore format "x(80)" SKIP .
+                    
+                    ASSIGN
+                        v-line-number = v-line-number + 1
+                        v-printline = v-printline + 1.
+                END. 
             END.
 
             IF AVAIL ITEM AND lookup("1,2,3,4",ITEM.mat-type) > 0 THEN DO: 
             END.
             ELSE DO:
-               if not v-test-scr AND (AVAIL ITEM AND ITEM.mat-type = "B") then do:
-                  put 
-                      "Score: " AT 3
-                      len-score format "x(80)" SKIP .
-                      
-                  ASSIGN
-                  v-line-number = v-line-number + 1
-                  v-printline = v-printline + 1.
-               end.
-          
-               else
-               if v-test-scr AND AVAIL ITEM AND ITEM.mat-type = "B" AND dec(trim(len-score)) ne v-wid then do:
-                  put "Score: " AT 3
-                      len-score format "x(80)"  SKIP.
-                      
-                  ASSIGN
-                  v-line-number = v-line-number + 1
-                  v-printline = v-printline + 1.
-               END.
+               IF len-score NE "" AND AVAIL ITEM AND ITEM.mat-type = "B" THEN do:
+                 PUT "Score: " AT 3
+                 len-score format "x(80)" SKIP . 
+                 ASSIGN
+                     v-line-number = v-line-number + 1
+                     v-printline = v-printline + 1.
+             END.    
+             IF  cWidScore NE "" AND AVAIL ITEM AND ITEM.mat-type = "B" THEN do:
+                 put 
+                     "Score: " AT 3
+                     cWidScore format "x(80)" SKIP .                     
+                 ASSIGN
+                      v-line-number = v-line-number + 1
+                      v-printline = v-printline + 1. 
+             END.
             END.
            end.
            END.

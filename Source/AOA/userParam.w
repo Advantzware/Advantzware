@@ -111,8 +111,8 @@ DEFINE BUTTON btnAddEmail
 DEFINE BUTTON btnReset 
      IMAGE-UP FILE "Graphics/32x32/undo_32.png":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/undo_32_disabled.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Update/Save Columns" 
-     SIZE 8 BY 1.91 TOOLTIP "Update/Save Columns".
+     LABEL "Reset" 
+     SIZE 8 BY 1.91 TOOLTIP "Reset".
 
 DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.png":U
@@ -223,7 +223,7 @@ DEFINE FRAME outputFrame
      svAutoClose AT ROW 1.95 COL 96 HELP
           "Toggle to Auto Close" WIDGET-ID 658
      defaultOutputFormat AT ROW 2.43 COL 118 NO-LABEL WIDGET-ID 644
-     svOnePer AT ROW 2.9 COL 96 WIDGET-ID 666
+     svOnePer AT ROW 2.91 COL 96 WIDGET-ID 666
      svShowAll AT ROW 4.1 COL 8 WIDGET-ID 18
      svShowReportHeader AT ROW 4.1 COL 32 WIDGET-ID 2
      svShowReportFooter AT ROW 4.1 COL 53 WIDGET-ID 4
@@ -373,7 +373,7 @@ END.
 
 &Scoped-define SELF-NAME btnReset
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset s-object
-ON CHOOSE OF btnReset IN FRAME outputFrame /* Update/Save Columns */
+ON CHOOSE OF btnReset IN FRAME outputFrame /* Reset */
 DO:
     RUN pReset.
 END.
@@ -417,7 +417,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define SELF-NAME svShowAll
@@ -564,9 +563,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy s-object 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -586,14 +584,9 @@ PROCEDURE local-destroy:
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
 PROCEDURE local-initialize :

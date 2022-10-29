@@ -15,6 +15,10 @@ DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
 DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFGMasterLoc AS CHARACTER NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 {ce/msfcalc.i}
 {oe/fgfreight.i}    
@@ -116,3 +120,6 @@ END.
 {sys/inc/fgcascnt.i itemfg xeb}
 
 {sys/inc/updfgdim.i "xeb"}
+
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
