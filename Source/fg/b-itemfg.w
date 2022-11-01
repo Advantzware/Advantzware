@@ -130,7 +130,7 @@ END.
     IF lv-sort-by EQ "spc-no"     THEN itemfg.spc-no      ELSE ~
     IF lv-sort-by EQ "i-code"     THEN itemfg.i-code      ELSE ~
     IF lv-sort-by EQ "stocked"     THEN string(itemfg.stocked)      ELSE ~
-    IF lv-sort-by EQ "q-onh"     THEN string(itemfg.q-onh)      ELSE ~
+    IF lv-sort-by EQ "q-onh"     THEN STRING(99999999 + itemfg.q-onh, "-99999999") ELSE ~
     IF lv-sort-by EQ "procat"   THEN itemfg.procat       ELSE ""
 
 &SCOPED-DEFINE sortby BY itemfg.i-no
