@@ -3492,7 +3492,7 @@ PROCEDURE pRunFormatValueChanged :
                 tb_prt-dmi:SENSITIVE = YES .
         ELSE
             tb_prt-dmi:HIDDEN = YES .
-        IF lv-format-f EQ "CentBox" AND lv-int-f EQ 0 AND tb_fold:SCREEN-VALUE EQ "Yes" THEN
+        IF lv-format-f EQ "CentBox" AND /* lv-int-f EQ 0 AND */ tb_fold:SCREEN-VALUE EQ "Yes" THEN
         DO:
             rd_print-Sheet:HIDDEN =  NO.  
         END.
