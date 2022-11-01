@@ -1734,7 +1734,7 @@ PROCEDURE run-report :
             DO:            
                 CASE cTmpField:               
                     WHEN "v-inv-no" THEN 
-                        cVarValue = STRING(v-inv-no,"->>>>>>,>>9").
+                        cVarValue = STRING(v-inv-no,"->>>>>>>>9").
                     WHEN "v-inv-date" THEN 
                         cVarValue = v-inv-date.
                     WHEN "date-field[1]"  THEN 
