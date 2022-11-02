@@ -32,9 +32,9 @@ RUN system\session.p PERSISTENT SET hdSession.
 SESSION:ADD-SUPER-PROCEDURE (hdSession).
 
 // RUN pChangeOperation.
-//RUN ClearAttributes IN hdOpProcs.
-//RUN pGetOperationStandardsSingle(gcCompany, gcEstimateID).
-RUN pBuildRoutingTest.
+//RUN Operations_ClearAttributes IN hdOpProcs.
+RUN pGetOperationStandardsTest(gcCompany, gcEstimateID).
+//RUN pBuildRoutingTest.
 //RUN pBuildEstOPTest.
 
 /* **********************  Internal Procedures  *********************** */
@@ -59,9 +59,9 @@ PROCEDURE pBuildRoutingTest PRIVATE:
             VIEW-AS ALERT-BOX.
         RETURN.
     END.
-    RUN BuildEstimateRoutingTT IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
+    RUN Operations_BuildEstimateRoutingTT IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
     
-    RUN GetEstimateRoutingTT IN hdOpProcs (OUTPUT TABLE ttRouting).
+    RUN Operations_GetEstimateRoutingTT IN hdOpProcs (OUTPUT TABLE ttRouting).
     
     FOR EACH ttRouting:
         
@@ -107,7 +107,7 @@ PROCEDURE pBuildEstOPTest PRIVATE:
         DELETE est-op.
     END.
     
-    RUN BuildEstimateRouting IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
+    RUN Operations_BuildEstimateRouting IN hdOpProcs (est.company, est.est-no, 0,est.est-qty[1]).
     
     FOR EACH Est-op NO-LOCK
         WHERE est-op.company = est.company
@@ -142,7 +142,7 @@ PROCEDURE pChangeOperation PRIVATE:
         AND job.job-no EQ 'W01356'
         AND job.job-no2 EQ 0
         NO-ERROR.
-    RUN ProcessOperationChange IN hdOpProcs (job.company,"PRESS", job.job, 1,0,1,"PR", OUTPUT cAction).
+    RUN Operations_ProcessOperationChange IN hdOpProcs (job.company,"PRESS", job.job, 1,0,1,"PR", OUTPUT cAction).
 
 END PROCEDURE.
 
@@ -170,12 +170,13 @@ PROCEDURE pGetOperationStandardsTest PRIVATE:
     DO:
         FOR EACH eb NO-LOCK OF est,
             FIRST ef NO-LOCK OF eb:
-            RUN SetAttributesFromRowid IN hdOpProcs (ROWID(eb), OUTPUT lError, OUTPUT cMessage).
             FOR EACH est-op NO-LOCK 
                 WHERE est-op.company EQ eb.company
                 AND est-op.est-no EQ eb.est-no
                 AND est-op.s-num EQ eb.form-no:
-                RUN GetOperationStandards IN hdOpProcs (est.company, est.loc, est-op.m-code, 
+                RUN Operations_ClearAttributes IN hdOpProcs.
+                RUN Operations_SetAttributesFromEstOp IN hdOpProcs (ROWID(est-op), eb.loc, eb.eqty, OUTPUT lError, OUTPUT cMessage).
+                RUN Operations_GetOperationStandards IN hdOpProcs (est.company, est.loc, est-op.m-code, 
                     OUTPUT dOpMRWaste, OUTPUT dOpMRHours, OUTPUT dOpRunSpeed, OUTPUT dOpRunSpoil, OUTPUT lError, OUTPUT cMessage).
                 MESSAGE "Machine: " est-op.m-code SKIP 
                     "Form-Blank: " est-op.s-num "-" est-op.b-num SKIP 
@@ -220,9 +221,9 @@ PROCEDURE pGetOperationStandardsSingle PRIVATE:
                 AND est-op.est-no EQ eb.est-no
                 AND est-op.s-num EQ eb.form-no
                 AND est-op.m-code EQ cMachineTarget:
-            RUN SetAttributesFromEb IN hdOpProcs (ROWID(eb),est-op.m-code, est-op.op-pass, OUTPUT lError, OUTPUT cMessage).
+            RUN Operations_SetAttributesFromEstOp IN hdOpProcs (ROWID(est-op), eb.loc, eb.eqty, OUTPUT lError, OUTPUT cMessage).
             
-            RUN GetOperationStandards IN hdOpProcs (est.company, est.loc, cMachineTarget, 
+            RUN Operations_GetOperationStandards IN hdOpProcs (est.company, est.loc, cMachineTarget, 
                 OUTPUT dOpMRWaste, OUTPUT dOpMRHours, OUTPUT dOpRunSpeed, OUTPUT dOpRunSpoil, OUTPUT lError, OUTPUT cMessage).
             MESSAGE  
                 "MR Waste: " dOpMRWaste SKIP 

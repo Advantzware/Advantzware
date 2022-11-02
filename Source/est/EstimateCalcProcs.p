@@ -4082,7 +4082,7 @@ PROCEDURE pImportMachineStandards PRIVATE:
     DEFINE VARIABLE dSpoilPrct AS DECIMAL NO-UNDO.
        
     RUN Operations_ImportMachineStandards IN ghOperation
-        (ipbf-est-op.company, ipbf-est-op.est-no, ipbf-est-op.s-num, ipbf-est-op.b-num, ipbf-est-op.op-pass,ipbf-est-op.qty, ipbf-ttEstCostHeader.quantityMaster, ipbf-est-op.m-code, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
+        (ROWID(ipbf-est-op), ipbf-ttEstCostHeader.quantityMaster, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dMRWaste, OUTPUT dSpoilPrct).
     
     IF AVAILABLE opbf-ttEstCostOperation THEN
         ASSIGN
