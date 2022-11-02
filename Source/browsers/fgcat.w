@@ -45,7 +45,6 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
-DEFINE VARIABLE cat-format AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cDscr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
 
@@ -74,7 +73,7 @@ DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table fgcat.procat fgcat.dscr ~
-fgcat.commrate = 1 @ cat-format fgcat.glacc getDscr() @ cDscr getType() @ cType fgcat.lActive /*account.dscr account.type*/ 
+fgcat.glacc getDscr() @ cDscr getType() @ cType fgcat.lActive /*account.dscr account.type*/ 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fgcat WHERE ~{&KEY-PHRASE} ~
   AND  fgcat.company = gcompany NO-LOCK  ~
@@ -170,8 +169,6 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       fgcat.procat FORMAT "x(5)":U LABEL-BGCOLOR 14
       fgcat.dscr FORMAT "x(20)":U LABEL-BGCOLOR 14
-      fgcat.commrate = 1 @ cat-format COLUMN-LABEL "Format" FORMAT "Fraction/Decimal":U
-            LABEL-BGCOLOR 14
       fgcat.glacc FORMAT "x(25)":U LABEL-BGCOLOR 14
       getDscr() @ cDscr COLUMN-LABEL "GL Account Description" FORMAT "x(45)":U
       getType() @ cType COLUMN-LABEL "GL Account Type" FORMAT "x":U
@@ -288,8 +285,6 @@ ASSIGN
 "fgcat.procat" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fgcat.dscr
 "fgcat.dscr" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > "_<CALC>"
-"fgcat.commrate = 1 @ cat-format" "Format" "Fraction/Decimal" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.fgcat.glacc
 "fgcat.glacc" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"

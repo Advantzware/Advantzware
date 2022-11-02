@@ -96,7 +96,7 @@ fgcat.over-pct fgcat.under-pct fgcat.miscCharge fgcat.brdExpAcct ~
 fgcat.cogsExpAcct fgcat.lActive 
 &Scoped-define DISPLAYED-TABLES fgcat
 &Scoped-define FIRST-DISPLAYED-TABLE fgcat
-&Scoped-Define DISPLAYED-OBJECTS cat-format F1 
+&Scoped-Define DISPLAYED-OBJECTS F1 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -133,10 +133,6 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE cat-format AS LOGICAL FORMAT "Fraction/Decimal":U INITIAL NO 
-     LABEL "Format" 
-     VIEW-AS FILL-IN 
-     SIZE 11 BY 1 NO-UNDO.
 
 DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
       VIEW-AS TEXT 
@@ -159,8 +155,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 FONT 4
-     cat-format AT ROW 2.43 COL 12 COLON-ALIGNED HELP
-          "Enter to print box & sheet dimensions in Decimal or Fraction"
      fgcat.glacc AT ROW 2.43 COL 40 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
@@ -255,8 +249,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN cat-format IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN F1 IN FRAME F-Main
    NO-ENABLE ALIGN-L 6                                                  */
 ASSIGN 
@@ -553,7 +545,6 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/viewers/assign/fgcat.i}
 
   if adm-new-record then
   for each sman-mtx
@@ -655,10 +646,6 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DO WITH FRAME {&FRAME-NAME}:
-    IF AVAILABLE fgcat THEN
-    cat-format:SCREEN-VALUE = STRING(fgcat.commrate EQ 1,"yes/no").
-  END.
 
 END PROCEDURE.
 
