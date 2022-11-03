@@ -45,7 +45,6 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
-DEFINE VARIABLE cat-format AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cDscr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
 
@@ -74,13 +73,13 @@ DEFINE VARIABLE cType AS CHARACTER NO-UNDO.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table fgcat.procat fgcat.dscr ~
-fgcat.commrate = 1 @ cat-format fgcat.glacc getDscr() @ cDscr getType() @ cType fgcat.lActive /*account.dscr account.type*/ 
+fgcat.glacc getDscr() @ cDscr getType() @ cType fgcat.lActive 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH fgcat WHERE ~{&KEY-PHRASE} ~
-  AND  fgcat.company = gcompany NO-LOCK  ~
+      AND fgcat.company = gcompany NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fgcat WHERE ~{&KEY-PHRASE} ~
-   AND fgcat.company = gcompany NO-LOCK ~
+      AND fgcat.company = gcompany NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table fgcat account
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fgcat
@@ -101,10 +100,7 @@ Btn_Clear_Find
 &ANALYZE-RESUME
 
 
-
 /* ************************  Function Prototypes ********************** */
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getDscr B-table-Win 
 FUNCTION getDscr RETURNS CHARACTER
@@ -112,8 +108,6 @@ FUNCTION getDscr RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getType B-table-Win 
 FUNCTION getType RETURNS CHARACTER
@@ -158,10 +152,8 @@ DEFINE QUERY Browser-Table FOR
       fgcat
     FIELDS(fgcat.procat
       fgcat.dscr
-      fgcat.commrate
       fgcat.glacc
-      fgcat.lActive) /*, 
-      account*/ SCROLLING.
+      fgcat.lActive) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -170,8 +162,6 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       fgcat.procat FORMAT "x(5)":U LABEL-BGCOLOR 14
       fgcat.dscr FORMAT "x(20)":U LABEL-BGCOLOR 14
-      fgcat.commrate = 1 @ cat-format COLUMN-LABEL "Format" FORMAT "Fraction/Decimal":U
-            LABEL-BGCOLOR 14
       fgcat.glacc FORMAT "x(25)":U LABEL-BGCOLOR 14
       getDscr() @ cDscr COLUMN-LABEL "GL Account Description" FORMAT "x(45)":U
       getType() @ cType COLUMN-LABEL "GL Account Type" FORMAT "x":U
@@ -256,7 +246,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -285,19 +275,17 @@ ASSIGN
      _TblOptList       = "USED,"
      _Where[1]         = "fgcat.company = gcompany"
      _FldNameList[1]   > ASI.fgcat.procat
-"fgcat.procat" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"procat" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fgcat.dscr
-"fgcat.dscr" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > "_<CALC>"
-"fgcat.commrate = 1 @ cat-format" "Format" "Fraction/Decimal" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > ASI.fgcat.glacc
-"fgcat.glacc" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > "_<CALC>"
+"dscr" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > ASI.fgcat.glacc
+"glacc" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > "_<CALC>"
 "getDscr() @ cDscr" "GL Account Description" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > "_<CALC>"
+     _FldNameList[5]   > "_<CALC>"
 "getType() @ cType" "GL Account Type" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.fgcat.lActive
-"fgcat.lActive" "Active" ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.fgcat.lActive
+"lActive" ? ? ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -486,7 +474,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getDscr B-table-Win 
@@ -513,7 +500,6 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getType B-table-Win 
 FUNCTION getType RETURNS CHARACTER
     (  ):
@@ -538,7 +524,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 
