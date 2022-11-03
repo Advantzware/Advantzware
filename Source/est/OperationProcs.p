@@ -63,7 +63,8 @@ DEFINE VARIABLE giAttributeIDStyle            AS INTEGER NO-UNDO INITIAL 101.   
 DEFINE VARIABLE giAttributeIDBoardItemID      AS INTEGER NO-UNDO INITIAL 102.   //Board ItemID
 DEFINE VARIABLE giAttributeIDBoxDepth         AS INTEGER NO-UNDO INITIAL 104.   //Box Depth
 DEFINE VARIABLE giAttributeIDCaliperDecimal   AS INTEGER NO-UNDO INITIAL 105.   //Caliper as decimal
- 
+
+DEFINE VARIABLE gcAttributeNameEstQtyPerFeed  AS CHARACTER NO-UNDO INITIAL "Estimate Quantity (Feeds)". 
 
 DEFINE VARIABLE gcDeptsForPrinters                   AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                     AS CHARACTER NO-UNDO INITIAL "GL,QS".
@@ -2760,7 +2761,7 @@ PROCEDURE pProcessOperation PRIVATE:
     ipbf-ttOperation.FGCumulativeNumOut = fGetCumulNumOutForOperation(INPUT ipbf-ttOperation.numOutForOperation).
     ipbf-ttOperation.FGCumulativeNumOut = MAX(1,ipbf-ttOperation.FGCumulativeNumOut).
      
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFeed, iopdQtyInOut).
+    RUN pSetAttribute(giAttributeIDEstQtyPerFeed, gcAttributeNameEstQtyPerFeed, iopdQtyInOut).
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFG, iopdQtyInOut * ipbf-ttOperation.FGCumulativeNumOut ).
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
     
@@ -2804,7 +2805,7 @@ PROCEDURE pProcessOperation PRIVATE:
     END.
     
     /* Set Quantity and dependent attributes for each Line. These will be used to get Spoilage value */   
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFeed, ipbf-ttOperation.quantityIn).  
+    RUN pSetAttribute(giAttributeIDEstQtyPerFeed, gcAttributeNameEstQtyPerFeed, ipbf-ttOperation.quantityIn).  
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFG, ipbf-ttOperation.quantityIn * ipbf-ttOperation.FGCumulativeNumOut).  
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
     
@@ -2985,7 +2986,7 @@ PROCEDURE pSetAttributesForm PRIVATE:
     
     RUN pSetAttribute(giAttributeIDBoardItemID, "Board ItemID", ipbf-ef.board).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDCaliper, STRING(fGetOperationsCalThickness(BUFFER ipbf-ef))).
-    RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDCaliperDecimal, STRING(ipbf-ef.cal)).
+    RUN pSetAttribute(giAttributeIDCaliperDecimal, "Caliper Thickness (in Decimal)",STRING(ipbf-ef.cal)).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDWeightperMSF, STRING(ipbf-ef.weight)). 
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDRollWid, STRING(ipbf-ef.roll-wid)).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNShtWid, STRING(ipbf-ef.nsh-wid)).
@@ -3022,7 +3023,7 @@ PROCEDURE pSetAttributesFromQty PRIVATE:
     
     IF dCalcQty NE 0 THEN
     DO:
-        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtyPerFeed, STRING(dCalcQty)).  
+        RUN pSetAttribute(giAttributeIDEstQtyPerFeed, gcAttributeNameEstQtyPerFeed, STRING(dCalcQty)).  
         RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtyPerFG, STRING(dCalcQty * iCumulNumOut)).  
         RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipcOperationId, ipiPass))).
     END. 
@@ -3495,7 +3496,7 @@ PROCEDURE Operations_SetAttributesFromEstOp:
     DEFINE INPUT  PARAMETER ipdProbeQty     AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER oplError        AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
-    
+
     RUN pSetAttributesFromEstOp(ipriRowid, ipcLocation, ipdProbeQty, OUTPUT oplError, OUTPUT opcMessage).
     
 END PROCEDURE.    
@@ -3537,12 +3538,12 @@ PROCEDURE pSetAttributesFromEstOp PRIVATE:
         
         IF ipdProbeQty NE 0 THEN
         DO:
-            RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, ipdProbeQty).  //qty
+            RUN pSetAttribute(giAttributeIDEstQtyPerFeed, gcAttributeNameEstQtyPerFeed, ipdProbeQty).  //qty
             RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, ipdProbeQty).  //qty
         END.
         ELSE
         DO:
-            RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, bf-est-op.qty).  //qty
+            RUN pSetAttribute(giAttributeIDEstQtyPerFeed,gcAttributeNameEstQtyPerFeed, bf-est-op.qty).  //qty
             RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, bf-est-op.qty).  //qty
         END.
            
@@ -3552,19 +3553,18 @@ PROCEDURE pSetAttributesFromEstOp PRIVATE:
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDInkCoverage, STRING(fGetOperationsInkCoverage(BUFFER bf-eb))). //ld-ink-frm
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDPartsperSet, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,""))). //ld-parts[1]
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDQtySetLongs, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"long"))). //v-long-qty-set
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDQtySetShorts, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"short"))). //v-short-qty-set
-        
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDQtySetShorts, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"short"))). //v-short-qty-set                
+                
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
         IF AVAILABLE bf-ef THEN 
             RUN pSetAttributesForm(BUFFER bf-ef).
-            
+
         /* Re-build the Est-op and Operations Data */ 
-        RUN pRecalcOperations(BUFFER bf-eb,?,ipriRowid, "NoChange", "", OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT cMsg).
-         
+        RUN pRecalcOperations(BUFFER bf-eb,?,ipriRowid, "NoChange", "", OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT cMsg).                
+                
         /* Calculate Attribute from Operations */
         IF NOT oplError THEN
             RUN pSetAttributesFromQty (BUFFER bf-eb, bf-est-op.m-code, ipcLocation , bf-est-op.op-pass, INPUT TABLE ttOperation BY-REFERENCE).
-         
     END.
     ELSE 
         ASSIGN 
