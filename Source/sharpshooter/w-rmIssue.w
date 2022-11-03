@@ -1435,7 +1435,8 @@ PROCEDURE pTagScan :
     DEFINE VARIABLE cIssuedQtyUOM     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lValueReturned    AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dIssueQuantity    AS DECIMAL   NO-UNDO.
-    
+    DEFINE VARIABLE cTransRMItem      AS CHARACTER NO-UNDO.
+        
     DEFINE BUFFER bf-item FOR item.
     
     DO WITH FRAME {&FRAME-NAME}:
@@ -1567,6 +1568,8 @@ PROCEDURE pTagScan :
                 INPUT-OUTPUT TABLE ttBrowseInventory BY-REFERENCE
                 ).
             IF lCreated THEN
+                ASSIGN
+                cTransRMItem = ttBrowseInventory.rmItemID
                 cMessage = "Tag '" + ttInventoryStockDetails.tag + "' moved to '" + STRING(glAutoPost, "Consumed/Scanned") + "' status.".
             
             RUN pStatusMessage(INPUT cMessage, INPUT IF lCreated THEN 1 ELSE 3). 
@@ -1585,10 +1588,10 @@ PROCEDURE pTagScan :
         INPUT iJobNo2,
         INPUT iFormNo,
         INPUT iBlankNo,
-        INPUT cbRMItem:SCREEN-VALUE,
+        INPUT IF lCreated THEN cTransRMItem ELSE cbRMItem:SCREEN-VALUE,
         INPUT TRUE
-        ).
-
+        ).  
+        
     FINALLY:
         {methods/run_link.i "TAG-SOURCE" "EmptyTag"}
         
