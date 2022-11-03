@@ -59,7 +59,7 @@ DEFINE VARIABLE cFGOversDefault AS CHARACTER NO-UNDO.
 RUN sys/ref/nk1look.p (cocode, "FGOversDefault", "C", NO, NO, "", "", 
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    cFGOversDefault = STRING(cRtnChar) NO-ERROR. 
+    cFGOversDefault = STRING(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -133,7 +133,6 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-
 DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
       VIEW-AS TEXT 
      SIZE 2.2 BY .52
@@ -652,9 +651,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win
-PROCEDURE local-reset-record:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-reset-record V-table-Win 
+PROCEDURE local-reset-record :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -669,11 +667,9 @@ PROCEDURE local-reset-record:
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ).
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -712,10 +708,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pchangeColor V-table-Win
-PROCEDURE pchangeColor:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pchangeColor V-table-Win 
+PROCEDURE pchangeColor :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -738,14 +732,12 @@ PROCEDURE pchangeColor:
     END.    
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win
-PROCEDURE presetColor:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor V-table-Win 
+PROCEDURE presetColor :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -791,11 +783,9 @@ PROCEDURE presetColor:
     END.                                                   
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
