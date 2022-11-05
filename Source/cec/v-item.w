@@ -2057,34 +2057,40 @@ PROCEDURE local-assign-record :
              END.          
          END.
          ELSE DO:
-             FOR EACH e-item WHERE e-item.company = cocode AND
-                                    e-item.i-no = item.i-no:
+             FOR EACH e-item EXCLUSIVE-LOCK
+                 WHERE e-item.company EQ cocode 
+                   AND e-item.i-no EQ item.i-no:
                    DELETE e-item.  /* delete rec if exists before create */                
              END.                             
-             FOR EACH e-item WHERE e-item.company = cocode AND
-                                   e-item.i-no = bf-item.i-no:
+             FOR EACH e-item NO-LOCK
+                 WHERE e-item.company EQ cocode 
+                   AND e-item.i-no EQ bf-item.i-no:
                  CREATE bf-e-item.
                  BUFFER-COPY e-item EXCEPT e-item.i-no e-item.rec_key TO bf-e-item.
                  ASSIGN bf-e-item.i-no = item.i-no.                  
              END.                             
-             FOR EACH e-item-vend WHERE e-item-vend.company = cocode AND
-                                        e-item-vend.i-no = item.i-no:
+             FOR EACH e-item-vend EXCLUSIVE-LOCK
+                 WHERE e-item-vend.company EQ cocode 
+                   AND e-item-vend.i-no EQ item.i-no:
                  DELETE e-item-vend.  /* delete rec if exists before create */                
              END.                             
-             FOR EACH e-item-vend WHERE e-item-vend.company = cocode AND
-                                        e-item-vend.i-no = bf-item.i-no:
+             FOR EACH e-item-vend NO-LOCK
+                 WHERE e-item-vend.company EQ cocode 
+                   AND e-item-vend.i-no EQ bf-item.i-no:
                  CREATE bf-e-vend.
                  BUFFER-COPY e-item-vend EXCEPT e-item-vend.i-no e-item-vend.rec_key TO bf-e-vend.
                  ASSIGN bf-e-vend.i-no      = item.i-no
                         bf-e-vend.item-type = YES.                  
              END.
          END.
-         FOR EACH item-bom WHERE item-bom.company = cocode AND
-                                item-bom.parent-i = item.i-no:
+         FOR EACH item-bom EXCLUSIVE-LOCK
+             WHERE item-bom.company EQ cocode 
+               AND item-bom.parent-i EQ item.i-no:
                DELETE item-bom.  /* delete rec if exists before create */                
          END.                             
-         FOR EACH item-bom WHERE item-bom.company = cocode AND
-                               item-bom.parent-i = bf-item.i-no:
+         FOR EACH item-bom NO-LOCK
+             WHERE item-bom.company EQ cocode 
+               AND item-bom.parent-i EQ bf-item.i-no:
              CREATE bf-item-bom.
              BUFFER-COPY item-bom EXCEPT rec_key TO bf-item-bom
              ASSIGN bf-item-bom.parent-i = item.i-no.                  
