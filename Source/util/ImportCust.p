@@ -699,6 +699,7 @@ PROCEDURE pNoteProcessRecord PRIVATE:
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
     DEFINE VARIABLE lNoteCreated AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-cust FOR cust .
+    DEFINE BUFFER bf-notes FOR notes .
                                                   
     FIND FIRST cust EXCLUSIVE-LOCK
         WHERE cust.company EQ ipbf-ttImportCust.Company
@@ -708,7 +709,16 @@ PROCEDURE pNoteProcessRecord PRIVATE:
     DO:         
         RUN util/Dev/AddNote.p (cust.rec_key, ipbf-ttImportCust.CustCity, ipbf-ttImportCust.CustAdd2, ipbf-ttImportCust.CustZip, ipbf-ttImportCust.CustState, ipbf-ttImportCust.CustCountry, OUTPUT lNoteCreated, OUTPUT riNote).
         IF lNoteCreated THEN
-        iopiAdded = iopiAdded + 1.          
+        iopiAdded = iopiAdded + 1.
+        FIND FIRST bf-notes EXCLUSIVE-LOCK 
+             WHERE rowid(bf-notes) EQ riNote
+             NO-ERROR.
+        IF AVAILABLE bf-notes THEN          
+        DO:                
+               bf-notes.note_date = date(ipbf-ttImportCust.CustNo) NO-ERROR.         
+               bf-notes.user_id   = ipbf-ttImportCust.CustAdd1.            
+        END.
+        RELEASE bf-notes.
     END.
         
 END PROCEDURE.    
