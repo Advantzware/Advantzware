@@ -464,6 +464,13 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInactiveMachine B-table-Win 
+FUNCTION fInactiveMachine RETURNS LOGICAL
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD voverall B-table-Win 
 FUNCTION voverall RETURNS DECIMAL
   ( INPUT ip-type AS INTEGER )   FORWARD.
@@ -3767,21 +3774,7 @@ PROCEDURE run-screen-calc :
   END.
 
   IF cepdies-log AND NOT SatisfiedPDies() THEN RETURN.
-
-  FOR EACH est-op NO-LOCK
-      WHERE est-op.company EQ est.company
-        AND est-op.est-no  EQ est.est-no
-        AND est-op.line    LT 500,
-      FIRST mach NO-LOCK
-      {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code:
-    IF mach.obsolete THEN DO:
-        MESSAGE "Machine: " + TRIM(mach.m-code) +
-                " is Inactive, please replace to complete calculation..."
-            VIEW-AS ALERT-BOX ERROR.
-        RETURN.
-    END.
-  END.
+  IF fInactiveMachine() THEN RETURN.
 
   IF est.est-type EQ 8 THEN RUN cec/com/print4.p NO-ERROR.
 
@@ -3876,6 +3869,7 @@ PROCEDURE run-whatif :
         ELSE lUseNew = YES.
         IF lUseNew THEN 
         DO:
+            IF fInactiveMachine() THEN RETURN.
             RUN pCalculateEstimate. 
             SESSION:SET-WAIT-STATE ("") .
             FIND eb NO-LOCK 
@@ -3894,21 +3888,7 @@ PROCEDURE run-whatif :
   END.
 
   IF cepdies-log AND NOT SatisfiedPDies() THEN RETURN.
-
-  FOR EACH est-op NO-LOCK
-      WHERE est-op.company EQ est.company
-        AND est-op.est-no  EQ est.est-no
-        AND est-op.line    LT 500,
-      FIRST mach NO-LOCK
-      {sys/look/machW.i}
-        AND mach.m-code EQ est-op.m-code:
-   IF mach.obsolete THEN DO:
-    MESSAGE "Machine: " + TRIM(mach.m-code) +
-            " is Inactive, please replace to complete calculation..."
-        VIEW-AS ALERT-BOX ERROR.
-    RETURN.
-   END.
-  END.
+  IF fInactiveMachine() THEN RETURN.
 
   RUN Estimate_GetEstimateDir IN hdEstimateProcs (
       INPUT  cocode,
@@ -4536,6 +4516,48 @@ FUNCTION SatisfiedPDies RETURNS LOGICAL
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
 
   RETURN lSatisfied.   /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInactiveMachine B-table-Win 
+FUNCTION fInactiveMachine RETURNS LOGICAL
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  DEFINE VARIABLE lInactiveMachine AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO.
+
+  lInactiveMachine = NO.
+  cMachine = "".
+
+  MachLoop:
+  FOR EACH est-op NO-LOCK
+      WHERE est-op.company EQ est.company
+        AND est-op.est-no  EQ est.est-no
+        AND est-op.line    LT 500,
+      FIRST mach NO-LOCK
+      {sys/look/machW.i}
+        AND mach.m-code EQ est-op.m-code:
+   IF mach.obsolete THEN DO:
+        lInactiveMachine = YES.
+        cMachine = mach.m-code.
+        LEAVE MachLoop.
+   END.
+  END. /* FOR EACH est-op */
+            
+
+  IF lInactiveMachine THEN 
+     MESSAGE "Machine: " + TRIM(cMachine) +
+            " is Inactive, please replace to complete calculation..."
+        VIEW-AS ALERT-BOX ERROR.
+
+  RETURN lInactiveMachine.   /* Function return value. */
 
 END FUNCTION.
 
