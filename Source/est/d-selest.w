@@ -232,6 +232,17 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
 
 /* ************************  Control Triggers  ************************ */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
+ON RETURN OF BROWSE-2 IN FRAME D-Dialog
+ANYWHERE
+DO:
+   APPLY "tab" TO SELF.
+   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL D-Dialog D-Dialog
 ON HELP OF FRAME D-Dialog /* Estimate Selection */
