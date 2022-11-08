@@ -641,8 +641,8 @@ PROCEDURE local-destroy:
  Notes:
 ------------------------------------------------------------------------------*/
     /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE (hdFormulaProcs.) THEN
-        DELETE PROCEDURE hdFormulaProcs..
+    IF VALID-HANDLE (hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
