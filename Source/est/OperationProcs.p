@@ -3280,6 +3280,28 @@ PROCEDURE pRecalcOperations PRIVATE:
     
     
     EMPTY TEMP-TABLE ttEstBlank.
+        FOR EACH bf-eb NO-LOCK
+            WHERE bf-eb.company eq bf-ef.company
+            AND bf-eb.est-no eq bf-ef.est-no
+            AND bf-eb.form-no eq bf-ef.form-no:
+            
+            
+        IF NOT CAN-FIND (FIRST ttEstBlank
+            WHERE ttEstBlank.blankID EQ bf-eb.blank-no) THEN
+        DO:
+            CREATE ttEstBlank.
+            ASSIGN 
+                ttEstBlank.BlankID = bf-eb.blank-no
+                        ttEstBlank.FormID  = bf-eb.form-no
+                        ttEstBlank.iOut    = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1)
+                        ttEstBlank.dQtyInOut          = dQtyRequired
+.
+
+                .
+        END.
+        
+    END.
+    
     giTotalOut = 1.
     
     /*Process each est-op for the right quantity*/
@@ -3304,6 +3326,7 @@ PROCEDURE pRecalcOperations PRIVATE:
                         
         IF AVAILABLE bf-ttOperation THEN 
         DO:
+
             /*REFACTOR to calculate quantities for combos*/        
             IF ttEstop.b-num NE 0 AND bf-ttOperation.feedType EQ "B" THEN
             DO:  /*Calculate for Combo*/
@@ -3312,24 +3335,15 @@ PROCEDURE pRecalcOperations PRIVATE:
                     WHERE ttEstBlank.FormID  EQ ttEstop.s-num
                     AND ttEstBlank.BlankID EQ ttEstop.b-num
                     NO-ERROR.
-                IF NOT AVAILABLE ttEstBlank THEN 
-                DO:
-                    CREATE ttEstBlank.
+                IF AVAILABLE ttEstBlank and NOT ttEstBlank.lOutputInitialized THEN 
                     ASSIGN 
-                        ttEstBlank.BlankID = ttEstop.b-num
-                        ttEstBlank.FormID  = ttEstop.s-num
-                        ttEstBlank.iOut    = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1).
-                END.
-                IF NOT ttEstBlank.lOutputInitialized THEN 
-                    ASSIGN 
-                        ttEstBlank.dQtyInOut          = dQtyRequired
                         ttEstBlank.lOutputInitialized = YES
                         .
                 RUN pProcessOperation(BUFFER bf-ttOperation, BUFFER bf-eb, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
                     INPUT-OUTPUT ttEstBlank.dQtyInOutSetupWaste, INPUT-OUTPUT ttEstBlank.dQtyInOutRunWaste).
             END. /*BlankNo not 0*/
             ELSE 
-            DO:                  
+            DO:  
                 IF bf-ttOperation.isBlankMaker THEN 
                 DO:
                     /*Find the most forms required to support each blank operations*/
@@ -3342,6 +3356,7 @@ PROCEDURE pRecalcOperations PRIVATE:
                                 dQtyInOutSetupWaste           = fRoundUp(ttEstBlank.dQtyInOutSetupWaste / MAX(ttEstBlank.iOut,1))
                                 dQtyInOutRunWaste             = fRoundUp(ttEstBlank.dQtyInOutRunWaste / MAX(ttEstBlank.iOut,1))
                                 .
+                                            
                     END.
                 
                     /*Convert the forms for the most wasteful blank into what is required out of the blank maker as a total for all blanks*/
@@ -3370,6 +3385,7 @@ PROCEDURE pRecalcOperations PRIVATE:
                     
     END. /*Each ttEstop*/
     RUN pSetProcessScope(INPUT "RecalcEnd").
+
      
 END PROCEDURE.
 
