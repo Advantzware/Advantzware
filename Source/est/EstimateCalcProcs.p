@@ -2547,6 +2547,7 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     IF AVAILABLE bf-ttEstCostHeader THEN
     DO:
         RUN pCopyHeaderCostsToSetItem(BUFFER bf-ttEstCostHeader).
+        RUN pUpdateCostDetails(bf-ttEstCostHeader.estCostHeaderID).
         RUN pBuildProbe(BUFFER bf-ttEstCostHeader).
     END.
 
@@ -2745,14 +2746,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pCalcWeightsAndSizes(bf-ttEstCostHeader.estCostHeaderID).
         RUN pBuildFreightForBoardCost(bf-ttEstCostHeader.estCostHeaderID).
         RUN pBuildEstHandlingCharges(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildFactoryCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildNonFactoryCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildFreightCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildPriceRelatedCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildCostSummary(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pCopyHeaderCostsToSetItem(BUFFER bf-ttEstCostHeader).
-        RUN pUpdateCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildProbe(BUFFER bf-ttEstCostHeader).
+        RUN pCalcHeaderCosts(bf-ttEstCostHeader.estCostHeaderID).        
     END. /*each bf-ttEstCostHeader*/
 
 END PROCEDURE.
