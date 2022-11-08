@@ -119,6 +119,20 @@ DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
 RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
 
+DEFINE VARIABLE lCADFile AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cCADFile AS CHARACTER NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CADFILE", "L" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     lCADFile = logical(cRecValue) NO-ERROR. 
+RUN sys/ref/nk1look.p (INPUT cocode, "CADFILE", "C" /* Logical */, YES /* check by cust */, 
+                         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                         OUTPUT cRecValue, OUTPUT lRecFound).
+  IF lRecFound THEN
+     cCADFile = cRecValue NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
