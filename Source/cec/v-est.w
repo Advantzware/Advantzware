@@ -1077,6 +1077,9 @@ DO:
            RUN windows/l-item.w (cocode,"","G,S,T",lw-focus:SCREEN-VALUE,OUTPUT char-val).
            IF char-val <> "" THEN eb.adhesive:SCREEN-VALUE = ENTRY(1,char-val).
        END.
+       WHEN "cad-image"THEN DO:
+           APPLY "choose" TO btnDieLookup.
+       END.
        WHEN "loc" THEN DO:
          run windows/l-loc.w (cocode, lw-focus:SCREEN-VALUE, output char-val).
          if char-val <> "" then 
@@ -1342,7 +1345,7 @@ DO:
 
   IF okClicked THEN
      ASSIGN eb.die-no:SCREEN-VALUE = IF eb.die-no:SCREEN-VALUE = "" THEN imageName(dieFile) ELSE eb.die-no:SCREEN-VALUE
-            ef.cad-image:SCREEN-VALUE = imageName(dieFile).
+            ef.cad-image:SCREEN-VALUE = dieFile.
 END.
 
 /* _UIB-CODE-BLOCK-END */
