@@ -218,7 +218,7 @@ FOR EACH ttPaymentData
         
     IF FIRST-OF(ttPaymentData.checkNo) THEN
     dCheckAmount = 0.
-    dCheckAmount = trunc(dCheckAmount + ttPaymentData.amt,2).
+    dCheckAmount = ROUND(dCheckAmount + ttPaymentData.amt,2).
     cFillZero = FILL("0",1500).
     
     IF FIRST-OF(ttPaymentData.checkNo) THEN
