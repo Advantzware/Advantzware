@@ -299,6 +299,14 @@ RUN methods/prgsecur.p
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
 
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4776,13 +4784,8 @@ PROCEDURE hold-approve :
                     END.
                 END.
 
-                FIND FIRST sys-ctrl WHERE
-                    sys-ctrl.company EQ cocode AND
-                    sys-ctrl.name    EQ "SCHEDULE"
-                    NO-LOCK NO-ERROR.
-
-                v-run-schedule = IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld THEN NO
-                ELSE IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "PlanDate" AND sys-ctrl.log-fld THEN YES
+                v-run-schedule = IF cScheduleValue = "NoDate" AND lSchedule THEN NO
+                ELSE IF cScheduleValue = "PlanDate" AND lSchedule THEN YES
                 ELSE NO.
 
                 FOR EACH oe-ordl NO-LOCK
@@ -5029,15 +5032,14 @@ PROCEDURE local-assign-record :
                     due-job-hdr.due-date = oe-ord.due-date.
                 END. /* each due-job-hdr */
             END. /* if duedatechanged */
-            FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ oe-ord.company
-                AND sys-ctrl.name EQ 'SCHEDULE' NO-ERROR.
-            IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN 
+
+            IF lSchedule THEN 
             DO:
                 IF prodDateChanged THEN
-                    job.start-date = IF sys-ctrl.char-fld NE 'NoDate' THEN oe-ord.prod-date
+                    job.start-date = IF cScheduleValue NE 'NoDate' THEN oe-ord.prod-date
                     ELSE ?.
 
-                IF dueDateChanged AND sys-ctrl.char-fld EQ 'PlanDate' THEN 
+                IF dueDateChanged AND cScheduleValue EQ 'PlanDate' THEN 
                 DO:
                     IF NOT VALID-HANDLE(scheduleHndl) THEN
                         RUN custom/schedule.p PERSISTENT SET scheduleHndl.
@@ -5072,9 +5074,8 @@ PROCEDURE local-assign-record :
     END.
 
     /*BV-Update order line job start dates*/
-    FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ oe-ord.company
-        AND sys-ctrl.name EQ 'SCHEDULE' NO-ERROR.
-    IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "NoDate" AND prodDateChanged THEN 
+
+    IF cScheduleValue = "NoDate" AND prodDateChanged THEN 
     DO:
         MESSAGE 'Update Job Start Date on all items with new Prod. Date of '
             oe-ord.prod-date
@@ -7204,11 +7205,7 @@ PROCEDURE update-start-date :
      lv-start-date = TODAY.
   END.
 
-  v-run-schedule = NOT CAN-FIND(FIRST sys-ctrl
-                                WHERE sys-ctrl.company EQ oe-ord.company
-                                  AND sys-ctrl.name EQ 'SCHEDULE'
-                                  AND sys-ctrl.char-fld EQ 'NoDate'
-                                  AND sys-ctrl.log-fld EQ YES).
+  v-run-schedule = NOT(lSchedule AND cScheduleValue EQ "NoDate").
   IF v-run-schedule THEN DO: /* run if above does not exist */
 
   /* === reset start-date === */

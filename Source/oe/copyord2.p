@@ -84,6 +84,15 @@ RUN sys/ref/nk1look.p (INPUT cocode, "OEDATEAUTO", "C" /* Logical */, NO /* chec
 IF v-rec-found THEN
     oeDateAuto-char = v-rtn-char NO-ERROR.
 
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -887,13 +896,8 @@ PROCEDURE copyJob :
             END.
           END.
                 
-          FIND FIRST sys-ctrl WHERE
-               sys-ctrl.company EQ cocode AND
-               sys-ctrl.name    EQ "SCHEDULE"
-               NO-LOCK NO-ERROR.
-
-          v-run-schedule = IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld THEN NO
-                           ELSE IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "PlanDate" AND sys-ctrl.log-fld THEN YES
+          v-run-schedule = IF cScheduleValue = "NoDate" AND lSchedule THEN NO
+                           ELSE IF cScheduleValue = "PlanDate" AND lSchedule THEN YES
                            ELSE NO.
 
           FOR EACH oe-ordl NO-LOCK
@@ -2101,11 +2105,7 @@ PROCEDURE update-start-date :
      lv-start-date = TODAY.
   END. /* lv-start-date < today */
   
-  v-run-schedule = NOT CAN-FIND(FIRST sys-ctrl
-                                WHERE sys-ctrl.company EQ oe-ord.company
-                                  AND sys-ctrl.name EQ 'SCHEDULE'
-                                  AND sys-ctrl.char-fld EQ 'NoDate'
-                                  AND sys-ctrl.log-fld EQ YES).
+  v-run-schedule = NOT(lSchedule AND cScheduleValue EQ "NoDate").
   IF v-run-schedule THEN DO: /* run if above does not exist */
   
   /* === reset start-date === */
