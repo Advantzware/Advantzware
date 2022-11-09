@@ -8,18 +8,14 @@
   DEFINE INPUT PARAMETER ipBlankNo AS INTEGER   NO-UNDO.
 
   DEFINE VARIABLE cNoDate AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lNoDate AS LOGICAL   NO-UNDO.
 
   DEFINE BUFFER bMachTran FOR machtran.
   DEFINE BUFFER bJobMch   FOR job-mch.
   DEFINE BUFFER bJob      FOR job.
 
-  /* if nk1 schedule option is NoDate,
+  /* if nk6 schedule option is NoDate,
      do not update start/end date/time values */
-  RUN sys/ref/nk1look.p (
-      ipCompany,"Schedule","C",NO,NO,"","",
-      OUTPUT cNoDate,OUTPUT lNoDate
-      ).
+  RUN spGetSettingByName ("ScheduleValue", OUTPUT cNoDate).
 
   FIND FIRST bJobMch EXCLUSIVE-LOCK 
        WHERE bJobMch.company  EQ ipCompany

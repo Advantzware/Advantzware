@@ -105,17 +105,18 @@ DEFINE NEW SHARED BUFFER xef FOR ef.
 DEFINE NEW SHARED VARIABLE sh-wid AS DECIMAL   NO-UNDO.
 DEFINE NEW SHARED VARIABLE sh-len AS DECIMAL   NO-UNDO.
 
-noDate = CAN-FIND(FIRST sys-ctrl
-                  WHERE sys-ctrl.company EQ cocode
-                    AND sys-ctrl.name EQ 'Schedule'
-                    AND sys-ctrl.char-fld EQ 'NoDate'
-                    AND sys-ctrl.log-fld EQ YES).
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
+
+noDate = lSchedule AND cScheduleValue EQ "NoDate".
 /* rstark 06241201 */
-planDate = CAN-FIND(FIRST sys-ctrl
-                    WHERE sys-ctrl.company EQ cocode
-                      AND sys-ctrl.name EQ 'Schedule'
-                      AND sys-ctrl.char-fld EQ 'PlanDate'
-                      AND sys-ctrl.log-fld EQ YES).
+planDate = lSchedule AND cScheduleValue EQ "PlanDate".
 /* rstark 06241201 */
 DEFINE VARIABLE lvReturnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lvFound AS LOG NO-UNDO.

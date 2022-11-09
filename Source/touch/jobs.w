@@ -1040,22 +1040,14 @@ PROCEDURE schedule-proc :
   IF LOOKUP(PROPATH,"../") EQ 0 THEN
     PROPATH = "../," + PROPATH.
 
-  FIND FIRST sys-ctrl NO-LOCK
-       WHERE sys-ctrl.company EQ company_code
-         AND sys-ctrl.name    EQ "SCHEDULE"
-       NO-ERROR.
-  IF NOT AVAIL sys-ctrl THEN
-  DO TRANSACTION:
-    CREATE sys-ctrl.
-    ASSIGN
-     sys-ctrl.company  = company_code
-     sys-ctrl.name     = "SCHEDULE"
-     sys-ctrl.descrip  = "Update Order Due date and Promise date via Scheduled Job Start Date?"
-     sys-ctrl.char-fld = "None"
-     .
-    FIND CURRENT sys-ctrl NO-LOCK.
-  END.
-  IF sys-ctrl.log-fld THEN RUN VALUE(SEARCH('schedule\sbView.r')).
+  DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+
+  RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+  IF cSchedule NE "" THEN
+  ASSIGN lSchedule = LOGICAL(cSchedule).
+
+  IF lSchedule THEN RUN VALUE(SEARCH('schedule\sbView.r')).
   ELSE
   MESSAGE "Scheduler View Not Enabled - Please Refer to System Administrator."
   VIEW-AS ALERT-BOX.

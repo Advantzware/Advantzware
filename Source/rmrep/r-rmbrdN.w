@@ -1499,6 +1499,13 @@ PROCEDURE run-report :
     DEFINE VARIABLE dReqTotal      AS DECIMAL   NO-UNDO. 
     DEFINE VARIABLE li             AS INTEGER   NO-UNDO.
 
+    DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+
+    RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+    IF cSchedule NE "" THEN
+    ASSIGN lSchedule = LOGICAL(cSchedule).
+
     {sys/form/r-top5DL3.f} 
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
     DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.  
@@ -1570,10 +1577,7 @@ PROCEDURE run-report :
 
     ASSIGN
         /* rstark 08111413 */
-        noDate      = CAN-FIND(FIRST sys-ctrl
-                   WHERE sys-ctrl.company EQ cocode
-                     AND sys-ctrl.name EQ 'Schedule'
-                     AND sys-ctrl.log-fld EQ YES)
+        noDate      = lSchedule
         str-tit2    = c-win:TITLE
         v-av        = rd_qty BEGINS "Av"
         v-type      = substr(rd_item,1,1)

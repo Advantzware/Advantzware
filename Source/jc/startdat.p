@@ -8,6 +8,10 @@ DEF VAR ll AS LOG INIT NO NO-UNDO.
 DEF VAR v-jobstd AS LOG NO-UNDO.
 DEF VAR v-index AS INT NO-UNDO.
 
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
 DEF temp-table w-date FIELD w-date1 LIKE job.start-date
                       FIELD w-date2 LIKE w-date1.
 
@@ -92,10 +96,12 @@ IF AVAIL job THEN DO:
     END.
   END.
 
-  FIND sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ job.company
-                          AND sys-ctrl.name EQ 'Schedule' NO-ERROR.
-  IF NOT AVAIL sys-ctrl OR
-     NOT (sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld) THEN
+  RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+  RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+  IF cSchedule NE "" THEN
+    ASSIGN lSchedule = LOGICAL(cSchedule).
+
+  IF NOT (cScheduleValue EQ "NoDate" AND lSchedule) THEN
   FOR EACH w-date BY w-date1:
     job.start-date = w-date1.
     LEAVE.
