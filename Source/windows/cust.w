@@ -393,6 +393,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       RUN add-link IN adm-broker-hdl ( h_cust , 'spec':U , h_options ).
        /* Links to SmartObject h_p-crm. */
        RUN add-link IN adm-broker-hdl ( h_cust , 'CRM':U , h_p-crm ).
 
@@ -1202,8 +1203,35 @@ PROCEDURE set-s-rec_key :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
+   
+   s-rec_key = ip-rec_key.    
+   
+END PROCEDURE.
 
-   s-rec_key = ip-rec_key.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateRecKeyValue W-Win 
+PROCEDURE pUpdateRecKeyValue :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE cRecKeyVlaue AS CHARACTER NO-UNDO.
+   DEFINE VARIABLE iCurrentPage AS INTEGER   NO-UNDO.
+   
+   RUN GET-ATTRIBUTE('CURRENT-PAGE').
+   iCurrentPage = INT(RETURN-VALUE).   
+   IF iCurrentPage EQ 1 then
+   DO:
+       RUN pGetCustRecKey IN h_cust (OUTPUT cRecKeyVlaue). 
+       
+       IF cRecKeyVlaue NE "" THEN
+       rec_key_value = cRecKeyVlaue.
+   END.
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
