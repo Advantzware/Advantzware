@@ -4069,6 +4069,7 @@ PROCEDURE createESTfromArtios :
             eb.die-no = tt-artios.dienum
             ef.die-in = tt-artios.die-in
             est.est-qty[1] = tt-artios.setqty  /* request qty */
+            est-qty.qty[1] = tt-artios.setqty
             eb.die-in = tt-artios.die-in
             ef.blank-qty = tt-artios.NumOfComponents
             ef.trim-w = tt-artios.t-wid
