@@ -129,6 +129,7 @@ DEFINE            VARIABLE lValid              AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE hdOutboundProcs     AS HANDLE    NO-UNDO.
 DEFINE            VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
 DEFINE            VARIABLE cMultiPdfName       AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE lcRequestData       AS LONGCHAR  NO-UNDO.
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
@@ -284,7 +285,15 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
     
 DEFINE TEMP-TABLE tt-list
     FIELD rec-row AS ROWID
-    FIELD BolNo AS INTEGER.    
+    FIELD BolNo AS INTEGER. 
+    
+DEFINE TEMP-TABLE tt-bol 
+    FIELD row-id  AS ROWID        
+    FIELD cust-no AS CHARACTER
+    INDEX row-id row-id
+    .    
+    
+{api/ttAPIOutboundEvent.i}  
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3185,7 +3194,7 @@ PROCEDURE build-work :
                 report.term-id = v-term-id
                 report.key-01  = oe-bolh.cust-no
                 report.key-02  = oe-bolh.ship-id
-                report.rec-id  = RECID(oe-bolh)
+                report.rec-id  = RECID(oe-bolh)                 
                 report.key-09  = STRING(oe-bolh.printed,"REVISED/ORIGINAL")
                 report.key-10  = STRING(reportKey10) /* 05291402 */
                 report.key-03  = IF AVAILABLE sys-ctrl-shipto AND  NOT sys-ctrl-shipto.log-fld THEN "C" /*commercial invoice only*/
@@ -3834,6 +3843,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getPrintTtBox C-Win 
+PROCEDURE getPrintTtBox :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER TABLE FOR tt-bolx.
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-bol# C-Win 
 PROCEDURE new-bol# :
     /*------------------------------------------------------------------------------
@@ -4305,6 +4328,79 @@ PROCEDURE pCallOutboundAPI PRIVATE :
     END.
 
     RELEASE bf-cust.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallAPIOutbound C-Win 
+PROCEDURE pCallAPIOutbound PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcFormat    AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeType AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScopeID   AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE lSuccess AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    system.SharedConfig:Instance:SetValue("SendBol_PrintBarCodeByPartNo", STRING(tb_print-barcode:CHECKED)).
+    system.SharedConfig:Instance:SetValue("SendBol_PrintAssembleComponent", STRING(tb_print-component:CHECKED)).
+    system.SharedConfig:Instance:SetValue("SendBol_PrintDeptNotes", STRING(tb_print-dept:CHECKED)).     
+    system.SharedConfig:Instance:SetValue("SendBol_PrintShipNotes", STRING(tb_print-shipnote:CHECKED)).
+    system.SharedConfig:Instance:SetValue("SendBol_PrintSpecNotes", STRING(tb_print-spec:CHECKED)).
+    system.SharedConfig:Instance:SetValue("SendBol_PrintUnAssembleComp", STRING(tb_print-unassemble-component:CHECKED)).       
+    system.SharedConfig:Instance:SetValue("SendBol_PrintPalletNumber", STRING(tb_pallet:CHECKED)).
+    system.SharedConfig:Instance:SetValue("SendBol_PrintDeptCode", STRING(fi_depts:SCREEN-VALUE)).
+    
+    
+    RUN Outbound_PrepareAndExecuteForScopeAndClient IN hdOutboundProcs (
+        INPUT  cocode,                                       /* Company Code (Mandatory) */
+        INPUT  "",                                           /* Location Code (Mandatory) */
+        INPUT  "SendBol",                                    /* API ID (Mandatory) */
+        INPUT  ipcFormat,                                    /* Client ID */
+        INPUT  ipcScopeID,                                   /* Scope ID */
+        INPUT  ipcScopeType,                                 /* Scope Type */
+        INPUT  "PrintBol",                                   /* Trigger ID (Mandatory) */
+        INPUT  "TTBol",                                      /* Comma separated list of table names for which data being sent (Mandatory) */
+        INPUT  STRING(TEMP-TABLE tt-bol:HANDLE),             /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+        INPUT  "Bol Print",                                  /* Primary ID for which API is called for (Mandatory) */   
+        INPUT  "Bol print",                                  /* Event's description (Optional) */
+        OUTPUT lSuccess,                                     /* Success/Failure flag */
+        OUTPUT cMessage                                      /* Status message */
+        ).
+
+    system.SharedConfig:Instance:DeleteValue("SendBol_PrintBarCodeByPartNo").
+    system.SharedConfig:Instance:DeleteValue("SendBol_PrintAssembleComponent").
+    system.SharedConfig:Instance:DeleteValue("SendBol_PrintDeptNotes").        
+    system.SharedConfig:Instance:DeleteValue("SendBol_PrintShipNotes").
+    system.SharedConfig:Instance:DeleteValue("SendBol_PrintSpecNotes").
+    system.SharedConfig:Instance:DeleteValue("SendBol_PrintUnAssembleComp").    
+    system.SharedConfig:Instance:DeleteValue("SendBol_PrintPalletNumber").
+    system.SharedConfig:Instance:DeleteValue("SendBol_PrintDeptCode").
+
+    RUN Outbound_GetEvents IN hdOutboundProcs (OUTPUT TABLE ttAPIOutboundEvent).
+    
+    lcRequestData = "".
+    
+    FIND FIRST ttAPIOutboundEvent NO-LOCK NO-ERROR.
+    IF AVAILABLE ttAPIOutboundEvent THEN DO:
+        FIND FIRST apiOutboundEvent NO-LOCK
+             WHERE apiOutboundEvent.apiOutboundEventID EQ ttAPIOutboundEvent.APIOutboundEventID
+             NO-ERROR.
+        IF AVAILABLE apiOutboundEvent THEN
+            lcRequestData = apiOutboundEvent.requestData.
+    END.    
+    
+    IF lcRequestData NE "" THEN
+        COPY-LOB FROM lcRequestData TO FILE list-name.
+        
+    RUN Outbound_ResetContext IN hdOutboundProcs. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5220,6 +5316,7 @@ PROCEDURE run-report :
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ip-sys-ctrl-ship-to AS LOG NO-UNDO.
     DEFINE INPUT  PARAMETER iplPdfOnly AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lIsAPIActive    AS LOGICAL   NO-UNDO.
     {sys/form/r-top.i}
 
     ASSIGN
@@ -5245,14 +5342,8 @@ PROCEDURE run-report :
         lPrintDetailPage    = tb_print-DetPage
         lSuppressName       = tb_suppress-name.
 
-    /*IF lAsiUser THEN DO:
-       ASSIGN v-print-fmt = run_format
-           vcDefaultForm = v-print-fmt.
-       
-      /* viDefaultLinesPerPage = lines-per-page.*/
-    END.*/
-
-
+    RUN Outbound_IsApiClientAndScopeActive IN hdOutboundProcs (cocode, "", "SendBol", v-print-fmt, "", "", "PrintBol", OUTPUT lIsAPIActive).
+    
     IF iplPDFOnly THEN 
         lv-run-bol = "YES".
     IF ip-sys-ctrl-ship-to THEN
@@ -5297,7 +5388,7 @@ PROCEDURE run-report :
     END.
     FIND FIRST report NO-LOCK WHERE report.term-id  = v-term-id NO-ERROR.
     IF NOT AVAILABLE report THEN LEAVE.
-
+    EMPTY TEMP-TABLE tt-bol.
     FOR EACH report WHERE report.term-id EQ v-term-id,
         FIRST oe-bolh WHERE RECID(oe-bolh)   EQ report.rec-id,
 
@@ -5306,6 +5397,11 @@ PROCEDURE run-report :
         AND cust.cust-no EQ oe-bolh.cust-no
         NO-LOCK
         BREAK BY oe-bolh.bol-no:
+        
+        CREATE tt-bol.
+        ASSIGN
+        tt-bol.row-id  = ROWID(oe-bolh)       
+        tt-bol.cust-no = oe-bolh.cust-no.
 
         /* rstark 05291402 */
         FIND FIRST sys-ctrl NO-LOCK
@@ -5346,7 +5442,8 @@ PROCEDURE run-report :
         END.    
     END.
     {sys/inc/print1.i}
-
+    
+    IF NOT lIsAPIActive THEN
     {sys/inc/outprint.i value(lines-per-page)}
 
     IF IS-xprint-form AND NOT iplPdfONly THEN 
@@ -5441,6 +5538,8 @@ PROCEDURE run-report :
                 lXMLOutput  = NO
                 clXMLOutput = NO              
                 .
+        RUN pCallAPIOutbound(v-print-fmt, "", "").
+        
         IF v-print-fmt = "1/2 Page" AND rd-dest = 6 THEN 
         DO:
             PUT CONTROL CHR(27) CHR(67) CHR(44).
@@ -5471,7 +5570,7 @@ PROCEDURE run-report :
                                             RUN oe/rep/bolcrdbc.p (v-print-fmt).
                                         ELSE IF v-program = "oe/rep/cocAltex.p" THEN
                                                 RUN oe/rep/cocAltex.p (?).
-                                        ELSE RUN VALUE(v-program).
+                                        ELSE IF NOT lIsAPIActive THEN RUN VALUE(v-program).
         END.
     END.
 
