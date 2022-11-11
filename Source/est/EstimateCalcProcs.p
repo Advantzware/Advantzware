@@ -2146,7 +2146,6 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
         FIND FIRST bf-est-qty
             WHERE bf-est-qty.company EQ bf-est.company
               AND bf-est-qty.est-no  EQ bf-est.est-no
-              AND bf-est-qty.qty[1]  NE 0
              NO-LOCK NO-ERROR.
         IF AVAILABLE bf-est-qty THEN 
             DO iQtyCount = 1 TO 20:
