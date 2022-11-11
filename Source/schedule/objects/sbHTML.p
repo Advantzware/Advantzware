@@ -322,7 +322,7 @@ PROCEDURE pHTMLPageVertical:
             '<title>Schedule Capacity</title>' SKIP
             '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
             '<meta http-equiv="Refresh" content="120">' SKIP
-            '<link rel="shortcut icon" href="' SEARCH("Graphics/32x32/asiicon.png") '">' SKIP
+            // '<link rel="shortcut icon" href="' SEARCH("Graphics/32x32/asiicon.png") '">' SKIP
             '</head>' SKIP
             '<a name="Top"></a>' SKIP
             '<form>' SKIP
@@ -330,8 +330,8 @@ PROCEDURE pHTMLPageVertical:
             '  <legend><font face="{&fontFace}"><b>Schedule Capacity ' cPageTitle '</b> (generated '
             STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')</font>'
             '~&nbsp;</legend>' SKIP
-            '  <img src="' SEARCH("Graphics/32x32/asiicon.png") '" align="middle">~&nbsp;'
-            '<b><a href="http://www.advantzware.com" target="_blank">'
+            // '  <img src="' SEARCH("Graphics/32x32/asiicon.png") '" align="middle">~&nbsp;'
+            // '<b><a href="http://www.advantzware.com" target="_blank">'
             '<font face="{&fontFace}">Advantzware, Inc.</a>~&nbsp;~&copy;</b></font>' SKIP
             '</font></b>' SKIP 
             '  <table align="center" cellspacing="2" cellpadding="8">' SKIP
@@ -527,13 +527,13 @@ PROCEDURE pOutputResources:
     FOR EACH resourceList
         :
         PUT STREAM sHTML UNFORMATTED
-            '      <td bgcolor="#576490" align="left" nowrap><font face="{&fontFace}" color="#FFFFFF">'
-            '<img src="'
-            (IF SEARCH("Graphics/48x48/" + resourceList.resource + ".png") NE ? THEN
-                SEARCH("Graphics/48x48/" + resourceList.resource + ".png") ELSE
-                SEARCH("Graphics/48x48/gearwheels.png"))
-            '" width="48" height="48" valign="middle">~&nbsp<b>'
-            resourceList.resource '</b></font></td>' SKIP
+            '      <td bgcolor="#576490" align="middle" nowrap><font face="{&fontFace}" color="#FFFFFF">'
+/*            '<img src="'                                                            */
+/*            (IF SEARCH("Graphics/48x48/" + resourceList.resource + ".png") NE ? THEN*/
+/*                SEARCH("Graphics/48x48/" + resourceList.resource + ".png") ELSE     */
+/*                SEARCH("Graphics/48x48/gearwheels.png"))                            */
+/*            '" width="48" height="48" valign="middle">~&nbsp<b>'                    */
+            '<b>' resourceList.resource '</b></font></td>' SKIP
             .
     END. /* each ttbljob */
     PUT STREAM sHTML UNFORMATTED
