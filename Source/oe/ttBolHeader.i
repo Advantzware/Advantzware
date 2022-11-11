@@ -30,5 +30,6 @@ DEFINE TEMP-TABLE ttBolHeader NO-UNDO
     FIELD soldtoAddr    AS CHARACTER EXTENT 2     
     FIELD soldtoAddr3   AS CHARACTER 
     FIELD totalWeight   AS DECIMAL 
+    FIELD totalCases    AS INTEGER 
 
     .

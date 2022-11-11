@@ -304,6 +304,7 @@ DO:
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "CustomerPo", STRING(ttBolItem.custPO)).                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "FGItem", STRING(ttBolItem.itemID)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "ItemDescription", STRING(ttBolItem.itemPartDesc)).                 
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "BolSummPart", STRING(ttBolItem.bolSummPart)).                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "ItemName", STRING(ttBolItem.itemName)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "ItemUnit", STRING(ttBolItem.ItemUnit)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "ItemQtyUnit", STRING(ttBolItem.ItemQtyUnit)).                 
@@ -312,6 +313,7 @@ DO:
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "DeptNotes", STRING(ttBolItem.deptNotes[1])).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "ItemOrder", STRING(ttBolItem.order)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "BolQty", STRING(ttBolItem.bolQty)).                 
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "OrdSummaryQty", STRING(ttBolItem.OrdSummaryQty)).                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "TotalPkgs", STRING(ttBolItem.totalPkgs)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "firstLineItem", STRING(ttBolItem.firstLineItem)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "lastLineItem", STRING(ttBolItem.lastLineItem)).
@@ -326,6 +328,7 @@ DO:
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "CustomerPo", STRING(ttBolItem.custPO)).                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "FGItem", STRING(ttBolItem.itemID)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "ItemDescription", STRING(ttBolItem.itemPartDesc)).                 
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "BolSummPart", STRING(ttBolItem.bolSummPart)).                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "ItemName", STRING(ttBolItem.itemName)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "ItemUnit", STRING(ttBolItem.ItemUnit)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "ItemQtyUnit", STRING(ttBolItem.ItemQtyUnit)).                 
@@ -334,6 +337,7 @@ DO:
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "DeptNotes", STRING(ttBolItem.deptNotes[1])).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "ItemOrder", STRING(ttBolItem.order)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "BolQty", STRING(ttBolItem.bolQty)).                 
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "OrdSummaryQty", STRING(ttBolItem.OrdSummaryQty)).                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "TotalPkgs", STRING(ttBolItem.totalPkgs)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "firstLineItem", STRING(ttBolItem.firstLineItem)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "lastLineItem", STRING(ttBolItem.lastLineItem)).
@@ -446,6 +450,7 @@ DO:
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "soldtoAddr2", STRING(ttBolHeader.soldtoAddr[2])).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "soldtoAddr3", STRING(ttBolHeader.soldtoAddr3)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "totalWeight", STRING(ttBolHeader.totalWeight)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "totalCases", STRING(ttBolHeader.totalCases)).
                         
             lcBolHeader = REPLACE(lcBolHeader, "$BolItems$", lcConcatBolItem).
             lcBolHeader = REPLACE(lcBolHeader, "$BolBarCode$", lcConcatPrintBarCode).
@@ -482,6 +487,7 @@ DO:
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "soldtoAddr2", STRING(ttBolHeader.soldtoAddr[2])).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "soldtoAddr3", STRING(ttBolHeader.soldtoAddr3)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "totalWeight", STRING(ttBolHeader.totalWeight)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "totalCases", STRING(ttBolHeader.totalCases)).
             lcPageHeader = oAttribute:ReplaceAttributes(lcPageHeader, BUFFER bf-oe-bolh:HANDLE).            
             lcPageHeader = oAttribute:ReplaceAttributes(lcPageHeader, BUFFER cust:HANDLE).
             lcPageHeader = oAttribute:ReplaceAttributes(lcPageHeader, BUFFER terms:HANDLE).

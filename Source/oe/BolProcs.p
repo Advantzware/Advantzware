@@ -284,6 +284,7 @@ PROCEDURE pAddBolItem PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-oe-bolh FOR oe-bolh.
     DEFINE           BUFFER bf-oe-boll   FOR oe-boll.
     DEFINE OUTPUT PARAMETER opdTotalWeight AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiTotCases    AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE iShipQty  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dWeight   AS DECIMAL   NO-UNDO.
@@ -478,6 +479,7 @@ PROCEDURE pAddBolItem PRIVATE:
                 ttBolItem.itemID        = bf-oe-boll.i-no
                 ttBolItem.itemName      = oe-ordl.i-name
                 ttBolItem.itemPartDesc  = oe-ordl.part-dscr1  
+                ttBolItem.bolSummPart   = oe-ordl.part-dscr2  
                 ttBolItem.ItemUnit      = bf-oe-boll.cases
                 ttBolItem.ItemQtyUnit   = bf-oe-boll.qty-case
                 ttBolItem.ItemPC        = IF bf-oe-boll.p-c THEN "P" ELSE "C"
@@ -487,6 +489,7 @@ PROCEDURE pAddBolItem PRIVATE:
                 ttBolItem.firstLineItem = YES
                 ttBolItem.lastLineItem  = YES
                 ttBolItem.cRecKey       = IF AVAILABLE oe-ordl  THEN oe-ordl.rec_key ELSE ""
+                ttBolItem.OrdSummaryQty = oe-ordl.qty
                 . 
                 
             ASSIGN
@@ -501,6 +504,7 @@ PROCEDURE pAddBolItem PRIVATE:
         IF bf-oe-boll.weight EQ 0 THEN
             dTotWt = dTotWt + (bf-oe-boll.qty / 100 * itemfg.weight-100).    
     END.
+    opiTotCases = iTotCases.
     opdTotalWeight = dTotWt.
 END PROCEDURE.
 
@@ -543,15 +547,16 @@ PROCEDURE pBol_BuildBol PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER TABLE FOR ttBolItem.
     
     DEFINE VARIABLE dBolWeight AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE iTotCases  AS INTEGER NO-UNDO.
         
     EMPTY TEMP-TABLE ttBolItem.
     EMPTY TEMP-TABLE ttBolHeader.           
         
     RUN pAddBolHeader (BUFFER ipbf-oe-bolh).
     
-    RUN pAddBolItem (BUFFER ipbf-oe-bolh, OUTPUT dBolWeight).
+    RUN pAddBolItem (BUFFER ipbf-oe-bolh, OUTPUT dBolWeight, OUTPUT iTotCases).
     
-    RUN pUpdateBolHeader (BUFFER ipbf-oe-bolh, INPUT dBolWeight).
+    RUN pUpdateBolHeader (BUFFER ipbf-oe-bolh, INPUT dBolWeight, INPUT iTotCases).
     
 END PROCEDURE.
 
@@ -563,6 +568,7 @@ PROCEDURE pUpdateBolHeader PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-oe-bolh FOR oe-bolh.     
     DEFINE INPUT PARAMETER ipdBolWeight AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipiTotCases  AS INTEGER NO-UNDO.
     
     FIND FIRST ttBolHeader NO-LOCK
         WHERE ttBolHeader.riBol EQ ROWID(ipbf-oe-bolh) NO-ERROR.
@@ -570,6 +576,7 @@ PROCEDURE pUpdateBolHeader PRIVATE:
     DO:
         ASSIGN
             ttBolHeader.totalWeight = ipdBolWeight.
+            ttBolHeader.totalCases = ipiTotCases.
     END.
        
 END PROCEDURE.
