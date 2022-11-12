@@ -297,8 +297,7 @@ DO:
        /* new NK1 for vendItemCost table referencing */
 /*       IF UseVendItemCost THEN RUN po/d-poordlN.w (?, po-ord.po-no, "add").*/
 /*       ELSE                                                                */
-       IF vic-log THEN RUN po/d-poordlN.w (?, po-ord.po-no, "add").
-       ELSE RUN po/d-poordl.w (?, po-ord.po-no, "add").
+       RUN po/d-poordlN.w (?, po-ord.po-no, "add").
        
        
        FIND FIRST w-po-ordl NO-ERROR.
