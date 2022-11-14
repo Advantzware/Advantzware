@@ -8,6 +8,7 @@ DEFINE TEMP-TABLE ttBolHeader NO-UNDO
     FIELD salesMan      AS CHARACTER
     FIELD terms         AS CHARACTER
     FIELD frtTerms      AS CHARACTER
+    FIELD frtTermsCAN   AS CHARACTER
     FIELD poNo          AS CHARACTER
     FIELD JobNo         AS CHARACTER
     FIELD fob           AS CHARACTER

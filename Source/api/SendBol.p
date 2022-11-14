@@ -318,6 +318,8 @@ DO:
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "firstLineItem", STRING(ttBolItem.firstLineItem)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "lastLineItem", STRING(ttBolItem.lastLineItem)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "PartialMulti", STRING(IF bf-oe-boll.partial EQ 0 THEN "" ELSE "1")).
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "BolLotNo", STRING(ttBolItem.cLotNo)).
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemDetail, "Refnum", STRING(ttBolItem.cRefnum)).
                 
                 lcBolItemDetail = oAttribute:ReplaceAttributes(lcBolItemDetail, BUFFER bf-oe-boll:HANDLE).
                 
@@ -338,6 +340,7 @@ DO:
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "ItemOrder", STRING(ttBolItem.order)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "BolQty", STRING(ttBolItem.bolQty)).                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "OrdSummaryQty", STRING(ttBolItem.OrdSummaryQty)).                 
+                oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "RefnumRefnumRefnumRefnumRefnumRefnumRefnum", STRING(ttBolItem.Refnum)).                 
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "TotalPkgs", STRING(ttBolItem.totalPkgs)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "firstLineItem", STRING(ttBolItem.firstLineItem)).
                 oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolItemSummary, "lastLineItem", STRING(ttBolItem.lastLineItem)).
@@ -426,6 +429,7 @@ DO:
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "LastCustomer", STRING(lLastCustomer)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "SalesMan", STRING(ttBolHeader.salesMan)).            
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "FreightTerms", STRING(ttBolHeader.frtTerms)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "FreightTermsCAN", STRING(ttBolHeader.frtTermsCAN)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "CustomerPO", STRING(ttBolHeader.poNo)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "JobNumber", STRING(ttBolHeader.JobNo)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcBolHeader, "FOB", STRING(ttBolHeader.fob)).
@@ -463,6 +467,7 @@ DO:
             RUN pGetRequestData ("PageHeader", OUTPUT lcPageHeader).
                         
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "FreightTerms", STRING(ttBolHeader.frtTerms)).
+            oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "FreightTermsCAN", STRING(ttBolHeader.frtTermsCAN)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "CustomerPO", STRING(ttBolHeader.poNo)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "JobNumber", STRING(ttBolHeader.JobNo)).
             oAttribute:UpdateRequestData(INPUT-OUTPUT lcPageHeader, "FOB", STRING(ttBolHeader.fob)).

@@ -45,6 +45,7 @@ PROCEDURE pAddBolHeader PRIVATE:
     DEFINE VARIABLE cSalesman     AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cTerms        AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cFrtTerms     AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cFrtTermsCAN  AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cPoNo         AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cJobNo        AS CHARACTER NO-UNDO. 
     DEFINE VARIABLE cFob          AS CHARACTER NO-UNDO.     
@@ -145,12 +146,18 @@ PROCEDURE pAddBolHeader PRIVATE:
         END.  
               
         ASSIGN 
-            cTerms    = oe-ord.terms-d
-            cFrtTerms = IF ipbf-oe-bolh.frt-pay EQ "P" THEN "Prepaid"
+            cTerms       = oe-ord.terms-d
+            cFrtTerms    = IF ipbf-oe-bolh.frt-pay EQ "P" THEN "Prepaid"
                            ELSE IF ipbf-oe-bolh.frt-pay EQ "B" THEN "Bill"
                            ELSE IF ipbf-oe-bolh.frt-pay EQ "C" THEN "Collect"
                            ELSE IF ipbf-oe-bolh.frt-pay EQ "T" THEN "Third Party"
-                           ELSE ""  .
+                           ELSE ""
+            cFrtTermsCAN = IF ipbf-oe-bolh.frt-pay EQ "P" THEN "Prépayé/"
+                           ELSE IF ipbf-oe-bolh.frt-pay EQ "B" THEN "Facture/"
+                           ELSE IF ipbf-oe-bolh.frt-pay EQ "C" THEN "Collecter/"
+                           ELSE IF ipbf-oe-bolh.frt-pay EQ "T" THEN "Tierce Personne/"
+                           ELSE ""  
+                           .
                            
         IF cTerms EQ "" AND AVAILABLE oe-ord THEN
         DO:
@@ -258,6 +265,7 @@ PROCEDURE pAddBolHeader PRIVATE:
         ttBolHeader.salesMan      = cSalesman
         ttBolHeader.terms         = cTerms
         ttBolHeader.frtTerms      = cFrtTerms
+        ttBolHeader.frtTermsCAN   = cFrtTermsCAN
         ttBolHeader.poNo          = cPoNo
         ttBolHeader.jobNo         = cJobNo
         ttBolHeader.fob           = cFob           
@@ -295,6 +303,8 @@ PROCEDURE pAddBolItem PRIVATE:
     DEFINE VARIABLE iTotPkgs  AS INTEGER   NO-UNDO.
     DEFINE VARIABLE iTotCases AS INTEGER   NO-UNDO.
     DEFINE VARIABLE dTotWt    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cLotNo    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cRefnum   AS CHARACTER NO-UNDO.
     
     ASSIGN
         dTotWt    = 0
@@ -332,10 +342,16 @@ PROCEDURE pAddBolItem PRIVATE:
             AND oe-ordl.i-no    EQ bf-oe-boll.i-no
             NO-LOCK NO-ERROR.
             
+        IF AVAIL oe-ordl AND oe-ordl.po-no-po NE ? THEN
+            ASSIGN cRefnum = "Ref # " + STRING(oe-ordl.po-no-po).
+            ELSE cRefnum = "".
+        
         ASSIGN 
             iShipQty = iShipQty + bf-oe-boll.qty
             dWeight  = dWeight + bf-oe-boll.weight
             iOrdQty  = iOrdQty + oe-ordl.qty.       
+            
+        RUN pGetLotNo(BUFFER bf-oe-boll, OUTPUT cLotNo).
                     
         IF INTEGER(giBolFmtIntegerValue) EQ 1 THEN
         DO:                         
@@ -396,6 +412,7 @@ PROCEDURE pAddBolItem PRIVATE:
                             ttBolItem.bolSummaryQty = iShipQty
                             ttBolItem.OrdSummaryQty = iOrdQty
                             ttBolItem.bolSummPart   = cPartDscr
+                            ttBolItem.cRefnum       = cRefnum
                             .                    
                     END.
                     ELSE 
@@ -419,6 +436,7 @@ PROCEDURE pAddBolItem PRIVATE:
                             ttBolItem.bolSummaryQty = iShipQty
                             ttBolItem.OrdSummaryQty = iOrdQty
                             ttBolItem.bolSummPart   = cPartDscr
+                            ttBolItem.cRefnum       = cRefnum
                             .                       
                     END.  
                         
@@ -445,6 +463,7 @@ PROCEDURE pAddBolItem PRIVATE:
                                 ttBolItem.bolSummaryQty = iShipQty
                                 ttBolItem.OrdSummaryQty = iOrdQty
                                 ttBolItem.bolSummPart   = cPartDscr
+                                ttBolItem.cRefnum       = cRefnum
                                 .                       
                         END.
                       
@@ -490,6 +509,8 @@ PROCEDURE pAddBolItem PRIVATE:
                 ttBolItem.lastLineItem  = YES
                 ttBolItem.cRecKey       = IF AVAILABLE oe-ordl  THEN oe-ordl.rec_key ELSE ""
                 ttBolItem.OrdSummaryQty = oe-ordl.qty
+                ttBolItem.cLotNo        = cLotNo
+                ttBolItem.cRefnum       = cRefnum
                 . 
                 
             ASSIGN
@@ -596,6 +617,74 @@ PROCEDURE pSetGlobalSettings PRIVATE:
     
     RUN sys/ref/nk1look.p (ipcCompany, "BOLFMT", "L" , YES, YES, "" , "", OUTPUT cReturn, OUTPUT lFound).          
     IF lFound THEN glBolFmtLogicalValue = LOGICAL(cReturn) NO-ERROR.
+    
+            
+END PROCEDURE.
+
+PROCEDURE pGetLotNo PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: Get Lot Number
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-oe-boll FOR oe-boll.
+    DEFINE OUTPUT PARAMETER opcLotNo  AS CHARACTER NO-UNDO.
+               
+    DEFINE BUFFER b-rh FOR rm-rcpth.
+    DEFINE BUFFER b-rd FOR rm-rdtlh.
+    ASSIGN opcLotNo = "".
+    
+    IF ipbf-oe-boll.job-no NE "" THEN DO:
+        RELEASE reftable.
+
+        FIND FIRST job NO-LOCK
+            WHERE job.company EQ ipbf-oe-boll.company
+              AND job.job-no  EQ ipbf-oe-boll.job-no
+              AND job.job-no2 EQ ipbf-oe-boll.job-no2 NO-ERROR.
+        IF AVAILABLE job THEN
+            FIND FIRST reftable NO-LOCK
+               WHERE reftable.reftable EQ "jc/jc-calc.p"
+                 AND reftable.company  EQ job.company
+                 AND reftable.loc      EQ ""
+                 AND reftable.code     EQ STRING(job.job,"999999999")
+                 AND reftable.code2    EQ ipbf-oe-boll.i-no
+                 USE-INDEX reftable NO-ERROR.
+            IF NOT AVAILABLE reftable THEN
+               FIND FIRST job-hdr NO-LOCK
+                WHERE job-hdr.company EQ ipbf-oe-boll.company
+                  AND job-hdr.job-no  EQ ipbf-oe-boll.job-no
+                  AND job-hdr.job-no2 EQ ipbf-oe-boll.job-no2
+                  AND job-hdr.i-no    EQ ipbf-oe-boll.i-no NO-ERROR.
+
+            IF AVAILABLE reftable OR AVAILABLE job-hdr THEN
+                FOR EACH rm-rcpth NO-LOCK
+                  WHERE rm-rcpth.company   EQ ipbf-oe-boll.company
+                    AND rm-rcpth.job-no    EQ ipbf-oe-boll.job-no
+                    AND rm-rcpth.job-no2   EQ ipbf-oe-boll.job-no2
+                    AND rm-rcpth.rita-code EQ "I" USE-INDEX job,
+                 EACH rm-rdtlh NO-LOCK
+                  WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
+                    AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code
+                    AND rm-rdtlh.s-num     EQ (IF AVAILABLE reftable 
+                                               THEN reftable.val[12]
+                                               ELSE job-hdr.frm)
+                    AND rm-rdtlh.tag       NE "",
+                 EACH b-rd NO-LOCK
+                  WHERE b-rd.company   EQ rm-rdtlh.company
+                    AND b-rd.tag       EQ rm-rdtlh.tag
+                    AND b-rd.loc       EQ rm-rdtlh.loc
+                    AND b-rd.loc-bin   EQ rm-rdtlh.loc-bin
+                    AND b-rd.rita-code EQ "R"
+                    AND b-rd.tag2      NE "" USE-INDEX tag,
+                 FIRST b-rh NO-LOCK
+                  WHERE b-rh.r-no      EQ b-rd.r-no
+                    AND b-rh.rita-code EQ b-rd.rita-code
+                    AND b-rh.i-no      EQ rm-rcpth.i-no:
+
+                    opcLotNo = b-rd.tag2.                
+                    
+                END. /* for each */
+
+    END. /* if ipbf-oe-boll.job-no */
     
             
 END PROCEDURE.  

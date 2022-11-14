@@ -22,5 +22,7 @@ DEFINE TEMP-TABLE ttBolItem NO-UNDO
     FIELD totalPkgs     AS INTEGER
     FIELD firstLineItem AS LOGICAL
     FIELD lastLineItem  AS LOGICAL 
+    FIELD cLotNo        AS CHARACTER
+    FIELD cRefnum       AS CHARACTER
     FIELD cRecKey       AS CHARACTER
     .
