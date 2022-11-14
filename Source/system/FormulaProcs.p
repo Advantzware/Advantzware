@@ -1611,7 +1611,7 @@ PROCEDURE pGetBuffersForPOLine:
         END.
     END.
 
-    IF ipbf-po-ordl.i-no NE "" AND ipbf-po-ordl.item-type THEN DO:
+    IF ipbf-po-ordl.i-no NE "" AND ipbf-po-ordl.item-type AND lPOFarmOutScores THEN DO:
         FIND FIRST bf-item NO-LOCK
             WHERE bf-item.company EQ ipbf-po-ordl.company
             AND bf-item.i-no    EQ ipbf-po-ordl.i-no
