@@ -7426,8 +7426,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdwantzwareAccountID C-Win 
-PROCEDURE ipUpdateAdwantzwareAccountID PRIVATE :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipUpdateAdvantzwareAccountID C-Win 
+PROCEDURE ipUpdateAdvantzwareAccountID PRIVATE :
 /*------------------------------------------------------------------------------
      Purpose:
      Notes:
