@@ -418,7 +418,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
   /* ======== create flute for the style ==========*/
-  IF adm-new-record THEN DO:
+  IF NOT adm-new-record THEN DO:
    SESSION:SET-WAIT-STATE ("general").
    IF adm-adding-record THEN DO:
      def var j as int no-undo.
@@ -498,7 +498,7 @@ PROCEDURE local-assign-record :
    SESSION:SET-WAIT-STATE ("").
 
    RUN dispatch ('row-available').
-  END.  /* adm-new-record */
+  END.  /* NOT adm-new-record */
 
 END PROCEDURE.
 
