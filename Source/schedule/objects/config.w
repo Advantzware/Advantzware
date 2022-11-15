@@ -5238,7 +5238,7 @@ PROCEDURE getConfiguration :
     lDisableHTMLPageLocation = AVAILABLE module AND
                               (module.licensed EQ NO OR
                               (module.expDate NE ? AND
-                               module.expDate GT TODAY)).
+                               module.expDate LT TODAY)).
     IF lDisableHTMLPageLocation EQ NO THEN 
     ENABLE btnHTMLPageLocation.
     IF customValueList EQ '' THEN
