@@ -35,7 +35,7 @@ PUT "<R6><C50><FROM><R6><C80><LINE>" SKIP
     .
 
 PUT "<=#3><P10>" SKIP
-    "<=#3> Customer ID       <B>ACKNOWLEDGEMENT</B>"
+    "<=#3> Customer ID       <B>ACKNOWLEDGMENT</B>"
     "<=#3><R+2> Telephone                 Fax" 
     "<=#3><R+4> Contact               Order Date"
     "<=#3><R+6>                       Delivery Date"
