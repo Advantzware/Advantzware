@@ -701,7 +701,7 @@ PROCEDURE pNoteProcessRecord PRIVATE:
     DEFINE BUFFER bf-cust FOR cust .
     DEFINE BUFFER bf-notes FOR notes .
                                                   
-    FIND FIRST cust EXCLUSIVE-LOCK
+    FIND FIRST cust NO-LOCK
         WHERE cust.company EQ ipbf-ttImportCust.Company
         AND cust.cust-no EQ gcCustomer
         NO-ERROR.  
