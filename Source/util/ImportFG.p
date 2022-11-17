@@ -131,6 +131,7 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE riNote AS ROWID NO-UNDO.
+    DEFINE VARIABLE lNoteCreated AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-itemfg FOR itemfg.
 
     FIND FIRST bf-itemfg EXCLUSIVE-LOCK 
@@ -253,15 +254,15 @@ PROCEDURE pProcessRecord PRIVATE:
     END.    
 
     IF ipbf-ttImportFG.SpecNote1Note NE "" THEN 
-        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote1Note, ipbf-ttImportFG.SpecNote1Title, ipbf-ttImportFG.SpecNote1Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote1Note, ipbf-ttImportFG.SpecNote1Title, ipbf-ttImportFG.SpecNote1Group, "S", "", OUTPUT lNoteCreated, OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote2Note NE "" THEN 
-        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote2Note, ipbf-ttImportFG.SpecNote2Title, ipbf-ttImportFG.SpecNote2Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote2Note, ipbf-ttImportFG.SpecNote2Title, ipbf-ttImportFG.SpecNote2Group, "S", "", OUTPUT lNoteCreated, OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote3Note NE "" THEN 
-        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote3Note, ipbf-ttImportFG.SpecNote3Title, ipbf-ttImportFG.SpecNote3Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote3Note, ipbf-ttImportFG.SpecNote3Title, ipbf-ttImportFG.SpecNote3Group, "S", "", OUTPUT lNoteCreated, OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote4Note NE "" THEN 
-        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote4Note, ipbf-ttImportFG.SpecNote4Title, ipbf-ttImportFG.SpecNote4Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote4Note, ipbf-ttImportFG.SpecNote4Title, ipbf-ttImportFG.SpecNote4Group, "S", "", OUTPUT lNoteCreated, OUTPUT riNote).
     IF ipbf-ttImportFG.SpecNote5Note NE "" THEN 
-        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote5Note, ipbf-ttImportFG.SpecNote5Title, ipbf-ttImportFG.SpecNote5Group, "S", OUTPUT riNote).
+        RUN util/Dev/AddNote.p (bf-itemfg.rec_key, ipbf-ttImportFG.SpecNote5Note, ipbf-ttImportFG.SpecNote5Title, ipbf-ttImportFG.SpecNote5Group, "S", "", OUTPUT lNoteCreated, OUTPUT riNote).
     
    RELEASE bf-itemfg .
     

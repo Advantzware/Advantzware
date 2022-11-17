@@ -75,7 +75,7 @@ RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 /* Removed Prep Tax Group - 16.8.9 - Tkt#48289 - MYT - 4/30/19 */
 ASSIGN 
-    cTextListToSelect  = "Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Sales Rep,Sales Rep Name," +
+    cTextListToSelect  = "RecType,Customer,Name,Status,Address1,Address2,City,State,Zip,Email,Group,Date Added,Type,Type Dscr,Contact,Sales Rep,Sales Rep Name," +
                            "Flat Comm%,Area Code,Phone#,Broker Comm%,Fax#,Prefix,Country,Terms,Terms Dscr,Cr Acct#,Grace Days,$,Credit Rating," +
                            "Price Level,Credit Limit,Credit Hold,Order Limit,Finance Charges,Discount%,Auto Reprice,Currency,EDI,Factored,Invoice Per," +
                            "Taxable,Tax Prep Code,Tax Group,Tax Dscr,Tax Resale#,Exp,Freight Payment,FOB,Partial Ship,Location,Location Dscr,Carrier,Carrier Dscr," +
@@ -87,7 +87,7 @@ ASSIGN
                            "Bank Account,Swift Code,Routing,Account Type,Split Type,Parent Cust,Market segment,NAICS Code,AR ClassId,Accountant,Matrix Precision,Matrix Rounding," +
                            "Industry,Tag Status,Internal,Email Preference"
 
-    cFieldListToSelect = "cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
+    cFieldListToSelect = "recType,cust-no,name,active,addr[1],addr[2],city,state,zip,email,spare-char-2,date-field[1],type,custype-dscr,contact,sman,sname," +
                            "flat-comm,area-code,phone,scomm,fax,fax-prefix,fax-country,terms,terms-dscr,cr-use,cr-hold-invdays,cr-hold-invdue,cr-rating," +
                            "cust-level,cr-lim,cr-hold,ord-lim,fin-chg,disc,auto-reprice,curr-code,an-edi-cust,factored,inv-meth," +
                            "sort,spare-char-1,tax-gr,tax-dscr,tax-id,date-field[2],frt-pay,fob-code,ship-part,loc,loc-dscr,carrier,carrier-dscr," +
@@ -101,7 +101,7 @@ ASSIGN
 {sys/inc/ttRptSel.i}
 
 ASSIGN 
-    cTextListToDefault = "Customer,Name,Address1,Address2,City,State,Country,Zip,Sales Rep,Area Code,Phone#," +
+    cTextListToDefault = "recType,Customer,Name,Address1,Address2,City,State,Country,Zip,Sales Rep,Area Code,Phone#," +
                                  "Fax#,Credit Limit,Status,Credit Hold,Type,Terms,Tax Resale#,Note 1,Note 2,Note 3,Note 4," +
                                  "ShipTo Name,ShipTo Address 1,ShipTo Address 2,ShipTo City,ShipTo State,ShipTo Zip," +
                                  "Contact,Date Added,CSR,Cr Acct#,Credit Rating,Order Limit,Discount%,Currency,Finance Charges," +
@@ -1066,18 +1066,17 @@ PROCEDURE run-report :
                 WHERE notes.rec_key EQ b-cust.rec_key 
                 AND notes.note_type <> "o" BREAK BY notes.note_date  :
 
-                cexcelheader = ",,Title,Note,Date,Time,User ID,Type,Group,Dept".
+                /*cexcelheader = ",,Title,Note,Date,Time,User ID,Type,Group,Dept".
                 IF FIRST(notes.note_date) THEN
-                    PUT STREAM excel UNFORMATTED '"' REPLACE(cexcelheader,',','","') '"' SKIP.
+                    PUT STREAM excel UNFORMATTED '"' REPLACE(cexcelheader,',','","') '"' SKIP.*/
 
                 PUT STREAM excel UNFORMATTED
-                    '"'              '",'
-                    '"'              '",'
-                    '"' notes.note_title '",' 
-                    '"' notes.note_text '",' 
-                    '"' notes.note_date '",'
+                    '"' "Note"           '",'
+                    '"' notes.note_date  '",'
                     '"' STRING(notes.note_time,"hh:mm am") '",'
                     '"' notes.user_id '",'
+                    '"' notes.note_title '",' 
+                    '"' notes.note_text '",'                    
                     '"' notes.note_type '",' 
                     '"' notes.note_group '",'
                     '"' notes.note_code '",' 
@@ -1236,6 +1235,10 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
     END.
     
     CASE ipc-field :
+        WHEN "recType" THEN
+        DO:
+             lc-return = "Customer" .
+        END.
         WHEN "ptd-profit" THEN 
             DO:
             

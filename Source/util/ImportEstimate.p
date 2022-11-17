@@ -361,17 +361,18 @@ PROCEDURE pAddNotes:
     DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE cNoteType AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lNoteCreated AS LOGICAL NO-UNDO.
     DEFINE VARIABLE riNote    AS ROWID     NO-UNDO.
     
     IF ipcType EQ "Estimate" THEN 
     DO:
         cNoteType = "D".
         IF ipbf-ttImportEstimate.EstNote1Note NE "" THEN 
-            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote1Note, ipbf-ttImportEstimate.EstNote1Title, ipbf-ttImportEstimate.EstNote1Group, cNoteType, OUTPUT riNote).
+            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote1Note, ipbf-ttImportEstimate.EstNote1Title, ipbf-ttImportEstimate.EstNote1Group, cNoteType, "", OUTPUT lNoteCreated, OUTPUT riNote).
         IF ipbf-ttImportEstimate.EstNote2Note NE "" THEN 
-            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote2Note, ipbf-ttImportEstimate.EstNote2Title, ipbf-ttImportEstimate.EstNote2Group, cNoteType, OUTPUT riNote).
+            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote2Note, ipbf-ttImportEstimate.EstNote2Title, ipbf-ttImportEstimate.EstNote2Group, cNoteType, "", OUTPUT lNoteCreated, OUTPUT riNote).
         IF ipbf-ttImportEstimate.EstNote3Note NE "" THEN 
-            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote3Note, ipbf-ttImportEstimate.EstNote3Title, ipbf-ttImportEstimate.EstNote3Group, cNoteType, OUTPUT riNote).
+            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.EstNote3Note, ipbf-ttImportEstimate.EstNote3Title, ipbf-ttImportEstimate.EstNote3Group, cNoteType, "", OUTPUT lNoteCreated, OUTPUT riNote).
         
         FIND FIRST notes EXCLUSIVE-LOCK 
             WHERE ROWID(notes) EQ riNote
@@ -383,15 +384,15 @@ PROCEDURE pAddNotes:
     DO:
         cNoteType = "S".
         IF ipbf-ttImportEstimate.SpecNote1Note NE "" THEN 
-            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote1Note, ipbf-ttImportEstimate.SpecNote1Title, ipbf-ttImportEstimate.SpecNote1Group, cNoteType, OUTPUT riNote).
+            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote1Note, ipbf-ttImportEstimate.SpecNote1Title, ipbf-ttImportEstimate.SpecNote1Group, cNoteType, "", OUTPUT lNoteCreated, OUTPUT riNote).
         IF ipbf-ttImportEstimate.SpecNote2Note NE "" THEN 
-            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote2Note, ipbf-ttImportEstimate.SpecNote2Title, ipbf-ttImportEstimate.SpecNote2Group, cNoteType, OUTPUT riNote).
+            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote2Note, ipbf-ttImportEstimate.SpecNote2Title, ipbf-ttImportEstimate.SpecNote2Group, cNoteType, "", OUTPUT lNoteCreated, OUTPUT riNote).
         IF ipbf-ttImportEstimate.SpecNote3Note NE "" THEN 
-            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote3Note, ipbf-ttImportEstimate.SpecNote3Title, ipbf-ttImportEstimate.SpecNote3Group, cNoteType, OUTPUT riNote).
+            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote3Note, ipbf-ttImportEstimate.SpecNote3Title, ipbf-ttImportEstimate.SpecNote3Group, cNoteType, "", OUTPUT lNoteCreated, OUTPUT riNote).
         IF ipbf-ttImportEstimate.SpecNote4Note NE "" THEN 
-            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote4Note, ipbf-ttImportEstimate.SpecNote4Title, ipbf-ttImportEstimate.SpecNote4Group, cNoteType, OUTPUT riNote).
+            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote4Note, ipbf-ttImportEstimate.SpecNote4Title, ipbf-ttImportEstimate.SpecNote4Group, cNoteType, "", OUTPUT lNoteCreated, OUTPUT riNote).
         IF ipbf-ttImportEstimate.SpecNote5Note NE "" THEN 
-            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote5Note, ipbf-ttImportEstimate.SpecNote5Title, ipbf-ttImportEstimate.SpecNote5Group, cNoteType, OUTPUT riNote).
+            RUN util/dev/AddNote.p (ipcRecKey, ipbf-ttImportEstimate.SpecNote5Note, ipbf-ttImportEstimate.SpecNote5Title, ipbf-ttImportEstimate.SpecNote5Group, cNoteType, "", OUTPUT lNoteCreated, OUTPUT riNote).
     END.
      
 
