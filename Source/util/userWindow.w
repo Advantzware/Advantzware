@@ -478,6 +478,11 @@ DO:
               AND userwindow.programname EQ ttuserwindow.programname:
             DELETE userwindow.
         END.
+        FOR EACH userColumn EXCLUSIVE-LOCK
+             WHERE userColumn.usrId       EQ ttuserwindow.usrID
+               AND userColumn.programName BEGINS ttuserwindow.programname:
+             DELETE userColumn.   
+        END.
     END.
     btDelete:sensitive IN FRAME {&frame-name} = FALSE.
     APPLY "CHOOSE" TO btFilter.                
