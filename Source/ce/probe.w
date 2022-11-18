@@ -4060,9 +4060,10 @@ FUNCTION fInactiveMachine RETURNS LOGICAL
   DEFINE VARIABLE lInactiveMachine AS LOGICAL NO-UNDO.
   DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO.
 
-  lInactiveMachine = NO.
-  cMachine = "".
-
+  ASSIGN
+      lInactiveMachine = NO
+      cMachine = ""
+      .
   MachLoop:
   FOR EACH est-op NO-LOCK
       WHERE est-op.company EQ est.company
@@ -4072,9 +4073,11 @@ FUNCTION fInactiveMachine RETURNS LOGICAL
       {sys/look/machW.i}
         AND mach.m-code EQ est-op.m-code:
    IF mach.obsolete THEN DO:
-        lInactiveMachine = YES.
-        cMachine = mach.m-code.
-        LEAVE MachLoop.
+   ASSIGN
+       lInactiveMachine = YES
+       cMachine = mach.m-code
+       .
+       LEAVE MachLoop.
    END.
   END. /* FOR EACH est-op */
             
