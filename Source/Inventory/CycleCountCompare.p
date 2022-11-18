@@ -305,6 +305,9 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE VAR      cCostUOM         AS CHARACTER NO-UNDO.
     DEFINE VAR      lFound           AS LOGICAL   NO-UNDO.       
     DEFINE VARIABLE hCostProc        AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE dCostPerEA       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError           AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage         AS CHARACTER NO-UNDO.
     
     RUN system/costProcs.p PERSISTENT SET hCostProc.
     
@@ -358,8 +361,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 ttCycleCountCompare.cScanLoc       = fg-rctd.loc
                 ttCycleCountCompare.cScanLocBin    = fg-rctd.loc-bin
                 ttCycleCountCompare.dScanQty       = fg-rctd.qty
-                ttCycleCountCompare.dScanCost      = fg-rctd.cost
-                ttCycleCountCompare.dScanCostValue = fg-rctd.qty * fg-rctd.cost
+                ttCycleCountCompare.dScanCost      = fg-rctd.cost                  
                 ttCycleCountCompare.iSequence      = fg-rctd.r-no
                 ttCycleCountCompare.dtScanDate     = fg-rctd.enteredDT
                 ttCycleCountCompare.cScanUser      = fg-rctd.enteredBy
@@ -368,6 +370,17 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 ttCycleCountCompare.cSNum          = STRING(fg-rctd.s-num)
                 ttCycleCountCompare.cBnum          = STRING(fg-rctd.b-num)
                 .
+                
+            IF fg-rctd.cost-uom EQ "EA" THEN
+            dCostPerEA = fg-rctd.cost.
+            ELSE DO: 
+                  RUN Conv_ValueFromUOMtoUOM(fg-rctd.company, fg-rctd.i-no, "FG", 
+                                             fg-rctd.cost, fg-rctd.cost-uom, "EA", 
+                                             0, 0, 0, 0, 0,
+                                             OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cMessage).            
+            END.
+                
+            ttCycleCountCompare.dScanCostValue = fg-rctd.qty * dCostPerEA.
 
         END.
     END. 
@@ -653,12 +666,11 @@ PROCEDURE pBuildCompareTable PRIVATE:
         lFound = NO.
         IF AVAILABLE fg-bin THEN 
             RUN pGetCostMSF (INPUT ROWID(fg-bin), ttCycleCountCompare.dSysQty, OUTPUT dMsf, OUTPUT dCost).
-       
+        
         ASSIGN 
             ttCycleCountCompare.dSysCost      = dCost 
-            ttCycleCountCompare.cSysCostUom   = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE itemfg.pur-uom      
-            ttCycleCountCompare.dSysCostValue = dCost * ttCycleCountCompare.dSysQty
-            .
+            ttCycleCountCompare.cSysCostUom   = IF AVAILABLE fg-bin THEN fg-bin.pur-uom ELSE itemfg.pur-uom.
+                        
         /* Correction for wrong values */
         IF AVAIL fg-bin THEN 
             RUN getCostForLastReceipt IN hCostProc
@@ -674,9 +686,21 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 ).           
         IF lFound THEN 
             ASSIGN 
-                ttCycleCountCompare.dSysCost      = dCostPerUOMTotal
-                ttCycleCountCompare.dSysCostValue = dCostPerUOMTotal * ttCycleCountCompare.dSysQty
-                .            
+                ttCycleCountCompare.cSysCostUom   = cCostUOM
+                ttCycleCountCompare.dSysCost      = dCostPerUOMTotal                 
+                .    
+                
+        IF ttCycleCountCompare.cSysCostUom EQ "EA" THEN
+        dCostPerEA = ttCycleCountCompare.dSysCost.
+        ELSE DO: 
+             RUN Conv_ValueFromUOMtoUOM(ttCycleCountCompare.cCompany, ttCycleCountCompare.cFGItemID, "FG", 
+                                         dCost, ttCycleCountCompare.dSysCost, "EA", 
+                                         0, 0, 0, 0, 0,
+                                         OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cMessage).            
+        END.
+         
+        ttCycleCountCompare.dSysCostValue = dCostPerEA * ttCycleCountCompare.dSysQty.
+        
         IF ttCycleCountCompare.cTag GT "" THEN 
         DO:
             FOR EACH fg-rdtlh NO-LOCK 
