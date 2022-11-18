@@ -5829,7 +5829,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUseBlank           AS LOGICAL   NO-UNDO.
-
+    DEFINE VARIABLE cVendorItemID       AS CHARACTER NO-UNDO.
 
     ASSIGN
         lCostFound = NO
@@ -5851,7 +5851,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
                 ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth, ipbf-ttEstCostMaterial.dimUOM, 
                 ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.basisWeightUOM, 
                 NO,
-                OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
+                OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT cVendorItemID, OUTPUT lError, OUTPUT cMessage).
         END.
         ELSE 
         DO:                        

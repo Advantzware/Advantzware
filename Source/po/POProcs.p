@@ -537,6 +537,7 @@ PROCEDURE pRecalculateCostsPOLine PRIVATE:
     DEFINE VARIABLE dCostPerUOMAdders AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dCostSetupAdders AS DECIMAL NO-UNDO.
     DEFINE VARIABLE cAdderText AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
     
     FOR bf-po-ordl NO-LOCK 
         WHERE ROWID(bf-po-ordl) EQ ipriPOOrdl
@@ -587,6 +588,7 @@ PROCEDURE pRecalculateCostsPOLine PRIVATE:
             OUTPUT dCostSetup, 
             OUTPUT cCostUOM,
             OUTPUT dCostTotal, 
+            OUTPUT cVendorItemID,
             OUTPUT lError, 
             OUTPUT cMessage).  
         
