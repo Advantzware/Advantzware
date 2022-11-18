@@ -532,10 +532,10 @@ PROCEDURE get-defaults :
     END.*/ /* ticket 23653 */
     
     RUN  est/calcMatType.p (INPUT io-code1, OUTPUT cMatTypeSearch).
-    
+                
     cDefaultFromPrep = "".
     IF prepMaster-log THEN
-      cDefaultFromPrep = getDefaultPrep(cMatTypeSearch).   
+      cDefaultFromPrep = getDefaultPrep(IF ip-type EQ 1 THEN "D" ELSE "P").   
     IF cDefaultFromPrep GT "" THEN DO:
         FIND bf-def-prep WHERE bf-def-prep.company EQ prep.company
           AND bf-def-prep.code EQ cDefaultFromPrep
@@ -569,10 +569,17 @@ PROCEDURE get-defaults :
        prep.owner[2]     = b-prep.owner[2]
        prep.owner-%[2]   = b-prep.owner-%[2]*/ /* ticket 23653 */
        .  
-       
+             
       IF cDefaultFromPrep GT "" THEN DO:
-          ASSIGN prep.actnum = b-prep.actnum.
-                 prep.loc-bin = b-prep.loc-bin.
+          ASSIGN prep.actnum          = b-prep.actnum
+                 prep.loc-bin         = b-prep.loc-bin
+                 prep.taxable         = b-prep.taxable
+                 prep.uom             = b-prep.uom
+                 prep.mat-type        = b-prep.mat-type
+                 prep.cost-type       = b-prep.cost-type
+                 prep.simon           = b-prep.simon
+                 prep.productTaxClass = b-prep.productTaxClass
+                 prep.commissionable  = b-prep.commissionable.
       END.
       ELSE DO:
           IF prep.mat-type EQ "D" AND prepdiegl-log THEN
