@@ -305,17 +305,17 @@ DEFINE TEMP-TABLE tt-list
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust end_cust begin_bol# ~
 begin_ord# end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
-tb_print-barcode tb_print-DetPage tb_print-unassemble-component tb_terms ~
-tb_print-binstags rd_bol-sort lv-termFile fi_specs tb_print-spec rd_bolcert ~
-tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode tb_ComInvoice ~
-tb_freight-bill tb_footer tb_post-bol tb_suppress-name td-show-parm ~
-run_format tbAutoClose btn-ok btn-cancel 
+tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
+tb_print-binstags rd_bol-sort fi_specs tb_print-spec lv-termFile tb_terms ~
+rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode ~
+tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name ~
+td-show-parm run_format tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
-tb_print-barcode tb_print-DetPage tb_print-unassemble-component tb_terms ~
-tb_print-binstags lbl_bolsort rd_bol-sort lv-termFile fi_specs ~
-tb_print-spec lbl_bolcert rd_bolcert tb_per-bol-line rd-dest ~
+tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
+tb_print-binstags lbl_bolsort rd_bol-sort fi_specs tb_print-spec ~
+lv-termFile tb_terms lbl_bolcert rd_bolcert tb_per-bol-line rd-dest ~
 tb_EMailAdvNotice tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer ~
 tb_post-bol tb_suppress-name td-show-parm run_format tbAutoClose 
 
@@ -428,7 +428,7 @@ DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "15"
 DEFINE VARIABLE lv-termFile AS CHARACTER FORMAT "X(256)":U 
      LABEL "Terms File" 
      VIEW-AS FILL-IN 
-     SIZE 49.4 BY 1 NO-UNDO.
+     SIZE 43 BY 1 NO-UNDO.
 
 DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
      LABEL "Format" 
@@ -471,7 +471,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 91 BY 14.95.
+     SIZE 91 BY 15.91.
 
 DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
      LABEL "Auto Close" 
@@ -587,7 +587,7 @@ DEFINE VARIABLE tb_suppress-name AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_terms AS LOGICAL INITIAL no 
      LABEL "Print Terms?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 20 BY .81 NO-UNDO.
+     SIZE 15.4 BY .81 NO-UNDO.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
@@ -627,45 +627,45 @@ DEFINE FRAME FRAME-A
      tb_print-barcode AT ROW 12.29 COL 31.6 WIDGET-ID 2
      tb_print-DetPage AT ROW 13 COL 31.6
      tb_print-unassemble-component AT ROW 13.1 COL 34 WIDGET-ID 18
-     tb_terms AT ROW 13.14 COL 31.4 WIDGET-ID 66
      tb_print-binstags AT ROW 13.24 COL 34 WIDGET-ID 6
      lbl_bolsort AT ROW 13.86 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 12
      rd_bol-sort AT ROW 13.86 COL 32.2 NO-LABEL WIDGET-ID 14
-     lv-termFile AT ROW 13.95 COL 40.6 COLON-ALIGNED WIDGET-ID 68
      fi_specs AT ROW 14 COL 51.2 COLON-ALIGNED HELP
           "Enter Dept Codes separated by commas" NO-LABEL WIDGET-ID 8
      tb_print-spec AT ROW 14.1 COL 34 WIDGET-ID 10
-     lbl_bolcert AT ROW 15.1 COL 21.6 COLON-ALIGNED NO-LABEL
-     rd_bolcert AT ROW 15.1 COL 32.2 NO-LABEL
-     tb_per-bol-line AT ROW 15.19 COL 71.2 WIDGET-ID 20
-     rd-dest AT ROW 17.14 COL 4.6 NO-LABEL
-     lv-ornt AT ROW 17.19 COL 63 NO-LABEL
-     tb_EMailAdvNotice AT ROW 17.29 COL 62.6 RIGHT-ALIGNED
-     lines-per-page AT ROW 17.91 COL 86 COLON-ALIGNED
-     lv-font-no AT ROW 18.14 COL 63 COLON-ALIGNED
-     tb_MailBatchMode AT ROW 18.19 COL 54.6 RIGHT-ALIGNED
-     tb_ComInvoice AT ROW 19.1 COL 59.6 RIGHT-ALIGNED
-     tb_freight-bill AT ROW 20 COL 56.6 RIGHT-ALIGNED
-     tb_footer AT ROW 20.86 COL 56.6 RIGHT-ALIGNED
-     fiPostdate AT ROW 21.19 COL 60.4 COLON-ALIGNED WIDGET-ID 22
-     tb_post-bol AT ROW 21.19 COL 78.8
-     tb_suppress-name AT ROW 21.71 COL 49 RIGHT-ALIGNED
-     td-show-parm AT ROW 22.48 COL 29.6
-     run_format AT ROW 22.48 COL 65 COLON-ALIGNED WIDGET-ID 12
-     lv-font-name AT ROW 23.86 COL 40 COLON-ALIGNED NO-LABEL
-     tbAutoClose AT ROW 23.95 COL 29.6 WIDGET-ID 64
-     btn-ok AT ROW 24.91 COL 29.4
-     btn-cancel AT ROW 24.91 COL 51.4
+     lv-termFile AT ROW 15.14 COL 46.6 COLON-ALIGNED WIDGET-ID 68
+     tb_terms AT ROW 15.19 COL 22 WIDGET-ID 66
+     lbl_bolcert AT ROW 16.19 COL 21.6 COLON-ALIGNED NO-LABEL
+     rd_bolcert AT ROW 16.19 COL 32.2 NO-LABEL
+     tb_per-bol-line AT ROW 16.29 COL 71.2 WIDGET-ID 20
+     rd-dest AT ROW 18.1 COL 4.6 NO-LABEL
+     lv-ornt AT ROW 18.14 COL 63 NO-LABEL
+     tb_EMailAdvNotice AT ROW 18.24 COL 62.6 RIGHT-ALIGNED
+     lines-per-page AT ROW 18.86 COL 86 COLON-ALIGNED
+     lv-font-no AT ROW 19.1 COL 63 COLON-ALIGNED
+     tb_MailBatchMode AT ROW 19.14 COL 54.6 RIGHT-ALIGNED
+     tb_ComInvoice AT ROW 20.05 COL 59.6 RIGHT-ALIGNED
+     tb_freight-bill AT ROW 20.95 COL 56.6 RIGHT-ALIGNED
+     tb_footer AT ROW 21.81 COL 56.6 RIGHT-ALIGNED
+     fiPostdate AT ROW 22.14 COL 60.4 COLON-ALIGNED WIDGET-ID 22
+     tb_post-bol AT ROW 22.14 COL 78.8
+     tb_suppress-name AT ROW 22.67 COL 49 RIGHT-ALIGNED
+     td-show-parm AT ROW 23.43 COL 29.6
+     run_format AT ROW 23.43 COL 65 COLON-ALIGNED WIDGET-ID 12
+     lv-font-name AT ROW 24.81 COL 40 COLON-ALIGNED NO-LABEL
+     tbAutoClose AT ROW 24.91 COL 29.6 WIDGET-ID 64
+     btn-ok AT ROW 25.86 COL 29.4
+     btn-cancel AT ROW 25.86 COL 51.4
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 16.48 COL 4
+          SIZE 18 BY .62 AT ROW 17.43 COL 4
      " Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 4
-     RECT-6 AT ROW 16.91 COL 3
+     RECT-6 AT ROW 17.86 COL 3
      RECT-7 AT ROW 1.52 COL 3 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 94.8 BY 25.43
+         SIZE 94.8 BY 26.76
          BGCOLOR 15 .
 
 
@@ -686,7 +686,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Print Bills of Lading"
-         HEIGHT             = 25.43
+         HEIGHT             = 26.76
          WIDTH              = 94.8
          MAX-HEIGHT         = 53.71
          MAX-WIDTH          = 384
@@ -3433,18 +3433,18 @@ PROCEDURE enable_UI :
   DISPLAY begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date end_date 
           tb_reprint tb_pallet tb_posted tb_print-component tb_print-shipnote 
           tb_barcode tb_print_ship tb_print-barcode tb_print-DetPage 
-          tb_print-unassemble-component tb_terms tb_print-binstags lbl_bolsort 
-          rd_bol-sort lv-termFile fi_specs tb_print-spec lbl_bolcert rd_bolcert 
-          tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode 
+          tb_print-unassemble-component tb_print-binstags lbl_bolsort 
+          rd_bol-sort fi_specs tb_print-spec lv-termFile tb_terms lbl_bolcert 
+          rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode 
           tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name 
           td-show-parm run_format tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust end_cust begin_bol# begin_ord# end_ord# 
          begin_date end_date tb_reprint tb_pallet tb_posted tb_print-component 
          tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
-         tb_print-DetPage tb_print-unassemble-component tb_terms 
-         tb_print-binstags rd_bol-sort lv-termFile fi_specs tb_print-spec 
-         rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode 
+         tb_print-DetPage tb_print-unassemble-component tb_print-binstags 
+         rd_bol-sort fi_specs tb_print-spec lv-termFile tb_terms rd_bolcert 
+         tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode 
          tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name 
          td-show-parm run_format tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -5198,7 +5198,7 @@ PROCEDURE pRunFormatValueChanged :
             ELSE tb_suppress-name:HIDDEN = YES .
         END.
             
-        IF CAN-DO("bolfmt 1,bolfmt 10,bolfmt 2,bolfmt 20,bolfmt 30,BOLFMT-Mex,bolfmt10-CAN,BOLfmt15,Xprint",v-print-fmt) THEN
+        IF CAN-DO("bolfmt 1,bolfmt 10,bolfmt 2,bolfmt 20,bolfmt 30,BOLFMT-Mex,bolfmt10-CAN,BOLfmt15,Xprint,BOLFMTX15",v-print-fmt) THEN
         ASSIGN
         tb_terms:HIDDEN = NO
         lv-termFile:HIDDEN = NO
