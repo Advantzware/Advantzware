@@ -361,7 +361,8 @@ PROCEDURE pBuildCompareTable PRIVATE:
                 ttCycleCountCompare.cScanLoc       = fg-rctd.loc
                 ttCycleCountCompare.cScanLocBin    = fg-rctd.loc-bin
                 ttCycleCountCompare.dScanQty       = fg-rctd.qty
-                ttCycleCountCompare.dScanCost      = fg-rctd.cost                  
+                ttCycleCountCompare.dScanCost      = fg-rctd.cost 
+                ttCycleCountCompare.cScanCostUom   = fg-rctd.cost-uom
                 ttCycleCountCompare.iSequence      = fg-rctd.r-no
                 ttCycleCountCompare.dtScanDate     = fg-rctd.enteredDT
                 ttCycleCountCompare.cScanUser      = fg-rctd.enteredBy
@@ -694,7 +695,7 @@ PROCEDURE pBuildCompareTable PRIVATE:
         dCostPerEA = ttCycleCountCompare.dSysCost.
         ELSE DO: 
              RUN Conv_ValueFromUOMtoUOM(ttCycleCountCompare.cCompany, ttCycleCountCompare.cFGItemID, "FG", 
-                                         dCost, ttCycleCountCompare.dSysCost, "EA", 
+                                         ttCycleCountCompare.dSysCost, ttCycleCountCompare.cSysCostUom, "EA", 
                                          0, 0, 0, 0, 0,
                                          OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cMessage).            
         END.
