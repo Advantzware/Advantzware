@@ -4836,8 +4836,7 @@ PROCEDURE pCalcEstMaterial PRIVATE:
     
     DEFINE VARIABLE dCostDeviation AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityInM   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dtotal AS DECIMAL.
-    
+        
     RUN pGetRequiredTotal(ipbf-ttEstCostMaterial.quantityRequiredNoWaste,
                           ipbf-ttEstCostMaterial.quantityRequiredSetupWaste,
                           ipbf-ttEstCostMaterial.quantityRequiredRunWaste,
@@ -5717,15 +5716,29 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
             lIncludeBlankVendor = YES
             .
 
-        RUN VendCost_GetBestCost(ipbf-ttEstCostMaterial.company, 
-            ipbf-ttEstCostMaterial.itemID, "FG", 
-            cScope, lIncludeBlankVendor, 
-            ipbf-ttEstCostMaterial.estimateNo, ipbf-ttEstCostMaterial.formNo, ipbf-ttEstCostMaterial.blankNo,
-            ipdQty, ipcQtyUOM, 
-            ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth, ipbf-ttEstCostMaterial.dimUOM, 
-            ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.basisWeightUOM,
-            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation, OUTPUT dCostTotal,
-            OUTPUT lError, OUTPUT cMessage).
+        IF ipbf-ttEstCostMaterial.vendorID NE "" OR glUseBlankVendor OR ipbf-ttEstCostMaterial.vendorChanged THEN 
+        DO:
+            opcVendorID = ipbf-ttEstCostMaterial.vendorID.
+            RUN GetVendorCost(ipbf-ttEstCostMaterial.company, ipbf-ttEstCostMaterial.itemID, "FG", 
+                opcVendorID, "", ipbf-ttEstCostMaterial.estimateNo, ipbf-ttEstCostMaterial.formNo, ipbf-ttEstCostMaterial.blankNo, 
+                ipdQty, ipcQtyUOM, 
+                ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth, ipbf-ttEstCostMaterial.dimUOM, 
+                ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.basisWeightUOM, 
+                NO,
+                OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
+        END.
+        ELSE 
+        DO:                        
+            RUN VendCost_GetBestCost(ipbf-ttEstCostMaterial.company, 
+                ipbf-ttEstCostMaterial.itemID, "FG", 
+                cScope, lIncludeBlankVendor, 
+                ipbf-ttEstCostMaterial.estimateNo, ipbf-ttEstCostMaterial.formNo, ipbf-ttEstCostMaterial.blankNo,
+                ipdQty, ipcQtyUOM, 
+                ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth, ipbf-ttEstCostMaterial.dimUOM, 
+                ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.basisWeightUOM,
+                OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation, OUTPUT dCostTotal,
+                OUTPUT lError, OUTPUT cMessage).
+        END.
     END.
     ELSE 
     DO:
@@ -5842,7 +5855,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
             lIncludeBlankVendor = YES
             .
-        IF ipbf-ttEstCostMaterial.vendorID NE "" OR glUseBlankVendor THEN 
+        IF ipbf-ttEstCostMaterial.vendorID NE "" OR glUseBlankVendor OR ipbf-ttEstCostMaterial.vendorChanged THEN 
         DO:
             opcVendorID = ipbf-ttEstCostMaterial.vendorID.
             RUN GetVendorCost(ipbf-ttEstCostMaterial.company, ipbf-ttEstCostMaterial.itemID, "RM", 
