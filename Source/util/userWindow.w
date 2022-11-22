@@ -619,6 +619,9 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
 
+   
+    btFilter:load-image("Graphics/32x32/search_new.png").
+    
     RUN enable_UI.
   
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
