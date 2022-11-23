@@ -2946,34 +2946,7 @@ PROCEDURE crt-est-childrecord :
   FIND FIRST ef OF eb NO-LOCK NO-ERROR.
   lv-ef-recid = RECID(ef).
  
-  /*
-  def var i as int no-undo.
-  def buffer bb for eb.
-  def buffer bf for ef.
-  
-  
-  create est-qty.
-  assign est-qty.company = gcompany
-         est-qty.est-no =  est.est-no
-         est-qty.eqty = 0
-         est-qty.qty-date = est.est-date
-         .
-  create ef.
-  assign
-   ef.est-type  = est.est-type
-   ef.company   = gcompany
-   ef.loc       = gloc
-   ef.e-num     = est.e-num
-   ef.est-no    = est.est-no
-   ef.form-no   = 1
-   ef.cust-seq  = 1
-   ef.blank-qty = 1
-   ef.lsh-wid   = ce-ctrl.ls-length
-   ef.lsh-len   = ce-ctrl.ls-width
-   lv-ef-recid  = recid(ef).
  
-  RUN blank-add (lv-ef-recid).*/
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
