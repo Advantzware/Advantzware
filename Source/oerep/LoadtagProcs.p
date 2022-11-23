@@ -2034,9 +2034,9 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
    
     IF iplPrintView THEN DO:
         IF NOT lBussFormModle THEN
-           PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORM "x(50)".
+           PUT "<PREVIEW>" + IF ipcCasLabel EQ "loadtagSemo.xpr" THEN "<FORMAT=LEGAL>" ELSE "" + "<MODAL=NO></PROGRESS>" FORM "x(60)".
          ELSE
-           PUT "<PREVIEW></PROGRESS>" FORM "x(50)".
+           PUT "<PREVIEW>" + IF ipcCasLabel EQ "loadtagSemo.xpr" THEN "<FORMAT=LEGAL>" ELSE "" + "</PROGRESS>" FORM "x(60)".
     END.
     ELSE DO:
        PUT "<PRINTER?><FORMAT=LEGAL></PROGRESS>" FORM "x(50)".
@@ -2100,6 +2100,9 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
            END.
            ELSE IF ipcCasLabel EQ "NoLogo.xpr" THEN DO:
                {oe/rep/lodxprntNoLogo.i} 
+           END.
+           ELSE IF ipcCasLabel EQ "loadtagSemo.xpr" THEN DO:
+               {oe/rep/lodxprntSemo.i}
            END.
     
          IF NOT LAST(tt-word-print.i-no) THEN PAGE .
