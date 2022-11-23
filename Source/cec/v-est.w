@@ -2452,6 +2452,8 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
+find first sys-ctrl where sys-ctrl.company eq cocode
+
 
 and sys-ctrl.name    eq "CE W>L"
        no-lock no-error.
@@ -2544,6 +2546,43 @@ PROCEDURE auto-calc :
    disable eb.t-wid eb.t-len eb.t-sqin
            with frame {&frame-name}.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win
+PROCEDURE local-enable:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TABLEIO-SOURCE',OUTPUT cWidgethandles).
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
+PROCEDURE pCheckAutoLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
+   
+   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4120,23 +4159,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
-PROCEDURE local-enable :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TABLEIO-SOURCE',OUTPUT cWidgethandles).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -4575,52 +4597,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
-PROCEDURE pCheckAutoLock :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
-   
-   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTotalScoreAllowance V-table-Win 
-PROCEDURE pGetTotalScoreAllowance PRIVATE :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcStyle               AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFlute               AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScoreSet            AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdTotalScoreAllowance AS DECIMAL   NO-UNDO.
-    
-    RUN GetTotalScoreAllowanaceForStyle IN hdFormulaProcs (
-        INPUT  ipcCompany,
-        INPUT  ipcStyle, 
-        INPUT  ipcFlute,
-        INPUT  ipcScoreSet,
-        OUTPUT opdTotalScoreAllowance
-        ).
-
-    RUN ConvertDecimalTo16ths IN hdFormulaProcs (
-        INPUT-OUTPUT opdTotalScoreAllowance
-        ).
-       
-    opdTotalScoreAllowance = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632", ipcCompany, opdTotalScoreAllowance).
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
@@ -5331,35 +5307,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win 
-PROCEDURE valid-rm-item PRIVATE :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    {methods/lValidateError.i YES}
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    IF eb.receiveAsRMItemID:SCREEN-VALUE EQ "" THEN
-        RETURN.
-        
-    IF NOT CAN-FIND(FIRST item
-                    WHERE item.company  EQ cocode
-                      AND item.i-no     EQ eb.receiveAsRMItemID:SCREEN-VALUE) THEN DO:
-        MESSAGE "Invalid RM Item #, try help..." VIEW-AS ALERT-BOX ERROR.
-        
-        APPLY "ENTRY" TO eb.receiveAsRMItemID.
-        
-        RETURN ERROR.
-    END.
-    
-    {methods/lValidateError.i NO}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
 PROCEDURE valid-ship-id :
@@ -5521,6 +5468,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win
+PROCEDURE valid-rm-item PRIVATE:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF eb.receiveAsRMItemID:SCREEN-VALUE EQ "" THEN
+        RETURN.
+        
+    IF NOT CAN-FIND(FIRST item
+                    WHERE item.company  EQ cocode
+                      AND item.i-no     EQ eb.receiveAsRMItemID:SCREEN-VALUE) THEN DO:
+        MESSAGE "Invalid RM Item #, try help..." VIEW-AS ALERT-BOX ERROR.
+        
+        APPLY "ENTRY" TO eb.receiveAsRMItemID.
+        
+        RETURN ERROR.
+    END.
+    
+    {methods/lValidateError.i NO}
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE was-modified V-table-Win 
 PROCEDURE was-modified :
 /*------------------------------------------------------------------------------
@@ -5536,6 +5514,37 @@ IF lc-new-values = lc-previous-values THEN DO:
 END.
 ELSE
   opl-was-modified = YES.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTotalScoreAllowance V-table-Win 
+PROCEDURE pGetTotalScoreAllowance PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyle               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFlute               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreSet            AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalScoreAllowance AS DECIMAL   NO-UNDO.
+    
+    RUN GetTotalScoreAllowanaceForStyle IN hdFormulaProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcStyle, 
+        INPUT  ipcFlute,
+        INPUT  ipcScoreSet,
+        OUTPUT opdTotalScoreAllowance
+        ).
+
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (
+        INPUT-OUTPUT opdTotalScoreAllowance
+        ).
+       
+    opdTotalScoreAllowance = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632", ipcCompany, opdTotalScoreAllowance).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
