@@ -181,7 +181,7 @@ DEFINE QUERY external_tables FOR job.
 &Scoped-define ENABLED-TABLES job
 &Scoped-define FIRST-ENABLED-TABLE job
 &Scoped-Define ENABLED-OBJECTS btnCalendar-1 btnCalcDueDate btnCalendar-2 ~
-fiTypeDescription 
+fiTypeDescription btTags 
 &Scoped-Define DISPLAYED-FIELDS job.job-no job.job-no2 job.est-no job.stat ~
 job.start-date job.orderType job.create-date job.csrUser_id job.close-date ~
 job.user-id job.loc job.due-date job.promiseDate job.shipFromLocation
@@ -255,7 +255,12 @@ DEFINE BUTTON btnCalendar-2
 DEFINE BUTTON btnCalendar-3 
      IMAGE-UP FILE "Graphics/16x16/calendar.bmp":U
      LABEL "" 
-     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".     
+     SIZE 4.6 BY 1.05 TOOLTIP "PopUp Calendar".   
+     
+DEFINE BUTTON btTags 
+     IMAGE-UP FILE "Graphics/16x16/question.png":U
+     LABEL "" 
+     SIZE 4 BY .95.     
 
 DEFINE VARIABLE fiTypeDescription AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
@@ -292,6 +297,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
           BGCOLOR 15 
+     btTags AT ROW 1.24 COL 114.3 WIDGET-ID 8     
      job.start-date AT ROW 1.24 COL 126 COLON-ALIGNED
           LABEL "Start"
           VIEW-AS FILL-IN 
@@ -758,6 +764,20 @@ DO:
         IF NOT ll-valid THEN RETURN NO-APPLY.
     END.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME btTags
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btTags V-table-Win
+ON CHOOSE OF btTags IN FRAME F-Main
+DO:
+    RUN system/d-TagViewer.w (
+        INPUT (IF AVAIL job THEN job.job-no + "-" + STRING(job.job-no2,"99") ELSE ""),
+        INPUT "",
+        INPUT ""
+        ).  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1545,7 +1565,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE li AS INTEGER NO-UNDO.
 DEFINE VARIABLE char-hdl AS cha NO-UNDO.
-
+DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */  
 
   /* Dispatch standard ADM method.                             */
@@ -1567,6 +1587,13 @@ DEFINE VARIABLE char-hdl AS cha NO-UNDO.
               vHoldReason:screen-value  = "".
 
   RUN get-start-date (NO). 
+  
+  RUN Tag_IsTagRecordAvailable(
+      INPUT (IF AVAIL job THEN job.job-no + "-" + STRING(job.job-no2,"99") ELSE ""),
+      INPUT "JobNo",
+      OUTPUT lAvailable
+      ).
+  btTags:SENSITIVE = lAvailable.
 
  /*  DISP job.start-date WITH FRAME {&FRAME-NAME}. */
 
