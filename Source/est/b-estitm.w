@@ -208,7 +208,7 @@ DEFINE BROWSE Browser-Table
       ef.cal FORMAT "9.99999":U
       eb.procat COLUMN-LABEL "Cat" FORMAT "x(5)":U
       eb.wid FORMAT ">9.99999":U
-      eb.len FORMAT ">9.99999":U
+      eb.len FORMAT ">>>9.99999":U
       eb.dep FORMAT ">9.99999":U
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
