@@ -1285,7 +1285,7 @@ PROCEDURE pRebuildBrowse PRIVATE :
             INPUT-OUTPUT cItemName,
             INPUT        ipcJobNo,
             INPUT        ipiJobNo2,
-            INPUT        TRUE,   /* Include Zero qty bins */
+            INPUT        FALSE,   /* Include Zero qty bins */
             INPUT        TRUE,   /* Include empty tag bins */
             OUTPUT       cConsUOM,
             OUTPUT       lError,
