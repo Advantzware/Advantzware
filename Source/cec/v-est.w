@@ -552,7 +552,7 @@ DEFINE FRAME Corr
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY 1
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
-          LABEL "Length" FORMAT ">>9.99"
+          LABEL "Length" FORMAT ">>>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.wid AT ROW 12.91 COL 61 COLON-ALIGNED
@@ -2453,7 +2453,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 find first sys-ctrl where sys-ctrl.company eq cocode
-                        and sys-ctrl.name    eq "CE W>L"
+
+
+and sys-ctrl.name    eq "CE W>L"
        no-lock no-error.
   if not avail sys-ctrl then do transaction:
      create sys-ctrl.
@@ -3767,9 +3769,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3783,11 +3784,9 @@ PROCEDURE local-destroy:
     /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -3857,7 +3856,7 @@ DO WITH FRAME {&FRAME-NAME}:
      iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .     
      
      ASSIGN
-        eb.len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+        eb.len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.len:WIDTH = 15.2
         eb.wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.wid:WIDTH = 15.2
@@ -4159,6 +4158,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -4596,6 +4596,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
@@ -5306,6 +5307,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
 PROCEDURE valid-ship-id :
 /*------------------------------------------------------------------------------
@@ -5496,8 +5498,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE was-modified V-table-Win 
 PROCEDURE was-modified :
