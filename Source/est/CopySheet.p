@@ -78,11 +78,11 @@ PROCEDURE pBuildTTBlanks PRIVATE:
                    ttBlanksToCopyInto.iBlankNo             = buf2-eb.blank-no
                    ttBlanksToCopyInto.cPartNo              = buf2-eb.part-no
                    ttBlanksToCopyInto.cPartDescription     = buf2-eb.part-dscr1
-                   ttBlanksToCopyInto.lIsSelected          = NO
-                   ttBlanksToCopyInto.lCopyCad             = NO 
-                   ttBlanksToCopyInto.lCopyDie             = NO 
-                   ttBlanksToCopyInto.lCopyOtherAttributes = NO 
-                   ttBlanksToCopyInto.lDoReCalculation     = NO.
+                   ttBlanksToCopyInto.lIsSelected          = YES
+                   ttBlanksToCopyInto.lCopyCad             = YES 
+                   ttBlanksToCopyInto.lCopyDie             = YES 
+                   ttBlanksToCopyInto.lCopyOtherAttributes = YES 
+                   ttBlanksToCopyInto.lDoReCalculation     = YES.
         END.                            
     END.  
     RELEASE buf-eb.

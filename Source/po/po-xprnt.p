@@ -604,9 +604,8 @@ v-printline = 0.
 
         assign v-line-number = v-line-number + 1
                v-printline = v-printline + 1
-               len-score = "".
-
-        
+               len-score = ""
+               cScorePanelType = "".        
 
         {po/poprints.i}
             IF NOT po-ordl.item-type THEN         
@@ -634,7 +633,7 @@ v-printline = 0.
                end.
           
                else
-               if v-test-scr AND AVAIL ITEM AND ITEM.mat-type = "B" AND dec(trim(len-score)) ne v-wid then do:
+               if v-test-scr AND AVAIL ITEM AND ITEM.mat-type = "B" then do:
                   put "Score: " AT 3
                       len-score format "x(80)"  SKIP.
                       

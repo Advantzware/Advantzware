@@ -1062,11 +1062,9 @@ PROCEDURE local-assign-record :
 
 
   IF adm-new-record THEN DO:
-     DEF VAR v-schedule-char AS cha NO-UNDO.
-     find first sys-ctrl where sys-ctrl.company eq cocode
-                        and sys-ctrl.name    eq "SCHEDULE" no-lock no-error.
-     v-schedule-char = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
-     IF v-schedule-char = "Nodate" THEN
+     DEFINE VARIABLE cScheduleValue AS CHARACTER NO-UNDO.
+     RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+     IF cScheduleValue = "Nodate" THEN
         ASSIGN job-mch.start-date = ?
                job-mch.start-date-su = ?
                job-mch.end-date = ?

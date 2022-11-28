@@ -78,7 +78,9 @@ DEF VAR ll-crt-itemfg AS LOG NO-UNDO.
 DEFINE VARIABLE cNK1Value            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound            AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lCEAddCustomerOption AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE dBoxFit              AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs       AS HANDLE  NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 {sys/inc/f16to32.i}
 
 RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, NO /* check by cust */, 
@@ -241,7 +243,7 @@ DEFINE BROWSE br_table
       ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
       eb.procat FORMAT "x(5)":U COLUMN-FONT 2
       display-cw-dim(yes,eb.len) @ eb.len
-      eb.len FORMAT ">>9.99":U COLUMN-FONT 2
+      eb.len FORMAT ">>>9.99":U COLUMN-FONT 2
       display-cw-dim(yes,eb.len) @ eb.len
       display-cw-dim(yes,eb.wid) @ eb.wid
       eb.wid FORMAT ">>9.99":U COLUMN-FONT 2
@@ -3137,6 +3139,25 @@ PROCEDURE local-display-fields :
      lv-foam = IF AVAIL style AND style.type = "F" THEN YES ELSE NO.
 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+            
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

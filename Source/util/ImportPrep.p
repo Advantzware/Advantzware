@@ -25,17 +25,17 @@ DEFINE TEMP-TABLE ttImportPrep
     FIELD mat_dscr                AS CHARACTER FORMAT "x(30)" COLUMN-LABEL "Mat'l Dscr" HELP "Optional - Size:30"
     FIELD mkup                    AS DECIMAL FORMAT ">>9.99" COLUMN-LABEL "Markup" HELP "Optional - Decimal"
     FIELD cost                    AS DECIMAL FORMAT "->>,>>9.99" COLUMN-LABEL "Cost" HELP "Optional - Decimal"
-    FIELD dfault                 AS CHARACTER FORMAT "x" COLUMN-LABEL "Always" HELP "Optional - Y or N (blank=N)"
+    FIELD dfault                 AS CHARACTER FORMAT "x" COLUMN-LABEL "Always" HELP "Required - Y or N"
     FIELD amtz                    AS CHARACTER FORMAT "x(15)" COLUMN-LABEL "Amtz" HELP "Optional - Size:15"
-    FIELD ml                      AS CHARACTER FORMAT "X" COLUMN-LABEL "M/L" HELP "Optional - Y or N (blank=N)"
+    FIELD ml                      AS CHARACTER FORMAT "X" COLUMN-LABEL "M/L" HELP "Optional - M or L (blank=L)"
     FIELD uom                     AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "UOM" HELP "Optional - Size:3"
     FIELD uom_dscr                AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "UOM Dscr" HELP "Optional - Size:20"
-    FIELD simon                   AS CHARACTER FORMAT "x" COLUMN-LABEL "CSimon" HELP "Optional - Y or N (blank=N)"
-    FIELD taxable                 AS CHARACTER FORMAT "x" COLUMN-LABEL "Taxable" HELP "Optional - Y or N (blank=N)"
+    FIELD simon                   AS CHARACTER FORMAT "x" COLUMN-LABEL "CSimon" HELP "Optional - 'I/Integrate' or 'M/Markup' or 'N/No Charge' or 'O/Override' or 'S/Separate Bill' (blank=N)"
+    FIELD taxable                 AS CHARACTER FORMAT "x" COLUMN-LABEL "Taxable" HELP "Required - Yes or No"
     FIELD fgcat                   AS CHARACTER FORMAT "x(6)" COLUMN-LABEL "Category" HELP "Optional - Size:6"
     FIELD price                   AS DECIMAL   FORMAT "->>>>,>>9.99" COLUMN-LABEL "Price" HELP "Optional - Decimal"
 
-    FIELD commissionable          AS CHARACTER   FORMAT "x" COLUMN-LABEL "Commission" HELP "Optional - Y or N (blank=N)"
+    FIELD commissionable          AS CHARACTER   FORMAT "x" COLUMN-LABEL "Commission" HELP "Required - Yes or No"
     FIELD loc                     AS CHARACTER FORMAT "X(5)" COLUMN-LABEL "loc" HELP "Optional - Size:5"
     FIELD loc-bin                 AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "loc-bin" HELP "Optional - Size:8"
     FIELD i-no                    AS CHARACTER FORMAT "X(15)" COLUMN-LABEL "RM Item #" HELP "Optional - Size:15"
@@ -126,10 +126,10 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportPrep.amtz, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.amtz).                                       
     RUN pAssignValueC (ipbf-ttImportPrep.uom, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.uom).                                         
     RUN pAssignValueC (substring(ipbf-ttImportPrep.simon,1,1), iplIgnoreBlanks, INPUT-OUTPUT bf-prep.simon).                      
-    RUN pAssignValueC (ipbf-ttImportPrep.taxable, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.taxable).                                 
+    RUN pAssignValueCToL (ipbf-ttImportPrep.taxable,"No", iplIgnoreBlanks, INPUT-OUTPUT bf-prep.taxable).                                 
     RUN pAssignValueC (ipbf-ttImportPrep.fgcat, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.fgcat).                                     
     RUN pAssignValueD (ipbf-ttImportPrep.price, YES, INPUT-OUTPUT bf-prep.price).                                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.commissionable, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.commissionable).                   
+    RUN pAssignValueCToL (ipbf-ttImportPrep.commissionable,"No", iplIgnoreBlanks, INPUT-OUTPUT bf-prep.commissionable).                   
     RUN pAssignValueC (ipbf-ttImportPrep.loc, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.loc).                                         
     RUN pAssignValueC (ipbf-ttImportPrep.loc-bin, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.loc-bin).                                 
     RUN pAssignValueC (ipbf-ttImportPrep.i-no, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.i-no).                                       
@@ -162,7 +162,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueI (ipbf-ttImportPrep.last-order, YES, INPUT-OUTPUT bf-prep.last-order).                                       
     RUN pAssignValueC (ipbf-ttImportPrep.last-job-no, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.last-job-no).                         
     RUN pAssignValueI (ipbf-ttImportPrep.last-job-no2, YES, INPUT-OUTPUT bf-prep.last-job-no2).                                 
-    RUN pAssignValueC (ipbf-ttImportPrep.dfault, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.dfault).
+    RUN pAssignValueCToL (ipbf-ttImportPrep.dfault, "N", iplIgnoreBlanks, INPUT-OUTPUT bf-prep.dfault).
     RUN pAssignValueC (ipbf-ttImportPrep.productTaxClass, iplIgnoreBlanks, INPUT-OUTPUT bf-prep.productTaxClass).
     
     IF ipbf-ttImportPrep.ml EQ "M" THEN
@@ -186,7 +186,8 @@ PROCEDURE pValidate PRIVATE:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
-    DEFINE VARIABLE cValidNote AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValidNote      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValuesForSimon AS CHARACTER NO-UNDO INITIAL "Integrate,I,Markup,M,Override,O,Separate Bill,S,No Charge,N".
     DEFINE BUFFER bf-ttImportPrep FOR ttImportPrep.
 
 
@@ -199,6 +200,27 @@ PROCEDURE pValidate PRIVATE:
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Prep Code is Blank".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPrep.dfault EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Always".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPrep.taxable EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Taxable".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportPrep.commissionable EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: Commission".
     END.
     
     /*Check for Duplicate Import Record and Ignore It*/ 
@@ -267,9 +289,23 @@ PROCEDURE pValidate PRIVATE:
       
         IF oplValid AND ipbf-ttImportPrep.cust-no NE "" THEN 
             RUN pIsValidCustomerID (ipbf-ttImportPrep.cust-no, NO, ipbf-ttImportPrep.Company, OUTPUT oplValid, OUTPUT cValidNote).
+      
+        IF oplValid AND ipbf-ttImportPrep.dfault NE "" THEN 
+            RUN pIsValidFromList ("Always", ipbf-ttImportPrep.dfault, "Y,N", OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportPrep.taxable NE "" THEN 
+            RUN pIsValidFromList ("Taxable", ipbf-ttImportPrep.taxable, "Yes,No", OUTPUT oplValid, OUTPUT cValidNote).
+            
+        IF oplValid AND ipbf-ttImportPrep.commissionable NE "" THEN 
+            RUN pIsValidFromList ("Commission", ipbf-ttImportPrep.commissionable, "Yes,No", OUTPUT oplValid, OUTPUT cValidNote).
         
         
     END.
-    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.    
+    
+    IF NOT CAN-DO(cValuesForSimon,ipbf-ttImportPrep.simon) THEN
+        ipbf-ttImportPrep.simon = "N".
+    
+    
 END PROCEDURE.
 

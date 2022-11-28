@@ -360,19 +360,7 @@ DEFINE BUFFER b-vendItemCost FOR vendItemCost.
 
 DO TRANSACTION:
 
-    /* task# 09130412  09/14/04*/
-    /*
-      v-run-schedule = IF sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld THEN NO
-                       ELSE IF sys-ctrl.char-fld = "PlanDate" AND sys-ctrl.log-fld THEN YES
-                       ELSE NO.   /*sys-ctrl.log-fld.*/
-    */
-
-  
     RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
-
-
-    {sys/inc/schedule.i}
-    v-run-schedule = NOT (AVAILABLE sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
 
     {sys/inc/graphic.i} 
 
@@ -451,6 +439,16 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FGForceCommission", "D" /* Logical */, NO 
     OUTPUT v-rtn-char, OUTPUT llRecFound).
 IF llRecFound THEN
     dFGForcedCommission = DECIMAL(v-rtn-char) NO-ERROR.
+
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
+v-run-schedule = NOT (cScheduleValue EQ "NoDate" AND lSchedule).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -584,7 +582,7 @@ LOOKUP(oe-rel.stat,"S,A,L,B,Z") NE 0 NO-LOCK INDEXED-REPOSITION.
 
 /* Definitions for DIALOG-BOX d-oeitem                                  */
 &Scoped-define FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no ~
-oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty ~
+oe-ordl.SourceEstimateID oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty ~
 oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
 oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price oe-ordl.pr-uom oe-ordl.tax ~
@@ -597,7 +595,7 @@ oe-ordl.req-code oe-ordl.prom-code oe-ordl.req-date oe-ordl.prom-date ~
 oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 ~
 oe-ordl.ediPrice oe-ordl.t-cost 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-d-oeitem oe-ordl.est-no ~
-oe-ordl.sourceEstimateID oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
+oe-ordl.SourceEstimateID oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom ~
 oe-ordl.tax oe-ordl.disc oe-ordl.cas-cnt oe-ordl.partial oe-ordl.cases-unit ~
@@ -622,7 +620,7 @@ oe-ordl.spare-dec-1 oe-ordl.spare-char-2
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
+&Scoped-Define ENABLED-FIELDS oe-ordl.est-no oe-ordl.SourceEstimateID ~
 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 ~
 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num ~
 oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc ~
@@ -637,7 +635,7 @@ oe-ordl.spare-char-2
 &Scoped-define FIRST-ENABLED-TABLE oe-ordl
 &Scoped-Define ENABLED-OBJECTS fi_qty-uom Btn_OK Btn_Done Btn_Cancel ~
 Btn_hist fi_jobStartDate btn-quotes 
-&Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.sourceEstimateID ~
+&Scoped-Define DISPLAYED-FIELDS oe-ordl.est-no oe-ordl.SourceEstimateID ~
 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.qty oe-ordl.i-no oe-ordl.part-no ~
 oe-ordl.i-name oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 ~
 oe-ordl.po-no oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price ~
@@ -654,12 +652,14 @@ oe-ordl.spare-char-2 oe-ordl.ediPrice oe-ordl.t-cost
 &Scoped-Define DISPLAYED-OBJECTS dTotalMargin fiPrevOrder fiPromDtLabel ~
 fi_type-dscr fi_qty-uom spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl ~
 fi_sname-1 fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate ~
-fi_edi-price-uom 
+fi_edi-price-uom dEstWeight dActWeight 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-2 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.t-price ~
-oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 
+oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 dEstWeight ~
+dActWeight 
+&Scoped-define List-4 dEstWeight dActWeight 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -828,6 +828,20 @@ FUNCTION get-itemfg-cost RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetEstWeight V-table-Win 
+FUNCTION fGetEstWeight RETURNS DECIMAL
+  ( ipcEstimate AS CHARACTER, ipcFGItem AS CHARACTER, ipdQty AS DECIMAL )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetActWeight V-table-Win 
+FUNCTION fGetActWeight RETURNS DECIMAL
+  ( ipcFGItem AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -908,6 +922,16 @@ DEFINE BUTTON Btn_OK
      LABEL "&Save" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
+
+DEFINE VARIABLE dActWeight AS DECIMAL FORMAT "->>,>>>,>>9.99<<<<" INITIAL 0 
+     LABEL "Actual FG Weight" 
+     VIEW-AS FILL-IN 
+     SIZE 12.6 BY 1.
+
+DEFINE VARIABLE dEstWeight AS DECIMAL FORMAT "->>,>>>,>>9.99<<<<" INITIAL 0 
+     LABEL "Est FG Wt" 
+     VIEW-AS FILL-IN 
+     SIZE 12.6 BY 1.
 
 DEFINE VARIABLE dTotalMargin AS DECIMAL FORMAT "->>,>>>,>>9.99":U INITIAL 0 
      LABEL "Tot Margin" 
@@ -1003,11 +1027,11 @@ DEFINE RECTANGLE RECT-31
 
 DEFINE RECTANGLE RECT-39
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 77.2 BY 10.91.
+     SIZE 77.2 BY 11.91.
 
 DEFINE RECTANGLE RECT-40
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
-     SIZE 64 BY 11.1.
+     SIZE 64 BY 11.91.
 
 DEFINE RECTANGLE RECT-41
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   ROUNDED 
@@ -1056,7 +1080,7 @@ DEFINE BROWSE browseAllocated
     ttAllocated.loc
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 16.91
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Allocated".
 
@@ -1076,7 +1100,7 @@ DEFINE BROWSE browseJobs
       job-hdr.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 16.91
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Jobs".
 
@@ -1092,7 +1116,7 @@ DEFINE BROWSE browseLocations
     w-jobs.qtyAvailable
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.91
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Locations".
 
@@ -1111,7 +1135,7 @@ DEFINE BROWSE browsePOs
       po-ord.loc FORMAT "x(5)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 16.91
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "POs".
 
@@ -1158,7 +1182,7 @@ DEFINE BROWSE browseReleases
       oe-ordl.cost FORMAT "->>>,>>>,>>9.99":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 15.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 127 BY 16.91
          BGCOLOR 15 FGCOLOR 1 FONT 6
          TITLE BGCOLOR 15 FGCOLOR 1 "Releases".
 
@@ -1169,15 +1193,15 @@ DEFINE FRAME d-oeitem
      browseLocations AT ROW 1.24 COL 145
      browseJobs AT ROW 1.24 COL 145
      dTotalMargin AT ROW 7.43 COL 93.2 COLON-ALIGNED WIDGET-ID 50
-     iPrintAvailQty AT ROW 16.24 COL 147 NO-LABEL
+     iPrintAvailQty AT ROW 17.24 COL 147 NO-LABEL
      fiPrevOrder AT ROW 10.86 COL 93.6 COLON-ALIGNED WIDGET-ID 28
-     fiPromDtLabel AT ROW 14.81 COL 104 COLON-ALIGNED NO-LABEL WIDGET-ID 26
+     fiPromDtLabel AT ROW 15.67 COL 104 COLON-ALIGNED NO-LABEL WIDGET-ID 26
      fi_type-dscr AT ROW 8.57 COL 119.6 COLON-ALIGNED NO-LABEL
      oe-ordl.est-no AT ROW 1.48 COL 15.6 COLON-ALIGNED FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.sourceEstimateID AT ROW 1.48 COL 60.8 COLON-ALIGNED
+     oe-ordl.SourceEstimateID AT ROW 1.48 COL 60.8 COLON-ALIGNED
           LABEL "Pricing Est ID" FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -1302,40 +1326,40 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1 TOOLTIP "(O)riginal, (R)epeat, Repeat with (C)hange, inhouse (T)ransfer"
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.customField AT ROW 9.52 COL 93.2 COLON-ALIGNED
+     oe-ordl.customField AT ROW 9.48 COL 93.2 COLON-ALIGNED
           LABEL "Custom1"
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.managed AT ROW 10.57 COL 115.8
+     oe-ordl.managed AT ROW 10.48 COL 115.8
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY .81
-     oe-ordl.whsed AT ROW 11.43 COL 115.8 HELP
+     oe-ordl.whsed AT ROW 11.33 COL 115.8 HELP
           "Is line item warehoused?" WIDGET-ID 2
           LABEL "Run && Ship"
           VIEW-AS TOGGLE-BOX
           SIZE 18 BY .81
-     oe-ordl.s-man[1] AT ROW 13.38 COL 2.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-man[1] AT ROW 14.24 COL 2.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.s-pct[1] AT ROW 13.38 COL 45.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-pct[1] AT ROW 14.24 COL 45.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.s-comm[1] AT ROW 13.38 COL 60.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-comm[1] AT ROW 14.24 COL 60.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.s-man[2] AT ROW 14.38 COL 2.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-man[2] AT ROW 15.24 COL 2.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.s-pct[2] AT ROW 14.38 COL 45.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-pct[2] AT ROW 15.24 COL 45.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.s-comm[2] AT ROW 14.38 COL 60.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-comm[2] AT ROW 15.24 COL 60.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
@@ -1345,55 +1369,55 @@ DEFINE FRAME d-oeitem
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
-     oe-ordl.s-man[3] AT ROW 15.38 COL 2.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-man[3] AT ROW 16.24 COL 2.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.s-pct[3] AT ROW 15.38 COL 45.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-pct[3] AT ROW 16.24 COL 45.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.s-comm[3] AT ROW 15.38 COL 60.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.s-comm[3] AT ROW 16.24 COL 60.4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     fi_s-pct-lbl AT ROW 12.67 COL 45.4 COLON-ALIGNED NO-LABEL
-     fi_s-comm-lbl AT ROW 12.67 COL 60.4 COLON-ALIGNED NO-LABEL
-     fi_sman-lbl AT ROW 12.62 COL 1.4 COLON-ALIGNED NO-LABEL
-     fi_sname-1 AT ROW 13.38 COL 13.4 COLON-ALIGNED NO-LABEL
-     fi_sname-2 AT ROW 14.38 COL 13.4 COLON-ALIGNED NO-LABEL
-     fi_sname-3 AT ROW 15.38 COL 13.4 COLON-ALIGNED NO-LABEL
-     fi_sname-lbl AT ROW 12.62 COL 18.4 COLON-ALIGNED NO-LABEL
-     oe-ordl.over-pct AT ROW 12.57 COL 93.4 COLON-ALIGNED
+     fi_s-pct-lbl AT ROW 13.52 COL 45.4 COLON-ALIGNED NO-LABEL
+     fi_s-comm-lbl AT ROW 13.52 COL 60.4 COLON-ALIGNED NO-LABEL
+     fi_sman-lbl AT ROW 13.48 COL 1.4 COLON-ALIGNED NO-LABEL
+     fi_sname-1 AT ROW 14.24 COL 13.4 COLON-ALIGNED NO-LABEL
+     fi_sname-2 AT ROW 15.24 COL 13.4 COLON-ALIGNED NO-LABEL
+     fi_sname-3 AT ROW 16.24 COL 13.4 COLON-ALIGNED NO-LABEL
+     fi_sname-lbl AT ROW 13.48 COL 18.4 COLON-ALIGNED NO-LABEL
+     oe-ordl.over-pct AT ROW 13.43 COL 93.4 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.under-pct AT ROW 12.67 COL 125.2 COLON-ALIGNED
+     oe-ordl.under-pct AT ROW 13.52 COL 125.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 12.2 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.req-code AT ROW 13.62 COL 93.4 COLON-ALIGNED
+     oe-ordl.req-code AT ROW 14.48 COL 93.4 COLON-ALIGNED
           LABEL "Priority" FORMAT "XXXXX"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.prom-code AT ROW 14.71 COL 93.4 COLON-ALIGNED
+     oe-ordl.prom-code AT ROW 15.57 COL 93.4 COLON-ALIGNED
           LABEL "Priority" FORMAT "XXXXX"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.req-date AT ROW 13.71 COL 121.2 COLON-ALIGNED
+     oe-ordl.req-date AT ROW 14.57 COL 121.2 COLON-ALIGNED
           LABEL "Due Date"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     oe-ordl.prom-date AT ROW 14.76 COL 121.2 COLON-ALIGNED NO-LABEL
+     oe-ordl.prom-date AT ROW 15.62 COL 121.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     Btn_OK AT ROW 17.43 COL 52
-     Btn_Done AT ROW 17.43 COL 72
-     Btn_Cancel AT ROW 17.43 COL 92.2
+     Btn_OK AT ROW 18.48 COL 52
+     Btn_Done AT ROW 18.48 COL 72
+     Btn_Cancel AT ROW 18.48 COL 92.2
      Btn_hist AT ROW 3.38 COL 46.8
      oe-ordl.spare-char-1 AT ROW 1.43 COL 133.4 COLON-ALIGNED WIDGET-ID 12
           LABEL "Status" FORMAT "x(2)"
@@ -1409,16 +1433,16 @@ DEFINE FRAME d-oeitem
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 FGCOLOR 1 
-     fi_jobStartDate AT ROW 15.91 COL 121.2 COLON-ALIGNED WIDGET-ID 22
-     btn-quotes AT ROW 17.43 COL 2 WIDGET-ID 20
-     btnTagsOverrn AT ROW 12.57 COL 107.8 WIDGET-ID 36
-     btnTagsUnder AT ROW 12.67 COL 139.6 WIDGET-ID 38
+     fi_jobStartDate AT ROW 16.76 COL 121.2 COLON-ALIGNED WIDGET-ID 22
+     btn-quotes AT ROW 18.48 COL 2 WIDGET-ID 20
+     btnTagsOverrn AT ROW 13.43 COL 107.8 WIDGET-ID 36
+     btnTagsUnder AT ROW 13.52 COL 139.6 WIDGET-ID 38
      btnTags AT ROW 3.38 COL 113.2 WIDGET-ID 40
-     btnViewDetail AT ROW 17.43 COL 129
-     btnLocations AT ROW 17.43 COL 145
-     btnJobs AT ROW 17.43 COL 161
-     btnPOs AT ROW 17.43 COL 177
-     btnAllocated AT ROW 17.43 COL 193
+     btnViewDetail AT ROW 18.48 COL 129
+     btnLocations AT ROW 18.48 COL 145
+     btnJobs AT ROW 18.48 COL 161
+     btnPOs AT ROW 18.48 COL 177
+     btnAllocated AT ROW 18.48 COL 193
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -1426,7 +1450,7 @@ DEFINE FRAME d-oeitem
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME d-oeitem
-     btnReleases AT ROW 17.43 COL 209
+     btnReleases AT ROW 18.48 COL 209
      oe-ordl.ediPrice AT ROW 2.48 COL 93.2 COLON-ALIGNED WIDGET-ID 42
           LABEL "Edi Price"
           VIEW-AS FILL-IN 
@@ -1443,11 +1467,13 @@ DEFINE FRAME d-oeitem
      browsePOs AT ROW 1.24 COL 145
      browseAllocated AT ROW 1.24 COL 145
      browseReleases AT ROW 1.24 COL 145
-     RECT-31 AT ROW 12.33 COL 2
+     dEstWeight AT ROW 12.05 COL 93.2 COLON-ALIGNED WIDGET-ID 54
+     dActWeight AT ROW 12.05 COL 128.4 COLON-ALIGNED WIDGET-ID 52
+     RECT-31 AT ROW 13.19 COL 2
      RECT-39 AT ROW 1.24 COL 2
      RECT-40 AT ROW 1.24 COL 80.2 WIDGET-ID 8
-     RECT-41 AT ROW 12.43 COL 80.2 WIDGET-ID 10
-     SPACE(127.80) SKIP(1.38)
+     RECT-41 AT ROW 13.29 COL 80.2 WIDGET-ID 10
+     SPACE(127.79) SKIP(1.85)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -1554,6 +1580,10 @@ ASSIGN
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ordl.customField IN FRAME d-oeitem
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN dActWeight IN FRAME d-oeitem
+   NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR FILL-IN dEstWeight IN FRAME d-oeitem
+   NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN oe-ordl.disc IN FRAME d-oeitem
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN dTotalMargin IN FRAME d-oeitem
@@ -1638,16 +1668,16 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.req-date IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN oe-ordl.sourceEstimateID IN FRAME d-oeitem
+/* SETTINGS FOR FILL-IN oe-ordl.SourceEstimateID IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
-   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
    NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
+/* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.t-cost IN FRAME d-oeitem
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
@@ -3656,6 +3686,8 @@ DO:
                 asi.oe-ordl.spare-dec-1:SENSITIVE  = NO
                 asi.oe-ordl.spare-char-2:SENSITIVE = NO.
         END.
+        
+        RUN pDisplayFGWeight.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4115,7 +4147,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             RUN get-eb-info.
             RUN new-type.
             RUN new-s-man (0).
-
+            RUN pDisplayFGWeight.
             IF AVAILABLE itemfg THEN
                 ASSIGN spare-dec-1:SCREEN-VALUE = STRING(itemfg.spare-dec-1).
             IF oe-ordl.spare-int-2 > 0 THEN 
@@ -4843,22 +4875,6 @@ PROCEDURE clean-s-pct :
             oe-ordl.s-pct[2]:SCREEN-VALUE = STRING(ld-pct[2])
             oe-ordl.s-pct[3]:SCREEN-VALUE = STRING(ld-pct[3]).
     END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem 
-PROCEDURE pCopyShipNote PRIVATE :
-/*------------------------------------------------------------------------------
-     Purpose: Copies Ship Note from rec_key to rec_key
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
-
-    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
 
 END PROCEDURE.
 
@@ -6270,7 +6286,7 @@ PROCEDURE display-est-detail :
     IF AVAILABLE itemfg THEN
         IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
     RUN pGetPartComm (YES) .
-
+    RUN pDisplayFGWeight.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6621,6 +6637,7 @@ PROCEDURE display-fgitem :
             RUN get-price.
         END.
         RUN pGetPartComm(NO) .
+        RUN pDisplayFGWeight.
     END.
 
 END PROCEDURE.
@@ -6915,6 +6932,8 @@ PROCEDURE display-item :
             fi_edi-price-uom
             oe-ordl.t-cost
             dTotalMargin
+            dEstWeight
+            dActWeight
             WITH FRAME {&frame-name}.
 
         /*     IF oe-ordl.whsed:HIDDEN = NO THEN                  */
@@ -6925,6 +6944,7 @@ PROCEDURE display-item :
             ASSIGN 
                 spare-dec-1:SCREEN-VALUE = STRING(itemfg.spare-dec-1).
             RUN pSetValidUOMList(itemfg.company, itemfg.i-no).
+            RUN pDisplayFGWeight.
         END.
         IF oe-ordl.vend-no:SCREEN-VALUE EQ "0" THEN
             ASSIGN oe-ordl.vend-no:SCREEN-VALUE = "".   /*task 03201407 */
@@ -6961,9 +6981,10 @@ PROCEDURE enable_UI :
   DISPLAY dTotalMargin fiPrevOrder fiPromDtLabel fi_type-dscr fi_qty-uom 
           spare-dec-1 fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl fi_sname-1 
           fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate fi_edi-price-uom 
+          dEstWeight dActWeight 
       WITH FRAME d-oeitem.
   IF AVAILABLE oe-ordl THEN 
-    DISPLAY oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.job-no oe-ordl.job-no2 
+    DISPLAY oe-ordl.est-no oe-ordl.SourceEstimateID oe-ordl.job-no oe-ordl.job-no2 
           oe-ordl.qty oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name 
           oe-ordl.part-dscr1 oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no 
           oe-ordl.e-num oe-ordl.po-no-po oe-ordl.vend-no oe-ordl.price 
@@ -6977,7 +6998,7 @@ PROCEDURE enable_UI :
           oe-ordl.spare-char-1 oe-ordl.spare-dec-1 oe-ordl.spare-char-2 
           oe-ordl.ediPrice oe-ordl.t-cost 
       WITH FRAME d-oeitem.
-  ENABLE oe-ordl.est-no oe-ordl.sourceEstimateID oe-ordl.qty fi_qty-uom 
+  ENABLE oe-ordl.est-no oe-ordl.SourceEstimateID oe-ordl.qty fi_qty-uom 
          oe-ordl.i-no oe-ordl.part-no oe-ordl.i-name oe-ordl.part-dscr1 
          oe-ordl.part-dscr2 oe-ordl.part-dscr3 oe-ordl.po-no oe-ordl.e-num 
          oe-ordl.po-no-po oe-ordl.price oe-ordl.pr-uom oe-ordl.tax oe-ordl.disc 
@@ -9238,7 +9259,7 @@ PROCEDURE OnSaveButton :
         /*OR ip-type = "UPdate-2" doen in v-ord.w order-from-est proc */)
         /* update job's start-date when req-date is changed */
         AND oe-ordl.est-no:SCREEN-VALUE NE "" /*AND lv-update-job-stdate */ 
-        AND (v-run-schedule OR schedule-log)
+        AND (v-run-schedule OR lSchedule)
         THEN RUN update-start-date.
 
     IF oe-ordl.job-no NE '' THEN RUN update-due-date.
@@ -9467,6 +9488,22 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCopyShipNote d-oeitem 
+PROCEDURE pCopyShipNote PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose: Copies Ship Note from rec_key to rec_key
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcRecKeyFrom AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcRecKeyTo AS CHARACTER NO-UNDO.
+
+    RUN Notes_CopyShipNote (ipcRecKeyFrom, ipcRecKeyTo).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCrtPart d-oeitem 
 PROCEDURE pCrtPart :
 /*------------------------------------------------------------------------------
@@ -9515,6 +9552,24 @@ PROCEDURE pCrtPart :
             io-rowid = ROWID(itemfg).
         END.
         
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayFGWeight d-oeitem 
+PROCEDURE pDisplayFGWeight :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/     
+
+    DO WITH FRAME {&FRAME-NAME}:
+        dEstWeight:SCREEN-VALUE = STRING(fGetEstWeight(oe-ordl.est-no:SCREEN-VALUE, oe-ordl.i-no:SCREEN-VALUE, DECIMAL(oe-ordl.qty:SCREEN-VALUE))).
+        dActWeight:SCREEN-VALUE = STRING(fGetActWeight(oe-ordl.i-no:SCREEN-VALUE)).               
     END.
 END PROCEDURE.
 
@@ -10912,7 +10967,7 @@ PROCEDURE update-start-date :
     FIND bx-ordl WHERE RECID(bx-ordl) = RECID(oe-ordl).
     lv-prom-date = TODAY + lv-job-day.
     IF lv-start-date < TODAY /*AND (ip-type = "add")*/  /* ip-type = "Update-2" is from v-ord.w*/
-        AND v-run-schedule AND schedule-log
+        AND v-run-schedule AND lSchedule
         THEN 
     DO:
         MESSAGE "Calculated Promised DATE is   " lv-prom-date SKIP
@@ -11086,7 +11141,7 @@ PROCEDURE update-start-date :
         END. /*end bf-hdr*/
     END. /* if v-run-schedule*/
 
-    IF schedule-log THEN
+    IF lSchedule THEN
         ASSIGN
             bx-ordl.prom-date = IF lv-update-job-stdate THEN lv-prom-date ELSE bx-ordl.prom-date
             bx-ordl.req-date  = IF lv-update-job-stdate THEN lv-prom-date ELSE bx-ordl.req-date.
@@ -11236,9 +11291,7 @@ PROCEDURE UpdateStartDate :
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-job     FOR job.
 
-    FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ oe-ord.company
-        AND sys-ctrl.name EQ 'SCHEDULE' NO-ERROR.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.char-fld = "NoDate" THEN
+    IF cScheduleValue EQ "NoDate" THEN
         /*update start dates of other orderlines for this orderline's job - e.g tandem/combo*/
         FOR EACH bf-oe-ordl WHERE bf-oe-ordl.company EQ oe-ordl.company
             AND bf-oe-ordl.job-no EQ oe-ordl.job-no
@@ -11797,7 +11850,7 @@ PROCEDURE valid-start-date :
      lv-prom-date = TODAY + lv-job-day
      lv-update-job-stdate = NO.
 
-    IF lv-start-date < TODAY AND schedule-log THEN 
+    IF lv-start-date < TODAY AND lSchedule THEN 
     DO:
      
         MESSAGE "Calculated Promised DATE is   " lv-prom-date SKIP
@@ -11937,12 +11990,6 @@ PROCEDURE validate-all :
     DEFINE VARIABLE cLoc       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLocBin    AS CHARACTER NO-UNDO.
  
-    /*DEF VAR v-run-schedule AS LOG NO-UNDO.
-   
-    find first sys-ctrl where sys-ctrl.company eq cocode
-                           and sys-ctrl.name    eq "SCHEDULE" no-lock no-error.
-    v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
-    */
     IF NOT AVAILABLE oe-ord THEN
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
             AND oe-ord.ord-no  EQ oe-ordl.ord-no
@@ -12133,17 +12180,6 @@ PROCEDURE validate-all :
         RUN validate-due-date NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN ERROR.
     
-    /*
-    IF (oe-ordl.req-date <> date(oe-ordl.req-date:SCREEN-VALUE) 
-       AND ip-type = "update")
-       AND oe-ordl.est-no:SCREEN-VALUE <> "" 
-       AND (v-run-schedule OR schedule-log)
-    THEN  DO:
-        /*
-        RUN valid-start-date NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-        */
-    END.*/
         
     END.   
  
@@ -13107,3 +13143,92 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetEstWeight V-table-Win 
+FUNCTION fGetEstWeight RETURNS DECIMAL
+  ( ipcEstimate AS CHARACTER, ipcFGItem AS CHARACTER, ipdQty AS DECIMAL ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.     
+  DEFINE VARIABLE dWeightPerTon AS DECIMAL NO-UNDO.
+  DEFINE BUFFER bf-eb FOR eb.
+  DEFINE BUFFER bf-ef FOR ef.
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+  
+  find first bf-itemfg NO-LOCK
+       where bf-itemfg.company eq cocode
+       and bf-itemfg.i-no      eq ipcFGItem
+       NO-ERROR.
+  
+  RUN fg/GetFGArea.p (ROWID(bf-itemfg), "MSF", OUTPUT dSqft).
+  RUN util/rjust.p (INPUT-OUTPUT ipcEstimate,8).
+  IF AVAILABLE bf-itemfg AND ipcEstimate NE "" THEN
+  DO:       
+     FIND FIRST bf-eb NO-LOCK 
+          WHERE bf-eb.company EQ cocode
+          AND bf-eb.est-no  EQ ipcEstimate
+          AND bf-eb.stock-no EQ ipcFGItem NO-ERROR .
+     IF AVAILABLE bf-eb THEN        
+     FIND FIRST bf-ef NO-LOCK
+          WHERE bf-ef.company EQ bf-eb.company 
+          AND bf-ef.est-no EQ bf-eb.est-no 
+          AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+           
+     dWeightPerTon = IF AVAILABLE bf-ef THEN (bf-ef.weight * ipdQty * dSqft ) / 2000 ELSE 0.        
+  END.
+  
+  RETURN dWeightPerTon.
+ 
+  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetActWeight V-table-Win 
+FUNCTION fGetActWeight RETURNS DECIMAL
+  ( ipcFGItem AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dSqft AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dWeightPerTon AS DECIMAL NO-UNDO.
+  DEFINE BUFFER bf-eb FOR eb.
+  DEFINE BUFFER bf-ef FOR ef.
+  DEFINE BUFFER bf-itemfg FOR itemfg.
+  
+  find first bf-itemfg NO-LOCK
+       where bf-itemfg.company eq cocode
+       and bf-itemfg.i-no      eq ipcFGItem
+       NO-ERROR.
+  
+  RUN fg/GetFGArea.p (ROWID(bf-itemfg), "MSF", OUTPUT dSqft).
+  
+  IF AVAILABLE bf-itemfg AND bf-itemfg.est-no NE "" THEN
+  DO:
+     FIND FIRST bf-eb NO-LOCK
+            WHERE bf-eb.company EQ cocode 
+              AND bf-eb.est-no EQ bf-itemfg.est-no
+              AND bf-eb.stock-no EQ bf-itemfg.i-no NO-ERROR.
+      IF AVAILABLE bf-eb THEN
+      FIND FIRST bf-ef NO-LOCK
+            WHERE bf-ef.company EQ cocode 
+              AND bf-ef.est-no EQ bf-eb.est-no
+              AND bf-ef.form-no EQ bf-eb.form-no NO-ERROR.
+              
+      dWeightPerTon = IF AVAILABLE bf-ef THEN (bf-ef.weight * bf-itemfg.q-onh * dSqft ) / 2000 ELSE 0.        
+
+  END.
+  
+  RETURN dWeightPerTon.
+ 
+  /* Function return value. */
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

@@ -1,0 +1,120 @@
+ADD INDEX "posted" ON "dmiTrans"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Posted"
+  INDEX-FIELD "posted" ASCENDING
+
+ADD FIELD "lLockWeightCalc" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 234
+  INITIAL "no"
+  LABEL "Lock Weight Calc"
+  ORDER 2310
+  MAX-WIDTH 1
+
+ADD FIELD "lLockDimensions" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 235
+  INITIAL "no"
+  LABEL "Lock Dimensions"
+  ORDER 2320
+  MAX-WIDTH 1
+
+ADD FIELD "iReleaseSeq" OF "itemfg" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 236
+  INITIAL "0"
+  LABEL "Release Seq"
+  ORDER 2330
+  MAX-WIDTH 4
+
+UPDATE FIELD "module" OF "module"
+  LABEL "Module"
+
+UPDATE FIELD "dscr" OF "module"
+  FORMAT "X(256)"
+  LABEL "Description"
+
+ADD FIELD "licensed" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 5
+  INITIAL "no"
+  LABEL "Licensed?"
+  ORDER 41
+  MAX-WIDTH 1
+
+ADD FIELD "moduleGroup" OF "module" AS character
+  FORMAT "x(16)"
+  POSITION 8
+  INITIAL ""
+  LABEL "Group"
+  ORDER 70
+  MAX-WIDTH 32
+
+ADD FIELD "optional" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 9
+  INITIAL "no"
+  LABEL "Optional"
+  ORDER 80
+  MAX-WIDTH 1
+
+ADD FIELD "isGlobal" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 10
+  INITIAL "no"
+  LABEL "Global"
+  ORDER 90
+  MAX-WIDTH 1
+
+ADD FIELD "expDate" OF "module" AS date
+  FORMAT "99/99/9999"
+  POSITION 11
+  INITIAL ?
+  LABEL "Exp Date"
+  ORDER 100
+  MAX-WIDTH 4
+
+ADD FIELD "subLevel" OF "module" AS integer
+  FORMAT ">>9"
+  POSITION 12
+  INITIAL "0"
+  LABEL "Level"
+  ORDER 110
+  MAX-WIDTH 4
+
+UPDATE FIELD "is-used" OF "module"
+  POSITION 13
+
+RENAME INDEX "code" TO "iModule" ON "module"
+
+
+ADD INDEX "iGroup" ON "module"
+  AREA "Index"
+  INDEX-FIELD "moduleGroup" ASCENDING
+  INDEX-FIELD "module" ASCENDING
+
+UPDATE PRIMARY INDEX "iModule" ON "module"
+
+DROP INDEX "module" ON "module"
+
+ADD FIELD "PROnumber" OF "oe-bolh" AS character
+  FORMAT "x(10)"
+  POSITION 96
+  INITIAL ""
+  LABEL "PRO Number"
+  ORDER 910
+  MAX-WIDTH 20
+
+ADD FIELD "PROnumber" OF "oe-relh" AS character
+  FORMAT "x(10)"
+  POSITION 62
+  INITIAL ""
+  LABEL "PRO Number"
+  ORDER 570
+  MAX-WIDTH 20
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002197

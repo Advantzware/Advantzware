@@ -117,6 +117,9 @@ DEFINE VARIABLE lUseNewCalc        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lPromptForNewCalc  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lSubAssemblyActive AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lUpdateLoc         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPrepProcs         AS HANDLE NO-UNDO.
 RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
@@ -142,6 +145,10 @@ DEFINE TEMP-TABLE tt-ordlist NO-UNDO
 DO TRANSACTION:
     {sys/inc/graphic.i}
 END.
+
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 DEFINE VARIABLE hProc AS HANDLE NO-UNDO.
 hProc = SESSION:FIRST-PROCEDURE.
@@ -468,28 +475,17 @@ DO:
         /* calc-est.p calls print4.p or print42.p to create op temp-table */
         RUN jc/calc-est.p (RECID(job)).
 
-        FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-            AND sys-ctrl.name    EQ "SCHEDULE" NO-LOCK NO-ERROR.
-        IF NOT AVAILABLE sys-ctrl THEN 
-        DO TRANSACTION:
-            CREATE sys-ctrl.
-            ASSIGN 
-                sys-ctrl.company  = cocode
-                sys-ctrl.name     = "SCHEDULE"
-                sys-ctrl.char-fld = "None"
-                sys-ctrl.descrip  = "Update Due date and Promise date for Schedule?".
-            IF NOT gvlNoPrompt THEN
-                MESSAGE sys-ctrl.descrip
-                    VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
-                    UPDATE sys-ctrl.log-fld.                             
-        END.
+        RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+        RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+        IF cSchedule NE "" THEN
+            ASSIGN lSchedule = LOGICAL(cSchedule).
 
         IF nufile THEN RUN jc/startdat.p (ROWID(job)).
         DO TRANSACTION:
             FIND CURRENT job EXCLUSIVE-LOCK.
 
 
-            IF nufile AND AVAILABLE sys-ctrl AND sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld
+            IF nufile AND cScheduleValue = "NoDate" AND lSchedule
                 THEN job.start-date = ?.
 
             ASSIGN
@@ -1480,6 +1476,9 @@ END. /* if iauditid */
 
 IF VALID-HANDLE(hPrepProcs) THEN 
 DELETE OBJECT hPrepProcs.
+
+IF VALID-HANDLE(hdFormulaProcs) THEN
+DELETE PROCEDURE hdFormulaProcs.
 
 /* **********************  Internal Procedures  *********************** */
 

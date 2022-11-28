@@ -58,6 +58,7 @@ PROCEDURE GetVendorItemCost:
 
     DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
 
     iPO# = v-po# /*105207*/ .
     
@@ -106,7 +107,8 @@ PROCEDURE GetVendorItemCost:
                 OUTPUT dCostPerUOM, 
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
-                OUTPUT dCostTotal, 
+                OUTPUT dCostTotal,
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).  
               
@@ -150,6 +152,7 @@ PROCEDURE GetVendorItemCost:
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
                 OUTPUT dCostTotal, 
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).  
         END.

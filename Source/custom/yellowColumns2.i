@@ -579,8 +579,7 @@ PROCEDURE openQuery:
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Category' THEN fgcat.procat ELSE ~
   IF sortColumn EQ 'Description' THEN fgcat.dscr ELSE ~
-  IF sortColumn EQ 'GL Account' THEN fgcat.glacc ELSE ~
-  STRING(fgcat.commrate,">>9.99%") ~{&SORTED}
+  fgcat.glacc ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'surcharge' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~

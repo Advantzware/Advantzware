@@ -366,9 +366,9 @@ DEFINE BROWSE br-estitm
       ef.board FORMAT "x(12)":U 
       ef.cal FORMAT ">9.99999<":U 
       eb.procat FORMAT "x(5)":U 
-      eb.len FORMAT ">9.99999":U 
-      eb.wid FORMAT ">9.99999":U 
-      eb.dep FORMAT ">9.99999":U 
+      eb.len FORMAT ">>9.99999":U 
+      eb.wid FORMAT ">>9.99999":U 
+      eb.dep FORMAT ">>9.99999":U 
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
@@ -524,11 +524,11 @@ ASSIGN
      _FldNameList[11]   > ASI.eb.procat
 "eb.procat" ? ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.eb.len
-"eb.len" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.eb.wid
-"eb.wid" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.eb.dep
-"eb.dep" ? ? "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.dep" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.eb.cust-%
 "eb.cust-%" "Qty/Set" "->>,>>>" "decimal" ? ? ? ? ? ? yes "Quantity Per Set" no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.eb.i-col
@@ -2946,34 +2946,7 @@ PROCEDURE crt-est-childrecord :
   FIND FIRST ef OF eb NO-LOCK NO-ERROR.
   lv-ef-recid = RECID(ef).
  
-  /*
-  def var i as int no-undo.
-  def buffer bb for eb.
-  def buffer bf for ef.
-  
-  
-  create est-qty.
-  assign est-qty.company = gcompany
-         est-qty.est-no =  est.est-no
-         est-qty.eqty = 0
-         est-qty.qty-date = est.est-date
-         .
-  create ef.
-  assign
-   ef.est-type  = est.est-type
-   ef.company   = gcompany
-   ef.loc       = gloc
-   ef.e-num     = est.e-num
-   ef.est-no    = est.est-no
-   ef.form-no   = 1
-   ef.cust-seq  = 1
-   ef.blank-qty = 1
-   ef.lsh-wid   = ce-ctrl.ls-length
-   ef.lsh-len   = ce-ctrl.ls-width
-   lv-ef-recid  = recid(ef).
  
-  RUN blank-add (lv-ef-recid).*/
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3716,13 +3689,14 @@ PROCEDURE local-assign-record :
      ll-crt-itemfg = NO.
   END.
 
-  IF eb.stock-no NE "" AND eb.part-dscr2 EQ "" THEN DO:
+  IF eb.stock-no NE "" AND (eb.part-dscr2 EQ "" OR eb.cad-no EQ "") THEN DO:
     FIND FIRST itemfg NO-LOCK
         WHERE itemfg.company    EQ eb.company
           AND itemfg.i-no       EQ eb.stock-no
           AND itemfg.part-dscr1 NE ""
         NO-ERROR.
-    IF AVAIL itemfg THEN eb.part-dscr2 = itemfg.part-dscr1.
+    IF AVAIL itemfg AND eb.part-dscr2 EQ "" THEN eb.part-dscr2 = itemfg.part-dscr1.
+    IF AVAIL itemfg AND eb.cad-no EQ "" THEN eb.cad = itemfg.cad-no.
   END. 
 
   /*== Qty assignment ==*/

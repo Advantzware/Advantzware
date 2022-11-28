@@ -174,7 +174,9 @@ FOR EACH ap-sel NO-LOCK
         ttPaymentData.invDate     = ap-inv.inv-date
         ttPaymentData.checkDate   = TODAY
         ttPaymentData.amt         = ap-sel.amt-paid * (ap-sel.amt-paid / (ap-inv.net + ap-inv.freight))
-        ttPaymentData.delMethod   = ap-sel.deliveryMethod
+        ttPaymentData.delMethod   = IF ap-sel.deliveryMethod EQ "01" THEN "Overnight Delivery Payee"
+                                    ELSE IF ap-sel.deliveryMethod EQ "03" THEN "Mail to Payor"
+                                    ELSE "Mail Check Payee"
         .    
     IF cCompCurr NE ""  AND cCompCurr NE ap-inv.curr-code[1] THEN do:
         FIND FIRST currency NO-LOCK
@@ -216,7 +218,7 @@ FOR EACH ttPaymentData
         
     IF FIRST-OF(ttPaymentData.checkNo) THEN
     dCheckAmount = 0.
-    dCheckAmount = dCheckAmount + ttPaymentData.amt.
+    dCheckAmount = ROUND(dCheckAmount + ttPaymentData.amt,2).
     cFillZero = FILL("0",1500).
     
     IF FIRST-OF(ttPaymentData.checkNo) THEN

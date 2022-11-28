@@ -35,7 +35,7 @@ DEF VAR v-t-win AS DEC DECIMALS 4 NO-UNDO.
 IF xest.metric THEN
   ASSIGN
    ld-metric = 25.4
-   lv-format = "->>,>>>mm".
+   lv-format = "->>,>>>.99".
 
 {cec/get-vend.i}  /* get vendor number */
 
@@ -261,12 +261,6 @@ IF lookup(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ THEN DO:
     ELSE
         ASSIGN v-i-no = xeb.stock-no 
             v-2desc = YES.
-END.
-
-IF ld-metric NE 1 THEN DO:
-  {sys/inc/roundup.i ld-len}
-  {sys/inc/roundup.i ld-wid}
-  {sys/inc/roundup.i ld-dep}
 END.
 
 assign

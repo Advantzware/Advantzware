@@ -168,6 +168,9 @@ FUNCTION fIsSetType RETURNS LOGICAL PRIVATE
 FUNCTION fIsSingleType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
+FUNCTION fIsWoodStyle RETURNS LOGICAL PRIVATE 
+    (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER) FORWARD.
+
 FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE 
     (ipcEstType AS CHARACTER) FORWARD.
 
@@ -2143,7 +2146,6 @@ PROCEDURE pBuildHeadersToProcess PRIVATE:
         FIND FIRST bf-est-qty
             WHERE bf-est-qty.company EQ bf-est.company
               AND bf-est-qty.est-no  EQ bf-est.est-no
-              AND bf-est-qty.qty[1]  NE 0
              NO-LOCK NO-ERROR.
         IF AVAILABLE bf-est-qty THEN 
             DO iQtyCount = 1 TO 20:
@@ -2430,6 +2432,7 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
     DEFINE PARAMETER BUFFER opbf-ttEstCostMaterial FOR ttEstCostMaterial.
     
     DEFINE VARIABLE lFoam  AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lWood  AS LOGICAL NO-UNDO.
     
     DEFINE BUFFER bf-ttEstCostBlank    FOR ttEstCostBlank.
     
@@ -2437,8 +2440,9 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
         RETURN.
         
     lFoam = fIsFoamStyle (ipbf-ttEstCostForm.company, ipbf-ttEstCostForm.estimateNo, ipbf-ttEstCostForm.formNo).
+    lWood = fIsWoodStyle (ipbf-ttEstCostForm.company, ipbf-ttEstCostForm.estimateNo, ipbf-ttEstCostForm.formNo).
         
-    IF lFoam THEN
+    IF lFoam OR lWood THEN
     DO:
         IF fIsComboType(ipbf-ttEstCostHeader.estType) THEN DO:
             ASSIGN
@@ -2446,6 +2450,8 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
                 opbf-ttEstCostMaterial.dimWidth                = ipbf-ttEstCostForm.netWidth
                 opbf-ttEstCostMaterial.dimDepth                = ipbf-ttEstCostForm.netDepth 
                 opbf-ttEstCostMaterial.quantityRequiredNoWaste = opbf-ttEstCostMaterial.quantityRequiredNoWaste * ipbf-ttEstCostForm.numOutNet
+                opbf-ttEstCostMaterial.quantityRequiredRunWaste = opbf-ttEstCostMaterial.quantityRequiredRunWaste * ipbf-ttEstCostForm.numOutNet
+                opbf-ttEstCostMaterial.quantityRequiredSetupWaste = opbf-ttEstCostMaterial.quantityRequiredSetupWaste * ipbf-ttEstCostForm.numOutNet
                 .
         END.
         ELSE DO:
@@ -2459,6 +2465,8 @@ PROCEDURE pCalcBoardCostFromBlank PRIVATE:
                     opbf-ttEstCostMaterial.dimWidth                = bf-ttEstCostBlank.blankWidth
                     opbf-ttEstCostMaterial.dimDepth                = bf-ttEstCostBlank.blankDepth
                     opbf-ttEstCostMaterial.quantityRequiredNoWaste = bf-ttEstCostBlank.quantityRequired
+                    opbf-ttEstCostMaterial.quantityRequiredRunWaste = opbf-ttEstCostMaterial.quantityRequiredRunWaste * bf-ttEstCostBlank.numOut
+                    opbf-ttEstCostMaterial.quantityRequiredSetupWaste = opbf-ttEstCostMaterial.quantityRequiredSetupWaste * bf-ttEstCostBlank.numOut 
                     .
         END.
     END.  
@@ -2471,8 +2479,7 @@ PROCEDURE pBuildFreightForBoardCost PRIVATE:
      Notes: This cost is processing for Single/combo estimates but not being included in case of Item-BOM setup.
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipiEstCostHeaderID AS INT64 NO-UNDO.
-    
-    DEFINE BUFFER bf-ef                     FOR ef. 
+      DEFINE BUFFER bf-ef                     FOR ef. 
     DEFINE BUFFER bf-ttEstCostForm          FOR ttEstCostForm. 
     DEFINE BUFFER bf-ttEstCostBlank         FOR ttEstCostBlank. 
     DEFINE BUFFER bf-ttEstCostHeader        FOR ttEstCostHeader.
@@ -2539,6 +2546,7 @@ PROCEDURE pCalcHeaderCosts PRIVATE:
     IF AVAILABLE bf-ttEstCostHeader THEN
     DO:
         RUN pCopyHeaderCostsToSetItem(BUFFER bf-ttEstCostHeader).
+        RUN pUpdateCostDetails(bf-ttEstCostHeader.estCostHeaderID).
         RUN pBuildProbe(BUFFER bf-ttEstCostHeader).
     END.
 
@@ -2737,14 +2745,7 @@ PROCEDURE pCalcHeader PRIVATE:
         RUN pCalcWeightsAndSizes(bf-ttEstCostHeader.estCostHeaderID).
         RUN pBuildFreightForBoardCost(bf-ttEstCostHeader.estCostHeaderID).
         RUN pBuildEstHandlingCharges(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildFactoryCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildNonFactoryCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildFreightCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildPriceRelatedCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildCostSummary(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pCopyHeaderCostsToSetItem(BUFFER bf-ttEstCostHeader).
-        RUN pUpdateCostDetails(bf-ttEstCostHeader.estCostHeaderID).
-        RUN pBuildProbe(BUFFER bf-ttEstCostHeader).
+        RUN pCalcHeaderCosts(bf-ttEstCostHeader.estCostHeaderID).        
     END. /*each bf-ttEstCostHeader*/
 
 END PROCEDURE.
@@ -4834,8 +4835,7 @@ PROCEDURE pCalcEstMaterial PRIVATE:
     
     DEFINE VARIABLE dCostDeviation AS DECIMAL NO-UNDO.
     DEFINE VARIABLE dQuantityInM   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dtotal AS DECIMAL.
-    
+        
     RUN pGetRequiredTotal(ipbf-ttEstCostMaterial.quantityRequiredNoWaste,
                           ipbf-ttEstCostMaterial.quantityRequiredSetupWaste,
                           ipbf-ttEstCostMaterial.quantityRequiredRunWaste,
@@ -5715,15 +5715,29 @@ PROCEDURE pGetEstFarmCosts PRIVATE:
             lIncludeBlankVendor = YES
             .
 
-        RUN VendCost_GetBestCost(ipbf-ttEstCostMaterial.company, 
-            ipbf-ttEstCostMaterial.itemID, "FG", 
-            cScope, lIncludeBlankVendor, 
-            ipbf-ttEstCostMaterial.estimateNo, ipbf-ttEstCostMaterial.formNo, ipbf-ttEstCostMaterial.blankNo,
-            ipdQty, ipcQtyUOM, 
-            ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth, ipbf-ttEstCostMaterial.dimUOM, 
-            ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.basisWeightUOM,
-            OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation, OUTPUT dCostTotal,
-            OUTPUT lError, OUTPUT cMessage).
+        IF ipbf-ttEstCostMaterial.vendorID NE "" OR glUseBlankVendor OR ipbf-ttEstCostMaterial.vendorChanged THEN 
+        DO:
+            opcVendorID = ipbf-ttEstCostMaterial.vendorID.
+            RUN GetVendorCost(ipbf-ttEstCostMaterial.company, ipbf-ttEstCostMaterial.itemID, "FG", 
+                opcVendorID, "", ipbf-ttEstCostMaterial.estimateNo, ipbf-ttEstCostMaterial.formNo, ipbf-ttEstCostMaterial.blankNo, 
+                ipdQty, ipcQtyUOM, 
+                ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth, ipbf-ttEstCostMaterial.dimUOM, 
+                ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.basisWeightUOM, 
+                NO,
+                OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
+        END.
+        ELSE 
+        DO:                        
+            RUN VendCost_GetBestCost(ipbf-ttEstCostMaterial.company, 
+                ipbf-ttEstCostMaterial.itemID, "FG", 
+                cScope, lIncludeBlankVendor, 
+                ipbf-ttEstCostMaterial.estimateNo, ipbf-ttEstCostMaterial.formNo, ipbf-ttEstCostMaterial.blankNo,
+                ipdQty, ipcQtyUOM, 
+                ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth, ipbf-ttEstCostMaterial.dimUOM, 
+                ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.basisWeightUOM,
+                OUTPUT opdCost, OUTPUT opcCostUOM, OUTPUT opdSetup, OUTPUT opcVendorID, OUTPUT opdCostDeviation, OUTPUT dCostTotal,
+                OUTPUT lError, OUTPUT cMessage).
+        END.
     END.
     ELSE 
     DO:
@@ -5827,7 +5841,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
     DEFINE VARIABLE lError              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage            AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lUseBlank           AS LOGICAL   NO-UNDO.
-
+    DEFINE VARIABLE cVendorItemID       AS CHARACTER NO-UNDO.
 
     ASSIGN
         lCostFound = NO
@@ -5840,7 +5854,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
             cScope              = DYNAMIC-FUNCTION("VendCost_GetValidScopes","Est-RM-Over")
             lIncludeBlankVendor = YES
             .
-        IF ipbf-ttEstCostMaterial.vendorID NE "" OR glUseBlankVendor THEN 
+        IF ipbf-ttEstCostMaterial.vendorID NE "" OR glUseBlankVendor OR ipbf-ttEstCostMaterial.vendorChanged THEN 
         DO:
             opcVendorID = ipbf-ttEstCostMaterial.vendorID.
             RUN GetVendorCost(ipbf-ttEstCostMaterial.company, ipbf-ttEstCostMaterial.itemID, "RM", 
@@ -5849,7 +5863,7 @@ PROCEDURE pGetEstMaterialCosts PRIVATE:
                 ipbf-ttEstCostMaterial.dimLength, ipbf-ttEstCostMaterial.dimWidth, ipbf-ttEstCostMaterial.dimDepth, ipbf-ttEstCostMaterial.dimUOM, 
                 ipbf-ttEstCostMaterial.basisWeight, ipbf-ttEstCostMaterial.basisWeightUOM, 
                 NO,
-                OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT lError, OUTPUT cMessage).
+                OUTPUT opdCost, OUTPUT opdSetup, OUTPUT opcCostUOM, OUTPUT dCostTotal, OUTPUT cVendorItemID, OUTPUT lError, OUTPUT cMessage).
         END.
         ELSE 
         DO:                        
@@ -6962,7 +6976,7 @@ FUNCTION fIsComboType RETURNS LOGICAL PRIVATE
     
 END FUNCTION.
 
-FUNCTION fIsFoamStyle RETURNS LOGICAL 
+FUNCTION fIsFoamStyle RETURNS LOGICAL PRIVATE
     (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER):
     /*------------------------------------------------------------------------------
      Purpose: Returns if any Item is Foam type in the Estimate
@@ -7020,6 +7034,35 @@ FUNCTION fIsSingleType RETURNS LOGICAL PRIVATE
     ------------------------------------------------------------------------------*/    
     RETURN DYNAMIC-FUNCTION("fEstimate_IsSingleType", ipcEstType).
     
+END FUNCTION.
+
+FUNCTION fIsWoodStyle RETURNS LOGICAL PRIVATE
+    (ipcCompany AS CHARACTER, ipcEstNo AS CHARACTER, INPUT ipiFormNo AS INTEGER):
+    /*------------------------------------------------------------------------------
+     Purpose: Returns if any Item is Foam type in the Estimate
+     Notes:
+    ------------------------------------------------------------------------------*/    
+
+    DEFINE VARIABLE lResult AS LOGICAL NO-UNDO.
+
+    DEFINE BUFFER bf-Style FOR Style.
+    DEFINE BUFFER bf-eb    FOR eb.
+    
+    FIND FIRST bf-eb
+        WHERE bf-eb.company EQ ipcCompany
+        AND bf-eb.est-no  EQ ipcEstNo
+        AND bf-eb.form-no EQ ipiFormNo
+        AND bf-eb.pur-man EQ NO
+        AND CAN-FIND(FIRST bf-Style
+        WHERE bf-Style.company EQ bf-eb.company
+        AND bf-Style.style   EQ bf-eb.style
+        AND bf-Style.type    EQ "W")
+        NO-LOCK NO-ERROR.
+    
+    IF AVAILABLE bf-eb THEN
+        lResult = YES.
+
+    RETURN lResult.
 END FUNCTION.
 
 FUNCTION fIsWoodType RETURNS LOGICAL PRIVATE 

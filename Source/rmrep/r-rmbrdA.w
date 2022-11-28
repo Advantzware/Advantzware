@@ -1110,6 +1110,13 @@ DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
 
 RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
 
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
+
 IF tb_excel THEN DO:
    OUTPUT STREAM excel TO VALUE(cFileName).
    excelheader = "Whse,Item,Description,Product Category,UOM,Cost,On Hand,On Order, PO - Due Date,Quantity Available,Value".
@@ -1156,10 +1163,7 @@ end.
 
 assign
  /* rstark 08111413 */
- noDate = CAN-FIND(FIRST sys-ctrl
-                   WHERE sys-ctrl.company EQ cocode
-                     AND sys-ctrl.name EQ 'Schedule'
-                     AND sys-ctrl.log-fld EQ YES)
+ noDate = lSchedule
  str-tit2 = c-win:TITLE
  v-av     = rd_qty begins "Av"
  v-type   = substr(rd_item,1,1)

@@ -20,6 +20,10 @@ def shared frame est.
 def shared buffer xritem  for rfqitem.
 
 def var v-sq-box like eb.k-wid.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 
 find first reftable
@@ -33,15 +37,11 @@ if not avail reftable then leave.
 v-field = trunc(reftable.val[13],0) +
           ((reftable.val[13] - trunc(reftable.val[13],0)) * 6.25).
 
-if v-dim-fit then do:
-  find first reftable
-      where reftable.reftable eq "STYFLU"
-        and reftable.company  eq xritem.style
-        and reftable.loc      eq xritem.flute
-        and reftable.code     eq "DIM-FIT"
-      no-lock no-error.
-
-  if avail reftable then v-field  = v-field - (reftable.val[1] * 2).
+if v-dim-fit then do:      
+  RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (xritem.company, xritem.style, xritem.flute, OUTPUT dBoxFit).
+  v-field  = v-field - (dBoxFit * 2).
 end.
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

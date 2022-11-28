@@ -26,6 +26,10 @@ DEF SHARED VAR fil_id AS RECID NO-UNDO.
 DEF SHARED VAR s-est-no AS cha NO-UNDO.
 def shared var v-i-item like oe-ordl.i-no NO-UNDO. /* INPUT ITEM */
 def shared var v-i-qty like oe-ordl.qty NO-UNDO.   /* INPUT QUANTITY */
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 DEF BUFFER bf-eb FOR eb.
 DEF BUFFER x-eb FOR eb.
@@ -209,5 +213,6 @@ do on error undo:
   hide frame eb-part no-pause.
 end.
 
-
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1993  advanced software, inc. */

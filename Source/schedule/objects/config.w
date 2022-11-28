@@ -5233,12 +5233,12 @@ PROCEDURE getConfiguration :
       statusCheckoffTypeValue
       .
     FIND FIRST module NO-LOCK
-         WHERE module.db-name EQ "ASI"
-           AND module.module  EQ "sbHTML"
+         WHERE module.module  EQ "Scheduling"
          NO-ERROR.
     lDisableHTMLPageLocation = AVAILABLE module AND
-                              (NOT module.is-used OR
-                               module.expire-date LT TODAY).
+                              (module.licensed EQ NO OR
+                              (module.expDate NE ? AND
+                               module.expDate LT TODAY)).
     IF lDisableHTMLPageLocation EQ NO THEN 
     ENABLE btnHTMLPageLocation.
     IF customValueList EQ '' THEN

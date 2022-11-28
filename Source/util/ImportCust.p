@@ -15,6 +15,7 @@
 DEFINE TEMP-TABLE ttImportCust
     FIELD Company       AS CHARACTER 
     FIELD Location      AS CHARACTER 
+    FIELD RecType       AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "RecType" HELP "Required - Customer or Note" 
     FIELD CustNo        AS CHARACTER FORMAT "X(8)" COLUMN-LABEL "Customer" HELP "Required - Size:8" 
     FIELD CustName      AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Customer Name" HELP "Optional - Size:30" 
     FIELD CustAdd1      AS CHARACTER FORMAT "X(30)" COLUMN-LABEL "Customer Addr1" HELP "Optional - Size:30"
@@ -106,6 +107,7 @@ DEFINE TEMP-TABLE ttImportCust
     .
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 2. /*Set to 1 if there is a Company field in temp-table since this will not be part of the mport data*/
+DEFINE VARIABLE gcCustomer AS CHARACTER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -144,19 +146,34 @@ PROCEDURE pValidate PRIVATE:
     END.
     IF oplValid THEN 
     DO:
+        IF ipbf-ttImportCust.recType EQ '' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Key Field Blank: RecType".
+    END.
+    IF oplValid THEN 
+    DO:
+        IF ipbf-ttImportCust.recType NE 'Customer' AND ipbf-ttImportCust.recType NE 'Note' THEN 
+            ASSIGN 
+                oplValid = NO
+                opcNote  = "Invalid field: RecType".
+    END.
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
+    DO:
         IF ipbf-ttImportCust.CustNo EQ '' THEN 
             ASSIGN 
                 oplValid = NO
-                opcNote  = "Key Field Blank: Customer".
+                opcNote  = "Key Field Blank: Customer"
+                gcCustomer = ipbf-ttImportCust.CustNo.
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF length(ipbf-ttImportCust.CustNo) GT 8 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Maximum Customer character Length is 8".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.accountType EQ '' THEN 
             ASSIGN 
@@ -164,138 +181,139 @@ PROCEDURE pValidate PRIVATE:
                 opcNote  = "Key Field Blank: Account Type, Use None for no change".
     END.
             
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.CustType EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Customer Type".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.Terms EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Customer Terms".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.CreditLimit LT 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Credit Limit can not be Negative.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.dOrderLimit LT 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Order Limit can not be Negative.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.dDiscPct LT 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Discount% can not be Negative.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.iGraceDay LT 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Grace Days can not be Negative.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.dGraceDolr LT 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Grace $ can not be Negative.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.cLoc EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Location.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.cCarrier EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Carrier.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.lInvPer EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Invoice Per.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.cFrtPay EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Freight Terms.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.cFob EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: FOB.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.cDelZone EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Delivery Zone.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.cTaxable EQ "" THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: Taxable.".
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF ipbf-ttImportCust.iPalletId LT 0 THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Pallet Id can not be Negative.".
     END.
-    IF oplValid THEN DO:
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN DO:
         IF ipbf-ttImportCust.matrixPrecision GT 6 THEN
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Precision cannot be greater than 6"
                 .     
     END.
-    IF oplValid THEN DO:
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN DO:
         IF LOOKUP(ipbf-ttImportCust.matrixRounding,",N,U,D") EQ 0 THEN
             ASSIGN
                 oplValid = NO
                 opcNote  = "Invalid Rounding method"
                 .
     END.
-    IF oplValid THEN DO:
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN DO:
         IF LOOKUP(ipbf-ttImportCust.tagStatus,",A,H") EQ 0 THEN
             ASSIGN
                 oplValid = NO
                 opcNote  = "Invalid Tag Status"
                 .
     END.
-    IF oplValid THEN 
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         FIND FIRST cust NO-LOCK 
             WHERE cust.company EQ ipbf-ttImportCust.Company
             AND cust.cust-no EQ ipbf-ttImportCust.CustNo
             NO-ERROR .
+        gcCustomer = ipbf-ttImportCust.CustNo.     
         IF AVAILABLE cust THEN 
         DO:
             IF NOT iplUpdateDuplicates THEN 
@@ -314,9 +332,35 @@ PROCEDURE pValidate PRIVATE:
                 .
         
     END.
+    
+    IF oplValid AND ipbf-ttImportCust.recType EQ 'Note' THEN 
+    DO:         
+        FIND FIRST cust NO-LOCK 
+             WHERE cust.company EQ ipbf-ttImportCust.Company
+             AND cust.cust-no EQ gcCustomer
+             AND cust.cust-no NE ""
+             NO-ERROR .
+        IF NOT AVAILABLE cust THEN        
+        ASSIGN 
+                oplValid = NO
+                opcNote = "Customer not validate for add record"
+                .
+        IF AVAILABLE cust THEN
+        DO:
+             FIND FIRST notes NO-LOCK 
+                  WHERE notes.rec_key EQ cust.rec_key 
+                  AND notes.note_title EQ ipbf-ttImportCust.CustAdd2 
+                  AND notes.note_type EQ ipbf-ttImportCust.CustState 
+                  AND notes.note_code EQ ipbf-ttImportCust.CustZip                   
+             NO-ERROR.
+             IF NOT AVAILABLE notes THEN
+             opcNote = "Add record".
+             ELSE opcNote = "Update record".             
+        END.
+    END.
             
     /*Field level validation*/
-    IF oplValid AND iplFieldValidation THEN 
+    IF oplValid AND iplFieldValidation AND ipbf-ttImportCust.recType EQ 'Customer' THEN 
     DO:
         IF oplValid AND ipbf-ttImportCust.CustStatus NE "" THEN 
             RUN pIsValidFromList IN hdValidator ("Active", ipbf-ttImportCust.CustStatus, "Active,Inhouse,Service,Inactive", OUTPUT oplValid, OUTPUT cValidNote).
@@ -400,46 +444,49 @@ PROCEDURE pValidate PRIVATE:
             RUN pIsValidFromList IN hdValidator ("Email Preference", ipbf-ttImportCust.emailPreference, "Ask,Combined,Separate", OUTPUT oplValid, OUTPUT cValidNote).    
         
     END.
-    IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
-    IF ipbf-ttImportCust.cFrtPay EQ "Collect" THEN 
-        ipbf-ttImportCust.cFrtPay = "C".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Bill" THEN 
-        ipbf-ttImportCust.cFrtPay = "B".
-    ELSE IF ipbf-ttImportCust.cFrtPay EQ "Prepaid" THEN 
-        ipbf-ttImportCust.cFrtPay = "P".
-    ELSE ipbf-ttImportCust.cFrtPay = "T".
+    IF ipbf-ttImportCust.recType EQ 'Customer' THEN
+    DO:    
+        IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+        IF ipbf-ttImportCust.cFrtPay EQ "Collect" THEN 
+            ipbf-ttImportCust.cFrtPay = "C".
+        ELSE IF ipbf-ttImportCust.cFrtPay EQ "Bill" THEN 
+            ipbf-ttImportCust.cFrtPay = "B".
+        ELSE IF ipbf-ttImportCust.cFrtPay EQ "Prepaid" THEN 
+            ipbf-ttImportCust.cFrtPay = "P".
+        ELSE ipbf-ttImportCust.cFrtPay = "T".
 
-    IF ipbf-ttImportCust.cFOB EQ "Destination" THEN
-     ipbf-ttImportCust.cFOB = "DEST".
-        ELSE 
-          ipbf-ttImportCust.cFOB = "ORIG".
-    IF ipbf-ttImportCust.lInvPer EQ "BOL" THEN
-       ipbf-ttImportCust.lInvPer  = "NO".
-    ELSE IF ipbf-ttImportCust.lInvPer EQ "PO" THEN
-       ipbf-ttImportCust.lInvPer  = "yes".
-    ELSE ipbf-ttImportCust.lInvPer  = "?".
-    IF ipbf-ttImportCust.cTaxable EQ "yes" THEN
-         ipbf-ttImportCust.cTaxable = "Y".
-    ELSE ipbf-ttImportCust.cTaxable = "N".
+        IF ipbf-ttImportCust.cFOB EQ "Destination" THEN
+         ipbf-ttImportCust.cFOB = "DEST".
+            ELSE 
+              ipbf-ttImportCust.cFOB = "ORIG".
+        IF ipbf-ttImportCust.lInvPer EQ "BOL" THEN
+           ipbf-ttImportCust.lInvPer  = "NO".
+        ELSE IF ipbf-ttImportCust.lInvPer EQ "PO" THEN
+           ipbf-ttImportCust.lInvPer  = "yes".
+        ELSE ipbf-ttImportCust.lInvPer  = "?".
+        IF ipbf-ttImportCust.cTaxable EQ "yes" THEN
+             ipbf-ttImportCust.cTaxable = "Y".
+        ELSE ipbf-ttImportCust.cTaxable = "N".
 
-    IF ipbf-ttImportCust.CustStatus EQ "Active" THEN 
-        ipbf-ttImportCust.CustStatus = "A".
-    ELSE IF ipbf-ttImportCust.CustStatus EQ "Inactive" THEN 
-        ipbf-ttImportCust.CustStatus = "I".
-    ELSE IF ipbf-ttImportCust.CustStatus EQ "Inhouse" THEN 
-        ipbf-ttImportCust.CustStatus = "X".
-    ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
-        ipbf-ttImportCust.CustStatus = "E".
-        
+        IF ipbf-ttImportCust.CustStatus EQ "Active" THEN 
+            ipbf-ttImportCust.CustStatus = "A".
+        ELSE IF ipbf-ttImportCust.CustStatus EQ "Inactive" THEN 
+            ipbf-ttImportCust.CustStatus = "I".
+        ELSE IF ipbf-ttImportCust.CustStatus EQ "Inhouse" THEN 
+            ipbf-ttImportCust.CustStatus = "X".
+        ELSE IF ipbf-ttImportCust.CustStatus EQ "Service" THEN 
+            ipbf-ttImportCust.CustStatus = "E".
+            
 
-   IF ipbf-ttImportCust.emailPreference EQ "Ask" THEN 
-        ipbf-ttImportCust.emailPreference = "0".
-    ELSE IF ipbf-ttImportCust.emailPreference EQ "Combined" THEN 
-        ipbf-ttImportCust.emailPreference = "1".
-    ELSE IF ipbf-ttImportCust.emailPreference EQ "Separate" THEN 
-        ipbf-ttImportCust.emailPreference = "2". 
-    ELSE ipbf-ttImportCust.emailPreference = "0".    
-    
+       IF ipbf-ttImportCust.emailPreference EQ "Ask" THEN 
+            ipbf-ttImportCust.emailPreference = "0".
+        ELSE IF ipbf-ttImportCust.emailPreference EQ "Combined" THEN 
+            ipbf-ttImportCust.emailPreference = "1".
+        ELSE IF ipbf-ttImportCust.emailPreference EQ "Separate" THEN 
+            ipbf-ttImportCust.emailPreference = "2". 
+        ELSE ipbf-ttImportCust.emailPreference = "0".    
+    END.  
+    IF ipbf-ttImportCust.recType EQ 'customer' AND NOT oplValid THEN gcCustomer = "". 
     DELETE OBJECT hdValidator.   
 END PROCEDURE.
 
@@ -451,10 +498,32 @@ PROCEDURE pProcessRecord PRIVATE:
     DEFINE PARAMETER BUFFER ipbf-ttImportCust FOR ttImportCust.
     DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
     DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    
+    IF ipbf-ttImportCust.recType EQ "Customer" THEN
+    RUN pCustProcessRecord (BUFFER ipbf-ttImportCust, iplIgnoreBlanks, INPUT-OUTPUT iopiAdded).
+    ELSE 
+    IF ipbf-ttImportCust.recType EQ "Note" THEN
+    RUN pNoteProcessRecord (BUFFER ipbf-ttImportCust, iplIgnoreBlanks, INPUT-OUTPUT iopiAdded).
+    
+END PROCEDURE.    
+    
+
+PROCEDURE pCustProcessRecord PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  Processes an import record, incrementing the "opiAdded" variable
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-ttImportCust FOR ttImportCust.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
+    DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
+    
+    DEFINE VARIABLE riNote AS ROWID NO-UNDO.
+    DEFINE VARIABLE lNoteCreated AS LOGICAL NO-UNDO.
     DEFINE BUFFER bf-cust FOR cust .
     DEFINE BUFFER bf-shipto FOR shipto .
     DEFINE BUFFER bf-soldto FOR soldto .
-     
+    
+    gcCustomer = ipbf-ttImportCust.CustNo.
     FIND FIRST bf-cust EXCLUSIVE-LOCK
         WHERE bf-cust.company EQ ipbf-ttImportCust.Company
         AND bf-cust.cust-no EQ ipbf-ttImportCust.CustNo
@@ -603,60 +672,56 @@ PROCEDURE pProcessRecord PRIVATE:
             .
     END.
             
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note1,
-        "Misc Message 1",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note2,
-        "Misc Message 2",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note3,
-        "Mfg. Inst.",
-        "",
-        "C").
-    RUN pAddNote (bf-cust.rec_key,
-        ipbf-ttImportCust.Note4,
-        "B/L Message",
-        "",
-        "C"). 
+    IF ipbf-ttImportCust.Note1 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note1, "Misc Message 1", "", "C", "", OUTPUT lNoteCreated, OUTPUT riNote).
+    IF ipbf-ttImportCust.Note2 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note2, "Misc Message 2", "", "C", "", OUTPUT lNoteCreated, OUTPUT riNote).
+    IF ipbf-ttImportCust.Note3 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note3, "Mfg. Inst.", "", "C", "", OUTPUT lNoteCreated, OUTPUT riNote).
+    IF ipbf-ttImportCust.Note4 NE "" THEN 
+        RUN util/Dev/AddNote.p (bf-cust.rec_key, ipbf-ttImportCust.Note4, "B/L Message", "", "C", "", OUTPUT lNoteCreated, OUTPUT riNote). 
+    
     RELEASE bf-cust.
     RELEASE bf-shipto.
     RELEASE bf-soldto .
     
 END PROCEDURE.
 
-PROCEDURE pAddNote:
+PROCEDURE pNoteProcessRecord PRIVATE:
     /*------------------------------------------------------------------------------
-     Purpose: Adds a note to supplied rec_key and parameters
+     Purpose:  Processes an import record, incrementing the "opiAdded" variable
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcRecKey AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcText AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcTitle AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcCode AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER.
-    DEFINE BUFFER bf-notes FOR notes.
+    DEFINE PARAMETER BUFFER ipbf-ttImportCust FOR ttImportCust.
+    DEFINE INPUT PARAMETER iplIgnoreBlanks AS LOGICAL NO-UNDO. 
+    DEFINE INPUT-OUTPUT PARAMETER iopiAdded AS INTEGER NO-UNDO.
     
-    IF ipcText NE "" THEN 
-    DO:
-        CREATE bf-notes.
-        ASSIGN
-            bf-notes.rec_key    = ipcRecKey
-            bf-notes.note_date  = TODAY
-            bf-notes.note_time  = TIME
-            bf-notes.note_text  = ipcText
-            bf-notes.note_title = ipcTitle
-            bf-notes.note_code  = ipcCode
-            bf-notes.user_id    = "asi"
-            bf-notes.note_type  = ipcType
-            .                    
-    END.                           
-    RELEASE bf-notes.
-END PROCEDURE.
+    DEFINE VARIABLE riNote AS ROWID NO-UNDO.
+    DEFINE VARIABLE lNoteCreated AS LOGICAL NO-UNDO.
+    DEFINE BUFFER bf-cust FOR cust .
+    DEFINE BUFFER bf-notes FOR notes .
+                                                  
+    FIND FIRST cust NO-LOCK
+        WHERE cust.company EQ ipbf-ttImportCust.Company
+        AND cust.cust-no EQ gcCustomer
+        NO-ERROR.  
+    IF AVAILABLE cust AND gcCustomer NE "" THEN 
+    DO:         
+        RUN util/Dev/AddNote.p (cust.rec_key, ipbf-ttImportCust.CustCity, ipbf-ttImportCust.CustAdd2, ipbf-ttImportCust.CustZip, ipbf-ttImportCust.CustState, ipbf-ttImportCust.CustCountry, OUTPUT lNoteCreated, OUTPUT riNote).
+        IF lNoteCreated THEN
+        iopiAdded = iopiAdded + 1.
+        FIND FIRST bf-notes EXCLUSIVE-LOCK 
+             WHERE rowid(bf-notes) EQ riNote
+             NO-ERROR.
+        IF AVAILABLE bf-notes THEN          
+        DO:                
+               bf-notes.note_date = date(ipbf-ttImportCust.CustNo) NO-ERROR.         
+               bf-notes.user_id   = ipbf-ttImportCust.CustAdd1.            
+        END.
+        RELEASE bf-notes.
+    END.
+        
+END PROCEDURE.    
 
 PROCEDURE pGetSalesRep:
 /*------------------------------------------------------------------------------

@@ -45,6 +45,10 @@ DEF VAR v-dec     AS   INT NO-UNDO.
 
 def var v-round   like sys-ctrl.log-fld.
 DEF VAR lv-max-loc AS INT NO-UNDO. /* not to have error if v-lscore-fld-num >= 10 */
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 DEF BUFFER reftable2 FOR reftable.
 
@@ -92,15 +96,9 @@ find box-design-hdr
 if rfqitem.len eq rfqitem.wid  /*and 
    ( program-name(2) matches "*b-estitm*" or
      program-name(2) matches "*v-est*") */
-then do:
-    
-  find first reftable
-      where reftable.reftable eq "STYFLU"
-        and reftable.company  eq rfqitem.style
-        and reftable.loc      eq rfqitem.flute
-        and reftable.code     eq "DIM-FIT"
-      no-lock no-error.
-  if avail reftable then v-sq-box = reftable.val[1] / 6.25 * k_frac.
+then do:  
+  RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (rfqitem.company, rfqitem.style, rfqitem.flute, OUTPUT dBoxFit).
+  v-sq-box = dBoxFit / 6.25 * k_frac.
 end.
 
 if avail box-design-hdr then do:
@@ -517,4 +515,6 @@ do v-j = 1 to 2:
   end.
 end.
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1995  advanced software, inc. */

@@ -641,7 +641,8 @@ IF NOT AVAILABLE mach THEN
     FOR EACH mach
         {&where-machine}
                 and mach.max-col ge maxco
-              by mach.max-col:
+              BY mach.d-seq
+              BY mach.m-seq:
 IF AVAILABLE item AND mach.pr-type NE item.press-type THEN NEXT.
             {cec/mach-seq.i sh-len sh-wid xcal}
 END.

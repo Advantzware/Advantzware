@@ -254,7 +254,7 @@ if (not ch-multi) then do:
    /* get total page number */
 
   {cec/quote/quoxpnt10.i}
-
+    PUT SKIP.
   {cec/quote/quoxprnt10.i 1}
   v-quo-total = v-line-total + v-t-tax[1] + v-t-tax[2] + v-t-tax[3].
         
@@ -496,7 +496,7 @@ PROCEDURE printHeader:
     PAGE.
     {cec/quote/quoxpnt10.i}
     opInitVar = 0.
-    PUT SKIP .
+    PUT SKIP.
   END.
 END PROCEDURE.
 

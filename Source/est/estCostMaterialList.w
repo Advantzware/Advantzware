@@ -377,9 +377,10 @@ DO:
         ).
     END.
     
-    FOR FIRST ttVendItemCost WHERE ttVendItemCost.isSelected :
+    FOR FIRST ttVendItemCost 
+        WHERE ttVendItemCost.isSelected:
         
-        IF AVAILABLE ttEstCostMaterial THEN 
+        IF AVAILABLE ttEstCostMaterial AND ttEstCostMaterial.vendorID NE ttVendItemCost.vendorID THEN 
         DO:          
             ASSIGN 
                 ttEstCostMaterial.vendorId   = ttVendItemCost.vendorID  
@@ -387,6 +388,7 @@ DO:
                 ttEstCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
                 ttEstCostMaterial.costSetup  = ttVendItemCost.costSetup
                 ttEstCostMaterial.costTotal  = ttVendItemCost.costTotal
+                ttEstCostMaterial.vendorChanged = YES
                 .
                 
             IF AVAILABLE ttEstCostHeaderToCalc THEN 
@@ -545,12 +547,57 @@ DO:
         END.                  
     END.
         
-    IF AVAIL ttEstCostMaterial AND ttEstCostMaterial.vendorID NE ""  THEN
+    IF AVAIL ttEstCostMaterial THEN
     FOR EACH bf-ttEstCostMaterial NO-LOCK     
         WHERE bf-ttEstCostMaterial.vendorId <> ttEstCostMaterial.vendorID:
                 
           ASSIGN 
-              bf-ttEstCostMaterial.vendorId = ttEstCostMaterial.vendorID.
+              bf-ttEstCostMaterial.vendorId   = ttEstCostMaterial.vendorID
+              bf-ttEstCostMaterial.vendorChanged = YES.
+        
+        RUN Estmate_GetAddersArray(INPUT bf-ttEstCostMaterial.Company, // Internal procedure in est/EstimateProcs.p
+                INPUT bf-ttEstCostMaterial.estimateNo,
+                INPUT bf-ttEstCostMaterial.formNo,
+                OUTPUT cAdderList).   
+                
+         EMPTY TEMP-TABLE ttVendItemCost.
+         
+         RUN BuildVendItemCostsWithAdders(
+                INPUT  bf-ttEstCostMaterial.Company,
+                INPUT  bf-ttEstCostMaterial.ItemID,
+                INPUT  IF isPurchasedFG THEN "FG" ELSE "RM",
+                INPUT  IF isPurchasedFG THEN gcScopeFGEstimated ELSE gcScopeRMOverride,
+                INPUT  "Yes",
+                INPUT  bf-ttEstCostMaterial.estimateNo,
+                INPUT  bf-ttEstCostMaterial.formNo,
+                INPUT  bf-ttEstCostMaterial.blankNo,
+                INPUT  bf-ttEstCostMaterial.quantityRequiredTotal,
+                INPUT  bf-ttEstCostMaterial.quantityUOM,
+                INPUT  bf-ttEstCostMaterial.dimLength,
+                INPUT  bf-ttEstCostMaterial.dimWidth,
+                INPUT  bf-ttEstCostMaterial.dimDepth,
+                INPUT  bf-ttEstCostMaterial.dimUOM,
+                INPUT  bf-ttEstCostMaterial.basisWeight,
+                INPUT  bf-ttEstCostMaterial.basisWeightUOM,
+                INPUT  cAdderList,
+                OUTPUT  TABLE  ttVendItemCost, 
+                OUTPUT  oplError,
+                OUTPUT  opcMessage).
+                 
+         FIND FIRST ttVendItemCost NO-LOCK
+              WHERE ttVendItemCost.vendorID EQ bf-ttEstCostMaterial.vendorId NO-ERROR.
+         IF AVAILABLE ttVendItemCost THEN
+         ASSIGN                 
+              bf-ttEstCostMaterial.costUOM    = ttVendItemCost.vendorUOM 
+              bf-ttEstCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
+              bf-ttEstCostMaterial.costSetup  = ttVendItemCost.costSetup
+              bf-ttEstCostMaterial.costTotal  = ttVendItemCost.costTotal .             
+       
+         FIND FIRST bb-ttEstCostHeaderToCalc NO-LOCK
+            WHERE bb-ttEstCostHeaderToCalc.iEstCostHeaderID EQ  bf-ttEstCostMaterial.estCostHeaderID NO-ERROR.
+       
+         IF AVAILABLE bb-ttEstCostHeaderToCalc THEN 
+                bb-ttEstCostHeaderToCalc.lRecalcRequired = TRUE.    
     END.      
              
     RELEASE bf-estCostMaterialForAll.

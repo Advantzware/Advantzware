@@ -79,6 +79,10 @@ ASSIGN cocode = g_company
 {sys/inc/f16to32.i}
 
 DEF BUFFER recalc-mr FOR reftable.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -204,7 +208,7 @@ DEFINE BROWSE Browser-Table
       ef.cal FORMAT "9.99999":U
       eb.procat COLUMN-LABEL "Cat" FORMAT "x(5)":U
       eb.wid FORMAT ">9.99999":U
-      eb.len FORMAT ">9.99999":U
+      eb.len FORMAT ">>>9.99999":U
       eb.dep FORMAT ">9.99999":U
       eb.i-col FORMAT ">9":U
       eb.i-coat FORMAT ">9":U
@@ -1667,6 +1671,25 @@ PROCEDURE local-delete-record :
   end.
   
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+            
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

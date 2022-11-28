@@ -28,6 +28,9 @@ DEF SHARED VAR cocode AS cha NO-UNDO.
 DEFINE VARIABLE lRound  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 RUN sys/ref/nk1look.p (cocode, "ROUND", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
 lRound = lFound AND cReturn EQ "YES".
@@ -40,17 +43,7 @@ do on error undo:
       no-lock no-error.
       find first formule no-error.
 
-/* JLF added 02/28/96 */
-      find first reftable
-          where reftable.reftable eq "STYFLU"
-            and reftable.company  eq xitem.style
-            and reftable.loc      eq xitem.flute
-            and reftable.code     eq "DIM-FIT"
-          no-lock no-error.
-
-      v-dim-fit = if avail reftable then reftable.val[1] else 0.
-/* JLF added 02/28/96 */
-
+      RUN Formula_GetSquareBoxFitForStyleAndFlute IN hdFormulaProcs (xitem.company, xitem.style, xitem.flute, OUTPUT v-dim-fit).
 /* All references to style.dim-fit changed to v-dim-fit -JLF- 02/28/96 */
 
       tmpstore = style.formula[7].
@@ -84,4 +77,6 @@ do on error undo:
             &f=xitem.dust  &o=xitem.lock &i=v-dim-fit}
 end.
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1993  advanced software, inc. */

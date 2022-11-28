@@ -146,13 +146,18 @@ RUN sys/ref/nk1look.p (INPUT cocode, "QuotePriceMatrix", "L" /* Logical */, NO /
 IF lRecFound THEN
     lQuotePriceMatrix = logical(cRtnChar) NO-ERROR.
 
-FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
-                     AND sys-ctrl.NAME    EQ "SCHEDULE" NO-LOCK NO-ERROR.
-/*v-run-schedule = if avail sys-ctrl AND sys-ctrl.log-fld THEN YES ELSE NO. 
-         Task  09130412 */
-v-run-schedule = IF sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld THEN NO
-                 ELSE IF sys-ctrl.char-fld = "PlanDate" AND sys-ctrl.log-fld THEN YES
-                 ELSE NO.   /*sys-ctrl.log-fld.*/
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
+
+v-run-schedule = IF cScheduleValue = "NoDate" AND lSchedule THEN NO
+                 ELSE IF cScheduleValue = "PlanDate" AND lSchedule THEN YES
+                 ELSE NO.   /* lSchedule. */
 DO TRANSACTION:
   {sys/inc/cerun.i C}
   {sys/inc/cecomm.i}

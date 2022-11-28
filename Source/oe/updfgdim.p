@@ -7,6 +7,11 @@ DEF INPUT PARAMETER ipr-eb AS ROWID NO-UNDO.
 DEF INPUT PARAMETER ipr-itemfg AS ROWID NO-UNDO.
 
 DEF VAR K_FRAC AS DEC INIT 6.25 NO-UNDO.
+DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
 DEF BUFFER xeb FOR eb.
 DEF BUFFER xitemfg FOR itemfg.
 
@@ -28,3 +33,5 @@ IF NOT AVAIL xitemfg THEN
     
 {sys/inc/updfgdim.i "xeb" "x"} 
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+  DELETE PROCEDURE hdFormulaProcs.
