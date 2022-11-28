@@ -44,7 +44,7 @@ FOR EACH est-op WHERE
     est-op.est-no EQ xest.est-no AND
     est-op.LINE LT 500
     NO-LOCK
-    /*BREAK BY est-op.m-code*/:
+    BY est-op.s-num:
 
     IF LOOKUP(est-op.m-code,v-mch-list) = 0 THEN
        v-mch-list = v-mch-list + "," + est-op.m-code.
