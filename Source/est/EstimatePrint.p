@@ -892,6 +892,7 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
     DEFINE VARIABLE iItemColumn4 AS INTEGER INITIAL 64.
     
     DEFINE VARIABLE dQty         AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE cSizeDesc    AS CHARACTER NO-UNDO.
     
     IF iplPrintHeading THEN 
     DO:
@@ -903,10 +904,16 @@ PROCEDURE pPrintItemInfoDetail PRIVATE:
     dQty = IF ipbf-estCostBlank.priceBasedOnYield AND ipbf-estCostBlank.quantityYielded NE 0 
         THEN ipbf-estCostBlank.quantityYielded 
         ELSE ipbf-estCostBlank.quantityRequired.
+        
+    ASSIGN cSizeDesc = STRING(fFormatDimension(ipbf-estCostBlank.dimLength, YES)) + " x " + STRING(fFormatDimension(ipbf-estCostBlank.dimWidth, YES)). 
+    
+    IF ipbf-estCostBlank.dimDepth NE 0 THEN
+    ASSIGN cSizeDesc = cSizeDesc + " x " + STRING(fFormatDimension(ipbf-estCostBlank.dimDepth, YES)).
+        
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinatesNum(iopiRowCount, iItemColumn1, dQty, 9, 0, YES, YES, YES, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn2, ipbf-estCostItem.itemName , 30, NO, NO, NO).
-    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, ipbf-estCostItem.sizeDesc , 40, NO, NO, NO).
+    RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn3, cSizeDesc , 40, NO, NO, NO).
     RUN pWriteToCoordinatesString(iopiRowCount, iItemColumn4, ipbf-estCostItem.styleDesc, 30, NO, NO, NO).
     RUN AddRow(INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     RUN pWriteToCoordinates(iopiRowCount, iItemColumn1, fFormatNumber(ipbf-estCostBlank.formNo,2, 0, YES, NO) + "-" + fFormatNumber(ipbf-estCostBlank.blankNo,2, 0, YES, NO), NO, NO, NO).
