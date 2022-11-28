@@ -3280,10 +3280,11 @@ PROCEDURE pRecalcOperations PRIVATE:
     
     
     EMPTY TEMP-TABLE ttEstBlank.
-        FOR EACH bf-eb NO-LOCK
-            WHERE bf-eb.company eq bf-ef.company
-            AND bf-eb.est-no eq bf-ef.est-no
-            AND bf-eb.form-no eq bf-ef.form-no:
+    
+    FOR EACH bf-eb NO-LOCK
+        WHERE bf-eb.company eq bf-ef.company
+        AND bf-eb.est-no eq bf-ef.est-no
+        AND bf-eb.form-no eq bf-ef.form-no:
             
             
         IF NOT CAN-FIND (FIRST ttEstBlank
@@ -3291,12 +3292,10 @@ PROCEDURE pRecalcOperations PRIVATE:
         DO:
             CREATE ttEstBlank.
             ASSIGN 
-                ttEstBlank.BlankID = bf-eb.blank-no
-                        ttEstBlank.FormID  = bf-eb.form-no
-                        ttEstBlank.iOut    = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1)
-                        ttEstBlank.dQtyInOut          = dQtyRequired
-.
-
+                ttEstBlank.BlankID   = bf-eb.blank-no
+                ttEstBlank.FormID    = bf-eb.form-no
+                ttEstBlank.iOut      = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1)
+                ttEstBlank.dQtyInOut = dQtyRequired
                 .
         END.
         
