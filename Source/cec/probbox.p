@@ -42,6 +42,7 @@ ASSIGN v-mch-list = "".
 FOR EACH est-op WHERE
     est-op.company EQ xest.company AND
     est-op.est-no EQ xest.est-no AND
+    (est-op.s-num EQ xeb.form-no OR est-op.s-num EQ 0) AND
     est-op.LINE LT 500
     NO-LOCK
     BY est-op.s-num:
