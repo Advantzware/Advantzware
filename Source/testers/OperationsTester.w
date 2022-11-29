@@ -668,7 +668,7 @@ PROCEDURE pAssessSelection PRIVATE :
         RETURN.
      END. 
       
-    RUN SetAttributes(TABLE ttAttribute).
+    RUN Operations_SetAttributes(TABLE ttAttribute).
     RUN GetOperationStandards (est.company, est.loc, ipcOperationID, 
         OUTPUT dOpMRWaste, OUTPUT dOpMRHours, OUTPUT dOpRunSpeed, OUTPUT dOpRunSpoil, OUTPUT lError, OUTPUT cMessage).
             
@@ -702,7 +702,7 @@ PROCEDURE pBuildList PRIVATE :
     DEFINE VARIABLE lError   AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
     
-    RUN GetAttributes (OUTPUT TABLE ttAttribute).
+    RUN Operations_GetAttributes (OUTPUT TABLE ttAttribute).
     STATUS DEFAULT "".
     {&CLOSE-QUERY-BROWSE-1}   
     {&OPEN-QUERY-BROWSE-1}
@@ -822,7 +822,7 @@ PROCEDURE pRunOperation :
         RETURN.
     END.
     
-    RUN ProcessOperationChange (job.company,operationID, job.job, ipiFormNo,ipiBlankNo,ipiPass,INPUT mach.dept[1], OUTPUT cAction).
+    RUN Operations_ProcessOperationChange (job.company,operationID, job.job, ipiFormNo,ipiBlankNo,ipiPass,INPUT mach.dept[1], OUTPUT cAction).
     
     IF cAction = "" THEN
     DO:
@@ -830,7 +830,7 @@ PROCEDURE pRunOperation :
         RETURN.
     END.
     
-    RUN pGetOperationTT ( OUTPUT TABLE ttOperation).
+    RUN Operations_GetEstimateOperationTT ( OUTPUT TABLE ttOperation).
     
     {&CLOSE-QUERY-BROWSE-4}   
     {&OPEN-QUERY-BROWSE-4}

@@ -1135,7 +1135,7 @@ PROCEDURE local-assign-record :
         NO-ERROR.
           
   IF AVAIL job THEN
-  RUN ProcessOperationChange IN hdOpProcs ( INPUT cocode,
+  RUN Operations_ProcessOperationChange IN hdOpProcs ( INPUT cocode,
                                             INPUT tt-prdd.m-code,
                                             INPUT job.job, 
                                             INPUT INTEGER(tt-prdd.frm),

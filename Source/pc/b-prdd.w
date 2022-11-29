@@ -1276,7 +1276,7 @@ PROCEDURE local-assign-record :
   ll-job-mch = NO.
             
   IF AVAIL job THEN
-  RUN ProcessOperationChange IN hdOpProcs ( INPUT cocode,
+  RUN Operations_ProcessOperationChange IN hdOpProcs ( INPUT cocode,
                                             INPUT pc-prdd.m-code,
                                             INPUT job.job, 
                                             INPUT INT(pc-prdd.frm),
