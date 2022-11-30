@@ -517,6 +517,8 @@ PROCEDURE do-copy :
             io-eb.i-code2[li] = eb.i-code2[li]
             io-eb.i-dscr2[li] = eb.i-dscr2[li]
             io-eb.i-%2[li]    = eb.i-%2[li].
+            IF li LT 20 THEN
+            io-eb.unitNo[li] = eb.unitNo[li].
          END.
          
                {ce/updunit#.i io-eb}               
