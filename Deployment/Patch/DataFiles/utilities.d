@@ -288,7 +288,7 @@ It will ask for the run number and the new date to use for this run." 900
 "updship#.r" "MN" "AF1" "Update/Fix Ship To Number" "Utility from A-F-1 that allows for consolidating ship to's and change ship to numbers throughout system." 900
 "updvend#.r" "AP" "" "Update/Change Vendor Number" "Update or Change a vendor number." 900
 "upmstest.r" "CE" "EF" "Folding Estimates as Master Tandem Estimates" "Allows the entry of estimate numbers to convert to a master tandem estimate." 900
-"userWindow.r" "" "" "User Window Size Maintenance" "This utility allows the administrator to view and manage user defined window sizes.  Users can set the window size and the system will retain that size of the window which will be displayed in this file maintenance." 900
+"userWindow.r" "CE" "" "User Window Size Maintenance" "This utility allows the administrator to view and manage user defined window sizes.  Users can set the window size and the system will retain that size of the window which will be displayed in this file maintenance." 900
 "VendorCostConv.r" "FG" "" "Vendor Cost Table Conversion" "This program converts RM Vendor costs, FG Vendor costs as well as Estimating Farm costs to the new cost table format.
 
 This utility should be used to verify and clean up data before upgrading.
