@@ -61,6 +61,21 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
 
+
+DEFINE VARIABLE lAccessClose AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cAccessList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAllowCalculationButton AS LOGICAL NO-UNDO.
+
+RUN methods/prgsecur.p
+            (INPUT "AllowCalculation",
+             INPUT "ALL", /* based on run, create, update, delete or all */
+             INPUT NO,    /* use the directory in addition to the program */
+             INPUT NO,    /* Show a message if not authorized */
+             INPUT NO,    /* Group overrides user security? */
+             OUTPUT lAllowCalculationButton, /* Allowed? Yes/NO */
+             OUTPUT lAccessClose, /* used in template/windows.i  */
+             OUTPUT cAccessList). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -884,10 +899,11 @@ DO WITH FRAME Panel-Frame:
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT v-can-update THEN ASSIGN btn-save:SENSITIVE IN FRAME {&FRAME-NAME} = NO
                                     btn-quote:SENSITIVE = NO
-                                    btn-imp-price:SENSITIVE = NO
-                                    btn-whatif:SENSITIVE = NO
+                                    btn-imp-price:SENSITIVE = NO                                      
                                     btn-item:SENSITIVE = NO.
     IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.
+    
+    IF NOT lAllowCalculationButton THEN btn-whatif:SENSITIVE = NO.
     
     IF NOT v-can-run THEN  
            ASSIGN
