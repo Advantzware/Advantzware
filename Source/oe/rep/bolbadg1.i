@@ -34,7 +34,8 @@
                SPACE(5) v-comp-addr3 v-ship-addr3 AT 45 SKIP
         "<R5><C50><#3>" SKIP
         "<FArial><P14><=#3>" /*<C-20><R-2> <B>Bill Of Lading</B> */ "<P10>" SKIP
-                "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" SKIP(1)
+                "<=#3><B>BOL #: " oe-bolh.bol-no "</B>" SKIP
+                "<=#3><R+1>PRO #:  " oe-bolh.PROnumber SKIP
                 "<=#3><R+2>Date: " oe-bolh.bol-date        SKIP
                 "<=#3><R+3>Contact: " v-shipto-contact SKIP
                 "<=#3><R+4>Phone: " v-phone FORM "x(15)"  SKIP     

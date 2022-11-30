@@ -476,6 +476,7 @@ GRANT SELECT ON PUB."estCostGroupSystem" TO PUBLIC ;
 GRANT SELECT ON PUB."estCostGroupLevelSystem" TO PUBLIC ;
 GRANT SELECT ON PUB."estMisc" TO PUBLIC ;
 GRANT SELECT ON PUB."estMiscControl" TO PUBLIC ;
+GRANT SELECT ON PUB."formLayouts" TO PUBLIC ;
 GRANT ALL ON PUB.dmiTrans TO amsuser ;
 GRANT ALL ON PUB.job-mch TO amsuser ;
 COMMIT;

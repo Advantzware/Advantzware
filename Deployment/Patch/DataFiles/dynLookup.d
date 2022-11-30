@@ -106,6 +106,8 @@
 "" "ASI" "vendItemCost" "vendorID" 32 "_default" 0 "201910025907304351069"
 "nosweat/persist." "ASI" "cust-markup" "procat" 157 "_default" 0 "202101133710505985002"
 "nosweat/persist." "ASI" "cust-markup" "style" 156 "_default" 0 "202101133708105985001"
+"nosweat/persist." "ASI" "zipcode" "country" 195 "_default" 0 "20221107_23:19:16_10352541"
+"nosweat/persist." "ASI" "zipcode" "state" 169 "_default" 0 "20221107_23:11:18_10352539"
 "sharpShooter/w-jobInquiry." "" "" "fiJobNo" 3 "_default" 0 "202012010450105888690"
 "system/mainmenu." "" "" "begin_cust-part" 152 "_default" 0 "202109022390507957949"
 "system/mainmenu." "" "" "begin_cust-po" 36 "_default" 0 "202109030364007963338"

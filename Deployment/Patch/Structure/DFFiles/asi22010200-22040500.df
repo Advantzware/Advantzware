@@ -1,0 +1,1389 @@
+ADD TABLE "estMisc"
+  AREA "Data"
+  LABEL "Estimate Cost Misc"
+  DUMP-NAME "estMisc"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estMisc.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estMisc.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estMisc.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estMisc" AS character 
+  DESCRIPTION "Unique ID Acroos DB for Record"
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "estimateNo" OF "estMisc" AS character 
+  DESCRIPTION "Estimate #"
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Estimate #"
+  POSITION 3
+  MAX-WIDTH 6
+  COLUMN-LABEL "Estimate #"
+  HELP "Enter estimate #."
+  ORDER 21
+  MANDATORY
+
+ADD FIELD "costDescription" OF "estMisc" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Cost Description"
+  POSITION 9
+  MAX-WIDTH 80
+  COLUMN-LABEL "Cost Description"
+  ORDER 100
+
+ADD FIELD "flatFeeCharge" OF "estMisc" AS decimal 
+  FORMAT ">>,>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Flat Fee Amount"
+  POSITION 11
+  MAX-WIDTH 1
+  COLUMN-LABEL "Flat Fee Amount"
+  ORDER 80
+
+ADD FIELD "chargePercent" OF "estMisc" AS decimal 
+  FORMAT ">>,>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Charge Percent"
+  POSITION 12
+  MAX-WIDTH 21
+  COLUMN-LABEL "Charge Percent"
+  DECIMALS 6
+  ORDER 90
+
+ADD FIELD "estCostCategoryID" OF "estMisc" AS character 
+  DESCRIPTION "Category ID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Category"
+  POSITION 13
+  MAX-WIDTH 64
+  COLUMN-LABEL "Category"
+  ORDER 160
+
+ADD FIELD "estCostCalcBy" OF "estMisc" AS character 
+  DESCRIPTION "Calculate Cost By Group/Level"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Calculate Cost By"
+  POSITION 14
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculate Cost By"
+  ORDER 140
+
+ADD FIELD "estCostCalcSource" OF "estMisc" AS character 
+  DESCRIPTION "Calculate Cost On GroupID/LevelID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Cost Source"
+  POSITION 15
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculate Cost On"
+  ORDER 150
+
+ADD FIELD "formNo" OF "estMisc" AS integer 
+  DESCRIPTION "Form #"
+  FORMAT "99"
+  INITIAL "0"
+  LABEL "Form #"
+  POSITION 16
+  MAX-WIDTH 6
+  COLUMN-LABEL "Form #"
+  HELP "Enter Form #."
+  ORDER 20
+
+ADD FIELD "company" OF "estMisc" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 17
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 22
+  MANDATORY
+
+ADD FIELD "sequenceID" OF "estMisc" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Sequence"
+  POSITION 18
+  MAX-WIDTH 4
+  COLUMN-LABEL "Sequence"
+  ORDER 170
+
+ADD INDEX "rec_key" ON "estMisc" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Find a estMisc by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "estimateNo" ON "estMisc" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "estimateNo" ASCENDING 
+
+ADD TABLE "estMiscControl"
+  AREA "Data"
+  LABEL "Estimate Cost Misc Control"
+  DUMP-NAME "estMiscControl"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg\estMiscControl.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" NO-OVERRIDE PROCEDURE "delete.trg\estMiscControl.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" NO-OVERRIDE PROCEDURE "write.trg\estMiscControl.p" CRC "?" 
+
+ADD FIELD "rec_key" OF "estMiscControl" AS character 
+  DESCRIPTION "Unique ID Acroos DB for Record"
+  FORMAT "x(26)"
+  INITIAL ""
+  LABEL "Record Key"
+  POSITION 2
+  MAX-WIDTH 42
+  COLUMN-LABEL "Record Key"
+  HELP "Enter Record Key Value"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "company" OF "estMiscControl" AS character 
+  DESCRIPTION "Company Code"
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 3
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter the company code."
+  ORDER 20
+  MANDATORY
+
+ADD FIELD "costDescription" OF "estMiscControl" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  LABEL "Cost Description"
+  POSITION 9
+  MAX-WIDTH 80
+  COLUMN-LABEL "Cost Description"
+  ORDER 100
+
+ADD FIELD "sequenceID" OF "estMiscControl" AS integer 
+  FORMAT "->,>>>,>>9"
+  INITIAL "0"
+  LABEL "Sequence"
+  POSITION 10
+  MAX-WIDTH 4
+  COLUMN-LABEL "Sequence"
+  ORDER 170
+
+ADD FIELD "flatFeeCharge" OF "estMiscControl" AS decimal 
+  FORMAT ">>,>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Flat Fee Amount"
+  POSITION 11
+  MAX-WIDTH 1
+  COLUMN-LABEL "Flat Fee Amount"
+  ORDER 80
+
+ADD FIELD "chargePercent" OF "estMiscControl" AS decimal 
+  FORMAT ">>,>>,>>9.99<<<<"
+  INITIAL "0"
+  LABEL "Charge Percent"
+  POSITION 12
+  MAX-WIDTH 21
+  COLUMN-LABEL "Charge Percent"
+  DECIMALS 6
+  ORDER 90
+
+ADD FIELD "estCostCategoryID" OF "estMiscControl" AS character 
+  DESCRIPTION "Category ID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Category"
+  POSITION 13
+  MAX-WIDTH 64
+  COLUMN-LABEL "Category"
+  ORDER 160
+
+ADD FIELD "estCostCalcBy" OF "estMiscControl" AS character 
+  DESCRIPTION "Calculate Cost By Group/Level"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Calculate Cost By"
+  POSITION 14
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculate Cost By"
+  ORDER 140
+
+ADD FIELD "estCostCalcSource" OF "estMiscControl" AS character 
+  DESCRIPTION "Calculate Cost On GroupID/LevelID"
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Cost Source"
+  POSITION 15
+  MAX-WIDTH 64
+  COLUMN-LABEL "Calculate Cost On"
+  ORDER 150
+
+ADD INDEX "rec_key" ON "estMiscControl" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  DESCRIPTION "Find a estMiscControl by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD INDEX "company" ON "estMiscControl" 
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING 
+
+ADD TABLE "formLayouts"
+  AREA "Data"
+  DUMP-NAME "formlayouts"
+
+ADD FIELD "formType" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form Type"
+  POSITION 2
+  MAX-WIDTH 64
+  ORDER 10
+
+ADD FIELD "formGroup" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form Group"
+  POSITION 3
+  MAX-WIDTH 64
+  ORDER 20
+
+ADD FIELD "formID" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form ID"
+  POSITION 4
+  MAX-WIDTH 64
+  ORDER 30
+
+ADD FIELD "formLine" OF "formLayouts" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Form Line"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "formLineLabel" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Label"
+  POSITION 6
+  MAX-WIDTH 64
+  ORDER 50
+
+ADD FIELD "description" OF "formLayouts" AS character 
+  FORMAT "x(600)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 7
+  MAX-WIDTH 1200
+  ORDER 60
+
+ADD FIELD "formRow" OF "formLayouts" AS decimal 
+  FORMAT ">>>9.99<<"
+  INITIAL "0"
+  LABEL "Row"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 70
+
+ADD FIELD "formColumn" OF "formLayouts" AS decimal 
+  FORMAT ">>>9.99<<"
+  INITIAL "0"
+  LABEL "Column"
+  POSITION 9
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "createDtTm" OF "formLayouts" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Create Date/Time"
+  POSITION 10
+  MAX-WIDTH 8
+  ORDER 90
+
+ADD FIELD "createUser" OF "formLayouts" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Create User"
+  POSITION 11
+  MAX-WIDTH 48
+  ORDER 100
+
+ADD FIELD "updateDtTm" OF "formLayouts" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Update Date/Time"
+  POSITION 12
+  MAX-WIDTH 8
+  ORDER 110
+
+ADD FIELD "updateUser" OF "formLayouts" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Update User"
+  POSITION 13
+  MAX-WIDTH 48
+  ORDER 120
+
+ADD FIELD "rec_key" OF "formLayouts" AS character 
+  FORMAT "x(28)"
+  INITIAL ""
+  LABEL "rec_key"
+  POSITION 14
+  MAX-WIDTH 56
+  ORDER 130
+
+ADD INDEX "iFormLine" ON "formLayouts" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "formType" ASCENDING 
+  INDEX-FIELD "formGroup" ASCENDING 
+  INDEX-FIELD "formID" ASCENDING 
+  INDEX-FIELD "formLine" ASCENDING 
+
+ADD INDEX "iRec_key" ON "formLayouts" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+UPDATE FIELD "check-no" OF "ap-chk"
+  FORMAT ">>999999"
+
+UPDATE FIELD "check-no" OF "ap-dis"
+  FORMAT ">>999999"
+
+UPDATE FIELD "check-no" OF "ap-disl"
+  FORMAT ">>999999"
+
+UPDATE FIELD "line" OF "ap-invl" AS int64
+
+UPDATE FIELD "check-no" OF "ap-payl"
+  FORMAT ">>999999"
+
+UPDATE FIELD "check-no" OF "ap-sel"
+  FORMAT ">>999999"
+
+UPDATE FIELD "ord-no" OF "ar-inv"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "pord-no" OF "ar-inv"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no" OF "ar-inv"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "ar-inv"
+  FORMAT ">>9"
+
+UPDATE FIELD "ord-no" OF "ar-invl"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "ar-invl"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no2" OF "ar-invl"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "ar-invl"
+  FORMAT "x(9)"
+
+UPDATE FIELD "ord-no" OF "ar-invm"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "ar-invm"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "asi2corr"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "asi2corr"
+  FORMAT ">>9"
+
+UPDATE FIELD "est-no" OF "attach"
+  FORMAT "X(8)"
+
+UPDATE FIELD "ord-no" OF "bolh"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "ord-no" OF "boll"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no" OF "boll"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "boll"
+  FORMAT ">>9"
+
+UPDATE FIELD "est-no" OF "box-design-hdr"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "box-design-line"
+  FORMAT "X(8)"
+
+ADD FIELD "scac" OF "carrier" AS character
+  DESCRIPTION "Standard Carrier Alpha Code"
+  FORMAT "x(8)"
+  POSITION 32
+  INITIAL ""
+  HELP "Standard Carrier Alpha Code"
+  LABEL "SCAC"
+  COLUMN-LABEL "SCAC"
+  ORDER 310
+  MAX-WIDTH 16
+
+UPDATE FIELD "job_number" OF "cmpltjob"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job_sub" OF "cmpltjob"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "corr2asi"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "corr2asi"
+  FORMAT ">>9"
+
+UPDATE FIELD "jobNo" OF "costHeader"
+  FORMAT "x(9)"
+
+UPDATE FIELD "jobNo2" OF "costHeader"
+  FORMAT ">>9"
+
+ADD FIELD "emailPreference" OF "cust" AS integer
+  FORMAT "9"
+  POSITION 180
+  INITIAL "0"
+  LABEL "Email Preference"
+  COLUMN-LABEL "Email Preference"
+  ORDER 1780
+  MAX-WIDTH 4
+
+ADD INDEX "posted" ON "dmiTrans"
+  AREA "Index"
+  DESCRIPTION "Secondary Index by Posted"
+  INDEX-FIELD "posted" ASCENDING
+
+UPDATE FIELD "est-no" OF "e-item-vend"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "e-itemfg-vend"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "eb"
+  FORMAT "X(8)"
+
+UPDATE FIELD "master-est-no" OF "eb"
+  FORMAT "X(8)"
+
+UPDATE FIELD "ord-no" OF "eb"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "sourceEstimate" OF "eb"
+  FORMAT "X(8)"
+
+ADD FIELD "receiveAsRMItemID" OF "eb" AS character
+  FORMAT "x(10)"
+  POSITION 167
+  INITIAL ""
+  LABEL "Receive As RM ItemID"
+  COLUMN-LABEL "Receive As RM ItemID"
+  ORDER 1630
+  MAX-WIDTH 20
+
+UPDATE FIELD "est-no" OF "ed"
+  FORMAT "X(8)"
+
+UPDATE FIELD "Unique-Order-No" OF "EDDoc"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "ef"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "ef-nsh"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "er"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "est"
+  FORMAT "X(8)"
+
+UPDATE FIELD "ord-no" OF "est"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "masterEstNo" OF "est"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "est-flm"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "est-inst"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "est-op"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "est-pf"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "est-prep"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "est-qty"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "est-summ"
+  FORMAT "X(8)"
+
+UPDATE FIELD "jobID" OF "estCostHeader"
+  FORMAT "x(9)"
+
+UPDATE FIELD "jobID2" OF "estCostHeader"
+  FORMAT ">>9"
+
+ADD FIELD "hoursSetup" OF "estCostHeader" AS decimal
+  DESCRIPTION "Setup/Make Ready Hours for cost header quantity"
+  FORMAT "->>,>>9.99"
+  POSITION 65
+  INITIAL "0"
+  LABEL "Setup Hours"
+  DECIMALS 6
+  ORDER 1100
+  MAX-WIDTH 21
+
+ADD FIELD "hoursRun" OF "estCostHeader" AS decimal
+  DESCRIPTION "Run Hours for cost header quantity"
+  FORMAT "->>,>>9.99"
+  POSITION 66
+  INITIAL "0"
+  LABEL "Run Hours"
+  DECIMALS 6
+  ORDER 1110
+  MAX-WIDTH 21
+
+ADD FIELD "isCorrugator" OF "estCostOperation" AS logical
+  DESCRIPTION "Is Operation a corrugator?"
+  FORMAT "yes/no"
+  POSITION 79
+  INITIAL "no"
+  HELP "Enter if operation is corrugator"
+  LABEL "Corrugator?"
+  COLUMN-LABEL "Corrugator?"
+  ORDER 810
+  MAX-WIDTH 1
+
+UPDATE FIELD "estimateNo" OF "estMaterial"
+  FORMAT "X(8)"
+
+UPDATE FIELD "quantity" OF "estMaterial"
+  DECIMALS 6
+
+UPDATE FIELD "estimateNo" OF "estPacking"
+  FORMAT "X(8)"
+
+UPDATE FIELD "estimateNo" OF "estRelease"
+  FORMAT "X(8)"
+
+UPDATE FIELD "Job-no" OF "fa-control"
+  FORMAT "x(9)"
+
+UPDATE FIELD "Job-no" OF "fa-entry"
+  FORMAT "x(9)"
+
+UPDATE FIELD "Job-no" OF "fa-jrnl"
+  FORMAT "x(9)"
+
+UPDATE FIELD "Job-no" OF "fa-mast"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no" OF "fg-act"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "fg-act"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "fg-bin"
+  FORMAT "x(9)"
+
+UPDATE FIELD "ord-no" OF "fg-bin"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no2" OF "fg-bin"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "fg-hist"
+  FORMAT "xxxxxxxxx-xxx"
+
+UPDATE FIELD "jobno" OF "fg-hist"
+  FORMAT ">>9"
+
+UPDATE FIELD "jobno2" OF "fg-hist"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "fg-rcpth"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "fg-rcpth"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no-to" OF "fg-rcpth"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2-to" OF "fg-rcpth"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no2" OF "fg-rcpts"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "fg-rcpts"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no-to" OF "fg-rcpts"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2-to" OF "fg-rcpts"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "fg-rctd"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "fg-rctd"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "fg-rdtlh"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "fg-rdtlh"
+  FORMAT ">>9"
+
+UPDATE FIELD "est-no" OF "inv-line"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "inv-line"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "inv-line"
+  FORMAT ">>9"
+
+UPDATE FIELD "ord-no" OF "inv-line"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "inv-misc"
+  FORMAT "X(8)"
+
+UPDATE FIELD "ord-no" OF "inv-misc"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "jobID" OF "inventoryStock"
+  FORMAT "x(9)"
+
+UPDATE FIELD "jobID2" OF "inventoryStock"
+  FORMAT ">>9"
+
+UPDATE FIELD "orderID" OF "inventoryStock"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "jobID" OF "inventoryStockSnapshot"
+  FORMAT "x(9)"
+
+UPDATE FIELD "jobID2" OF "inventoryStockSnapshot"
+  FORMAT ">>9"
+
+UPDATE FIELD "orderID" OF "inventoryStockSnapshot"
+  FORMAT ">>>>>>>9"
+
+ADD FIELD "itemNotes" OF "item" AS character
+  FORMAT "x(1000)"
+  POSITION 109
+  INITIAL ""
+  HELP "Item Notes"
+  LABEL "Item Notes"
+  COLUMN-LABEL "Item Notes"
+  ORDER 1080
+  MAX-WIDTH 2000
+
+UPDATE FIELD "est-no" OF "item-bom"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "itemfg"
+  FORMAT "X(8)"
+
+ADD FIELD "receiveAsRMItemID" OF "itemfg" AS character
+  FORMAT "x(10)"
+  POSITION 233
+  INITIAL ""
+  LABEL "Receive As RM ItemID"
+  COLUMN-LABEL "Receive As RM ItemID"
+  ORDER 2300
+  MAX-WIDTH 20
+
+ADD FIELD "lLockWeightCalc" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 234
+  INITIAL "no"
+  LABEL "Lock Weight Calc"
+  ORDER 2310
+  MAX-WIDTH 1
+
+ADD FIELD "lLockDimensions" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 235
+  INITIAL "no"
+  LABEL "Lock Dimensions"
+  ORDER 2320
+  MAX-WIDTH 1
+
+ADD FIELD "iReleaseSeq" OF "itemfg" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 236
+  INITIAL "0"
+  LABEL "Release Seq"
+  ORDER 2330
+  MAX-WIDTH 4
+
+ADD INDEX "receiveAsRMItemID" ON "itemfg"
+  AREA "Index"
+  INDEX-FIELD "company" ASCENDING
+  INDEX-FIELD "receiveAsRMItemID" ASCENDING
+
+UPDATE FIELD "est-no" OF "itemfgdtl"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "job"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "job"
+  FORMAT ">>9"
+
+UPDATE FIELD "est-no" OF "job"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "job-all"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "job-all"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no2" OF "job-brd"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "job-brd"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no" OF "job-farm"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "job-farm"
+  FORMAT ">>9"
+
+UPDATE FIELD "est-no" OF "job-farm"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "job-farm-rctd"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "job-farm-rctd"
+  FORMAT ">>9"
+
+UPDATE FIELD "est-no" OF "job-hdr"
+  FORMAT "X(8)"
+
+UPDATE FIELD "ord-no" OF "job-hdr"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no2" OF "job-hdr"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "job-hdr"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no" OF "job-mat"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "job-mat"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "job-mch"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "job-mch"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "job-prep"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "job-prep"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no2" OF "job-sch"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "job-sch"
+  FORMAT "x(9)"
+
+UPDATE FIELD "order_number" OF "jobitems"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "estimate" OF "jobs"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no2" OF "loadtag"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "loadtag"
+  FORMAT "x(9)"
+
+UPDATE FIELD "ord-no" OF "loadtag"
+  FORMAT ">>>>>>>9"
+
+ADD FIELD "floorPositions" OF "loc" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 18
+  INITIAL "0"
+  LABEL "# Floor Positions"
+  COLUMN-LABEL "# Floor Positions"
+  ORDER 170
+  MAX-WIDTH 4
+
+ADD FIELD "rackPositions" OF "loc" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 19
+  INITIAL "0"
+  LABEL "# Rack Positions"
+  COLUMN-LABEL "# Rack Positions"
+  ORDER 180
+  MAX-WIDTH 4
+
+UPDATE FIELD "job_number" OF "machtran"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job_sub" OF "machtran"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "mat-act"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "mat-act"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "mch-act"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "mch-act"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "mch-srt"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "mch-srt"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "misc-act"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "misc-act"
+  FORMAT ">>9"
+
+UPDATE FIELD "module" OF "module"
+  LABEL "Module"
+
+UPDATE FIELD "dscr" OF "module"
+  FORMAT "X(256)"
+  LABEL "Description"
+
+ADD FIELD "licensed" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 5
+  INITIAL "no"
+  LABEL "Licensed?"
+  ORDER 41
+  MAX-WIDTH 1
+
+ADD FIELD "moduleGroup" OF "module" AS character
+  FORMAT "x(16)"
+  POSITION 8
+  INITIAL ""
+  LABEL "Group"
+  ORDER 70
+  MAX-WIDTH 32
+
+ADD FIELD "optional" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 9
+  INITIAL "no"
+  LABEL "Optional"
+  ORDER 80
+  MAX-WIDTH 1
+
+ADD FIELD "isGlobal" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 10
+  INITIAL "no"
+  LABEL "Global"
+  ORDER 90
+  MAX-WIDTH 1
+
+ADD FIELD "expDate" OF "module" AS date
+  FORMAT "99/99/9999"
+  POSITION 11
+  INITIAL ?
+  LABEL "Exp Date"
+  ORDER 100
+  MAX-WIDTH 4
+
+ADD FIELD "subLevel" OF "module" AS integer
+  FORMAT ">>9"
+  POSITION 12
+  INITIAL "0"
+  LABEL "Level"
+  ORDER 110
+  MAX-WIDTH 4
+
+UPDATE FIELD "is-used" OF "module"
+  POSITION 13
+
+RENAME INDEX "code" TO "iModule" ON "module"
+
+
+ADD INDEX "iGroup" ON "module"
+  AREA "Index"
+  INDEX-FIELD "moduleGroup" ASCENDING
+  INDEX-FIELD "module" ASCENDING
+
+UPDATE PRIMARY INDEX "iModule" ON "module"
+
+DROP INDEX "module" ON "module"
+
+UPDATE FIELD "ord-no" OF "oe-bolh"
+  FORMAT ">>>>>>>9"
+
+ADD FIELD "PROnumber" OF "oe-bolh" AS character
+  FORMAT "x(10)"
+  POSITION 96
+  INITIAL ""
+  LABEL "PRO Number"
+  ORDER 910
+  MAX-WIDTH 20
+
+UPDATE FIELD "ord-no" OF "oe-boll"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no" OF "oe-boll"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "oe-boll"
+  FORMAT ">>9"
+
+UPDATE FIELD "n-ord" OF "oe-ctrl"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "rng-ord" OF "oe-ctrl"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "ord-no" OF "oe-ord"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "oe-ord"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "oe-ord"
+  FORMAT "x(9)"
+
+UPDATE FIELD "pord-no" OF "oe-ord"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no2" OF "oe-ord"
+  FORMAT ">>9"
+
+UPDATE FIELD "ord-no" OF "oe-ordl"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "oe-ordl"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "oe-ordl"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "oe-ordl"
+  FORMAT ">>9"
+
+UPDATE FIELD "ordq-no" OF "oe-ordl"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "ord-no" OF "oe-ordm"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "oe-ordm"
+  FORMAT "X(8)"
+
+UPDATE FIELD "ord-no" OF "oe-rel"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "ord-no" OF "oe-relh"
+  FORMAT ">>>>>>>9"
+
+ADD FIELD "PROnumber" OF "oe-relh" AS character
+  FORMAT "x(10)"
+  POSITION 62
+  INITIAL ""
+  LABEL "PRO Number"
+  ORDER 570
+  MAX-WIDTH 20
+
+UPDATE FIELD "job-no" OF "oe-rell"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "oe-rell"
+  FORMAT ">>9"
+
+UPDATE FIELD "ord-no" OF "oe-rell"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no" OF "oe-retl"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "oe-retl"
+  FORMAT ">>9"
+
+UPDATE FIELD "ord-no" OF "oe-retl"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "oe-retl"
+  FORMAT "X(8)"
+
+UPDATE FIELD "ord-no" OF "oe-ship"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "estimateID" OF "panelHeader"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "pc-misc"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "pc-misc"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "pc-prdd"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "pc-prdd"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "pc-prdd-wip"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "pc-prdd-wip"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "po-all"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "po-all"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "po-ordl"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "po-ordl"
+  FORMAT ">>9"
+
+UPDATE FIELD "ord-no" OF "po-ordl"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no" OF "po-rcpts"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "po-rcpts"
+  FORMAT ">>9"
+
+UPDATE FIELD "last-order" OF "prep"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "last-est-no" OF "prep"
+  FORMAT "X(8)"
+
+UPDATE FIELD "last-job-no" OF "prep"
+  FORMAT "x(9)"
+
+UPDATE FIELD "last-job-no2" OF "prep"
+  FORMAT ">>9"
+
+UPDATE FIELD "est-no" OF "probe"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "probeit"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "probeit-price"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "quote"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "quotehd"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "quoteit"
+  FORMAT "X(8)"
+
+UPDATE FIELD "est-no" OF "quoteitm"
+  FORMAT "X(8)"
+
+UPDATE FIELD "ord-no" OF "quoteitm"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "rfqitem"
+  FORMAT "X(8)"
+
+UPDATE FIELD "job-no" OF "rm-rcpt"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "rm-rcpt"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "rm-rcpth"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "rm-rcpth"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "rm-rctd"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "rm-rctd"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "rm-rdtl"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "rm-rdtl"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "rm-rdtlh"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "rm-rdtlh"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "rm-receipts"
+  FORMAT "xxxxxxxxx-xxx"
+
+UPDATE FIELD "job-no" OF "sbNote"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "sbNote"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "sbStatus"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "sbStatus"
+  FORMAT ">>9"
+
+UPDATE FIELD "ord-no" OF "ssrelbol"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "job-no" OF "ssrelbol"
+  FORMAT "x(9)"
+
+UPDATE FIELD "job-no2" OF "ssrelbol"
+  FORMAT ">>9"
+
+UPDATE FIELD "ord-no" OF "truck-run-print"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "vend-job-no" OF "vend-whse-trans"
+  FORMAT "x(9)"
+
+UPDATE FIELD "vend-job-no2" OF "vend-whse-trans"
+  FORMAT ">>9"
+
+UPDATE FIELD "vend-ord-no" OF "vend-whse-trans"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "vend-ord-no" OF "vend-whse-trans-hist"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "vend-job-no" OF "vend-whse-trans-hist"
+  FORMAT "x(9)"
+
+UPDATE FIELD "vend-job-no2" OF "vend-whse-trans-hist"
+  FORMAT ">>9"
+
+ADD FIELD "approved" OF "vendItemCost" AS logical
+  FORMAT "yes/no"
+  POSITION 45
+  INITIAL "no"
+  LABEL "Approved"
+  ORDER 590
+  MAX-WIDTH 1
+
+UPDATE FIELD "job-no2" OF "wiptag"
+  FORMAT ">>9"
+
+UPDATE FIELD "job-no" OF "wiptag"
+  FORMAT "x(9)"
+
+UPDATE FIELD "ord-no" OF "wiptag"
+  FORMAT ">>>>>>>9"
+
+UPDATE FIELD "est-no" OF "wiptag"
+  FORMAT "X(8)"
+
+UPDATE SEQUENCE "invoice_seq"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq01"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq02"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq03"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq04"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq05"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq06"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq07"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq08"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq09"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "invoice_seq10"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq01"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq02"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq03"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq04"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq05"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq06"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq07"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq08"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq09"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "job_seq10"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq01"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq02"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq03"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq04"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq05"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq06"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq07"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq08"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq09"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+UPDATE SEQUENCE "order_seq10"
+  CYCLE-ON-LIMIT no
+  MAX-VAL ?
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000027652

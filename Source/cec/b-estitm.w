@@ -1067,10 +1067,10 @@ DO:
         cFormat = "".
 
         IF v-cecscrn-dec THEN
-        cFormat = ">>9.999999".
+        cFormat = ">>>9.999999".
 
         IF v-cecscrn-decimals GT 0 THEN
-        cFormat = ">>9." + FILL("9",INTEGER(v-cecscrn-decimals)).
+        cFormat = ">>>9." + FILL("9",INTEGER(v-cecscrn-decimals)).
 
         IF cFormat NE "" THEN
         ASSIGN
@@ -4069,6 +4069,7 @@ PROCEDURE createESTfromArtios :
             eb.die-no = tt-artios.dienum
             ef.die-in = tt-artios.die-in
             est.est-qty[1] = tt-artios.setqty  /* request qty */
+            est-qty.qty[1] = tt-artios.setqty
             eb.die-in = tt-artios.die-in
             ef.blank-qty = tt-artios.NumOfComponents
             ef.trim-w = tt-artios.t-wid
@@ -5951,7 +5952,7 @@ PROCEDURE local-cancel-record :
         eb.wid:WIDTH IN BROWSE {&browse-name} = 15.2
         eb.wid:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
         eb.len:WIDTH IN BROWSE {&browse-name} = 15.2
-        eb.len:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
+        eb.len:FORMAT IN BROWSE {&browse-name} = ">>>9.999999"
         eb.dep:WIDTH IN BROWSE {&browse-name} = 15.2
         eb.dep:FORMAT IN BROWSE {&browse-name} = ">>9.999999".
 

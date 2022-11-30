@@ -26,7 +26,6 @@
 DISPLAY
   fgcat.procat
   fgcat.dscr
-  fgcat.commrate = 1 LABEL 'Format' FORMAT 'Fraction/Decimal'
   fgcat.glacc.
 
 {methods/lstlogic/shownote.i &db_table="fgcat" &col="5" &frame-name="f-notes"}

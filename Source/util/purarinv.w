@@ -607,7 +607,9 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-            
+    
+    DEFINE BUFFER bf-ar-cashl FOR ar-cashl.        
+    
     /* Delete ar-ledger records with no customer ,*/
     FOR EACH ar-ledger EXCLUSIVE-LOCK 
         WHERE ar-ledger.company EQ ipcCompany
@@ -629,6 +631,49 @@ PROCEDURE pPurgeOrphanRecords PRIVATE :
             ASSIGN
                 iPurgeCount5 = iPurgeCount5 + 1.                                     
     END. 
+    
+    RELEASE ar-cashl.
+    RELEASE ar-cash.
+         
+    MAIN-LOOP:
+    FOR EACH ar-cashl NO-LOCK 
+        WHERE ar-cashl.company  EQ ipcCompany
+          AND ar-cashl.posted   EQ yes 
+          AND ar-cashl.cust-no  GE begin_cust-no
+          AND ar-cashl.cust-no  LE end_cust-no 
+          AND ar-cashl.inv-no   EQ 0
+          USE-INDEX inv-no:
+                    
+        FIND ar-cash NO-LOCK WHERE
+            ar-cash.c-no EQ ar-cashl.c-no
+            USE-INDEX c-no NO-ERROR.
+        
+        IF AVAIL ar-cash THEN DO:
+            IF ar-cash.check-date > end_date THEN
+                NEXT MAIN-LOOP.  
+            FIND FIRST bf-ar-cashl NO-LOCK WHERE
+                bf-ar-cashl.c-no EQ ar-cashl.c-no AND
+                bf-ar-cashl.company EQ ar-cashl.company AND                 
+                ROWID(bf-ar-cashl) NE ROWID(ar-cashl)
+                NO-ERROR.  
+            IF NOT AVAIL bf-ar-cashl THEN DO:                                                  
+                EXPORT STREAM out3 ar-cash.
+                FIND CURRENT ar-cash EXCLUSIVE-LOCK NO-ERROR.
+                DELETE ar-cash.
+                     
+                ASSIGN
+                    iPurgeCount = iPurgeCount + 1.
+            END.
+        END. 
+                          
+        EXPORT STREAM out4 ar-cashl.
+        FIND CURRENT ar-cashl EXCLUSIVE-LOCK NO-ERROR.
+        DELETE ar-cashl.
+        
+        ASSIGN
+            iPurgeCount2 = iPurgeCount2 + 1.
+    END.        
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

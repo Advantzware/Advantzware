@@ -28,7 +28,7 @@ DEFINE VARIABLE giAttributeIDBlankLen         AS INTEGER NO-UNDO INITIAL 4.    /
 DEFINE VARIABLE giAttributeIDBlankWid         AS INTEGER NO-UNDO INITIAL 5.    //Blank Width
 DEFINE VARIABLE giAttributeIDGlueLapLen       AS INTEGER NO-UNDO INITIAL 6.    //Glue Lap Length
 DEFINE VARIABLE giAttributeIDBlankSFSI        AS INTEGER NO-UNDO INITIAL 7.    //Blank Sq In/Sq Ft
-DEFINE VARIABLE giAttributeIDCaliper          AS INTEGER NO-UNDO INITIAL 8.    //Caliper Thickness
+DEFINE VARIABLE giAttributeIDCaliper          AS INTEGER NO-UNDO INITIAL 8.    //Caliper Thickness (integer)
 DEFINE VARIABLE giAttributeIDWeightperMSF     AS INTEGER NO-UNDO INITIAL 9.    //Weight per MSF
 DEFINE VARIABLE giAttributeIDRollWid          AS INTEGER NO-UNDO INITIAL 10.    //Roll Width
 DEFINE VARIABLE giAttributeIDNShtWid          AS INTEGER NO-UNDO INITIAL 11.    //Net Sheet Width
@@ -62,7 +62,9 @@ DEFINE VARIABLE giAttributeIDDieHoursFormula  AS INTEGER NO-UNDO INITIAL 99.    
 DEFINE VARIABLE giAttributeIDStyle            AS INTEGER NO-UNDO INITIAL 101.   //Style
 DEFINE VARIABLE giAttributeIDBoardItemID      AS INTEGER NO-UNDO INITIAL 102.   //Board ItemID
 DEFINE VARIABLE giAttributeIDBoxDepth         AS INTEGER NO-UNDO INITIAL 104.   //Box Depth
- 
+DEFINE VARIABLE giAttributeIDCaliperDecimal   AS INTEGER NO-UNDO INITIAL 105.   //Caliper as decimal
+
+DEFINE VARIABLE gcAttributeNameEstQtyPerFeed  AS CHARACTER NO-UNDO INITIAL "Estimate Quantity (Feeds)". 
 
 DEFINE VARIABLE gcDeptsForPrinters                   AS CHARACTER NO-UNDO INITIAL "PR".
 DEFINE VARIABLE gcDeptsForGluers                     AS CHARACTER NO-UNDO INITIAL "GL,QS".
@@ -386,7 +388,7 @@ PROCEDURE Operations_GetOutputType:
 END PROCEDURE.
 
 
-PROCEDURE BuildEstimateRouting:
+PROCEDURE Operations_BuildEstimateRouting:
 /*------------------------------------------------------------------------------
     Purpose:  Given an Estimate No and Form No, calculate the routings
     Notes:
@@ -396,12 +398,12 @@ PROCEDURE BuildEstimateRouting:
     DEFINE INPUT PARAMETER ipiFormNo          AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipdEstQty          AS DECIMAL NO-UNDO.
     
-    RUN pBuildRouting (ipcCompany, ipcEstimateNo, ipiFormNo, ipdEstQty).
+    RUN Operations_BuildEstimateRoutingTT (ipcCompany, ipcEstimateNo, ipiFormNo, ipdEstQty).
     RUN pAddEstOPFromRouting (ipcCompany, ipcEstimateNo, ipdEstQty).
     
 END.
 
-PROCEDURE pBuildRouting:
+PROCEDURE Operations_BuildEstimateRoutingTT:
 /*------------------------------------------------------------------------------
     Purpose:  procedure to calculate the machine routings
     Notes:
@@ -608,7 +610,7 @@ PROCEDURE pAddEstOPFromRouting PRIVATE:
          
         END.
               
-        RUN GetOperationStandardsForEstOp(riRowid, 0, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dSpoilPrct, OUTPUT dMRWaste, OUTPUT iNumSheets).
+        RUN pGetOperationStandardsForEstOp(riRowid, 0, OUTPUT dSpeed, OUTPUT dMRHrs, OUTPUT dSpoilPrct, OUTPUT dMRWaste, OUTPUT iNumSheets).
          
         DO TRANSACTION:
             FIND FIRST bfExcl-est-op EXCLUSIVE-LOCK
@@ -669,35 +671,16 @@ PROCEDURE Operations_ImportMachineStandards:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany      AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcEstimateNo   AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiFormNo       AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiBlankNo      AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipiPass         AS INTEGER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipdQty          AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipriEstOp        AS ROWID NO-UNDO.
     DEFINE INPUT  PARAMETER ipdProbeQty     AS DECIMAL NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcMachCode     AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSpeed        AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdMRHrs        AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdMRWaste      AS DECIMAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opdSpoilPrct    AS DECIMAL NO-UNDO.
 
     DEFINE VARIABLE iNumSheets AS INTEGER NO-UNDO.
-    
-    DEFINE BUFFER bf-est-op FOR est-op.
 
-    FIND FIRST bf-est-op NO-LOCK 
-        WHERE bf-est-op.company EQ ipcCompany
-        AND bf-est-op.est-no EQ ipcEstimateNo
-        AND bf-est-op.s-num EQ ipiFormNo
-        AND bf-est-op.b-num EQ ipiBlankNo
-        AND bf-est-op.op-pass EQ ipiPass
-        AND bf-est-op.m-code EQ ipcMachCode
-        AND bf-est-op.line LT 500
-        AND bf-est-op.qty EQ ipdQty NO-ERROR.
-        
-    IF AVAILABLE bf-est-op THEN
-        RUN GetOperationStandardsForEstOp(ROWID(bf-est-op), ipdProbeQty, OUTPUT opdSpeed, OUTPUT opdMRHrs, OUTPUT opdSpoilPrct, OUTPUT opdMRWaste, OUTPUT iNumSheets).
+    RUN pGetOperationStandardsForEstOp(ipriEstOp, ipdProbeQty, OUTPUT opdSpeed, OUTPUT opdMRHrs, OUTPUT opdSpoilPrct, OUTPUT opdMRWaste, OUTPUT iNumSheets).
        
 END PROCEDURE.
 
@@ -1214,7 +1197,7 @@ PROCEDURE pProcessCTDept PRIVATE:
         
 END PROCEDURE.
 
-PROCEDURE pProcessDCDept:
+PROCEDURE pProcessDCDept PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Process and import die cutter machine
      Notes: 
@@ -1230,7 +1213,7 @@ PROCEDURE pProcessDCDept:
 END PROCEDURE.
 
 
-PROCEDURE pProcessFODept:
+PROCEDURE pProcessFODept PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Process and import Farm Out machine
      Notes: Check if Estimate Item is Purchased Finished Good
@@ -1533,7 +1516,7 @@ PROCEDURE pSetLimitsForDept PRIVATE:
            
 END PROCEDURE.
 
-PROCEDURE pResetObjects:
+PROCEDURE pResetObjects PRIVATE:
 /*------------------------------------------------------------------------------
  Purpose: Delete all internal objects.
  Notes: Delete Handles, objects, temp-table etc
@@ -1556,7 +1539,7 @@ PROCEDURE pResetObjects:
 
 END PROCEDURE.
 
-PROCEDURE ClearAttributes:
+PROCEDURE Operations_ClearAttributes:
     /*------------------------------------------------------------------------------
      Purpose:  Clears all attributes
      Notes:
@@ -1566,7 +1549,7 @@ PROCEDURE ClearAttributes:
 END PROCEDURE.
 
 
-PROCEDURE GetAttributes:
+PROCEDURE Operations_GetAttributes:
     /*------------------------------------------------------------------------------
      Purpose: Returns the temp-table to caller
      Notes:
@@ -1575,7 +1558,7 @@ PROCEDURE GetAttributes:
 
 END PROCEDURE.
 
-PROCEDURE GetOperationRates:
+PROCEDURE pGetOperationRates PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose:  Returns Rates for given machine
      Notes:
@@ -1609,7 +1592,7 @@ PROCEDURE GetOperationRates:
     END.
 END PROCEDURE.
 
-PROCEDURE GetOperationStandards:
+PROCEDURE Operations_GetOperationStandards:
     /*------------------------------------------------------------------------------
      Purpose: Given a company and machine code, return standards for the machine
         based on the current context of attributes
@@ -1648,7 +1631,7 @@ PROCEDURE GetOperationStandards:
 END PROCEDURE.
 
 
-PROCEDURE GetOperationStandardsForJobMch:
+PROCEDURE pGetOperationStandardsForJobMch PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: given job-mch rowid, get updated standards
      Notes:
@@ -1683,17 +1666,17 @@ PROCEDURE GetOperationStandardsForJobMch:
         IF NOT AVAILABLE bf-eb THEN RETURN.
            
                 
-        RUN SetAttributesFromJobMch (ROWID(bf-job-mch), bf-job-mch.m-code, bf-job-mch.pass, ipcAction, ipcExistingOps, OUTPUT lError, OUTPUT cMessage).
+        RUN pSetAttributesFromJobMch (ROWID(bf-job-mch), bf-job-mch.m-code, bf-job-mch.pass, ipcAction, ipcExistingOps, OUTPUT lError, OUTPUT cMessage).
         
         IF cMessage NE "" THEN
-            RUN pBuildTagInfo ("Error","Error from SetAttributesFromJobMch",cMessage).
+            RUN pBuildTagInfo ("Error","Error from pSetAttributesFromJobMch",cMessage).
             
         RUN pBuildMessage("", INPUT-OUTPUT cMessage).
         
         IF NOT lError THEN 
         DO:
             FIND CURRENT bf-job-mch EXCLUSIVE-LOCK.
-            RUN GetOperationRates(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code, 
+            RUN pGetOperationRates(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code, 
                 OUTPUT bf-job-mch.mr-rate, 
                 OUTPUT bf-job-mch.mr-fixoh, 
                 OUTPUT bf-job-mch.mr-varoh,
@@ -1723,7 +1706,7 @@ PROCEDURE GetOperationStandardsForJobMch:
 
 END PROCEDURE.
 
-PROCEDURE GetOperationStandardsForEstOp PRIVATE:
+PROCEDURE pGetOperationStandardsForEstOp PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: given ESt-op rowid, gessign the Operations standards
      Notes:
@@ -1774,13 +1757,13 @@ PROCEDURE GetOperationStandardsForEstOp PRIVATE:
             
         IF NOT AVAILABLE bf-eb THEN RETURN.
                 
-        RUN SetAttributesFromEstOP (ipriRowid, bf-est.loc, ipdProbeQty, OUTPUT lError, OUTPUT cMessage).
+        RUN pSetAttributesFromEstOp (ipriRowid, bf-est.loc, ipdProbeQty, OUTPUT lError, OUTPUT cMessage).
             
         RUN pBuildMessage("", INPUT-OUTPUT cMessage).
         
         IF NOT lError THEN 
         DO:
-            RUN GetOperationStandards(bf-est-op.company, bf-est.loc, bf-est-op.m-code,
+            RUN Operations_GetOperationStandards(bf-est-op.company, bf-est.loc, bf-est-op.m-code,
                 OUTPUT dMRWaste, 
                 OUTPUT dMRHrs, 
                 OUTPUT dSpeed, 
@@ -2148,7 +2131,7 @@ PROCEDURE pGetMatrixSpeedReduction PRIVATE:
     DEFINE VARIABLE cMessage          AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cName             AS CHARACTER NO-UNDO.
      
-    RUN pGetAttribute(giAttributeIDCaliper, OUTPUT cCaliper, OUTPUT cName, OUTPUT oplError, OUTPUT cMessage).
+    RUN pGetAttribute(giAttributeIDCaliperDecimal, OUTPUT cCaliper, OUTPUT cName, OUTPUT oplError, OUTPUT cMessage).
     dCaliper = DECIMAL(cCaliper).
     RUN pGetAttribute(giAttributeIDBoxDepth, OUTPUT cDepth, OUTPUT cName, OUTPUT oplError, OUTPUT cMessage).
     dDepth = DECIMAL(cDepth).
@@ -2168,7 +2151,7 @@ PROCEDURE pGetMatrixSpeedReduction PRIVATE:
             DO:
                 ASSIGN 
                     dDepthReduction = ipbf-mstd.depth-reduc[iIndex] / 100
-                    cDepthMessage   = "Depth reduction of " + STRING(opdReduction) + " for depth of " + cDepth + " index level " + STRING(iIndex).
+                    cDepthMessage   = "Depth reduction of " + STRING(dDepthReduction) + " for depth of " + cDepth + " index level " + STRING(iIndex).
                 .
                 LEAVE.
             END.
@@ -2651,7 +2634,7 @@ PROCEDURE pOperationChangeAddDepartment PRIVATE:
         bf-job-mch.est-op_rec_key = 'TS ' + STRING(TODAY) + ' ' + STRING(TIME,'HH:MM:SS')
         .
        
-    RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch), "AddDept","").
+    RUN pGetOperationStandardsForJobMch(ROWID(bf-job-mch), "AddDept","").
     
 END PROCEDURE.
 
@@ -2673,7 +2656,7 @@ PROCEDURE pOperationChangeAddMachine PRIVATE:
         bf-job-mch.m-code = ipcOperationID
         .
     cOldMach = ipbf-job-mch.m-code.
-    RUN GetOperationStandardsForJobMch(ROWID(bf-job-mch), "Add",cOldMach).
+    RUN pGetOperationStandardsForJobMch(ROWID(bf-job-mch), "Add",cOldMach).
         
 END PROCEDURE.
 
@@ -2734,7 +2717,7 @@ PROCEDURE pOperationChangeReplaceMachine PRIVATE:
     cExistingMach = ipbf-job-mch.m-code.
     ipbf-job-mch.m-code = ipcOperationID.
     FIND CURRENT ipbf-job-mch NO-LOCK.
-    RUN GetOperationStandardsForJobMch(ROWID(ipbf-job-mch), "Replace", cExistingMach).    
+    RUN pGetOperationStandardsForJobMch(ROWID(ipbf-job-mch), "Replace", cExistingMach).    
 
 END PROCEDURE.
 
@@ -2778,7 +2761,7 @@ PROCEDURE pProcessOperation PRIVATE:
     ipbf-ttOperation.FGCumulativeNumOut = fGetCumulNumOutForOperation(INPUT ipbf-ttOperation.numOutForOperation).
     ipbf-ttOperation.FGCumulativeNumOut = MAX(1,ipbf-ttOperation.FGCumulativeNumOut).
      
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFeed, iopdQtyInOut).
+    RUN pSetAttribute(giAttributeIDEstQtyPerFeed, gcAttributeNameEstQtyPerFeed, iopdQtyInOut).
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFG, iopdQtyInOut * ipbf-ttOperation.FGCumulativeNumOut ).
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
     
@@ -2822,7 +2805,7 @@ PROCEDURE pProcessOperation PRIVATE:
     END.
     
     /* Set Quantity and dependent attributes for each Line. These will be used to get Spoilage value */   
-    RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFeed, ipbf-ttOperation.quantityIn).  
+    RUN pSetAttribute(giAttributeIDEstQtyPerFeed, gcAttributeNameEstQtyPerFeed, ipbf-ttOperation.quantityIn).  
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstQtyPerFG, ipbf-ttOperation.quantityIn * ipbf-ttOperation.FGCumulativeNumOut).  
     RUN pSetAttributeFromStandard(ipbf-ttOperation.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipbf-ttOperation.OperationId, ipbf-ttOperation.pass))). 
     
@@ -2832,7 +2815,7 @@ PROCEDURE pProcessOperation PRIVATE:
     
 END PROCEDURE.
 
-PROCEDURE ProcessOperationChange:
+PROCEDURE Operations_ProcessOperationChange:
     /*------------------------------------------------------------------------------
      Purpose:  Given an operationID (mach code) and job, confirm that this machine
      exists on job
@@ -3003,6 +2986,7 @@ PROCEDURE pSetAttributesForm PRIVATE:
     
     RUN pSetAttribute(giAttributeIDBoardItemID, "Board ItemID", ipbf-ef.board).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDCaliper, STRING(fGetOperationsCalThickness(BUFFER ipbf-ef))).
+    RUN pSetAttribute(giAttributeIDCaliperDecimal, "Caliper Thickness (in Decimal)",STRING(ipbf-ef.cal)).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDWeightperMSF, STRING(ipbf-ef.weight)). 
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDRollWid, STRING(ipbf-ef.roll-wid)).
     RUN pSetAttributeFromStandard(ipbf-ef.company,  giAttributeIDNShtWid, STRING(ipbf-ef.nsh-wid)).
@@ -3039,7 +3023,7 @@ PROCEDURE pSetAttributesFromQty PRIVATE:
     
     IF dCalcQty NE 0 THEN
     DO:
-        RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtyPerFeed, STRING(dCalcQty)).  
+        RUN pSetAttribute(giAttributeIDEstQtyPerFeed, gcAttributeNameEstQtyPerFeed, STRING(dCalcQty)).  
         RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstQtyPerFG, STRING(dCalcQty * iCumulNumOut)).  
         RUN pSetAttributeFromStandard(ipbf-eb.company,  giAttributeIDEstSheets, STRING(fGetOperationsEstSheet(BUFFER ipbf-eb, ipcOperationId, ipiPass))).
     END. 
@@ -3296,6 +3280,27 @@ PROCEDURE pRecalcOperations PRIVATE:
     
     
     EMPTY TEMP-TABLE ttEstBlank.
+    
+    FOR EACH bf-eb NO-LOCK
+        WHERE bf-eb.company eq bf-ef.company
+        AND bf-eb.est-no eq bf-ef.est-no
+        AND bf-eb.form-no eq bf-ef.form-no:
+            
+            
+        IF NOT CAN-FIND (FIRST ttEstBlank
+            WHERE ttEstBlank.blankID EQ bf-eb.blank-no) THEN
+        DO:
+            CREATE ttEstBlank.
+            ASSIGN 
+                ttEstBlank.BlankID   = bf-eb.blank-no
+                ttEstBlank.FormID    = bf-eb.form-no
+                ttEstBlank.iOut      = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1)
+                ttEstBlank.dQtyInOut = dQtyRequired
+                .
+        END.
+        
+    END.
+    
     giTotalOut = 1.
     
     /*Process each est-op for the right quantity*/
@@ -3320,6 +3325,7 @@ PROCEDURE pRecalcOperations PRIVATE:
                         
         IF AVAILABLE bf-ttOperation THEN 
         DO:
+
             /*REFACTOR to calculate quantities for combos*/        
             IF ttEstop.b-num NE 0 AND bf-ttOperation.feedType EQ "B" THEN
             DO:  /*Calculate for Combo*/
@@ -3328,24 +3334,15 @@ PROCEDURE pRecalcOperations PRIVATE:
                     WHERE ttEstBlank.FormID  EQ ttEstop.s-num
                     AND ttEstBlank.BlankID EQ ttEstop.b-num
                     NO-ERROR.
-                IF NOT AVAILABLE ttEstBlank THEN 
-                DO:
-                    CREATE ttEstBlank.
+                IF AVAILABLE ttEstBlank and NOT ttEstBlank.lOutputInitialized THEN 
                     ASSIGN 
-                        ttEstBlank.BlankID = ttEstop.b-num
-                        ttEstBlank.FormID  = ttEstop.s-num
-                        ttEstBlank.iOut    = MAX(bf-eb.num-wid, 1) * MAX(bf-eb.num-len, 1) * MAX(bf-eb.num-dep, 1).
-                END.
-                IF NOT ttEstBlank.lOutputInitialized THEN 
-                    ASSIGN 
-                        ttEstBlank.dQtyInOut          = dQtyRequired
                         ttEstBlank.lOutputInitialized = YES
                         .
                 RUN pProcessOperation(BUFFER bf-ttOperation, BUFFER bf-eb, INPUT-OUTPUT ttEstBlank.dQtyInOut, 
                     INPUT-OUTPUT ttEstBlank.dQtyInOutSetupWaste, INPUT-OUTPUT ttEstBlank.dQtyInOutRunWaste).
             END. /*BlankNo not 0*/
             ELSE 
-            DO:                  
+            DO:  
                 IF bf-ttOperation.isBlankMaker THEN 
                 DO:
                     /*Find the most forms required to support each blank operations*/
@@ -3358,6 +3355,7 @@ PROCEDURE pRecalcOperations PRIVATE:
                                 dQtyInOutSetupWaste           = fRoundUp(ttEstBlank.dQtyInOutSetupWaste / MAX(ttEstBlank.iOut,1))
                                 dQtyInOutRunWaste             = fRoundUp(ttEstBlank.dQtyInOutRunWaste / MAX(ttEstBlank.iOut,1))
                                 .
+                                            
                     END.
                 
                     /*Convert the forms for the most wasteful blank into what is required out of the blank maker as a total for all blanks*/
@@ -3386,6 +3384,7 @@ PROCEDURE pRecalcOperations PRIVATE:
                     
     END. /*Each ttEstop*/
     RUN pSetProcessScope(INPUT "RecalcEnd").
+
      
 END PROCEDURE.
 
@@ -3464,13 +3463,13 @@ PROCEDURE pCalcEstOperation PRIVATE:
                         
 END PROCEDURE.
 
-PROCEDURE pGetOperationTT:
+PROCEDURE Operations_GetEstimateOperationTT:
    
    DEFINE OUTPUT PARAMETER TABLE FOR ttOperation.
    
 END.
 
-PROCEDURE pGetRoutingTT:
+PROCEDURE Operations_GetEstimateRoutingTT:
    
    DEFINE OUTPUT PARAMETER TABLE FOR ttRouting.
    
@@ -3492,20 +3491,8 @@ PROCEDURE pSetProcessScope PRIVATE:
 
 END PROCEDURE.
 
-PROCEDURE SetAttribute:
-    /*------------------------------------------------------------------------------
-     Purpose: Public Wrapper to Set Attribute
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipiAttributeID AS INTEGER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcAttributeName AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcAttributeValue AS CHARACTER NO-UNDO.
-    
-    RUN pSetAttribute(ipiAttributeID, ipcAttributeName, ipcAttributeValue).
 
-END PROCEDURE.
-
-PROCEDURE SetAttributes:
+PROCEDURE Operations_SetAttributes:
     /*------------------------------------------------------------------------------
      Purpose:  Sets Attributes for ttAttribute Table
      Notes:
@@ -3514,8 +3501,22 @@ PROCEDURE SetAttributes:
     
 END PROCEDURE.
 
+PROCEDURE Operations_SetAttributesFromEstOp:
+    /*------------------------------------------------------------------------------
+     Purpose: Given a rowid (for est-op), build out the attributes required
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipriRowid       AS ROWID NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLocation     AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdProbeQty     AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplError        AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage      AS CHARACTER NO-UNDO.
 
-PROCEDURE SetAttributesFromEstOP PRIVATE:
+    RUN pSetAttributesFromEstOp(ipriRowid, ipcLocation, ipdProbeQty, OUTPUT oplError, OUTPUT opcMessage).
+    
+END PROCEDURE.    
+
+PROCEDURE pSetAttributesFromEstOp PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a rowid (for est-op), build out the attributes required
      Notes:
@@ -3552,12 +3553,12 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
         
         IF ipdProbeQty NE 0 THEN
         DO:
-            RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, ipdProbeQty).  //qty
+            RUN pSetAttribute(giAttributeIDEstQtyPerFeed, gcAttributeNameEstQtyPerFeed, ipdProbeQty).  //qty
             RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, ipdProbeQty).  //qty
         END.
         ELSE
         DO:
-            RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFeed, bf-est-op.qty).  //qty
+            RUN pSetAttribute(giAttributeIDEstQtyPerFeed,gcAttributeNameEstQtyPerFeed, bf-est-op.qty).  //qty
             RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDEstQtyPerFG, bf-est-op.qty).  //qty
         END.
            
@@ -3567,19 +3568,18 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDInkCoverage, STRING(fGetOperationsInkCoverage(BUFFER bf-eb))). //ld-ink-frm
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDPartsperSet, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,""))). //ld-parts[1]
         RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDQtySetLongs, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"long"))). //v-long-qty-set
-        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDQtySetShorts, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"short"))). //v-short-qty-set
-        
+        RUN pSetAttributeFromStandard(bf-eb.company,  giAttributeIDQtySetShorts, STRING(fGetOperationsPartPerSet(BUFFER bf-eb,1,"short"))). //v-short-qty-set                
+                
         FIND FIRST bf-ef OF bf-eb NO-LOCK.
         IF AVAILABLE bf-ef THEN 
             RUN pSetAttributesForm(BUFFER bf-ef).
-            
+
         /* Re-build the Est-op and Operations Data */ 
-        RUN pRecalcOperations(BUFFER bf-eb,?,ipriRowid, "NoChange", "", OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT cMsg).
-         
+        RUN pRecalcOperations(BUFFER bf-eb,?,ipriRowid, "NoChange", "", OUTPUT TABLE ttOperation, OUTPUT oplError, OUTPUT cMsg).                
+                
         /* Calculate Attribute from Operations */
         IF NOT oplError THEN
             RUN pSetAttributesFromQty (BUFFER bf-eb, bf-est-op.m-code, ipcLocation , bf-est-op.op-pass, INPUT TABLE ttOperation BY-REFERENCE).
-         
     END.
     ELSE 
         ASSIGN 
@@ -3590,7 +3590,7 @@ PROCEDURE SetAttributesFromEstOP PRIVATE:
 END PROCEDURE.
 
 
-PROCEDURE SetAttributesFromJobMch:
+PROCEDURE pSetAttributesFromJobMch PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: Given a rowid (for eb), build out the attributes required
      Notes:

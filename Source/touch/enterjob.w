@@ -755,7 +755,7 @@ PROCEDURE Verify_Entries :
     END.
   
     IF AVAILABLE job THEN
-        RUN ProcessOperationChange IN hdOpProcs (
+        RUN Operations_ProcessOperationChange IN hdOpProcs (
             company_code,
             machine_code,
             job.job, 

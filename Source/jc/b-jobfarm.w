@@ -70,6 +70,7 @@ DEFINE VARIABLE dCostSetup  AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cVendorItemID AS CHARACTER NO-UNDO.
 
 DEF BUFFER b-setup FOR reftable.
 
@@ -1479,6 +1480,7 @@ PROCEDURE new-i-no PRIVATE :
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
                 OUTPUT v-cost, 
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).  
                

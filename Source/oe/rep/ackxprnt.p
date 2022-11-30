@@ -66,6 +66,11 @@ DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR lv-line-print AS INT INIT 44 NO-UNDO.
 DEF VAR lv-due-date AS DATE NO-UNDO.
+DEFINE VARIABLE iLicnt AS INT NO-UNDO.
+DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cText1 AS CHARACTER FORMAT "x(170)" EXTENT 10 NO-UNDO.
+DEFINE VARIABLE cCharValue    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLinecnt AS INTEGER   NO-UNDO.
 
 DEFINE BUFFER bf-shipto FOR shipto .
 
@@ -81,7 +86,7 @@ ELSE lv-comp-color = "BLACK".
 
 find first company where company.company eq cocode no-lock no-error.
 {custom/notesdef.i}
-
+{custom/formtext.i NEW}
  /*
   format
     v-line         to  3 format ">>9"
@@ -604,6 +609,64 @@ PUT "<FCourier New>"          .
       IF v-printline <= 66 THEN page. /*PUT SKIP(60 - v-printline). */
 
     end. /* each oe-ord */
+    
+IF v-terms AND TRIM(v-termfile) NE "" AND v-termfile MATCHES "*.txt*"  THEN
+DO:
+    PAGE.     
+
+    INPUT FROM VALUE(TRIM(v-termfile)).
+    REPEAT:
+        IMPORT UNFORMATTED cCharValue.
+        
+        IF TRIM(cCharValue) NE "" AND LENGTH(TRIM(cCharValue)) GT 145 THEN 
+        DO:
+
+            FOR EACH tt-formtext: 
+                DELETE tt-formtext. 
+            END.
+                
+            DO iLicnt = 1 TO 10:
+                CREATE tt-formtext.
+                ASSIGN 
+                    tt-line-no = iLicnt
+                    tt-length  = 145. 
+            END.
+
+            RUN custom/formtext.p (cCharValue).
+
+            ASSIGN  
+                i         = 0 
+                cText1   = "" 
+                iLinecnt = 0.
+
+            FOR EACH tt-formtext:
+                ASSIGN 
+                    i = i + 1.
+
+                IF i <= 5 
+                    THEN ASSIGN cText1[i] = tt-formtext.tt-text.
+
+                IF cText1[i] <> "" THEN iLinecnt = i.
+            END.
+
+            DO i = 1 TO iLinecnt:                   
+                IF cText1[i] NE "" 
+                    THEN  PUT  "<FTimes New (W1)><#11><P8>" 
+                        cText1[i] FORMAT "x(145)" SKIP.
+            END.
+        END.
+        ELSE PUT "<FTimes New (W1)><#11><P8>"  cCharValue FORMAT "x(145)" SKIP. 
+      
+    END.
+    
+    INPUT CLOSE.
+   
+END.
+ELSE IF v-terms AND TRIM(v-termfile) NE ""  THEN
+    DO:
+        PAGE.
+        PUT "<C1><R1><#1><R+65><C+80><IMAGE#1=" v-termfile FORMAT "x(360)" ">"  SKIP .       
+    END.   
 
 RETURN.
 

@@ -128,7 +128,16 @@ PROCEDURE copyJob:
     def var hld-stat like job.stat no-undo.
     def var hld-nufile as log no-undo.
     DEF VAR v-run-schedule AS LOG NO-UNDO.
-
+    
+    DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+    
+    RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+    RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+    IF cSchedule NE "" THEN
+    ASSIGN lSchedule = LOGICAL(cSchedule).
+    
     FIND CURRENT oe-ord.
     DEF BUFFER b-oe-ordl1 FOR oe-ordl.
     DEF BUFFER b-oe-ord1 FOR oe-ord.   
@@ -209,13 +218,8 @@ PROCEDURE copyJob:
             END.
           END.
                 
-          find first sys-ctrl where
-               sys-ctrl.company eq cocode AND
-               sys-ctrl.name    eq "SCHEDULE"
-               no-lock no-error.
-
-          v-run-schedule = IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld THEN NO
-                           ELSE IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "PlanDate" AND sys-ctrl.log-fld THEN YES
+          v-run-schedule = IF cScheduleValue = "NoDate" AND lSchedule THEN NO
+                           ELSE IF cScheduleValue = "PlanDate" AND lSchedule THEN YES
                            ELSE NO.
 
           FOR EACH oe-ordl NO-LOCK
@@ -1012,6 +1016,15 @@ PROCEDURE update-start-date :
   DEF VAR li-num-of-wkend AS INT NO-UNDO.
   DEF VAR lv-start-date-fr AS DATE NO-UNDO.
 
+  DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+    
+  RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+  RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+  IF cSchedule NE "" THEN
+  ASSIGN lSchedule = LOGICAL(cSchedule).
+  
   /*===  calculate start date from due-date === */
   ASSIGN lv-mr-time = 0
          lv-run-time = 0
@@ -1072,11 +1085,7 @@ PROCEDURE update-start-date :
      lv-start-date = TODAY.
   END.
   
-  v-run-schedule = NOT CAN-FIND(FIRST sys-ctrl
-                                WHERE sys-ctrl.company EQ oe-ord.company
-                                  AND sys-ctrl.name EQ 'SCHEDULE'
-                                  AND sys-ctrl.char-fld EQ 'NoDate'
-                                  AND sys-ctrl.log-fld EQ YES).
+  v-run-schedule = NOT(lSchedule AND cScheduleValue EQ "NoDate").
   IF v-run-schedule THEN DO: /* run if above does not exist */
   
   /* === reset start-date === */

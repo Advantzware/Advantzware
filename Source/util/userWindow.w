@@ -81,8 +81,8 @@ DEFINE TEMP-TABLE ttUserWindow
 &Scoped-define INTERNAL-TABLES ttUserWindow
 
 /* Definitions for BROWSE ttUserWindow                                  */
-&Scoped-define FIELDS-IN-QUERY-ttUserWindow ttUserWindow.cselect ttUserWindow.usrID ttUserWindow.mnemonic ttUserWindow.prgtitle ttUserWindow.programname ttUserWindow.winwidth ttUserWindow.winheight ttUserWindow.cstate   
-&Scoped-define ENABLED-FIELDS-IN-QUERY-ttUserWindow ttUserWindow.cselect   
+&Scoped-define FIELDS-IN-QUERY-ttUserWindow ttUserWindow.usrID ttUserWindow.mnemonic ttUserWindow.prgtitle ttUserWindow.programname ttUserWindow.winwidth ttUserWindow.winheight ttUserWindow.cstate   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-ttUserWindow    
 &Scoped-define ENABLED-TABLES-IN-QUERY-ttUserWindow ttUserWindow
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-ttUserWindow ttUserWindow
 &Scoped-define SELF-NAME ttUserWindow
@@ -97,8 +97,9 @@ DEFINE TEMP-TABLE ttUserWindow
     ~{&OPEN-QUERY-ttUserWindow}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btDelete RECT-13 RECT-15 btFilter fiUserID ~
-fiHotKey fiTitle cbState btExit fiProgramName ttUserWindow 
+&Scoped-Define ENABLED-OBJECTS btSelectAll btDelete RECT-13 RECT-15 ~
+btFilter fiUserID fiHotKey fiTitle cbState btExit fiProgramName ~
+ttUserWindow
 &Scoped-Define DISPLAYED-OBJECTS fiUserID fiHotKey fiTitle cbState ~
 fiProgramName fiPrimaryIDLabel fiHotKeyLabel fiTitleLabel fiStateLabel ~
 fiClientIDLabel 
@@ -123,7 +124,7 @@ DEFINE BUTTON btDelete
      LABEL "Delete" 
      SIZE 7.2 BY 1.71 TOOLTIP "Delete selected records"
      BGCOLOR 21 FGCOLOR 21 .
-
+     
 DEFINE BUTTON btExit 
      IMAGE-UP FILE "Graphics/32x32/exit_white.png":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
      LABEL "Exit" 
@@ -135,6 +136,13 @@ DEFINE BUTTON btFilter
      IMAGE-DOWN FILE "Graphics/32x32/search_hover_new.png":U
      LABEL "Filter" 
      SIZE 7.2 BY 1.71 TOOLTIP "Filter".
+     
+DEFINE BUTTON btSelectAll 
+     IMAGE-UP FILE "Graphics/32x32/navigate_check.png":U
+     IMAGE-INSENSITIVE FILE "Graphics/32x32/navigate_check_disabled.png":U NO-FOCUS FLAT-BUTTON NO-CONVERT-3D-COLORS
+     LABEL "Delete" 
+     SIZE 7.2 BY 1.71 TOOLTIP "Selected all records"
+     BGCOLOR 21 FGCOLOR 21 .     
 
 DEFINE VARIABLE cbState AS CHARACTER FORMAT "X(256)":U INITIAL "0" 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -215,9 +223,7 @@ DEFINE QUERY ttUserWindow FOR
 /* Browse definitions                                                   */
 DEFINE BROWSE ttUserWindow
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS ttUserWindow C-Win _FREEFORM
-  QUERY ttUserWindow NO-LOCK DISPLAY
-      ttUserWindow.cselect     COLUMN-LABEL "[ ] ALL"
-            WIDTH 8  LABEL-BGCOLOR 14 VIEW-AS TOGGLE-BOX
+  QUERY ttUserWindow NO-LOCK DISPLAY      
       ttUserWindow.usrID       COLUMN-LABEL "User ID"        FORMAT "x(32)":U
             WIDTH 16 LABEL-BGCOLOR 14
       ttUserWindow.mnemonic    COLUMN-LABEL "Hot Key"        FORMAT "x(32)":U
@@ -232,17 +238,17 @@ DEFINE BROWSE ttUserWindow
             WIDTH 20 LABEL-BGCOLOR 14
       ttUserWindow.programname COLUMN-LABEL "Program Name"   FORMAT "x(32)":U
             WIDTH 24 LABEL-BGCOLOR 14        
-      ENABLE ttUserWindow.cselect
-      
+            
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 182.4 BY 18.43
+    WITH NO-ROW-MARKERS SEPARATORS MULTIPLE SIZE 182.4 BY 18.43
          FONT 34 ROW-HEIGHT-CHARS .9 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     btSelectAll AT ROW 1.14 COL 157.2 WIDGET-ID 336
      btDelete AT ROW 1.14 COL 165.6 WIDGET-ID 324
      btFilter AT ROW 3.76 COL 173 WIDGET-ID 18
      fiUserID AT ROW 4.33 COL 4.2 NO-LABEL WIDGET-ID 66
@@ -264,7 +270,8 @@ DEFINE FRAME DEFAULT-FRAME
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 183.4 BY 23.67
-         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 1  WIDGET-ID 100 
+         DEFAULT-BUTTON btFilter .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -387,15 +394,26 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDelete C-Win
 ON CHOOSE OF btDelete IN FRAME DEFAULT-FRAME /* Delete */
 DO:
+    DEFINE VARIABLE lNotSelect AS LOGICAL NO-UNDO.
+    
+    RUN pCheckSelectRow(OUTPUT lNotSelect).
+    IF NOT lNotSelect THEN RETURN .
+    
+    RUN pGetSelectRow.
+
     APPLY 'value-changed' TO BROWSE {&Browse-name}.  
-    FOR EACH ttuserwindow WHERE cselect:
+    FOR EACH ttuserwindow WHERE cselect:  
         FOR FIRST userwindow EXCLUSIVE-LOCK 
             WHERE userwindow.usrID       EQ ttuserwindow.usrID 
               AND userwindow.programname EQ ttuserwindow.programname:
             DELETE userwindow.
         END.
-    END.
-    btDelete:sensitive IN FRAME {&frame-name} = FALSE.
+        FOR EACH userColumn EXCLUSIVE-LOCK
+            WHERE userColumn.usrId       EQ ttuserwindow.usrID
+              AND userColumn.programName BEGINS ttuserwindow.programname:
+            DELETE userColumn.   
+        END.
+    END.    
     APPLY "CHOOSE" TO btFilter.                
 END.
 
@@ -431,15 +449,15 @@ DO:
     
     Filter-Data:
     FOR EACH UserWindow NO-LOCK 
-       WHERE UserWindow.usrID EQ (IF fiUserID:SCREEN-VALUE EQ "" THEN UserWindow.usrID ELSE fiUserID:SCREEN-VALUE) 
-         AND UserWindow.programName EQ (IF fiProgramName:SCREEN-VALUE EQ "" THEN UserWindow.programName ELSE fiProgramName:SCREEN-VALUE)
+       WHERE (IF fiUserID:SCREEN-VALUE BEGINS '*' THEN UserWindow.usrID MATCHES fiUserID:SCREEN-VALUE ELSE UserWindow.usrID BEGINS fiUserID:SCREEN-VALUE)   
+         AND (IF fiProgramName:SCREEN-VALUE BEGINS '*' THEN UserWindow.programName MATCHES fiProgramName:SCREEN-VALUE ELSE UserWindow.programName BEGINS fiProgramName:SCREEN-VALUE)  
          AND UserWindow.state EQ (IF cbState:SCREEN-VALUE EQ "0" THEN UserWindow.state ELSE INTEGER(cbState:SCREEN-VALUE))
         :     
         FOR FIRST prgrms NO-LOCK 
             WHERE ENTRY(1,prgrms.prgmname,".") EQ ENTRY(2,UserWindow.programName,"/") 
               AND prgrms.dir_group EQ ENTRY(1,UserWindow.programName,"/")
               AND prgrms.prgtitle MATCHES("*" + fiTitle:SCREEN-VALUE + "*") 
-              AND prgrms.mnemonic EQ (IF fiHotKey:SCREEN-VALUE EQ "" THEN prgrms.mnemonic ELSE fiHotKey:SCREEN-VALUE) 
+              AND (IF fiHotKey:SCREEN-VALUE BEGINS '*' THEN prgrms.mnemonic MATCHES fiHotKey:SCREEN-VALUE ELSE prgrms.mnemonic BEGINS fiHotKey:SCREEN-VALUE) 
             :      
             CREATE ttUserWindow.
             BUFFER-COPY UserWindow TO ttUserWindow. 
@@ -455,7 +473,8 @@ DO:
             END CASE.     
             ASSIGN 
                 ttUserWindow.prgtitle = prgrms.prgtitle
-                ttUserWindow.mnemonic = prgrms.mnemonic.
+                ttUserWindow.mnemonic = prgrms.mnemonic
+                .
         END.  
     END.
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME} 
@@ -464,6 +483,26 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME btSelectAll
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSelectAll C-Win
+ON CHOOSE OF btSelectAll IN FRAME DEFAULT-FRAME /* Delete */
+DO:
+    DEFINE VARIABLE lSelectAll AS LOGICAL NO-UNDO.
+    lReTrigger = NOT lReTrigger.
+
+    FIND CURRENT ttUserWindow NO-ERROR. 
+    IF AVAILABLE ttUserWindow THEN
+        lSelectAll = YES.
+                              
+    IF lReTrigger AND lSelectAll THEN
+        {&browse-name}:SELECT-ALL ().
+    ELSE
+        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+         
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME fiHotKey
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiHotKey C-Win
@@ -531,22 +570,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttUserWindow C-Win
 ON START-SEARCH OF ttUserWindow IN FRAME DEFAULT-FRAME
 DO:
-       IF SELF:CURRENT-COLUMN:NAME EQ "cselect" THEN DO:
-        lReTrigger = NOT lReTrigger.
-        
-        FOR EACH ttUserWindow:
-            ttUserWindow.cselect = lReTrigger.
-        END.
-        
-        SELF:CURRENT-COLUMN:LABEL = IF lReTrigger THEN
-                                        "[*] All"
-                                    ELSE
-                                        "[ ] All".
-                                        
-        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}  
-         btDelete:sensitive IN FRAME {&frame-name} = CAN-FIND(FIRST ttUserWindow WHERE ttUserWindow.cSelect).  
-    END.
-    ELSE IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
+     IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
         cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
         
         IF cColumnLabel EQ cSaveLabel THEN
@@ -562,22 +586,6 @@ DO:
             .
         RUN pReopenBrowse.
     END.       
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ttUserWindow C-Win
-ON U1 OF ttUserWindow IN FRAME DEFAULT-FRAME
-DO: 
-  FOR FIRST ttUserWindow WHERE ttUserWindow.programname = selectedprogram AND 
-                              ttUserWindow.usrid EQ selecteduser:
-    ttUserWindow.cSelect = ttUserWindow.cSelect:CHECKED IN BROWSE {&browse-name}.
-    selectedRowId = ROWID(ttUserWindow).
-  END.
-
-  REPOSITION ttUserWindow TO ROWID selectedRowId. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -611,20 +619,11 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:    
 
+   
+    btFilter:load-image("Graphics/32x32/search_new.png").
+    
     RUN enable_UI.
-  btDelete:sensitive IN FRAME {&frame-name} = FALSE.
-  ON 'VALUE-CHANGED' OF ttUserWindow.cSelect IN BROWSE ttUserWindow
-  DO:
-    FIND CURRENT ttUserWindow NO-ERROR.
-    IF AVAILABLE ttUserWindow  THEN
-    ASSIGN
-        selectedprogram = ttUserWindow.programname
-      selecteduser = ttUserWindow.usrid.
-       
-      APPLY 'U1' TO BROWSE ttUserWindow. 
-      
-      btDelete:sensitive IN FRAME {&frame-name} = CAN-FIND(FIRST ttUserWindow WHERE ttUserWindow.cSelect).
-  END.
+  
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -678,8 +677,8 @@ PROCEDURE enable_UI :
   DISPLAY fiUserID fiHotKey fiTitle cbState fiProgramName fiPrimaryIDLabel 
           fiHotKeyLabel fiTitleLabel fiStateLabel fiClientIDLabel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btDelete RECT-13 RECT-15 btFilter fiUserID fiHotKey fiTitle cbState 
-         btExit fiProgramName ttUserWindow 
+  ENABLE btSelectAll btDelete RECT-13 RECT-15 btFilter fiUserID fiHotKey fiTitle  
+         cbState btExit fiProgramName ttUserWindow 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -719,3 +718,45 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSelectRow C-Win 
+PROCEDURE pGetSelectRow :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE counter AS INTEGER NO-UNDO.
+    
+    DO counter = 1 TO BROWSE ttUserWindow:NUM-SELECTED-ROWS:
+        BROWSE ttUserWindow:FETCH-SELECTED-ROW(counter).         
+        ASSIGN              
+            ttUserWindow.cSelect = YES.          
+    END.
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckSelectRow C-Win 
+PROCEDURE pCheckSelectRow :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplCheckSelected AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE counter AS INTEGER NO-UNDO.
+    
+    IF BROWSE ttUserWindow:NUM-SELECTED-ROWS GE 1 THEN
+    DO:
+         oplCheckSelected = YES.
+    END.  
+    ELSE DO:
+     MESSAGE "Please Select a record...." VIEW-AS ALERT-BOX .
+    END.
+    
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

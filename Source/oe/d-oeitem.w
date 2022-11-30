@@ -360,19 +360,7 @@ DEFINE BUFFER b-vendItemCost FOR vendItemCost.
 
 DO TRANSACTION:
 
-    /* task# 09130412  09/14/04*/
-    /*
-      v-run-schedule = IF sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld THEN NO
-                       ELSE IF sys-ctrl.char-fld = "PlanDate" AND sys-ctrl.log-fld THEN YES
-                       ELSE NO.   /*sys-ctrl.log-fld.*/
-    */
-
-  
     RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
-
-
-    {sys/inc/schedule.i}
-    v-run-schedule = NOT (AVAILABLE sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
 
     {sys/inc/graphic.i} 
 
@@ -451,6 +439,16 @@ RUN sys/ref/nk1look.p (INPUT cocode, "FGForceCommission", "D" /* Logical */, NO 
     OUTPUT v-rtn-char, OUTPUT llRecFound).
 IF llRecFound THEN
     dFGForcedCommission = DECIMAL(v-rtn-char) NO-ERROR.
+
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
+v-run-schedule = NOT (cScheduleValue EQ "NoDate" AND lSchedule).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -9261,7 +9259,7 @@ PROCEDURE OnSaveButton :
         /*OR ip-type = "UPdate-2" doen in v-ord.w order-from-est proc */)
         /* update job's start-date when req-date is changed */
         AND oe-ordl.est-no:SCREEN-VALUE NE "" /*AND lv-update-job-stdate */ 
-        AND (v-run-schedule OR schedule-log)
+        AND (v-run-schedule OR lSchedule)
         THEN RUN update-start-date.
 
     IF oe-ordl.job-no NE '' THEN RUN update-due-date.
@@ -10969,7 +10967,7 @@ PROCEDURE update-start-date :
     FIND bx-ordl WHERE RECID(bx-ordl) = RECID(oe-ordl).
     lv-prom-date = TODAY + lv-job-day.
     IF lv-start-date < TODAY /*AND (ip-type = "add")*/  /* ip-type = "Update-2" is from v-ord.w*/
-        AND v-run-schedule AND schedule-log
+        AND v-run-schedule AND lSchedule
         THEN 
     DO:
         MESSAGE "Calculated Promised DATE is   " lv-prom-date SKIP
@@ -11143,7 +11141,7 @@ PROCEDURE update-start-date :
         END. /*end bf-hdr*/
     END. /* if v-run-schedule*/
 
-    IF schedule-log THEN
+    IF lSchedule THEN
         ASSIGN
             bx-ordl.prom-date = IF lv-update-job-stdate THEN lv-prom-date ELSE bx-ordl.prom-date
             bx-ordl.req-date  = IF lv-update-job-stdate THEN lv-prom-date ELSE bx-ordl.req-date.
@@ -11293,9 +11291,7 @@ PROCEDURE UpdateStartDate :
     DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
     DEFINE BUFFER bf-job     FOR job.
 
-    FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ oe-ord.company
-        AND sys-ctrl.name EQ 'SCHEDULE' NO-ERROR.
-    IF AVAILABLE sys-ctrl AND sys-ctrl.char-fld = "NoDate" THEN
+    IF cScheduleValue EQ "NoDate" THEN
         /*update start dates of other orderlines for this orderline's job - e.g tandem/combo*/
         FOR EACH bf-oe-ordl WHERE bf-oe-ordl.company EQ oe-ordl.company
             AND bf-oe-ordl.job-no EQ oe-ordl.job-no
@@ -11854,7 +11850,7 @@ PROCEDURE valid-start-date :
      lv-prom-date = TODAY + lv-job-day
      lv-update-job-stdate = NO.
 
-    IF lv-start-date < TODAY AND schedule-log THEN 
+    IF lv-start-date < TODAY AND lSchedule THEN 
     DO:
      
         MESSAGE "Calculated Promised DATE is   " lv-prom-date SKIP
@@ -11994,12 +11990,6 @@ PROCEDURE validate-all :
     DEFINE VARIABLE cLoc       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLocBin    AS CHARACTER NO-UNDO.
  
-    /*DEF VAR v-run-schedule AS LOG NO-UNDO.
-   
-    find first sys-ctrl where sys-ctrl.company eq cocode
-                           and sys-ctrl.name    eq "SCHEDULE" no-lock no-error.
-    v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
-    */
     IF NOT AVAILABLE oe-ord THEN
         FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
             AND oe-ord.ord-no  EQ oe-ordl.ord-no
@@ -12190,17 +12180,6 @@ PROCEDURE validate-all :
         RUN validate-due-date NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN ERROR.
     
-    /*
-    IF (oe-ordl.req-date <> date(oe-ordl.req-date:SCREEN-VALUE) 
-       AND ip-type = "update")
-       AND oe-ordl.est-no:SCREEN-VALUE <> "" 
-       AND (v-run-schedule OR schedule-log)
-    THEN  DO:
-        /*
-        RUN valid-start-date NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-        */
-    END.*/
         
     END.   
  

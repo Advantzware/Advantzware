@@ -845,7 +845,7 @@ PROCEDURE local-initialize :
   
   IF v-cecscrn-dec THEN
      ASSIGN
-        eb.len:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999" 
+        eb.len:FORMAT IN FRAME {&FRAME-NAME} = ">>>9.999999" 
         eb.wid:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999"
         eb.dep:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999"
         scr-end-cell-l1:FORMAT IN FRAME {&FRAME-NAME} = "->>,>>9.999999"

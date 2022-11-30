@@ -697,10 +697,10 @@ find first company where company.company eq cocode no-lock no-error.
       PUT 
         "<R59><C1>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.       <P16>Thank You! </B>"  .
       
-      PUT "<FArial><R60.7><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). Essentra Packaging disclaims and rejects any" SKIP
-        "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon Essentra Packaging, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
+      PUT "<FArial><R60.7><C2.5><P6>" "All sales/purchases described herein are subject to MM Clayton terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). MM Clayton disclaims and rejects any" SKIP
+        "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon MM Clayton, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
         "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Customer's receipt of goods or payment to" SKIP
-        "<C2.5><R-0.3>" "Essentra Packaging for the sales or purchases described herein."
+        "<C2.5><R-0.3>" "MM Clayton for the sales or purchases described herein."
         "<P10>"
         "<R64><c4>Printed on: " STRING(TODAY) 
         "<R64><C65>Page "  STRING(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg) FORM "x(20)" 

@@ -26,6 +26,11 @@ CREATE WIDGET-POOL.
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdPOProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE cScorePanelType AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWidScore AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWidScoreValue LIKE reftable.val EXTENT 20 NO-UNDO.
+DEFINE VARIABLE cWidScoreType LIKE reftable.dscr EXTENT 20 NO-UNDO.
+DEFINE VARIABLE clscoreWidth AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}

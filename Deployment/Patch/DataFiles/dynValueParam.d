@@ -288,7 +288,7 @@
 25 "_default" "dynSubjct." 0 1 "company" "Company" "001" "Character" "x(3)" "202204147953209190332"
 26 "_default" "dynSubjct." 0 1 "company" "Company" "" "Character" "x(3)" "202204147953409190337"
 27 "_default" "dynSubjct." 0 1 "company" "Company" "" "Character" "x(3)" "202204147953509190344"
-29 "_default" "dynSubjct." 0 1 "company" "Company" "001" "Character" "x(3)" "202204147953909190354"
+29 "_default" "dynSubjct." 0 1 "company" "Company" "55" "Character" "x(3)" "202204147953909190354"
 30 "_default" "dynSubjct." 0 1 "company" "Company" "001" "Character" "x(3)" "202204147954009190359"
 31 "_default" "dynSubjct." 0 1 "company" "Company" "" "Character" "x(3)" "202204147954209190366"
 32 "_default" "dynSubjct." 0 1 "company" "Company" "001" "Character" "x(3)" "202204147954409190371"
