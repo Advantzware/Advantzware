@@ -91,7 +91,7 @@ IF AVAIL inv-head THEN DO:
 
          FOR EACH surcharge NO-LOCK
              WHERE surcharge.company  EQ inv-head.company
-               AND (surcharge.calc-on  EQ "I" OR surcharge.calc-on  EQ "G")
+               AND INDEX("I,G,A",surcharge.calc-on) GT 0                 
                AND surcharge.cust-no EQ inv-head.cust-no:
 
            RUN inv-surcharge.
@@ -102,7 +102,7 @@ IF AVAIL inv-head THEN DO:
          IF v-found-cust-charge = NO THEN
             FOR EACH surcharge NO-LOCK
                 WHERE surcharge.company  EQ inv-head.company
-                  AND (surcharge.calc-on  EQ "I" OR surcharge.calc-on  EQ "G")
+                  AND INDEX("I,G,A",surcharge.calc-on) GT 0                     
                   AND surcharge.cust-no EQ "":
            
               RUN inv-surcharge.
@@ -118,7 +118,7 @@ IF AVAIL inv-head THEN DO:
   FOR EACH surcharge NO-LOCK
       WHERE surcharge.company  EQ inv-head.company
         AND (surcharge.calc-on EQ "C" OR
-             surcharge.calc-on EQ "B")
+             surcharge.calc-on EQ "B" )
         AND (surcharge.cust-no EQ inv-head.cust-no OR
              surcharge.cust-no EQ "")
       BREAK BY surcharge.charge
@@ -213,6 +213,7 @@ PROCEDURE inv-surcharge:
   DEF VAR ld-charge AS DEC NO-UNDO.
   DEF VAR ld-factor AS DEC NO-UNDO.
   DEFINE VARIABLE dMiscAmt AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dFreightAmt AS DECIMAL NO-UNDO.
   
   ld-charge = surcharge.amt / 1000.
       
@@ -223,6 +224,14 @@ PROCEDURE inv-surcharge:
     WHEN "G" THEN do:
             RUN pGetOrderMiscAmt(INPUT inv-line.company, INPUT inv-line.ord-no, OUTPUT dMiscAmt).               
             ld-factor = ld-factor + ( inv-line.t-price) + dMiscAmt .
+    END.
+    WHEN "A" THEN do:
+            RUN pGetOrderMiscAmt(INPUT inv-line.company, INPUT inv-line.ord-no, OUTPUT dMiscAmt).
+            
+            IF inv-head.f-bill THEN
+            RUN pGetBolFreight(BUFFER inv-line, OUTPUT dFreightAmt).
+               
+            ld-factor = ld-factor + ( inv-line.t-price) + dMiscAmt + dFreightAmt .  
     END.
     OTHERWISE
     FOR EACH inv-line WHERE inv-line.r-no EQ inv-head.r-no NO-LOCK,
@@ -241,7 +250,7 @@ PROCEDURE inv-surcharge:
     END.
   END CASE.
 
-  IF surcharge.calc-on EQ "I" OR surcharge.calc-on EQ "G" THEN
+  IF INDEX("I,G,A",surcharge.calc-on) GT 0 THEN
   ld-charge = ld-charge * ld-factor / 100  .
   ELSE ld-charge = ld-charge * ld-factor . 
   IF ld-charge EQ ? THEN ld-charge = 0.    
@@ -295,4 +304,18 @@ PROCEDURE pGetOrderMiscAmt:
       AND oe-ordm.bill    EQ "I" :       
       opdMiscAmt = opdMiscAmt + oe-ordm.amt. 
   END.
+END PROCEDURE.
+
+PROCEDURE pGetBolFreight: 
+  DEFINE PARAMETER BUFFER ipbf-inv-line FOR inv-line.      
+  DEFINE OUTPUT PARAMETER opdFreightAmt AS DECIMAL   NO-UNDO.
+  
+  FIND FIRST oe-boll NO-LOCK
+      WHERE oe-boll.company EQ ipbf-inv-line.company  
+      AND oe-boll.b-no EQ ipbf-inv-line.b-no
+      AND oe-boll.i-no EQ ipbf-inv-line.i-no NO-ERROR.       
+       
+  IF AVAILABLE oe-boll THEN
+  opdFreightAmt = opdFreightAmt + oe-boll.freight. 
+ 
 END PROCEDURE.

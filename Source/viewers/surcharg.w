@@ -119,13 +119,14 @@ DEFINE VARIABLE cb_calcon AS CHARACTER FORMAT "X(256)":U
      LIST-ITEM-PAIRS "Sales Value + Tax","I",
                      "Flat Charge per Invoice","C",
                      "Flat Charge per BOL","B",
-                     "Sales + Misc + Tax","G"
+                     "Sales + Misc + Tax","G",
+                     "Sales + Misc + Tax + Freight","A"
      DROP-DOWN-LIST
-     SIZE 34 BY 1 NO-UNDO.
+     SIZE 37 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 99 BY 5.
+     SIZE 105 BY 5.
 
 
 /* ************************  Frame Definitions  *********************** */
