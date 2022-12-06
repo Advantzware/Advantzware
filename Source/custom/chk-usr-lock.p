@@ -41,6 +41,58 @@ FOR EACH dictdb._Lock:
               LEAVE.
           END.         
         END.
+        WHEN "eb" THEN DO:                     
+          FIND eb where recid(eb) = dictdb._lock._lock-recid no-lock no-error.            
+          if AVAIL eb AND ROWID(eb) EQ iprTableRow THEN DO:   
+              FIND FIRST users WHERE users.user_id eq _lock._lock-name NO-LOCK NO-ERROR.
+              IF AVAILABLE users THEN
+              DO:
+                 opcUpdUsr = users.user_id + " (" + users.user_name + ") " .   
+              END.
+              ELSE
+              opcUpdUsr = dictdb._lock._Lock-name + "-" + STRING(dictdb._lock._lock-usr).
+              LEAVE.
+          END.         
+        END.
+        WHEN "ef" THEN DO:                     
+          FIND ef where recid(ef) = dictdb._lock._lock-recid no-lock no-error.            
+          if AVAIL ef AND ROWID(ef) EQ iprTableRow THEN DO:  
+              FIND FIRST users WHERE users.user_id eq _lock._lock-name NO-LOCK NO-ERROR.
+              IF AVAILABLE users THEN
+              DO:
+                 opcUpdUsr = users.user_id + " (" + users.user_name + ") " .   
+              END.
+              ELSE
+              opcUpdUsr = dictdb._lock._Lock-name + "-" + STRING(dictdb._lock._lock-usr).
+              LEAVE.
+          END.         
+        END.
+        WHEN "est" THEN DO:                     
+          FIND est where recid(est) = dictdb._lock._lock-recid no-lock no-error.            
+          if AVAIL est AND ROWID(est) EQ iprTableRow THEN DO: 
+              FIND FIRST users WHERE users.user_id eq _lock._lock-name NO-LOCK NO-ERROR.
+              IF AVAILABLE users THEN
+              DO:
+                 opcUpdUsr = users.user_id + " (" + users.user_name + ") " .   
+              END.
+              ELSE
+              opcUpdUsr = dictdb._lock._Lock-name + "-" + STRING(dictdb._lock._lock-usr).
+              LEAVE.
+          END.         
+        END.
+        WHEN "est-qty" THEN DO:                     
+          FIND est-qty where recid(est-qty) = dictdb._lock._lock-recid no-lock no-error.            
+          if AVAIL est-qty AND ROWID(est-qty) EQ iprTableRow THEN DO:  
+              FIND FIRST users WHERE users.user_id eq _lock._lock-name NO-LOCK NO-ERROR.
+              IF AVAILABLE users THEN
+              DO:
+                 opcUpdUsr = users.user_id + " (" + users.user_name + ") " .   
+              END.
+              ELSE
+              opcUpdUsr = dictdb._lock._Lock-name + "-" + STRING(dictdb._lock._lock-usr).
+              LEAVE.
+          END.         
+        END.
       END CASE.
     end.
 END.  
