@@ -729,6 +729,10 @@ DO:
             ASSIGN {&self-name}.
             RUN valid-part-no(OUTPUT lError) NO-ERROR.
             IF lError THEN RETURN NO-APPLY.
+            IF length(cCustPart:SCREEN-VALUE in frame {&frame-name}) GT 12 THEN
+                MESSAGE "Set Cust Part# should be Limited To:" SKIP
+                "12 Characters if there are more than 9 components." SKIP
+                "13 Characters if there are less than 9 components." VIEW-AS ALERT-BOX WARNING BUTTONS OK .            
         END.
     END.
 
