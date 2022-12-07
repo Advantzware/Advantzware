@@ -2702,7 +2702,10 @@ PROCEDURE pCalcHeader PRIVATE:
             RUN pCalcBlankPct(BUFFER bf-ttEstCostForm).                
             RUN pProcessOperations(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm).
             IF AVAILABLE bf-ttEstCostBlank AND bf-ttEstCostBlank.isPurchased THEN 
+            DO: 
                 RUN pProcessFarm(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm, BUFFER bf-ttEstCostBlank ).
+                RUN pProcessInks(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm).
+            END.    
             ELSE DO: 
                 RUN pProcessLeafs(BUFFER ef, BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm).
                 RUN pProcessBoard(BUFFER bf-ttEstCostHeader, BUFFER bf-ttEstCostForm, BUFFER ef).      
