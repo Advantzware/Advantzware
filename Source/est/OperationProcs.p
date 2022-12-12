@@ -1687,7 +1687,7 @@ PROCEDURE pGetOperationStandardsForJobMch PRIVATE:
                 
             RUN pBuildMessage("", INPUT-OUTPUT cMessage).
         
-            RUN GetOperationStandards(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code,
+            RUN Operations_GetOperationStandards(bf-job-mch.company, bf-job.loc, bf-job-mch.m-code,
                 OUTPUT bf-job-mch.mr-waste, 
                 OUTPUT bf-job-mch.mr-hr, 
                 OUTPUT bf-job-mch.speed, 
