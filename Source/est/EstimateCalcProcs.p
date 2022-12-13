@@ -1818,7 +1818,7 @@ PROCEDURE pBuildCostDetailForMaterial PRIVATE:
     ------------------------------------------------------------------------------*/
     DEFINE PARAMETER BUFFER ipbf-ttEstCostMaterial FOR ttEstCostMaterial.
         
-    IF fIsBoardMaterial(ipbf-ttEstCostMaterial.materialType) THEN  
+    IF fIsBoardMaterial(ipbf-ttEstCostMaterial.materialType) OR ipbf-ttEstCostMaterial.isPurchasedFG THEN  
     DO:
         RUN pAddCostDetailForMaterial(BUFFER ipbf-ttEstCostMaterial, "boardNoWaste","Board Cost - No Waste",
             ipbf-ttEstCostMaterial.costTotalNoWaste,0).
