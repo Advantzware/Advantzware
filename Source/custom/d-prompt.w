@@ -349,7 +349,6 @@ DO:
       ASSIGN
            SELF:SCREEN-VALUE = ENTRY(1,char-val) NO-ERROR.
       FOR EACH tt-wid WHERE tt-wid.wid-name = "fiSalesName" ,
-
         EACH bf-tt-wid WHERE bf-tt-wid.wid-name EQ tt-wid.wid-name :
        
         IF VALID-HANDLE(tt-wid.wid-hand) AND VALID-HANDLE(bf-tt-wid.wid-hand) THEN
@@ -451,6 +450,13 @@ FOR EACH bf-tt-wid WHERE bf-tt-wid.wid-depends-on GT ""
             AND bf-tt-wid.wid-depends-on NE  "tb_addinv":
     IF VALID-HANDLE(bf-tt-wid.wid-hand) THEN
         bf-tt-wid.wid-hand:SENSITIVE = FALSE.
+END.
+
+FOR EACH tt-wid WHERE tt-wid.wid-name = "fiSalesName",
+  EACH bf-tt-wid WHERE bf-tt-wid.wid-name EQ tt-wid.wid-name :
+
+    IF VALID-HANDLE(tt-wid.wid-hand) AND VALID-HANDLE(bf-tt-wid.wid-hand) THEN
+    bf-tt-wid.wid-hand:SENSITIVE = FALSE  NO-ERROR.
 END.
 WAIT-FOR GO OF FRAME xyz.
 
