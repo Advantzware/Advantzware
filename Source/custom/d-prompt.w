@@ -49,7 +49,7 @@ DEF VAR hImage AS HANDLE NO-UNDO.
 DEF VAR cImageFile AS CHAR NO-UNDO.
 DEF VAR cFieldTypes AS CHAR NO-UNDO INIT "fill-in,toggle".
 DEF VAR lhFirstWid AS HANDLE NO-UNDO.
-DEF VAR gvcLookupList AS CHAR NO-UNDO INIT "custShipTo,locField,fi_fromLoc".
+DEF VAR gvcLookupList AS CHAR NO-UNDO INIT "custShipTo,locField,fi_fromLoc,fiSalesRep".
 DEFINE VARIABLE gvcLastEntryField AS CHARACTER   NO-UNDO.
 DEF VAR h_super AS HANDLE.
 IF ip-pproc GT "" THEN
@@ -340,11 +340,23 @@ DO:
     DEF VAR v-name AS CHAR NO-UNDO.
     DEF VAR char-val AS CHAR NO-UNDO.
     v-name = SELF:NAME.
-
+       
     IF lookup-exists(v-name) THEN DO:
         RUN field-lookup (INPUT v-name, INPUT self:screen-value, OUTPUT char-val).
-    END.
-    IF char-val NE "" THEN
+    END.  
+    IF v-name EQ "fiSalesRep" AND char-val NE "" THEN
+    do:
+      ASSIGN
+           SELF:SCREEN-VALUE = ENTRY(1,char-val) NO-ERROR.
+      FOR EACH tt-wid WHERE tt-wid.wid-name = "fiSalesName" ,
+
+        EACH bf-tt-wid WHERE bf-tt-wid.wid-name EQ tt-wid.wid-name :
+       
+        IF VALID-HANDLE(tt-wid.wid-hand) AND VALID-HANDLE(bf-tt-wid.wid-hand) THEN
+            bf-tt-wid.wid-hand:SCREEN-VALUE = ENTRY(2,char-val)  NO-ERROR.
+      END.        
+    END.    
+    ELSE IF char-val NE "" THEN
       SELF:SCREEN-VALUE = char-val NO-ERROR.
         
 END.
@@ -537,9 +549,12 @@ DEF INPUT PARAMETER ipcScrnVal AS CHAR NO-UNDO.
 DEF OUTPUT PARAMETER opcCharVal AS CHAR NO-UNDO.
 DEF VAR char-val AS CHAR NO-UNDO.
 DEF VAR rec-val AS RECID NO-UNDO.
+DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
 
 /* Define an entry for each gvcLookupList here */
-char-val = ipcScrnVal.
+char-val = ipcScrnVal. 
 CASE ipcFieldName:
     
     WHEN "custShipTo" THEN DO:
@@ -567,6 +582,25 @@ CASE ipcFieldName:
          opcCharVal = char-val.
        END.
 
+    END.
+    WHEN "fiSalesRep" THEN DO:         
+                              
+       IF GET-attrib("company") GT "" THEN
+       RUN system/openLookup.p (
+                INPUT  get-attrib("company"), 
+                INPUT  "",  /* Lookup ID */  
+                INPUT  29,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+                ).            
+       IF cFoundValue NE "" THEN DO:
+         opcCharVal =  cFoundValue.
+         opcCharVal = opcCharVal + "," + DYNAMIC-FUNCTION("sfDynLookupValue", "sman.sname", cFieldsValue).         
+        
+       END.
     END.
 END CASE.
 END PROCEDURE.
