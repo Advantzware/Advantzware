@@ -375,6 +375,7 @@ DO:
     DEF VAR v-scrval AS CHAR NO-UNDO.
     DEF VAR v-datatype AS CHAR NO-UNDO.
     DEF VAR v-selected AS LOG NO-UNDO.
+    DEFINE VARIABLE cCompany AS CHARACTER NO-UNDO.
 
     ASSIGN
     v-name     = SELF:NAME
@@ -394,6 +395,20 @@ DO:
         IF AVAIL bf-tt-wid AND VALID-HANDLE(bf-tt-wid.wid-hand) THEN
           bf-tt-wid.wid-hand:SENSITIVE = v-selected.
       END.
+    END.
+    
+    IF v-name EQ "fiSalesRep" then
+    do:  
+        cCompany = GET-attrib("company").
+        FIND FIRST sman NO-LOCK 
+             WHERE sman.company EQ cCompany
+               AND sman.sman EQ v-scrval NO-ERROR.   
+        IF AVAILABLE sman THEN       
+        FOR EACH tt-wid WHERE tt-wid.wid-name = "fiSalesName",
+            EACH bf-tt-wid WHERE bf-tt-wid.wid-name EQ tt-wid.wid-name :                 
+           IF VALID-HANDLE(tt-wid.wid-hand) AND VALID-HANDLE(bf-tt-wid.wid-hand) THEN
+           bf-tt-wid.wid-hand:SCREEN-VALUE = sman.sname NO-ERROR.
+        END.
     END.
 
     RETURN.
