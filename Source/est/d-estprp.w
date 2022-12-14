@@ -44,7 +44,8 @@ DEFINE TEMP-TABLE tt-est-prep LIKE est-prep
 DEFINE VARIABLE lv-item-recid   AS RECID   NO-UNDO.
 DEFINE VARIABLE ll-order-warned AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ll-new-record   AS LOGICAL NO-UNDO.
-
+DEFINE VARIABLE hPrepProcs      AS HANDLE NO-UNDO.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -326,6 +327,9 @@ ON RETURN OF FRAME Dialog-Frame /* Estimate Prep Item Update */
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Estimate Prep Item Update */
     DO:
         DISABLE TRIGGERS FOR LOAD OF est-prep .
+        
+        IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.
 
         IF lv-item-recid NE ? THEN 
         DO:
@@ -457,6 +461,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
             AND prep.code    EQ est-prep.code
             NO-LOCK NO-ERROR.
         IF AVAILABLE prep THEN est-prep.mat-type = prep.mat-type.
+        
+        IF AVAILABLE prep THEN RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(prep)).
 
         /* check order whether plate's existing. if exist, create reftalbe for link*/
         IF est-prep.mat-type = "P" AND est.ord-no <> 0 AND est-prep.simon   EQ "S"

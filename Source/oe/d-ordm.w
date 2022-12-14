@@ -45,6 +45,7 @@ DEFINE VARIABLE lv-valid-charge AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE char-hdl        AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ilogic          AS LOGICAL   NO-UNDO .
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hPrepProcs     AS HANDLE NO-UNDO.
 
 DEFINE NEW SHARED VARIABLE v-misc          AS LOGICAL   INIT NO NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-fr-tax        LIKE oe-ctrl.f-tax NO-UNDO.
@@ -55,7 +56,7 @@ DEFINE NEW SHARED BUFFER xef     FOR ef.
 DEFINE NEW SHARED BUFFER xeb     FOR eb.
 
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
-
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -566,6 +567,10 @@ ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Misc. Charge Item Update */
                 WHERE ROWID(oe-ordm) EQ lv-item-rowid  NO-ERROR.
             IF AVAILABLE oe-ordm THEN DELETE oe-ordm .
         END.
+        
+        IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.
+        
          APPLY 'GO':U TO FRAME {&FRAME-NAME}.
     END.
 
@@ -669,6 +674,8 @@ ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
  
         FIND CURRENT oe-ordm EXCLUSIVE-LOCK NO-ERROR.
         oe-ordm.spare-char-1 = oe-ordm.spare-char-1:SCREEN-VALUE .
+        
+        RUN pCheckPrep(oe-ordm.charge:SCREEN-VALUE).
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
@@ -1702,7 +1709,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPrep Dialog-Frame 
+PROCEDURE pCheckPrep :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcPrep AS CHARACTER NO-UNDO.
+   DEFINE BUFFER bf-prep FOR prep.
+   
+   FIND FIRST bf-prep NO-LOCK
+       WHERE bf-prep.company EQ cocode
+         AND bf-prep.code    EQ ipcPrep
+       NO-ERROR.
+               
+   IF AVAILABLE bf-prep THEN
+   RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(bf-prep)). 
+   
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-comm Dialog-Frame 
 PROCEDURE show-comm :
