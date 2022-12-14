@@ -1343,9 +1343,7 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
            .
         BUFFER-COPY bff-ar-invl EXCEPT company x-no inv-no b-no upd-date upd-time posted rec_key TO bf-invl .
         ASSIGN
-            bf-invl.amt-msf    = bf-invl.amt-msf * -1 
-            bf-invl.cost       = bf-invl.cost * -1 
-            //bf-invl.disc       = bf-invl.disc * -1 
+            bf-invl.amt-msf    = bf-invl.amt-msf * -1              
             bf-invl.inv-qty    = bf-invl.inv-qty * -1 
             bf-invl.qty        = bf-invl.qty * -1
             bf-invl.t-freight  = bf-invl.t-freight * -1 
