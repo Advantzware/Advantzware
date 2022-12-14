@@ -112,6 +112,10 @@ DEFINE VAR v-ord-no AS CHAR NO-UNDO.
 DEF VAR v-vend-no AS CHAR NO-UNDO.
 DEF VAR v-curr-dscr AS CHAR NO-UNDO.
 DEFINE VARIABLE cMachCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lPOPrintScores AS LOGICAL NO-UNDO.
+DEFINE VARIABLE iPOPrintScores AS INTEGER NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO. 
 DEFINE BUFFER buf-vend FOR vend.
 DEFINE BUFFER buf-cust FOR cust.
 
@@ -126,7 +130,18 @@ v-dash-line = fill ("_",80).
 DEFINE VARIABLE hdJobProcs AS HANDLE    NO-UNDO.
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 assign v-hdr = "VEND ITEM".
-       
+
+RUN sys/ref/nk1look.p (INPUT cocode, "POPrintScores", "L" /* Logical */, NO /* check by cust */, 
+                     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+                     OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPOPrintScores = logical(cRtnChar) NO-ERROR.   
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "POPrintScores", "I" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    iPOPrintScores = INTEGER(cRtnChar) NO-ERROR.       
        
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "POPRINT" no-lock no-error.
@@ -585,28 +600,27 @@ find first company where company.company eq cocode NO-LOCK.
           v-printline = v-printline + 1
           len-score = ""
           cWidScore = ""
-          cScorePanelType = "L".
+          cScorePanelType = IF iPOPrintScores EQ 0 THEN "" ELSE "L".
+       
        
        {po/poprints.i}       
        IF AVAIL ITEM AND lookup(ITEM.mat-type,"1,2,3,4") > 0 THEN DO: 
        END.
-       ELSE DO:           
-             IF len-score NE "" AND po-ordl.spare-char-1 = "LENGTH" THEN do:
+       ELSE DO:             
+             IF lPOPrintScores AND iPOPrintScores NE 4 AND len-score NE "" AND (iPOPrintScores EQ 0 OR iPOPrintScores EQ 3 OR iPOPrintScores EQ 2) THEN do:
+                 IF po-ordl.spare-char-1 = "LENGTH" THEN
                  put 
-                     "HOR Score: " AT 3
+                     "HOR Score: " AT 3.
+                 ELSE 
+                 PUT "Score: " AT 3.
+                 
+                 PUT    
                      len-score format "x(80)" SKIP .
                  ASSIGN
                      v-line-number = v-line-number + 1
                      v-printline = v-printline + 1.
-             END.    
-             ELSE IF len-score NE "" THEN do:
-                 PUT "Score: " AT 3
-                 len-score format "x(80)" SKIP . 
-                 ASSIGN
-                     v-line-number = v-line-number + 1
-                     v-printline = v-printline + 1.
-             END.    
-             IF  cWidScore NE "" THEN do:
+             END.                 
+             IF lPOPrintScores AND iPOPrintScores NE 4 AND cWidScore NE "" AND (iPOPrintScores EQ 1 OR iPOPrintScores EQ 3) THEN do:
                  put 
                      "Score: " AT 3
                      cWidScore format "x(80)" SKIP .
