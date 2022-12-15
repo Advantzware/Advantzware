@@ -1193,12 +1193,19 @@ FUNCTION sfFormat_Date RETURNS CHARACTER
 ------------------------------------------------------------------------------*/	
     DEFINE VARIABLE cDateFormat   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE opcDateString AS CHARACTER NO-UNDO.
-
-    ASSIGN cDateFormat = "YYYY-MM-DD". 
+    
+    DEFINE VARIABLE cCurrentDateFormat   AS CHARACTER NO-UNDO.
+    cCurrentDateFormat = string(SESSION:DATE-FORMAT).
+    
+    IF cCurrentDateFormat EQ "mdy" THEN
+    ASSIGN cDateFormat = "MM-DD-YYYY".
+    ELSE IF cCurrentDateFormat EQ "dmy" THEN
+    ASSIGN cDateFormat = "DD-MM-YYYY".
+    ELSE ASSIGN cDateFormat = "YYYY-MM-DD". 
     
     RUN Format_Date(ipdtDate,cDateFormat, OUTPUT opcDateString).
         
-    RETURN opcDateString.
+    RETURN CHR(9) + opcDateString.
     		
 END FUNCTION.
 
