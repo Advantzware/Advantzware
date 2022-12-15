@@ -566,7 +566,10 @@ ASSIGN
        tmp2 = ?
        v-net = ar-inv.net.
 
-    find first terms where terms.t-code eq ar-inv.terms no-lock no-error.
+    find first terms 
+    where terms.company eq cocode 
+      AND terms.t-code  eq ar-inv.terms 
+    no-lock no-error.
     if avail terms then
        assign
         tmp1 = v-net * (round(terms.disc-rate / 100, 2))
