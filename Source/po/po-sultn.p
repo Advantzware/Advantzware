@@ -211,7 +211,7 @@ print-po-blok:
         IF po-ord.stat EQ "U" 
           THEN v-change-ord = "(CHANGED ORDER ONLY)".
 
-     FIND FIRST terms WHERE terms.t-code EQ po-ord.terms NO-LOCK NO-ERROR.
+     FIND FIRST terms WHERE terms.company EQ po-ord.company AND terms.t-code EQ po-ord.terms NO-LOCK NO-ERROR.
 
      FIND FIRST carrier 
        WHERE carrier.company EQ po-ord.company 

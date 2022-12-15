@@ -690,7 +690,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
    v-net = ar-inv.net.
 
   release terms.
-  find first terms where terms.t-code eq ar-inv.terms no-lock no-error.
+  find first terms where terms.company EQ ar-inv.company AND terms.t-code eq ar-inv.terms no-lock no-error.
 
 
   if avail terms then

@@ -124,7 +124,7 @@ DEF VAR v-sold-addr3a  AS CHAR FORMAT "x(30)"                 NO-UNDO.
         v-po-no = ""
         v-salesman = "" .
 
-      FIND FIRST terms WHERE terms.t-code EQ inv-head.terms NO-LOCK NO-ERROR.
+      FIND FIRST terms WHERE terms.company EQ inv-head.company AND terms.t-code EQ inv-head.terms NO-LOCK NO-ERROR.
       IF AVAIL terms THEN
         v-terms = FILL(" ",9 - INT(LENGTH(terms.dscr) / 2)) + terms.dscr .
       ELSE v-terms = "" .

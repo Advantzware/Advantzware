@@ -212,7 +212,7 @@ END FUNCTION.
 
       find first vend where vend.company eq po-ord.company 
                         and vend.vend-no eq po-ord.vend-no no-lock no-error.
-      find first terms where terms.t-code eq po-ord.terms no-lock no-error.
+      find first terms where terms.company EQ po-ord.company AND terms.t-code eq po-ord.terms no-lock no-error.
       find first carrier where carrier.company eq po-ord.company 
                            and carrier.carrier eq po-ord.carrier no-lock no-error.
 

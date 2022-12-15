@@ -365,7 +365,9 @@ PROCEDURE FillData:
              
                 IF v-terms EQ "" THEN
                 DO:
-                    FIND FIRST terms WHERE terms.t-code EQ oe-ord.terms NO-LOCK NO-ERROR.
+                    FIND FIRST terms NO-LOCK
+		    	     WHERE terms.company EQ oe-ord.company 
+               AND terms.t-code  EQ oe-ord.terms  NO-ERROR.
                     IF AVAILABLE terms THEN
                         ASSIGN v-terms = terms.dscr.
                 END.

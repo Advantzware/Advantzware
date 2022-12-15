@@ -178,7 +178,7 @@ ASSIGN
       if po-ord.stat eq "U" then
         v-change-ord = "(CHANGED ORDER ONLY)".
 */
-      FIND FIRST terms WHERE terms.t-code EQ po-ord.terms NO-LOCK NO-ERROR.
+      FIND FIRST terms WHERE terms.company EQ po-ord.company AND terms.t-code EQ po-ord.terms NO-LOCK NO-ERROR.
       FIND FIRST carrier WHERE carrier.company EQ po-ord.company 
                            AND carrier.carrier EQ po-ord.carrier NO-LOCK NO-ERROR.
 
