@@ -89,7 +89,7 @@ IF (lValidLoc AND NOT lValidBin) OR
    (lValidLoc AND lValidBin) THEN DO:
     
     /* Validate warehouse */        
-    RUN ValidateLoc IN hdInventoryProcs (
+    RUN ValidateLoc (
         ipcCompany,
         ipcWareHouseID,
         OUTPUT lValidLoc
@@ -105,7 +105,7 @@ IF (lValidLoc AND NOT lValidBin) OR
     END.  
     
     /* Validate location */
-    RUN ValidateBin IN hdInventoryProcs (
+    RUN ValidateBin (
         ipcCompany,
         ipcWareHouseID,
         ipcLocationID,
@@ -145,7 +145,7 @@ IF lValidTag THEN DO:
     FIND FIRST loadtag NO-LOCK
          WHERE loadtag.company   EQ ipcCompany
            AND loadtag.item-type EQ lItemType
-           AND loadtag.tag-no    EQ ipcInventoryStockID 
+           AND loadtag.tag-no    BEGINS ipcInventoryStockID 
          NO-ERROR.
     IF NOT AVAILABLE loadtag THEN DO:
         ASSIGN 
@@ -162,7 +162,7 @@ IF lValidItem THEN DO:
     IF lItemType THEN DO:
         FIND FIRST item NO-LOCK
              WHERE item.company EQ ipcCompany
-               AND item.i-no    EQ ipcPrimaryID
+               AND item.i-no    BEGINS ipcPrimaryID
              NO-ERROR.
         IF NOT AVAILABLE item THEN DO:
             ASSIGN 
@@ -176,7 +176,7 @@ IF lValidItem THEN DO:
     ELSE DO:
         FIND FIRST itemfg NO-LOCK
              WHERE itemfg.company EQ ipcCompany
-               AND itemfg.i-no    EQ ipcPrimaryID
+               AND itemfg.i-no    BEGINS ipcPrimaryID
              NO-ERROR.
         IF NOT AVAILABLE itemfg THEN DO:
             ASSIGN 
@@ -210,12 +210,12 @@ END.
 IF ipcItemType EQ cItemTypeFG THEN DO:
        
     cQuery = "FOR EACH fg-bin NO-LOCK WHERE fg-bin.company EQ '" + ipcCompany + "'"             
-           + (IF lValidTag    THEN " AND fg-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
+           + (IF lValidTag    THEN " AND fg-bin.tag begins '" + ipcInventoryStockID + "'" ELSE "")
            + (IF iplIncludeEmptyTag THEN " AND fg-bin.tag NE ''" ELSE "")
-           + (IF lValidItem   THEN " AND fg-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
-           + (IF lValidLoc    THEN " AND fg-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
-           + (IF lValidBin    THEN " AND fg-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
-           + (IF lValidJobNo  THEN " AND TRIM(fg-bin.job-no) EQ '" + TRIM(ipcJobNo) + "'" ELSE "")
+           + (IF lValidItem   THEN " AND fg-bin.i-no begins '" + ipcPrimaryID + "'" ELSE "")
+           + (IF lValidLoc    THEN " AND fg-bin.loc begins '" + ipcWarehouseID + "'" ELSE "")
+           + (IF lValidBin    THEN " AND fg-bin.loc-bin begins '" + ipcLocationID + "'" ELSE "")
+           + (IF lValidJobNo  THEN " AND TRIM(fg-bin.job-no) begins '" + TRIM(ipcJobNo) + "'" ELSE "")
            + (IF lValidJobNo  THEN " AND fg-bin.job-no2 EQ " + STRING(ipiJobNo2) ELSE "")
            + (IF lValidCustNo THEN " AND fg-bin.cust-no EQ '" + ipcCustNo + "'" ELSE "")
            + (IF lValidPoID   THEN " AND fg-bin.po-no EQ '" + STRING(ipiPoID) + "'" ELSE "")
@@ -302,10 +302,10 @@ ELSE DO:
     CREATE QUERY hdQuery.
     
     cQuery = "FOR EACH rm-bin NO-LOCK WHERE rm-bin.company EQ '" + ipcCompany + "'"
-           + (IF lValidTag  THEN " AND rm-bin.tag EQ '" + ipcInventoryStockID + "'" ELSE "")
-           + (IF lValidItem THEN " AND rm-bin.i-no EQ '" + ipcPrimaryID + "'" ELSE "")
-           + (IF lValidLoc  THEN " AND rm-bin.loc EQ '" + ipcWarehouseID + "'" ELSE "")
-           + (IF lValidBin  THEN " AND rm-bin.loc-bin EQ '" + ipcLocationID + "'" ELSE "")
+           + (IF lValidTag  THEN " AND rm-bin.tag begins '" + ipcInventoryStockID + "'" ELSE "")
+           + (IF lValidItem THEN " AND rm-bin.i-no begins '" + ipcPrimaryID + "'" ELSE "")
+           + (IF lValidLoc  THEN " AND rm-bin.loc begins '" + ipcWarehouseID + "'" ELSE "")
+           + (IF lValidBin  THEN " AND rm-bin.loc-bin begins '" + ipcLocationID + "'" ELSE "")
            + (IF lValidPoID THEN " AND rm-bin.po-no EQ " + STRING(ipiPoID) ELSE "")
            + (IF iplIncludeZeroQty THEN "AND rm-bin.qty NE 0 " + "AND rm-bin.qty NE ?" ELSE "")
            .
@@ -372,9 +372,48 @@ IF VALID-HANDLE(hdQuery) THEN DO:
 END.
 
 
+PROCEDURE ValidateLoc PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLoc AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidLoc AS LOGICAL NO-UNDO.
+    
+    oplValidLoc = CAN-FIND(FIRST loc NO-LOCK 
+        WHERE loc.company EQ ipcCompany  
+        AND loc.loc     BEGINS ipcLoc 
+        AND loc.active  EQ TRUE).
+        
 
+END PROCEDURE.
 
+PROCEDURE ValidateBin PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcLoc AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcBin AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplValidBin AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveLoc AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lActiveBin AS LOGICAL NO-UNDO.
 
+    RUN ValidateLoc IN THIS-PROCEDURE (INPUT ipcCompany, INPUT ipcLoc, OUTPUT lActiveLoc).
+    
+    lActiveBin = CAN-FIND(FIRST fg-bin NO-LOCK 
+        WHERE fg-bin.company EQ ipcCompany  
+        AND fg-bin.loc     BEGINS ipcLoc 
+        AND fg-bin.loc-bin BEGINS ipcBin
+        AND fg-bin.i-no    EQ ""
+        AND fg-bin.active  EQ TRUE).
+    
+    oplValidBin = lActiveLoc AND lActiveBin.
+    
+
+END PROCEDURE.
 
 
 

@@ -93,7 +93,7 @@ IF lRecFound THEN
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -231,7 +231,8 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         BGCOLOR 8 FGCOLOR 0 
+         DEFAULT-BUTTON btn_go.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -283,7 +284,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit Custom                                       */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
 /* BROWSE-TAB Browser-Table btn_print F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -627,7 +628,7 @@ PROCEDURE create-tempfile :
 
   FIND FIRST itemfg
       WHERE itemfg.company EQ cocode
-        AND itemfg.i-no    EQ fi_i-no
+        AND itemfg.i-no    BEGINS fi_i-no
       NO-LOCK.
   fi_name = itemfg.i-name.
 
@@ -955,7 +956,7 @@ IF ou-log THEN
       
           FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ cocode
-            AND itemfg.i-no EQ fi_i-no:SCREEN-VALUE NO-ERROR.
+            AND itemfg.i-no BEGINS fi_i-no:SCREEN-VALUE NO-ERROR.
 
         IF AVAIL itemfg THEN DO:
             v-cust-chk = itemfg.cust-no.
@@ -986,9 +987,9 @@ PROCEDURE valid-i-no :
 
   DO WITH FRAME {&FRAME-NAME}:
     fi_i-no:SCREEN-VALUE = CAPS(fi_i-no:SCREEN-VALUE).
-
+    
     IF NOT CAN-FIND(FIRST itemfg WHERE itemfg.company EQ cocode
-                                   AND itemfg.i-no    EQ fi_i-no:screen-value)
+                                   AND itemfg.i-no    BEGINS fi_i-no:screen-value)
     THEN DO:
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO fi_i-no.
