@@ -1958,7 +1958,7 @@ PROCEDURE lib-post-assign-record :
   DEF BUFFER due-job-hdr FOR job-hdr.
   
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST terms WHERE terms.t-code = oe-ord.terms NO-LOCK NO-ERROR.
+  FIND FIRST terms WHERE terms.company EQ oe-ord.company AND terms.t-code = oe-ord.terms NO-LOCK NO-ERROR.
   IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
 /*   06211305 - Took out update of ord-no from db trigger, so this is not needed */
 /*   IF oe-ord.ord-no NE lv-ord-no THEN DO:                                           */

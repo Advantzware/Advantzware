@@ -1486,7 +1486,10 @@ PROCEDURE run-report :
 
         {custom/statusMsg.i " 'Processing Invoice#  '  + string(ap-inv.inv-no) "}
 
-        FIND FIRST terms WHERE terms.t-code EQ ap-inv.terms NO-LOCK NO-ERROR.
+        FIND FIRST terms 
+        WHERE terms.company EQ ap-inv.company 
+          AND terms.t-code  EQ ap-inv.terms 
+        NO-LOCK NO-ERROR.
 
         FIND FIRST vend
             WHERE vend.company EQ ap-inv.company

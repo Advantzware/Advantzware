@@ -1122,7 +1122,10 @@ PROCEDURE new-vend-no :
           AND vend.active  EQ "A"
         NO-LOCK NO-ERROR.
     IF AVAIL vend THEN DO:
-      FIND FIRST terms WHERE terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
+      FIND FIRST terms 
+      WHERE terms.company EQ g_company 
+        AND terms.t-code  EQ vend.terms 
+      NO-LOCK NO-ERROR.
 
       ASSIGN
        vend_name:SCREEN-VALUE        = vend.name

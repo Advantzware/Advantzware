@@ -907,7 +907,10 @@ if td-show-parm then run show-param.
          if detailed then do with frame vend:
 
 
-            find first terms where terms.t-code = vend.terms no-lock no-error.
+            find first terms 
+            WHERE terms.company = vend.company 
+              AND terms.t-code  = vend.terms 
+            no-lock no-error.
 
             display
                   vend.vend-no

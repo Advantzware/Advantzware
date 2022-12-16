@@ -746,7 +746,8 @@ form " " to 80
                    inv-head.t-inv-freight.
 
           release terms.
-          find first terms where terms.t-code eq inv-head.terms no-lock no-error.
+          find first terms where terms.company EQ inv-head.company 
+               AND terms.t-code eq inv-head.terms no-lock no-error.
 
           if avail terms then
             assign

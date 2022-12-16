@@ -790,7 +790,9 @@ DO:
   {&methods/lValidateError.i YES}
     term_desc:SCREEN-VALUE = ''.
     IF quotehd.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
-    FIND FIRST terms NO-LOCK WHERE terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.
+    FIND FIRST terms NO-LOCK 
+         WHERE terms.company EQ gcompany 
+           AND terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.
     IF NOT AVAILABLE terms THEN DO:
       MESSAGE 'Invalid Terms. Try Help.' VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
@@ -1321,7 +1323,7 @@ PROCEDURE local-display-fields :
 
   end.
   if quotehd.terms <> "" then do:
-     find first terms where terms.t-code = quotehd.terms:screen-value no-lock no-error.
+     find first terms where terms.company EQ gcompany AND terms.t-code = quotehd.terms:screen-value no-lock no-error.
      if avail terms then term_desc:screen-value = terms.dscr.
   end.
   if quotehd.carrier <> "" then do:
@@ -1422,7 +1424,7 @@ PROCEDURE local-update-record :
      
      term_desc:SCREEN-VALUE = ''.
      IF quotehd.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
-       FIND FIRST terms NO-LOCK WHERE terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.
+       FIND FIRST terms NO-LOCK WHERE terms.company EQ gcompany AND terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.
        IF NOT AVAILABLE terms THEN DO:
          MESSAGE 'Invalid Terms. Try Help.' VIEW-AS ALERT-BOX ERROR.
          APPLY 'ENTRY' TO quotehd.terms.

@@ -802,7 +802,10 @@ FOR each report
     IF v-net2 <> ar-inv.net THEN
        v-net = v-net2.
 
-    find first terms where terms.t-code eq ar-inv.terms no-lock no-error.
+    find first terms 
+    where terms.company eq cocode 
+      AND terms.t-code  eq ar-inv.terms 
+    no-lock no-error.
     if avail terms then
        assign
         tmp1 = v-net * (round(terms.disc-rate / 100, 2))

@@ -623,7 +623,10 @@ END.
 ON LEAVE OF ar-inv.terms IN FRAME F-Main /* Terms Code */
 DO:
     {&methods/lValidateError.i YES}
-    FIND FIRST terms WHERE terms.t-code = ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-LOCK NO-ERROR.
+    FIND FIRST terms 
+    WHERE terms.company = g_company
+      AND terms.t-code = ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+    NO-LOCK NO-ERROR.
     IF NOT AVAIL terms THEN DO:
        MESSAGE "Invalid Terms. Try Help. " VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -854,7 +857,10 @@ PROCEDURE local-assign-record :
                               ar-inv.zip = cust.zip 
                               ar-inv.fob-code = cust.fob-code
                               .          
-    FIND FIRST terms WHERE terms.t-code = cust.terms NO-LOCK NO-ERROR.
+    FIND FIRST terms 
+    WHERE terms.company = g_company 
+      AND terms.t-code  = cust.terms 
+    NO-LOCK NO-ERROR.
     FIND FIRST soldto NO-LOCK WHERE soldto.company EQ g_company
                              AND soldto.cust-no EQ ar-inv.cust-no
                              AND soldto.sold-id EQ ar-inv.cust-no
@@ -1095,7 +1101,10 @@ PROCEDURE local-update-record :
         RETURN NO-APPLY.
      END.
      ship_name:SCREEN-VALUE = shipto.ship-name.
-     FIND FIRST terms WHERE terms.t-code = ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-LOCK NO-ERROR.
+     FIND FIRST terms 
+     WHERE terms.company = g_company 
+       AND terms.t-code  = ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
+     NO-LOCK NO-ERROR.
      IF NOT AVAIL terms THEN DO:
         MESSAGE "Invalid Terms. Try Help. " VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO ar-inv.terms.
@@ -1213,7 +1222,10 @@ PROCEDURE new-cust-no :
       FIND currency WHERE currency.company = g_company
                    AND currency.c-code = cust.curr-code NO-LOCK NO-ERROR.
       IF AVAIL currency THEN DISPLAY currency.ex-rate @ ar-inv.ex-rate WITH FRAME {&FRAME-NAME}.
-      FIND FIRST terms WHERE terms.t-code = cust.terms NO-LOCK NO-ERROR.
+      FIND FIRST terms 
+      WHERE terms.company = g_company 
+        AND terms.t-code  = cust.terms 
+      NO-LOCK NO-ERROR.
       IF AVAIL terms THEN ASSIGN ar-inv.terms-d:SCREEN-VALUE = terms.dscr
                               ar-inv.disc-%:SCREEN-VALUE = string(terms.disc-rate)
                               ar-inv.disc-days:SCREEN-VALUE = STRING(terms.disc-days)
@@ -1236,8 +1248,10 @@ PROCEDURE new-terms :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    FIND FIRST terms WHERE terms.t-code EQ ar-inv.terms:SCREEN-VALUE
-        NO-LOCK NO-ERROR.
+    FIND FIRST terms 
+    WHERE terms.company EQ g_company
+      AND terms.t-code  EQ ar-inv.terms:SCREEN-VALUE
+    NO-LOCK NO-ERROR.
     IF AVAIL terms THEN ar-inv.terms-d:SCREEN-VALUE = terms.dscr.
   END.
 
@@ -1321,7 +1335,8 @@ DEFINE VARIABLE Y AS INTEGER NO-UNDO.
               NO-ERROR.  
           IF AVAIL cust THEN
           FIND FIRST terms NO-LOCK 
-              WHERE terms.t-code EQ cust.terms
+              WHERE terms.company EQ g_company
+                AND terms.t-code  EQ cust.terms
              NO-ERROR.
             IF AVAIL terms THEN
                 ASSIGN  ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY + terms.net-days ELSE ar-inv.due-date .
@@ -1442,7 +1457,8 @@ PROCEDURE pCreateDuplicate :
            NO-ERROR.  
        IF AVAIL cust THEN
            FIND FIRST terms NO-LOCK 
-           WHERE terms.t-code EQ cust.terms
+           WHERE terms.company EQ g_company
+             AND terms.t-code  EQ cust.terms
            NO-ERROR.
        IF AVAIL terms THEN
            ASSIGN  ar-inv.due-date = IF oeInvAddDate-Int EQ 0 THEN TODAY + terms.net-days ELSE ar-inv.due-date .

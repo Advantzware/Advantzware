@@ -821,7 +821,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
          v-tot-inv = v-subtot + ar-inv.tax-amt + 
                      IF ar-inv.f-bill THEN ar-inv.freight ELSE 0.
 
- find first terms where terms.t-code eq ar-inv.terms no-lock no-error.
+ find first terms 
+ WHERE terms.company eq cocode 
+   AND terms.t-code  eq ar-inv.terms 
+ no-lock no-error.
  if avail terms then
             assign
              tmp1 = v-net * (round(terms.disc-rate / 100, 2))

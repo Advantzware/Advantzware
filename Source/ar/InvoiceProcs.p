@@ -1018,7 +1018,10 @@ PROCEDURE pCreateInterCompanyBilling PRIVATE:
         IF bf-inv-head.f-bill THEN /*Exclude Freight billed from total true sales*/ 
             ASSIGN 
                 bf-ar-inv.t-sales = bf-ar-inv.t-sales - bf-inv-head.t-inv-freight.  
-        FIND FIRST terms WHERE terms.t-code = bf-ar-inv.terms NO-LOCK NO-ERROR.
+        FIND FIRST terms 
+        WHERE terms.company = bf-ar-inv.company
+          AND terms.t-code  = bf-ar-inv.terms
+        NO-LOCK NO-ERROR.
         IF AVAILABLE terms THEN
             ASSIGN  
                 bf-ar-inv.terms-d   = terms.dscr
