@@ -1040,7 +1040,7 @@ PROCEDURE local-assign-record :
      ls-key = SUBSTRING(ls-ws-value,i,1).
      IF ASC(ls-key) < 17 THEN DO:  /* control key */
         FIND box-design-line OF box-design-hdr WHERE box-design-line.line-no = li-ln.
-        ld-wcum = ld-wcum + dec(ls-wscore).
+        ld-wcum = ld-wcum + dec(ls-wscore) NO-ERROR.
         IF ld-wcum - trunc(ld-wcum,0) >= 0.16 THEN ASSIGN ld-wcum = ld-wcum + 1 - 0.16.         
         ASSIGN box-design-line.wcum-score = IF ld-wcum <> 0 AND ld-wcum <> ld-wcum-prev
                                              THEN STRING(ld-wcum,v-sc-fmt)
@@ -1079,7 +1079,7 @@ PROCEDURE local-assign-record :
         IF li-start = 0 THEN li-start = i.
      END.
      ELSE IF ls-lscore <> "" THEN DO:         
-          ld-ls-val = ld-ls-val + dec(ls-lscore).
+          ld-ls-val = ld-ls-val + dec(ls-lscore) NO-ERROR.
 
           IF ld-ls-val - trunc(ld-ls-val,0) >= 0.16 THEN
              ASSIGN ld-ls-val = ld-ls-val + 1 - 0.16.   
@@ -1105,7 +1105,7 @@ PROCEDURE local-assign-record :
   END.
 
   IF ls-lscore <> "" THEN DO:
-     ld-ls-val = ld-ls-val + dec(ls-lscore).
+     ld-ls-val = ld-ls-val + dec(ls-lscore) NO-ERROR.
      IF ld-ls-val - trunc(ld-ls-val,0) >= 0.16 THEN
              ASSIGN ld-ls-val = ld-ls-val + 1 - 0.16.
 

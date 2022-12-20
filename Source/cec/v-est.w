@@ -4904,9 +4904,13 @@ DEF VAR lv-tmp AS CHAR NO-UNDO.
 DEF VAR lv-tmp-val AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
+DEFINE VARIABLE dLscore AS DECIMAL NO-UNDO.
 
 v-l-array = 0.
 
+dLscore = DECIMAL(TRIM(ip-string)) NO-ERROR.
+
+IF NOT ERROR-STATUS:ERROR AND ip-string NE "" THEN
 DO i = 1 TO LENGTH(ip-string):
    lv-tmp-val = SUBSTRING(ip-string,i,1).
    IF lv-tmp-val <> " " THEN
