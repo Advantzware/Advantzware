@@ -282,9 +282,19 @@ ON CHOOSE OF Btn-Add IN FRAME F-Main /* Add */
         DEFINE BUFFER bf-est-prep FOR est-prep.
         DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
         DEFINE VARIABLE iL       AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
         IF AVAILABLE est THEN
         DO:
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
+            
             FOR EACH bf-est-prep NO-LOCK 
                 WHERE bf-est-prep.company EQ est.company
                 AND bf-est-prep.est-no EQ est.est-no 
@@ -328,13 +338,20 @@ ON CHOOSE OF Btn-copy IN FRAME F-Main /* Copy */
         DEFINE VARIABLE lv-b-num LIKE est-prep.b-num NO-UNDO.
         DEFINE BUFFER b-est-prep FOR est-prep.
         DEFINE VARIABLE li-line AS INTEGER NO-UNDO.
-
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
         /* Code placed here will execute PRIOR to standard behavior. */
-        /*{custom/checkuse.i}*/
-
+        
         IF AVAILABLE est-prep THEN
         DO:
-    
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            IF NOT lLocked THEN RUN spCommon_CheckLock (INPUT "est-prep", INPUT RECID(est-prep), OUTPUT lLocked, OUTPUT cMessage ).
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
+            
             ASSIGN
                 lv-rowid = ROWID(est-prep)
                 lv-b-num = INT(est-prep.b-num).
@@ -455,8 +472,18 @@ ON CHOOSE OF Btn-copy IN FRAME F-Main /* Copy */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete V-table-Win
 ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
     DO:
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
         IF AVAILABLE est-prep THEN 
         DO: 
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            IF NOT lLocked THEN RUN spCommon_CheckLock (INPUT "est-prep", INPUT RECID(est-prep), OUTPUT lLocked, OUTPUT cMessage ).
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
+        
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
             RUN local-delete-record IN WIDGET-HANDLE(char-hdl).
         END.
@@ -471,10 +498,19 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 ON CHOOSE OF Btn-Save IN FRAME F-Main /* Update */
     DO:
         DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
-        DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+        DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
         IF AVAILABLE est AND AVAILABLE est-prep THEN
-        DO:
-     
+        DO:                        
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            IF NOT lLocked THEN RUN spCommon_CheckLock (INPUT "est-prep", INPUT RECID(est-prep), OUTPUT lLocked, OUTPUT cMessage ).
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
+            
             EMPTY TEMP-TABLE tt-est-prep.
       
             CREATE tt-est-prep.

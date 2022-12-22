@@ -1053,6 +1053,48 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-spCommon_CheckLock) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spCommon_CheckLock Procedure
+PROCEDURE spCommon_CheckLock:
+/*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE INPUT  PARAMETER ipcTableName   AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER iprwRecid      AS RECID     NO-UNDO.
+    DEFINE OUTPUT PARAMETER oplLock        AS LOGICAL   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcMessage     AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE i AS INTEGER.
+    DEFINE VARIABLE ilockTable as int.
+    DEFINE VARIABLE cMessage as char.
+    DEFINE VARIABLE cFileLabel as char.
+             
+    FIND FIRST _file WHERE _file._file-name EQ ipcTableName NO-LOCK NO-ERROR.
+    FIND FIRST _lock WHERE 
+         _lock._lock-table eq _file._file-number AND
+         _lock._Lock-Usr NE ? AND
+         _lock._lock-recid EQ INT64(iprwRecid)
+       NO-LOCK NO-ERROR.
+    IF AVAILABLE _lock then
+    do:  
+        oplLock = YES.
+        FIND FIRST users WHERE users.user_id eq _lock._lock-name NO-LOCK NO-ERROR.
+        opcMessage = "User " + users.user_id +
+                      " (" + users.user_name + ") " +
+                      "is currently locking the record you're trying to access. " +
+                      "Please try again later.".       
+        RETURN.     
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 /* ************************  Function Implementations ***************** */
 
 &IF DEFINED(EXCLUDE-fGetNK1Cecscrn) = 0 &THEN

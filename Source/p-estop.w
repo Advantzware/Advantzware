@@ -285,9 +285,18 @@ ON CHOOSE OF Btn-add IN FRAME F-Main /* Add */
     DO:
         DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
         DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
         DEFINE BUFFER bf-est-op FOR est-op .
         IF AVAILABLE est AND AVAILABLE est-qty THEN 
         DO:
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
        
             IF est.est-type LT 5 THEN
                 RUN ce/d-estop.w (?,RECID(est),RECID(est-qty), "Add",OUTPUT lv-rowid).
@@ -321,10 +330,18 @@ ON CHOOSE OF Btn-Add-std IN FRAME F-Main /* Add Stds */
         DEFINE BUFFER bf-est-op FOR est-op.
         DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
         DEFINE VARIABLE iL       AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
  
         IF AVAILABLE est AND AVAILABLE est-qty THEN 
         DO:
-       
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
             IF est.est-type LT 5 THEN
                 RUN ce/d-estop.w (?,RECID(est),RECID(est-qty), "Addstd",OUTPUT lv-rowid).
             ELSE
@@ -355,6 +372,16 @@ ON CHOOSE OF Btn-Add-std IN FRAME F-Main /* Add Stds */
 ON CHOOSE OF btn-build IN FRAME F-Main /* Build */
     DO:
         DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        
+        RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+         
+        IF lLocked THEN
+        do:
+           MESSAGE cMessage VIEW-AS ALERT-BOX.
+           RETURN.
+        END.
     
         RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target", OUTPUT char-hdl).
         IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
@@ -371,8 +398,18 @@ ON CHOOSE OF btn-build IN FRAME F-Main /* Build */
 ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy */
     DO:
         DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO .
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
         DEFINE BUFFER bf-est-op FOR est-op.
         DEFINE BUFFER xop       FOR est-op.
+        
+        RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+        
+        IF lLocked THEN
+        do:
+           MESSAGE cMessage VIEW-AS ALERT-BOX.
+           RETURN.
+        END.
 
         IF est.est-type LT 5 THEN 
         DO:
@@ -428,8 +465,17 @@ ON CHOOSE OF btn-copy IN FRAME F-Main /* Copy */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-del V-table-Win
 ON CHOOSE OF btn-del IN FRAME F-Main /* Delete */
     DO:
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
         IF AVAILABLE est-op THEN 
         DO: 
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            IF NOT lLocked THEN RUN spCommon_CheckLock (INPUT "est-op", INPUT RECID(est-op), OUTPUT lLocked, OUTPUT cMessage ).
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
             RUN local-delete-record IN WIDGET-HANDLE(char-hdl).
         END.
@@ -447,11 +493,18 @@ ON CHOOSE OF Btn-Imp IN FRAME F-Main /* Import */
         DEFINE BUFFER bf-est-prep FOR est-prep.
         DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
         DEFINE VARIABLE iL       AS INTEGER INITIAL 0 EXTENT 2 NO-UNDO.
-
-
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        
         IF AVAILABLE est AND AVAILABLE est-op THEN
         DO:
-     
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            IF NOT lLocked THEN RUN spCommon_CheckLock (INPUT "est-op", INPUT RECID(est-op), OUTPUT lLocked, OUTPUT cMessage ).
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
             EMPTY TEMP-TABLE tt-est-op.
 
  	    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
@@ -475,9 +528,19 @@ ON CHOOSE OF Btn-Imp IN FRAME F-Main /* Import */
 ON CHOOSE OF Btn-Over IN FRAME F-Main /* Override */
     DO:
         DEFINE VARIABLE ll       AS LOGICAL NO-UNDO.
-        DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO. 
+        DEFINE VARIABLE lv-rowid AS ROWID   NO-UNDO.
+        DEFINE VARIABLE lLocked  AS LOGICAL NO-UNDO.
+        DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+        
         IF AVAILABLE est AND AVAILABLE est-op THEN
         DO:
+            RUN spCommon_CheckLock (INPUT "est", INPUT RECID(est), OUTPUT lLocked, OUTPUT cMessage ).
+            IF NOT lLocked THEN RUN spCommon_CheckLock (INPUT "est-op", INPUT RECID(est-op), OUTPUT lLocked, OUTPUT cMessage ).
+            IF lLocked THEN
+            do:
+               MESSAGE cMessage VIEW-AS ALERT-BOX.
+               RETURN.
+            END.
      
             EMPTY TEMP-TABLE tt-est-op.
       
