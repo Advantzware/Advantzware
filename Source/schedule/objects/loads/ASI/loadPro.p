@@ -1593,7 +1593,7 @@ PROCEDURE ipJobMaterial:
     /* round up required quantity */
     requiredQty = TRUNCATE(requiredQty,0)
                 + IF requiredQty - TRUNCATE(requiredQty,0) GT 0 THEN 1 ELSE 0
-    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9')
+    opRequiredQty = STRING(requiredQty,'>,>>>,>>>,>>9')
     .
 END PROCEDURE.
 
