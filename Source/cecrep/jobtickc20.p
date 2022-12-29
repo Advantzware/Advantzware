@@ -1118,4 +1118,6 @@ PROCEDURE stackImage:
             "<R-13>".
 END PROCEDURE.
 
+IF VALID-HANDLE(hdFormulaProcs) THEN
+DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
