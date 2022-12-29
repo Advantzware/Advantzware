@@ -17,6 +17,7 @@ def var K_FRAC as dec init 6.25 no-undo.
 {cecrep/jobtick2.i "shared"}
 
 {cec/descalc.i new}
+{system/FormulaProcs.i}
 
 def var v-line-text     like box-design-line.line-text.
 def var v-int           as   int.
@@ -36,6 +37,13 @@ DEF VAR lv-met-lsc AS cha NO-UNDO.
 DEF VAR lv-met-lcum AS cha NO-UNDO.
 DEF VAR ld-tmp-scr AS DEC NO-UNDO.
 DEF VAR li-num-space AS INT NO-UNDO.
+DEFINE VARIABLE cSizeFormatDecimal AS CHARACTER NO-UNDO INITIAL "Decimal".
+DEFINE VARIABLE dCurrentSizeFactor AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lDecimalFlag       AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cCurrentSizeFormat AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE hdFormulaProcs     AS HANDLE    NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 
 form w-box-design-line.wcum-score-c             at 1
      w-box-design-line.wscore-c
@@ -295,19 +303,51 @@ for each ef
   end. /* for each b-bdl */
 
   END. /* no box image */
-  ELSE DO:     
+  ELSE DO:            
      FILE-INFO:FILE-NAME = box-design-hdr.box-image.
-     PUT unformatted "<C3><#30><R+25><C+48><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
+     PUT unformatted "<C3><#30><R+25><C+46><IMAGE#30=" FILE-INFO:FULL-PATHNAME ">" .
      PUT UNFORMATTED "<=30>" SKIP.
      FOR EACH box-design-line OF box-design-hdr NO-LOCK:
          PUT  /*space(6)  */
-              "<C52>"
+              IF ipcFormat EQ "AmCarton" OR ipcFormat EQ "jobcardc 20" THEN "<C49>" ELSE "<C52>"
               IF est.metric AND box-design-line.wscore <> "" THEN string( ({sys/inc/k16bv.i dec(box-design-line.wscore)}) * 25.4) ELSE box-design-line.wscore " " 
               IF est.metric AND box-design-line.wcum-score <> "" THEN string( ({sys/inc/k16bv.i dec(box-design-line.wcum-score)}) * 25.4) ELSE box-design-line.wcum-score SKIP.
 
      END.
-     
+     IF ipcFormat EQ "AmCarton" OR ipcFormat EQ "jobcardc 20" THEN
+     do:
+          RUN Formula_GetPanelDetailsForPOScores IN hdFormulaProcs (
+            INPUT  eb.company,
+            INPUT  eb.est-no,
+            INPUT  eb.form-no,
+            INPUT  eb.blank-no,
+            OUTPUT TABLE ttPanel
+            ). 
+            
+          RUN GetSizeFactor IN hdFormulaProcs (
+              INPUT  eb.company,
+              OUTPUT dCurrentSizeFactor,
+              OUTPUT cCurrentSizeFormat,
+              OUTPUT lDecimalFlag
+              ).  
+          IF cCurrentSizeFormat NE cSizeFormatDecimal THEN DO:
+            RUN SwitchPanelSizeFormatForttPanel IN hdFormulaProcs (
+              INPUT        cSizeFormatDecimal,
+              INPUT        cCurrentSizeFormat,
+              INPUT-OUTPUT TABLE ttPanel
+              ).
+          END.     
+         
+         PUT UNFORMATTED "<=30>" SKIP(1).
+         FOR EACH ttPanel NO-LOCK:
+                 IF ttPanel.cPanelType EQ "W" THEN
+                  PUT "<C59>" string(ttPanel.dPanelSize)  SKIP(3).
+         END.
+     END.
   END. /* else box image */
   PUT "<P10>" .
   end.
+  
+IF VALID-HANDLE(hdFormulaProcs) THEN
+DELETE PROCEDURE hdFormulaProcs.
 /* end ---------------------------------- copr. 1997  advanced software, inc. */

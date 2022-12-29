@@ -30,6 +30,16 @@ DEFINE        VARIABLE cCustName        AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cForm            AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE cBlank           AS CHARACTER NO-UNDO.
 
+DEFINE        VARIABLE cSizeFormatDecimal AS CHARACTER NO-UNDO INITIAL "Decimal".
+DEFINE        VARIABLE dCurrentSizeFactor AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE lDecimalFlag       AS LOGICAL   NO-UNDO.
+DEFINE        VARIABLE cCurrentSizeFormat AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE cWeightScore       AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE hdFormulaProcs     AS HANDLE    NO-UNDO.
+RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+
+{system/FormulaProcs.i}
+
 {jcrep/r-ticket.i "shared"}
 
 {cecrep/jobtickL.i "new shared"}
@@ -388,6 +398,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=BoardStart><R+6><C6><#Adders3><C20><#Adders4>"
               "<=BoardStart><R+7><RIGHT=C+5>PO: <#VendorPO>"
               "<=BoardStart><R+7><RIGHT=C+20>Vendor: <#VendorCode>"
+              "<=BoardStart><R+8><RIGHT=C+5>Score: <#PoScore>"
               "<=DieStart><R+1><RIGHT=C+5>Die#: <#Die>"
               "<=DieStart><R+2><RIGHT=C+5>Die Loc.: <#DieLocation>"
               "<=DieStart><R+3><RIGHT=C+5>Imp.: <#Impressions>"
@@ -479,6 +490,32 @@ DO v-local-loop = 1 TO v-local-copies:
                           IF AVAILABLE xoe-ordl THEN xoe-ordl.qty ELSE job-hdr.qty
                            ELSE 0 .
               dJobQty  = job-hdr.qty * (IF xeb.est-type EQ 6 AND xeb.quantityPerSet GT 0 THEN xeb.quantityPerSet ELSE 1) .
+              
+        RUN Formula_GetPanelDetailsForPOScores IN hdFormulaProcs (
+            INPUT  xeb.company,
+            INPUT  xeb.est-no,
+            INPUT  xeb.form-no,
+            INPUT  xeb.blank-no,
+            OUTPUT TABLE ttPanel
+            ). 
+         RUN GetSizeFactor IN hdFormulaProcs (
+              INPUT  xeb.company,
+              OUTPUT dCurrentSizeFactor,
+              OUTPUT cCurrentSizeFormat,
+              OUTPUT lDecimalFlag
+              ).  
+         IF cCurrentSizeFormat NE cSizeFormatDecimal THEN DO:
+           RUN SwitchPanelSizeFormatForttPanel IN hdFormulaProcs (
+            INPUT        cSizeFormatDecimal,
+            INPUT        cCurrentSizeFormat,
+            INPUT-OUTPUT TABLE ttPanel
+            ).
+         END.   
+         cWeightScore = "".
+         FOR EACH ttPanel NO-LOCK:
+             IF ttPanel.cPanelType EQ "W" THEN
+             cWeightScore = cWeightScore + string(ttPanel.dPanelSize) + " ".                 
+         END.      
           
          PUT "<FGColor=Blue><B>"
               "<=JobQuantity>" dJobQty FORMAT "->>,>>>,>>9"
@@ -531,6 +568,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=Adders4>" xef.adder[10]  FORMAT "x(20)"
               "<=VendorPO>" STRING(v-po-no)  FORMAT "x(10)" 
               "<=VendorCode>" STRING(v-vend-no ) FORMAT "x(15)"
+              "<=PoScore>" STRING(cWeightScore ) FORMAT "x(60)"
               "<B>"
               "<=Die>" IF AVAILABLE xeb THEN xeb.die-no ELSE "" FORMAT "X(15)"
               "</B>"
