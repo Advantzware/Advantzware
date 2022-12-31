@@ -324,7 +324,7 @@ DEFINE BROWSE ttAPIOutboundEvent
             WIDTH 16 LABEL-BGCOLOR 14
       ttAPIOutboundEvent.userField2 COLUMN-LABEL "User Field 2" FORMAT "x(32)":U
             WIDTH 16 LABEL-BGCOLOR 14
-      ttAPIOutboundEvent.apiOutboundEventID COLUMN-LABEL "Event ID" FORMAT "9999999":U
+      ttAPIOutboundEvent.apiOutboundEventID COLUMN-LABEL "Event ID" FORMAT "99999999":U
             WIDTH 15 LABEL-BGCOLOR 14
       ENABLE ttAPIOutboundEvent.retryEvent
 /* _UIB-CODE-BLOCK-END */
