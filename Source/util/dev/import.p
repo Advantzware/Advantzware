@@ -407,7 +407,7 @@ PROCEDURE pCreateNewInvoiceAP:
                 ap-inv.curr-code[1] = 'USD'
                 .                        
         
-        FIND FIRST terms WHERE terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
+        FIND FIRST terms WHERE terms.company EQ ipcCompany AND terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
         IF AVAILABLE terms THEN
             ASSIGN
                 ap-inv.disc-%    = terms.disc-rate
@@ -486,7 +486,8 @@ PROCEDURE pCreateNewInvoiceAR:
         IF AVAILABLE currency THEN 
             ar-inv.ex-rate = currency.ex-rate.
         FIND FIRST terms NO-LOCK 
-            WHERE terms.t-code EQ cust.terms
+            WHERE terms.company EQ ipcCompany
+              and terms.t-code EQ cust.terms
             NO-ERROR.
         IF AVAILABLE terms THEN 
             ASSIGN 

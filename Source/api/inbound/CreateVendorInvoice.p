@@ -433,7 +433,8 @@ PROCEDURE pCreateNewInvoice:
                 .                        
         
         FIND FIRST terms NO-LOCK
-             WHERE terms.t-code EQ vend.terms 
+             WHERE terms.company EQ ipcCompany 
+               AND terms.t-code  EQ vend.terms 
              NO-ERROR.
         IF AVAILABLE terms THEN
             ASSIGN

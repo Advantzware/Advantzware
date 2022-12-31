@@ -271,7 +271,7 @@ for each tt-report no-lock,
      v-dsc-date   = ?
      v-last-page  = page-number.
      
-    find first terms where terms.t-code eq inv-head.terms no-lock no-error.
+    find first terms where terms.company EQ inv-head.company AND terms.t-code eq inv-head.terms no-lock no-error.
 
     if avail terms then
       assign

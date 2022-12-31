@@ -147,7 +147,10 @@ RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 
 DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
 DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hPrepProcs     AS HANDLE NO-UNDO.
+
 RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 DEFINE VARIABLE lCADFile AS LOGICAL NO-UNDO.
 
@@ -2588,6 +2591,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPrep V-table-Win 
+PROCEDURE pCheckPrep :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcPrep AS CHARACTER NO-UNDO.
+   DEFINE BUFFER bf-prep FOR prep.
+   
+   FIND FIRST bf-prep NO-LOCK
+       WHERE bf-prep.company EQ cocode
+         AND bf-prep.code    EQ ipcPrep
+       NO-ERROR.
+               
+   IF AVAILABLE bf-prep THEN
+   RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(bf-prep)). 
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cad-image-update V-table-Win 
 PROCEDURE cad-image-update :
 /*------------------------------------------------------------------------------
@@ -3246,7 +3273,9 @@ PROCEDURE local-assign-record :
   DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.
   DEF VAR v-count AS INT NO-UNDO.
   DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
-
+  DEFINE VARIABLE cOldDieNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cOldPlate AS CHARACTER NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
    lv-hld-cust = eb.cust-no
@@ -3255,7 +3284,9 @@ PROCEDURE local-assign-record :
    lv-prev-cad# = eb.cad-no
    lv-hld-part-no = eb.part-no
    lv-hld-stock-no = eb.stock-no
-   v-cad-no = eb.cad-no.
+   v-cad-no = eb.cad-no
+   cOldDieNo = eb.die-no
+   cOldPlate = eb.plate-no.
   DO WITH FRAME {&FRAME-NAME}:
          ASSIGN tb-set.
   END.
@@ -3333,7 +3364,12 @@ PROCEDURE local-assign-record :
    eb.sty-lock = NOT ll-auto-calc-selected
    eb.tab-in   = IF tab-inout EQ "In"  THEN YES ELSE
                  IF tab-inout EQ "Out" THEN NO  ELSE ?.
-
+  
+  IF cOldDieNo NE eb.die-no THEN
+  RUN pCheckPrep(eb.die-no).
+  IF cOldPlate NE eb.plate-no THEN
+  RUN pCheckPrep(eb.plate-no). 
+                 
   IF ll-auto-calc-selected THEN DO:
 
     /* Build panelHeader and paneDetail records for vaiable width */
@@ -3659,8 +3695,7 @@ PROCEDURE local-assign-record :
         b-set.dep = eb.dep.
    END.
   END.
-
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3778,6 +3813,9 @@ PROCEDURE local-destroy :
     /* Code placed here will execute PRIOR to standard behavior. */
     IF VALID-HANDLE(hdFormulaProcs) THEN
         DELETE PROCEDURE hdFormulaProcs.
+    IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.    
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -4866,9 +4904,13 @@ DEF VAR lv-tmp AS CHAR NO-UNDO.
 DEF VAR lv-tmp-val AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
+DEFINE VARIABLE dLscore AS DECIMAL NO-UNDO.
 
 v-l-array = 0.
 
+dLscore = DECIMAL(TRIM(ip-string)) NO-ERROR.
+
+IF NOT ERROR-STATUS:ERROR AND ip-string NE "" THEN
 DO i = 1 TO LENGTH(ip-string):
    lv-tmp-val = SUBSTRING(ip-string,i,1).
    IF lv-tmp-val <> " " THEN

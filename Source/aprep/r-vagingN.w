@@ -1858,7 +1858,7 @@ PROCEDURE run-report :
                       STRING(period-days-1 + 1) + " - " + STRING(period-days-2,">>>9") + FILL(" ",8) +
                       STRING(period-days-2 + 1) + " - " + STRING(period-days-3,">>>9") + FILL(" ",8) +
                       STRING(period-days-3 + 1) + " - " + STRING(period-days-4,">>>9") + FILL(" ",8) +
-                      STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  + "       Payables"
+                      STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  + " Total Payables"
         str-tit5 = str-tit5 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
                        "-----------------" + " " + "-----------------" + " " + "-----------------"  
         str-line = str-line + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
@@ -1990,7 +1990,7 @@ PROCEDURE run-report :
             + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
             + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
             + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
-            + " , Payables".
+            + " ,Total Payables".
         IF NOT lPrintHead THEN
             PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.

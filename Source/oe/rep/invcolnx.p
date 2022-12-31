@@ -608,7 +608,7 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
        IF inv-head.f-bill THEN v-net = v-net - inv-head.t-inv-freight.
 
        release terms.
-       find first terms where terms.t-code eq inv-head.terms no-lock no-error.
+       find first terms where terms.company EQ inv-head.company AND terms.t-code eq inv-head.terms no-lock no-error.
        if avail terms then
           assign
              tmp1 = v-net * (round(terms.disc-rate / 100, 2))

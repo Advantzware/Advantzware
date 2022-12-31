@@ -162,6 +162,7 @@ It also provides for the ability to change the date of a BOL." 900
 "LoadTagReport.r" "" "" "report comparing Item units per pallet to" "Report comparing Item units per pallet to actual load tags created" 900
 "MarkPOsAsVouchered.r" "UTIL" "" "Reads specified .CSV file and sets POs Vouchered" "" 900
 "mkfginks.r" "FG" "" "Inks will copy to the I-F-1 colors" "WARNING: This utility will not prompt the user, and will run and delete the ink colors from the FG Item and update the IF1 ink details to match the estimate." 1000
+"module.r" "UTIL" "" "Old Module Maintenance" "" 1000
 "MoveEst.r" "EF" "NR" "Move Estimate Files" "Move estimate files rather than deleting them." 900
 "newir12.r" "FG" "IR@" "IR12 New Version" "Custom Version of IR12 reort.
 
@@ -252,7 +253,6 @@ Maintenance screen for the default settings.  This is used by ASI only to add an
 
 Display all job material quantities that are less than zero." 900
 "SoundTester.r" "" "" "Test Sound on Workstation" "Sound on workstation - Utility only for testing" 1000
-"system/wModule.r" "" "" "Module Licensing" "" 1000
 "SystemDataImportExportTester" "" "" "System Data Exporter" "Exports data for importing at customer site or another system." 1000
 "unPostBOL.r" "OP" "OS1" "Unpost BOLs where the post fails" "If a BOL is marked as posted but did not post to inventory or otherwise did not post correctly.
 

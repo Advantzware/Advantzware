@@ -67,6 +67,10 @@ DEFINE VARIABLE lc-rs AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lc-mi AS CHARACTER NO-UNDO.
 DEFINE VARIABLE li-qoh AS INTEGER NO-UNDO.
 DEFINE VARIABLE li-bal AS INTEGER NO-UNDO.
+DEFINE VARIABLE iRecordLimit       AS INTEGER   NO-UNDO.
+DEFINE VARIABLE dQueryTimeLimit    AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE lEnableShowAll     AS LOGICAL   NO-UNDO.
+
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""OT1"" }
@@ -1152,20 +1156,8 @@ PROCEDURE first-query :
   DEF VAR lj AS INT NO-UNDO.
   DEF VAR lv-rel-no LIKE oe-relh.release# NO-UNDO.
 
-  RUN set-defaults.
+  RUN set-defaults.    
 
-  find first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "REBROWSE"
-                      no-lock no-error.
-  if not avail sys-ctrl then do transaction:
-     create sys-ctrl.
-     assign sys-ctrl.company = cocode
-            sys-ctrl.name    = "REBROWSE"
-            sys-ctrl.descrip = "# of Records to be displayed in oe browser"
-            sys-ctrl.log-fld = YES
-            sys-ctrl.char-fld = "RE"
-            sys-ctrl.int-fld = 30.
-  end.
   {&for-each1blank} 
      USE-INDEX r-no NO-LOCK,
      {&for-each2blank}
@@ -1174,7 +1166,7 @@ PROCEDURE first-query :
      do: 
          li = li + 1.
          lv-rel-no = oe-relh.release#.
-         IF li GE sys-ctrl.int-fld THEN 
+         IF li GE iRecordLimit THEN 
             LEAVE.
      END.   
   END.
@@ -1327,6 +1319,14 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+  RUN Browser_GetRecordAndTimeLimit(
+    INPUT  cocode,
+    INPUT  "OT1",
+    OUTPUT iRecordLimit,
+    OUTPUT dQueryTimeLimit,
+    OUTPUT lEnableShowAll
+    ).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1697,34 +1697,21 @@ PROCEDURE show-all :
   DEF VAR lv-rel-no LIKE oe-relh.release# NO-UNDO.
 
   RUN set-defaults.
-
-  find first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "REBROWSE"
-                      no-lock no-error.
-  if not avail sys-ctrl then do transaction:
-      create sys-ctrl.
-      assign sys-ctrl.company = cocode
-             sys-ctrl.name    = "REBROWSE"
-             sys-ctrl.descrip = "# of Records to be displayed in oe browser"
-             sys-ctrl.log-fld = YES
-             sys-ctrl.char-fld = "RE"
-             sys-ctrl.int-fld = 30.
-  end.
-
+  
 IF lv-show-prev THEN DO:
 
-  {&for-each1blank} AND oe-relh.release# <= lv-last-show-rel-no  
+  {&for-each1blank} AND oe-relh.release# < lv-last-show-rel-no  
        USE-INDEX delpost NO-LOCK BREAK BY oe-relh.release# DESC:
     IF FIRST-OF(oe-relh.release#) THEN li = li + 1.
     lv-rel-no = oe-relh.release#.
-    IF li GE sys-ctrl.int-fld THEN LEAVE.
+    IF li GE iRecordLimit THEN LEAVE.
   END.
 
   &SCOPED-DEFINE open-query                     ~
       OPEN QUERY {&browse-name}                 ~
         {&for-each1blank}                       ~
               AND oe-relh.release# GE lv-rel-no ~
-              AND oe-relh.release# LE lv-last-show-rel-no ~
+              AND oe-relh.release# LT lv-last-show-rel-no ~
             NO-LOCK,                            ~
             {&for-each2blank}                   ~
             OUTER-JOIN
@@ -1737,18 +1724,18 @@ ELSE IF lv-show-next THEN DO:
 
   li = 0.
 
-  {&for-each1blank} AND oe-relh.release# >= lv-first-show-rel-no  
+  {&for-each1blank} AND oe-relh.release# > lv-first-show-rel-no  
        USE-INDEX delpost NO-LOCK BREAK BY oe-relh.release# :
     IF FIRST-OF(oe-relh.release#) THEN li = li + 1.
     lv-rel-no = oe-relh.release#.
-    IF li GE sys-ctrl.int-fld THEN LEAVE.
+    IF li GE iRecordLimit THEN LEAVE.
   END.
 
   &SCOPED-DEFINE open-query                     ~
       OPEN QUERY {&browse-name}                 ~
         {&for-each1blank}                       ~
               AND oe-relh.release# LE lv-rel-no ~
-              AND oe-relh.release# GE lv-first-show-rel-no ~
+              AND oe-relh.release# GT lv-first-show-rel-no ~
             NO-LOCK,                            ~
             {&for-each2blank}                   ~
             OUTER-JOIN

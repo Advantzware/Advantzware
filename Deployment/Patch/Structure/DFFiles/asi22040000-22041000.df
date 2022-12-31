@@ -1,0 +1,129 @@
+ADD TABLE "formLayouts"
+  AREA "Data"
+  DUMP-NAME "formlayouts"
+
+ADD FIELD "formType" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form Type"
+  POSITION 2
+  MAX-WIDTH 64
+  ORDER 10
+
+ADD FIELD "formGroup" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form Group"
+  POSITION 3
+  MAX-WIDTH 64
+  ORDER 20
+
+ADD FIELD "formID" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form ID"
+  POSITION 4
+  MAX-WIDTH 64
+  ORDER 30
+
+ADD FIELD "formLine" OF "formLayouts" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Form Line"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "formLineLabel" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Label"
+  POSITION 6
+  MAX-WIDTH 64
+  ORDER 50
+
+ADD FIELD "description" OF "formLayouts" AS character 
+  FORMAT "x(600)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 7
+  MAX-WIDTH 1200
+  ORDER 60
+
+ADD FIELD "formRow" OF "formLayouts" AS decimal 
+  FORMAT ">>>9.99<<"
+  INITIAL "0"
+  LABEL "Row"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 70
+
+ADD FIELD "formColumn" OF "formLayouts" AS decimal 
+  FORMAT ">>>9.99<<"
+  INITIAL "0"
+  LABEL "Column"
+  POSITION 9
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "createDtTm" OF "formLayouts" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Create Date/Time"
+  POSITION 10
+  MAX-WIDTH 8
+  ORDER 90
+
+ADD FIELD "createUser" OF "formLayouts" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Create User"
+  POSITION 11
+  MAX-WIDTH 48
+  ORDER 100
+
+ADD FIELD "updateDtTm" OF "formLayouts" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Update Date/Time"
+  POSITION 12
+  MAX-WIDTH 8
+  ORDER 110
+
+ADD FIELD "updateUser" OF "formLayouts" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Update User"
+  POSITION 13
+  MAX-WIDTH 48
+  ORDER 120
+
+ADD FIELD "rec_key" OF "formLayouts" AS character 
+  FORMAT "x(28)"
+  INITIAL ""
+  LABEL "rec_key"
+  POSITION 14
+  MAX-WIDTH 56
+  ORDER 130
+
+ADD INDEX "iFormLine" ON "formLayouts" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "formType" ASCENDING 
+  INDEX-FIELD "formGroup" ASCENDING 
+  INDEX-FIELD "formID" ASCENDING 
+  INDEX-FIELD "formLine" ASCENDING 
+
+ADD INDEX "iRec_key" ON "formLayouts" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000002444

@@ -23,6 +23,7 @@ CREATE WIDGET-POOL.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 {sys/inc/var.i}
+{pc/pcprdd4u.i NEW}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -260,7 +261,7 @@ DO:
 ON HELP OF fiBeginItem IN FRAME FRAME-A /* Beginning Item */
 DO:
         DEFINE VARIABLE cFGItemID AS CHARACTER NO-UNDO.
-        RUN pLookupFGItem(g_company, FOCUS:SCREEN-VALUE, OUTPUT cFGItemID).
+        RUN pLookupFGItem(0, g_company, FOCUS:SCREEN-VALUE, OUTPUT cFGItemID).
         fiBeginItem:SCREEN-VALUE = cFGItemID.
     END.
 
@@ -287,7 +288,7 @@ DO:
 ON HELP OF fiEndItem IN FRAME FRAME-A /* Ending Item */
 DO:
         DEFINE VARIABLE cFGItemID AS CHARACTER NO-UNDO.
-        RUN pLookupFGItem(g_company, FOCUS:SCREEN-VALUE, OUTPUT cFGItemID).
+        RUN pLookupFGItem(1, g_company, FOCUS:SCREEN-VALUE, OUTPUT cFGItemID).
         fiEndItem:SCREEN-VALUE = cFGItemID.
     END.
 
@@ -398,6 +399,7 @@ PROCEDURE pLookupFGItem PRIVATE :
      Purpose: Runs a lookup on FG Item and returns the FG Item ID if selected
      Notes:
     ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiType    AS INTEGER NO-UNDO.
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcInitial AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcReturn AS CHARACTER NO-UNDO.
@@ -405,9 +407,21 @@ PROCEDURE pLookupFGItem PRIVATE :
     DEFINE VARIABLE cFieldsValue AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
-
+    DEFINE VARIABLE cCharVal      AS CHARACTER NO-UNDO.
+    
+    IF (ipiType EQ 0 AND fiBeginJob:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") OR (ipiType EQ 1 AND fiEndJob:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") then
     RUN system/openlookup.p (ipcCompany, "i-no", 0, "", 0, OUTPUT cFieldsValue, OUTPUT cFoundValue, OUTPUT recFoundRecID).
-/*    RUN windows/l-itemf2.w (ipcCompany,"", ipcInitial, "", OUTPUT cFoundValue, OUTPUT recFoundRecID).*/
+    ELSE IF ipiType EQ 0 THEN
+    DO:
+       RUN windows/l-jobit1.w (ipcCompany,fiBeginJob:SCREEN-VALUE IN FRAME {&FRAME-NAME}, fiBeginJob-2:SCREEN-VALUE IN FRAME {&FRAME-NAME}, fiBeginItem:SCREEN-VALUE IN FRAME {&FRAME-NAME}, OUTPUT cCharVal,OUTPUT recFoundRecID).
+       cFoundValue = ENTRY(1,cCharVal).
+    END.
+    ELSE IF ipiType EQ 1 THEN
+    DO:
+         RUN windows/l-jobit1.w (ipcCompany,fiEndJob:SCREEN-VALUE IN FRAME {&FRAME-NAME},fiEndJob-2:SCREEN-VALUE IN FRAME {&FRAME-NAME}, fiEndItem:SCREEN-VALUE IN FRAME {&FRAME-NAME}, OUTPUT cCharVal,OUTPUT recFoundRecID).
+         cFoundValue = ENTRY(1,cCharVal).
+    END.
+
     opcReturn = cFoundValue.
 
 END PROCEDURE.

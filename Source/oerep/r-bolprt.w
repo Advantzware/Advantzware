@@ -1511,6 +1511,28 @@ DO:
                 FIND FIRST tt-email NO-LOCK NO-ERROR.
                 IF AVAILABLE tt-email THEN
                     RUN email-reorderitems.
+                
+                FOR EACH tt-post:
+                  FIND FIRST oe-bolh NO-LOCK
+                       WHERE ROWID(oe-bolh) EQ tt-post.row-id
+                       NO-ERROR.
+                  IF AVAILABLE oe-bolh THEN 
+                  DO:                                       
+                     RUN oe/custxship.p (oe-bolh.company,
+                            oe-bolh.cust-no,
+                            oe-bolh.ship-id,
+                            BUFFER shipto).
+                    RUN pCallOutboundAPI(
+                        INPUT oe-bolh.company,
+                        INPUT shipTo.loc,
+                        INPUT oe-bolh.cust-no,
+                        INPUT oe-bolh.bol-no,
+                        INPUT NO,
+                        INPUT Yes,
+                        INPUT ROWID(oe-bolh)
+                        ) NO-ERROR.         
+                  END.  
+                END. /* for each tt-post*/    
             END.
             MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
         END.
@@ -3105,6 +3127,7 @@ PROCEDURE build-work :
                 INPUT oe-bolh.cust-no,
                 INPUT oe-bolh.bol-no,
                 INPUT lPrinted,
+                INPUT NO,
                 INPUT ROWID(oe-bolh)
                 ) NO-ERROR.       
         END.
@@ -4168,6 +4191,7 @@ PROCEDURE pCallOutboundAPI PRIVATE :
     DEFINE INPUT  PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBOLID    AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER iplPrinted  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPosted   AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipriOeBolh  AS ROWID     NO-UNDO.
 
     DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
@@ -4186,7 +4210,9 @@ PROCEDURE pCallOutboundAPI PRIVATE :
      
     IF AVAILABLE bf-cust THEN 
     DO: 
-        IF iplPrinted THEN 
+        IF iplPosted THEN
+            cTriggerID = "BOLPost".
+        ELSE IF iplPrinted THEN 
             cTriggerID = "RePrintBillOfLading".
         ELSE 
             cTriggerID = "PrintBillOfLading".

@@ -732,7 +732,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       IF inv-head.f-bill THEN v-net = v-net - inv-head.t-inv-freight.
 
       RELEASE terms.
-      FIND FIRST terms WHERE terms.t-code EQ inv-head.terms NO-LOCK NO-ERROR.
+      FIND FIRST terms WHERE terms.company EQ inv-head.company AND terms.t-code EQ inv-head.terms NO-LOCK NO-ERROR.
       IF AVAIL terms 
         THEN ASSIGN tmp1 = v-net * (ROUND(terms.disc-rate / 100, 2))
                     tmp2 = TODAY + terms.disc-days.

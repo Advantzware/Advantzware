@@ -53,8 +53,11 @@ DEFINE            VARIABLE save_id           AS RECID     NO-UNDO.
 DEFINE            VARIABLE v-post            AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE v-matching-record AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE v-vend-name       LIKE vend.name NO-UNDO.
-
+DEFINE            VARIABLE tb_excel          AS LOGICAL   INITIAL YES NO-UNDO.
+DEFINE            VARIABLE cFileName         AS CHARACTER NO-UNDO.
 {ap/reconcil.i NEW}
+
+DEFINE STREAM excel.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -72,8 +75,9 @@ DEFINE            VARIABLE v-vend-name       LIKE vend.name NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 end_date bank_code rd-dest ~
-tbAutoClose btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS end_date bank_code rd-dest tbAutoClose 
+fi_file tb_OpenCSV tbAutoClose btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS end_date bank_code rd-dest fi_file ~
+tb_OpenCSV tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -86,100 +90,115 @@ tbAutoClose btn-ok btn-cancel
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE bank_code      AS CHARACTER FORMAT "X(8)" 
-    LABEL "Enter Bank Code or Leave Blank For All" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE bank_code AS CHARACTER FORMAT "X(8)" 
+     LABEL "Enter Bank Code or Leave Blank For All" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Ending Date" 
-    VIEW-AS FILL-IN 
-    SIZE 16 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
-    LABEL "Lines Per Page" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(45)" INITIAL "c:~\tmp~\BankReconciliationReg.csv" 
+     LABEL "Name" 
+     VIEW-AS FILL-IN NATIVE 
+     SIZE 49 BY 1.
 
-DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-    VIEW-AS FILL-IN 
-    SIZE 62 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Lines Per Page" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-    LABEL "Font" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
+     VIEW-AS FILL-IN 
+     SIZE 62 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Portrait", "P",
-    "Landscape", "L"
-    SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
+     LABEL "Font" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "To Printer", 1,
-    "To Screen", 2
-    SIZE 15 BY 3.81 NO-UNDO.
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Portrait", "P",
+"Landscape", "L"
+     SIZE 30 BY .95 NO-UNDO.
+
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "To Printer", 1,
+"To Screen", 2,
+"To CSV", 3
+     SIZE 15 BY 3.81 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 4.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 91 BY 4.33.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 6.19.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 91 BY 6.19.
 
-DEFINE VARIABLE tbAutoClose  AS LOGICAL INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
-    LABEL "Show Parameters?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 24 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_OpenCSV AS LOGICAL INITIAL no 
+     LABEL "Open CSV?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 17 BY .81
+     BGCOLOR 15 FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+     LABEL "Show Parameters?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    end_date AT ROW 3.19 COL 41.8 COLON-ALIGNED
-    bank_code AT ROW 4.52 COL 41.8 COLON-ALIGNED HELP
-    "Enter Bank code or Leave Blank For all"
-    rd-dest AT ROW 8.33 COL 4.8 NO-LABELS
-    lv-font-no AT ROW 8.33 COL 32.2 COLON-ALIGNED
-    lv-ornt AT ROW 8.38 COL 42 NO-LABELS
-    lines-per-page AT ROW 8.38 COL 86.4 COLON-ALIGNED
-    lv-font-name AT ROW 9.52 COL 28.2 COLON-ALIGNED NO-LABELS
-    td-show-parm AT ROW 10.81 COL 31
-    tbAutoClose AT ROW 12.57 COL 31.4 WIDGET-ID 64
-    btn-ok AT ROW 13.52 COL 31.2
-    btn-cancel AT ROW 13.52 COL 52.2
-    " Output Destination" VIEW-AS TEXT
-    SIZE 19 BY .62 AT ROW 7.67 COL 4
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.05 COL 4
-    RECT-6 AT ROW 8.1 COL 3
-    RECT-7 AT ROW 1.48 COL 3
+     end_date AT ROW 3.19 COL 41.8 COLON-ALIGNED
+     bank_code AT ROW 4.52 COL 41.8 COLON-ALIGNED HELP
+          "Enter Bank code or Leave Blank For all"
+     rd-dest AT ROW 8.33 COL 4.8 NO-LABEL
+     lv-font-no AT ROW 8.33 COL 32.2 COLON-ALIGNED
+     lv-ornt AT ROW 8.38 COL 42 NO-LABEL
+     lines-per-page AT ROW 8.38 COL 86.4 COLON-ALIGNED
+     lv-font-name AT ROW 9.52 COL 28.2 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 10.81 COL 31
+     fi_file AT ROW 11.1 COL 24.2 COLON-ALIGNED HELP
+          "Enter File Name" WIDGET-ID 66
+     tb_OpenCSV AT ROW 11.29 COL 92.2 RIGHT-ALIGNED WIDGET-ID 68
+     tbAutoClose AT ROW 12.57 COL 31.4 WIDGET-ID 64
+     btn-ok AT ROW 13.52 COL 31.2
+     btn-cancel AT ROW 13.52 COL 52.2
+     " Output Destination" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 7.67 COL 4
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.05 COL 4
+     RECT-6 AT ROW 8.1 COL 3
+     RECT-7 AT ROW 1.48 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 95.8 BY 15.71
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 95.8 BY 15.71
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -196,30 +215,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "A/P Bank Reconciliation Register"
-        HEIGHT             = 14
-        WIDTH              = 95
-        MAX-HEIGHT         = 33.29
-        MAX-WIDTH          = 204.8
-        VIRTUAL-HEIGHT     = 33.29
-        VIRTUAL-WIDTH      = 204.8
-        RESIZE             = YES
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "A/P Bank Reconciliation Register"
+         HEIGHT             = 14
+         WIDTH              = 95
+         MAX-HEIGHT         = 33.29
+         MAX-WIDTH          = 204.8
+         VIRTUAL-HEIGHT     = 33.29
+         VIRTUAL-WIDTH      = 204.8
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -234,44 +253,58 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    bank_code:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       bank_code:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    end_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-name:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tb_OpenCSV IN FRAME FRAME-A
+   ALIGN-R                                                              */
+ASSIGN 
+       tb_OpenCSV:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX td-show-parm IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    td-show-parm:HIDDEN IN FRAME FRAME-A = TRUE.
+       td-show-parm:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -294,7 +327,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* A/P Bank Reconciliation Register */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -308,7 +341,7 @@ ON END-ERROR OF C-Win /* A/P Bank Reconciliation Register */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* A/P Bank Reconciliation Register */
-    DO:
+DO:
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
@@ -321,7 +354,7 @@ ON WINDOW-CLOSE OF C-Win /* A/P Bank Reconciliation Register */
 &Scoped-define SELF-NAME bank_code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bank_code C-Win
 ON LEAVE OF bank_code IN FRAME FRAME-A /* Enter Bank Code or Leave Blank For All */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -332,7 +365,7 @@ ON LEAVE OF bank_code IN FRAME FRAME-A /* Enter Bank Code or Leave Blank For All
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         APPLY "close" TO THIS-PROCEDURE.
     END.
 
@@ -343,11 +376,19 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
         DEFINE VARIABLE lv-post AS LOG NO-UNDO.
-
+                
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&displayed-objects}.
+        END.
+        
+        IF rd-dest = 3 THEN
+        DO:   
+            ASSIGN 
+                fi_file = SUBSTRING(fi_file,1,INDEX(fi_file,"_") - 1) .
+            RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+            fi_file:SCREEN-VALUE =  cFileName.
         END.
 
         DO TRANSACTION:       /** GET next G/L TRANS. POSTING # **/
@@ -372,7 +413,24 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
         CASE rd-dest:
             WHEN 1 THEN RUN output-to-printer.
             WHEN 2 THEN RUN output-to-screen.
-            WHEN 3 THEN RUN output-to-file.
+            WHEN 3 THEN 
+                 DO:
+                    IF NOT tb_OpenCSV THEN 
+                    DO:        
+                        MESSAGE "CSV file have been created." SKIP(1)
+                            "~"OK"~" to open CSV file?"
+                            VIEW-AS ALERT-BOX QUESTION BUTTONS OK-CANCEL
+                            TITLE "" UPDATE lChoice AS LOGICAL.
+                 
+                        IF lChoice THEN
+                        DO:
+                            OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                        END.
+                    END.
+                    ELSE DO:   
+                        OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+                    END.
+                 END. /* WHEN 3 THEN DO: */
         END CASE.
 
         IF v-postable THEN 
@@ -419,10 +477,52 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fi_file
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON HELP OF fi_file IN FRAME FRAME-A /* Name */
+DO:
+   DEF VAR ls-filename AS CHARACTER NO-UNDO.
+   DEF VAR ll-ok AS LOG NO-UNDO.
+
+   SYSTEM-DIALOG GET-FILE ls-filename 
+                 TITLE "Select File to Save "
+                 FILTERS "Excel Files    (*.csv)" "*.csv",
+                         "All Files    (*.*) " "*.*"
+                 INITIAL-DIR "c:\tmp"
+                 MUST-EXIST
+                 USE-FILENAME
+                 UPDATE ll-ok.
+
+    IF ll-ok THEN SELF:SCREEN-VALUE = ls-filename.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
+    DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
+ON LEAVE OF fi_file IN FRAME FRAME-A /* Name */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -438,8 +538,30 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         {custom/chgfont.i}
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME rd-dest
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
+ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
+    DO:
+        ASSIGN {&self-name}.
+        RUN pChangeDest.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_OpenCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_OpenCSV C-Win
+ON VALUE-CHANGED OF tb_OpenCSV IN FRAME FRAME-A /* Open CSV? */
+DO:
+        ASSIGN {&self-name}.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -497,7 +619,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         td-show-parm:HIDDEN    = NOT lShowParameters
         td-show-parm:VISIBLE   = lShowParameters
         .
-  
+    RUN pChangeDest.
     {methods/nowait.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -511,18 +633,18 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,21 +652,22 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY end_date bank_code rd-dest tbAutoClose 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-6 RECT-7 end_date bank_code rd-dest tbAutoClose btn-ok btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY end_date bank_code rd-dest fi_file tb_OpenCSV tbAutoClose 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-6 RECT-7 end_date bank_code rd-dest fi_file tb_OpenCSV 
+         tbAutoClose btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -552,7 +675,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -581,7 +704,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -598,7 +721,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -611,7 +734,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-gl C-Win 
 PROCEDURE post-gl :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -671,7 +794,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    /* ---------------------------------------------------- oe/invpost.p 10/94 gb */
+/* ---------------------------------------------------- oe/invpost.p 10/94 gb */
     /* Invoicing  - Edit Register & Post Invoicing Transactions                   */
     /* -------------------------------------------------------------------------- */
 
@@ -681,12 +804,13 @@ PROCEDURE run-report :
     DEFINE VARIABLE v-unc-tot   AS DECIMAL   FORMAT "->,>>>,>>9.99" NO-UNDO.
     DEFINE VARIABLE v-bnk-tot   AS DECIMAL   FORMAT "->,>>>,>>9.99" NO-UNDO.
     DEFINE VARIABLE v-bank-code AS CHARACTER NO-UNDO.
-
-
+    DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
+    
     ASSIGN
         time_stamp = STRING(TIME, "hh:mmam")
         tmpstore   = FILL("_",125) .
-    .
+     
+     v-postable = NO.
 
     {sys/form/r-top3w.f}
 
@@ -730,6 +854,14 @@ PROCEDURE run-report :
     {sys/inc/print1.i}
 
     {sys/inc/outprint.i VALUE(lines-per-page)}
+    
+    IF tb_excel THEN 
+    DO:
+        OUTPUT STREAM excel TO VALUE(cFileName).
+        excelheader = "Check/Journal#,Date,Amount,Vendor,Name".
+        PUT STREAM excel UNFORMATTED 
+            '"' REPLACE(excelheader,',','","') '"' SKIP.
+    END.
 
     IF td-show-parm THEN RUN show-param.
 
@@ -769,7 +901,17 @@ PROCEDURE run-report :
                     tt-name
                     WITH FRAME f1.
                 DOWN WITH FRAME f1.
-
+                
+                IF tb_excel THEN 
+                do:
+                 PUT STREAM excel UNFORMATTED
+                     '"' tt-number                         '",'
+                     '"' tt-date                           '",'
+                     '"' tt-amt                            '",'
+                     '"' tt-vend                           '",'
+                     '"' tt-name                           '",'                     
+                     SKIP.
+                END.
                 v-postable = YES.
             END.
 
@@ -810,6 +952,36 @@ PROCEDURE run-report :
                     v-unc-tot                 AT 33 FORMAT "->>,>>>,>>9.99" SKIP
                     "Ending Bank Balance:"    TO 31
                     v-bnk-tot - v-unc-tot     AT 33 FORMAT "->>,>>>,>>9.99" SKIP(1).
+                    
+                IF tb_excel THEN 
+                DO:
+                    PUT STREAM excel UNFORMATTED
+                     '"' "Bank:"  tt-bank                  '",'
+                     '"' "Total Checks:"                   '",'
+                     '"' v-chk-tot                         '",'
+                     SKIP
+                     '"' ""                                '",'
+                     '"' "Total Deposits:"                 '",'                     
+                     '"' v-dep-tot                         '",'
+                     SKIP
+                     '"' ""                                '",'
+                     '"' "Total GL Entries:"               '",'                      
+                     '"' v-jrn-tot                         '",'
+                     SKIP                         
+                     '"' ""                                '",'
+                     '"' "Beginning Book Balance:"         '",'                       
+                     '"' v-bnk-tot                         '",'
+                     SKIP                    
+                     '"' ""                                '",'
+                     '"' "Total in Transit:"               '",'                     
+                     '"' v-unc-tot                         '",'
+                     SKIP                     
+                     '"' ""                                '",'
+                     '"' "Ending Bank Balance:"            '",'                      
+                     '"' v-bnk-tot - v-unc-tot             '",'
+                     SKIP  .
+                     
+                END.
 
                 ASSIGN
                     v-chk-tot = 0
@@ -827,6 +999,11 @@ PROCEDURE run-report :
     DISPLAY WITH FRAME end-of-report.
 
     SESSION:SET-WAIT-STATE("").
+    
+    IF tb_excel THEN 
+    DO:
+        OUTPUT STREAM excel CLOSE.
+    END.
 
 
 END PROCEDURE.
@@ -836,7 +1013,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -908,3 +1085,34 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pChangeDest C-Win 
+PROCEDURE pChangeDest :
+    /*------------------------------------------------------------------------------
+         Purpose:    
+         Parameters:  <none>
+         Notes:      
+        ------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        IF rd-dest:SCREEN-VALUE EQ "3" THEN
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "Yes"
+                fi_file:SENSITIVE       = YES
+                tb_OpenCSV:SENSITIVE    = YES
+                tb_excel                = YES
+                .
+        ELSE
+            ASSIGN
+                tb_OpenCSV:SCREEN-VALUE = "NO"
+                fi_file:SENSITIVE       = NO
+                tb_OpenCSV:SENSITIVE    = NO
+                tb_excel                = NO
+                .
+        ASSIGN 
+            fi_file:SCREEN-VALUE = "c:\tmp\BankReconciliationReg.csv".   
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME

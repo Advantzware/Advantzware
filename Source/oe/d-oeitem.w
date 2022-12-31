@@ -7220,8 +7220,8 @@ PROCEDURE final-steps2 :
         IF  oe-ord.est-no EQ "" OR          /* Est no on order is blank, or */
             (v-qty-mod AND                  /* qty changed on an existing estimate-based line */
             (NOT ll-new-record OR 
-            lv-new-tandem NE ?)
-            ) THEN 
+            lv-new-tandem NE ?)) OR 
+            (oe-ordl.est-no NE "" AND ll-new-record) THEN 
         DO:
             FRAME {&frame-name}:SENSITIVE = NO.      
             RUN oe/estupl.p.                /* po/doPo is run from here */

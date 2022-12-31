@@ -42,9 +42,10 @@ ASSIGN v-mch-list = "".
 FOR EACH est-op WHERE
     est-op.company EQ xest.company AND
     est-op.est-no EQ xest.est-no AND
+    (est-op.s-num EQ xeb.form-no OR est-op.s-num EQ 0) AND
     est-op.LINE LT 500
     NO-LOCK
-    /*BREAK BY est-op.m-code*/:
+    BY est-op.s-num:
 
     IF LOOKUP(est-op.m-code,v-mch-list) = 0 THEN
        v-mch-list = v-mch-list + "," + est-op.m-code.

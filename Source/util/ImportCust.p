@@ -649,7 +649,13 @@ PROCEDURE pCustProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCust.ShipAdd2, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-addr[2]).
     RUN pAssignValueC (ipbf-ttImportCust.ShipCity, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-city).
     RUN pAssignValueC (ipbf-ttImportCust.ShipState, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-state).
-    RUN pAssignValueC (ipbf-ttImportCust.ShipZip, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-zip).
+    RUN pAssignValueC (ipbf-ttImportCust.ShipZip, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.ship-zip).     
+    RUN pAssignValueC (ipbf-ttImportCust.cLoc, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.loc).
+    RUN pAssignValueC (ipbf-ttImportCust.cCarrier, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.carrier).
+    RUN pAssignValueC (ipbf-ttImportCust.cDelZone, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.del-zone).
+    RUN pAssignValueC (ipbf-ttImportCust.cPallet, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.pallet).
+    RUN pAssignValueC (ipbf-ttImportCust.dUnderPct, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.undersPercent).
+    RUN pAssignValueC (ipbf-ttImportCust.dOverPct, iplIgnoreBlanks, INPUT-OUTPUT bf-shipto.oversPercent).     
         
     FIND FIRST bf-soldto EXCLUSIVE-LOCK 
         WHERE bf-soldto.company EQ bf-cust.company

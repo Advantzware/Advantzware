@@ -543,7 +543,7 @@ form " " to 80
            v-net = v-tot-merch + inv-head.t-inv-freight + inv-head.t-inv-tax + v-fin-chrg.
 
           release terms.
-          find first terms where terms.t-code eq inv-head.terms no-lock no-error.
+          find first terms where terms.company EQ inv-head.company AND terms.t-code eq inv-head.terms no-lock no-error.
 
           if avail terms then
             assign

@@ -789,7 +789,7 @@ PROCEDURE pCreateNewInvoice:
                 bf-ap-inv.curr-code[1] = 'USD'
                 .                        
         
-        FIND FIRST terms WHERE terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
+        FIND FIRST terms WHERE terms.company EQ ipcCompany AND terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
         IF AVAILABLE terms THEN
             ASSIGN
                 bf-ap-inv.disc-%    = terms.disc-rate

@@ -226,8 +226,10 @@ for each xxreport where xxreport.term-id eq v-term-id,
              v-zone = cust.del-zone.
              
       if v-terms eq "" then
-      do:
-        find first terms where terms.t-code eq oe-ord.terms no-lock no-error.
+      do:        
+        FIND FIRST terms NO-LOCK
+	     WHERE terms.company EQ oe-ord.company 
+               AND terms.t-code  EQ oe-ord.terms  NO-ERROR.
         if avail terms then
           assign v-terms = terms.dscr.
       end.

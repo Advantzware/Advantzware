@@ -82,8 +82,7 @@ ll-sort-asc = NOT oeinq.
     FOR EACH fg-rcpth                                 ~
         WHERE {&key-phrase}                           ~
           AND fg-rcpth.trans-date GE fi_date          ~
-          AND fg-rcpth.i-no       BEGINS fi_i-no      ~
-          AND (fg-rcpth.i-no EQ fi_i-no OR fi_i-no EQ "") ~
+          AND (fg-rcpth.i-no begins fi_i-no OR fi_i-no EQ "") ~
           AND fg-rcpth.rita-code  BEGINS fi_rita-code ~
           AND (fg-rcpth.po-no     EQ TRIM(STRING(fi_po-no,">>>>>>>>")) OR fi_po-no EQ 0) ~
           AND (FILL(" ", iJobLen - length(TRIM(fg-rcpth.job-no))) + trim(fg-rcpth.job-no) EQ fi_job-no OR fi_job-no EQ "")  ~
@@ -769,6 +768,30 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME fi_job-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
+ON HELP OF fi_job-no IN FRAME F-Main /* job # */
+DO:
+     DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+
+     FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company EQ cocode
+          AND itemfg.i-no      EQ fi_i-no:SCREEN-VALUE
+          NO-ERROR.
+
+     IF AVAILABLE itemfg THEN
+     DO:
+         RUN AOA/dynLookupSetParam.p (217, ROWID(itemfg), OUTPUT char-val).
+              ASSIGN
+                fi_job-no:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "job-hdr.job-no",   char-val)
+                fi_job-no2:SCREEN-VALUE      IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "job-hdr.job-no2",    char-val)
+                .
+     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME fi_job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no2 B-table-Win
@@ -1219,7 +1242,7 @@ IF ou-log THEN
       IF i EQ 1 AND fi_i-no:SCREEN-VALUE NE ""  THEN DO:
           FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ cocode
-            AND itemfg.i-no EQ fi_i-no:SCREEN-VALUE NO-ERROR.
+            AND itemfg.i-no BEGINS fi_i-no:SCREEN-VALUE NO-ERROR.
 
         IF AVAIL itemfg THEN DO:
             v-cust-chk = itemfg.cust-no.
@@ -1275,7 +1298,7 @@ PROCEDURE valid-i-no :
     fi_i-no:SCREEN-VALUE = CAPS(fi_i-no:SCREEN-VALUE).
 
     IF NOT CAN-FIND(FIRST itemfg WHERE itemfg.company EQ cocode
-                                   AND itemfg.i-no    EQ fi_i-no:screen-value)
+                                   AND itemfg.i-no    BEGINS fi_i-no:screen-value)
     THEN DO:
       IF fi_job-no = "" THEN DO:
          MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX ERROR.

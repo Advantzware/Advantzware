@@ -115,9 +115,11 @@ RUN methods/prgsecur.p
 DEFINE VARIABLE hdSalesManProcs AS HANDLE    NO-UNDO.
 DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
 DEFINE VARIABLE hdFormulaProcs AS HANDLE  NO-UNDO.
+DEFINE VARIABLE hPrepProcs     AS HANDLE NO-UNDO.
 
 RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
 RUN salrep/SalesManProcs.p PERSISTENT SET hdSalesManProcs.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 DEFINE VARIABLE lCADFile AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cCADFile AS CHARACTER NO-UNDO.
@@ -2033,6 +2035,8 @@ PROCEDURE local-assign-record :
   DEF VAR lv-box-des AS CHAR INIT "S" NO-UNDO.
   DEF VAR lv-t-sqin LIKE eb.t-sqin NO-UNDO.
   DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
+  DEFINE VARIABLE cOldDieNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cOldPlate AS CHARACTER NO-UNDO.
 
   DEF BUFFER b-est FOR est.
   DEF BUFFER b-eb FOR eb.
@@ -2044,7 +2048,9 @@ PROCEDURE local-assign-record :
    lv-hld-cust   = eb.cust-no
    lv-hld-ship   = eb.ship-id
    lv-prev-style = eb.style
-   lv-t-sqin     = eb.t-sqin.
+   lv-t-sqin     = eb.t-sqin
+   cOldDieNo     = eb.die-no
+   cOldPlate     = eb.plate-no.
   IF AVAIL(ef) THEN
     lv-hld-board = ef.board.
 
@@ -2075,6 +2081,11 @@ PROCEDURE local-assign-record :
   END.
 
   {ce/uship-id.i no}
+  
+  IF cOldDieNo NE eb.die-no THEN
+  RUN pCheckPrep(eb.die-no).
+  IF cOldPlate NE eb.plate-no THEN
+  RUN pCheckPrep(eb.plate-no). 
 
   find bf-est where recid(bf-est) = recid(est) exclusive-lock.
   assign bf-est.mod-date = today
@@ -2553,7 +2564,8 @@ PROCEDURE local-destroy:
         DELETE PROCEDURE hdFormulaProcs.
     IF VALID-HANDLE (hdSalesManProcs) THEN
         DELETE PROCEDURE hdSalesManProcs.    
-        
+     IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
@@ -2978,6 +2990,29 @@ PROCEDURE pCheckAutoLock :
    DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
    
    oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPrep V-table-Win 
+PROCEDURE pCheckPrep :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcPrep AS CHARACTER NO-UNDO.
+   DEFINE BUFFER bf-prep FOR prep.
+   
+   FIND FIRST bf-prep NO-LOCK
+       WHERE bf-prep.company EQ cocode
+         AND bf-prep.code    EQ ipcPrep
+       NO-ERROR.
+               
+   IF AVAILABLE bf-prep THEN
+   RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(bf-prep)). 
    
 END PROCEDURE.
 
