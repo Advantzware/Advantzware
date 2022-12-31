@@ -3306,3 +3306,12 @@
 216 no 105 "ttblJob.userField97" "Run Std Hrs" "x(8)" "ttblJob" 10 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276307" no no no "" no "" "" 0 0 "" no no "" "" no
 216 no 106 "ttblJob.userField98" "MSF" "x(18)" "ttblJob" 20 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276308" no no no "" no "" "" 0 0 "" no no "" "" no
 216 no 107 "ttblJob.userField99" "SqFt" "x(13)" "ttblJob" 15 "character" "ASI" 0 no no "" "" no "" "" "20221027_18:29:51_10276309" no no no "" no "" "" 0 0 "" no no "" "" no
+217 yes 5 "job-hdr.cust-no" "Cust. #" "x(8)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463272" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+217 yes 3 "job-hdr.est-no" "Estimate #" "X(8)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463273" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+217 yes 8 "job-hdr.i-no" "Item No" "x(15)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463274" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+217 yes 1 "job-hdr.job-no" "Job Number" "x(9)" "job-hdr" 0 "STRING" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463275" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+217 yes 2 "job-hdr.job-no2" "Run #" ">>9" "job-hdr" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463276" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+217 yes 9 "job-hdr.opened" "opened" "Open/Closed" "job-hdr" 0 "logical" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463277" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+217 yes 4 "job-hdr.ord-no" "Order#" ">>>>>>>9" "job-hdr" 0 "integer" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463278" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+217 yes 7 "job-hdr.qty" "Quantity" ">>,>>>,>>9" "job-hdr" 0 "decimal" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463279" yes yes yes "" no "" "" 0 0 "" no no "" "" no
+217 yes 6 "job-hdr.start-date" "Start Date" "99/99/9999" "job-hdr" 0 "date" "ASI" 0 no no "" "" no "" "" "20221207_04:32:36_10463280" yes yes yes "" no "" "" 0 0 "" no no "" "" no
