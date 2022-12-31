@@ -91,7 +91,7 @@
 "001" "REPORTS" "" 0 0 "HR3" ? yes "" "0602201409274843" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "IR14" ? yes "" "1006201409424633" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "REPORTSCUSTLIST" "" 0 0 "AR4" ? yes "" "0916201409401565" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
-"001" "Reports" "Selectable Report Columns" 0 0 "OZ7" ? yes "" "1103201409461377" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
+"001" "Reports" "Selectable Report Columns" 0 0 "OZ7" ? no "" "1103201409461377" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "IR10" ? yes "" "1002201409421335" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "Reports" "Selectable Report Columns" 0 0 "HR9" ? yes "" "0908201409381131" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no
 "001" "REPORTS" "" 0 0 "IL10" ? yes "" "0909201409384952" yes "" "" "" "" "" "" "" 0 0 0 0 0 0 0 0 0 0 0 0 "" "" "" no

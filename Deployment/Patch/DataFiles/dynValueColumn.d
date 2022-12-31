@@ -3173,136 +3173,147 @@
 215 "_default" "dynSubjct." 0 24 yes "ttSalesAnalysis.shipZip" "Zip" "x(10)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294900" no "" "" 0 0 "" no no "" "" no
 215 "_default" "dynSubjct." 0 25 yes "ttSalesAnalysis.bolWhs" "BOL Whs" "x(8)" 0 "character" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294901" no "" "" 0 0 "" no no "" "" no
 215 "_default" "dynSubjct." 0 26 yes "ttSalesAnalysis.bolDate" "BOL Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221025_14:59:39_10294902" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 1 yes "ttblJob.resource" "Resource" "x(8)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313416" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 2 yes "ttblJob.jobSort" "Job" "x(8)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313417" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 3 yes "ttblJob.startDate" "Start Date" "99/99/99" 10 "date" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313418" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 4 yes "CalcStartTime" "Start Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.startTime" no no no "" "20221027_18:58:48_10313419" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 5 yes "ttblJob.endDate" "End Date" "99/99/99" 8.8 "date" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313420" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 6 yes "CalcEndTime" "End Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.endTime" no no no "" "20221027_18:58:48_10313421" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 7 yes "ttblJob.dueDate" "Due Date" "99/99/99" 9 "date" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313422" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 8 yes "ttblJob.job" "Job ID" "X(20)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313423" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 9 no "ttblJob.userField01" "Customer" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313424" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 10 no "ttblJob.userField02" "Customer Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313425" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 11 no "ttblJob.userField03" "Board" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313426" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 12 no "ttblJob.userField04" "Board Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313427" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 13 no "ttblJob.userField05" "Die" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313428" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 14 no "ttblJob.userField06" "Plate" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313429" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 15 no "ttblJob.userField07" "PO" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313430" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 16 no "ttblJob.userField08" "FG Item" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313431" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 17 no "ttblJob.userField09" "Item Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313432" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 18 no "ttblJob.userField10" "Length" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313433" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 19 no "ttblJob.userField11" "Width" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313434" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 20 no "ttblJob.userField12" "Depth" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313435" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 21 no "ttblJob.userField13" "Style" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313436" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 22 no "ttblJob.userField14" "Color" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313437" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 23 no "ttblJob.userField15" "Run Qty" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313438" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 24 no "ttblJob.userField16" "PO Due" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313439" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 25 no "ttblJob.userField17" "Vendor" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313440" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 26 no "ttblJob.userField18" "Form" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313441" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 27 no "ttblJob.userField19" "Blank" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313442" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 28 no "ttblJob.userField20" "Pass" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313443" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 29 no "ttblJob.userField21" "Category" "x(5)" 7 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313444" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 30 no "ttblJob.userField22" "Caliper" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313445" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 31 no "ttblJob.userField23" "Sheet Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313446" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 32 no "ttblJob.userField24" "Adhesive" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313447" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 33 no "ttblJob.userField25" "Coats" "x(2)" 4 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313448" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 34 no "ttblJob.userField26" "Board L." "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313449" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 35 no "ttblJob.userField27" "Board W." "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313450" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 36 no "ttblJob.userField28" "Color Desc" "x(40)" 42 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313451" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 37 no "ttblJob.userField29" "Total MRP" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313452" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 38 no "ttblJob.userField30" "Mat Length" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313453" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 39 no "ttblJob.userField31" "#Up" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313454" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 40 no "ttblJob.userField32" "Linear Feet" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313455" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 41 no "ttblJob.userField33" "Total Pieces" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313456" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 42 no "ttblJob.userField34" "CAD" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313457" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 43 no "ttblJob.userField35" "PO Qty Recd" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313458" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 44 no "ttblJob.userField36" "Sales Rep" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313459" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 45 no "ttblJob.userField37" "Release Qty" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313460" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 46 no "ttblJob.userField38" "Release Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313461" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 47 no "ttblJob.userField39" "Ship To Addr" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313462" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 48 no "ttblJob.userField40" "Ship To City" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313463" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 49 no "ttblJob.userField41" "Ink-1" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313464" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 50 no "ttblJob.userField42" "Ink-2" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313465" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 51 no "ttblJob.userField43" "Ink-3" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313466" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 52 no "ttblJob.userField44" "Ink-4" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313467" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 53 no "ttblJob.userField45" "Ink-5" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313468" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 54 no "ttblJob.userField46" "Ink-6" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313469" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 55 no "ttblJob.userField47" "Ink-7" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313470" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 56 no "ttblJob.userField48" "Ink-8" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313471" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 57 no "ttblJob.userField49" "Ink-9" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313472" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 58 no "ttblJob.userField50" "Ink-10" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313473" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 59 no "ttblJob.userField51" "Pallet/Unit" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313474" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 60 no "ttblJob.userField52" "Rel MSF" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313475" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 61 no "ttblJob.userField53" "Tab" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313476" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 62 no "ttblJob.userField54" "Run MSF" "x(18)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313477" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 63 no "ttblJob.userField55" "Pallet Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313478" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 64 no "ttblJob.userField56" "Pallet MRP" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313479" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 65 no "ttblJob.userField57" "Prod Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313480" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 66 no "ttblJob.userField58" "Gross Sht L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313481" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 67 no "ttblJob.userField59" "Gross Sht W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313482" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 68 no "ttblJob.userField60" "Pack Code" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313483" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 69 no "ttblJob.userField61" "Mat Type5 Item#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313484" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 70 no "ttblJob.userField62" "Mat Type6 Item#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313485" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 71 no "ttblJob.userField63" "Cust PO#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313486" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 72 no "ttblJob.userField64" "Cust Part#" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313487" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 73 no "ttblJob.userField65" "Internal L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313488" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 74 no "ttblJob.userField66" "End Cell L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313489" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 75 no "ttblJob.userField67" "Internal W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313490" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 76 no "ttblJob.userField68" "End Cell W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313491" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 77 no "ttblJob.userField69" "Current Qty" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313492" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 78 no "ttblJob.userField70" "Varnish" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313493" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 79 no "ttblJob.userField71" "Adders" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:48_10313494" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 80 no "ttblJob.userField72" "Adder 1" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313495" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 81 no "ttblJob.userField73" "Adder 2" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313496" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 82 no "ttblJob.userField74" "Adder 3" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313497" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 83 no "ttblJob.userField75" "Adder 4" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313498" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 84 no "ttblJob.userField76" "Adder 5" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313499" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 85 no "ttblJob.userField77" "Adder 6" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313500" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 86 no "ttblJob.userField78" "No. of Cases" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313501" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 87 no "ttblJob.userField79" "Cases Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313502" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 88 no "ttblJob.userField80" "Die Bin" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313503" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 89 no "ttblJob.userField81" "Film Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313504" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 90 no "ttblJob.userField82" "Mfg Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313505" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 91 no "ttblJob.userField83" "Job Status" "x(1)" 3 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313506" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 92 no "ttblJob.userField84" "Total Price" "x(14)" 16 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313507" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 93 no "ttblJob.userField85" "Due Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313508" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 94 no "ttblJob.userField86" "UnderRun%" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313509" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 95 no "ttblJob.userField87" "OverRun%" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313510" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 96 no "ttblJob.userField88" "Speed" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313511" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 97 no "ttblJob.userField89" "Created" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313512" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 98 no "ttblJob.userField90" "DC Prod Qty" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313513" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 99 no "ttblJob.userField91" "First Release" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313514" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 100 no "ttblJob.userField92" "EmpAlert CSR" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313515" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 101 no "ttblJob.userField93" "MatType5 Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313516" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 102 no "ttblJob.userField94" "MatType6 Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313517" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 103 no "ttblJob.userField95" "Required Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313518" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 104 no "ttblJob.userField96" "MR Std Hrs" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313519" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 105 no "ttblJob.userField97" "Run Std Hrs" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313520" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 106 no "ttblJob.userField98" "MSF" "x(18)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313521" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 107 no "ttblJob.userField99" "SqFt" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313522" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 108 no "ttblJob.userField100" "MR Waste" "x(4)" 6 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313523" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 109 no "ttblJob.userField101" "Run Waste" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313524" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 110 no "ttblJob.userField102" "MR Time" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313525" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 111 no "ttblJob.userField103" "Run Time" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313526" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 112 no "ttblJob.userField104" "Job-Run" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313527" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 113 no "ttblJob.userField105" "Tot. Time" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313528" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 114 no "ttblJob.userField106" "Ink LBS" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313529" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 115 no "ttblJob.userField107" "Job Qty" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313530" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 116 no "ttblJob.userField108" "Score (on Width)" "x(24)" 26 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313531" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 117 no "ttblJob.userField109" "Score (on Length)" "x(24)" 26 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313532" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 118 no "ttblJob.userField110" "Promise Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313533" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 119 no "ttblJob.userField111" "Order Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313534" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 120 no "ttblJob.jobStatus[1]" "jobStatus[1]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313535" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 121 no "ttblJob.jobStatus[2]" "jobStatus[2]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313536" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 122 no "ttblJob.jobStatus[3]" "jobStatus[3]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313537" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 123 no "ttblJob.jobStatus[4]" "jobStatus[4]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313538" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 124 no "ttblJob.jobStatus[5]" "jobStatus[5]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313539" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 125 no "ttblJob.jobStatus[6]" "jobStatus[6]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313540" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 126 no "ttblJob.jobStatus[7]" "jobStatus[7]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313541" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 127 no "ttblJob.jobStatus[8]" "jobStatus[8]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313542" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 128 no "ttblJob.jobStatus[9]" "jobStatus[9]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313543" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 129 no "ttblJob.jobStatus[10]" "jobStatus[10]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313544" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 130 no "ttblJob.jobStatus[11]" "jobStatus[11]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313545" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 131 no "ttblJob.jobStatus[12]" "jobStatus[12]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313546" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 132 no "ttblJob.jobStatus[13]" "jobStatus[13]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313547" no "" "" 0 0 "" no no "" "" no
-216 "_default" "dynSubjct." 0 133 no "ttblJob.jobStatus[14]" "jobStatus[14]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221027_18:58:49_10313548" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 1 yes "ttblJob.resource" "Resource" "x(8)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460028" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 2 yes "ttblJob.jobSort" "Job" "x(8)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460029" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 3 yes "ttblJob.startDate" "Start Date" "99/99/99" 10 "date" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460030" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 4 yes "CalcStartTime" "Start Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.startTime" no no no "" "20221205_20:38:26_10460031" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 5 yes "ttblJob.endDate" "End Date" "99/99/99" 8.8 "date" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460032" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 6 yes "CalcEndTime" "End Time" "x(11)" 0 "Character" 0 no no "" "" yes "calcStringTime" "ttblJob.endTime" no no no "" "20221205_20:38:26_10460033" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 7 yes "ttblJob.dueDate" "Due Date" "99/99/99" 9 "date" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460034" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 8 yes "ttblJob.job" "Job ID" "X(20)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460035" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 9 no "ttblJob.userField01" "Customer" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460036" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 10 no "ttblJob.userField02" "Customer Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460037" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 11 no "ttblJob.userField03" "Board" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460038" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 12 no "ttblJob.userField04" "Board Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460039" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 13 no "ttblJob.userField05" "Die" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460040" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 14 no "ttblJob.userField06" "Plate" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460041" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 15 no "ttblJob.userField07" "PO" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460042" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 16 no "ttblJob.userField08" "FG Item" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460043" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 17 no "ttblJob.userField09" "Item Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460044" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 18 no "ttblJob.userField10" "Length" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460045" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 19 no "ttblJob.userField11" "Width" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460046" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 20 no "ttblJob.userField12" "Depth" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460047" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 21 no "ttblJob.userField13" "Style" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460048" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 22 no "ttblJob.userField14" "Color" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460049" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 23 no "ttblJob.userField15" "Run Qty" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460050" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 24 no "ttblJob.userField16" "PO Due" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460051" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 25 no "ttblJob.userField17" "Vendor" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460052" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 26 no "ttblJob.userField18" "Form" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460053" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 27 no "ttblJob.userField19" "Blank" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460054" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 28 no "ttblJob.userField20" "Pass" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460055" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 29 no "ttblJob.userField21" "Category" "x(5)" 7 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460056" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 30 no "ttblJob.userField22" "Caliper" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460057" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 31 no "ttblJob.userField23" "Sheet Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460058" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 32 no "ttblJob.userField24" "Adhesive" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460059" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 33 no "ttblJob.userField25" "Coats" "x(2)" 4 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460060" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 34 no "ttblJob.userField26" "Board L." "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460061" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 35 no "ttblJob.userField27" "Board W." "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460062" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 36 no "ttblJob.userField28" "Color Desc" "x(40)" 42 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460063" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 37 no "ttblJob.userField29" "Total MRP" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460064" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 38 no "ttblJob.userField30" "Mat Length" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460065" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 39 no "ttblJob.userField31" "#Up" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460066" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 40 no "ttblJob.userField32" "Linear Feet" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460067" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 41 no "ttblJob.userField33" "Total Pieces" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460068" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 42 no "ttblJob.userField34" "CAD" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460069" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 43 no "ttblJob.userField35" "PO Qty Recd" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460070" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 44 no "ttblJob.userField36" "Sales Rep" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460071" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 45 no "ttblJob.userField37" "Release Qty" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460072" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 46 no "ttblJob.userField38" "Release Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460073" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 47 no "ttblJob.userField39" "Ship To Addr" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460074" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 48 no "ttblJob.userField40" "Ship To City" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460075" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 49 no "ttblJob.userField41" "Ink-1" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460076" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 50 no "ttblJob.userField42" "Ink-2" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460077" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 51 no "ttblJob.userField43" "Ink-3" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460078" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 52 no "ttblJob.userField44" "Ink-4" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460079" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 53 no "ttblJob.userField45" "Ink-5" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460080" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 54 no "ttblJob.userField46" "Ink-6" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460081" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 55 no "ttblJob.userField47" "Ink-7" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460082" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 56 no "ttblJob.userField48" "Ink-8" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460083" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 57 no "ttblJob.userField49" "Ink-9" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460084" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 58 no "ttblJob.userField50" "Ink-10" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460085" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 59 no "ttblJob.userField51" "Pallet/Unit" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460086" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 60 no "ttblJob.userField52" "Rel MSF" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460087" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 61 no "ttblJob.userField53" "Tab" "x(3)" 5 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460088" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 62 no "ttblJob.userField54" "Run MSF" "x(18)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460089" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 63 no "ttblJob.userField55" "Pallet Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460090" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 64 no "ttblJob.userField56" "Pallet MRP" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460091" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 65 no "ttblJob.userField57" "Prod Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460092" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 66 no "ttblJob.userField58" "Gross Sht L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460093" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 67 no "ttblJob.userField59" "Gross Sht W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460094" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 68 no "ttblJob.userField60" "Pack Code" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460095" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 69 no "ttblJob.userField61" "Mat Type5 Item#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460096" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 70 no "ttblJob.userField62" "Mat Type6 Item#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460097" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 71 no "ttblJob.userField63" "Cust PO#" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460098" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 72 no "ttblJob.userField64" "Cust Part#" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460099" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 73 no "ttblJob.userField65" "Internal L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460100" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 74 no "ttblJob.userField66" "End Cell L." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460101" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 75 no "ttblJob.userField67" "Internal W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460102" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 76 no "ttblJob.userField68" "End Cell W." "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460103" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 77 no "ttblJob.userField69" "Current Qty" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460104" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 78 no "ttblJob.userField70" "Varnish" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460105" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 79 no "ttblJob.userField71" "Adders" "x(100)" 102 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460106" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 80 no "ttblJob.userField72" "Adder 1" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460107" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 81 no "ttblJob.userField73" "Adder 2" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460108" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 82 no "ttblJob.userField74" "Adder 3" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460109" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 83 no "ttblJob.userField75" "Adder 4" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460110" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 84 no "ttblJob.userField76" "Adder 5" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460111" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 85 no "ttblJob.userField77" "Adder 6" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460112" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 86 no "ttblJob.userField78" "No. of Cases" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460113" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 87 no "ttblJob.userField79" "Cases Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460114" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 88 no "ttblJob.userField80" "Die Bin" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460115" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 89 no "ttblJob.userField81" "Film Name" "x(30)" 32 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460116" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 90 no "ttblJob.userField82" "Mfg Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460117" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 91 no "ttblJob.userField83" "Job Status" "x(1)" 3 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460118" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 92 no "ttblJob.userField84" "Total Price" "x(14)" 16 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460119" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 93 no "ttblJob.userField85" "Due Qty" "x(11)" 13 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460120" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 94 no "ttblJob.userField86" "UnderRun%" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460121" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 95 no "ttblJob.userField87" "OverRun%" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460122" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 96 no "ttblJob.userField88" "Speed" "x(6)" 8 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460123" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 97 no "ttblJob.userField89" "Created" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460124" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 98 no "ttblJob.userField90" "DC Prod Qty" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460125" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 99 no "ttblJob.userField91" "First Release" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460126" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 100 no "ttblJob.userField92" "EmpAlert CSR" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460127" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 101 no "ttblJob.userField93" "MatType5 Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460128" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 102 no "ttblJob.userField94" "MatType6 Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460129" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 103 no "ttblJob.userField95" "Required Qty" "x(20)" 22 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460130" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 104 no "ttblJob.userField96" "MR Std Hrs" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460131" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 105 no "ttblJob.userField97" "Run Std Hrs" "x(8)" 10 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460132" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 106 no "ttblJob.userField98" "MSF" "x(18)" 20 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460133" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 107 no "ttblJob.userField99" "SqFt" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460134" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 108 no "ttblJob.userField100" "MR Waste" "x(4)" 6 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460135" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 109 no "ttblJob.userField101" "Run Waste" "x(7)" 9 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460136" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 110 no "ttblJob.userField102" "MR Time" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460137" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 111 no "ttblJob.userField103" "Run Time" "x(15)" 17 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460138" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 112 no "ttblJob.userField104" "Job-Run" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460139" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 113 no "ttblJob.userField105" "Tot. Time" "x(9)" 11 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460140" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 114 no "ttblJob.userField106" "Ink LBS" "x(12)" 14 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460141" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 115 no "ttblJob.userField107" "Job Qty" "x(13)" 15 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460142" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 116 no "ttblJob.userField108" "Score (on Width)" "x(24)" 26 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460143" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 117 no "ttblJob.userField109" "Score (on Length)" "x(24)" 26 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460144" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 118 no "ttblJob.userField110" "Promise Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460145" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 119 no "ttblJob.userField111" "Order Date" "x(10)" 12 "character" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460146" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 120 no "ttblJob.jobStatus[1]" "jobStatus[1]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460147" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 121 no "ttblJob.jobStatus[2]" "jobStatus[2]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460148" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 122 no "ttblJob.jobStatus[3]" "jobStatus[3]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460149" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 123 no "ttblJob.jobStatus[4]" "jobStatus[4]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460150" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 124 no "ttblJob.jobStatus[5]" "jobStatus[5]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460151" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 125 no "ttblJob.jobStatus[6]" "jobStatus[6]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460152" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 126 no "ttblJob.jobStatus[7]" "jobStatus[7]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460153" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 127 no "ttblJob.jobStatus[8]" "jobStatus[8]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460154" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 128 no "ttblJob.jobStatus[9]" "jobStatus[9]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460155" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 129 no "ttblJob.jobStatus[10]" "jobStatus[10]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460156" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 130 no "ttblJob.jobStatus[11]" "jobStatus[11]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460157" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 131 no "ttblJob.jobStatus[12]" "jobStatus[12]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460158" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 132 no "ttblJob.jobStatus[13]" "jobStatus[13]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460159" no "" "" 0 0 "" no no "" "" no
+216 "_default" "dynSubjct." 0 133 no "ttblJob.jobStatus[14]" "jobStatus[14]" "yes/no" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221205_20:38:26_10460160" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 1 yes "job-hdr.job-no" "Job Number" "x(6)" 0 "STRING" 1 yes no "" "" no "" "" no no no "" "20221207_04:11:30_10462829" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 2 yes "job-hdr.job-no2" "Run #" ">9" 0 "integer" 2 yes no "" "" no "" "" no no no "" "20221207_04:11:31_10462830" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 3 yes "job-hdr.est-no" "Estimate #" "x(5)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462831" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 4 yes "job-hdr.ord-no" "Order#" ">>>>>9" 0 "integer" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462832" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 5 yes "job-hdr.cust-no" "Cust. #" "x(8)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462833" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 6 yes "job-hdr.start-date" "Start Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462834" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 7 yes "job.close-date" "Close Date" "99/99/9999" 0 "date" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462835" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 8 yes "job.stat" "Job Status" "x" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462836" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 9 yes "job-hdr.qty" "Quantity" ">>,>>>,>>9" 0 "decimal" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462837" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 10 yes "job-hdr.i-no" "Item No" "x(15)" 0 "STRING" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462838" no "" "" 0 0 "" no no "" "" no
+217 "_default" "dynSubjct." 0 11 yes "job-hdr.opened" "Status" "Open/Closed" 0 "logical" 0 no no "" "" no "" "" no no no "" "20221207_04:11:31_10462839" no "" "" 0 0 "" no no "" "" no
