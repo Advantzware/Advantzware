@@ -15,10 +15,10 @@ DEFINE VARIABLE iExpiredDays    AS INTEGER NO-UNDO INITIAL 360.
 
 /* ***************************  Main Block  *************************** */
 lModulesExpired = FALSE.
-FOR EACH module WHERE module.expDate LE TODAY + 7:
+FOR EACH module WHERE module.expire-Date LE TODAY + 7:
     ASSIGN 
         lModulesExpired = TRUE
-        iExpiredDays    = IF module.expDate - TODAY LT iExpiredDays THEN module.expDate - TODAY ELSE iExpiredDays.
+        iExpiredDays    = IF module.expire-date - TODAY LT iExpiredDays THEN module.expire-Date - TODAY ELSE iExpiredDays.
 END.
     
 IF lModulesExpired EQ TRUE THEN MESSAGE 
