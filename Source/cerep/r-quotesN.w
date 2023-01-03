@@ -63,11 +63,11 @@ RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 DEFINE BUFFER b-itemfg FOR itemfg .
 
 ASSIGN cTextListToSelect = "Quote#,Est#,Cust No,Customer Name,Part Description,Date,SalesRep,Ext Price,Ext Cost," +
-                                               "Qty,Price/M,Cost/M,GP$,GP%,Mat,DL,VO,FO" 
+                                               "Qty,Price/M,Cost/M,GP$,GP%,Mat,DL,VO,FO,Customer Part,FG Item" 
        cFieldListToSelect = "quot,est,cust,cust-name,part,date,rep,ext-price,ext-cost," +
-                                        "qty,price,cost,gp,gp%,mat,dl,bo,fo"
-       cFieldLength = "8,8,8,30,30,10,25,14,14," + "7,10,10,10,7,11,11,11,11"
-       cFieldType = "i,i,c,c,c,c,c,i,i," + "i,i,i,i,i,i,i,i,ii" 
+                                        "qty,price,cost,gp,gp%,mat,dl,bo,fo,cust-part,fg-item"
+       cFieldLength = "8,8,8,30,30,10,25,14,14," + "7,10,10,10,7,11,11,11,11,15,15"
+       cFieldType = "i,i,c,c,c,c,c,i,i," + "i,i,i,i,i,i,i,i,i,c,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1517,6 +1517,8 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "dl"                THEN cVarValue = STRING(quoteqty.lab-cost,"->>>,>>9.99<<<") .
                          WHEN "bo"                THEN cVarValue = STRING(quoteqty.vo-cost,"->>>,>>9.99<<<") .
                          WHEN "fo"                THEN cVarValue = STRING(quoteqty.fo-cost,"->>>,>>9.99<<<") .
+                         WHEN "cust-part"         THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quoteitm.part-no)  ELSE "".
+                         WHEN "fg-item"           THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quoteitm.i-no)  ELSE "". 
                     END CASE.
                     
                     IF cTmpField = "date" THEN cExcelVarValue = if first-of(quoteitm.part-no) THEN DYNAMIC-FUNCTION("sfFormat_Date",quotehd.quo-date)  ELSE "".
@@ -1607,6 +1609,7 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "dl"                THEN cVarValue = "" .
                          WHEN "bo"                THEN cVarValue = "" .
                          WHEN "fo"                THEN cVarValue = "" .
+                         OTHERWISE cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1657,7 +1660,7 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "dl"               THEN cVarValue = "" .
                          WHEN "bo"                   THEN cVarValue = "" .
                          WHEN "fo"               THEN cVarValue = "" .
-
+                         OTHERWISE cVarValue = "" .
 
                     END CASE.
 
@@ -1719,7 +1722,7 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "dl"               THEN cVarValue = "" .
                          WHEN "bo"                   THEN cVarValue = "" .
                          WHEN "fo"               THEN cVarValue = "" .
-
+                         OTHERWISE cVarValue = "" .
 
                     END CASE.
 
