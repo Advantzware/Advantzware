@@ -1589,7 +1589,7 @@ DEFINE VARIABLE lAvailable AS LOGICAL NO-UNDO.
   RUN get-start-date (NO). 
   
   RUN Tag_IsTagRecordAvailable(
-      INPUT (IF AVAIL job THEN job.job-no + "-" + STRING(job.job-no2,"99") ELSE ""),
+      INPUT (IF AVAIL job THEN job.job-no + "-" + STRING(job.job-no2,">99") ELSE ""),
       INPUT "JobNo",
       OUTPUT lAvailable
       ).
