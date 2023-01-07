@@ -1157,6 +1157,7 @@ ON HELP OF FRAME FRAME-A
                 DO:
                     RUN windows/l-itemf3.w (g_company,begin_ord-no,begin_job,begin_job2,begin_i-no, OUTPUT char-val, OUTPUT rec-val).
                     IF char-val <> "" THEN begin_i-no:SCREEN-VALUE = ENTRY(1,char-val).
+                    RUN check-release(0) .
                 END.
             WHEN "end_i-no" THEN 
                 DO:
@@ -7650,8 +7651,8 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckSetHeader C-Win 
 PROCEDURE pCheckSetHeader PRIVATE :
-             
-  IF (begin_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ end_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) OR (begin_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" AND end_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "") THEN
+           
+  IF begin_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
   DO:
      FIND FIRST itemfg NO-LOCK
           WHERE itemfg.company EQ cocode
@@ -7661,13 +7662,13 @@ PROCEDURE pCheckSetHeader PRIVATE :
         rd_comps:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "A".
         rd_comps:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
         tbPartSelect:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
-     END.      
+     END.   
+     ELSE DO:
+        rd_comps:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+        tbPartSelect:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+     END.
   END.
-  ELSE DO:
-      rd_comps:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-      tbPartSelect:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
-  END.
-  
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
