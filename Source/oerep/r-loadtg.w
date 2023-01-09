@@ -1157,6 +1157,7 @@ ON HELP OF FRAME FRAME-A
                 DO:
                     RUN windows/l-itemf3.w (g_company,begin_ord-no,begin_job,begin_job2,begin_i-no, OUTPUT char-val, OUTPUT rec-val).
                     IF char-val <> "" THEN begin_i-no:SCREEN-VALUE = ENTRY(1,char-val).
+                    RUN check-release(0) .
                 END.
             WHEN "end_i-no" THEN 
                 DO:
@@ -1438,7 +1439,10 @@ ON LEAVE OF end_i-no IN FRAME FRAME-A /* To Item# */
                 WHERE itemfg.company EQ cocode
                 AND itemfg.i-no EQ END_i-no NO-LOCK NO-ERROR.
             IF AVAILABLE itemfg AND itemfg.alloc EQ YES THEN
-                rd_comps:SCREEN-VALUE = "U".
+              ASSIGN
+                rd_comps:SCREEN-VALUE = "U"
+                rd_comps:SENSITIVE IN FRAME {&FRAME-NAME} = YES
+                tbPartSelect:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
             IF begin_job2 = 0 AND END_job2 = 0 THEN END_job2 = 999.
             FIND FIRST job-hdr NO-LOCK
                 WHERE job-hdr.company EQ cocode                 
@@ -3328,7 +3332,8 @@ PROCEDURE check-release :
     END.
     IF AVAILABLE oe-ordl THEN
         RUN pLabelPerSkid(oe-ordl.cust-no).
-    
+   
+    RUN pCheckSetHeader.
 
 END PROCEDURE.
 
@@ -7639,6 +7644,31 @@ PROCEDURE output-to-screen :
       Notes:       
     ------------------------------------------------------------------------------*/
     RUN scr-rpt.w (list-name,c-win:TITLE). /* open file-name, title */ 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckSetHeader C-Win 
+PROCEDURE pCheckSetHeader PRIVATE :
+           
+  IF begin_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
+  DO:
+     FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company EQ cocode
+            AND itemfg.i-no EQ begin_i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.            
+     IF AVAILABLE itemfg AND itemfg.isaset EQ YES AND NOT itemfg.alloc THEN
+     DO:
+        rd_comps:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "A".
+        rd_comps:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+        tbPartSelect:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
+     END.   
+     ELSE DO:
+        rd_comps:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+        tbPartSelect:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+     END.
+  END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
