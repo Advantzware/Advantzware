@@ -842,7 +842,7 @@ FOR EACH oe-reth
   ar-cash.c-no       = v-c-no
   ar-cash.company    = oe-reth.company
   ar-cash.check-date = TODAY
-  ar-cash.check-amt  = oe-reth.tot-return-amt
+  ar-cash.check-amt  = 0 //oe-reth.tot-return-amt 
   ar-cash.cust-no    = oe-reth.cust-no
   ar-cash.check-no   = v-memo-no.
 
@@ -922,7 +922,7 @@ FOR EACH oe-reth
       ar-cashl.inv-no   = oe-reth.inv-no
       ar-cashl.cust-no  = oe-reth.cust-no
       ar-cashl.check-no = STRING(v-memo-no)
-      ar-cashl.amt-disc = ldAmt-Disc      
+      ar-cashl.amt-paid = -1 * ldAmt-Disc
       ar-cashl.dscr     = "CREDIT MEMO CREATED FROM OE RETURN - ITEMS"
       ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
       FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
@@ -1122,7 +1122,7 @@ FOR EACH oe-reth
     ar-cashl.inv-no   = oe-reth.inv-no
     ar-cashl.cust-no  = oe-reth.cust-no
     ar-cashl.check-no = STRING(v-memo-no)
-    ar-cashl.amt-disc = oe-reth.tot-freight
+    ar-cashl.amt-paid = -1 * oe-reth.tot-freight
     ar-cashl.dscr     = "CREDIT MEMO CREATED FROM OE RETURN - FREIGHT"
     ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
     FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
@@ -1145,7 +1145,7 @@ FOR EACH oe-reth
     ar-cashl.inv-no   = oe-reth.inv-no
     ar-cashl.cust-no  = oe-reth.cust-no
     ar-cashl.check-no = STRING(v-memo-no)
-    ar-cashl.amt-disc = oe-reth.tot-tax
+    ar-cashl.amt-paid = -1 * oe-reth.tot-tax
     ar-cashl.dscr     = "CREDIT MEMO CREATED FROM OE RETURN - TAX"
     ar-cashl.dscr     = TRIM(ar-cashl.dscr) +
     FILL(" ",50 - LENGTH(TRIM(ar-cashl.dscr))) +
