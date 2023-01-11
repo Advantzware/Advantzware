@@ -106,20 +106,20 @@ IF lRecFound THEN
     lAPInvoiceLength = LOGICAL(cNK1Value) NO-ERROR.
 
 ASSIGN 
-    cTextListToSelect  = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,DUE DATE,AMOUNT,#DAYS" 
+    cTextListToSelect  = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,INVOICE DATE,DUE DATE,AMOUNT,#DAYS" 
 
     cFieldListToSelect = "curr,vend,vend-name,phone,type,term,inv,date,due-date,amt,day" 
 
     cFieldType         = "c,c,c,c,c,c,c,c,c,i,i" 
     .
 IF lAPInvoiceLength THEN
-    ASSIGN cFieldLength = "8,10,30,15,6,17,20,8,8,17,6" .
+    ASSIGN cFieldLength = "8,10,30,15,6,17,20,12,8,17,6" .
 ELSE
-    ASSIGN cFieldLength = "8,10,30,15,6,17,12,8,8,17,6" .
+    ASSIGN cFieldLength = "8,10,30,15,6,17,12,12,8,17,6" .
     
 {sys/inc/ttRptSel.i}
 ASSIGN 
-    cTextListToDefault = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS"  .
+    cTextListToDefault = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,INVOICE DATE,AMOUNT,#DAYS"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1655,11 +1655,9 @@ PROCEDURE pPrintTotals :
     IF ipcHeader EQ "PERCENTAGE COMPOSITION" THEN
     DO:
         cDisplay =  cDisplay + STRING(ipdValue1,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + 
-            " " + STRING(ipdValue3,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + " " +
-            STRING(ipdValue5,"->>>>>>>>>>>9.99%") + " " .
+            " " + STRING(ipdValue3,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + " " .
         cExcelDisplay = cExcelDisplay +  STRING(ipdValue1,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + "," +
-            STRING(ipdValue3,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + "," +
-            STRING(ipdValue5,"->>>>>>>>>>>9.99%")  .
+            STRING(ipdValue3,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue4,"->>>>>>>>>>>9.99%") .
                             
         PUT UNFORMATTED  SPACE(3) STRING(ipcHeader,"x(22)")  SUBSTRING(cDisplay,26,300) SKIP(1).
         IF tb_excel THEN 
@@ -1672,10 +1670,9 @@ PROCEDURE pPrintTotals :
     DO:
         cDisplay =  cDisplay + STRING(ipdValue1,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue2,"->,>>>,>>>,>>9.99") + 
             " " + STRING(ipdValue3,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue4,"->,>>>,>>>,>>9.99") + " " +
-            STRING(ipdValue5,"->,>>>,>>>,>>9.99") + " " +  STRING(ipdValue6,"->,>>>,>>>,>>9.99").
+            STRING(ipdValue6,"->,>>>,>>>,>>9.99").
         cExcelDisplay = cExcelDisplay +  STRING(ipdValue1) + "," + STRING(ipdValue2) + "," +
-            STRING(ipdValue3) + "," + STRING(ipdValue4) + "," +
-            STRING(ipdValue5) + "," + STRING(ipdValue6) .   
+            STRING(ipdValue3) + "," + STRING(ipdValue4) + "," + STRING(ipdValue6) .   
              
         PUT UNFORMATTED SPACE(4) STRING(ipcHeader,"x(22)")  SUBSTRING(cDisplay,27,300) SKIP(1).
         IF tb_excel THEN 
@@ -1858,13 +1855,13 @@ PROCEDURE run-report :
                       STRING(period-days-1 + 1) + " - " + STRING(period-days-2,">>>9") + FILL(" ",8) +
                       STRING(period-days-2 + 1) + " - " + STRING(period-days-3,">>>9") + FILL(" ",8) +
                       STRING(period-days-3 + 1) + " - " + STRING(period-days-4,">>>9") + FILL(" ",8) +
-                      STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  + " Total Payables"
+                      "Total Payables"
         str-tit5 = str-tit5 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
-                       "-----------------" + " " + "-----------------" + " " + "-----------------"  
+                       "-----------------" + " " + "-----------------"    
         str-line = str-line + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
-                       "-----------------" + " " + "-----------------" + " " + "-----------------" .
+                       "-----------------" + " " + "-----------------"   .
     str-line2 = str-line2 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
-        "-----------------" + " " + "-----------------" + " " + "-----------------" .                  
+        "-----------------" + " " + "-----------------"   .                  
 
     DO WITH FRAME {&FRAME-NAME}:
         EMPTY TEMP-TABLE w-sort.
@@ -1989,8 +1986,7 @@ PROCEDURE run-report :
             + "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
             + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
             + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
-            + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
-            + " ,Total Payables".
+            + STRING(period-days-4) + " ,Total Payables".
         IF NOT lPrintHead THEN
             PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
@@ -2020,7 +2016,7 @@ PROCEDURE run-report :
                     lv-f-bot-hdr = " CURR TOTALS"
                     curr-t[6]    = 0.
 
-                DO i = 1 TO 5:
+                DO i = 1 TO 4:
                     curr-t[6] = curr-t[6] + curr-t[i].
                 END.
           
@@ -2052,7 +2048,7 @@ PROCEDURE run-report :
         lv-f-bot-hdr = "GRAND TOTALS"
         grand-t[6]   = 0.
 
-    DO i = 1 TO 5:
+    DO i = 1 TO 4:
         grand-t[6] = grand-t[6] + grand-t[i].
     END.
   

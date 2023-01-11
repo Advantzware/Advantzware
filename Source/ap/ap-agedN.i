@@ -190,12 +190,10 @@ FOR EACH ap-inv NO-LOCK
           with frame detail{1} no-labels no-box stream-io width 132.*/
 
           cDisplay =  cDisplay + STRING(ag[1],"->,>>>,>>>,>>9.99") + " " + STRING(ag[2],"->,>>>,>>>,>>9.99") + 
-                     " " + STRING(ag[3],"->,>>>,>>>,>>9.99") + " " + STRING(ag[4],"->,>>>,>>>,>>9.99") + " " +
-                     STRING(ag[5],"->,>>>,>>>,>>9.99") .
+                     " " + STRING(ag[3],"->,>>>,>>>,>>9.99") + " " + STRING(ag[4],"->,>>>,>>>,>>9.99") .
 
            cExcelDisplay = cExcelDisplay +  STRING(ag[1]) + "," + STRING(ag[2]) + "," +
-                            STRING(ag[3]) + "," + STRING(ag[4]) + "," +
-                            STRING(ag[5]) .
+                            STRING(ag[3]) + "," + STRING(ag[4]) .
 
           PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
@@ -225,7 +223,7 @@ FOR EACH ap-inv NO-LOCK
 
   END.  /* if v-amt ne 0  */
 
-  IF LAST(ap-inv.vend-no) AND ( cust-t[1] NE 0 OR cust-t[2] NE 0 OR cust-t[3] NE 0 OR cust-t[4] NE 0 OR cust-t[5] NE 0) THEN DO:
+  IF LAST(ap-inv.vend-no) AND ( cust-t[1] NE 0 OR cust-t[2] NE 0 OR cust-t[3] NE 0 OR cust-t[4] NE 0) THEN DO:
     
     IF cust-t[1] EQ ? THEN cust-t[1] = 0.
     IF cust-t[2] EQ ? THEN cust-t[2] = 0.
@@ -276,12 +274,10 @@ FOR EACH ap-inv NO-LOCK
             END.
 
             cDisplay =  cDisplay + STRING(cust-t[1],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[2],"->,>>>,>>>,>>9.99") + 
-                     " " + STRING(cust-t[3],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[4],"->,>>>,>>>,>>9.99") + " " +
-                     STRING(cust-t[5],"->,>>>,>>>,>>9.99") .
+                     " " + STRING(cust-t[3],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[4],"->,>>>,>>>,>>9.99")  .
 
             cExcelDisplay = cExcelDisplay +  STRING(cust-t[1]) + "," + STRING(cust-t[2]) + "," +
-                            STRING(cust-t[3]) + "," + STRING(cust-t[4]) + "," +
-                            STRING(cust-t[5]) .
+                            STRING(cust-t[3]) + "," + STRING(cust-t[4]) .
 
 
           PUT UNFORMATTED "    Total Dollars" SUBSTRING(cDisplay,18,300) SKIP(1).
@@ -291,7 +287,7 @@ FOR EACH ap-inv NO-LOCK
              END.
         
     
-    DO i = 1 TO 5:
+    DO i = 1 TO 4:
        curr-t[i] = curr-t[i] + cust-t[i].
     END.
     ASSIGN 
