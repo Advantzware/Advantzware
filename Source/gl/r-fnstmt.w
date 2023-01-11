@@ -1219,6 +1219,8 @@ PROCEDURE run-report :
         /* form headers */
         DO i = 1 TO 5:
             ASSIGN 
+                v-hdr[i] = REPLACE(v-hdr[i],"<company>",company-list)
+                v-hdr[i] = REPLACE(v-hdr[i],"<period>",tran-period:SCREEN-VALUE IN FRAME {&FRAME-NAME})
                 tot2[i]  = LENGTH(v-hdr[i])
                 tot2[i]  = int(v-col-used - int(tot2[i])) / 2
                 v-hdr[i] = FILL(" ", int (tot2[i])) + v-hdr[i].

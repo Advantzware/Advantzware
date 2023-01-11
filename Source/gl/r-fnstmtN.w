@@ -1132,9 +1132,13 @@ FOR EACH gl-rpt
   IF v-hdr[2] EQ "" THEN
   ASSIGN  v-hdr[2] = "Printed: " + STRING(TODAY,"99/99/9999") + " @ " + STRING(TIME,"HH:MM").
     
+    
   /* form headers */
   do i = 1 to 5:
-    assign tot2[i] = length(v-hdr[i])
+    assign 
+        v-hdr[i] = REPLACE(v-hdr[i],"<company>",company-list)
+        v-hdr[i] = REPLACE(v-hdr[i],"<period>",tran-period:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+        tot2[i] = length(v-hdr[i])
       tot2[i] = int(v-col-used - int(tot2[i])) / 2
       v-hdr[i] = fill(" ", int (tot2[i])) + v-hdr[i].
   end.
