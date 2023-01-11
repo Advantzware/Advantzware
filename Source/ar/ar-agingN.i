@@ -152,7 +152,7 @@ DEFINE TEMP-TABLE ttArClass NO-UNDO
                                                          ~
         EACH ar-cashl                                    ~
         FIELDS(check-no c-no posted inv-no company       ~
-               cust-no memo amt-disc amt-paid on-account voided rec_key voiddate) ~
+               cust-no memo amt-disc amt-paid on-account voided rec_key voiddate amt-due) ~
         NO-LOCK                                          ~
         WHERE ar-cashl.c-no       EQ ar-cash.c-no        ~
           AND ar-cashl.posted     EQ YES                 ~
@@ -1129,6 +1129,8 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                v-disc-amt = ar-cashl.amt-disc * -1.
 
       d = v-date - ar-cash.check-date.
+            
+      unapp[6] = unapp[6] + ar-cashl.amt-due.
 
       if d ge v-days[4] then
         unapp[5] = unapp[5] + v-cr-db-amt - v-disc-amt.
@@ -1293,7 +1295,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                      WHEN "bol"       THEN cVarValue = string(cBolNo,"X(8)").
                      WHEN "currency"  THEN cVarValue = STRING(tt-cust.curr-code,"x(10)")  .
                      WHEN "arclass"   THEN cVarValue = STRING((IF cust.classID NE 0 THEN cust.classID ELSE iARClassForReceivablesAccount),">>>>>>>>")  .
-                     WHEN "tot-due"  THEN cVarValue = "0"  .
+                     WHEN "tot-due"  THEN cVarValue = STRING(unapp[6],"->,>>>,>>>.99")  .
                      WHEN "inv-note"  THEN DO:
                         IF v-export THEN DO: 
                                 cVarValue = cInvoiceNote .
