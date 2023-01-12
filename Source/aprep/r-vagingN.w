@@ -1598,6 +1598,7 @@ PROCEDURE pPrintTotals :
     DEFINE INPUT PARAMETER ipdValue5 AS DECIMAL NO-UNDO .
     DEFINE INPUT PARAMETER ipdValue6 AS DECIMAL NO-UNDO .
     DEFINE INPUT PARAMETER ipcStrLine AS CHARACTER NO-UNDO .
+    DEFINE INPUT PARAMETER ipiPerStart AS INTEGER NO-UNDO .
   
     DEFINE VARIABLE cDisplay       AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cExcelDisplay  AS CHARACTER NO-UNDO.
@@ -1654,10 +1655,35 @@ PROCEDURE pPrintTotals :
 
     IF ipcHeader EQ "PERCENTAGE COMPOSITION" THEN
     DO:
-        cDisplay =  cDisplay + STRING(ipdValue1,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + 
-            " " + STRING(ipdValue3,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + " " .
-        cExcelDisplay = cExcelDisplay +  STRING(ipdValue1,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + "," +
-            STRING(ipdValue3,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue4,"->>>>>>>>>>>9.99%") .
+        IF ipiPerStart EQ 1 THEN do:
+            cDisplay =  cDisplay + STRING(ipdValue1,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + 
+                " " + STRING(ipdValue3,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + " " +
+                STRING(ipdValue5,"->>>>>>>>>>>9.99%") + " " .
+            cExcelDisplay = cExcelDisplay +  STRING(ipdValue1,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + "," +
+                STRING(ipdValue3,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + "," +
+                STRING(ipdValue5,"->>>>>>>>>>>9.99%")  .
+        END. 
+        ELSE IF ipiPerStart EQ 2 THEN do:
+            cDisplay =  cDisplay + STRING(ipdValue2,"->>>>>>>>>>>9.99%") + 
+                " " + STRING(ipdValue3,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + " " +
+                STRING(ipdValue5,"->>>>>>>>>>>9.99%") + " " .
+            cExcelDisplay = cExcelDisplay +  STRING(ipdValue2,"->>>>>>>>>>>9.99%") + "," +
+                STRING(ipdValue3,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + "," +
+                STRING(ipdValue5,"->>>>>>>>>>>9.99%")  .
+        END. 
+        ELSE IF ipiPerStart EQ 3 THEN do:
+            cDisplay =  cDisplay + STRING(ipdValue3,"->>>>>>>>>>>9.99%") + " " + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + " " +
+                STRING(ipdValue5,"->>>>>>>>>>>9.99%") + " " .
+            cExcelDisplay = cExcelDisplay +  
+                STRING(ipdValue3,"->>>>>>>>>>>9.99%") + "," + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + "," +
+                STRING(ipdValue5,"->>>>>>>>>>>9.99%")  .
+        END. 
+        ELSE IF (ipiPerStart EQ 4 OR ipiPerStart EQ 0) THEN do:
+            cDisplay =  cDisplay + STRING(ipdValue4,"->>>>>>>>>>>9.99%") + " " +
+                STRING(ipdValue5,"->>>>>>>>>>>9.99%") + " " .
+            cExcelDisplay = cExcelDisplay +  STRING(ipdValue4,"->>>>>>>>>>>9.99%") + "," +
+                STRING(ipdValue5,"->>>>>>>>>>>9.99%")  .
+        END. 
                             
         PUT UNFORMATTED  SPACE(3) STRING(ipcHeader,"x(22)")  SUBSTRING(cDisplay,26,300) SKIP(1).
         IF tb_excel THEN 
@@ -1668,11 +1694,35 @@ PROCEDURE pPrintTotals :
     END.
     ELSE 
     DO:
-        cDisplay =  cDisplay + STRING(ipdValue1,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue2,"->,>>>,>>>,>>9.99") + 
-            " " + STRING(ipdValue3,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue4,"->,>>>,>>>,>>9.99") + " " +
-            STRING(ipdValue6,"->,>>>,>>>,>>9.99").
-        cExcelDisplay = cExcelDisplay +  STRING(ipdValue1) + "," + STRING(ipdValue2) + "," +
-            STRING(ipdValue3) + "," + STRING(ipdValue4) + "," + STRING(ipdValue6) .   
+        IF ipiPerStart EQ 1 THEN do:
+            cDisplay =  cDisplay + STRING(ipdValue1,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue2,"->,>>>,>>>,>>9.99") + 
+                " " + STRING(ipdValue3,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue4,"->,>>>,>>>,>>9.99") + " " +
+                STRING(ipdValue5,"->,>>>,>>>,>>9.99") + " " +  STRING(ipdValue6,"->,>>>,>>>,>>9.99").
+            cExcelDisplay = cExcelDisplay +  STRING(ipdValue1) + "," + STRING(ipdValue2) + "," +
+                STRING(ipdValue3) + "," + STRING(ipdValue4) + "," +
+                STRING(ipdValue5) + "," + STRING(ipdValue6) .
+        END. 
+        ELSE IF ipiPerStart EQ 2 THEN do:
+            cDisplay =  cDisplay + STRING(ipdValue2,"->,>>>,>>>,>>9.99") + 
+                " " + STRING(ipdValue3,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue4,"->,>>>,>>>,>>9.99") + " " +
+                STRING(ipdValue5,"->,>>>,>>>,>>9.99") + " " +  STRING(ipdValue6,"->,>>>,>>>,>>9.99").
+            cExcelDisplay = cExcelDisplay +  STRING(ipdValue2) + "," +
+                STRING(ipdValue3) + "," + STRING(ipdValue4) + "," +
+                STRING(ipdValue5) + "," + STRING(ipdValue6) .
+        END. 
+        ELSE IF ipiPerStart EQ 3 THEN do:
+            cDisplay =  cDisplay + STRING(ipdValue3,"->,>>>,>>>,>>9.99") + " " + STRING(ipdValue4,"->,>>>,>>>,>>9.99") + " " +
+                STRING(ipdValue5,"->,>>>,>>>,>>9.99") + " " +  STRING(ipdValue6,"->,>>>,>>>,>>9.99").
+            cExcelDisplay = cExcelDisplay +  
+                STRING(ipdValue3) + "," + STRING(ipdValue4) + "," +
+                STRING(ipdValue5) + "," + STRING(ipdValue6) .
+        END. 
+        ELSE IF (ipiPerStart EQ 4 OR ipiPerStart EQ 0) THEN do:
+            cDisplay =  cDisplay +  STRING(ipdValue4,"->,>>>,>>>,>>9.99") + " " +
+                STRING(ipdValue5,"->,>>>,>>>,>>9.99") + " " +  STRING(ipdValue6,"->,>>>,>>>,>>9.99").
+            cExcelDisplay = cExcelDisplay + STRING(ipdValue4) + "," +
+                STRING(ipdValue5) + "," + STRING(ipdValue6) .
+        END. 
              
         PUT UNFORMATTED SPACE(4) STRING(ipcHeader,"x(22)")  SUBSTRING(cDisplay,27,300) SKIP(1).
         IF tb_excel THEN 
@@ -1730,6 +1780,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE str-line       AS CHARACTER FORM "x(300)" NO-UNDO.
     DEFINE VARIABLE str-line2      AS CHARACTER FORM "x(300)" NO-UNDO.
     DEFINE VARIABLE lPrintHead     AS LOGICAL   FORMAT "yes/no" INITIAL YES.
+    DEFINE VARIABLE iPeriodStart   AS INTEGER   NO-UNDO.
 
     {sys/form/r-top5L3.f} 
     cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1848,20 +1899,7 @@ PROCEDURE run-report :
             str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
         str-line2 =  str-line2 + FILL(" ",ttRptSelected.FieldLength) + " " .
     END.
-
-
-    ASSIGN
-        str-tit4 = str-tit4 +  "          0 -"  + STRING(period-days-1,">>>9") + FILL(" ",8) +   
-                      STRING(period-days-1 + 1) + " - " + STRING(period-days-2,">>>9") + FILL(" ",8) +
-                      STRING(period-days-2 + 1) + " - " + STRING(period-days-3,">>>9") + FILL(" ",8) +
-                      STRING(period-days-3 + 1) + " - " + STRING(period-days-4,">>>9") + FILL(" ",8) +
-                      "Total Payables"
-        str-tit5 = str-tit5 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
-                       "-----------------" + " " + "-----------------"    
-        str-line = str-line + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
-                       "-----------------" + " " + "-----------------"   .
-    str-line2 = str-line2 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
-        "-----------------" + " " + "-----------------"   .                  
+                        
 
     DO WITH FRAME {&FRAME-NAME}:
         EMPTY TEMP-TABLE w-sort.
@@ -1871,11 +1909,13 @@ PROCEDURE run-report :
             w-int = v-days[li].
         END.
         li = 0.
-        FOR EACH w-sort BY w-int:
+        FOR EACH w-sort BY w-int:  
             ASSIGN
                 li         = li + 1
                 v-days[li] = w-int.
-            IF i GT 3 THEN LEAVE.
+                IF iPeriodStart EQ 0 AND v-days[li] GE 1 THEN
+                iPeriodStart = li.
+            IF li GT 3 THEN LEAVE.
         END.
         ASSIGN 
             period-days-1:SCREEN-VALUE = STRING(v-days[1])
@@ -1887,7 +1927,59 @@ PROCEDURE run-report :
             period-days-4:SCREEN-VALUE = STRING(v-days[4])
             period-days-4.
     END.
-
+    
+    IF iPeriodStart EQ 1 then
+    do:
+        ASSIGN
+            str-tit4 = str-tit4 +  "          0 -"  + STRING(period-days-1,">>>9") + FILL(" ",8) +   
+                          STRING(period-days-1 + 1) + " - " + STRING(period-days-2,">>>9") + FILL(" ",8) +
+                          STRING(period-days-2 + 1) + " - " + STRING(period-days-3,">>>9") + FILL(" ",8) +
+                          STRING(period-days-3 + 1) + " - " + STRING(period-days-4,">>>9") + FILL(" ",8) +
+                          STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  + " Total Payables" 
+            str-tit5 = str-tit5 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                           "-----------------" + " " + "-----------------" + " " + "-----------------"  
+            str-line = str-line + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                           "-----------------" + " " + "-----------------" + " " + "-----------------" 
+            str-line2 = str-line2 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                           "-----------------" + " " + "-----------------" + " " + "-----------------" . 
+    END.
+    ELSE IF iPeriodStart EQ 2 then
+    do:
+        ASSIGN
+            str-tit4 = str-tit4 +  "          0 -"  + STRING(period-days-2,">>>9") + FILL(" ",8) +   
+                          STRING(period-days-2 + 1) + " - " + STRING(period-days-3,">>>9") + FILL(" ",8) +
+                          STRING(period-days-3 + 1) + " - " + STRING(period-days-4,">>>9") + FILL(" ",8) +                          
+                          STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  + " Total Payables" 
+            str-tit5 = str-tit5 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                           "-----------------" + " " + "-----------------" 
+            str-line = str-line + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                           "-----------------" + " " + "-----------------"  
+            str-line2 = str-line2 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                           "-----------------" + " " + "-----------------"  . 
+    END.
+    ELSE IF iPeriodStart EQ 3 then
+    do:
+        ASSIGN
+            str-tit4 = str-tit4 +  "          0 -"  + STRING(period-days-3,">>>9") + FILL(" ",8) +   
+                          STRING(period-days-3 + 1) + " - " + STRING(period-days-4,">>>9") + FILL(" ",8) +                            
+                          STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  + " Total Payables" 
+            str-tit5 = str-tit5 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                                  "-----------------"   
+            str-line = str-line + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                                  "-----------------"  
+            str-line2 = str-line2 + "-----------------" + " " + "-----------------" + " " + "-----------------" + " " +
+                                  "-----------------"  . 
+    END.
+    ELSE IF (iPeriodStart EQ 4 OR iPeriodStart EQ 0) then
+    do:
+        ASSIGN
+            str-tit4 = str-tit4 +  "          0 -"  + STRING(period-days-4,">>>9") + FILL(" ",8) +                           
+                          STRING(period-days-4 + 1) + "+"  + FILL(" ",12)  + " Total Payables" .
+            str-tit5 = str-tit5 + "-----------------" + " " + "-----------------" + " " + "-----------------" .                             
+            str-line = str-line + "-----------------" + " " + "-----------------" + " " + "-----------------"  .
+            str-line2 = str-line2 + "-----------------" + " " + "-----------------" + " " + "-----------------"  . 
+    END.
+    
     ASSIGN 
         cVendHeader   = "VENDOR     VENDOR NAME"
         cVendHeadLine = "---------- ------------------------------" .
@@ -1986,7 +2078,8 @@ PROCEDURE run-report :
             + "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
             + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
             + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
-            + STRING(period-days-4) + " ,Total Payables".
+            + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
+            + " ,Total Payables".
         IF NOT lPrintHead THEN
             PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
@@ -2016,12 +2109,12 @@ PROCEDURE run-report :
                     lv-f-bot-hdr = " CURR TOTALS"
                     curr-t[6]    = 0.
 
-                DO i = 1 TO 4:
+                DO i = 1 TO 5:
                     curr-t[6] = curr-t[6] + curr-t[i].
                 END.
           
-                RUN pPrintTotals(lv-f-bot-hdr, curr-t[1],curr-t[2],curr-t[3],curr-t[4],curr-t[5],curr-t[6],str-line2) .
-                RUN pPrintTotals("PERCENTAGE COMPOSITION", (curr-t[1] / t2) * 100,(curr-t[2] / t2) * 100,(curr-t[3] / t2) * 100,(curr-t[4] / t2) * 100,(curr-t[5] / t2) * 100,0,str-line2) .
+                RUN pPrintTotals(lv-f-bot-hdr, curr-t[1],curr-t[2],curr-t[3],curr-t[4],curr-t[5],curr-t[6],str-line2,iPeriodStart) .
+                RUN pPrintTotals("PERCENTAGE COMPOSITION", (curr-t[1] / t2) * 100,(curr-t[2] / t2) * 100,(curr-t[3] / t2) * 100,(curr-t[4] / t2) * 100,(curr-t[5] / t2) * 100,0,str-line2,iPeriodStart) .
          
             END.
 
@@ -2048,12 +2141,12 @@ PROCEDURE run-report :
         lv-f-bot-hdr = "GRAND TOTALS"
         grand-t[6]   = 0.
 
-    DO i = 1 TO 4:
+    DO i = 1 TO 5:
         grand-t[6] = grand-t[6] + grand-t[i].
     END.
   
-    RUN pPrintTotals(lv-f-bot-hdr, grand-t[1],grand-t[2],grand-t[3],grand-t[4],grand-t[5],grand-t[6],str-line2) .
-    RUN pPrintTotals("PERCENTAGE COMPOSITION", (grand-t[1] / t3) * 100,(grand-t[2] / t3) * 100,(grand-t[3] / t3) * 100,(grand-t[4] / t3) * 100,(grand-t[5] / t3) * 100,0,str-line2) .
+    RUN pPrintTotals(lv-f-bot-hdr, grand-t[1],grand-t[2],grand-t[3],grand-t[4],grand-t[5],grand-t[6],str-line2,iPeriodStart) .
+    RUN pPrintTotals("PERCENTAGE COMPOSITION", (grand-t[1] / t3) * 100,(grand-t[2] / t3) * 100,(grand-t[3] / t3) * 100,(grand-t[4] / t3) * 100,(grand-t[5] / t3) * 100,0,str-line2,iPeriodStart) .
 
  
     IF tb_excel THEN 
