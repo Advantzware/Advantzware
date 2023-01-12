@@ -2072,14 +2072,36 @@ PROCEDURE run-report :
     IF tb_excel THEN 
     DO:
         OUTPUT STREAM excel TO VALUE(cFileName).
-
-        excelheader = excelheader
-            /* + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS,"*/
-            + "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
-            + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
-            + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
-            + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
-            + " ,Total Payables".
+        IF iPeriodStart EQ 1 then
+        do:
+            excelheader = excelheader             
+                + "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
+                + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
+                + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
+                + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
+                + " ,Total Payables".
+        END.    
+        ELSE IF iPeriodStart EQ 2 then
+        do:
+            excelheader = excelheader             
+                + "0-" + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
+                + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-"                
+                + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
+                + " ,Total Payables".
+        END. 
+        ELSE IF iPeriodStart EQ 3 then
+        do:
+            excelheader = excelheader             
+                + "0-" + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
+                + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+" 
+                + " ,Total Payables".
+        END. 
+        ELSE IF (iPeriodStart EQ 4 OR iPeriodStart EQ 0) then
+        do:
+            excelheader = excelheader             
+                + "0-" + STRING(period-days-4) + "," + STRING(period-days-4 + 1) + "+"   
+                + " ,Total Payables".
+        END. 
         IF NOT lPrintHead THEN
             PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
     END.
