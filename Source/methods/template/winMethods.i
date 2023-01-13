@@ -554,6 +554,11 @@ PROCEDURE select_dept :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,NO).
+    IF INDEX(PROGRAM-NAME(1),"est/w-est") GT 0 OR 
+            index(PROGRAM-NAME(1),"oe/wOrderEntryMaster") GT 0 OR 
+            index(PROGRAM-NAME(1),"jc/w-jobcst") GT 0 THEN
+            RUN windows/specnote.w(rec_key_value,header_value).
+    ELSE
     IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .      
 
 END PROCEDURE.
@@ -659,8 +664,9 @@ PROCEDURE select_spec :
       ELSE DO:
          RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,NO).
          IF INDEX(PROGRAM-NAME(1),"est/w-est") GT 0 OR 
-            index(PROGRAM-NAME(1),"oe/w-order") GT 0 OR 
+            index(PROGRAM-NAME(1),"oe/wOrderEntryMaster") GT 0 OR 
             index(PROGRAM-NAME(1),"oeinq/w-ordinq") GT 0 OR
+            index(PROGRAM-NAME(1),"jc/w-jobcst") GT 0 OR
             index(PROGRAM-NAME(1),"windows/itemfg") GT 0 THEN
             RUN windows/specnot2.w(rec_key_value,header_value).
          ELSE
