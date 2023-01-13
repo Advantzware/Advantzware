@@ -1129,9 +1129,7 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
                v-disc-amt = ar-cashl.amt-disc * -1.
 
       d = v-date - ar-cash.check-date.
-            
-      unapp[6] = unapp[6] + ar-cashl.amt-due.
-
+              
       if d ge v-days[4] then
         unapp[5] = unapp[5] + v-cr-db-amt - v-disc-amt.
       ELSE
@@ -1146,6 +1144,8 @@ WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
       else
       if d lt v-days[1] then
         unapp[1] = unapp[1] + v-cr-db-amt - v-disc-amt.
+        
+      unapp[6] = unapp[6] + v-cr-db-amt - v-disc-amt. 
 
     end. /* for each ar-cashl record */
 
