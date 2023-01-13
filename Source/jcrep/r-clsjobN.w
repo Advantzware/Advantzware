@@ -2112,7 +2112,11 @@ IF NOT tgl_SumTot THEN
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-IF td-show-parm THEN RUN show-param.
+IF td-show-parm THEN
+DO: 
+  RUN show-param.
+  iLineCount = 24.
+END.  
 
 IF rd-dest EQ 3 THEN DO:
    OUTPUT STREAM excel TO VALUE(cFileName).
