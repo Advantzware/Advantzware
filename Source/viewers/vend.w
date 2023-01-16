@@ -193,8 +193,7 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE cb_codetype AS CHARACTER FORMAT "X(256)":U 
      LABEL "" 
-     VIEW-AS COMBO-BOX INNER-LINES 5
-     DROP-DOWN-LIST
+     VIEW-AS FILL-IN
      SIZE 41.2 BY 1 NO-UNDO.
 
 DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U 
@@ -792,7 +791,9 @@ DO:
   CASE FOCUS:NAME:
     WHEN "code-1099" THEN DO:                   
        RUN windows/l-codedscr.w (c1099Code,c1099CodeDesc, OUTPUT char-val).
-       IF char-val NE "" THEN vend.code-1099:SCREEN-VALUE = ENTRY(1,char-val).
+       IF char-val NE "" THEN
+       ASSIGN vend.code-1099:SCREEN-VALUE = ENTRY(1,char-val)
+       cb_codetype:SCREEN-VALUE = ENTRY(2,char-val).
       
         RETURN NO-APPLY.
     END.  /* 1099 box */
@@ -826,10 +827,16 @@ DO:
    cb_codetype:SCREEN-VALUE IN FRAME {&frame-name} = "No 1099" .
    cb_codetype:SENSITIVE IN FRAME {&frame-name} = NO .
    END.
-   ELSE
-       ASSIGN
-           cb_codetype:SENSITIVE IN FRAME {&frame-name} = YES
-           cb_codetype:SCREEN-VALUE IN FRAME {&frame-name} = "1 - Early IRA distribution (Over 59 1/2)" .
+   ELSE do:
+      FIND FIRST formLayouts NO-LOCK
+           WHERE formLayouts.formType EQ "xPrint"
+             AND formLayouts.formGroup EQ "US Tax Forms" 
+             AND formLayouts.formID EQ "1099-MISC"
+             AND formLayouts.formLine EQ integer(vend.code-1099:SCREEN-VALUE IN FRAME {&frame-name}) NO-ERROR.
+       IF AVAILABLE formLayouts THEN
+       ASSIGN           
+           cb_codetype:SCREEN-VALUE IN FRAME {&frame-name} = formLayouts.formLineLabel .
+   END.        
   END.
 END.
 
@@ -1197,20 +1204,13 @@ PROCEDURE build-payment-type-list :
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE ilogic AS LOG NO-UNDO.
    cb_paytype:LIST-ITEMS IN FRAME {&frame-name} = "".
-   cb_codetype:LIST-ITEMS IN FRAME {&frame-name} = "".
-
+   
    FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode.
        ilogic = cb_paytype:ADD-LAST (payment-type.type) IN FRAME {&frame-name}.
    END.
 
    cb_payType:SCREEN-VALUE = cb_payType:ENTRY (1).
-
-    
-   cb_codetype:LIST-ITEMS IN FRAME {&frame-name} = "No 1099,1 - Early IRA distribution (Over 59 1/2),2 - Early IRA distribution (under age 59 1/2),3 - Disability,4 - Death,5 - Prohibited transaction," 
-      +  "6 - Section 1035 exchange,7 - Normal distribution,8 - Excess contributions,9 - Life insurance Cost,A - 10-year tax option,B - Roth account distribution,D - Annuity payments,E - Distributions (EPCRS),"
-      +  "F - Charitable gift,G - Direct IRA rollover,H - Direct Roth rollover,J - Early Roth distribution,L - Loans as distributions,N - Recharacterized IRA,P - Excess contributions,Q - Qualified Roth distribution,"
-      +  "R - Recharacterized IRA ,S - Early SIMPLE IRA,T - Roth IRA distribution,U - ESOP Dividend,W - Qualified long-term care" .
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1282,6 +1282,7 @@ PROCEDURE displayCC :
 DO WITH FRAME {&FRAME-NAME}:
   IF AVAILABLE vend THEN cb_paytype:SCREEN-VALUE IN FRAME {&frame-name} = vend.payment-type. 
   IF AVAILABLE vend THEN cb_codetype:SCREEN-VALUE IN FRAME {&frame-name} = vend.spare-char-1.
+  cb_codetype:SENSITIVE IN FRAME {&frame-name} = NO.
 END.
 
 END PROCEDURE.
@@ -1305,7 +1306,7 @@ PROCEDURE enable-vend-fields :
     IF lResult THEN
        ENABLE vend.po-export.
        
-    ENABLE cb_codetype cb_paytype.
+    ENABLE cb_paytype.
   END.
 
 END PROCEDURE.
