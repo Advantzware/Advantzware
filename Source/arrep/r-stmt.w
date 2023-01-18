@@ -2048,19 +2048,14 @@ PROCEDURE run-asistmt :
         FOR EACH ar-cashl
             WHERE ar-cashl.company    EQ cust.company
             AND ar-cashl.cust-no    EQ cust.cust-no
-            AND ar-cashl.inv-no     EQ 0
-            AND (ar-cashl.inv-date  LE v-stmt-date OR
-            ar-cashl.inv-date  EQ ?)
-            AND ar-cashl.posted     EQ YES
-            AND ar-cashl.on-account EQ YES
-            AND ar-cashl.amt-paid   NE 0
+            AND ar-cashl.inv-no     EQ 0              
+            AND ar-cashl.posted     EQ YES            
             NO-LOCK,
-
             EACH ar-cash
             WHERE ar-cash.c-no       EQ ar-cashl.c-no
-            AND ar-cash.check-date LE v-stmt-date
+            AND (ar-cash.check-date LE v-stmt-date OR ar-cash.check-date EQ ?)
             USE-INDEX c-no NO-LOCK:
-
+                            
             CREATE tt-inv.
             ASSIGN
                 tt-inv.cust-no     = cust.cust-no
@@ -2419,7 +2414,7 @@ PROCEDURE run-asistmt :
                         PUT "<R57><C1><#2>"SKIP
                             "<=2>      Current             31 - 60             61 - 90            >90 Days" SKIP
                             "<=2><R+1.3><FROM><C+80><LINE>" SKIP
-                            "<=2><R+2>" v-aged[1] AT 12 v-aged[2] AT 30  v-aged[3] AT 50  (v-aged[4] + v-aged[5]) AT 70
+                            "<=2><R+2>" v-aged[1] AT 12 v-aged[2] AT 30  v-aged[3] AT 50  (v-aged[4] + v-aged[5]) FORMAT "->>,>>>,>>>.99" AT 70
                             SKIP(1).
                     ELSE IF v-stmt-char = "StmtPrint-Mex" THEN
                             PUT "<R57><C1><#2>"SKIP
@@ -2940,17 +2935,13 @@ PROCEDURE run-asistmt-mail :
         FOR EACH ar-cashl
             WHERE ar-cashl.company    EQ cust.company
             AND ar-cashl.cust-no    EQ cust.cust-no
-            AND ar-cashl.inv-no     EQ 0
-            AND (ar-cashl.inv-date  LE v-stmt-date OR
-            ar-cashl.inv-date  EQ ?)
-            AND ar-cashl.posted     EQ YES
-            AND ar-cashl.on-account EQ YES
-            AND ar-cashl.amt-paid   NE 0
+            AND ar-cashl.inv-no     EQ 0               
+            AND ar-cashl.posted     EQ YES            
             NO-LOCK,
 
             EACH ar-cash
             WHERE ar-cash.c-no       EQ ar-cashl.c-no
-            AND ar-cash.check-date LE v-stmt-date
+            AND (ar-cash.check-date LE v-stmt-date OR ar-cash.check-date EQ ?)
             USE-INDEX c-no NO-LOCK:
 
             CREATE tt-inv.
@@ -3294,7 +3285,7 @@ PROCEDURE run-asistmt-mail :
                     PUT "<R57><C1><#2>"SKIP
                         "<=2>      Current             31 - 60             61 - 90            >90 Days" SKIP
                         "<=2><R+1.3><FROM><C+80><LINE>" SKIP
-                        "<=2><R+2>" v-aged[1] AT 12 v-aged[2] AT 30  v-aged[3] AT 50  (v-aged[4] + v-aged[5]) AT 70
+                        "<=2><R+2>" v-aged[1] AT 12 v-aged[2] AT 30  v-aged[3] AT 50  (v-aged[4] + v-aged[5]) FORMAT "->>,>>>,>>>.99"  AT 70
                         SKIP(1).
                 ELSE IF v-stmt-char = "StmtPrint-Mex" THEN 
                         PUT "<R57><C1><#2>"SKIP
@@ -3833,17 +3824,13 @@ PROCEDURE run-protagonstmt :
         FOR EACH ar-cashl
             WHERE ar-cashl.company    EQ cust.company
             AND ar-cashl.cust-no    EQ cust.cust-no
-            AND ar-cashl.inv-no     EQ 0
-            AND (ar-cashl.inv-date  LE v-stmt-date OR
-            ar-cashl.inv-date  EQ ?)
-            AND ar-cashl.posted     EQ YES
-            AND ar-cashl.on-account EQ YES
-            AND ar-cashl.amt-paid   NE 0
+            AND ar-cashl.inv-no     EQ 0            
+            AND ar-cashl.posted     EQ YES              
             NO-LOCK,
 
             EACH ar-cash
             WHERE ar-cash.c-no       EQ ar-cashl.c-no
-            AND ar-cash.check-date LE v-stmt-date
+            AND (ar-cash.check-date LE v-stmt-date OR ar-cash.check-date EQ ?)
             USE-INDEX c-no NO-LOCK:
 
             CREATE tt-inv.
@@ -4714,23 +4701,19 @@ PROCEDURE run-report :
                     END.
                 END.
         END.
-
+          
         FOR EACH ar-cashl
             WHERE ar-cashl.company    EQ cust.company
             AND ar-cashl.cust-no    EQ cust.cust-no
-            AND ar-cashl.inv-no     EQ 0
-            AND (ar-cashl.inv-date  LE v-stmt-date OR
-            ar-cashl.inv-date  EQ ?)
-            AND ar-cashl.posted     EQ YES
-            AND ar-cashl.on-account EQ YES
-            AND ar-cashl.amt-paid   NE 0
+            AND ar-cashl.inv-no     EQ 0            
+            AND ar-cashl.posted     EQ YES             
             NO-LOCK,
 
             EACH ar-cash
             WHERE ar-cash.c-no       EQ ar-cashl.c-no
-            AND ar-cash.check-date LE v-stmt-date
+            AND (ar-cash.check-date LE v-stmt-date  OR ar-cash.check-date EQ ?)
             USE-INDEX c-no NO-LOCK:
-
+                          
             CREATE tt-inv.
             ASSIGN
                 tt-inv.sort-fld    = "1" + STRING(ar-cashl.inv-no,"9999999999")
@@ -5275,23 +5258,19 @@ PROCEDURE run-report-mail :
                     END.
                 END.
         END.
-
+                 
         FOR EACH ar-cashl
             WHERE ar-cashl.company    EQ cust.company
             AND ar-cashl.cust-no    EQ cust.cust-no
-            AND ar-cashl.inv-no     EQ 0
-            AND (ar-cashl.inv-date  LE v-stmt-date OR
-            ar-cashl.inv-date  EQ ?)
-            AND ar-cashl.posted     EQ YES
-            AND ar-cashl.on-account EQ YES
-            AND ar-cashl.amt-paid   NE 0
+            AND ar-cashl.inv-no     EQ 0             
+            AND ar-cashl.posted     EQ YES              
             NO-LOCK,
 
             EACH ar-cash
             WHERE ar-cash.c-no       EQ ar-cashl.c-no
-            AND ar-cash.check-date LE v-stmt-date
+            AND (ar-cash.check-date LE v-stmt-date OR ar-cash.check-date EQ ?)
             USE-INDEX c-no NO-LOCK:
-
+                               
             CREATE tt-inv.
             ASSIGN
                 tt-inv.sort-fld    = "1" + STRING(ar-cashl.inv-no,"9999999999")
