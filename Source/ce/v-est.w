@@ -2915,12 +2915,12 @@ PROCEDURE new-style :
       ASSIGN
        style_dscr:SCREEN-VALUE = style.dscr
        lv-foam                 = style.type EQ "F"
-       ll-wid-len-warned       = NO.
+       ll-wid-len-warned       = NO
+       eb.adhesive:SCREEN-VALUE = style.material[7]
+       eb.gluelap:SCREEN-VALUE  = STRING(style.dim-gl).
 
       IF ll-auto-calc-selected THEN DO:
-        ASSIGN
-         eb.adhesive:SCREEN-VALUE = style.material[7]
-         eb.gluelap:SCREEN-VALUE  = STRING(style.dim-gl)
+        ASSIGN         
          eb.k-len:SCREEN-VALUE    = STRING(style.dim-dkl)
          eb.k-wid:SCREEN-VALUE    = STRING(style.dim-dkw)
          eb.fpanel:SCREEN-VALUE   = STRING(style.dim-pan5)
