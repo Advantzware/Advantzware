@@ -201,22 +201,22 @@ DEFINE OUTPUT PARAMETER opcPath AS CHARACTER NO-UNDO.
 
 /* This handles LM 2022 executables since location is not easily found in registry */
 ASSIGN 
-    opcPath = "'c:\program files\LABEL MATRIX 2022\lmwprint.exe'".
+    opcPath = "c:\progra~~1\LABEL MATRIX 2022\lmwprint.exe'".
 IF SEARCH(opcPath) NE ? THEN RETURN.
 ELSE DO:
     ASSIGN 
-        opcPath = "'c:\program files (x86)\LABEL MATRIX 2022\lmwprint.exe'".
+        opcPath = "c:\progra~~2\LABEL MATRIX 2022\lmwprint.exe".
     IF SEARCH(opcPath) NE ? THEN RETURN.
 END.
 /* end of LM 2022 search */
 
 /* This handles LM 2021 executables since location is not easily found in registry */
 ASSIGN 
-    opcPath = "'c:\program files\LABEL MATRIX 2021\lmwprint.exe'".
+    opcPath = "c:\progra~~1\LABEL MATRIX 2021\lmwprint.exe".
 IF SEARCH(opcPath) NE ? THEN RETURN.
 ELSE DO:
     ASSIGN 
-        opcPath = "'c:\program files (x86)\LABEL MATRIX 2021\lmwprint.exe'".
+        opcPath = "c:\progra~~2\LABEL MATRIX 2021\lmwprint.exe".
     IF SEARCH(opcPath) NE ? THEN RETURN.
 END.
 /* end of LM 2021 search */
