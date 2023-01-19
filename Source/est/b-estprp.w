@@ -630,8 +630,7 @@ DEF VAR v-custom AS LOG INIT NO NO-UNDO.
 DEF BUFFER b-est-prep FOR est-prep.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {custom/checkuse.i}
-
+  
  /* IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END. */

@@ -3592,6 +3592,10 @@ PROCEDURE local-assign-record :
            est.csrUser_id = cust.csrUser_id .
   END.
 
+  IF lv-hld-style NE eb.style AND NOT adm-new-record THEN DO:
+     RUN pAssignGlueFromStyle(eb.style, eb.adhesive, eb.gluelap, OUTPUT eb.adhesive, OUTPUT eb.gluelap).  
+  END.
+  
   IF NOT ll-is-copy-record THEN DO:
     {ce/uship-id.i ll-new-record}
   END.
@@ -4972,6 +4976,39 @@ PROCEDURE new-ship-id :
         NO-LOCK NO-ERROR.
     IF AVAIL shipto THEN eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.ship-id.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignGlueFromStyle B-table-Win 
+PROCEDURE pAssignGlueFromStyle :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT  PARAMETER ipcStyle    AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipcAdhesive AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipdGlueLab  AS DECIMAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcAdhesive AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opdGlueLab  AS DECIMAL NO-UNDO.
+  
+  FIND FIRST style NO-LOCK
+       WHERE style.company  EQ gcompany
+         AND style.style    EQ ipcStyle
+         AND style.industry EQ "1" NO-ERROR.
+  IF AVAILABLE style THEN
+  DO:
+     ASSIGN
+     opcAdhesive = style.material[7]
+     opdGlueLab  = style.dim-gl.
+  END.
+  ELSE ASSIGN
+   opcAdhesive = ipcAdhesive
+   opdGlueLab  = ipdGlueLab.
 
 END PROCEDURE.
 

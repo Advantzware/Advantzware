@@ -253,8 +253,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_dept s-object
 ON CHOOSE OF Select_dept IN FRAME F-Main /* Notes */
 DO:
-  
+   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+   
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+   
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"attach-source",OUTPUT char-hdl).
+      
+   IF char-hdl NE "" THEN
+      RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */

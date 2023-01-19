@@ -1945,8 +1945,8 @@ PROCEDURE checkZeroQty :
         IF NOT bf-po-ordl.item-type THEN
         DO:
             FIND oe-ordl WHERE RECID(oe-ordl) EQ lv-recid EXCLUSIVE-LOCK NO-ERROR.
-      
-            IF AVAILABLE oe-ordl THEN
+                 
+            IF AVAILABLE oe-ordl AND bf-po-ordl.i-no EQ oe-ordl.i-no THEN
             DO:
                 IF bf-po-ordl.cons-uom EQ "M" THEN
                     oe-ordl.cost = bf-po-ordl.cons-cost.
@@ -4328,18 +4328,17 @@ PROCEDURE setPoOrdlFg :
            
         bf-po-ordl.ord-no = IF AVAILABLE bf-ordl THEN bf-ordl.ord-no ELSE 0.
         FIND oe-ordl EXCLUSIVE-LOCK WHERE RECID(oe-ordl) EQ lv-recid NO-ERROR.
-  
-        IF AVAILABLE oe-ordl THEN
+         
+        IF AVAILABLE oe-ordl AND oe-ordl.i-no EQ bf-itemfg.i-no THEN
         DO:
             IF bf-po-ordl.cons-uom EQ "M" THEN
                 oe-ordl.cost = bf-po-ordl.cons-cost.
             ELSE
                 RUN sys/ref/convcuom.p (bf-po-ordl.cons-uom, "M", 0, 0, 0, 0,
-                    bf-po-ordl.cons-cost, OUTPUT oe-ordl.cost).
-         
-            RELEASE oe-ordl. 
+                    bf-po-ordl.cons-cost, OUTPUT oe-ordl.cost).                      
         END. /* oe-ordl */
-  
+        RELEASE oe-ordl. 
+         
         IF bf-ordl.i-no NE bf-itemfg.i-no THEN
             ASSIGN
                 bf-po-ordl.i-name = bf-itemfg.i-name

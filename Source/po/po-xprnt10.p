@@ -229,7 +229,7 @@ END FUNCTION.
 
       find first vend where vend.company eq po-ord.company 
                         and vend.vend-no eq po-ord.vend-no no-lock no-error.
-      find first terms where terms.t-code eq po-ord.terms no-lock no-error.
+      find first terms where terms.company EQ po-ord.company AND terms.t-code eq po-ord.terms no-lock no-error.
       find first carrier where carrier.company eq po-ord.company 
                            and carrier.carrier eq po-ord.carrier no-lock no-error.
 
@@ -665,50 +665,43 @@ v-printline = 0.
         assign v-line-number = v-line-number + 1
                v-printline = v-printline + 1
                len-score = ""
-               cScorePanelType = "L".
+               cScorePanelType = "".
         
 
         {po/poprints.i}
             IF NOT po-ordl.item-type THEN         
             IF AVAIL itemfg AND v-score-types THEN DO:
-               IF len-score NE "" THEN do:
-                    put 
-                        "Score: " AT 3
-                        len-score format "x(80)" SKIP .
-                    
-                    ASSIGN
-                        v-line-number = v-line-number + 1
-                        v-printline = v-printline + 1.
-                END. 
-                IF cWidScore NE "" THEN do:
-                    put 
-                        "Score: " AT 3
-                        cWidScore format "x(80)" SKIP .
-                    
-                    ASSIGN
-                        v-line-number = v-line-number + 1
-                        v-printline = v-printline + 1.
-                END. 
+                put 
+                    "Score: " AT 3
+                    len-score format "x(80)" SKIP .
+                
+                ASSIGN
+                    v-line-number = v-line-number + 1
+                    v-printline = v-printline + 1.
             END.
 
             IF AVAIL ITEM AND lookup("1,2,3,4",ITEM.mat-type) > 0 THEN DO: 
             END.
             ELSE DO:
-               IF len-score NE "" AND AVAIL ITEM AND ITEM.mat-type = "B" THEN do:
-                 PUT "Score: " AT 3
-                 len-score format "x(80)" SKIP . 
-                 ASSIGN
-                     v-line-number = v-line-number + 1
-                     v-printline = v-printline + 1.
-             END.    
-             IF  cWidScore NE "" AND AVAIL ITEM AND ITEM.mat-type = "B" THEN do:
-                 put 
-                     "Score: " AT 3
-                     cWidScore format "x(80)" SKIP .                     
-                 ASSIGN
-                      v-line-number = v-line-number + 1
-                      v-printline = v-printline + 1. 
-             END.
+               if not v-test-scr AND (AVAIL ITEM AND ITEM.mat-type = "B") then do:
+                  put 
+                      "Score: " AT 3
+                      len-score format "x(80)" SKIP .
+                      
+                  ASSIGN
+                  v-line-number = v-line-number + 1
+                  v-printline = v-printline + 1.
+               end.
+          
+               else
+               if v-test-scr AND AVAIL ITEM AND ITEM.mat-type = "B" then do:
+                  put "Score: " AT 3
+                      len-score format "x(80)"  SKIP.
+                      
+                  ASSIGN
+                  v-line-number = v-line-number + 1
+                  v-printline = v-printline + 1.
+               END.
             END.
            end.
            END.

@@ -34,6 +34,7 @@ DEFINE TEMP-TABLE ttEstCostMisc NO-UNDO
     .
 DEFINE TEMP-TABLE ttEstCostMaterial NO-UNDO
     LIKE estCostMaterial
+    FIELD vendorChanged AS LOGICAL
     .    
 DEFINE TEMP-TABLE ttEstCostItem NO-UNDO
     LIKE estCostItem

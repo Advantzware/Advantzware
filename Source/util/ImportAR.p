@@ -485,7 +485,8 @@ PROCEDURE pCreateNewInvoiceAR:
         IF AVAILABLE currency THEN 
             ar-inv.ex-rate = currency.ex-rate.
         FIND FIRST terms NO-LOCK 
-            WHERE terms.t-code EQ cust.terms
+            WHERE terms.company EQ ipcCompany 
+              AND terms.t-code EQ cust.terms
             NO-ERROR.
         IF AVAILABLE terms THEN 
             ASSIGN 

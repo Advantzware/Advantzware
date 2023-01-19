@@ -273,8 +273,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
 ON CHOOSE OF Select_spec IN FRAME F-Main /* Notes */
 DO:
+   {methods/run_link.i "CONTAINER-SOURCE" "pUpdateRecKeyValue"}
+      
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
+   
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"spec-source",OUTPUT char-hdl).
 
    IF char-hdl NE "" THEN

@@ -933,7 +933,10 @@ SESSION:SET-WAIT-STATE ("general").
 
             {custom/statusMsg.i " 'Processing Invoice#  '  + string(ap-inv.inv-no) "}
 
-    find first terms where terms.t-code eq ap-inv.terms no-lock no-error.
+    FIND FIRST terms
+    WHERE terms.company EQ ap-inv.company 
+      AND terms.t-code  EQ ap-inv.terms 
+    NO-LOCK NO-ERROR.
 
     find first vend
         where vend.company eq ap-inv.company

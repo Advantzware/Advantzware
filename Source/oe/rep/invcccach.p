@@ -732,7 +732,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       IF inv-head.f-bill THEN v-net = v-net - inv-head.t-inv-freight.
 
       RELEASE terms.
-      FIND FIRST terms WHERE terms.t-code EQ inv-head.terms NO-LOCK NO-ERROR.
+      FIND FIRST terms WHERE terms.company EQ inv-head.company AND terms.t-code EQ inv-head.terms NO-LOCK NO-ERROR.
       IF AVAIL terms 
         THEN ASSIGN tmp1 = v-net * (ROUND(terms.disc-rate / 100, 2))
                     tmp2 = TODAY + terms.disc-days.
@@ -784,8 +784,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         "<R53.5><C10><FROM><R53.5><C70><LINE>"
         "<R54.5><C10><FROM><R54.5><C70><LINE>"
         "<R47.5><C29><FROM><R55.5><C29><LINE>"
-        "<C20><R45.5><B><FGCOLOR=RED>***NEW***<FGCOLOR=BLACK>" " Bank Account Information to send an ACH Payment to</B> "
-        "<C25><R46.5><B>Essentra Packaging US Inc., formally 3C Packaging</B>" 
+        "<C17><R45.5><B><FGCOLOR=RED>***NEW***<FGCOLOR=BLACK>" " Bank Account Information to send an ACH Payment to MM Clayton</B> " 
         "<C11><R47.5>Bank Name  <C30>Citibank"
         "<C11><R48.5>Bank Address  <C30>111 Wall Street"
         "<C11><R49.5>    <C30>New York, NY 10043"

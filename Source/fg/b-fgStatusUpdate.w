@@ -159,7 +159,6 @@ FUNCTION fGetJobID RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btSearch 
-     IMAGE-UP FILE "Graphics/32x32/magnifying_glass.ico":U
      LABEL "Search" 
      SIZE 11 BY 2.62.
 
@@ -284,7 +283,8 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 15 FGCOLOR 1 FONT 6 WIDGET-ID 100.
+         BGCOLOR 15 FGCOLOR 1 FONT 6
+         DEFAULT-BUTTON btSearch WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -399,23 +399,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME fiLocationID
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocationID B-table-Win
-ON HELP OF fiLocationID IN FRAME F-Main /* Location */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-    
-    RUN windows/l-fgbin.w (g_company,fiWarehouseID:screen-value, fiLocationID:screen-value,OUTPUT char-val).
-    IF char-val <> "" THEN 
-    DO :
-        ASSIGN 
-        fiLocationID:SCREEN-VALUE = ENTRY(1,char-val)  .    
-    END.  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME btSearch
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
@@ -497,6 +480,64 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME fiLocationID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiLocationID B-table-Win
+ON HELP OF fiLocationID IN FRAME F-Main /* Bin */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    
+    RUN windows/l-fgbin.w (g_company,fiWarehouseID:screen-value, fiLocationID:screen-value,OUTPUT char-val).
+    IF char-val <> "" THEN 
+    DO :
+        ASSIGN 
+        fiLocationID:SCREEN-VALUE = ENTRY(1,char-val)  .    
+    END.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiJobID
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiJobID B-table-Win
+ON HELP OF fiJobID IN FRAME F-Main /* job # */
+DO:  
+     DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
+     
+     FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company EQ g_company
+          AND itemfg.i-no      EQ fiItemId:SCREEN-VALUE
+          NO-ERROR.
+     
+     IF AVAILABLE itemfg THEN
+     DO:
+         RUN AOA/dynLookupSetParam.p (217, ROWID(itemfg), OUTPUT char-val).
+              ASSIGN
+                fiJobID:SCREEN-VALUE    IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "job-hdr.job-no",   char-val)
+                fiJobID2:SCREEN-VALUE      IN FRAME {&FRAME-NAME} = DYNAMIC-FUNCTION("sfDynLookupValue", "job-hdr.job-no2",    char-val)
+                .
+     END.    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME fiTag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiTag B-table-Win
+ON HELP OF fiTag IN FRAME F-Main /* Tag # */
+DO:
+  DEFINE VARIABLE lv-char-val      AS CHARACTER NO-UNDO.
+  RUN windows/l-fgtag.w (g_company,fiItemId:SCREEN-VALUE,'',OUTPUT lv-char-val).
+  IF ENTRY(1,lv-char-val) NE SELF:SCREEN-VALUE THEN DO: 
+    SELF:SCREEN-VALUE = ENTRY(1,lv-char-val).
+    APPLY 'VALUE-CHANGED' TO {&self-name}.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -504,6 +545,8 @@ END.
 
 /* ***************************  Main Block  *************************** */
 /*{methods/browsers/setCellColumns.i}*/
+
+btSearch:load-image("Graphics/32x32/magnifying_glass.ico").
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -550,6 +593,38 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\FgStatusInquiry.csv" NO-UNDO.
+  DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
+  DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
+  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
+  
+  RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.  
+
+  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
+  
+  RUN Output_TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttItem:HANDLE,
+                                              cFileName,
+                                              YES,
+                                              INPUT FALSE /* Auto increment File name */,
+                                              OUTPUT lSuccess,
+                                              OUTPUT cMessage).    
+  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
+      
+  DELETE OBJECT hdOutputProcs.
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -836,38 +911,6 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(50)" INITIAL "c:~\tmp~\FgStatusInquiry.csv" NO-UNDO.
-  DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
-  DEFINE VARIABLE hdOutputProcs AS HANDLE NO-UNDO.
-  DEFINE VARIABLE lSuccess AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
-  
-  RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.  
-
-  RUN sys/ref/ExcelNameExt.p (INPUT fi_file,OUTPUT cFileName) .
-  
-  RUN Output_TempTableToCSV IN hdOutputProcs (TEMP-TABLE ttItem:HANDLE,
-                                              cFileName,
-                                              YES,
-                                              INPUT FALSE /* Auto increment File name */,
-                                              OUTPUT lSuccess,
-                                              OUTPUT cMessage).    
-  OS-COMMAND NO-WAIT VALUE(SEARCH(cFileName)).
-      
-  DELETE OBJECT hdOutputProcs.
- 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

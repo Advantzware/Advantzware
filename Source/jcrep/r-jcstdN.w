@@ -34,6 +34,7 @@ DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
+{pc/pcprdd4u.i NEW}
 
 ASSIGN
     cocode = gcompany
@@ -602,6 +603,43 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
+ON HELP OF begin_i-no IN FRAME FRAME-A /* Beginning Estimate# */
+DO:
+        DEFINE VARIABLE char-val      AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE rec-val       AS RECID     NO-UNDO.
+        DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+        
+        IF begin_job-no:SCREEN-VALUE EQ "" then
+        DO:
+         RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */  
+                INPUT  25,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN begin_i-no:SCREEN-VALUE = cFoundValue.
+        END.
+        ELSE do:          
+            RUN windows/l-jobit1.w (g_company,begin_job-no:SCREEN-VALUE,begin_job-no2:screen-value, begin_i-no:SCREEN-VALUE, OUTPUT char-val,OUTPUT rec-val).
+
+            IF char-val <> "" THEN 
+            DO:                 
+                begin_i-no:SCREEN-VALUE = ENTRY(1,char-val).
+            END.
+        END.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME begin_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
@@ -848,6 +886,43 @@ DO:
 ON LEAVE OF end_i-no IN FRAME FRAME-A /* Ending Item# */
 DO:
         ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
+ON HELP OF end_i-no IN FRAME FRAME-A /* Ending Item# */
+DO:
+        DEFINE VARIABLE char-val    AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE rec-val     AS RECID     NO-UNDO.
+        DEFINE VARIABLE cFieldsValue  AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE cFoundValue   AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE recFoundRecID AS RECID     NO-UNDO.
+        
+        IF end_job-no:SCREEN-VALUE EQ "zzzzzzzzz" then
+        DO:
+         RUN system/openLookup.p (
+                INPUT  g_company, 
+                INPUT  "",  /* Lookup ID */  
+                INPUT  25,  /* Subject ID */
+                INPUT  "",  /* User ID */
+                INPUT  0,   /* Param Value ID */
+                OUTPUT cFieldsValue, 
+                OUTPUT cFoundValue, 
+                OUTPUT recFoundRecID
+            ).   
+            IF cFoundValue <> "" THEN 
+                ASSIGN end_i-no:SCREEN-VALUE = cFoundValue.
+        END.
+        ELSE do:                
+            RUN windows/l-jobit1.w (g_company,end_job-no:SCREEN-VALUE,substring(end_job-no2:screen-value,2,3), end_i-no:SCREEN-VALUE, OUTPUT char-val,OUTPUT rec-val).
+
+            IF char-val <> "" THEN 
+            DO:                 
+                end_i-no:SCREEN-VALUE = ENTRY(1,char-val).
+            END.
+        END.
     END.
 
 /* _UIB-CODE-BLOCK-END */

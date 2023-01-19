@@ -160,6 +160,15 @@ RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */,
                      OUTPUT lcReturn, OUTPUT llRecFound).
 IF llRecFound THEN
     cFreightCalculationValue = lcReturn NO-ERROR.
+    
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1777,14 +1786,9 @@ PROCEDURE hold-approve :
               END.
             END.
           END.
-                
-          FIND FIRST sys-ctrl WHERE
-               sys-ctrl.company EQ cocode AND
-               sys-ctrl.name    EQ "SCHEDULE"
-               NO-LOCK NO-ERROR.
 
-          v-run-schedule = IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "NoDate" AND sys-ctrl.log-fld THEN NO
-                           ELSE IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "PlanDate" AND sys-ctrl.log-fld THEN YES
+          v-run-schedule = IF cScheduleValue = "NoDate" AND lSchedule THEN NO
+                           ELSE IF cScheduleValue = "PlanDate" AND lSchedule THEN YES
                            ELSE NO.
 
           FOR EACH oe-ordl NO-LOCK
@@ -1954,7 +1958,7 @@ PROCEDURE lib-post-assign-record :
   DEF BUFFER due-job-hdr FOR job-hdr.
   
   /* Code placed here will execute AFTER standard behavior.    */
-  FIND FIRST terms WHERE terms.t-code = oe-ord.terms NO-LOCK NO-ERROR.
+  FIND FIRST terms WHERE terms.company EQ oe-ord.company AND terms.t-code = oe-ord.terms NO-LOCK NO-ERROR.
   IF AVAIL terms THEN oe-ord.terms-d = terms.dscr.
 /*   06211305 - Took out update of ord-no from db trigger, so this is not needed */
 /*   IF oe-ord.ord-no NE lv-ord-no THEN DO:                                           */
@@ -1985,13 +1989,12 @@ PROCEDURE lib-post-assign-record :
           due-job-hdr.due-date = oe-ord.due-date.
         END. /* each due-job-hdr */
       END. /* if duedatechanged */
-      FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ oe-ord.company
-                                    AND sys-ctrl.name EQ 'SCHEDULE' NO-ERROR.
-      IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
+
+      IF lSchedule THEN DO:
         IF prodDateChanged THEN
-        job.start-date = IF sys-ctrl.char-fld NE 'NoDate' THEN oe-ord.prod-date
+        job.start-date = IF cScheduleValue NE 'NoDate' THEN oe-ord.prod-date
                          ELSE ?.
-        IF dueDateChanged AND sys-ctrl.char-fld EQ 'PlanDate' AND NOT ip-autotrans THEN DO:
+        IF dueDateChanged AND cScheduleValue EQ 'PlanDate' AND NOT ip-autotrans THEN DO:
           IF NOT VALID-HANDLE(scheduleHndl) THEN
           RUN custom/schedule.p PERSISTENT SET scheduleHndl.
           RUN scheduleJob IN scheduleHndl (ROWID(job),OUTPUT calcStartDate,OUTPUT calcDueDate).
@@ -2568,11 +2571,7 @@ PROCEDURE update-start-date :
      lv-start-date = TODAY.
   END.
   
-  v-run-schedule = NOT CAN-FIND(FIRST sys-ctrl
-                                WHERE sys-ctrl.company EQ oe-ord.company
-                                  AND sys-ctrl.name EQ 'SCHEDULE'
-                                  AND sys-ctrl.char-fld EQ 'NoDate'
-                                  AND sys-ctrl.log-fld EQ YES).
+  v-run-schedule = NOT(lSchedule AND cScheduleValue EQ "NoDate").
   IF v-run-schedule THEN DO: /* run if above does not exist */
   
   /* === reset start-date === */

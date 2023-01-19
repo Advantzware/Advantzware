@@ -14,12 +14,11 @@ IF AVAIL {&{1}-TABLE} THEN DO TRANSACTION:
     RUN custom/get-lock-user.p (INPUT "{&{1}-TABLE}", 
                                 INPUT ROWID({&{1}-TABLE}), 
                                 OUTPUT checkus1-upd-user-{2}).
-    MESSAGE "Table ("                              +
-            TRIM("{&{1}-TABLE}")                   +
-            ") is being changed by someone else" + 
-             " (" + checkus1-upd-user-{2} + ") " + ", " +
-            "wait a moment and try again..."
-        VIEW-AS ALERT-BOX ERROR.
+    
+     MESSAGE "User " + checkus1-upd-user-{2} + 
+             "is currently locking the record you're trying to access. " +
+             "Please try again later." 
+        VIEW-AS ALERT-BOX.
     IF "{3}" EQ "" THEN DO:
       RUN dispatch ("cancel-record").
       RETURN "ADM-ERROR":U.

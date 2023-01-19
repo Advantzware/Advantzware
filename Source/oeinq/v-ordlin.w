@@ -543,13 +543,14 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE  lv-inv-qty dEstWeight dActWeight iTotalPallet.
+    IF AVAILABLE oe-ordl THEN
      ASSIGN
           lv-inv-qty:SCREEN-VALUE = STRING(get-inv-qty())
           dEstWeight:SCREEN-VALUE = STRING(fGetEstWeight())
           dActWeight:SCREEN-VALUE = STRING(fGetActWeight())
           iTotalPallet:SCREEN-VALUE = STRING(fGetTotalPallet()) .
   END.   
-  
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -561,17 +562,14 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cocode AS CHAR NO-UNDO.
-  
+    
   /* Code placed here will execute PRIOR to standard behavior. */
   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
- cocode = oe-ordl.company.
-
+               
  DO TRANSACTION:
     {sys/inc/fgsecur.i}
  END.
@@ -693,14 +691,11 @@ FUNCTION get-inv-qty RETURNS DECIMAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF BUFFER b-oe-ordl FOR oe-ordl.
-
+  
   DEF VAR lp-inv-qty AS INT NO-UNDO.
   
   ASSIGN lp-inv-qty = 0.
-         
-  FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) NO-LOCK.
-  
+      
   FOR EACH ar-invl  WHERE
       ar-invl.company EQ oe-ordl.company AND
       ar-invl.ord-no EQ oe-ordl.ord-no AND

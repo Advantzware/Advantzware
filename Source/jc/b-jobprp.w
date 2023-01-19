@@ -48,6 +48,10 @@ ASSIGN
 
 DEF VAR v-dscr LIKE prep-dscr NO-UNDO.
 DEF VAR v-acceptable-codes AS CHAR NO-UNDO.
+DEFINE VARIABLE hPrepProcs     AS HANDLE NO-UNDO.
+
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
+
 ASSIGN
    v-acceptable-codes = "MisM1,MisM2,MisM3,MisM4,MisM5,MisM6,MisM7,MisM8,MisM9,MisL1,MisL2,MisL3,MisL4,MisL5,MisL6,MisL7,MisL8,MisL9".
 
@@ -561,8 +565,11 @@ PROCEDURE local-assign-record :
       WHERE prep.company EQ cocode
         AND prep.code    EQ job-prep.code
       NO-LOCK NO-ERROR.
-  IF AVAIL prep THEN job-prep.sc-uom = prep.uom.
-
+  IF AVAIL prep THEN 
+  DO: 
+     job-prep.sc-uom = prep.uom.      
+     RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(prep)).
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,6 +687,25 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
+PROCEDURE local-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+     
+     IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

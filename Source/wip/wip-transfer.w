@@ -1152,7 +1152,7 @@ PROCEDURE init :
          WHERE company.company EQ cCompany NO-ERROR .
     {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " - " + DYNAMIC-FUNCTION("sfVersion") + " - " 
                          + STRING(company.name) + " - " + cLocation  .
-
+    APPLY 'entry' TO ls-tag IN FRAME {&frame-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

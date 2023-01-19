@@ -180,7 +180,7 @@ assign
       if po-ord.stat eq "U" then
          v-change-ord = "(CHANGED ORDER ONLY)".
 
-      find first terms where terms.t-code eq po-ord.terms no-lock no-error.
+      find first terms where terms.company EQ po-ord.company AND terms.t-code eq po-ord.terms no-lock no-error.
       find first carrier where carrier.company eq po-ord.company 
                            and carrier.carrier eq po-ord.carrier no-lock no-error.
 
@@ -592,10 +592,10 @@ assign
        v-signature
        SKIP.
        
-   PUT "<FArial><R63.2><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions"").  Essentra Packaging disclaims and rejects any" SKIP
-    "<C2.5><R-0.3>" "additional terms and conditions proposed by Supplier and the same shall not be binding upon Essentra Packaging, regardless of when submitted.  Supplier’s acceptance of the sales/purchases described herein" SKIP
+   PUT "<FArial><R63.2><C2.5><P6>" "All sales/purchases described herein are subject to MM Clayton terms and conditions attached hereto and made a part hereof (""Terms and Conditions"").  MM Clayton disclaims and rejects any" SKIP
+    "<C2.5><R-0.3>" "additional terms and conditions proposed by Supplier and the same shall not be binding upon MM Clayton, regardless of when submitted.  Supplier’s acceptance of the sales/purchases described herein" SKIP
     "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Supplier's delivery of goods or" SKIP
-    "<C2.5><R-0.3>" "acceptance of payment made by Essentra Packaging for the sales or purchases described herein."
+    "<C2.5><R-0.3>" "acceptance of payment made by MM Clayton for the sales or purchases described herein."
     "<P9>".
 
 v-printline = v-printline + 6.

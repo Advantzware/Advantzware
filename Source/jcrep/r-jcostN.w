@@ -186,8 +186,8 @@ ASSIGN cTextListToSelect = "JOB#,FG ITEM,ITEM DESCRIPTION,FG CATEGORY,CUSTOMER,C
 
     */
 
-       cFieldLength = "13,15,25,11,8,30," + "13,13,13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13," +
-                      "13,13,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13,13," + "13,13,13,13,21,19"
+       cFieldLength = "13,15,25,11,8,30," + "13,13,13,13,13,13," + "13,13,13,13," + "18,19,13,15," + "16,17,13,13," +
+                      "14,15,13,13," + "13,13,13,13," + "13,13,13,13," + "13,13,13,13,14," + "13,13,13,13,21,19"
        cFieldType   = "c,c,c,c,c,c," + "i,i,i,i,i,i," + "i,i,i,i," + "i,i,i,i," + "i,i,i,i," + 
                       "i,i,i,i," + "i,i,i,i," + "i,i,i,i," + "i,i,i,i,i," + "i,i,i,i,i,i"
        .
@@ -2120,8 +2120,9 @@ DEFINE VARIABLE c1 AS CHARACTER INITIAL "" NO-UNDO.
 DEFINE VARIABLE c2 AS CHARACTER INITIAL "" NO-UNDO.
 DEFINE VARIABLE dFrt AS DECIMAL NO-UNDO.
 DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
+DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO.
 
-{sys/form/r-top5DL3.f} 
+{sys/form/r-topsw.f} 
 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 
@@ -2190,7 +2191,11 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 {sys/inc/print1.i}
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
-IF td-show-parm THEN RUN show-param.
+IF td-show-parm THEN 
+DO: 
+  RUN show-param.
+  iLineCount = 23.
+END.  
 
 IF rd-dest EQ 3 THEN DO:
    OUTPUT STREAM excel TO VALUE(cFileName).
@@ -2232,6 +2237,10 @@ END.
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" /*str-tit4 str-tit5*/ WITH FRAME r-top.
+PUT  str-tit4 FORMAT "x(1050)"
+    SKIP
+    str-tit5 FORMAT "x(1050)"
+    SKIP.
 
 RUN gATher-dATa.
 
@@ -2490,7 +2499,7 @@ PROCEDURE show-param :
     END.
   END.
 
-  PUT FILL("-",80) FORMAT "x(80)" SKIP.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.  
 
 END PROCEDURE.
 

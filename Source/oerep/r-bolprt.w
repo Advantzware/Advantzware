@@ -136,6 +136,7 @@ RUN inventory/InventoryProcs.p PERSISTENT SET hdInventoryProcs.
 
 DEFINE VARIABLE cdAOABOLPost AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ldAOABOLPost AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lv-termPath  AS CHARACTER NO-UNDO.
 
 RUN sys/ref/nk1look.p (
     g_company, "dAOABOLPost", "L", NO, NO, "", "",
@@ -284,7 +285,7 @@ DEFINE TEMP-TABLE ediOutFile NO-UNDO
     
 DEFINE TEMP-TABLE tt-list
     FIELD rec-row AS ROWID
-    FIELD BolNo AS INTEGER.    
+    FIELD BolNo AS INTEGER.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -305,18 +306,18 @@ DEFINE TEMP-TABLE tt-list
 begin_ord# end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
 tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
-tb_print-binstags rd_bol-sort fi_specs tb_print-spec rd_bolcert ~
-tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode tb_ComInvoice ~
-tb_freight-bill tb_footer tb_post-bol tb_suppress-name td-show-parm ~
-run_format tbAutoClose btn-ok btn-cancel 
+tb_print-binstags rd_bol-sort fi_specs tb_print-spec lv-termFile tb_terms ~
+rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode ~
+tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name ~
+td-show-parm run_format tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
 tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
 tb_print-binstags lbl_bolsort rd_bol-sort fi_specs tb_print-spec ~
-lbl_bolcert rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice ~
-tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer tb_post-bol ~
-tb_suppress-name td-show-parm run_format tbAutoClose 
+lv-termFile tb_terms lbl_bolcert rd_bolcert tb_per-bol-line rd-dest ~
+tb_EMailAdvNotice tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer ~
+tb_post-bol tb_suppress-name td-show-parm run_format tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -338,322 +339,334 @@ FUNCTION removeChars RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
-    LABEL "&Cancel" 
-    SIZE 16 BY 1.29.
+     LABEL "&Cancel" 
+     SIZE 16 BY 1.29.
 
 DEFINE BUTTON btn-ok 
-    LABEL "&OK" 
-    SIZE 16 BY 1.29.
+     LABEL "&OK" 
+     SIZE 16 BY 1.29.
 
-DEFINE VARIABLE begin_bol#     AS INTEGER   FORMAT ">>>>>>>>" INITIAL 0 
-    LABEL "Beginning BOL#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_bol# AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
+     LABEL "Beginning BOL#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_cust     AS CHARACTER FORMAT "X(8)" 
-    LABEL "Beginning Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)" 
+     LABEL "Beginning Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_date     AS DATE      FORMAT "99/99/9999":U INITIAL 01/01/001 
-    LABEL "Beginning Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY .95 NO-UNDO.
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
+     LABEL "Beginning Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY .95 NO-UNDO.
 
-DEFINE VARIABLE begin_ord#     AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0 
-    LABEL "Beginning Order#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE begin_ord# AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
+     LABEL "Beginning Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_bol#       AS INTEGER   FORMAT ">>>>>>>9" INITIAL 99999999 
-    LABEL "Ending BOL#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_bol# AS INTEGER FORMAT ">>>>>>>9" INITIAL 99999999 
+     LABEL "Ending BOL#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_cust       AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
-    LABEL "Ending Customer#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1.
+DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "Ending Customer#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1.
 
-DEFINE VARIABLE end_date       AS DATE      FORMAT "99/99/9999":U INITIAL 12/31/9999 
-    LABEL "Ending Date" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
+     LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_ord#       AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 99999999 
-    LABEL "Ending Order#" 
-    VIEW-AS FILL-IN 
-    SIZE 17 BY 1 NO-UNDO.
+DEFINE VARIABLE end_ord# AS INTEGER FORMAT ">>>>>>>>":U INITIAL 99999999 
+     LABEL "Ending Order#" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiPostdate     AS DATE      FORMAT "99/99/9999":U 
-    LABEL "Post Date" 
-    VIEW-AS FILL-IN 
-    SIZE 15.6 BY 1 NO-UNDO.
+DEFINE VARIABLE fiPostdate AS DATE FORMAT "99/99/9999":U 
+     LABEL "Post Date" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_depts       AS CHARACTER FORMAT "X(100)" 
-    VIEW-AS FILL-IN 
-    SIZE 38.4 BY 1.
+DEFINE VARIABLE fi_depts AS CHARACTER FORMAT "X(100)" 
+     VIEW-AS FILL-IN 
+     SIZE 38.4 BY 1.
 
-DEFINE VARIABLE fi_specs       AS CHARACTER FORMAT "X(100)" 
-    VIEW-AS FILL-IN 
-    SIZE 38.4 BY 1.
+DEFINE VARIABLE fi_specs AS CHARACTER FORMAT "X(100)" 
+     VIEW-AS FILL-IN 
+     SIZE 38.4 BY 1.
 
-DEFINE VARIABLE lbl_bolcert    AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lbl_bolcert AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_bolsort    AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
-    VIEW-AS FILL-IN 
-    SIZE 9.4 BY 1 NO-UNDO.
+DEFINE VARIABLE lbl_bolsort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort By?" 
+     VIEW-AS FILL-IN 
+     SIZE 9.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lines-per-page AS INTEGER   FORMAT ">>":U INITIAL 99 
-    LABEL "Lines Per Page" 
-    VIEW-AS FILL-IN 
-    SIZE 4 BY 1 NO-UNDO.
+DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
+     LABEL "Lines Per Page" 
+     VIEW-AS FILL-IN 
+     SIZE 4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-name   AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=12 (10 cpi for 132 column Report)" 
-    VIEW-AS FILL-IN 
-    SIZE 51.8 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=12 (10 cpi for 132 column Report)" 
+     VIEW-AS FILL-IN 
+     SIZE 51.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-font-no     AS CHARACTER FORMAT "X(256)":U INITIAL "15" 
-    LABEL "Font" 
-    VIEW-AS FILL-IN 
-    SIZE 7 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "15" 
+     LABEL "Font" 
+     VIEW-AS FILL-IN 
+     SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE run_format     AS CHARACTER FORMAT "X(30)":U 
-    LABEL "Format" 
-    VIEW-AS FILL-IN 
-    SIZE 25 BY 1 NO-UNDO.
+DEFINE VARIABLE lv-termFile AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Terms File" 
+     VIEW-AS FILL-IN 
+     SIZE 43 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lv-ornt        AS CHARACTER INITIAL "P" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Portrait", "P",
-    "Landscape", "L"
-    SIZE 30 BY .95 NO-UNDO.
+DEFINE VARIABLE run_format AS CHARACTER FORMAT "X(30)":U 
+     LABEL "Format" 
+     VIEW-AS FILL-IN 
+     SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE rd-dest        AS INTEGER   INITIAL 2 
-    VIEW-AS RADIO-SET VERTICAL
-    RADIO-BUTTONS 
-    "To Printer", 1,
-    "To Screen", 2,
-    "To Email", 5,
-    "To File", 3
-    SIZE 17.2 BY 6.57 NO-UNDO.
+DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Portrait", "P",
+"Landscape", "L"
+     SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE rd_bol-sort    AS CHARACTER INITIAL "Item #" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "Item #", "Item #",
-    "Job #", "Job #"
-    SIZE 24.4 BY 1 NO-UNDO.
+DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "To Printer", 1,
+"To Screen", 2,
+"To Email", 5,
+"To File", 3
+     SIZE 17.2 BY 6.57 NO-UNDO.
 
-DEFINE VARIABLE rd_bolcert     AS CHARACTER INITIAL "BOL" 
-    VIEW-AS RADIO-SET HORIZONTAL
-    RADIO-BUTTONS 
-    "BOL", "BOL",
-    "Certificate of Compliance", "Certificate of Compliance"
-    SIZE 39 BY 1 NO-UNDO.
+DEFINE VARIABLE rd_bol-sort AS CHARACTER INITIAL "Item #" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Item #", "Item #",
+"Job #", "Job #"
+     SIZE 24.4 BY 1 NO-UNDO.
+
+DEFINE VARIABLE rd_bolcert AS CHARACTER INITIAL "BOL" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "BOL", "BOL",
+"Certificate of Compliance", "Certificate of Compliance"
+     SIZE 39 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 6.95.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 91 BY 6.95.
 
 DEFINE RECTANGLE RECT-7
-    EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-    SIZE 91 BY 14.95.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 91 BY 15.91.
 
-DEFINE VARIABLE tbAutoClose                   AS LOGICAL INITIAL NO 
-    LABEL "Auto Close" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 16 BY .81 NO-UNDO.
+DEFINE VARIABLE tbAutoClose AS LOGICAL INITIAL no 
+     LABEL "Auto Close" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 16 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_barcode                    AS LOGICAL INITIAL NO 
-    LABEL "Print Bar Coded Pack List?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 30 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_barcode AS LOGICAL INITIAL no 
+     LABEL "Print Bar Coded Pack List?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_ComInvoice                 AS LOGICAL INITIAL NO 
-    LABEL "Commercial Invoice (Excel)?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 31 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_ComInvoice AS LOGICAL INITIAL no 
+     LABEL "Commercial Invoice (Excel)?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 31 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_EMailAdvNotice             AS LOGICAL INITIAL NO 
-    LABEL "E-Mail &Advanced Ship Notice?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 34 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_EMailAdvNotice AS LOGICAL INITIAL no 
+     LABEL "E-Mail &Advanced Ship Notice?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 34 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_footer                     AS LOGICAL INITIAL NO 
-    LABEL "Print Footer?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 28 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_footer AS LOGICAL INITIAL no 
+     LABEL "Print Footer?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_freight-bill               AS LOGICAL INITIAL NO 
-    LABEL "Print Freight Bill / Logo?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 28 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_freight-bill AS LOGICAL INITIAL no 
+     LABEL "Print Freight Bill / Logo?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_MailBatchMode              AS LOGICAL INITIAL NO 
-    LABEL "Hide E-Mail Dialog Box" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 26 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_MailBatchMode AS LOGICAL INITIAL no 
+     LABEL "Hide E-Mail Dialog Box" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 26 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_pallet                     AS LOGICAL INITIAL NO 
-    LABEL "Print Number Of Pallets?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 29 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_pallet AS LOGICAL INITIAL no 
+     LABEL "Print Number Of Pallets?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 29 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_per-bol-line               AS LOGICAL INITIAL NO 
-    LABEL "Per BOL Line" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_per-bol-line AS LOGICAL INITIAL no 
+     LABEL "Per BOL Line" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_post-bol                   AS LOGICAL INITIAL NO 
-    LABEL "Post BOL?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 14 BY 1
-    BGCOLOR 15 NO-UNDO.
+DEFINE VARIABLE tb_post-bol AS LOGICAL INITIAL no 
+     LABEL "Post BOL?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 14 BY 1
+     BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_posted                     AS LOGICAL INITIAL NO 
-    LABEL "Reprint Posted BOL?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 28 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
+     LABEL "Reprint Posted BOL?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-barcode              AS LOGICAL INITIAL NO 
-    LABEL "Print Barcode by Part Number?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 44 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print-barcode AS LOGICAL INITIAL no 
+     LABEL "Print Barcode by Part Number?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 44 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-binstags             AS LOGICAL INITIAL NO 
-    LABEL "Print Bins/Tags?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 44 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print-binstags AS LOGICAL INITIAL no 
+     LABEL "Print Bins/Tags?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 44 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-component            AS LOGICAL INITIAL NO 
-    LABEL "Print Assembled Components?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 33 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print-component AS LOGICAL INITIAL no 
+     LABEL "Print Assembled Components?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-dept                 AS LOGICAL INITIAL NO 
-    LABEL "Print Dept Notes?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL no 
+     LABEL "Print Dept Notes?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-DetPage              AS LOGICAL INITIAL NO 
-    LABEL "Print Detail Bol Page 2?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 44 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print-DetPage AS LOGICAL INITIAL no 
+     LABEL "Print Detail Bol Page 2?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 44 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-shipnote             AS LOGICAL INITIAL NO 
-    LABEL "Print Ship Notes?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print-shipnote AS LOGICAL INITIAL no 
+     LABEL "Print Ship Notes?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-spec                 AS LOGICAL INITIAL NO 
-    LABEL "Print Spec Notes?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print-spec AS LOGICAL INITIAL no 
+     LABEL "Print Spec Notes?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print-unassemble-component AS LOGICAL INITIAL NO 
-    LABEL "Print Unassembled Set?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 33 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print-unassemble-component AS LOGICAL INITIAL no 
+     LABEL "Print Unassembled Set?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_print_ship                 AS LOGICAL INITIAL NO 
-    LABEL "Print Shipping Inst?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 30 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_print_ship AS LOGICAL INITIAL no 
+     LABEL "Print Shipping Inst?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_reprint                    AS LOGICAL INITIAL NO 
-    LABEL "Reprint Bill Of Ladings?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 28 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL no 
+     LABEL "Reprint Bill Of Ladings?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 28 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_suppress-name              AS LOGICAL INITIAL NO 
-    LABEL "Suppress Name" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 20.4 BY .81 NO-UNDO.
+DEFINE VARIABLE tb_suppress-name AS LOGICAL INITIAL no 
+     LABEL "Suppress Name" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm                  AS LOGICAL INITIAL NO 
-    LABEL "Show Parameters?" 
-    VIEW-AS TOGGLE-BOX
-    SIZE 21 BY 1 NO-UNDO.
+DEFINE VARIABLE tb_terms AS LOGICAL INITIAL no 
+     LABEL "Print Terms?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15.4 BY .81 NO-UNDO.
+
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+     LABEL "Show Parameters?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 21 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-    begin_cust AT ROW 1.95 COL 26 COLON-ALIGNED HELP
-    "Enter Beginning Customer Number"
-    end_cust AT ROW 1.95 COL 69 COLON-ALIGNED HELP
-    "Enter Ending Customer Number"
-    begin_bol# AT ROW 2.91 COL 26 COLON-ALIGNED HELP
-    "Enter Beginning BOL Number"
-    end_bol# AT ROW 2.91 COL 69 COLON-ALIGNED HELP
-    "Enter Ending BOL Number"
-    begin_ord# AT ROW 3.86 COL 26 COLON-ALIGNED HELP
-    "Enter Beginning Order Number"
-    end_ord# AT ROW 3.86 COL 69 COLON-ALIGNED HELP
-    "Enter Ending Order Number"
-    begin_date AT ROW 4.81 COL 26 COLON-ALIGNED HELP
-    "Enter Beginning Date"
-    end_date AT ROW 4.81 COL 69.2 COLON-ALIGNED HELP
-    "Enter Ending Date"
-    tb_reprint AT ROW 5.91 COL 31.6
-    tb_pallet AT ROW 6.86 COL 59.6 RIGHT-ALIGNED
-    tb_posted AT ROW 7.81 COL 31.6
-    tb_print-component AT ROW 8.76 COL 31.6
-    tb_print-shipnote AT ROW 9.71 COL 31.6
-    tb_barcode AT ROW 10.57 COL 31.6
-    fi_depts AT ROW 11.33 COL 48.8 COLON-ALIGNED HELP
-    "Enter Dept Codes separated by commas" NO-LABELS
-    tb_print-dept AT ROW 11.43 COL 31.6
-    tb_print_ship AT ROW 11.43 COL 31.6 WIDGET-ID 4
-    tb_print-barcode AT ROW 12.29 COL 31.6 WIDGET-ID 2
-    tb_print-DetPage AT ROW 13 COL 31.6
-    tb_print-unassemble-component AT ROW 13.1 COL 34 WIDGET-ID 18
-    tb_print-binstags AT ROW 13.24 COL 34 WIDGET-ID 6
-    lbl_bolsort AT ROW 13.86 COL 19.2 COLON-ALIGNED NO-LABELS WIDGET-ID 12
-    rd_bol-sort AT ROW 13.86 COL 32.2 NO-LABELS WIDGET-ID 14
-    fi_specs AT ROW 14 COL 51.2 COLON-ALIGNED HELP
-    "Enter Dept Codes separated by commas" NO-LABELS WIDGET-ID 8
-    tb_print-spec AT ROW 14.1 COL 34 WIDGET-ID 10
-    lbl_bolcert AT ROW 15.1 COL 21.6 COLON-ALIGNED NO-LABELS
-    rd_bolcert AT ROW 15.1 COL 32.2 NO-LABELS
-    tb_per-bol-line AT ROW 15.19 COL 71.2 WIDGET-ID 20
-    rd-dest AT ROW 17.14 COL 4.6 NO-LABELS
-    lv-ornt AT ROW 17.19 COL 63 NO-LABELS
-    tb_EMailAdvNotice AT ROW 17.29 COL 62.6 RIGHT-ALIGNED
-    lines-per-page AT ROW 17.91 COL 86 COLON-ALIGNED
-    lv-font-no AT ROW 18.14 COL 63 COLON-ALIGNED
-    tb_MailBatchMode AT ROW 18.19 COL 54.6 RIGHT-ALIGNED
-    tb_ComInvoice AT ROW 19.1 COL 59.6 RIGHT-ALIGNED
-    tb_freight-bill AT ROW 20 COL 56.6 RIGHT-ALIGNED
-    tb_footer AT ROW 20.86 COL 56.6 RIGHT-ALIGNED
-    fiPostdate AT ROW 21.19 COL 60.4 COLON-ALIGNED WIDGET-ID 22
-    tb_post-bol AT ROW 21.19 COL 78.8
-    tb_suppress-name AT ROW 21.71 COL 49 RIGHT-ALIGNED
-    td-show-parm AT ROW 22.48 COL 29.6
-    run_format AT ROW 22.48 COL 65 COLON-ALIGNED WIDGET-ID 12
-    lv-font-name AT ROW 23.86 COL 40 COLON-ALIGNED NO-LABELS
-    tbAutoClose AT ROW 23.95 COL 29.6 WIDGET-ID 64
-    btn-ok AT ROW 24.91 COL 29.4
-    btn-cancel AT ROW 24.91 COL 51.4
-    "Output Destination" VIEW-AS TEXT
-    SIZE 18 BY .62 AT ROW 16.48 COL 4
-    " Selection Parameters" VIEW-AS TEXT
-    SIZE 21 BY .71 AT ROW 1.1 COL 4
-    RECT-6 AT ROW 16.91 COL 3
-    RECT-7 AT ROW 1.52 COL 3 WIDGET-ID 24
+     begin_cust AT ROW 1.95 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number"
+     end_cust AT ROW 1.95 COL 69 COLON-ALIGNED HELP
+          "Enter Ending Customer Number"
+     begin_bol# AT ROW 2.91 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning BOL Number"
+     end_bol# AT ROW 2.91 COL 69 COLON-ALIGNED HELP
+          "Enter Ending BOL Number"
+     begin_ord# AT ROW 3.86 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning Order Number"
+     end_ord# AT ROW 3.86 COL 69 COLON-ALIGNED HELP
+          "Enter Ending Order Number"
+     begin_date AT ROW 4.81 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning Date"
+     end_date AT ROW 4.81 COL 69.2 COLON-ALIGNED HELP
+          "Enter Ending Date"
+     tb_reprint AT ROW 5.91 COL 31.6
+     tb_pallet AT ROW 6.86 COL 59.6 RIGHT-ALIGNED
+     tb_posted AT ROW 7.81 COL 31.6
+     tb_print-component AT ROW 8.76 COL 31.6
+     tb_print-shipnote AT ROW 9.71 COL 31.6
+     tb_barcode AT ROW 10.57 COL 31.6
+     fi_depts AT ROW 11.33 COL 48.8 COLON-ALIGNED HELP
+          "Enter Dept Codes separated by commas" NO-LABEL
+     tb_print-dept AT ROW 11.43 COL 31.6
+     tb_print_ship AT ROW 11.43 COL 31.6 WIDGET-ID 4
+     tb_print-barcode AT ROW 12.29 COL 31.6 WIDGET-ID 2
+     tb_print-DetPage AT ROW 13 COL 31.6
+     tb_print-unassemble-component AT ROW 13.1 COL 34 WIDGET-ID 18
+     tb_print-binstags AT ROW 13.24 COL 34 WIDGET-ID 6
+     lbl_bolsort AT ROW 13.86 COL 19.2 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     rd_bol-sort AT ROW 13.86 COL 32.2 NO-LABEL WIDGET-ID 14
+     fi_specs AT ROW 14 COL 51.2 COLON-ALIGNED HELP
+          "Enter Dept Codes separated by commas" NO-LABEL WIDGET-ID 8
+     tb_print-spec AT ROW 14.1 COL 34 WIDGET-ID 10
+     lv-termFile AT ROW 15.14 COL 46.6 COLON-ALIGNED WIDGET-ID 68
+     tb_terms AT ROW 15.19 COL 22 WIDGET-ID 66
+     lbl_bolcert AT ROW 16.19 COL 21.6 COLON-ALIGNED NO-LABEL
+     rd_bolcert AT ROW 16.19 COL 32.2 NO-LABEL
+     tb_per-bol-line AT ROW 16.29 COL 71.2 WIDGET-ID 20
+     rd-dest AT ROW 18.1 COL 4.6 NO-LABEL
+     lv-ornt AT ROW 18.14 COL 63 NO-LABEL
+     tb_EMailAdvNotice AT ROW 18.24 COL 62.6 RIGHT-ALIGNED
+     lines-per-page AT ROW 18.86 COL 86 COLON-ALIGNED
+     lv-font-no AT ROW 19.1 COL 63 COLON-ALIGNED
+     tb_MailBatchMode AT ROW 19.14 COL 54.6 RIGHT-ALIGNED
+     tb_ComInvoice AT ROW 20.05 COL 59.6 RIGHT-ALIGNED
+     tb_freight-bill AT ROW 20.95 COL 56.6 RIGHT-ALIGNED
+     tb_footer AT ROW 21.81 COL 56.6 RIGHT-ALIGNED
+     fiPostdate AT ROW 22.14 COL 60.4 COLON-ALIGNED WIDGET-ID 22
+     tb_post-bol AT ROW 22.14 COL 78.8
+     tb_suppress-name AT ROW 22.67 COL 49 RIGHT-ALIGNED
+     td-show-parm AT ROW 23.43 COL 29.6
+     run_format AT ROW 23.43 COL 65 COLON-ALIGNED WIDGET-ID 12
+     lv-font-name AT ROW 24.81 COL 40 COLON-ALIGNED NO-LABEL
+     tbAutoClose AT ROW 24.91 COL 29.6 WIDGET-ID 64
+     btn-ok AT ROW 25.86 COL 29.4
+     btn-cancel AT ROW 25.86 COL 51.4
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 17.43 COL 4
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.1 COL 4
+     RECT-6 AT ROW 17.86 COL 3
+     RECT-7 AT ROW 1.52 COL 3 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-    SIDE-LABELS NO-UNDERLINE THREE-D 
-    AT COL 1 ROW 1
-    SIZE 94.8 BY 25.43
-    BGCOLOR 15 .
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 94.8 BY 26.76
+         BGCOLOR 15 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -670,30 +683,30 @@ DEFINE FRAME FRAME-A
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-    CREATE WINDOW C-Win ASSIGN
-        HIDDEN             = YES
-        TITLE              = "Print Bills of Lading"
-        HEIGHT             = 25.43
-        WIDTH              = 94.8
-        MAX-HEIGHT         = 53.71
-        MAX-WIDTH          = 384
-        VIRTUAL-HEIGHT     = 53.71
-        VIRTUAL-WIDTH      = 384
-        RESIZE             = NO
-        SCROLL-BARS        = NO
-        STATUS-AREA        = YES
-        BGCOLOR            = ?
-        FGCOLOR            = ?
-        KEEP-FRAME-Z-ORDER = YES
-        THREE-D            = YES
-        MESSAGE-AREA       = NO
-        SENSITIVE          = YES.
+  CREATE WINDOW C-Win ASSIGN
+         HIDDEN             = YES
+         TITLE              = "Print Bills of Lading"
+         HEIGHT             = 26.76
+         WIDTH              = 94.8
+         MAX-HEIGHT         = 53.71
+         MAX-WIDTH          = 384
+         VIRTUAL-HEIGHT     = 53.71
+         VIRTUAL-WIDTH      = 384
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
+         BGCOLOR            = ?
+         FGCOLOR            = ?
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -708,174 +721,215 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 ASSIGN 
-    begin_bol#:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_bol#:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_cust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    begin_ord#:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       begin_ord#:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    btn-cancel:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
-    btn-ok:PRIVATE-DATA IN FRAME FRAME-A = "ribbon-button".
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 /* SETTINGS FOR FILL-IN end_bol# IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    end_bol#:HIDDEN IN FRAME FRAME-A       = TRUE
-    end_bol#:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_bol#:HIDDEN IN FRAME FRAME-A           = TRUE
+       end_bol#:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_cust:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_date:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    end_ord#:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       end_ord#:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN fiPostdate IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    fiPostdate:HIDDEN IN FRAME FRAME-A = TRUE.
+       fiPostdate:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN fi_depts IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    fi_depts:HIDDEN IN FRAME FRAME-A       = TRUE
-    fi_depts:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       fi_depts:HIDDEN IN FRAME FRAME-A           = TRUE
+       fi_depts:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    fi_specs:HIDDEN IN FRAME FRAME-A       = TRUE
-    fi_specs:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       fi_specs:HIDDEN IN FRAME FRAME-A           = TRUE
+       fi_specs:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR FILL-IN lbl_bolcert IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_bolcert:PRIVATE-DATA IN FRAME FRAME-A = "rd_bolcert".
+       lbl_bolcert:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_bolcert".
 
 /* SETTINGS FOR FILL-IN lbl_bolsort IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
-    lbl_bolsort:PRIVATE-DATA IN FRAME FRAME-A = "rd_bolcert".
+       lbl_bolsort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_bolcert".
 
 /* SETTINGS FOR FILL-IN lines-per-page IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lines-per-page:HIDDEN IN FRAME FRAME-A = TRUE.
+       lines-per-page:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-name:HIDDEN IN FRAME FRAME-A    = TRUE
-    lv-font-name:READ-ONLY IN FRAME FRAME-A = TRUE.
+       lv-font-name:HIDDEN IN FRAME FRAME-A           = TRUE
+       lv-font-name:READ-ONLY IN FRAME FRAME-A        = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-font-no IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-font-no:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-font-no:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR RADIO-SET lv-ornt IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    lv-ornt:HIDDEN IN FRAME FRAME-A = TRUE.
+       lv-ornt:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 ASSIGN 
-    rd_bol-sort:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       rd_bol-sort:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    rd_bolcert:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       rd_bolcert:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_barcode:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_barcode:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_ComInvoice IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_ComInvoice:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_ComInvoice:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_EMailAdvNotice IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_EMailAdvNotice:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_EMailAdvNotice:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_footer IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_footer:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_footer:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_freight-bill IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_freight-bill:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_freight-bill:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_MailBatchMode IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_MailBatchMode:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_MailBatchMode:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_pallet IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_pallet:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_pallet:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_per-bol-line:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_per-bol-line:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_post-bol:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_post-bol:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_posted:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_posted:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_print-barcode:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-barcode:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_print-binstags:HIDDEN IN FRAME FRAME-A       = TRUE
-    tb_print-binstags:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-binstags:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_print-binstags:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_print-component:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-component:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_print-dept IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-    tb_print-dept:HIDDEN IN FRAME FRAME-A       = TRUE
-    tb_print-dept:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-dept:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_print-dept:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_print-DetPage:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-DetPage:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_print-shipnote:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-shipnote:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_print-spec:HIDDEN IN FRAME FRAME-A       = TRUE
-    tb_print-spec:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-spec:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_print-spec:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_print-unassemble-component:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print-unassemble-component:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_print_ship:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_print_ship:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 ASSIGN 
-    tb_reprint:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_reprint:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_suppress-name IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
-    tb_suppress-name:PRIVATE-DATA IN FRAME FRAME-A = "parm".
+       tb_suppress-name:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_terms:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-    THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -889,7 +943,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* Print Bills of Lading */
-    OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
+OR ENDKEY OF {&WINDOW-NAME} ANYWHERE 
     DO:
         /* This case occurs when the user presses the "Esc" key.
            In a persistently run window, just ignore this.  If we did not, the
@@ -903,7 +957,7 @@ ON END-ERROR OF C-Win /* Print Bills of Lading */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Print Bills of Lading */
-    DO:
+DO:
         IF VALID-HANDLE(hdOutboundProcs) THEN
             DELETE PROCEDURE hdOutboundProcs.
         IF VALID-HANDLE(hdInventoryProcs) THEN 
@@ -920,7 +974,7 @@ ON WINDOW-CLOSE OF C-Win /* Print Bills of Lading */
 &Scoped-define SELF-NAME begin_bol#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_bol# C-Win
 ON VALUE-CHANGED OF begin_bol# IN FRAME FRAME-A /* Beginning BOL# */
-    DO:
+DO:
         RUN new-bol#.
     END.
 
@@ -931,7 +985,7 @@ ON VALUE-CHANGED OF begin_bol# IN FRAME FRAME-A /* Beginning BOL# */
 &Scoped-define SELF-NAME begin_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust C-Win
 ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -942,7 +996,7 @@ ON LEAVE OF begin_cust IN FRAME FRAME-A /* Beginning Customer# */
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
-    DO:
+DO:
         IF DATE(end_date:SCREEN-VALUE) EQ end_date THEN
             end_date:SCREEN-VALUE = begin_date:SCREEN-VALUE.
 
@@ -956,7 +1010,7 @@ ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Date */
 &Scoped-define SELF-NAME begin_ord#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_ord# C-Win
 ON LEAVE OF begin_ord# IN FRAME FRAME-A /* Beginning Order# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -967,7 +1021,7 @@ ON LEAVE OF begin_ord# IN FRAME FRAME-A /* Beginning Order# */
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
-    DO:
+DO:
         IF VALID-HANDLE(hdOutboundProcs) THEN
             DELETE PROCEDURE hdOutboundProcs.
 
@@ -981,7 +1035,7 @@ ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-    DO:
+DO:
         DEFINE VARIABLE retCode            AS INTEGER   NO-UNDO.  
         DEFINE VARIABLE ll                 AS LOG       NO-UNDO.
         DEFINE VARIABLE v-format-str       AS CHARACTER NO-UNDO.
@@ -1389,270 +1443,8 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
         ll = tb_post-bol AND NOT tb_posted.
  
-        IF ll THEN 
-        DO: /* IF Post Bol is checked then check for the records which will not post */ 
-            MainBlock:
-            FOR EACH tt-post:
-                FIND FIRST oe-bolh NO-LOCK 
-                    WHERE ROWID(oe-bolh) EQ tt-post.row-id
-                    NO-ERROR.
-                IF NOT AVAILABLE oe-bolh THEN
-                    NEXT MainBlock.
-               
-                IF oe-ctrl.u-inv AND v-check-qty THEN 
-                    RUN oe/bolcheck.p(
-                        INPUT ROWID(oe-bolh)
-                        ). 
-                   
-                RUN sys/ref/nk1look.p (cocode, "FGTagValidation", "L", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */,
-                    OUTPUT cFGTagValidation, OUTPUT lRecFound).
-                lFGTagValidation = LOGICAL(cFGTagValidation).
-                RUN sys/ref/nk1look.p (cocode, "FGTagValidation", "C", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */,
-                    OUTPUT cFGTagValidation, OUTPUT lRecFound).        
-                        
-                FOR EACH oe-boll NO-LOCK
-                    WHERE oe-boll.company EQ oe-bolh.company
-                    AND  oe-boll.b-no    EQ oe-bolh.b-no:
-         
-                    IF oe-bolh.trailer EQ "HOLD"  OR  oe-bolh.stat EQ "H" THEN 
-                    DO:
-                        IF lSingleBOL THEN
-                            MESSAGE "BOL " + STRING(oe-bolh.bol-no) + " is on HOLD Status"
-                                VIEW-AS ALERT-BOX ERROR.
-                        ELSE 
-                            RUN pCreatettExceptionBOL(
-                                INPUT "BOL is on Hold Status",
-                                INPUT ROWID(oe-boll)
-                                ).
-                   
-                        DELETE tt-post.
-                        NEXT mainblock.           
-                    END.  
-                    
-                    FIND FIRST w-except NO-LOCK 
-                        WHERE w-except.bol-no EQ oe-bolh.bol-no
-                          AND w-except.lAvailOnhQty
-                        NO-ERROR. 
-                    IF NOT AVAILABLE w-except THEN    
-                    FIND FIRST w-except NO-LOCK 
-                        WHERE w-except.bol-no EQ oe-bolh.bol-no 
-                        NO-ERROR.                         
-                    IF AVAILABLE w-except THEN 
-                    DO:
-                        IF lSingleBOL THEN DO:
-                                
-                            IF w-except.lAvailOnhQty AND NOT w-except.lNotValidAllOnhQty THEN
-                            DO:
-                                 lAvailOnHandQty = YES.
-                                 RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs (oe-boll.company, oe-boll.b-no, w-except.cLocBin).
-                            END.
-                            ELSE
-                            MESSAGE "BOL # " STRING(oe-bolh.bol-no) "cannot be processed because there is not enough inventory to be shipped." SKIP
-                                "Correct actual inventory available, select different tags or reduce the shipped quantity as your settings" SKIP
-                                "Do not allow this condition to be processed."
-                                VIEW-AS ALERT-BOX ERROR.
-                        END.        
-                        ELSE 
-                            RUN pCreatettExceptionBOL(
-                                INPUT "Not Enough Quantity to be Shipped",
-                                INPUT ROWID(oe-boll)
-                                ). 
-                        IF NOT lAvailOnHandQty THEN 
-                        DO: 
-                            DELETE tt-post.
-                            NEXT mainblock.       
-                        END.
-                    END. 
-                    IF NOT oe-bolh.deleted THEN 
-                    DO:
-                        FIND FIRST oe-ord NO-LOCK
-                            WHERE oe-ord.company EQ oe-bolh.company 
-                            AND oe-ord.ord-no  EQ oe-boll.ord-no 
-                            NO-ERROR.
-                        IF NOT AVAILABLE oe-ord THEN 
-                        DO:
-                            IF lSingleBOL THEN
-                                MESSAGE "Order Not Found for BOL# " + STRING(oe-bolh.bol-no)
-                                    VIEW-AS ALERT-BOX ERROR.  
-                            ELSE 
-                                RUN pCreatettExceptionBOL(
-                                    INPUT "Order Not Found for Bol",
-                                    INPUT ROWID(oe-boll)
-                                    ).
-                            DELETE tt-post.
-                            NEXT mainblock.
-                        END.
-             
-                        /* If customer 'x' and shipto = shipfrom, don't post */
-                        FIND FIRST cust NO-LOCK
-                            WHERE cust.company EQ oe-bolh.company
-                            AND cust.cust-no EQ oe-bolh.cust-no 
-                            NO-ERROR.  
-                        IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN 
-                        DO:
-                            RUN oe/custxship.p(
-                                INPUT oe-bolh.company,
-                                INPUT oe-bolh.cust-no,
-                                INPUT oe-bolh.ship-id,
-                                BUFFER shipto
-                                ).
-                            IF AVAILABLE shipto THEN 
-                            DO: 
-                                IF oe-boll.loc EQ shipto.loc THEN 
-                                DO:    
-                                    IF lSingleBOL THEN     
-                                        MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
-                                            VIEW-AS ALERT-BOX ERROR.
-                                    ELSE 
-                                        RUN pCreatettExceptionBOL(
-                                            INPUT "Cannot transfer to the same location",
-                                            INPUT ROWID(oe-boll)
-                                            ).
-                                    DELETE tt-post.
-                                    NEXT mainblock.
-                                END. 
-                                RUN ValidateBin IN hdInventoryProcs(
-                                    INPUT cocode, 
-                                    INPUT shipto.loc,
-                                    INPUT shipto.loc-bin, 
-                                    OUTPUT lValidBin
-                                    ).
-                                IF NOT lValidBin THEN 
-                                DO:  
-                                    IF lSingleBOL THEN 
-                                        MESSAGE "Ship To warehouse/bin location does not exist for BOL# " STRING(oe-bolh.bol-no)
-                                            VIEW-AS ALERT-BOX ERROR.
-                                    ELSE 
-                                        RUN pCreatettExceptionBOL(
-                                            INPUT "Ship To warehouse/bin location does not exist",
-                                            INPUT ROWID(oe-boll)
-                                            ).
-                                    DELETE tt-post.
-                                    NEXT mainblock.                                                          
-                                END.    
-                            END.    
-                        END.
-               
-                        FIND FIRST oe-ordl NO-LOCK
-                            WHERE oe-ordl.company EQ oe-boll.company  
-                            AND oe-ordl.ord-no  EQ oe-boll.ord-no 
-                            AND oe-ordl.line    EQ oe-boll.line 
-                            NO-ERROR.
-                        IF NOT AVAILABLE oe-ordl THEN 
-                        DO:
-                            IF lSingleBOL THEN
-                                MESSAGE "Order Lines Not Found for BOL # " STRING(oe-bolh.bol-no)
-                                    VIEW-AS ALERT-BOX ERROR .  
-                            ELSE 
-                                RUN pCreatettExceptionBOL(
-                                    INPUT "Order Lines Not Found",
-                                    INPUT ROWID(oe-boll)
-                                    ).
-                            DELETE tt-post.
-                            NEXT mainblock.
-                        END.
-                   
-                        FIND FIRST oe-rell NO-LOCK 
-                            WHERE oe-rell.company EQ oe-boll.company 
-                            AND oe-rell.r-no    EQ oe-boll.r-no 
-                            AND oe-rell.i-no    EQ oe-boll.i-no
-                            AND oe-rell.line    EQ oe-boll.line
-                            USE-INDEX r-no  NO-ERROR.
-                        IF NOT AVAILABLE oe-rell THEN 
-                        DO:
-                            IF lSingleBOL THEN
-                                MESSAGE "Release Lines Not Found For BOL " + STRING(oe-bolh.bol-no)
-                                    VIEW-AS ALERT-BOX ERROR.  
-                            ELSE 
-                                RUN pCreatettExceptionBOL(
-                                    INPUT "Release Lines Not Found",
-                                    INPUT ROWID(oe-boll)
-                                    ).
-                            DELETE tt-post.
-                            NEXT mainblock.
-                        END.
-                   
-                        FIND FIRST itemfg NO-LOCK
-                            WHERE itemfg.company EQ oe-boll.company 
-                            AND itemfg.i-no    EQ oe-boll.i-no
-                            NO-ERROR.
-                        IF NOT AVAILABLE itemfg THEN 
-                        DO:
-                            IF lSingleBOL THEN
-                                MESSAGE "Finish Good Item Not Found For BOL # " STRING(oe-bolh.bol-no) 
-                                    VIEW-AS ALERT-BOX ERROR.  
-                            ELSE 
-                                RUN pCreatettExceptionBOL(
-                                    INPUT "Finish Good Item Not Found",
-                                    INPUT ROWID(oe-boll)
-                                    ).
-                            DELETE tt-post.
-                            NEXT mainblock.
-                        END.
-                       
-                        IF oe-boll.loc EQ "" OR oe-boll.loc-bin EQ "" THEN 
-                        DO:
-                            IF lSingleBOL THEN
-                                MESSAGE "Warehouse or Bin is Blank for BOL # " STRING(oe-bolh.bol-no) 
-                                    VIEW-AS ALERT-BOX ERROR.
-                            ELSE 
-                                RUN pCreatettExceptionBOL(
-                                    INPUT "Warehouse or Bin is Blank",
-                                    INPUT ROWID(oe-boll)
-                                    ).
-                            DELETE tt-post.
-                            NEXT mainblock.
-                        END.
-                   
-                        IF NOT CAN-FIND(FIRST bf-oe-boll
-                            WHERE bf-oe-boll.company EQ oe-bolh.company
-                            AND bf-oe-boll.b-no    EQ oe-bolh.b-no
-                            AND bf-oe-boll.qty     NE 0)
-                            THEN 
-                        DO:
-                            IF lSingleBOL THEN
-                                MESSAGE "Quantity is zero for all lines for BOL # " STRING(oe-bolh.bol-no) 
-                                    VIEW-AS ALERT-BOX ERROR.  
-                            ELSE 
-                                RUN pCreatettExceptionBOL(
-                                    INPUT "Quantity is zero for all lines",
-                                    INPUT  ROWID(oe-boll)
-                                    ).
-                            DELETE tt-post.
-                            NEXT mainblock.
-                        END.
-                    END.       
-                    IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" AND oe-boll.qty NE 0 THEN
-                    DO:
-                        IF lSingleBOL THEN
-                            MESSAGE "BOL Tag is Blank for BOL # " STRING(oe-bolh.bol-no) 
-                                VIEW-AS ALERT-BOX ERROR.  
-                        ELSE 
-                            RUN pCreatettExceptionBOL(
-                                INPUT "BOL Tag is Blank",
-                                INPUT  ROWID(oe-boll)
-                                ).
-                        DELETE tt-post.
-                        NEXT mainblock.         
-                    END.
-                    IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no AND oe-boll.qty NE 0 THEN 
-                    DO:
-                        IF lSingleBOL THEN
-                            MESSAGE "BOL Tag does not Match Item " STRING(oe-boll.i-no) 
-                                VIEW-AS ALERT-BOX ERROR.  
-                        ELSE 
-                            RUN pCreatettExceptionBOL(
-                                INPUT "BOL Tag does not Match Item",
-                                INPUT  ROWID(oe-boll)
-                                ).
-                        DELETE tt-post.
-                        NEXT mainblock.         
-                    END.
-               
-                END. 
-            END. 
-        END.
-        RELEASE oe-bolh.  
+        RUN pCheckRecords(INPUT ll, INPUT lSingleBOL, OUTPUT lAvailOnHandQty ).
+        
         IF ll AND NOT lSingleBOL THEN 
         DO: 
             RUN pDisplayExceptionBol(OUTPUT lPrintExceptionBol).
@@ -1719,6 +1511,28 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
                 FIND FIRST tt-email NO-LOCK NO-ERROR.
                 IF AVAILABLE tt-email THEN
                     RUN email-reorderitems.
+                
+                FOR EACH tt-post:
+                  FIND FIRST oe-bolh NO-LOCK
+                       WHERE ROWID(oe-bolh) EQ tt-post.row-id
+                       NO-ERROR.
+                  IF AVAILABLE oe-bolh THEN 
+                  DO:                                       
+                     RUN oe/custxship.p (oe-bolh.company,
+                            oe-bolh.cust-no,
+                            oe-bolh.ship-id,
+                            BUFFER shipto).
+                    RUN pCallOutboundAPI(
+                        INPUT oe-bolh.company,
+                        INPUT shipTo.loc,
+                        INPUT oe-bolh.cust-no,
+                        INPUT oe-bolh.bol-no,
+                        INPUT NO,
+                        INPUT Yes,
+                        INPUT ROWID(oe-bolh)
+                        ) NO-ERROR.         
+                  END.  
+                END. /* for each tt-post*/    
             END.
             MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
         END.
@@ -1739,7 +1553,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 &Scoped-define SELF-NAME end_bol#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_bol# C-Win
 ON VALUE-CHANGED OF end_bol# IN FRAME FRAME-A /* Ending BOL# */
-    DO:
+DO:
         RUN new-bol#.
     END.
 
@@ -1750,7 +1564,7 @@ ON VALUE-CHANGED OF end_bol# IN FRAME FRAME-A /* Ending BOL# */
 &Scoped-define SELF-NAME end_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
 ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1761,7 +1575,7 @@ ON LEAVE OF end_cust IN FRAME FRAME-A /* Ending Customer# */
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
-    DO:
+DO:
         IF LASTKEY NE -1 THEN 
         DO:
             IF end_date:SCREEN-VALUE EQ "" THEN 
@@ -1783,7 +1597,7 @@ ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Date */
 &Scoped-define SELF-NAME end_ord#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_ord# C-Win
 ON LEAVE OF end_ord# IN FRAME FRAME-A /* Ending Order# */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1794,7 +1608,7 @@ ON LEAVE OF end_ord# IN FRAME FRAME-A /* Ending Order# */
 &Scoped-define SELF-NAME fiPostdate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPostdate C-Win
 ON LEAVE OF fiPostdate IN FRAME FRAME-A /* Post Date */
-    DO:
+DO:
         ASSIGN {&SELF-NAME}.
         IF LASTKEY NE -1 THEN 
         DO:
@@ -1813,7 +1627,7 @@ ON LEAVE OF fiPostdate IN FRAME FRAME-A /* Post Date */
 &Scoped-define SELF-NAME fi_depts
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_depts C-Win
 ON LEAVE OF fi_depts IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1824,7 +1638,7 @@ ON LEAVE OF fi_depts IN FRAME FRAME-A
 &Scoped-define SELF-NAME fi_specs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_specs C-Win
 ON LEAVE OF fi_specs IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1835,7 +1649,7 @@ ON LEAVE OF fi_specs IN FRAME FRAME-A
 &Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1846,7 +1660,7 @@ ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 &Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO.
 
         RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
@@ -1861,7 +1675,7 @@ ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-    DO:
+DO:
         ASSIGN lv-font-no.
     END.
 
@@ -1872,7 +1686,7 @@ ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
 &Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN lv-ornt.
     END.
 
@@ -1882,8 +1696,52 @@ ON LEAVE OF lv-ornt IN FRAME FRAME-A
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-    DO:
+DO:
         {custom/chgfont.i}
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME lv-termFile
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-termFile C-Win
+ON HELP OF lv-termFile IN FRAME FRAME-A /* Terms File */
+DO:
+        DEFINE VARIABLE chFile AS CHARACTER NO-UNDO.
+        DEFINE VARIABLE ll-ok  AS LOG       NO-UNDO.
+
+        IF TRIM(lv-termPath) EQ "" 
+            THEN lv-termPath = "C:\".
+
+        SYSTEM-DIALOG GET-FILE chFile 
+            TITLE "Select File"
+            FILTERS "JPG Files    (*.jpg)" "*.jpg",
+                    "Bitmap files (*.bmp)" "*.bmp",
+                    "JPEG Files   (*.jpeg)" "*.jpeg",
+                    "TIF Files    (*.tif)" "*.tif",
+                    "Acrobat Files(*.pdf)" "*.pdf",
+                    "Text File (*.txt) " "*.txt" 
+            INITIAL-DIR lv-termPath
+            MUST-EXIST
+            USE-FILENAME
+            UPDATE ll-ok.
+
+        IF ll-ok 
+            THEN 
+            ASSIGN 
+                lv-termFile              = chFile
+                lv-termFile:SCREEN-VALUE = lv-termFile.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-termFile C-Win
+ON LEAVE OF lv-termFile IN FRAME FRAME-A /* Terms File */
+DO:
+        ASSIGN {&self-name}.  
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1893,7 +1751,7 @@ ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-    DO:
+DO:
         IF int (SELF:screen-value) = 5 THEN 
         DO:
             ASSIGN 
@@ -1918,7 +1776,7 @@ ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd_bol-sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_bol-sort C-Win
 ON VALUE-CHANGED OF rd_bol-sort IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -1929,7 +1787,7 @@ ON VALUE-CHANGED OF rd_bol-sort IN FRAME FRAME-A
 &Scoped-define SELF-NAME rd_bolcert
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_bolcert C-Win
 ON VALUE-CHANGED OF rd_bolcert IN FRAME FRAME-A
-    DO:
+DO:
         ASSIGN {&self-name}.
   
         IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN 
@@ -1964,7 +1822,7 @@ ON VALUE-CHANGED OF rd_bolcert IN FRAME FRAME-A
 &Scoped-define SELF-NAME run_format
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON HELP OF run_format IN FRAME FRAME-A /* Format */
-    DO:
+DO:
         DEFINE VARIABLE char-val AS CHARACTER NO-UNDO .
 
         IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN
@@ -2018,7 +1876,7 @@ ON HELP OF run_format IN FRAME FRAME-A /* Format */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL run_format C-Win
 ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
-    DO:
+DO:
         ASSIGN run_format.
 
         IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN
@@ -2063,7 +1921,7 @@ ON LEAVE OF run_format IN FRAME FRAME-A /* Format */
 &Scoped-define SELF-NAME tb_EMailAdvNotice
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_EMailAdvNotice C-Win
 ON VALUE-CHANGED OF tb_EMailAdvNotice IN FRAME FRAME-A /* E-Mail Advanced Ship Notice? */
-    DO:
+DO:
 
         IF NOT rd-dest:SCREEN-VALUE EQ '5' THEN 
         DO:
@@ -2087,7 +1945,7 @@ ON VALUE-CHANGED OF tb_EMailAdvNotice IN FRAME FRAME-A /* E-Mail Advanced Ship N
 &Scoped-define SELF-NAME tb_freight-bill
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_freight-bill C-Win
 ON VALUE-CHANGED OF tb_freight-bill IN FRAME FRAME-A /* Print Freight Bill / Logo? */
-    DO:
+DO:
         ASSIGN {&self-name}.
 
         IF rd_bolcert:SCREEN-VALUE EQ "BOL" THEN 
@@ -2119,7 +1977,7 @@ ON VALUE-CHANGED OF tb_freight-bill IN FRAME FRAME-A /* Print Freight Bill / Log
 &Scoped-define SELF-NAME tb_pallet
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_pallet C-Win
 ON VALUE-CHANGED OF tb_pallet IN FRAME FRAME-A /* Print Number Of Pallets? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -2130,7 +1988,7 @@ ON VALUE-CHANGED OF tb_pallet IN FRAME FRAME-A /* Print Number Of Pallets? */
 &Scoped-define SELF-NAME tb_post-bol
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_post-bol C-Win
 ON VALUE-CHANGED OF tb_post-bol IN FRAME FRAME-A /* Post BOL? */
-    DO:
+DO:
         ASSIGN {&SELF-NAME}.
         IF tb_post-bol THEN 
         DO:
@@ -2157,7 +2015,7 @@ ON VALUE-CHANGED OF tb_post-bol IN FRAME FRAME-A /* Post BOL? */
 &Scoped-define SELF-NAME tb_posted
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_posted C-Win
 ON VALUE-CHANGED OF tb_posted IN FRAME FRAME-A /* Reprint Posted BOL? */
-    DO:
+DO:
         ASSIGN {&self-name}.
         IF tb_posted THEN 
         DO:
@@ -2177,8 +2035,22 @@ ON VALUE-CHANGED OF tb_posted IN FRAME FRAME-A /* Reprint Posted BOL? */
 &Scoped-define SELF-NAME tb_reprint
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_reprint C-Win
 ON VALUE-CHANGED OF tb_reprint IN FRAME FRAME-A /* Reprint Bill Of Ladings? */
-    DO:
+DO:
         ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_terms
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_terms C-Win
+ON VALUE-CHANGED OF tb_terms IN FRAME FRAME-A /* Print Terms? */
+DO:
+        ASSIGN {&self-name}.
+        IF CAN-DO("bolfmt 1,bolfmt 10,bolfmt 2,bolfmt 20,bolfmt 30,BOLFMT-Mex,bolfmt10-CAN,BOLfmt15,Xprint",v-print-fmt) 
+        THEN ASSIGN lv-termFile:SENSITIVE = {&self-name}.  
+
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2188,7 +2060,7 @@ ON VALUE-CHANGED OF tb_reprint IN FRAME FRAME-A /* Reprint Bill Of Ladings? */
 &Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-    DO:
+DO:
         ASSIGN {&self-name}.
     END.
 
@@ -2479,7 +2351,7 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE AdvancedNotice C-Win 
 PROCEDURE AdvancedNotice :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2690,7 +2562,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ASIMail C-Win 
 PROCEDURE ASIMail :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -2721,7 +2593,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE barcode-proc C-Win 
 PROCEDURE barcode-proc :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3039,9 +2911,52 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-temp-table C-Win 
+PROCEDURE build-temp-table :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
+     DEFINE BUFFER bf-cust FOR cust.
+     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
+     DEFINE BUFFER bf-oe-boll FOR oe-boll.
+     
+     FOR EACH bf-cust NO-LOCK
+        WHERE bf-cust.company EQ cocode
+        AND bf-cust.cust-no EQ ipcCustomer,
+
+        EACH bf-oe-bolh NO-LOCK
+        WHERE bf-oe-bolh.company EQ cocode
+        AND bf-oe-bolh.bol-no  GE v-s-bol
+        AND bf-oe-bolh.bol-no  LE v-e-bol
+        AND bf-oe-bolh.cust-no EQ bf-cust.cust-no
+        AND bf-oe-bolh.bol-date  GE v-s-date
+        AND bf-oe-bolh.bol-date  LE v-e-date
+        AND bf-oe-bolh.printed EQ v-printed
+        AND bf-oe-bolh.posted  EQ tb_posted
+        AND CAN-FIND (FIRST bf-oe-boll
+        WHERE bf-oe-boll.company EQ bf-oe-bolh.company
+        AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no
+        AND bf-oe-boll.ord-no  GE v-s-ord
+        AND bf-oe-boll.ord-no  LE v-e-ord)
+        USE-INDEX post:
+        
+            CREATE tt-list.
+            tt-list.rec-row = ROWID(bf-oe-bolh).
+            tt-list.BolNo = bf-oe-bolh.bol-no.        
+        END.
+                
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-work C-Win 
 PROCEDURE build-work :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3212,6 +3127,7 @@ PROCEDURE build-work :
                 INPUT oe-bolh.cust-no,
                 INPUT oe-bolh.bol-no,
                 INPUT lPrinted,
+                INPUT NO,
                 INPUT ROWID(oe-bolh)
                 ) NO-ERROR.       
         END.
@@ -3236,7 +3152,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-bol-security C-Win 
 PROCEDURE check-bol-security :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes: TASK 07240906
@@ -3291,7 +3207,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CommercialInvoice C-Win 
 PROCEDURE CommercialInvoice :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3354,7 +3270,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-reorder C-Win 
 PROCEDURE create-reorder :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3416,18 +3332,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     DISABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we clean-up the user-interface by deleting
-                   dynamic widgets we have created and/or hide 
-                   frames.  This procedure is usually called when
-                   we are ready to "clean-up" after running.
-    ------------------------------------------------------------------------------*/
-    /* Delete the WINDOW we created */
-    IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-        THEN DELETE WIDGET C-Win.
-    IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+/*------------------------------------------------------------------------------
+  Purpose:     DISABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we clean-up the user-interface by deleting
+               dynamic widgets we have created and/or hide 
+               frames.  This procedure is usually called when
+               we are ready to "clean-up" after running.
+------------------------------------------------------------------------------*/
+  /* Delete the WINDOW we created */
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
+  THEN DELETE WIDGET C-Win.
+  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3435,7 +3351,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE email-reorderitems C-Win 
 PROCEDURE email-reorderitems :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3528,35 +3444,35 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
-    /*------------------------------------------------------------------------------
-      Purpose:     ENABLE the User Interface
-      Parameters:  <none>
-      Notes:       Here we display/view/enable the widgets in the
-                   user-interface.  In addition, OPEN all queries
-                   associated with each FRAME and BROWSE.
-                   These statements here are based on the "Other 
-                   Settings" section of the widget Property Sheets.
-    ------------------------------------------------------------------------------*/
-    DISPLAY begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date end_date 
-        tb_reprint tb_pallet tb_posted tb_print-component tb_print-shipnote 
-        tb_barcode tb_print_ship tb_print-barcode tb_print-DetPage 
-        tb_print-unassemble-component tb_print-binstags lbl_bolsort 
-        rd_bol-sort fi_specs tb_print-spec lbl_bolcert rd_bolcert 
-        tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode 
-        tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name 
-        td-show-parm run_format tbAutoClose 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    ENABLE RECT-6 RECT-7 begin_cust end_cust begin_bol# begin_ord# end_ord# 
-        begin_date end_date tb_reprint tb_pallet tb_posted tb_print-component 
-        tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
-        tb_print-DetPage tb_print-unassemble-component tb_print-binstags 
-        rd_bol-sort fi_specs tb_print-spec rd_bolcert tb_per-bol-line rd-dest 
-        tb_EMailAdvNotice tb_MailBatchMode tb_ComInvoice tb_freight-bill 
-        tb_footer tb_post-bol tb_suppress-name td-show-parm run_format 
-        tbAutoClose btn-ok btn-cancel 
-        WITH FRAME FRAME-A IN WINDOW C-Win.
-    {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
-    VIEW C-Win.
+/*------------------------------------------------------------------------------
+  Purpose:     ENABLE the User Interface
+  Parameters:  <none>
+  Notes:       Here we display/view/enable the widgets in the
+               user-interface.  In addition, OPEN all queries
+               associated with each FRAME and BROWSE.
+               These statements here are based on the "Other 
+               Settings" section of the widget Property Sheets.
+------------------------------------------------------------------------------*/
+  DISPLAY begin_cust end_cust begin_bol# begin_ord# end_ord# begin_date end_date 
+          tb_reprint tb_pallet tb_posted tb_print-component tb_print-shipnote 
+          tb_barcode tb_print_ship tb_print-barcode tb_print-DetPage 
+          tb_print-unassemble-component tb_print-binstags lbl_bolsort 
+          rd_bol-sort fi_specs tb_print-spec lv-termFile tb_terms lbl_bolcert 
+          rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode 
+          tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name 
+          td-show-parm run_format tbAutoClose 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  ENABLE RECT-6 RECT-7 begin_cust end_cust begin_bol# begin_ord# end_ord# 
+         begin_date end_date tb_reprint tb_pallet tb_posted tb_print-component 
+         tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
+         tb_print-DetPage tb_print-unassemble-component tb_print-binstags 
+         rd_bol-sort fi_specs tb_print-spec lv-termFile tb_terms rd_bolcert 
+         tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode 
+         tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name 
+         td-show-parm run_format tbAutoClose btn-ok btn-cancel 
+      WITH FRAME FRAME-A IN WINDOW C-Win.
+  {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
+  VIEW C-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3564,7 +3480,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE exception-rpt C-Win 
 PROCEDURE exception-rpt :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3681,7 +3597,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateMail C-Win 
 PROCEDURE GenerateMail :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3759,7 +3675,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateReport C-Win 
 PROCEDURE GenerateReport :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3783,7 +3699,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getPrintBarTag C-Win 
 PROCEDURE getPrintBarTag :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3800,7 +3716,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getPrintBinsTags C-Win 
 PROCEDURE getPrintBinsTags :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3817,7 +3733,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getPrintSpecNotes C-Win 
 PROCEDURE getPrintSpecNotes :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3834,9 +3750,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getPrintTerms C-Win 
+PROCEDURE getPrintTerms :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER oplPrintTerms AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcTermsFilePath AS CHARACTER NO-UNDO.
+
+    oplPrintTerms = logical(tb_terms:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
+    opcTermsFilePath  = lv-termFile:SCREEN-VALUE IN FRAME {&FRAME-NAME}.   
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE new-bol# C-Win 
 PROCEDURE new-bol# :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3864,7 +3798,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-exception-file C-Win 
 PROCEDURE output-exception-file :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3892,7 +3826,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-exception-printer C-Win 
 PROCEDURE output-exception-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3905,7 +3839,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-exception-screen C-Win 
 PROCEDURE output-exception-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3918,7 +3852,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-fax C-Win 
 PROCEDURE output-to-fax :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3948,7 +3882,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-file C-Win 
 PROCEDURE output-to-file :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -3968,7 +3902,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-mail C-Win 
 PROCEDURE output-to-mail :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4171,7 +4105,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-port C-Win 
 PROCEDURE output-to-port :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4192,7 +4126,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-printer C-Win 
 PROCEDURE output-to-printer :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4221,7 +4155,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-screen C-Win 
 PROCEDURE output-to-screen :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4248,7 +4182,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCallOutboundAPI C-Win 
 PROCEDURE pCallOutboundAPI PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose: Calls Outbound APIs
      Notes:
     ------------------------------------------------------------------------------*/
@@ -4257,6 +4191,7 @@ PROCEDURE pCallOutboundAPI PRIVATE :
     DEFINE INPUT  PARAMETER ipcCustID   AS CHARACTER NO-UNDO.
     DEFINE INPUT  PARAMETER ipiBOLID    AS INTEGER   NO-UNDO.
     DEFINE INPUT  PARAMETER iplPrinted  AS LOGICAL   NO-UNDO.
+    DEFINE INPUT  PARAMETER iplPosted   AS LOGICAL   NO-UNDO.
     DEFINE INPUT  PARAMETER ipriOeBolh  AS ROWID     NO-UNDO.
 
     DEFINE VARIABLE cAPIID       AS CHARACTER NO-UNDO.
@@ -4275,7 +4210,9 @@ PROCEDURE pCallOutboundAPI PRIVATE :
      
     IF AVAILABLE bf-cust THEN 
     DO: 
-        IF iplPrinted THEN 
+        IF iplPosted THEN
+            cTriggerID = "BOLPost".
+        ELSE IF iplPrinted THEN 
             cTriggerID = "RePrintBillOfLading".
         ELSE 
             cTriggerID = "PrintBillOfLading".
@@ -4312,7 +4249,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPeriod C-Win 
 PROCEDURE pCheckPeriod PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4344,7 +4281,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPostDate C-Win 
 PROCEDURE pCheckPostDate PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose: To check whether period exists for the Post date   
       Parameters:  <none>
       Notes:       
@@ -4370,9 +4307,289 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckRecords C-Win 
+PROCEDURE pCheckRecords PRIVATE :
+DEFINE INPUT PARAMETER iplValue     AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER iplSingleBOL AS LOGICAL NO-UNDO.      
+    DEFINE OUTPUT PARAMETER oplAvailOnHandQty AS LOGICAL NO-UNDO.
+    
+    DEFINE VARIABLE cFGTagValidation   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFGTagValidation   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE lValidBin          AS LOGICAL   NO-UNDO.
+    
+    IF iplValue THEN 
+        DO: /* IF Post Bol is checked then check for the records which will not post */ 
+            MainBlock:
+            FOR EACH tt-post:
+                FIND FIRST oe-bolh NO-LOCK 
+                    WHERE ROWID(oe-bolh) EQ tt-post.row-id
+                    NO-ERROR.
+                IF NOT AVAILABLE oe-bolh THEN
+                    NEXT MainBlock.
+               
+                IF oe-ctrl.u-inv AND v-check-qty THEN 
+                    RUN oe/bolcheck.p(
+                        INPUT ROWID(oe-bolh)
+                        ). 
+                   
+                RUN sys/ref/nk1look.p (cocode, "FGTagValidation", "L", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */,
+                    OUTPUT cFGTagValidation, OUTPUT lRecFound).
+                lFGTagValidation = LOGICAL(cFGTagValidation).
+                RUN sys/ref/nk1look.p (cocode, "FGTagValidation", "C", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */,
+                    OUTPUT cFGTagValidation, OUTPUT lRecFound).        
+                        
+                FOR EACH oe-boll NO-LOCK
+                    WHERE oe-boll.company EQ oe-bolh.company
+                    AND  oe-boll.b-no    EQ oe-bolh.b-no:
+         
+                    IF oe-bolh.trailer EQ "HOLD"  OR  oe-bolh.stat EQ "H" THEN 
+                    DO:
+                        IF iplSingleBOL THEN
+                            MESSAGE "BOL " + STRING(oe-bolh.bol-no) + " is on HOLD Status"
+                                VIEW-AS ALERT-BOX ERROR.
+                        ELSE 
+                            RUN pCreatettExceptionBOL(
+                                INPUT "BOL is on Hold Status",
+                                INPUT ROWID(oe-boll)
+                                ).
+                   
+                        DELETE tt-post.
+                        NEXT mainblock.           
+                    END.  
+                    
+                    FIND FIRST w-except NO-LOCK 
+                        WHERE w-except.bol-no EQ oe-bolh.bol-no
+                          AND w-except.lAvailOnhQty
+                        NO-ERROR. 
+                    IF NOT AVAILABLE w-except THEN    
+                    FIND FIRST w-except NO-LOCK 
+                        WHERE w-except.bol-no EQ oe-bolh.bol-no 
+                        NO-ERROR.                         
+                    IF AVAILABLE w-except THEN 
+                    DO:
+                        IF iplSingleBOL THEN DO:
+                                
+                            IF w-except.lAvailOnhQty AND NOT w-except.lNotValidAllOnhQty THEN
+                            DO:
+                                 oplAvailOnHandQty = YES.
+                                 RUN Inventory_UpdateBolBinWithMatchInventory IN hdInventoryProcs (oe-boll.company, oe-boll.b-no, w-except.cLocBin).
+                            END.
+                            ELSE
+                            MESSAGE "BOL # " STRING(oe-bolh.bol-no) "cannot be processed because there is not enough inventory to be shipped." SKIP
+                                "Correct actual inventory available, select different tags or reduce the shipped quantity as your settings" SKIP
+                                "Do not allow this condition to be processed."
+                                VIEW-AS ALERT-BOX ERROR.
+                        END.        
+                        ELSE 
+                            RUN pCreatettExceptionBOL(
+                                INPUT "Not Enough Quantity to be Shipped",
+                                INPUT ROWID(oe-boll)
+                                ). 
+                        IF NOT oplAvailOnHandQty THEN 
+                        DO: 
+                            DELETE tt-post.
+                            NEXT mainblock.       
+                        END.
+                    END. 
+                    IF NOT oe-bolh.deleted THEN 
+                    DO:
+                        FIND FIRST oe-ord NO-LOCK
+                            WHERE oe-ord.company EQ oe-bolh.company 
+                            AND oe-ord.ord-no  EQ oe-boll.ord-no 
+                            NO-ERROR.
+                        IF NOT AVAILABLE oe-ord THEN 
+                        DO:
+                            IF iplSingleBOL THEN
+                                MESSAGE "Order Not Found for BOL# " + STRING(oe-bolh.bol-no)
+                                    VIEW-AS ALERT-BOX ERROR.  
+                            ELSE 
+                                RUN pCreatettExceptionBOL(
+                                    INPUT "Order Not Found for Bol",
+                                    INPUT ROWID(oe-boll)
+                                    ).
+                            DELETE tt-post.
+                            NEXT mainblock.
+                        END.
+             
+                        /* If customer 'x' and shipto = shipfrom, don't post */
+                        FIND FIRST cust NO-LOCK
+                            WHERE cust.company EQ oe-bolh.company
+                            AND cust.cust-no EQ oe-bolh.cust-no 
+                            NO-ERROR.  
+                        IF AVAILABLE cust AND oe-boll.s-code EQ "T" THEN 
+                        DO:
+                            RUN oe/custxship.p(
+                                INPUT oe-bolh.company,
+                                INPUT oe-bolh.cust-no,
+                                INPUT oe-bolh.ship-id,
+                                BUFFER shipto
+                                ).
+                            IF AVAILABLE shipto THEN 
+                            DO: 
+                                IF oe-boll.loc EQ shipto.loc THEN 
+                                DO:    
+                                    IF iplSingleBOL THEN     
+                                        MESSAGE "BOL" STRING(oe-bolh.bol-no) "Cannot Transfer to the Same Location" oe-boll.loc 
+                                            VIEW-AS ALERT-BOX ERROR.
+                                    ELSE 
+                                        RUN pCreatettExceptionBOL(
+                                            INPUT "Cannot transfer to the same location",
+                                            INPUT ROWID(oe-boll)
+                                            ).
+                                    DELETE tt-post.
+                                    NEXT mainblock.
+                                END. 
+                                RUN ValidateBin IN hdInventoryProcs(
+                                    INPUT cocode, 
+                                    INPUT shipto.loc,
+                                    INPUT shipto.loc-bin, 
+                                    OUTPUT lValidBin
+                                    ).
+                                IF NOT lValidBin THEN 
+                                DO:  
+                                    IF iplSingleBOL THEN 
+                                        MESSAGE "Ship To warehouse/bin location does not exist for BOL# " STRING(oe-bolh.bol-no)
+                                            VIEW-AS ALERT-BOX ERROR.
+                                    ELSE 
+                                        RUN pCreatettExceptionBOL(
+                                            INPUT "Ship To warehouse/bin location does not exist",
+                                            INPUT ROWID(oe-boll)
+                                            ).
+                                    DELETE tt-post.
+                                    NEXT mainblock.                                                          
+                                END.    
+                            END.    
+                        END.
+               
+                        FIND FIRST oe-ordl NO-LOCK
+                            WHERE oe-ordl.company EQ oe-boll.company  
+                            AND oe-ordl.ord-no  EQ oe-boll.ord-no 
+                            AND oe-ordl.line    EQ oe-boll.line 
+                            NO-ERROR.
+                        IF NOT AVAILABLE oe-ordl THEN 
+                        DO:
+                            IF iplSingleBOL THEN
+                                MESSAGE "Order Lines Not Found for BOL # " STRING(oe-bolh.bol-no)
+                                    VIEW-AS ALERT-BOX ERROR .  
+                            ELSE 
+                                RUN pCreatettExceptionBOL(
+                                    INPUT "Order Lines Not Found",
+                                    INPUT ROWID(oe-boll)
+                                    ).
+                            DELETE tt-post.
+                            NEXT mainblock.
+                        END.
+                   
+                        FIND FIRST oe-rell NO-LOCK 
+                            WHERE oe-rell.company EQ oe-boll.company 
+                            AND oe-rell.r-no    EQ oe-boll.r-no 
+                            AND oe-rell.i-no    EQ oe-boll.i-no
+                            AND oe-rell.line    EQ oe-boll.line
+                            USE-INDEX r-no  NO-ERROR.
+                        IF NOT AVAILABLE oe-rell THEN 
+                        DO:
+                            IF iplSingleBOL THEN
+                                MESSAGE "Release Lines Not Found For BOL " + STRING(oe-bolh.bol-no)
+                                    VIEW-AS ALERT-BOX ERROR.  
+                            ELSE 
+                                RUN pCreatettExceptionBOL(
+                                    INPUT "Release Lines Not Found",
+                                    INPUT ROWID(oe-boll)
+                                    ).
+                            DELETE tt-post.
+                            NEXT mainblock.
+                        END.
+                   
+                        FIND FIRST itemfg NO-LOCK
+                            WHERE itemfg.company EQ oe-boll.company 
+                            AND itemfg.i-no    EQ oe-boll.i-no
+                            NO-ERROR.
+                        IF NOT AVAILABLE itemfg THEN 
+                        DO:
+                            IF iplSingleBOL THEN
+                                MESSAGE "Finish Good Item Not Found For BOL # " STRING(oe-bolh.bol-no) 
+                                    VIEW-AS ALERT-BOX ERROR.  
+                            ELSE 
+                                RUN pCreatettExceptionBOL(
+                                    INPUT "Finish Good Item Not Found",
+                                    INPUT ROWID(oe-boll)
+                                    ).
+                            DELETE tt-post.
+                            NEXT mainblock.
+                        END.
+                       
+                        IF oe-boll.loc EQ "" OR oe-boll.loc-bin EQ "" THEN 
+                        DO:
+                            IF iplSingleBOL THEN
+                                MESSAGE "Warehouse or Bin is Blank for BOL # " STRING(oe-bolh.bol-no) 
+                                    VIEW-AS ALERT-BOX ERROR.
+                            ELSE 
+                                RUN pCreatettExceptionBOL(
+                                    INPUT "Warehouse or Bin is Blank",
+                                    INPUT ROWID(oe-boll)
+                                    ).
+                            DELETE tt-post.
+                            NEXT mainblock.
+                        END.
+                   
+                        IF NOT CAN-FIND(FIRST bf-oe-boll
+                            WHERE bf-oe-boll.company EQ oe-bolh.company
+                            AND bf-oe-boll.b-no    EQ oe-bolh.b-no
+                            AND bf-oe-boll.qty     NE 0)
+                            THEN 
+                        DO:
+                            IF iplSingleBOL THEN
+                                MESSAGE "Quantity is zero for all lines for BOL # " STRING(oe-bolh.bol-no) 
+                                    VIEW-AS ALERT-BOX ERROR.  
+                            ELSE 
+                                RUN pCreatettExceptionBOL(
+                                    INPUT "Quantity is zero for all lines",
+                                    INPUT  ROWID(oe-boll)
+                                    ).
+                            DELETE tt-post.
+                            NEXT mainblock.
+                        END.
+                    END.       
+                    IF lRecFound AND lFGTagValidation AND oe-boll.tag EQ "" AND oe-boll.qty NE 0 THEN
+                    DO:
+                        IF iplSingleBOL THEN
+                            MESSAGE "BOL Tag is Blank for BOL # " STRING(oe-bolh.bol-no) 
+                                VIEW-AS ALERT-BOX ERROR.  
+                        ELSE 
+                            RUN pCreatettExceptionBOL(
+                                INPUT "BOL Tag is Blank",
+                                INPUT  ROWID(oe-boll)
+                                ).
+                        DELETE tt-post.
+                        NEXT mainblock.         
+                    END.
+                    IF lRecFound AND cFGTagValidation EQ "ItemMatch" AND NOT oe-boll.tag BEGINS oe-boll.i-no AND oe-boll.qty NE 0 THEN 
+                    DO:
+                        IF iplSingleBOL THEN
+                            MESSAGE "BOL Tag does not Match Item " STRING(oe-boll.i-no) 
+                                VIEW-AS ALERT-BOX ERROR.  
+                        ELSE 
+                            RUN pCreatettExceptionBOL(
+                                INPUT "BOL Tag does not Match Item",
+                                INPUT  ROWID(oe-boll)
+                                ).
+                        DELETE tt-post.
+                        NEXT mainblock.         
+                    END.
+               
+                END. 
+            END. 
+        END.
+        RELEASE oe-bolh.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreatettExceptionBOL C-Win 
 PROCEDURE pCreatettExceptionBOL PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose: To create record in the temp-table of the BOLS which will not post.
      Notes:
     ------------------------------------------------------------------------------*/
@@ -4414,7 +4631,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdAOABOLPost C-Win 
 PROCEDURE pdAOABOLPost :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -4490,7 +4707,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pdfArchive C-Win 
 PROCEDURE pdfArchive :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
          Purpose:
          Notes:
         ------------------------------------------------------------------------------*/
@@ -4552,7 +4769,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayExceptionBOL C-Win 
 PROCEDURE pDisplayExceptionBOL PRIVATE :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
      Purpose: To display the Bols on screen  which will not post
      Notes:
     ------------------------------------------------------------------------------*/     
@@ -4611,7 +4828,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-bol C-Win 
 PROCEDURE post-bol :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -4868,7 +5085,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunFormatValueChanged C-Win 
 PROCEDURE pRunFormatValueChanged :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -5006,6 +5223,15 @@ PROCEDURE pRunFormatValueChanged :
                 tb_suppress-name:HIDDEN = NO .
             ELSE tb_suppress-name:HIDDEN = YES .
         END.
+            
+        IF CAN-DO("bolfmt 1,bolfmt 10,bolfmt 2,bolfmt 20,bolfmt 30,BOLFMT-Mex,bolfmt10-CAN,BOLfmt15,Xprint,BOLFMTX15",v-print-fmt) THEN
+        ASSIGN
+        tb_terms:HIDDEN = NO
+        lv-termFile:HIDDEN = NO
+        lv-termFile:SENSITIVE = LOGICAL(tb_terms:SCREEN-VALUE).
+        ELSE ASSIGN        
+        tb_terms:HIDDEN = YES
+        lv-termFile:HIDDEN = Yes.
 
     END.
 END PROCEDURE.
@@ -5015,7 +5241,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-packing-list C-Win 
 PROCEDURE run-packing-list :
-    /* --------------------------------------------- oe/rep/oe-lad.p 3/94 RM ---- */
+/* --------------------------------------------- oe/rep/oe-lad.p 3/94 RM ---- */
     /* print bill of ladings                                                      */
     /* -------------------------------------------------------------------------- */
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
@@ -5214,7 +5440,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
-    /* --------------------------------------------- oe/rep/oe-lad.p 3/94 RM ---- */
+/* --------------------------------------------- oe/rep/oe-lad.p 3/94 RM ---- */
     /* print bill of ladings                                                      */
     /* -------------------------------------------------------------------------- */
     DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
@@ -5505,7 +5731,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report-ci C-Win 
 PROCEDURE run-report-ci :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -5791,7 +6017,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report-mail C-Win 
 PROCEDURE run-report-mail :
-    /* --------------------------------------------------------*/
+/* --------------------------------------------------------*/
 
     DEFINE INPUT PARAMETER icCustNo AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ic2ndKey AS CHARACTER NO-UNDO.
@@ -5938,7 +6164,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-mail-uni-xl C-Win 
 PROCEDURE send-mail-uni-xl :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -5981,7 +6207,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SendMail-1 C-Win 
 PROCEDURE SendMail-1 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -6023,7 +6249,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SendMail-2 C-Win 
 PROCEDURE SendMail-2 :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -6083,7 +6309,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetBOLForm C-Win 
 PROCEDURE SetBOLForm :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -6205,7 +6431,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetVariables C-Win 
 PROCEDURE SetVariables :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -6232,7 +6458,7 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :
-    /*------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
       Notes:       
@@ -6303,51 +6529,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE build-temp-table C-Win 
-PROCEDURE build-temp-table :
-    /*------------------------------------------------------------------------------
-      Purpose:     
-      Parameters:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER NO-UNDO.
-     DEFINE BUFFER bf-cust FOR cust.
-     DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
-     DEFINE BUFFER bf-oe-boll FOR oe-boll.
-     
-     FOR EACH bf-cust NO-LOCK
-        WHERE bf-cust.company EQ cocode
-        AND bf-cust.cust-no EQ ipcCustomer,
-
-        EACH bf-oe-bolh NO-LOCK
-        WHERE bf-oe-bolh.company EQ cocode
-        AND bf-oe-bolh.bol-no  GE v-s-bol
-        AND bf-oe-bolh.bol-no  LE v-e-bol
-        AND bf-oe-bolh.cust-no EQ bf-cust.cust-no
-        AND bf-oe-bolh.bol-date  GE v-s-date
-        AND bf-oe-bolh.bol-date  LE v-e-date
-        AND bf-oe-bolh.printed EQ v-printed
-        AND bf-oe-bolh.posted  EQ tb_posted
-        AND CAN-FIND (FIRST bf-oe-boll
-        WHERE bf-oe-boll.company EQ bf-oe-bolh.company
-        AND bf-oe-boll.b-no    EQ bf-oe-bolh.b-no
-        AND bf-oe-boll.ord-no  GE v-s-ord
-        AND bf-oe-boll.ord-no  LE v-e-ord)
-        USE-INDEX post:
-        
-            CREATE tt-list.
-            tt-list.rec-row = ROWID(bf-oe-bolh).
-            tt-list.BolNo = bf-oe-bolh.bol-no.        
-        END.
-                
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME    
-    
 
 /* ************************  Function Implementations ***************** */
 

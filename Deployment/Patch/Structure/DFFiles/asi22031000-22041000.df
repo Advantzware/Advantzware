@@ -1,0 +1,239 @@
+ADD TABLE "formLayouts"
+  AREA "Data"
+  DUMP-NAME "formlayouts"
+
+ADD FIELD "formType" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form Type"
+  POSITION 2
+  MAX-WIDTH 64
+  ORDER 10
+
+ADD FIELD "formGroup" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form Group"
+  POSITION 3
+  MAX-WIDTH 64
+  ORDER 20
+
+ADD FIELD "formID" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Form ID"
+  POSITION 4
+  MAX-WIDTH 64
+  ORDER 30
+
+ADD FIELD "formLine" OF "formLayouts" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Form Line"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 40
+
+ADD FIELD "formLineLabel" OF "formLayouts" AS character 
+  FORMAT "x(32)"
+  INITIAL ""
+  LABEL "Label"
+  POSITION 6
+  MAX-WIDTH 64
+  ORDER 50
+
+ADD FIELD "description" OF "formLayouts" AS character 
+  FORMAT "x(600)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 7
+  MAX-WIDTH 1200
+  ORDER 60
+
+ADD FIELD "formRow" OF "formLayouts" AS decimal 
+  FORMAT ">>>9.99<<"
+  INITIAL "0"
+  LABEL "Row"
+  POSITION 8
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 70
+
+ADD FIELD "formColumn" OF "formLayouts" AS decimal 
+  FORMAT ">>>9.99<<"
+  INITIAL "0"
+  LABEL "Column"
+  POSITION 9
+  MAX-WIDTH 17
+  DECIMALS 2
+  ORDER 80
+
+ADD FIELD "createDtTm" OF "formLayouts" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Create Date/Time"
+  POSITION 10
+  MAX-WIDTH 8
+  ORDER 90
+
+ADD FIELD "createUser" OF "formLayouts" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Create User"
+  POSITION 11
+  MAX-WIDTH 48
+  ORDER 100
+
+ADD FIELD "updateDtTm" OF "formLayouts" AS datetime 
+  FORMAT "99/99/9999 HH:MM:SS.SSS"
+  INITIAL ?
+  LABEL "Update Date/Time"
+  POSITION 12
+  MAX-WIDTH 8
+  ORDER 110
+
+ADD FIELD "updateUser" OF "formLayouts" AS character 
+  FORMAT "x(24)"
+  INITIAL ""
+  LABEL "Update User"
+  POSITION 13
+  MAX-WIDTH 48
+  ORDER 120
+
+ADD FIELD "rec_key" OF "formLayouts" AS character 
+  FORMAT "x(28)"
+  INITIAL ""
+  LABEL "rec_key"
+  POSITION 14
+  MAX-WIDTH 56
+  ORDER 130
+
+ADD INDEX "iFormLine" ON "formLayouts" 
+  AREA "Index"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "formType" ASCENDING 
+  INDEX-FIELD "formGroup" ASCENDING 
+  INDEX-FIELD "formID" ASCENDING 
+  INDEX-FIELD "formLine" ASCENDING 
+
+ADD INDEX "iRec_key" ON "formLayouts" 
+  AREA "Index"
+  UNIQUE
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD FIELD "lLockWeightCalc" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 234
+  INITIAL "no"
+  LABEL "Lock Weight Calc"
+  ORDER 2310
+  MAX-WIDTH 1
+
+ADD FIELD "lLockDimensions" OF "itemfg" AS logical
+  FORMAT "yes/no"
+  POSITION 235
+  INITIAL "no"
+  LABEL "Lock Dimensions"
+  ORDER 2320
+  MAX-WIDTH 1
+
+ADD FIELD "iReleaseSeq" OF "itemfg" AS integer
+  FORMAT ">>>>>>9"
+  POSITION 236
+  INITIAL "0"
+  LABEL "Release Seq"
+  ORDER 2330
+  MAX-WIDTH 4
+
+UPDATE FIELD "module" OF "module"
+  LABEL "Module"
+
+UPDATE FIELD "dscr" OF "module"
+  FORMAT "X(256)"
+  LABEL "Description"
+
+ADD FIELD "licensed" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 5
+  INITIAL "no"
+  LABEL "Licensed?"
+  ORDER 41
+  MAX-WIDTH 1
+
+ADD FIELD "moduleGroup" OF "module" AS character
+  FORMAT "x(16)"
+  POSITION 8
+  INITIAL ""
+  LABEL "Group"
+  ORDER 70
+  MAX-WIDTH 32
+
+ADD FIELD "optional" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 9
+  INITIAL "no"
+  LABEL "Optional"
+  ORDER 80
+  MAX-WIDTH 1
+
+ADD FIELD "isGlobal" OF "module" AS logical
+  FORMAT "yes/no"
+  POSITION 10
+  INITIAL "no"
+  LABEL "Global"
+  ORDER 90
+  MAX-WIDTH 1
+
+ADD FIELD "expDate" OF "module" AS date
+  FORMAT "99/99/9999"
+  POSITION 11
+  INITIAL ?
+  LABEL "Exp Date"
+  ORDER 100
+  MAX-WIDTH 4
+
+ADD FIELD "subLevel" OF "module" AS integer
+  FORMAT ">>9"
+  POSITION 12
+  INITIAL "0"
+  LABEL "Level"
+  ORDER 110
+  MAX-WIDTH 4
+
+UPDATE FIELD "is-used" OF "module"
+  POSITION 13
+
+RENAME INDEX "code" TO "iModule" ON "module"
+
+
+ADD INDEX "iGroup" ON "module"
+  AREA "Index"
+  INDEX-FIELD "moduleGroup" ASCENDING
+  INDEX-FIELD "module" ASCENDING
+
+UPDATE PRIMARY INDEX "iModule" ON "module"
+
+DROP INDEX "module" ON "module"
+
+ADD FIELD "PROnumber" OF "oe-bolh" AS character
+  FORMAT "x(10)"
+  POSITION 96
+  INITIAL ""
+  LABEL "PRO Number"
+  ORDER 910
+  MAX-WIDTH 20
+
+ADD FIELD "PROnumber" OF "oe-relh" AS character
+  FORMAT "x(10)"
+  POSITION 62
+  INITIAL ""
+  LABEL "PRO Number"
+  ORDER 570
+  MAX-WIDTH 20
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000004509

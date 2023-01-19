@@ -485,7 +485,7 @@ find first company where company.company eq cocode no-lock no-error.
                assign v-printline = 20.          
             end.
             IF AVAIL shipto THEN DO:
-                put oe-rel.po-no AT 2 shipto.ship-name AT 21 FORM "x(28)" lcnt AT 55 FORM ">>9" SPACE(1) /*ld-date*/ SPACE(9) (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) FORMAT "->>,>>>,>>9" SPACE(5) oe-ord.due-date /*oe-rel.rel-date*/ SKIP .
+                put oe-rel.po-no AT 2 shipto.ship-name AT 21 FORM "x(28)" lcnt AT 55 FORM ">>9" SPACE(1) /*ld-date*/ SPACE(9) (IF oe-rel.link-no EQ 0 THEN oe-rel.tot-qty ELSE oe-rel.qty) FORMAT "->>,>>>,>>9" SPACE(5) (IF oe-rel.spare-char-4 NE "" THEN ENTRY(1, oe-rel.spare-char-4) ELSE STRING(oe-ord.due-date)) SKIP .
                 v-printline = v-printline + 1.
                 if v-printline ge lv-line-print then
                 do:
@@ -697,10 +697,10 @@ find first company where company.company eq cocode no-lock no-error.
       PUT 
         "<R59><C1>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE.       <P16>Thank You! </B>"  .
       
-      PUT "<FArial><R60.7><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). Essentra Packaging disclaims and rejects any" SKIP
-        "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon Essentra Packaging, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
+      PUT "<FArial><R60.7><C2.5><P6>" "All sales/purchases described herein are subject to MM Clayton terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). MM Clayton disclaims and rejects any" SKIP
+        "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon MM Clayton, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
         "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Customer's receipt of goods or payment to" SKIP
-        "<C2.5><R-0.3>" "Essentra Packaging for the sales or purchases described herein."
+        "<C2.5><R-0.3>" "MM Clayton for the sales or purchases described herein."
         "<P10>"
         "<R64><c4>Printed on: " STRING(TODAY) 
         "<R64><C65>Page "  STRING(PAGE-NUM - lv-pg-num,">>9") + " of " + STRING(lv-tot-pg) FORM "x(20)" 

@@ -1,0 +1,18 @@
+{
+  "filterGroups": [
+    {
+      "filters": [
+        {
+          "value": "0",
+          "propertyName": "hs_object_id",
+          "operator": "GTE"
+        }
+      ]
+    }
+  ],
+  "properties": [
+    "lastmodifieddate,firstname,lastname,city,company,state,website,message,address,phone,email"
+  ],
+  "limit": 100,
+  "after": $NextPageLinkID$
+}

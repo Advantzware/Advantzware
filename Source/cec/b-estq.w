@@ -1017,7 +1017,7 @@ DO:
    IF v-cecscrn-char = "Decimal" THEN
      ASSIGN
         eb.wid:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
-        eb.len:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
+        eb.len:FORMAT IN BROWSE {&browse-name} = ">>>9.999999"
         eb.dep:FORMAT IN BROWSE {&browse-name} = ">>9.999999".
 END.
 

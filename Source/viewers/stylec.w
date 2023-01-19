@@ -300,7 +300,7 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
      style.spare-char-5 AT ROW 10.29 COL 63 COLON-ALIGNED WIDGET-ID 6
-          LABEL "Packing Code"
+          LABEL "Packing Code" FORMAT "x(10)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 
@@ -400,7 +400,7 @@ DEFINE FRAME F-Main
           SIZE 30 BY .62 AT ROW 2.91 COL 99
           FGCOLOR 9 
      RECT-19 AT ROW 1 COL 1
-     RECT-7 AT ROW 3.14 COL 1.5
+     RECT-7 AT ROW 3.14 COL 1.6
      RECT-8 AT ROW 3.14 COL 46
      RECT-9 AT ROW 3.14 COL 87
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -539,7 +539,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN style.royalty IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.spare-char-5 IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.style IN FRAME F-Main
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN style.type IN FRAME F-Main
@@ -787,7 +787,7 @@ END.
 
 &Scoped-define SELF-NAME fiPOBlankWidthScore
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPOBlankWidthScore V-table-Win
-ON ENTRY OF fiPOBlankWidthScore IN FRAME F-Main /* PO Blank Width Score */
+ON ENTRY OF fiPOBlankWidthScore IN FRAME F-Main /* PO Sheet Width Scores */
 DO:
     DEFINE VARIABLE dTotalScoreAllowance AS DECIMAL NO-UNDO.
 

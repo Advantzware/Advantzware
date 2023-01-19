@@ -13,6 +13,8 @@ DEFINE VARIABLE v-phone AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-taxid AS CHARACTER NO-UNDO.
 DEFINE VARIABLE top-flag AS LOGICAL NO-UNDO.
 DEFINE VARIABLE copy-count AS INTEGER NO-UNDO.
+DEFINE VARIABLE dAmountRow AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dAmountColumn AS DECIMAL NO-UNDO.
 
 FIND FIRST company WHERE
      company.company EQ cocode
@@ -39,6 +41,15 @@ PUT "<FCourier New><P10>".
 DO copy-count = 1 TO s-copies:
 
    for each tt-1099-m NO-LOCK BREAK BY tt-1099-m.vend-no:
+   
+          FIND FIRST formLayouts NO-LOCK
+               WHERE formLayouts.formType EQ "xPrint"
+                 AND formLayouts.formGroup EQ "US Tax Forms" 
+                 AND formLayouts.formID EQ "1099-MISC"
+                 AND formLayouts.formLine EQ integer(tt-1099-m.vend-box) NO-ERROR.
+       
+          dAmountRow =  IF AVAILABLE formLayouts THEN formLayouts.formRow ELSE 11.  
+          dAmountColumn =  IF AVAILABLE formLayouts THEN formLayouts.formColumn ELSE 38.
       
           PUT "<R5><C5.5>" v-comp-name format "X(30)" 
               "<R6><C5.5>" v-addr1 format "X(30)" 
@@ -50,17 +61,9 @@ DO copy-count = 1 TO s-copies:
               "<R20><C5.5>" tt-1099-m.vend-add1 FORMAT "X(30)"
               "<R21><C5.5>" tt-1099-m.vend-add2 FORMAT "X(30)"
               "<R23><C5.5>" tt-1099-m.vend-city-line FORMAT "X(30)".
-
-          IF tt-1099-m.vend-box EQ "3" OR tt-1099-m.vend-box EQ "Y" THEN
-              PUT "<R11><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
-          ELSE IF tt-1099-m.vend-box EQ "1" THEN
-              PUT "<R5.6><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
-          ELSE IF tt-1099-m.vend-box EQ "2" THEN
-              PUT "<R8.5><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
-          ELSE IF tt-1099-m.vend-box EQ "7" THEN
-              PUT "<R19><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
-
-            
+              
+          PUT "<R" trim(STRING(dAmountRow)) "><C" trim(STRING(dAmountColumn)) ">" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .      
+                                
           PUT "<R39><C5.5>" v-comp-name format "X(30)" 
               "<R40><C5.5>" v-addr1 format "X(30)" 
               "<R41><C5.5>" v-city-line format "X(30)" 
@@ -71,16 +74,9 @@ DO copy-count = 1 TO s-copies:
               "<R53><C5.5>" tt-1099-m.vend-add1 FORMAT "X(30)"
               "<R54><C5.5>" tt-1099-m.vend-add2 FORMAT "X(30)" 
               "<R56><C5.5>" tt-1099-m.vend-city-line FORMAT "X(30)".
-
-          IF tt-1099-m.vend-box EQ "3" OR tt-1099-m.vend-box EQ "Y" THEN
-              PUT "<R44><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .
-          ELSE IF tt-1099-m.vend-box EQ "1" THEN
-              PUT "<R38.6><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
-          ELSE IF tt-1099-m.vend-box EQ "2" THEN
-              PUT "<R41.5><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
-          ELSE IF tt-1099-m.vend-box EQ "7" THEN
-              PUT "<R51><C38>" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" . 
-          PAGE.       
+              
+          PUT "<R" trim(STRING(dAmountRow + 33)) "><C" trim(STRING(dAmountColumn)) ">" tt-1099-m.vend-total FORMAT "->>,>>>,>>9.99" .    
+                    
    END.  
  
 END.

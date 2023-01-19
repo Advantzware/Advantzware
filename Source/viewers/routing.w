@@ -489,7 +489,7 @@ DO:
 
     case focus:name :
          when "m-code" then do:
-             run windows/l-mach.w (routing.company, gloc, focus:screen-value, output char-val).
+             run windows/l-mach.w (gcompany, gloc, focus:screen-value, output char-val).
              if char-val <> "" then do:
                 case focus:index :
                      when 1 then assign routing.m-code[1]:screen-value in frame {&frame-name} = entry(1,char-val)

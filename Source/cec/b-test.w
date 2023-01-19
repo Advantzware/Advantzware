@@ -243,7 +243,7 @@ DEFINE BROWSE br_table
       ef.cal FORMAT ">9.99999<":U COLUMN-FONT 2
       eb.procat FORMAT "x(5)":U COLUMN-FONT 2
       display-cw-dim(yes,eb.len) @ eb.len
-      eb.len FORMAT ">>9.99":U COLUMN-FONT 2
+      eb.len FORMAT ">>>9.99":U COLUMN-FONT 2
       display-cw-dim(yes,eb.len) @ eb.len
       display-cw-dim(yes,eb.wid) @ eb.wid
       eb.wid FORMAT ">>9.99":U COLUMN-FONT 2

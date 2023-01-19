@@ -11,6 +11,15 @@ DEFINE VARIABLE jobNo2 AS INTEGER NO-UNDO.
 DEFINE VARIABLE jNo AS INTEGER NO-UNDO.
 DEFINE VARIABLE noDate AS LOGICAL NO-UNDO.
 
+DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+IF cSchedule NE "" THEN
+ASSIGN lSchedule = LOGICAL(cSchedule).
+
 DEFINE BUFFER b1Job FOR job.
 DEFINE BUFFER b2Job FOR job.
 DEFINE BUFFER bJobHdr FOR job-hdr.
@@ -18,11 +27,7 @@ DEFINE BUFFER bJobMch FOR job-mch.
 DEFINE BUFFER bJobMat FOR job-mat.
 DEFINE BUFFER bJobPrep FOR job-prep.
 
-noDate = CAN-FIND(FIRST sys-ctrl
-                  WHERE sys-ctrl.company EQ cocode
-                    AND sys-ctrl.name EQ 'Schedule'
-                    AND sys-ctrl.char-fld EQ 'NoDate'
-                    AND sys-ctrl.log-fld EQ YES).
+noDate = lSchedule AND cScheduleValue EQ 'NoDate'.
 
 FIND b1Job NO-LOCK WHERE ROWID(b1Job) EQ ipCopyRowID NO-ERROR.
 IF NOT AVAILABLE b1Job THEN RETURN.

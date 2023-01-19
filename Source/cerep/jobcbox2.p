@@ -92,6 +92,8 @@ def new shared workfile wrk-op
   FIELD spoil LIKE job-mch.wst-prct EXTENT 100
   FIELD mr-waste LIKE job-mch.mr-waste EXTENT 100.
 
+DEF BUFFER bwrk-op FOR wrk-op.
+
 def new shared workfile wrk-die
   field die-no like eb.die-no
   FIELD cad-no LIKE eb.cad-no
@@ -1016,6 +1018,11 @@ IF lookup(cPrintSheetTicket,"J,B") GT 0 then do:
                       v-po-duedate = IF AVAIL po-ordl 
                                      THEN po-ordl.due-date 
                                      ELSE ?.
+            ASSIGN 
+                wrk-sheet.gsh-qty =  IF ef.nsh-wid NE wrk-sheet.sh-wid THEN wrk-sheet.gsh-qty * 2 ELSE wrk-sheet.gsh-qty
+                wrk-sheet.sh-wid  = IF ef.nsh-wid NE wrk-sheet.sh-wid THEN ef.nsh-wid ELSE wrk-sheet.sh-wid
+                wrk-sheet.sh-len  = IF ef.nsh-len NE wrk-sheet.sh-len THEN ef.nsh-len ELSE wrk-sheet.sh-len
+                .        
 
                     display 
                         wrk-sheet.brd-dscr
@@ -1029,7 +1036,6 @@ IF lookup(cPrintSheetTicket,"J,B") GT 0 then do:
                       with stream-io width 170 no-labels no-box frame sheet.
                     x = 1.
                 end. /* each wrk-sheet */
-
              
                 ASSIGN
                 x = 2
@@ -1193,9 +1199,14 @@ IF lookup(cPrintSheetTicket,"J,B") GT 0 then do:
                  END.
             END.
 
+FIND FIRST bwrk-op WHERE 
+    bwrk-op.s-num = wrk-op.s-num AND 
+    bwrk-op.d-seq GT wrk-op.d-seq
+    NO-ERROR.
+
             v-spoil = ROUND( ((wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm])
                        * wrk-op.spoil[job-hdr.frm] / 100),0).
-            v-output = wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm] - v-spoil.
+            v-output = IF AVAIL bwrk-op THEN bwrk-op.num-sh[job-hdr.frm] ELSE (wrk-op.num-sh[job-hdr.frm] - wrk-op.mr-waste[job-hdr.frm] - v-spoil).
 
             IF s-prt-mstandard THEN DO:
                 IF s-run-speed THEN
@@ -2255,20 +2266,26 @@ IF lookup(cPrintSheetTicket,"J,B") GT 0 then do:
                        FIND FIRST wrk-sheet WHERE
                          wrk-sheet.i-no = ITEM.i-no NO-ERROR.
 
-                   IF NOT AVAIL wrk-sheet THEN do:
-                       create wrk-sheet.
-                       ASSIGN
-                           wrk-sheet.i-no = ITEM.i-no
-                           wrk-sheet.brd-dscr = item.est-dscr
-                           wrk-sheet.sh-wid  = job-mat.wid
-                           wrk-sheet.sh-len  = job-mat.len
-                           wrk-sheet.gsh-qty =  iSheetQty
-                           wrk-sheet.form-no = job-mat.frm .
-                   END.
-                   IF wrk-sheet.gsh-qty LT iSheetQty  THEN
-                        wrk-sheet.gsh-qty =  iSheetQty .
-       END.
+           IF NOT AVAIL wrk-sheet THEN do:
+               create wrk-sheet.
+               ASSIGN
+                   wrk-sheet.i-no = ITEM.i-no
+                   wrk-sheet.brd-dscr = item.est-dscr
+                   wrk-sheet.sh-wid  = IF ef.nsh-wid NE ef.gsh-wid THEN ef.nsh-wid ELSE job-mat.wid
+                   wrk-sheet.sh-len  = IF ef.nsh-len NE ef.gsh-len THEN ef.nsh-len ELSE job-mat.len
+                   wrk-sheet.gsh-qty =  IF ef.nsh-wid NE ef.gsh-wid THEN iSheetQty * 2 ELSE isheetQty
+                   wrk-sheet.form-no = job-mat.frm .
+           END.
+           IF wrk-sheet.gsh-qty LT iSheetQty  THEN
+                wrk-sheet.gsh-qty =  iSheetQty .
+            ASSIGN 
+                wrk-sheet.sh-wid  = IF ef.nsh-wid NE job-mat.wid THEN ef.nsh-wid ELSE job-mat.wid
+                wrk-sheet.sh-len  = IF ef.nsh-len NE job-mat.len THEN ef.nsh-len ELSE job-mat.len
+                wrk-sheet.gsh-qty =  IF ef.nsh-wid NE job-mat.wid THEN iSheetQty * 2 ELSE isheetQty
+                .        
        
+       END.
+
        iSheetRequired = 0.
        FOR EACH wrk-sheet NO-LOCK
            BREAK BY wrk-sheet.gsh-qty DESC

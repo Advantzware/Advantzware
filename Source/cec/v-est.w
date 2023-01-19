@@ -147,7 +147,10 @@ RUN est/ArtiosProcs.p PERSISTENT SET hdArtiosProcs.
 
 DEFINE VARIABLE dBoxFit        AS DECIMAL NO-UNDO.
 DEFINE VARIABLE hdFormulaProcs AS HANDLE NO-UNDO.
+DEFINE VARIABLE hPrepProcs     AS HANDLE NO-UNDO.
+
 RUN system/FormulaProcs.p PERSISTENT SET hdFormulaProcs.
+RUN system/PrepProcs.p PERSISTENT SET hPrepProcs.
 
 DEFINE VARIABLE lCADFile AS LOGICAL NO-UNDO.
 
@@ -552,7 +555,7 @@ DEFINE FRAME Corr
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY 1
      eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
-          LABEL "Length" FORMAT ">>9.99"
+          LABEL "Length" FORMAT ">>>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      eb.wid AT ROW 12.91 COL 61 COLON-ALIGNED
@@ -1077,6 +1080,9 @@ DO:
            RUN windows/l-item.w (cocode,"","G,S,T",lw-focus:SCREEN-VALUE,OUTPUT char-val).
            IF char-val <> "" THEN eb.adhesive:SCREEN-VALUE = ENTRY(1,char-val).
        END.
+       WHEN "cad-image"THEN DO:
+           APPLY "choose" TO btnDieLookup.
+       END.
        WHEN "loc" THEN DO:
          run windows/l-loc.w (cocode, lw-focus:SCREEN-VALUE, output char-val).
          if char-val <> "" then 
@@ -1342,7 +1348,7 @@ DO:
 
   IF okClicked THEN
      ASSIGN eb.die-no:SCREEN-VALUE = IF eb.die-no:SCREEN-VALUE = "" THEN imageName(dieFile) ELSE eb.die-no:SCREEN-VALUE
-            ef.cad-image:SCREEN-VALUE = imageName(dieFile).
+            ef.cad-image:SCREEN-VALUE = dieFile.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2450,7 +2456,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 find first sys-ctrl where sys-ctrl.company eq cocode
-                        and sys-ctrl.name    eq "CE W>L"
+
+
+and sys-ctrl.name    eq "CE W>L"
        no-lock no-error.
   if not avail sys-ctrl then do transaction:
      create sys-ctrl.
@@ -2577,6 +2585,30 @@ PROCEDURE pCheckAutoLock :
    DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
    
    oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPrep V-table-Win 
+PROCEDURE pCheckPrep :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcPrep AS CHARACTER NO-UNDO.
+   DEFINE BUFFER bf-prep FOR prep.
+   
+   FIND FIRST bf-prep NO-LOCK
+       WHERE bf-prep.company EQ cocode
+         AND bf-prep.code    EQ ipcPrep
+       NO-ERROR.
+               
+   IF AVAILABLE bf-prep THEN
+   RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(bf-prep)). 
    
 END PROCEDURE.
 
@@ -3241,7 +3273,9 @@ PROCEDURE local-assign-record :
   DEF VAR v-w-array AS DEC EXTENT 30 NO-UNDO.
   DEF VAR v-count AS INT NO-UNDO.
   DEFINE VARIABLE cShipFromFlyFile AS CHARACTER NO-UNDO .
-
+  DEFINE VARIABLE cOldDieNo AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cOldPlate AS CHARACTER NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
    lv-hld-cust = eb.cust-no
@@ -3250,7 +3284,9 @@ PROCEDURE local-assign-record :
    lv-prev-cad# = eb.cad-no
    lv-hld-part-no = eb.part-no
    lv-hld-stock-no = eb.stock-no
-   v-cad-no = eb.cad-no.
+   v-cad-no = eb.cad-no
+   cOldDieNo = eb.die-no
+   cOldPlate = eb.plate-no.
   DO WITH FRAME {&FRAME-NAME}:
          ASSIGN tb-set.
   END.
@@ -3328,7 +3364,12 @@ PROCEDURE local-assign-record :
    eb.sty-lock = NOT ll-auto-calc-selected
    eb.tab-in   = IF tab-inout EQ "In"  THEN YES ELSE
                  IF tab-inout EQ "Out" THEN NO  ELSE ?.
-
+  
+  IF cOldDieNo NE eb.die-no THEN
+  RUN pCheckPrep(eb.die-no).
+  IF cOldPlate NE eb.plate-no THEN
+  RUN pCheckPrep(eb.plate-no). 
+                 
   IF ll-auto-calc-selected THEN DO:
 
     /* Build panelHeader and paneDetail records for vaiable width */
@@ -3654,8 +3695,7 @@ PROCEDURE local-assign-record :
         b-set.dep = eb.dep.
    END.
   END.
-
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3764,9 +3804,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win
-PROCEDURE local-destroy:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win 
+PROCEDURE local-destroy :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3774,17 +3813,18 @@ PROCEDURE local-destroy:
     /* Code placed here will execute PRIOR to standard behavior. */
     IF VALID-HANDLE(hdFormulaProcs) THEN
         DELETE PROCEDURE hdFormulaProcs.
+    IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.    
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
 
     /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -3854,7 +3894,7 @@ DO WITH FRAME {&FRAME-NAME}:
      iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .     
      
      ASSIGN
-        eb.len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+        eb.len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.len:WIDTH = 15.2
         eb.wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.wid:WIDTH = 15.2
@@ -4156,6 +4196,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -4594,6 +4635,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
 /*------------------------------------------------------------------------------
@@ -4862,9 +4904,13 @@ DEF VAR lv-tmp AS CHAR NO-UNDO.
 DEF VAR lv-tmp-val AS CHAR NO-UNDO.
 DEF VAR i AS INT NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
+DEFINE VARIABLE dLscore AS DECIMAL NO-UNDO.
 
 v-l-array = 0.
 
+dLscore = DECIMAL(TRIM(ip-string)) NO-ERROR.
+
+IF NOT ERROR-STATUS:ERROR AND ip-string NE "" THEN
 DO i = 1 TO LENGTH(ip-string):
    lv-tmp-val = SUBSTRING(ip-string,i,1).
    IF lv-tmp-val <> " " THEN
@@ -5303,6 +5349,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
 PROCEDURE valid-ship-id :
 /*------------------------------------------------------------------------------
@@ -5493,8 +5540,6 @@ END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE was-modified V-table-Win 
 PROCEDURE was-modified :

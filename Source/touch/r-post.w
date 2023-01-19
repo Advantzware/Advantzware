@@ -1365,6 +1365,56 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CallOutboundAPI C-Win
+PROCEDURE pCallOutboundAPI PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose:  GIven a job buffer - execute an outbound API trigger
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    
+    DEFINE BUFFER bf-job FOR job.
+    
+    DEFINE VARIABLE hdOutboundProcs AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE lSuccess        AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
+    
+    
+    RUN api/OutboundProcs.p PERSISTENT SET hdOutboundProcs.
+    
+    FOR EACH w-job,
+        FIRST bf-job NO-LOCK 
+        WHERE bf-job.company EQ ipcCompany 
+        AND bf-job.job EQ w-job.job:
+        
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  bf-job.company,              /* Company Code (Mandatory) */
+            INPUT  bf-job.loc,             /* Location Code (Mandatory) */
+            INPUT  "SendJobAMS",               /* API ID (Mandatory) */
+            INPUT  "",                         /* Scope ID */
+            INPUT  "",                         /* Scope Type */
+            INPUT  "PostDataCollection",       /* Trigger ID (Mandatory) */
+            INPUT  "job",                      /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(bf-job)),     /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  bf-job.job-no + "-" + STRING(bf-job.job-no2),                 /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  "Triggered from touch/r-post.w",               /* Event's description (Optional) */
+            OUTPUT lSuccess,                   /* Success/Failure flag */
+            OUTPUT cMessage                    /* Status message */
+            ).           
+    END.
+    
+    FINALLY:
+        DELETE PROCEDURE hdOutboundProcs.       
+    END FINALLY.   
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
     /*------------------------------------------------------------------------------
@@ -2063,6 +2113,8 @@ FOR EACH w-job,
 END.
 
 RUN job_CloseJob_DCPost IN hdJobProcs(INPUT cocode, INPUT TABLE w-job).
+
+RUN pCallOutboundAPI(cocode).
 
 END PROCEDURE.
 

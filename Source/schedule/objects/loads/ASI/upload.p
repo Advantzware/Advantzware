@@ -391,7 +391,8 @@ END. /* each ttbljob */
          NO-ERROR.
     IF AVAILABLE module AND
         module.licensed AND
-        module.expDate GE TODAY AND 
+       (module.expDate EQ ? OR
+        module.expDate GE TODAY) AND 
         htmlPageLocation NE "" THEN
         RUN pHTMLPages.
 
@@ -476,8 +477,9 @@ END PROCEDURE.
 
 PROCEDURE pHTMLBranding:
     PUT UNFORMATTED
-        '  <img src="' SEARCH("Graphics/32x32/asiicon.png")
-        '" align="middle">~&nbsp;<b><a href="http://www.advantzware.com" target="_blank">'
+        //'  <img src="' SEARCH("Graphics/32x32/asiicon.png")
+        //'" align="middle">~&nbsp;
+        '  <b><a href="http://www.advantzware.com" target="_blank">'
         '<font face="{&fontFace}">Advantzware, Inc.</a>~&nbsp;~&copy;</b></font>' SKIP
         . 
 END PROCEDURE.
@@ -521,7 +523,7 @@ PROCEDURE pHTMLHeader:
         '<title>' ipcHTMLTitle '</title>' SKIP
         '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
         '<meta http-equiv="Refresh" content="120">' SKIP
-        '<link rel="shortcut icon" href="' SEARCH("Graphics/32x32/asiicon.png") '">' SKIP
+        // '<link rel="shortcut icon" href="' SEARCH("Graphics/32x32/asiicon.png") '">' SKIP
         .
     IF iplScript THEN 
     PUT UNFORMATTED
@@ -654,13 +656,13 @@ PROCEDURE pHTMLPages:
                 .
             PUT UNFORMATTED
                 '    <tr>' SKIP
-                '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}">'
-                '<img src="'
-                (IF SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") NE ? THEN
-                    SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") ELSE
-                    SEARCH("Graphics/48x48/gearwheels.png"))
-                '" width="48" height="48" align="center">~&nbsp~&nbsp~&nbsp~&nbsp<b>'
-                ttblJob.resource '</a></b></font></td>' SKIP
+                '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}"><b>' ttblJob.resource '</b></td>' SKIP
+/*                '<img src="'                                                         */
+/*                (IF SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") NE ? THEN  */
+/*                    SEARCH("Graphics/48x48/" + ttblJob.resource + ".png") ELSE       */
+/*                    SEARCH("Graphics/48x48/gearwheels.png"))                         */
+/*                '" width="48" height="48" align="center">~&nbsp~&nbsp~&nbsp~&nbsp<b>'*/
+/*                ttblJob.resource '</a></b></font></td>' SKIP                         */
                 '      <td' cBGColor ' align="center" nowrap rowspan="3"><font face="{&fontFace}"><b>'
                 '<a href="' htmlPageLocation + '\' + REPLACE(ttblJob.resource,"/","") + '.htm" target="_blank">'
                 (IF AVAILABLE mach THEN mach.m-dscr ELSE ttblJob.resource) '</a></b></font></td>' SKIP
@@ -669,7 +671,7 @@ PROCEDURE pHTMLPages:
             IF iJobs NE 0 THEN
             PUT UNFORMATTED
                 '<a href="JavaScript:newPopup(~''
-                htmlPageLocation + '\' + DYNAMIC-FUNCTION("sfWebCharacters", ttblJob.resource, 9, "Blank")
+                REPLACE(htmlPageLocation,"~\","/") + '/' + DYNAMIC-FUNCTION("sfWebCharacters", ttblJob.resource, 9, "Blank")
                 'Pending.htm~');">Jobs: <b>' iJobs '</a><br>' specialTime(iTime) '</b>'
                 .
             ELSE PUT UNFORMATTED "~&nbsp".

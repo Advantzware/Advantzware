@@ -436,7 +436,8 @@ ELSE DO:
         lcPurchaseOrderHeader = oAttribute:ReplaceAttributes(lcPurchaseOrderHeader, BUFFER vend:HANDLE).        
     
         FIND FIRST terms NO-LOCK
-             WHERE terms.t-code EQ po-ord.terms 
+             WHERE terms.company EQ po-ord.company 
+               AND terms.t-code  EQ po-ord.terms 
              NO-ERROR.
         lcPurchaseOrder = oAttribute:ReplaceAttributes(lcPurchaseOrder, BUFFER terms:HANDLE).
         lcPurchaseOrderHeader = oAttribute:ReplaceAttributes(lcPurchaseOrderHeader, BUFFER terms:HANDLE).

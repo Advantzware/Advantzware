@@ -7,6 +7,7 @@ TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 DEF BUFFER oe-ordl-q-no FOR reftable.
 DEF BUFFER oe-ordl-whs-item FOR reftable.
 
+DEF VAR lReseq AS LOG NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF oe-ord.
 
@@ -32,17 +33,30 @@ IF AVAIL itemfg THEN RUN fg/makenote.p (BUFFER {&TABLENAME},
                                         YES,
                                         itemfg.rec_key).
 
+FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+    AND sys-ctrl.NAME    EQ "ORDLINERESEQ"
+    NO-LOCK NO-ERROR.
+IF NOT AVAILABLE sys-ctrl THEN DO:
+    CREATE sys-ctrl.
+    ASSIGN
+        sys-ctrl.company  = cocode
+        sys-ctrl.NAME     = "ORDLINERESEQ"
+        sys-ctrl.descrip  = "Resequence order lines on delete"
+        sys-ctrl.char-fld = ""
+        sys-ctrl.log-fld = TRUE.
+END.
+ELSE ASSIGN 
+    lReseq = sys-ctrl.log-fld.
 
-
-
-
-{&TABLENAME}.line = 999999999.
-FOR EACH oe-ord OF {&TABLENAME}:
-  RUN oe/ordlline.p (ROWID(oe-ord)).
-
-  IF oeuserid-log THEN oe-ord.user-id = USERID("nosweat").
-
-  LEAVE.
+IF lReseq THEN DO:
+    {&TABLENAME}.line = 999999999.
+    FOR EACH oe-ord OF {&TABLENAME}:
+      RUN oe/ordlline.p (ROWID(oe-ord)).
+    
+      IF oeuserid-log THEN oe-ord.user-id = USERID("nosweat").
+    
+      LEAVE.
+    END.
 END.
 
 /* Clear out any error-status from find with no-error that is false */

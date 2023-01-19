@@ -1,3 +1,5 @@
+"20221109_02:14:04_10363844" 731 "Update Order Due date and Promise date via Scheduled Job Start Date?" "Character" "None,PlanDate,NoDate" "None" "" "" no "Schedule" "ScheduleValue" 0 no
+"20221109_02:12:56_10363841" 729 "Update Order Due date and Promise date via Scheduled Job Start Date?" "Logical" "YES,NO" "NO" "" "" no "Schedule" "Schedule" 0 no
 "20220817_04:03:16_09967042" 728 "Use New Partition calculation logic" "Logical" "YES,NO" "NO" "" "" no "Estimate" "CENewPartitionCalc" 0 no
 "202207111133709723085" 727 "Define the path to the logo to be used on the standard Business forms" "Character" "" "" "" "" no "BusinessFormLogo" "BusinessFormLogo" 0 yes
 "202207042450109696080" 726 "Vendor cost Matrix use Estimate

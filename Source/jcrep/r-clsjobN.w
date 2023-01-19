@@ -140,7 +140,7 @@ ASSIGN cTextListToSelect = "Job#,Job#2,Item Code,Description,Cust. #,Customer Na
                                         "sp-stnd,sp-act,cos-stnd,cos-act," + 
                                         "cnt-stnd,cnt-acl,%-cnt-stnd,%cnt-acl,ttl-varnc,job-cls-date,shp-to,rel-date,prd-cmp-date,mfg-date,orderType,Job-Description" 
        cFieldLength = "9,5,15,30,8,30,13,13,15," + "15,15,9,15,15,15,15,15,"  + "15,11,11,15,15,15," + "9,18,19,"  
-                                + "15,15,16," + "17,15,13,"  + "15,15,15,10," + "15,15,15,15,15,15,15,"  + "15,15,15,15," + "15,15,15,15,15,14,8,12,15,18,1,18"  
+                                + "15,15,16," + "17,15,13,"  + "15,15,15,10," + "15,15,15,15,15,15,15,"  + "15,15,15,15," + "15,15,15,15,15,14,8,12,15,18,8,19"  
        cFieldType = "c,c,c,c,c,c,i,i,i," + "i,i,i,i,i,i,i,i,"  + "i,i,i,i,i,i," + "i,i,i,"  + "i,i,i," + "i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,c,c,c,c,18,c,c" 
     .
 
@@ -2063,8 +2063,9 @@ DEF VAR str-line AS cha FORM "x(3000)" NO-UNDO.
 DEFINE VARIABLE cRelDate AS DATE NO-UNDO.
 DEFINE VARIABLE cProdDate AS DATE NO-UNDO.
 DEFINE VARIABLE cShip-id AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLineCount     AS INTEGER   NO-UNDO.
 
-{sys/form/r-top5DL3.f} 
+{sys/form/r-topsw.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE cFileName LIKE fi_file NO-UNDO .
@@ -2111,7 +2112,11 @@ IF NOT tgl_SumTot THEN
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-IF td-show-parm THEN RUN show-param.
+IF td-show-parm THEN
+DO: 
+  RUN show-param.
+  iLineCount = 24.
+END.  
 
 IF rd-dest EQ 3 THEN DO:
    OUTPUT STREAM excel TO VALUE(cFileName).
@@ -2153,6 +2158,11 @@ END.
 SESSION:SET-WAIT-STATE ("general").
 
 DISPLAY "" WITH FRAME r-top.
+PUT  str-tit4 FORMAT "x(1050)"
+    SKIP
+    str-tit5 FORMAT "x(1050)"
+    SKIP
+        .
 
 RUN gATher-dATa.
 
@@ -2331,6 +2341,15 @@ FOR EACH tt-report,
           END.
 
           IF NOT tgl_SumTot THEN do:
+          
+            IF iLineCount > (lines-per-page - 10) THEN 
+            DO:
+                PAGE.
+                PUT str-tit4 FORMAT "x(1050)" SKIP
+                    str-tit5 FORMAT "x(1050)" SKIP .
+                iLineCount = 0 .
+            END.
+            iLineCount = iLineCount + 2.
             ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""

@@ -98,7 +98,7 @@ ASSIGN
 IF ls-to-list EQ "" OR 
    ls-to-list EQ ?  OR
    NOT ls-to-list MATCHES "*@*" THEN DO:
-    IF ipType MATCHES "*1" THEN
+    IF ENTRY(1,ipType,"|") MATCHES "*1" THEN
     RETURN. /* Quiet Mode. */
 END.
 

@@ -508,6 +508,8 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartNavBrowser h_b-jobinq. */
        RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'Record':U , THIS-PROCEDURE ).
+       
+       RUN add-link IN adm-broker-hdl ( h_b-jobinq , 'attach':U , h_options2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-jobinq ,

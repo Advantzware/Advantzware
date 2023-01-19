@@ -147,17 +147,20 @@ FOR EACH ap-inv NO-LOCK
                          WHEN "type"      THEN cVarValue = STRING(vend.TYPE) .
                          WHEN "term"      THEN cVarValue = STRING(v-terms,"x(17)") .
                          WHEN "inv"       THEN cVarValue = IF lAPInvoiceLength THEN STRING(ap-inv.inv-no,"x(20)") ELSE STRING(ap-inv.inv-no,"x(12)").
-                         WHEN "date"      THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",v-date) .
-                         WHEN "due-date"  THEN cVarValue = DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.due-date) .
+                         WHEN "date"      THEN cVarValue = IF v-date NE ? THEN string(v-date) ELSE "" .
+                         WHEN "due-date"  THEN cVarValue = IF ap-inv.due-date NE ? THEN STRING(ap-inv.due-date) ELSE "" .
                          WHEN "amt"       THEN cVarValue = STRING(v-amt,"->,>>>,>>>,>>9.99") .
                          WHEN "day"       THEN cVarValue = STRING(d,">>>>>>") .
                          
                     END CASE.
-                      
-                    cExcelVarValue = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cVarValue).
+
+                    IF cTmpField = "date" THEN cExcelVarValue = IF v-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",v-date) ELSE "".
+                    ELSE IF cTmpField = "due-date" THEN cExcelVarValue = IF ap-inv.due-date NE ? THEN DYNAMIC-FUNCTION("sfFormat_Date",ap-inv.due-date) ELSE "".
+                    ELSE cExcelVarValue = cVarValue.
+
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
+                    cExcelDisplay = cExcelDisplay + QUOTER(DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs,cExcelVarValue)) + ",".            
             END.
    
     ASSIGN 
@@ -172,27 +175,37 @@ FOR EACH ap-inv NO-LOCK
    
     IF v-dtl THEN 
     DO:
-      /*display ap-inv.inv-no     at 3        format "x(12)"
-              space(2)
-              v-date
-              space(3)
-              v-amt
-              d                             format "-999"
-              ag[1]             to 67       when ag[1] ne 0
-              ag[2]             to 83       when ag[2] ne 0
-              ag[3]             to 99       when ag[3] ne 0
-              ag[4]             to 115      when ag[4] ne 0 
-              ag[5]             to 131      when ag[5] ne 0
-              
-          with frame detail{1} no-labels no-box stream-io width 132.*/
-
+        IF iPeriodStart EQ 1 THEN do:          
           cDisplay =  cDisplay + STRING(ag[1],"->,>>>,>>>,>>9.99") + " " + STRING(ag[2],"->,>>>,>>>,>>9.99") + 
                      " " + STRING(ag[3],"->,>>>,>>>,>>9.99") + " " + STRING(ag[4],"->,>>>,>>>,>>9.99") + " " +
-                     STRING(ag[5],"->,>>>,>>>,>>9.99") .
-
+                     STRING(ag[5],"->,>>>,>>>,>>9.99") . 
            cExcelDisplay = cExcelDisplay +  STRING(ag[1]) + "," + STRING(ag[2]) + "," +
                             STRING(ag[3]) + "," + STRING(ag[4]) + "," +
                             STRING(ag[5]) .
+         END.    
+         ELSE IF iPeriodStart EQ 2 THEN do:          
+          cDisplay =  cDisplay +  STRING(ag[2],"->,>>>,>>>,>>9.99") + 
+                     " " + STRING(ag[3],"->,>>>,>>>,>>9.99") + " " + STRING(ag[4],"->,>>>,>>>,>>9.99") + " " +
+                     STRING(ag[5],"->,>>>,>>>,>>9.99") .
+
+           cExcelDisplay = cExcelDisplay +  STRING(ag[2]) + "," +
+                            STRING(ag[3]) + "," + STRING(ag[4]) + "," +
+                            STRING(ag[5]) .
+         END.    
+         ELSE IF iPeriodStart EQ 3 THEN do:          
+          cDisplay =  cDisplay + STRING(ag[3],"->,>>>,>>>,>>9.99") + " " + STRING(ag[4],"->,>>>,>>>,>>9.99") + " " +
+                     STRING(ag[5],"->,>>>,>>>,>>9.99") .
+
+           cExcelDisplay = cExcelDisplay + STRING(ag[3]) + "," + STRING(ag[4]) + "," +
+                            STRING(ag[5]) .
+         END.    
+         ELSE IF (iPeriodStart EQ 4 OR iPeriodStart EQ 0) THEN do:          
+          cDisplay =  cDisplay +  STRING(ag[4],"->,>>>,>>>,>>9.99") + " " +
+                     STRING(ag[5],"->,>>>,>>>,>>9.99") .
+
+           cExcelDisplay = cExcelDisplay +  STRING(ag[4]) + "," +
+                            STRING(ag[5]) .
+         END.    
 
           PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
@@ -271,15 +284,38 @@ FOR EACH ap-inv NO-LOCK
                                FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",".            
             END.
+            IF iPeriodStart EQ 1 THEN do:
+                cDisplay =  cDisplay + STRING(cust-t[1],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[2],"->,>>>,>>>,>>9.99") + 
+                         " " + STRING(cust-t[3],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[4],"->,>>>,>>>,>>9.99") + " " +
+                         STRING(cust-t[5],"->,>>>,>>>,>>9.99") .
 
-            cDisplay =  cDisplay + STRING(cust-t[1],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[2],"->,>>>,>>>,>>9.99") + 
-                     " " + STRING(cust-t[3],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[4],"->,>>>,>>>,>>9.99") + " " +
-                     STRING(cust-t[5],"->,>>>,>>>,>>9.99") .
+                cExcelDisplay = cExcelDisplay +  STRING(cust-t[1]) + "," + STRING(cust-t[2]) + "," +
+                                STRING(cust-t[3]) + "," + STRING(cust-t[4]) + "," +
+                                STRING(cust-t[5]) .
+            END.
+            ELSE IF iPeriodStart EQ 2 THEN do:
+                cDisplay =  cDisplay + STRING(cust-t[2],"->,>>>,>>>,>>9.99") + 
+                         " " + STRING(cust-t[3],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[4],"->,>>>,>>>,>>9.99") + " " +
+                         STRING(cust-t[5],"->,>>>,>>>,>>9.99") .
 
-            cExcelDisplay = cExcelDisplay +  STRING(cust-t[1]) + "," + STRING(cust-t[2]) + "," +
-                            STRING(cust-t[3]) + "," + STRING(cust-t[4]) + "," +
-                            STRING(cust-t[5]) .
+                cExcelDisplay = cExcelDisplay +  STRING(cust-t[2]) + "," +
+                                STRING(cust-t[3]) + "," + STRING(cust-t[4]) + "," +
+                                STRING(cust-t[5]) .
+            END.
+            ELSE IF iPeriodStart EQ 3 THEN do:
+                cDisplay =  cDisplay + STRING(cust-t[3],"->,>>>,>>>,>>9.99") + " " + STRING(cust-t[4],"->,>>>,>>>,>>9.99") + " " +
+                         STRING(cust-t[5],"->,>>>,>>>,>>9.99") .
 
+                cExcelDisplay = cExcelDisplay + STRING(cust-t[3]) + "," + STRING(cust-t[4]) + "," +
+                                STRING(cust-t[5]) .
+            END.
+            ELSE IF (iPeriodStart EQ 4 OR iPeriodStart EQ 0) THEN do:
+                cDisplay =  cDisplay +  STRING(cust-t[4],"->,>>>,>>>,>>9.99") + " " +
+                         STRING(cust-t[5],"->,>>>,>>>,>>9.99") .
+
+                cExcelDisplay = cExcelDisplay + STRING(cust-t[4]) + "," +
+                                STRING(cust-t[5]) .
+            END.
 
           PUT UNFORMATTED "    Total Dollars" SUBSTRING(cDisplay,18,300) SKIP(1).
             IF tb_excel THEN DO:

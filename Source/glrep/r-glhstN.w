@@ -1566,16 +1566,16 @@ PROCEDURE run-report :
         acct-hdr-printed = NO.
                                    
         RUN GL_GetAccountOpenBal(ROWID(account),v-s-date, OUTPUT open-amt).                         
-       
+                     
         FOR EACH glhist FIELDS(tr-amt) NO-LOCK
             WHERE glhist.company EQ account.company
             AND glhist.actnum  EQ account.actnum
-            AND glhist.tr-date GE ld-per-start
-            AND glhist.tr-date LT v-s-date
+            AND glhist.tr-date GE v-s-date
+            AND glhist.tr-date LE v-e-date
             AND (glhist.jrnl   NE "AUTODIST" OR NOT tb_exc-auto):
             open-amt = open-amt + glhist.tr-amt.
         END.
-            
+                  
         IF tb_exc-acc AND open-amt EQ 0 THEN NEXT .
 
         /*   display string(account.actnum) + "  " + account.dscr format "x(75)" @

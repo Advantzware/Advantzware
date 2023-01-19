@@ -2946,34 +2946,7 @@ PROCEDURE crt-est-childrecord :
   FIND FIRST ef OF eb NO-LOCK NO-ERROR.
   lv-ef-recid = RECID(ef).
  
-  /*
-  def var i as int no-undo.
-  def buffer bb for eb.
-  def buffer bf for ef.
-  
-  
-  create est-qty.
-  assign est-qty.company = gcompany
-         est-qty.est-no =  est.est-no
-         est-qty.eqty = 0
-         est-qty.qty-date = est.est-date
-         .
-  create ef.
-  assign
-   ef.est-type  = est.est-type
-   ef.company   = gcompany
-   ef.loc       = gloc
-   ef.e-num     = est.e-num
-   ef.est-no    = est.est-no
-   ef.form-no   = 1
-   ef.cust-seq  = 1
-   ef.blank-qty = 1
-   ef.lsh-wid   = ce-ctrl.ls-length
-   ef.lsh-len   = ce-ctrl.ls-width
-   lv-ef-recid  = recid(ef).
  
-  RUN blank-add (lv-ef-recid).*/
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3562,6 +3535,10 @@ PROCEDURE local-assign-record :
        eb.ship-state   = shipto.ship-state
        eb.ship-zip     = shipto.ship-zip.
   END.
+  
+  IF lv-hld-style NE eb.style AND NOT adm-new-record THEN DO:
+     RUN pAssignGlueFromStyle(eb.style, eb.adhesive, eb.gluelap, OUTPUT eb.adhesive, OUTPUT eb.gluelap).  
+  END.
 
   IF NOT ll-is-copy-record THEN DO:
     {ce/uship-id.i ll-new-record}
@@ -3770,7 +3747,7 @@ PROCEDURE local-assign-record :
      eb.i-code2 = ""
      eb.i-dscr2 = ""
      eb.i-%2    = 0     
-     .
+     eb.unitno  = 0.
 
     FOR EACH inks BY inks.iv:
       li = li + 1.
@@ -3785,9 +3762,10 @@ PROCEDURE local-assign-record :
 
     {ce/updunit#.i eb}
   END.
-
+            
   /* Run logic only if NK1 is set */
-  IF glAssignUnitsForInk = YES AND NOT ll-copied-from-eb THEN
+  IF glAssignUnitsForInk = YES AND ((NOT ll-copied-from-eb AND NOT ll-is-copy-record AND adm-new-record ) 
+    OR (NOT adm-new-record  AND (lv-hld-icol NE eb.i-col OR lv-hld-icot NE eb.i-coat))) THEN
   DO iExt = 1 TO EXTENT(eb.i-code2):
       IF eb.i-code2[iExt] NE '' THEN
           RUN est/GetInksUnitNo.p (BUFFER eb, iExt, eb.i-code2[iExt], OUTPUT eb.unitno[iExt]).
@@ -4822,6 +4800,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAssignGlueFromStyle B-table-Win 
+PROCEDURE pAssignGlueFromStyle :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT  PARAMETER ipcStyle    AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipcAdhesive AS CHARACTER NO-UNDO.
+  DEFINE INPUT  PARAMETER ipdGlueLab  AS DECIMAL NO-UNDO.
+  DEFINE OUTPUT PARAMETER opcAdhesive AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER opdGlueLab  AS DECIMAL NO-UNDO.
+  
+  FIND FIRST style NO-LOCK
+       WHERE style.company  EQ gcompany
+         AND style.style    EQ ipcStyle
+         AND style.industry EQ "1" NO-ERROR.
+  IF AVAILABLE style THEN
+  DO:
+     ASSIGN
+     opcAdhesive = style.material[7]
+     opdGlueLab  = style.dim-gl.
+  END.
+  ELSE ASSIGN
+   opcAdhesive = ipcAdhesive
+   opdGlueLab  = ipdGlueLab.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateMoldEstimate B-table-Win 
 PROCEDURE pCreateMoldEstimate :
 /*------------------------------------------------------------------------------
@@ -5035,7 +5046,7 @@ PROCEDURE pEstimateCleanUp :
             FIND CURRENT est NO-LOCK NO-ERROR .
         END.    
     END.
-
+            
     IF cestyle-log AND (adm-adding-record OR lv-hld-style NE eb.style) THEN DO:
         IF NOT ll-new-record THEN
             MESSAGE "Do you wish to reset box design?"

@@ -374,7 +374,7 @@ do v-local-loop = 1 to v-local-copies:
               "Job Qty:" AT 40 trim(string(xJobQty * v-pqty,">>>,>>9"))    format "x(7)"
               "Order Qty:" trim(string((if avail xoe-ordl then xoe-ordl.qty
                                              else xJobQty) *
-                                            if est.form-qty le 1 then 1
+                                            if est.form-qty le 1 OR xeb.spare-char-2 EQ "Y" then 1
                                             else v-pqty,">>>,>>9"))
                                             format "x(7)"
               "   "

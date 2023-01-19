@@ -1334,6 +1334,7 @@ PROCEDURE new-rm-i-no PRIVATE :
   DEF VAR v-cost LIKE job-mat.std-cost NO-UNDO.
   DEF VAR v-cost-m LIKE job-mat.cost-m NO-UNDO.
   DEF VAR j AS INT NO-UNDO.
+  DEFINE VARIABLE cVendorItemID  AS CHARACTER NO-UNDO.
   
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST ITEM
@@ -1482,6 +1483,7 @@ PROCEDURE new-rm-i-no PRIVATE :
                     OUTPUT dCostSetup, 
                     OUTPUT cCostUOM,
                     OUTPUT v-cost, 
+                    OUTPUT cVendorItemID,
                     OUTPUT lError, 
                     OUTPUT cMessage).  
                

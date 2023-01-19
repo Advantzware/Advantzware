@@ -41,6 +41,7 @@ CREATE WIDGET-POOL.
 
 {methods/defines/sortByDefs.i}
 {system/VendorCostProcs.i}
+{methods/template/brwcustomdef.i}
 
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcItemID AS CHARACTER NO-UNDO.
@@ -94,7 +95,7 @@ RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixU
 &Scoped-define ENABLED-FIELDS-IN-QUERY-brVendItemCost   
 &Scoped-define SELF-NAME brVendItemCost
 &Scoped-define QUERY-STRING-brVendItemCost FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost ~{&SORTBY-PHRASE}.
+&Scoped-define OPEN-QUERY-brVendItemCost OPEN QUERY {&SELF-NAME} FOR EACH ttVendItemCost WHERE ttVendItemCost.isValid = (IF tbShowAll:CHECKED in frame {&frame-name} THEN ttVendItemCost.isValid else TRUE) AND (ttVendItemCost.estimateNo = ipcEstimateNo OR ttVendItemCost.estimateNo = "" OR cVendorCostMatrixUseEstimate EQ "No") ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-brVendItemCost ttVendItemCost
 &Scoped-define FIRST-TABLE-IN-QUERY-brVendItemCost ttVendItemCost
 
@@ -526,9 +527,10 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL brVendItemCost C-Win
 ON START-SEARCH OF brVendItemCost IN FRAME DEFAULT-FRAME
-DO:
-    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
-        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
+DO:      
+    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? OR  {&BROWSE-NAME}:CURRENT-COLUMN:LABEL EQ "Estimate" THEN DO:    
+        {methods/template/sortindicator.i}
+        cColumnLabel = IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME ELSE "estimateNo".
         
         IF cColumnLabel EQ cSaveLabel THEN
             lAscending = NOT lAscending.
@@ -542,7 +544,10 @@ DO:
             cSaveLabel                 = cColumnLabel
             .
         RUN pReopenBrowse.
-    END.       
+        
+         {methods/template/sortindicatorend.i}
+         RETURN NO-APPLY.
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -646,14 +651,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     IF cAdderValue = "" THEN 
         cAdders:HIDDEN = TRUE.
-        
+    cColumnLabel = "costTotal".
+    RUN pReOpenBrowse.    
+    
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 &Scoped-define sdBrowseName brVendItemCost
 {methods/sortByProc.i "pByVendorID" "ttVendItemCost.vendorID"}
-{methods/sortByProc.i "pByCustomerID" "ttVendItemCost.customerID"}
+{methods/sortByProc.i "pByCustomerID" "ttVendItemCost.customerID"}      
+{methods/sortByProc.i "pByEstimateNo" "ttVendItemCost.estimateNo"}
 {methods/sortByProc.i "pByCostPerVendorUOM" "ttVendItemCost.costPerVendorUOM"}
 {methods/sortByProc.i "pByVendorUOM" "ttVendItemCost.vendorUOM"}
 {methods/sortByProc.i "pByCostSetup" "ttVendItemCost.costSetup"}
@@ -662,7 +670,7 @@ END.
 {methods/sortByProc.i "pByEffectiveDate" "ttVendItemCost.effectiveDate"}
 {methods/sortByProc.i "pByExpirationDate" "ttVendItemCost.expirationDate"}
 {methods/sortByProc.i "pByIsValid" "ttVendItemCost.isValid"}
-
+  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -718,12 +726,14 @@ PROCEDURE pReOpenBrowse :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-
+            
     CASE cColumnLabel:
         WHEN "vendorID" THEN
             RUN pByVendorID.
         WHEN "customerID" THEN
-            RUN pByCustomerID.
+            RUN pByCustomerID.  
+        WHEN "estimateNo" THEN
+            RUN pByEstimateNo.     
         WHEN "costPerVendorUOM" THEN
             RUN pByCostPerVendorUOM.
         WHEN "vendorUOM" THEN

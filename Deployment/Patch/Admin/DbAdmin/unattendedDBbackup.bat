@@ -31,15 +31,15 @@ ECHO Beginning PROD database backup >> %logFile%
 
 CD \!topDir!\Databases\Prod
 ECHO   Backing up asiProd to asiProd.bak >> %logFile%
-CALL !DLC!\bin\probkup online asiProd !MapDir!\Backups\Databases\asiProd.bak >> %logFile%
-IF EXIST !Drive!\!topDir!\Backups\Databases\asiProd.bak (
+CALL !DLC!\bin\probkup online asiProd !DbDrive!\!topDir!\Backups\Databases\asiProd.bak >> %logFile%
+IF EXIST !DbDrive!\!topDir!\Backups\Databases\asiProd.bak (
     ECHO     asiProd backup complete >> !logFile!
     )
 
 CD \!topDir!\Databases\Audit
 ECHO   Backing up audProd to audProd.bak >> %logFile%
-CALL !DLC!\bin\probkup online audProd !MapDir!\Backups\Databases\audProd.bak >> %logFile%
-IF EXIST !Drive!\!topDir!\Backups\Databases\audProd.bak (
+CALL !DLC!\bin\probkup online audProd !DbDrive!\!topDir!\Backups\Databases\audProd.bak >> %logFile%
+IF EXIST !DbDrive!\!topDir!\Backups\Databases\audProd.bak (
     ECHO     audProd backup complete >> !logFile!
     )
 

@@ -136,5 +136,17 @@ if v-create-job and oe-ordl.job-no ne "" then do:
     end.
   end.
 end.
+ELSE DO:
+     lMsgResponse = TRUE.
+     IF AVAIL oe-ord AND oe-ord.Pricehold THEN
+     RUN displayMessageQuestionLog(
+                INPUT "33",
+                OUTPUT lMsgResponse 
+                ). 
+        
+     IF lMsgResponse THEN
+     RUN po/doPo.p (YES) /* Yes Indicates to prompt for RM */.
+     
+END.
 
 /* end ---------------------------------- copr. 1993  advanced software, inc. */

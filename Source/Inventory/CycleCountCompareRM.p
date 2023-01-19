@@ -295,17 +295,20 @@ PROCEDURE pBuildCompareTable PRIVATE:
     DEFINE BUFFER bf-rm-rctd FOR rm-rctd.
     DEFINE BUFFER bf-rm-bin  FOR rm-bin.
 
-    DEFINE VARIABLE iCountBins  AS INTEGER NO-UNDO.
-    DEFINE VARIABLE dMSF        AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCalcQty    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dLFQty      AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dCost       AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dExtCost    AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dShtWid     AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dShtLen     AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE dTransQty   AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE iStatusCnt1 AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iStatusCnt2 AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iCountBins  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dMSF        AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCalcQty    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dLFQty      AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dCost       AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dExtCost    AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dShtWid     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dShtLen     AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE dTransQty   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE iStatusCnt1 AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iStatusCnt2 AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dCostPerEA  AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
         
     EMPTY TEMP-TABLE ttCycleCountCompare.
 
@@ -651,13 +654,32 @@ PROCEDURE pBuildCompareTable PRIVATE:
 
         IF AVAILABLE rm-bin THEN 
             RUN pGetCostMSF (INPUT ROWID(rm-bin), ttCycleCountCompare.dScanQty, OUTPUT dShtLen, OUTPUT dShtWid, OUTPUT dMSF, OUTPUT dCost).
-        
-
+          
         ASSIGN 
             ttCycleCountCompare.dScanCost      = dCost 
-            ttCycleCountCompare.cScanCostUom   = ITEM.pur-uom      
-            ttCycleCountCompare.dScanCostValue = dCost * ttCycleCountCompare.dScanQty
+            ttCycleCountCompare.cScanCostUom   = ITEM.pur-uom               
             .
+         IF ttCycleCountCompare.cScanCostUom EQ "EA" THEN
+         dCostPerEA = ttCycleCountCompare.dScanCost.
+         ELSE DO: 
+               RUN Conv_ValueFromUOMtoUOM(ttCycleCountCompare.cCompany, ttCycleCountCompare.cRMItemID, "RM", 
+                                          ttCycleCountCompare.dScanCost, ttCycleCountCompare.cScanCostUom, "EA", 
+                                          0, 0, 0, 0, 0,
+                                          OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cMessage).            
+         END.   
+         
+         ttCycleCountCompare.dScanCostValue = dCostPerEA * ttCycleCountCompare.dScanQty.
+         
+         IF ttCycleCountCompare.cSysCostUom EQ "EA" THEN
+         dCostPerEA = ttCycleCountCompare.dSysCost.
+         ELSE DO: 
+               RUN Conv_ValueFromUOMtoUOM(ttCycleCountCompare.cCompany, ttCycleCountCompare.cRMItemID, "RM", 
+                                          ttCycleCountCompare.dSysCost, ttCycleCountCompare.cSysCostUom, "EA", 
+                                          0, 0, 0, 0, 0,
+                                          OUTPUT dCostPerEA, OUTPUT lError, OUTPUT cMessage).            
+         END.   
+         
+         ttCycleCountCompare.dSysCostValue = dCostPerEA * ttCycleCountCompare.dSysQty.
         
         IF NOT ttCycleCountCompare.lNotScanned THEN 
         DO:

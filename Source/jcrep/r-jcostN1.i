@@ -129,6 +129,15 @@ END.
  v-total = v-mater + v-prep + v-labor + v-lab-m + v-comm + v-frate .
 
  BUFFER bwork-item:FIND-BY-ROWID(ROWID(work-item), NO-LOCK) .
+ 
+ IF iLineCount > (lines-per-page - 10) THEN 
+ DO:
+    PAGE.
+    PUT str-tit4 FORMAT "x(1050)" SKIP
+        str-tit5 FORMAT "x(1050)" SKIP .
+    iLineCount = 0 .
+ END.
+ iLineCount = iLineCount + 1.
  ASSIGN cDisplay = ""
         cExcelDisplay = "".
 

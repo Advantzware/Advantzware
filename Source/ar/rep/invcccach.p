@@ -599,7 +599,10 @@ RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
     IF v-net2 <> ar-inv.net THEN
        v-net = v-net2.
 
-    find first terms where terms.t-code eq ar-inv.terms no-lock no-error.
+    find first terms 
+    where terms.company eq cocode 
+      AND terms.t-code  eq ar-inv.terms 
+    no-lock no-error.
     if avail terms then
        assign
         tmp1 = v-net * (round(terms.disc-rate / 100, 2))
@@ -615,8 +618,7 @@ RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
         "<R53.5><C10><FROM><R53.5><C70><LINE>"
         "<R54.5><C10><FROM><R54.5><C70><LINE>"
         "<R47.5><C29><FROM><R55.5><C29><LINE>"
-        "<C20><R45.5><B><FGCOLOR=RED>***NEW***<FGCOLOR=BLACK>" " Bank Account Information to send an ACH Payment to</B> "
-        "<C25><R46.5><B>Essentra Packaging US Inc., formally 3C Packaging</B>" 
+        "<C17><R45.5><B><FGCOLOR=RED>***NEW***<FGCOLOR=BLACK>" " Bank Account Information to send an ACH Payment to MM Clayton</B> "
         "<C11><R47.5>Bank Name  <C30>Citibank"
         "<C11><R48.5>Bank Address  <C30>111 Wall Street"
         "<C11><R49.5>    <C30>New York, NY 10043"

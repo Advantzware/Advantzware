@@ -250,11 +250,11 @@ DO:
         ASSIGN lNewCode = ""
                lNewDesc = ""
                op-values = "".
-        ip-parms = 
-               "type=fill-in,name=fi6,row=4,col=3,enable=false,FORMAT=X(9),scrval=Slsmn ID: " 
+        ip-parms =  "type=attrib,name=company,row=1,col=1,enable=false,width=2,inpval=" + cocode
+            +  "|type=fill-in,name=fi6,row=4,col=3,enable=false,FORMAT=X(9),scrval=Slsmn ID: " 
             + "|type=fill-in,name=fi2,row=4,col=21,enable=false,FORMAT=X(5),scrval=Name: " 
-            + "|type=fill-in,name=fi3,row=4,col=13,enable=true,FORMAT=X(4),width=7"
-            + "|type=fill-in,name=fi4,row=4,col=28,enable=true,FORMAT=X(35),width=50"
+            + "|type=fill-in,name=fiSalesRep,row=4,col=13,enable=true,FORMAT=X(4),width=7"
+            + "|type=fill-in,name=fiSalesName,row=4,col=28,enable=true,FORMAT=X(35),width=50"
              + "|type=win,name=win1,row=20,col=33,label=Add Salesman to Group".
         iCurRow = FRAME {&FRAME-NAME}:ROW.
         iCurCol = FRAME {&FRAME-NAME}:COL.
@@ -264,9 +264,9 @@ DO:
                                OUTPUT op-values).
         RUN set-position IN h_d-prompt (INPUT 10, INPUT 10).
         DO i = 1 TO NUM-ENTRIES(op-values) BY 2.
-            IF ENTRY(i, op-values) EQ "fi3" THEN
+            IF ENTRY(i, op-values) EQ "fiSalesRep" THEN
               lNewCode = ENTRY(i + 1, op-values).
-            IF ENTRY(i, op-values) EQ "fi4" THEN
+            IF ENTRY(i, op-values) EQ "fiSalesName" THEN
               lNewDesc = ENTRY(i + 1, op-values).    
         END.
         /* They entered nothing */

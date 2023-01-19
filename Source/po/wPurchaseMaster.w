@@ -914,6 +914,7 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lAvail      AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lUpdateDate AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE lPoExist    AS LOGICAL NO-UNDO.
     
     ASSIGN 
         li-prev-page = li-cur-page.    
@@ -960,6 +961,11 @@ PROCEDURE local-change-page :
       INPUT ipcScreen
       ).         
     
+   IF li-cur-page EQ 2 THEN do: 
+       RUN pGetPoExist IN h_b-po-inq(OUTPUT lPoExist).
+       IF VALID-HANDLE(h_p-poh) AND lPoExist THEN         
+       RUN set-buttons IN h_p-poh("initial").        
+   END.
     {methods/winReSizePgChg.i}
 
 END PROCEDURE.

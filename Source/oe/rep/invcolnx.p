@@ -608,7 +608,7 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
        IF inv-head.f-bill THEN v-net = v-net - inv-head.t-inv-freight.
 
        release terms.
-       find first terms where terms.t-code eq inv-head.terms no-lock no-error.
+       find first terms where terms.company EQ inv-head.company AND terms.t-code eq inv-head.terms no-lock no-error.
        if avail terms then
           assign
              tmp1 = v-net * (round(terms.disc-rate / 100, 2))
@@ -683,10 +683,10 @@ DEFINE VARIABLE iNotesLine AS INTEGER NO-UNDO.
     PUT "<FArial><R61><C63><P12><B> THANK YOU. </B> <P9> " SKIP.
     v-printline = v-printline + 6.
 
-    PUT "<FArial><R62.5><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). Essentra Packaging disclaims and rejects any" SKIP
-    "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon Essentra Packaging, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
+    PUT "<FArial><R62.5><C2.5><P6>" "All sales/purchases described herein are subject to MM Clayton terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). MM Clayton disclaims and rejects any" SKIP
+    "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon MM Clayton, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
     "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Customer's receipt of goods or payment to" SKIP
-    "<C2.5><R-0.3>" "Essentra Packaging for the sales or purchases described herein."
+    "<C2.5><R-0.3>" "MM Clayton for the sales or purchases described herein."
     "<P9>".
     
    

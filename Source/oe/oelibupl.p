@@ -169,8 +169,6 @@ DEF VAR     ip-type AS cha NO-UNDO .   /* add,update,view */
     
     RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
     RUN sys/ref/uom-ea.p (OUTPUT lv-ea-list).
-    {sys/inc/schedule.i}
-    v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
     {sys/inc/graphic.i}
   END.
   RUN sys/ref/nk1look.p (INPUT g_company, "FreightCalculation", "C" /* Logical */, NO /* check by cust */, 
@@ -178,6 +176,17 @@ DEF VAR     ip-type AS cha NO-UNDO .   /* add,update,view */
     OUTPUT v-rtn-char, OUTPUT v-rec-found).
     IF v-rec-found THEN
      cFreightCalculationValue = v-rtn-char NO-ERROR.
+     
+  DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+  RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+  RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+  IF cSchedule NE "" THEN
+  ASSIGN lSchedule = LOGICAL(cSchedule).
+  v-run-schedule = NOT (cScheduleValue EQ 'NoDate' AND lSchedule). 
+     
   /* gdm - 06220908 - INSTEAD OF CHANGING sys/inc/oereleas.i */
   FIND FIRST sys-ctrl NO-LOCK
   WHERE sys-ctrl.company EQ cocode
@@ -970,7 +979,7 @@ FIND oe-ordl WHERE ROWID(oe-ordl) EQ r-current-ordl EXCLUSIVE-LOCK.
     /*OR ip-type = "UPdate-2" doen in v-ord.w order-from-est proc */)
     /* update job's start-date when req-date is changed */
     AND get-sv("oe-ordl.est-no") NE "" /*AND lv-update-job-stdate */
-    AND (v-run-schedule OR schedule-log)
+    AND (v-run-schedule OR lSchedule)
     THEN RUN update-start-date.
     IF oe-ordl.job-no NE '' THEN RUN update-due-date.
 
@@ -4714,7 +4723,7 @@ PROCEDURE update-start-date :
   FIND bx-ordl WHERE RECID(bx-ordl) = RECID(oe-ordl).
   lv-prom-date = TODAY + lv-job-day.
   IF lv-start-date < TODAY /*AND (ip-type = "add")*/  /* ip-type = "Update-2" is from v-ord.w*/
-  AND v-run-schedule AND schedule-log
+  AND v-run-schedule AND lSchedule
   THEN DO:
     MESSAGE "Calculated Promised DATE is   " lv-prom-date SKIP
     /*Due Date is before Calculates Promised Date. Update Due Date? */
@@ -4858,7 +4867,7 @@ PROCEDURE update-start-date :
       FIND CURRENT bf-mch NO-LOCK NO-ERROR.
     END. /*end bf-hdr*/
   END. /* if v-run-schedule*/
-  IF schedule-log THEN
+  IF lSchedule THEN
   ASSIGN
   bx-ordl.prom-date = IF lv-update-job-stdate THEN lv-prom-date ELSE bx-ordl.prom-date
   bx-ordl.req-date = IF lv-update-job-stdate THEN lv-prom-date ELSE bx-ordl.req-date.
@@ -5283,7 +5292,7 @@ PROCEDURE valid-start-date :
   lv-start-date = lv-first-due-date - lv-job-day
   lv-prom-date = TODAY + lv-job-day
   lv-update-job-stdate = NO.
-  IF lv-start-date < TODAY AND schedule-log THEN DO:
+  IF lv-start-date < TODAY AND lSchedule THEN DO:
     MESSAGE "Calculated Promised DATE is   " lv-prom-date SKIP
     "Due Date is before Calculates Promised Date. Update Due Date?"
     VIEW-AS ALERT-BOX WARNING BUTTON YES-NO.
@@ -5479,12 +5488,6 @@ PROCEDURE validate-all :
   DEF VAR ll-secure AS LOG NO-UNDO.
   DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
-  
-  /*DEF VAR v-run-schedule AS LOG NO-UNDO.
-  find first sys-ctrl where sys-ctrl.company eq cocode
-  and sys-ctrl.name    eq "SCHEDULE" no-lock no-error.
-  v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
-  */
 
   IF NOT AVAIL oe-ord THEN
   FIND oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
@@ -5637,7 +5640,7 @@ PROCEDURE validate-all :
   IF (oe-ordl.req-date <> date(get-sv("oe-ordl.req-date"))
   AND ip-type = "update")
   AND get-sv("oe-ordl.est-no") <> ""
-  AND (v-run-schedule OR schedule-log)
+  AND (v-run-schedule OR lSchedule)
   THEN  DO:
   /*
   RUN valid-start-date NO-ERROR.

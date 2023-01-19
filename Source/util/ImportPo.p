@@ -600,6 +600,7 @@ PROCEDURE vend-cost PRIVATE:
     DEFINE VARIABLE cMessage        AS CHARACTER NO-UNDO.
     DEFINE VARIABLE dCostPerUOMCons AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE dCostGrandTotal AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE cVendorItemID   AS CHARACTER NO-UNDO.
     
     DEFINE BUFFER bff-po-ord FOR po-ord.
     DEFINE BUFFER bff-po-ordl FOR po-ordl.
@@ -634,6 +635,7 @@ PROCEDURE vend-cost PRIVATE:
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
                 OUTPUT dCostTotal, 
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).  
             RUN Conv_ValueFromUOMtoUOM(bff-po-ordl.company, 
@@ -667,7 +669,8 @@ PROCEDURE vend-cost PRIVATE:
                 OUTPUT dCostPerUOM, 
                 OUTPUT dCostSetup, 
                 OUTPUT cCostUOM,
-                OUTPUT dCostTotal, 
+                OUTPUT dCostTotal,
+                OUTPUT cVendorItemID,
                 OUTPUT lError, 
                 OUTPUT cMessage).        
             RUN Conv_ValueFromUOMtoUOM(bff-po-ordl.company, 

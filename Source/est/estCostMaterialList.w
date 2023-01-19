@@ -377,9 +377,10 @@ DO:
         ).
     END.
     
-    FOR FIRST ttVendItemCost WHERE ttVendItemCost.isSelected :
+    FOR FIRST ttVendItemCost 
+        WHERE ttVendItemCost.isSelected:
         
-        IF AVAILABLE ttEstCostMaterial THEN 
+        IF AVAILABLE ttEstCostMaterial AND ttEstCostMaterial.vendorID NE ttVendItemCost.vendorID THEN 
         DO:          
             ASSIGN 
                 ttEstCostMaterial.vendorId   = ttVendItemCost.vendorID  
@@ -387,6 +388,7 @@ DO:
                 ttEstCostMaterial.costPerUOM = ttVendItemCost.costPerVendorUOM
                 ttEstCostMaterial.costSetup  = ttVendItemCost.costSetup
                 ttEstCostMaterial.costTotal  = ttVendItemCost.costTotal
+                ttEstCostMaterial.vendorChanged = YES
                 .
                 
             IF AVAILABLE ttEstCostHeaderToCalc THEN 
@@ -545,12 +547,13 @@ DO:
         END.                  
     END.
         
-    IF AVAIL ttEstCostMaterial AND ttEstCostMaterial.vendorID NE ""  THEN
+    IF AVAIL ttEstCostMaterial THEN
     FOR EACH bf-ttEstCostMaterial NO-LOCK     
         WHERE bf-ttEstCostMaterial.vendorId <> ttEstCostMaterial.vendorID:
                 
           ASSIGN 
-              bf-ttEstCostMaterial.vendorId   = ttEstCostMaterial.vendorID.
+              bf-ttEstCostMaterial.vendorId   = ttEstCostMaterial.vendorID
+              bf-ttEstCostMaterial.vendorChanged = YES.
         
         RUN Estmate_GetAddersArray(INPUT bf-ttEstCostMaterial.Company, // Internal procedure in est/EstimateProcs.p
                 INPUT bf-ttEstCostMaterial.estimateNo,

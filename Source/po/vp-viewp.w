@@ -204,8 +204,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-View V-table-Win
 ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
-   IF vic-log THEN run po/d-poordlN.w (recid(po-ordl), po-ord.po-no, "view") . 
-   ELSE run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view") .
+   run po/d-poordlN.w (recid(po-ordl), po-ord.po-no, "view") . 
 END.
 
 /* _UIB-CODE-BLOCK-END */

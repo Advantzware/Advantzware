@@ -220,7 +220,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
 
     FIND FIRST vend WHERE vend.company EQ po-ord.company 
         AND vend.vend-no EQ po-ord.vend-no NO-LOCK NO-ERROR.
-    FIND FIRST terms WHERE terms.t-code EQ po-ord.terms NO-LOCK NO-ERROR.
+    FIND FIRST terms WHERE terms.company EQ po-ord.company AND terms.t-code EQ po-ord.terms NO-LOCK NO-ERROR.
     FIND FIRST carrier WHERE carrier.company EQ po-ord.company 
         AND carrier.carrier EQ po-ord.carrier NO-LOCK NO-ERROR.
 

@@ -18,6 +18,8 @@
     DEFINE INPUT PARAMETER ipcTitle AS CHARACTER.
     DEFINE INPUT PARAMETER ipcCode AS CHARACTER.
     DEFINE INPUT PARAMETER ipcType AS CHARACTER.
+    DEFINE INPUT PARAMETER ipcGroup AS CHARACTER. 
+    DEFINE OUTPUT PARAMETER oplCreated AS LOGICAL.
     DEFINE OUTPUT PARAMETER opriNotes AS ROWID. 
 
 
@@ -43,9 +45,11 @@
                 bf-notes.note_title = ipcTitle
                 bf-notes.note_code  = ipcCode
                 bf-notes.note_type  = ipcType
+                oplCreated          = YES
                 .
         END.
         ASSIGN 
+            bf-notes.note_group = ipcGroup
             bf-notes.note_text  = ipcText
             bf-notes.note_date  = TODAY
             bf-notes.note_time  = TIME            

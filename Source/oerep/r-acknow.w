@@ -1127,14 +1127,32 @@ ON HELP OF lv-termFile IN FRAME FRAME-A /* Terms File */
 
         IF TRIM(lv-termPath) EQ "" 
             THEN lv-termPath = "C:\".
-
-        SYSTEM-DIALOG GET-FILE chFile 
-            TITLE "Select File"
-            FILTERS "Text File (*.txt) " "*.txt"
-            INITIAL-DIR lv-termPath
-            MUST-EXIST
-            USE-FILENAME
-            UPDATE ll-ok.
+            
+        IF v-print-fmt EQ "Simkins" THEN
+        DO: 
+            SYSTEM-DIALOG GET-FILE chFile 
+                TITLE "Select File"
+                FILTERS "Text File (*.txt) " "*.txt"
+                INITIAL-DIR lv-termPath
+                MUST-EXIST
+                USE-FILENAME
+                UPDATE ll-ok.
+        END.    
+        ELSE IF CAN-DO("ackhead 1,ackhead 10,ackhead 2,ackhead 20,AckHead-Mex,ackhead10-CAN",v-print-fmt) THEN 
+        DO: 
+            SYSTEM-DIALOG GET-FILE chFile 
+                TITLE "Select File"
+                FILTERS "JPG Files    (*.jpg)" "*.jpg",
+                        "Bitmap files (*.bmp)" "*.bmp",
+                        "JPEG Files   (*.jpeg)" "*.jpeg",
+                        "TIF Files    (*.tif)" "*.tif",
+                        "Acrobat Files(*.pdf)" "*.pdf",
+                        "Text File (*.txt) " "*.txt"                 
+                INITIAL-DIR lv-termPath
+                MUST-EXIST
+                USE-FILENAME
+                UPDATE ll-ok.
+        END.  
 
         IF ll-ok 
             THEN 
@@ -1337,7 +1355,7 @@ ON VALUE-CHANGED OF rd_ack-ordmst IN FRAME FRAME-A
                     TG_print-pen-notes:HIDDEN     = YES
                     TG_print-pen-notes:SENSITIVE  = YES.*/
 
-            IF v-print-fmt EQ "Simkins" THEN 
+            IF CAN-DO("ackhead 1,ackhead 10,ackhead 2,ackhead 20,AckHead-Mex,ackhead10-CAN,Simkins,Xprint",v-print-fmt) THEN 
             DO:
                 ASSIGN 
                     tb_terms           = NO
@@ -1423,10 +1441,10 @@ ON HELP OF run_format IN FRAME FRAME-A /* Format */
             run_format:SCREEN-VALUE = ENTRY(1,char-val).
 
         IF v-print-fmt NE run_format:SCREEN-VALUE THEN 
-        DO:
+        DO:   
             ASSIGN 
-                v-print-fmt   = run_format
-                vcDefaultForm = v-print-fmt.
+                v-print-fmt   = run_format:SCREEN-VALUE
+                vcDefaultForm = v-print-fmt.   
             RUN  RUN_format-value-changed .
         END.
 
@@ -1683,9 +1701,8 @@ ON VALUE-CHANGED OF tb_shpnot IN FRAME FRAME-A /* Print Ship Notes per Release? 
 ON VALUE-CHANGED OF tb_terms IN FRAME FRAME-A /* Print Terms? */
     DO:
         ASSIGN {&self-name}.
-        IF v-print-fmt EQ "Simkins" 
-            THEN ASSIGN lv-termFile:SENSITIVE = {&self-name}.
-
+        IF CAN-DO("ackhead 1,ackhead 10,ackhead 2,ackhead 20,AckHead-Mex,ackhead10-CAN,Simkins,Xprint",v-print-fmt) 
+            THEN ASSIGN lv-termFile:SENSITIVE = {&self-name}.  
 
     END.
 
@@ -1983,7 +2000,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ELSE
             tb_billnotes:HIDDEN       = YES .
 
-        IF v-print-fmt EQ "Simkins" THEN 
+        IF CAN-DO("ackhead 1,ackhead 10,ackhead 2,ackhead 20,AckHead-Mex,ackhead10-CAN,Simkins,Xprint",v-print-fmt) THEN         
         DO:      
 
             ASSIGN           
@@ -2003,32 +2020,34 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
             ASSIGN 
                 tb_terms           = NO
-                tb_terms:SENSITIVE = YES.
+                tb_terms:SENSITIVE = YES
+                tb_terms:HIDDEN    = NO
+                lv-termFile:HIDDEN = NO.
 
-            IF TRIM(cocode) EQ "011"  OR
-                TRIM(cocode) EQ "11" /* Landrum */
+            IF v-print-fmt EQ "Simkins" AND (TRIM(cocode) EQ "011"  OR
+                TRIM(cocode) EQ "11") /* Landrum */
                 THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms11.txt".
             ELSE 
-                IF TRIM(cocode) EQ "012" OR
-                    TRIM(cocode) EQ "12" /* Marietta */
+                IF v-print-fmt EQ "Simkins" AND (TRIM(cocode) EQ "012" OR
+                    TRIM(cocode) EQ "12") /* Marietta */
                     THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms12.txt".
                 ELSE 
-                    IF TRIM(cocode) EQ "060" OR
-                        TRIM(cocode) EQ "60" /* Harvard Folding Box */
+                    IF v-print-fmt EQ "Simkins" AND (TRIM(cocode) EQ "060" OR
+                        TRIM(cocode) EQ "60") /* Harvard Folding Box */
                         THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms60.txt".
                     ELSE 
-                        IF TRIM(cocode) EQ "062" OR
-                            TRIM(cocode) EQ "62" /* Ideal */
+                        IF v-print-fmt EQ "Simkins" AND (TRIM(cocode) EQ "062" OR
+                            TRIM(cocode) EQ "62") /* Ideal */
                             THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms62.txt".
-                        ELSE ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile.
+                        ELSE IF v-print-fmt EQ "Simkins" THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile. 
 
-
-            ASSIGN 
-                lv-termFile:SCREEN-VALUE = lv-termFile
+            ASSIGN                 
                 lv-termFile:SENSITIVE    = NO.
 
-            IF tb_terms:SCREEN-VALUE EQ "YES" 
-                THEN lv-termFile:SENSITIVE = YES.
+            IF tb_terms:SCREEN-VALUE EQ "YES" THEN 
+            ASSIGN 
+                 lv-termFile:SENSITIVE = YES
+                 .
 
         END.
         ELSE ASSIGN
@@ -2993,19 +3012,21 @@ PROCEDURE pRunAPIOutboundTrigger PRIVATE :
             cPrimaryID   = STRING(ipbf-oe-ord.ord-no)
             cDescription = cAPIID + " triggered by " + cTriggerID + " from r-acknow.w for Order: " + cPrimaryID
             . 
-        RUN Outbound_PrepareAndExecute IN hdOutboundProcs (
-            INPUT  ipbf-oe-ord.company,                /* Company Code (Mandatory) */
-            INPUT  ipbf-oe-ord.loc,               /* Location Code (Mandatory) */
-            INPUT  cAPIID,                  /* API ID (Mandatory) */
-            INPUT  "",               /* Client ID (Optional) - Pass empty in case to make request for all clients */
-            INPUT  cTriggerID,              /* Trigger ID (Mandatory) */
-            INPUT  "oe-ord",               /* Comma separated list of table names for which data being sent (Mandatory) */
-            INPUT  STRING(ROWID(ipbf-oe-ord)),  /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
-            INPUT  cPrimaryID,              /* Primary ID for which API is called for (Mandatory) */   
-            INPUT  cDescription,       /* Event's description (Optional) */
-            OUTPUT lSuccess,                /* Success/Failure flag */
-            OUTPUT cMessage                 /* Status message */
-            ) NO-ERROR.
+        
+        RUN Outbound_PrepareAndExecuteForScope IN hdOutboundProcs (
+            INPUT  ipbf-oe-ord.company,                                  /* Company Code (Mandatory) */
+            INPUT  ipbf-oe-ord.loc,                                      /* Location Code (Mandatory) */
+            INPUT  cAPIID,                                               /* API ID (Mandatory) */
+            INPUT  ipbf-oe-ord.cust-no,                                  /* Scope ID */
+            INPUT  "Customer",                                           /* Scoped Type */
+            INPUT  cTriggerID,                                           /* Trigger ID (Mandatory) */
+            INPUT  "oe-ord",                                /* Comma separated list of table names for which data being sent (Mandatory) */
+            INPUT  STRING(ROWID(ipbf-oe-ord)),              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
+            INPUT  cPrimaryID,                              /* Primary ID for which API is called for (Mandatory) */   
+            INPUT  cDescription,                            /* Event's description (Optional) */
+            OUTPUT lSuccess,                                           /* Success/Failure flag */
+            OUTPUT cMessage                                            /* Status message */
+            ) .    
 
         RUN Outbound_ResetContext IN hdOutboundProcs.
     END.
@@ -3264,8 +3285,8 @@ PROCEDURE RUN_format-value-changed :
       Notes:       
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-
-        RUN SetOEAckForm(v-print-fmt).
+                   
+        RUN SetOEAckForm(v-print-fmt).     
         viDefaultLinesPerPage = lines-per-page.
         IF LOOKUP(v-print-fmt,"Century,Fibrex,Allwest") = 0 THEN 
             ASSIGN
@@ -3366,10 +3387,9 @@ PROCEDURE RUN_format-value-changed :
                 tb_billnotes:HIDDEN = NO .
         ELSE
             tb_billnotes:HIDDEN       = YES .
-
-        IF v-print-fmt EQ "Simkins" THEN 
-        DO:      
-
+                     
+        IF CAN-DO("ackhead 1,ackhead 10,ackhead 2,ackhead 20,AckHead-Mex,ackhead10-CAN,Simkins,Xprint",v-print-fmt) THEN 
+        DO:       
             ASSIGN           
                 lv-termFile              = lv-termFile:SCREEN-VALUE
                 lv-termFile:SCREEN-VALUE = lv-termFile.
@@ -3387,32 +3407,34 @@ PROCEDURE RUN_format-value-changed :
 
             ASSIGN 
                 tb_terms           = NO
-                tb_terms:SENSITIVE = YES.
-
-            IF TRIM(cocode) EQ "011"  OR
-                TRIM(cocode) EQ "11" /* Landrum */
+                tb_terms:SENSITIVE = YES
+                tb_terms:HIDDEN    = NO
+                lv-termFile:HIDDEN = NO.
+                      
+            IF v-print-fmt EQ "Simkins" AND (TRIM(cocode) EQ "011"  OR
+                TRIM(cocode) EQ "11") /* Landrum */
                 THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms11.txt".
             ELSE 
-                IF TRIM(cocode) EQ "012" OR
-                    TRIM(cocode) EQ "12" /* Marietta */
+                IF v-print-fmt EQ "Simkins" AND (TRIM(cocode) EQ "012" OR
+                    TRIM(cocode) EQ "12") /* Marietta */
                     THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms12.txt".
                 ELSE 
-                    IF TRIM(cocode) EQ "060" OR
-                        TRIM(cocode) EQ "60" /* Harvard Folding Box */
+                    IF v-print-fmt EQ "Simkins" AND (TRIM(cocode) EQ "060" OR
+                        TRIM(cocode) EQ "60") /* Harvard Folding Box */
                         THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms60.txt".
                     ELSE 
-                        IF TRIM(cocode) EQ "062" OR
-                            TRIM(cocode) EQ "62" /* Ideal */
+                        IF v-print-fmt EQ "Simkins" AND (TRIM(cocode) EQ "062" OR
+                            TRIM(cocode) EQ "62") /* Ideal */
                             THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms62.txt".
-                        ELSE ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile.
+                        ELSE IF v-print-fmt EQ "Simkins" THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile.
 
-
-            ASSIGN 
-                lv-termFile:SCREEN-VALUE = lv-termFile
+            ASSIGN                  
                 lv-termFile:SENSITIVE    = NO.
 
             IF tb_terms:SCREEN-VALUE EQ "YES" 
-                THEN lv-termFile:SENSITIVE = YES.
+                THEN ASSIGN
+                        lv-termFile:SENSITIVE = YES
+                        .
 
         END.
         ELSE ASSIGN

@@ -63,6 +63,8 @@ DEFINE VARIABLE hInventoryProcs AS HANDLE NO-UNDO.
 
 {sys/inc/f16to32.i}
 
+{sys/inc/vendItemCost.i}
+
 RUN sys/ref/nk1look.p (INPUT cocode, "CEWood", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -1902,7 +1904,8 @@ PROCEDURE local-assign-record :
   DEF VAR lv-ect AS DEC NO-UNDO.
   DEF VAR lv-code LIKE stack-flute.code NO-UNDO.
 
-
+  DEFINE BUFFER bfvendItemCost FOR vendItemCost.
+  DEFINE BUFFER bfvendItemCostLevel FOR vendItemCostLevel.
   /* Code placed here will execute PRIOR to standard behavior. */
   ls-prev-i-no = item.i-no.
   IF /*adm-new-record and YSK error in assign-statement for ? */ 
@@ -2026,37 +2029,73 @@ PROCEDURE local-assign-record :
             item.cons-uom = IF bf-item.cons-uom EQ "" THEN "EA"
                                                       ELSE bf-item.cons-uom.
          END.
-         FOR EACH e-item WHERE e-item.company = cocode AND
-                                e-item.i-no = item.i-no:
-               DELETE e-item.  /* delete rec if exists before create */                
-         END.                             
-         FOR EACH e-item WHERE e-item.company = cocode AND
-                               e-item.i-no = bf-item.i-no:
-             CREATE bf-e-item.
-             BUFFER-COPY e-item EXCEPT e-item.i-no e-item.rec_key TO bf-e-item.
-             ASSIGN bf-e-item.i-no = item.i-no.                  
-         END.                             
-         FOR EACH e-item-vend WHERE e-item-vend.company = cocode AND
-                                    e-item-vend.i-no = item.i-no:
-             DELETE e-item-vend.  /* delete rec if exists before create */                
-         END.                             
-         FOR EACH e-item-vend WHERE e-item-vend.company = cocode AND
-                                    e-item-vend.i-no = bf-item.i-no:
-             CREATE bf-e-vend.
-             BUFFER-COPY e-item-vend EXCEPT e-item-vend.i-no e-item-vend.rec_key TO bf-e-vend.
-             ASSIGN bf-e-vend.i-no      = item.i-no
-                    bf-e-vend.item-type = YES.                  
+         IF lNewVendorItemCost then 
+         do:
+             FOR EACH vendItemCost EXCLUSIVE-LOCK 
+                 WHERE vendItemCost.company EQ cocode
+                   AND vendItemCost.itemID EQ item.i-no :
+                FOR EACH vendItemCostLevel EXCLUSIVE-LOCK 
+                    WHERE vendItemCostLevel.vendItemCostId = vendItemCost.vendItemCostID:
+                    DELETE vendItemCostLevel.
+                END.     
+                DELETE vendItemCost.
+             END.                                     
+                      
+             FOR EACH vendItemCost NO-LOCK 
+                 WHERE vendItemCost.company EQ cocode
+                   AND vendItemCost.itemID EQ bf-item.i-no:
+                CREATE bfvendItemCost.
+                BUFFER-COPY vendItemCost EXCEPT vendItemCostID itemID rec_key TO bfvendItemCost
+                  ASSIGN bfvendItemCost.itemID = item.i-no. 
+                
+                FOR EACH vendItemCostLevel EXCLUSIVE-LOCK 
+                    WHERE vendItemCostLevel.vendItemCostId = vendItemCost.vendItemCostID:
+                    CREATE bfvendItemCostLevel.
+                    BUFFER-COPY vendItemCostLevel EXCEPT vendItemCostLevelID rec_key TO bfvendItemCostLevel
+                    ASSIGN bfvendItemCostLevel.vendItemCostId = bfvendItemCost.vendItemCostID .                  
+                END.  
+             END.          
          END.
-         FOR EACH item-bom WHERE item-bom.company = cocode AND
-                                item-bom.parent-i = item.i-no:
+         ELSE DO:
+             FOR EACH e-item EXCLUSIVE-LOCK
+                 WHERE e-item.company EQ cocode 
+                   AND e-item.i-no EQ item.i-no:
+                   DELETE e-item.  /* delete rec if exists before create */                
+             END.                             
+             FOR EACH e-item NO-LOCK
+                 WHERE e-item.company EQ cocode 
+                   AND e-item.i-no EQ bf-item.i-no:
+                 CREATE bf-e-item.
+                 BUFFER-COPY e-item EXCEPT e-item.i-no e-item.rec_key TO bf-e-item.
+                 ASSIGN bf-e-item.i-no = item.i-no.                  
+             END.                             
+             FOR EACH e-item-vend EXCLUSIVE-LOCK
+                 WHERE e-item-vend.company EQ cocode 
+                   AND e-item-vend.i-no EQ item.i-no:
+                 DELETE e-item-vend.  /* delete rec if exists before create */                
+             END.                             
+             FOR EACH e-item-vend NO-LOCK
+                 WHERE e-item-vend.company EQ cocode 
+                   AND e-item-vend.i-no EQ bf-item.i-no:
+                 CREATE bf-e-vend.
+                 BUFFER-COPY e-item-vend EXCEPT e-item-vend.i-no e-item-vend.rec_key TO bf-e-vend.
+                 ASSIGN bf-e-vend.i-no      = item.i-no
+                        bf-e-vend.item-type = YES.                  
+             END.
+         END.
+         FOR EACH item-bom EXCLUSIVE-LOCK
+             WHERE item-bom.company EQ cocode 
+               AND item-bom.parent-i EQ item.i-no:
                DELETE item-bom.  /* delete rec if exists before create */                
          END.                             
-         FOR EACH item-bom WHERE item-bom.company = cocode AND
-                               item-bom.parent-i = bf-item.i-no:
+         FOR EACH item-bom NO-LOCK
+             WHERE item-bom.company EQ cocode 
+               AND item-bom.parent-i EQ bf-item.i-no:
              CREATE bf-item-bom.
              BUFFER-COPY item-bom EXCEPT rec_key TO bf-item-bom
              ASSIGN bf-item-bom.parent-i = item.i-no.                  
-         END. 
+         END.         
+         
    END.  /* not adding-record */
 
    IF INDEX("BAP",item.mat-type) > 0 THEN DO:  

@@ -356,12 +356,16 @@ FUNCTION k16 RETURN CHARACTER (ipArrayValue AS DECIMAL,
 END FUNCTION.
 
 FUNCTION noDate RETURN LOGICAL (ipCompany AS CHARACTER):
-  RETURN CAN-FIND(FIRST sys-ctrl NO-LOCK
-                  WHERE sys-ctrl.company  EQ ipCompany
-                    AND sys-ctrl.name     EQ 'Schedule'
-                    AND sys-ctrl.char-fld EQ 'NoDate'
-                    AND sys-ctrl.int-fld  EQ 0
-                    AND sys-ctrl.log-fld  EQ YES).
+    DEFINE VARIABLE lSchedule          AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cSchedule          AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cScheduleValue     AS CHARACTER NO-UNDO.
+
+    RUN spGetSettingByName ("Schedule", OUTPUT cSchedule).
+    RUN spGetSettingByName ("ScheduleValue", OUTPUT cScheduleValue).
+    IF cSchedule NE "" THEN
+    ASSIGN lSchedule = LOGICAL(cSchedule).
+    
+    RETURN lSchedule AND cScheduleValue EQ 'NoDate'.
 END FUNCTION.
 
 FUNCTION fPOMaterial RETURNS LOGICAL (
@@ -1589,7 +1593,7 @@ PROCEDURE ipJobMaterial:
     /* round up required quantity */
     requiredQty = TRUNCATE(requiredQty,0)
                 + IF requiredQty - TRUNCATE(requiredQty,0) GT 0 THEN 1 ELSE 0
-    opRequiredQty = STRING(requiredQty,'>>,>>>,>>9')
+    opRequiredQty = STRING(requiredQty,'>,>>>,>>>,>>9')
     .
 END PROCEDURE.
 

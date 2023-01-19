@@ -105,6 +105,17 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
 DEFINE VARIABLE lBroker AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lPrintTerms AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cTermsFilePath AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLicnt AS INT NO-UNDO.
+DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cText1 AS CHARACTER FORMAT "x(170)" EXTENT 10 NO-UNDO.
+DEFINE VARIABLE cCharValue AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iLinecnt AS INTEGER   NO-UNDO.
+
+{custom/formtext.i NEW}
+
+RUN getPrintTerms IN SOURCE-PROCEDURE (OUTPUT lPrintTerms, OUTPUT cTermsFilePath) NO-ERROR.
 
 form w2.i-no                         format "x(15)"
      w2.job-po                       at 17 format "x(15)"
@@ -305,7 +316,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
              
       if v-terms eq "" then
       do:
-        find first terms where terms.t-code eq oe-ord.terms no-lock no-error.
+        FIND FIRST terms NO-LOCK
+		     WHERE terms.company EQ oe-ord.company 
+               AND terms.t-code  EQ oe-ord.terms  NO-ERROR.
         if avail terms then
           assign v-terms = terms.dscr.
       end.
@@ -431,6 +444,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   PAGE.
   v-printline = 0.
+  
+  IF lPrintTerms THEN RUN pPrintTerms.
 
   for each report where report.term-id eq v-term-id,
       first oe-boll where recid(oe-boll) eq report.rec-id no-lock:
@@ -482,5 +497,60 @@ PROCEDURE create-tt-boll.
   IF oe-boll.p-c THEN tt-boll.p-c = YES.
 
 END PROCEDURE.
+                  
+PROCEDURE pPrintTerms:
+    IF TRIM(cTermsFilePath) NE "" AND cTermsFilePath MATCHES "*.txt*"  THEN
+    DO:
+        PAGE. 
+        INPUT FROM VALUE(TRIM(cTermsFilePath)).
+        REPEAT:
+            IMPORT UNFORMATTED cCharValue.
 
+            IF TRIM(cCharValue) NE "" AND LENGTH(TRIM(cCharValue)) GT 145 THEN 
+            DO:   
+                FOR EACH tt-formtext: 
+                    DELETE tt-formtext. 
+                END.  
+                DO iLicnt = 1 TO 10:
+                    CREATE tt-formtext.
+                    ASSIGN 
+                        tt-line-no = iLicnt
+                        tt-length  = 145. 
+                END.
+
+                RUN custom/formtext.p (cCharValue).
+
+                ASSIGN  
+                    i         = 0 
+                    cText1   = "" 
+                    iLinecnt = 0.
+
+                FOR EACH tt-formtext:
+                    ASSIGN 
+                        i = i + 1.
+
+                    IF i <= 5 
+                        THEN ASSIGN cText1[i] = tt-formtext.tt-text.
+
+                    IF cText1[i] <> "" THEN iLinecnt = i.
+                END.
+
+                DO i = 1 TO iLinecnt:                   
+                    IF cText1[i] NE "" 
+                        THEN  PUT  "<FTimes New (W1)><#11><P8>" 
+                            cText1[i] FORMAT "x(145)" SKIP.
+                END.
+            END.
+            ELSE PUT "<FTimes New (W1)><#11><P8>"  cCharValue FORMAT "x(145)" SKIP.  
+        END.
+
+        INPUT CLOSE. 
+    END.
+    ELSE IF TRIM(cTermsFilePath) NE ""  THEN
+        DO:
+            PAGE.
+            PUT "<C1><R1><#1><R+65><C+80><IMAGE#1=" cTermsFilePath FORMAT "x(360)" ">"  SKIP .       
+        END.    
+   
+END PROCEDURE.
 /* END ---------------------------------- copr. 1998  Advanced Software, Inc. */

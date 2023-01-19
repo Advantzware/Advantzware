@@ -689,7 +689,10 @@ FOR EACH report
          tmp2 = ?
          v-net = ar-inv.net.
   
-  FIND FIRST terms WHERE terms.t-code EQ ar-inv.terms NO-LOCK NO-ERROR.
+  FIND FIRST terms 
+  WHERE terms.company EQ cocode 
+    AND terms.t-code  EQ ar-inv.terms 
+  NO-LOCK NO-ERROR.
   IF AVAIL terms 
     THEN ASSIGN tmp1 = v-net * (ROUND(terms.disc-rate / 100, 2))
                 tmp2 = TODAY + terms.disc-days.
@@ -717,10 +720,10 @@ FOR EACH report
      
   ASSIGN v-printline = v-printline + 6.
   
-  PUT "<FArial><R62.5><C2.5><P6>" "All sales/purchases described herein are subject to Essentra Packaging's terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). Essentra Packaging disclaims and rejects any" SKIP
-    "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon Essentra Packaging, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
+  PUT "<FArial><R62.5><C2.5><P6>" "All sales/purchases described herein are subject to MM Clayton terms and conditions attached hereto and made a part hereof (""Terms and Conditions""). MM Clayton disclaims and rejects any" SKIP
+    "<C2.5><R-0.3>" "additional terms and conditions proposed by Customer and the same shall not be binding upon MM Clayton, regardless of when submitted. Customer's acceptance of the sales/purchases described herein"  SKIP
     "<C2.5><R-0.3>" "and said Terms and Conditions may be confirmed in writing (via letter, email, or fax) or any verbal or physical manifestation of acceptance including, but not limited to, Customer's receipt of goods or payment to" SKIP
-    "<C2.5><R-0.3>" "Essentra Packaging for the sales or purchases described herein."
+    "<C2.5><R-0.3>" "MM Clayton for the sales or purchases described herein."
     "<P9>".
     
 

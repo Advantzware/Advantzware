@@ -803,7 +803,7 @@ FUNCTION FormatForCSV RETURNS CHARACTER
         .
     IF (ASC(chChar) GE iZeroCode AND ASC(chChar) LE iNineCode) THEN
     ASSIGN
-        ipcValue  = REPLACE(ipcValue,'"','""')
+/*        ipcValue  = REPLACE(ipcValue,'"','""')*/ /* Removed via 298165 */
         ipcValue  = REPLACE(ipcValue,',',' ').
         
     IF glAddTab THEN DO:
