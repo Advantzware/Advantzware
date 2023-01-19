@@ -1077,17 +1077,19 @@ ON LEAVE OF fi_cas-lab IN FRAME FRAME-A /* Scan Label */
         DEFINE VARIABLE li         AS INTEGER   NO-UNDO.
         DEFINE VARIABLE iForm      AS CHARACTER NO-UNDO .
         DEFINE VARIABLE iBlank-no  AS CHARACTER NO-UNDO .
+        DEFINE VARIABLE cTagValue  AS CHARACTER NO-UNDO .
 
         IF SELF:SCREEN-VALUE NE "" THEN 
         DO:      
             IF dCaseLabel EQ 0 THEN 
-            DO:
-                ASSIGN
+            DO:                 
+                ASSIGN                    
                     fi_cas-lab:SCREEN-VALUE   = TRIM(fi_cas-lab:SCREEN-VALUE)
-                    begin_ord-no:SCREEN-VALUE = SUBSTRING(fi_cas-lab:SCREEN-VALUE,16,8)
+                    cTagValue                 = SUBSTRING(fi_cas-lab:SCREEN-VALUE,16,12)
+                    begin_ord-no:SCREEN-VALUE = SUBSTRING(cTagValue,1,INDEX(cTagValue,"-") - 1) 
                     begin_job:SCREEN-VALUE    = STRING(DYNAMIC-FUNCTION('sfFormat_SingleJob', begin_ord-no:SCREEN-VALUE)) 
-                    begin_job2:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,24,2)
-                    begin_i-no:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,1,15).
+                    begin_job2:SCREEN-VALUE   = SUBSTRING(cTagValue,INDEX(cTagValue,"-") + 1,3) 
+                    begin_i-no:SCREEN-VALUE   = SUBSTRING(fi_cas-lab:SCREEN-VALUE,1,15) NO-ERROR.  
             END.
             ELSE 
             DO:
