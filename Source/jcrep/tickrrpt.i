@@ -539,13 +539,22 @@ IF ip-industry EQ "Fold" THEN DO:
    END.    
 
    ELSE
-   IF lv-format-f EQ "CentBox"    or 
-      lv-format-f eq "Indiana-XL" THEN
+   IF lv-format-f eq "Indiana-XL" THEN
      IF lv-int-f EQ 1 THEN
        RUN cerep/jobcbox2.p (lv-format-f).
      ELSE
        RUN cerep/jobcbox.p (lv-format-f).  
 
+   ELSE
+   IF lv-format-f EQ "CentBox" THEN
+     /*
+     IF lv-int-f EQ 1 THEN
+       RUN cerep/jobcbox2.p (lv-format-f).
+     ELSE
+       RUN cerep/jobcbox.p (lv-format-f).  
+     */
+     RUN cerep/jobcbox2.p (lv-format-f).
+     
    ELSE
    IF lv-format-f EQ "Wingate" THEN
      IF lv-int-f EQ 1 THEN
