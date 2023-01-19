@@ -1734,9 +1734,12 @@ PROCEDURE ok-button :
 
     IF reprintTag THEN 
     DO:
-
-        RUN validLoadtag(OUTPUT op-valid-lt).
-
+        &IF DEFINED(AutoReprint) NE 0 &THEN
+           op-valid-lt = YES.
+        &ELSE
+           RUN validLoadtag(OUTPUT op-valid-lt).
+        &ENDIF
+                          
         IF op-valid-lt THEN
             RUN reprintTag.
 
