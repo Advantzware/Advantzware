@@ -545,15 +545,13 @@ IF ASI._file._hidden OR ASI._file._for-type EQ "procedure" THEN NEXT.
     CREATE ttPrimaryIndex.
     ttPrimaryIndex.tableName = ASI._file._file-name.
 
-    FIND FIRST ASI._index NO-LOCK
-         WHERE RECID(ASI._index) EQ ASI._file._prime-index
-         NO-ERROR.
-    IF AVAILABLE ASI._index THEN DO:
+    FOR EACH ASI._index NO-LOCK OF ASI._file:
         FOR EACH ASI._index-field OF ASI._index NO-LOCK:
             FIND FIRST ASI._field NO-LOCK
                  WHERE RECID(ASI._field) EQ ASI._index-field._field-recid
                  NO-ERROR.
-            ttPrimaryIndex.indexFields = ttPrimaryIndex.indexFields + ASI._field._field-name + ",".  
+            IF NOT CAN-DO(ttPrimaryIndex.indexFields,ASI._field._field-name) THEN ASSIGN  
+                ttPrimaryIndex.indexFields = ttPrimaryIndex.indexFields + ASI._field._field-name + ",".  
         END.
     END.
     ttPrimaryIndex.indexFields = TRIM(ttPrimaryIndex.indexFields,",").
