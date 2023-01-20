@@ -647,31 +647,20 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_vi-poord-2 ( 4.81 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 2.38 , 144.00 ) */
 
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'poinq/v-polinq.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_v-polinq ).
-       RUN set-position IN h_v-polinq ( 7.43 , 3.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.62 , 146.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
+      RUN init-object IN THIS-PROCEDURE (
              INPUT  'poinq/b-poliin.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-poliin ).
-       RUN set-position IN h_b-poliin ( 10.29 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-poliin ( 12.38 , 146.00 ) NO-ERROR.
+       RUN set-position IN h_b-poliin ( 7.43 , 3.00 ) NO-ERROR.
+       RUN set-size IN h_b-poliin ( 17.38 , 146.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_vi-poord-2. */
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_vi-poord-2 ).
-
-       /* Links to SmartViewer h_v-polinq. */
-       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_v-polinq ).
-
+            
        /* Links to SmartBrowser h_b-poliin. */
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'Record':U , h_b-poliin ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'winSize':U , h_b-poliin ).
@@ -679,10 +668,8 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-poord-2 ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-polinq ,
-             h_vi-poord-2 , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-poliin ,
-             h_v-polinq , 'AFTER':U ).       
+             h_vi-poord-2 , 'AFTER':U ).             
     END. /* Page 5 */
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (

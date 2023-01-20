@@ -49,6 +49,7 @@ DEFINE VARIABLE lAPInvoiceLength    AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cNK1Value           AS CHARACTER        NO-UNDO.
 DEFINE VARIABLE lPosted             AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE cPriceDesc          AS CHARACTER        NO-UNDO.
+DEFINE VARIABLE cPartDesc           AS CHARACTER        NO-UNDO.
 
 RUN sys/ref/nk1look.p (INPUT g_company, "APInvoiceLength", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -75,14 +76,14 @@ IF lRecFound THEN
 &Scoped-define BROWSE-NAME br_table
 
 /* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES po-ordl
-&Scoped-define FIRST-EXTERNAL-TABLE po-ordl
+&Scoped-define EXTERNAL-TABLES po-ord
+&Scoped-define FIRST-EXTERNAL-TABLE po-ord
 
 
 /* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR po-ordl.
+DEFINE QUERY external_tables FOR po-ord.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES ap-invl ap-inv
+&Scoped-define INTERNAL-TABLES ap-invl ap-inv po-ordl
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -91,25 +92,30 @@ DEFINE QUERY external_tables FOR po-ordl.
 &Scoped-define FIELDS-IN-QUERY-br_table ap-inv.inv-no ap-inv.inv-date ~
 get-acct-dscr() @ cf-acct-dscr ap-invl.qty ap-invl.cons-uom ap-invl.amt ~
 is-it-paid() @ v-paidflg fPoLine() @ iLineNo  ap-invl.vend-no ~
-fPosted() @ lPosted fPriceDesc() @ cPriceDesc
+fPosted() @ lPosted fPriceDesc() @ cPriceDesc po-ordl.i-no fPartDesc() @ cPartDesc  ~
+po-ordl.i-name po-ordl.cust-no po-ordl.cost po-ordl.t-cost po-ordl.job-no po-ordl.job-no2 ~
+po-ordl.s-num
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
       AND ap-invl.company EQ g_company AND ~
-ap-invl.po-no = po-ordl.po-no and ~
-(ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line NO-LOCK, ~
+ap-invl.po-no = po-ord.po-no NO-LOCK, ~
       EACH ap-inv WHERE TRUE /* Join to ap-invl incomplete */ ~
-      AND ap-inv.i-no eq ap-invl.i-no NO-LOCK ~
+      AND ap-inv.i-no eq ap-invl.i-no NO-LOCK, ~
+      FIRST po-ordl WHERE po-ordl.company EQ po-ord.company ~
+      AND po-ordl.po-no EQ po-ord.po-no AND po-ordl.line EQ (ap-invl.line + (ap-invl.po-no * -1000)) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH ap-invl WHERE TRUE /* Join to reftable incomplete */ ~
       AND ap-invl.company EQ g_company AND ~
-ap-invl.po-no = po-ordl.po-no and ~
-(ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line NO-LOCK, ~
+ap-invl.po-no = po-ord.po-no NO-LOCK, ~
       EACH ap-inv WHERE TRUE /* Join to ap-invl incomplete */ ~
-      AND ap-inv.i-no eq ap-invl.i-no NO-LOCK ~
+      AND ap-inv.i-no eq ap-invl.i-no NO-LOCK, ~
+      FIRST po-ordl WHERE po-ordl.company EQ po-ord.company ~
+      AND po-ordl.po-no EQ po-ord.po-no AND po-ordl.line EQ (ap-invl.line + (ap-invl.po-no * -1000)) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table ap-invl ap-inv
+&Scoped-define TABLES-IN-QUERY-br_table ap-invl ap-inv po-ordl
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table ap-invl
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table ap-inv
+&Scoped-define THIRD-TABLE-IN-QUERY-br_table po-ordl
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -202,6 +208,14 @@ FUNCTION fPriceDesc RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME   
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPartDesc B-table-Win 
+FUNCTION fPartDesc RETURNS CHARACTER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
 /* ***********************  Control Definitions  ********************** */
 
 
@@ -210,7 +224,8 @@ FUNCTION fPriceDesc RETURNS CHARACTER
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
       ap-invl, 
-      ap-inv SCROLLING.
+      ap-inv,
+      po-ordl SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -229,6 +244,15 @@ DEFINE BROWSE br_table
       ap-invl.vend-no COLUMN-LABEL "Vendor" FORMAT "x(10)":U
       fPosted() @ lPosted COLUMN-LABEL "Posted" FORMAT "Yes/No":U
       fPriceDesc() @ cPriceDesc COLUMN-LABEL "Quantity Price/Uom" FORMAT "x(40)":U
+      po-ordl.i-no 
+      fPartDesc() @ cPartDesc COLUMN-LABEL "Part#" FORMAT "x(15)":U
+      po-ordl.i-name 
+      po-ordl.cust-no 
+      po-ordl.cost 
+      po-ordl.t-cost 
+      po-ordl.job-no
+      po-ordl.job-no2 
+      po-ordl.s-num
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 144 BY 12.62
@@ -250,7 +274,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartBrowser
-   External Tables: ASI.po-ordl
+   External Tables: ASI.po-ord
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -312,8 +336,7 @@ ASSIGN
      _TblList          = "ASI.ap-inv WHERE ASI.ap-invl ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         =  "ap-invl.company EQ g_company and      
-ap-invl.po-no = po-ordl.po-no and
-(ap-invl.line + (ap-invl.po-no * -1000)) eq po-ordl.line"
+ap-invl.po-no = po-ord.po-no "
      _Where[2]         = "ap-inv.i-no eq ap-invl.i-no"
      _FldNameList[1]   > ASI.ap-inv.inv-no
 "ap-inv.inv-no" "Invoice#" ? "character" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
@@ -335,10 +358,21 @@ ap-invl.po-no = po-ordl.po-no and
 "fPosted() @ lPosted" "Posted" "Yes/No" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > "_<CALC>"
 "fPriceDesc() @ cPriceDesc" "Quantity Price/Uom" "x(40)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+    _FldNameList[12]   = ASI.po-ordl.i-no
+    _FldNameList[13]   > "_<CALC>"
+"fPartDesc() @ cPartDesc" "Part#" "x(15)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no    
+    _FldNameList[14]   = ASI.po-ordl.i-name
+    _FldNameList[15]   = ASI.po-ordl.cust-no
+    _FldNameList[16]   = ASI.po-ordl.cost
+    _FldNameList[17]   = ASI.po-ordl.t-cost
+    _FldNameList[18]   = ASI.po-ordl.job-no
+    _FldNameList[19]   = ASI.po-ordl.job-no2
+    _FldNameList[20]   = ASI.po-ordl.s-num
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
-
+     
+      
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
      _Options          = "NO-LOCK"
@@ -459,13 +493,13 @@ PROCEDURE adm-row-available :
   {src/adm/template/row-head.i}
 
   /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "po-ordl"}
+  {src/adm/template/row-list.i "po-ord"}
 
   /* Get the record ROWID's from the RECORD-SOURCE.                  */
   {src/adm/template/row-get.i}
 
   /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "po-ordl"}
+  {src/adm/template/row-find.i "po-ord"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -527,7 +561,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "po-ordl"}   
+  {src/adm/template/snd-list.i "po-ord"}   
   {src/adm/template/snd-list.i "ap-invl"}
   {src/adm/template/snd-list.i "ap-inv"}
 
@@ -592,7 +626,10 @@ DEF BUFFER b-po-ordl FOR po-ordl.
 
 FIND b-ap-inv WHERE ROWID(b-ap-inv) EQ ROWID(ap-inv) NO-LOCK NO-ERROR.
 
-FIND b-po-ordl WHERE ROWID(b-po-ordl) EQ ROWID(po-ordl) NO-LOCK NO-ERROR.
+FIND FIRST b-po-ordl NO-LOCK
+     WHERE b-po-ordl.company EQ po-ordl.company
+       AND b-po-ordl.po-no EQ po-ordl.po-no 
+       AND b-po-ordl.LINE EQ (ap-invl.line + (ap-invl.po-no * -1000)) NO-ERROR.
 
   IF AVAIL b-ap-inv AND 
      AVAIL b-po-ordl AND 
@@ -614,9 +651,7 @@ FUNCTION fPoLine RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  IF AVAIL po-ordl 
-    THEN RETURN po-ordl.LINE.
-    ELSE RETURN 0.        
+  RETURN (ap-invl.line + (ap-invl.po-no * -1000)).        
 
 END FUNCTION.
 
@@ -634,7 +669,7 @@ FUNCTION fPosted RETURNS LOGICAL
       WHERE reftable.reftable eq "AP-INVL" 
         AND reftable.company  eq ""     
         AND reftable.loc      eq ""     
-        AND reftable.code     EQ string(po-ordl.po-no,"9999999999") 
+        AND reftable.code     EQ string(po-ord.po-no,"9999999999") 
         AND int(reftable.code2) EQ ap-invl.i-no NO-ERROR.
         
   IF AVAIL reftable 
@@ -659,6 +694,49 @@ FUNCTION fPriceDesc RETURNS CHARACTER
   RETURN string(ap-invl.qty) + " @ " + STRING(ap-invl.unit-pr) + "/" + ap-invl.pr-qty-uom .
     ELSE RETURN "".        
 
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fPartDesc B-table-Win 
+FUNCTION fPartDesc RETURNS CHARACTER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+ DEFINE VARIABLE cPartNumber AS CHARACTER NO-UNDO.        
+ IF AVAIL po-ordl THEN DO:
+    RELEASE itemfg.
+
+    IF NOT po-ordl.item-type THEN
+    FIND FIRST itemfg
+        WHERE itemfg.company EQ po-ordl.company
+          AND itemfg.i-no    EQ po-ordl.i-no
+        NO-LOCK NO-ERROR.
+
+    IF AVAIL itemfg THEN cPartNumber = itemfg.part-no.
+
+    ELSE DO:
+      FIND FIRST item
+          WHERE item.company EQ po-ordl.company
+            AND item.i-no    EQ po-ordl.i-no
+          NO-LOCK NO-ERROR.
+      IF AVAIL ITEM THEN
+      FOR EACH job-hdr
+          WHERE job-hdr.company EQ po-ordl.company
+            AND job-hdr.job-no  EQ po-ordl.job-no
+            AND job-hdr.job-no2 EQ po-ordl.job-no2
+          NO-LOCK
+          BY job-hdr.frm DESC:
+        cPartNumber = job-hdr.i-no.
+        IF job-hdr.frm EQ po-ordl.s-num THEN LEAVE.
+      END.
+    END.
+  END.       
+
+  RETURN cPartNumber.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
