@@ -4547,9 +4547,7 @@ PROCEDURE setPoValues :
         FOR EACH b-oe-ordl
             WHERE b-oe-ordl.company EQ bf-ordl.company
             AND b-oe-ordl.ord-no  EQ bf-ordl.ord-no
-            AND b-oe-ordl.job-no  EQ bf-ordl.job-no
-            AND b-oe-ordl.job-no2 EQ bf-ordl.job-no2
-            AND b-oe-ordl.i-no    EQ bf-w-job-mat.fg-i-no
+            AND b-oe-ordl.LINE  EQ bf-ordl.LINE            
             EXCLUSIVE-LOCK:
             /* for testing put this back!!! */
 
