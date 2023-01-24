@@ -1445,10 +1445,8 @@ FUNCTION appendXLLine RETURNS CHARACTER
         Notes:  Protects agains commans and quotes.
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lc-line AS CHARACTER NO-UNDO.
-
-    ipc-append = REPLACE(ipc-append, '"', '').
-    ipc-append = REPLACE(ipc-append, ',', ' ').
-    lc-line = lc-line + '"' + ipc-append + '",'.
+    
+    lc-line = quoter(ipc-append) + ",".
     RETURN lc-line.   /* Function return value. */
 
 END FUNCTION.
