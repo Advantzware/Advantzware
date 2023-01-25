@@ -128,7 +128,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 156.6 BY 24
+         SIZE 180.6 BY 24
          BGCOLOR 15 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -166,7 +166,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Purchase Order"
          HEIGHT             = 24
-         WIDTH              = 156.6
+         WIDTH              = 180.6
          MAX-HEIGHT         = 320
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
@@ -551,7 +551,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_bi-poord ).
        RUN set-position IN h_bi-poord ( 7.67 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_bi-poord ( 14.76 , 145.00 ) NO-ERROR.
+       RUN set-size IN h_bi-poord ( 14.76 , 165.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'po/vp-poord.w':U ,
@@ -653,7 +653,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_b-poliin ).
        RUN set-position IN h_b-poliin ( 7.43 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_b-poliin ( 17.38 , 146.00 ) NO-ERROR.
+       RUN set-size IN h_b-poliin ( 17.38 , 166.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -719,7 +719,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_b-posum ).
        RUN set-position IN h_b-posum ( 8.55 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_b-poliin ( 12.38 , 146.00 ) NO-ERROR.  
+       RUN set-size IN h_b-poliin ( 12.38 , 166.00 ) NO-ERROR.  
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.

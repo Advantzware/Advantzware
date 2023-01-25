@@ -160,7 +160,7 @@ DEFINE VARIABLE browse-order AS INTEGER
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 145 BY 1.43.
+     SIZE 175 BY 1.43.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -207,7 +207,7 @@ DEFINE BROWSE Browser-Table
       po-ordl.company FORMAT "x(3)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 13.33
+    WITH NO-ASSIGN SEPARATORS SIZE 175 BY 13.33
          FONT 2.
 
 
@@ -259,7 +259,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 145.
+         WIDTH              = 175.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
