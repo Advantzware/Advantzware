@@ -685,7 +685,7 @@ PROCEDURE build-table :
     END.
   
     /* This is true UNLESS NK1 FgItemHideCalcFields exists and has logical TRUE */
-    IF ll-show-zero-bins THEN DO:
+    IF lv-show-zero-bins THEN DO:
         FOR EACH job-hdr FIELDS(std-lab-cost std-mat-cost std-var-cost  std-fix-cost) NO-LOCK
             WHERE job-hdr.company EQ itemfg.company
             AND job-hdr.i-no    EQ itemfg.i-no
