@@ -106,7 +106,8 @@ DEFINE VARIABLE cFieldName         AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lIsBreakByUsed     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cFormattedJobno    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hdJobProcs         AS HANDLE    NO-UNDO.
-DEFINE VARIABLE lChoice        AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lChoice            AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cVendorName        AS CHARACTER NO-UNDO.
 
 RUN jc/JobProcs.p PERSISTENT SET hdJobProcs.
 
@@ -146,7 +147,7 @@ IF lFound THEN
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES po-ordl po-ord
+&Scoped-define INTERNAL-TABLES po-ordl po-ord vend
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -160,7 +161,7 @@ dim-in-16 (po-ordl.s-len) @ po-ordl.s-len po-ordl.s-len po-ordl.vend-i-no ~
 po-ordl.ord-qty qty-in-ord-uom () @ lv-t-rec-qty po-ordl.pr-qty-uom ~
 po-ordl.t-rec-qty po-ordl.cons-uom po-ordl.cost po-ordl.pr-uom po-ord.buyer ~
 is-it-polinestat() @ cPoLineStatus is-it-postat() @ cPoStatus ~
-is-it-paid() @ v-paidflg po-ordl.cust-no po-ordl.line 
+is-it-paid() @ v-paidflg po-ordl.cust-no po-ordl.line vend.name 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table po-ordl.po-no ~
 po-ord.vend-no po-ordl.due-date po-ord.ship-id po-ord.ship-name ~
 po-ordl.job-no po-ordl.job-no2 po-ordl.s-num po-ordl.i-no po-ordl.i-name ~
@@ -174,28 +175,33 @@ po-ordl.pr-uom po-ord.buyer po-ordl.cust-no
       AND po-ordl.company EQ g_company AND ~
 po-ordl.po-no EQ 9999999 NO-LOCK, ~
       FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND ~
-po-ord.po-no EQ po-ordl.po-no NO-LOCK ~
+po-ord.po-no EQ po-ordl.po-no NO-LOCK, ~
+      FIRST vend NO-LOCK WHERE ~
+      vend.company EQ po-ord.company and vend.vend-no eq po-ord.vend-no ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE ~{&KEY-PHRASE} ~
       AND po-ordl.company EQ g_company AND ~
 po-ordl.po-no EQ 9999999 NO-LOCK, ~
       FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND ~
-po-ord.po-no EQ po-ordl.po-no NO-LOCK ~
+po-ord.po-no EQ po-ordl.po-no NO-LOCK, ~
+      FIRST vend NO-LOCK WHERE ~
+      vend.company EQ po-ord.company and vend.vend-no eq po-ord.vend-no ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table po-ordl po-ord
+&Scoped-define TABLES-IN-QUERY-Browser-Table po-ordl po-ord vend
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table po-ordl
 &Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table po-ord
+&Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table vend
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table tb_approved fi_po-no ~
-fi_vend-no fi_i-no fi_vend-i-no fi_due-date fi_job-no fi_job-no2 btn_go ~
-btn_show btn_prev tb_open tb_closed tb_hold RECT-1 
+fi_vend-no fi_i-no fi_vend-i-no fi_vend-name fi_due-date fi_job-no ~
+fi_job-no2 btn_go btn_show btn_prev tb_open tb_closed tb_hold RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS tb_approved fi_po-no fi_vend-no fi_i-no ~
-fi_vend-i-no fi_due-date fi_job-no fi_job-no2 tb_unpaid tb_paid fi_sort-by ~
-tb_open tb_closed tb_hold 
+fi_vend-i-no fi_vend-name fi_due-date fi_job-no fi_job-no2 tb_unpaid ~
+tb_paid fi_sort-by tb_open tb_closed tb_hold 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -216,6 +222,13 @@ FUNCTION dim-in-16 RETURNS DECIMAL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetSortCondition B-table-Win 
 FUNCTION fGetSortCondition RETURNS CHARACTER
   (ipcSortBy AS CHARACTER, ipcSortLabel AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fVendorName B-table-Win 
+FUNCTION fVendorName RETURNS CHARACTER
+  (  ipcVendor AS CHARACTER  )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -335,6 +348,11 @@ DEFINE VARIABLE fi_vend-i-no AS CHARACTER FORMAT "X(15)":U
      SIZE 24 BY 1
      BGCOLOR 15  NO-UNDO.
 
+DEFINE VARIABLE fi_vend-name AS CHARACTER FORMAT "X(30)":U 
+     VIEW-AS FILL-IN 
+     SIZE 24 BY 1
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE fi_vend-no AS CHARACTER FORMAT "X(8)":U 
      VIEW-AS FILL-IN 
      SIZE 15 BY 1
@@ -342,7 +360,7 @@ DEFINE VARIABLE fi_vend-no AS CHARACTER FORMAT "X(8)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 152 BY 3.57.
+     SIZE 178 BY 3.57.
 
 DEFINE VARIABLE tb_approved AS LOGICAL INITIAL yes 
      LABEL "Not Hold" 
@@ -404,7 +422,8 @@ DEFINE QUERY Browser-Table FOR
       po-ordl.pr-uom
       po-ordl.cust-no
       po-ordl.line), 
-      po-ord SCROLLING.
+      po-ord, 
+      vend SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -450,6 +469,7 @@ DEFINE BROWSE Browser-Table
       po-ordl.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U
             LABEL-BGCOLOR 14
       po-ordl.line COLUMN-LABEL "Line #" FORMAT ">>>>>>>":U LABEL-BGCOLOR 14
+      vend.name COLUMN-LABEL "Vendor Name" FORMAT "x(30)":U LABEL-BGCOLOR 14
   ENABLE
       po-ordl.po-no
       po-ord.vend-no
@@ -474,7 +494,7 @@ DEFINE BROWSE Browser-Table
       po-ordl.cust-no
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 152 BY 16.43
+    WITH NO-ASSIGN SEPARATORS SIZE 176 BY 16.43
          FONT 0.
 
 
@@ -483,24 +503,25 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 4.57 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     tb_approved AT ROW 1.33 COL 138.4 WIDGET-ID 12
+     tb_approved AT ROW 1.33 COL 162.6 WIDGET-ID 12
      fi_po-no AT ROW 2.19 COL 2 NO-LABEL
      fi_vend-no AT ROW 2.19 COL 12.2 COLON-ALIGNED NO-LABEL
      fi_i-no AT ROW 2.19 COL 27.4 COLON-ALIGNED NO-LABEL
      fi_vend-i-no AT ROW 2.19 COL 51.6 COLON-ALIGNED NO-LABEL
-     fi_due-date AT ROW 2.19 COL 75.8 COLON-ALIGNED NO-LABEL
-     fi_job-no AT ROW 2.19 COL 91 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COL 105.8 COLON-ALIGNED NO-LABEL
-     tb_unpaid AT ROW 2.14 COL 114.2
-     tb_paid AT ROW 1.24 COL 114.2
+     fi_vend-name AT ROW 2.19 COL 75.8 COLON-ALIGNED NO-LABEL
+     fi_due-date AT ROW 2.19 COL 100 COLON-ALIGNED NO-LABEL
+     fi_job-no AT ROW 2.19 COL 115.2 COLON-ALIGNED NO-LABEL
+     fi_job-no2 AT ROW 2.19 COL 130 COLON-ALIGNED NO-LABEL
+     tb_unpaid AT ROW 2.14 COL 138.4
+     tb_paid AT ROW 1.24 COL 138.4
      btn_go AT ROW 3.38 COL 2.2
      btn_show AT ROW 3.38 COL 49
      fi_sort-by AT ROW 3.38 COL 76.4 COLON-ALIGNED
      btn_prev AT ROW 3.38 COL 14
      btn_next AT ROW 3.38 COL 34
-     tb_open AT ROW 1.24 COL 126.6 WIDGET-ID 10
-     tb_closed AT ROW 2.14 COL 126.6 WIDGET-ID 8
-     tb_hold AT ROW 2.19 COL 138.6 WIDGET-ID 14
+     tb_open AT ROW 1.24 COL 150.8 WIDGET-ID 10
+     tb_closed AT ROW 2.14 COL 150.8 WIDGET-ID 8
+     tb_hold AT ROW 2.19 COL 162.8 WIDGET-ID 14
      "Vendor#" VIEW-AS TEXT
           SIZE 10 BY .95 AT ROW 1.24 COL 17
           FGCOLOR 9 
@@ -511,13 +532,16 @@ DEFINE FRAME F-Main
           SIZE 16 BY .95 AT ROW 1.24 COL 33.4
           FGCOLOR 9 
      "Start Due Date" VIEW-AS TEXT
-          SIZE 18 BY .95 AT ROW 1.24 COL 78.6
+          SIZE 18 BY .95 AT ROW 1.24 COL 102.8
           FGCOLOR 9 
      "Vendor Item#" VIEW-AS TEXT
           SIZE 17 BY .95 AT ROW 1.24 COL 56.8
           FGCOLOR 9 
      "Job#" VIEW-AS TEXT
-          SIZE 7 BY .86 AT ROW 1.24 COL 99.6
+          SIZE 7 BY .86 AT ROW 1.24 COL 123.8
+          FGCOLOR 9 
+     "Vendor Name#" VIEW-AS TEXT
+          SIZE 17 BY .95 AT ROW 1.24 COL 78.8 WIDGET-ID 16
           FGCOLOR 9 
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -554,7 +578,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 20.1
-         WIDTH              = 148.
+         WIDTH              = 178.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -607,13 +631,14 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.po-ordl,ASI.po-ord WHERE ASI.po-ordl ..."
+     _TblList          = "asi.po-ordl,asi.po-ord WHERE asi.po-ordl ...,asi.vend WHERE asi.po-ordl ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _TblOptList       = "USED, FIRST, FIRST OUTER, OUTER, OUTER,"
+     _TblOptList       = "USED, FIRST, FIRST"
      _Where[1]         = "po-ordl.company EQ g_company AND
 po-ordl.po-no EQ 9999999"
      _JoinCode[2]      = "po-ord.company EQ po-ordl.company AND
 po-ord.po-no EQ po-ordl.po-no"
+     _Where[3]         = "vend.company EQ po-ord.company and vend.vend-no eq po-ord.vend-no"
      _FldNameList[1]   > ASI.po-ordl.po-no
 "po-ordl.po-no" "PO#" ">>>>>>>" "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.po-ord.vend-no
@@ -670,6 +695,8 @@ po-ord.po-no EQ po-ordl.po-no"
 "po-ordl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > ASI.po-ordl.line
 "po-ordl.line" "Line #" ">>>>>>>" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[29]   > ASI.vend.name
+"vend.name" "Vendor Name" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -820,6 +847,7 @@ DO:
      fi_vend-no
      fi_i-no
      fi_vend-i-no
+     fi_vend-name
      fi_po-no
      fi_job-no
      fi_job-no2
@@ -904,7 +932,7 @@ END.
 &Scoped-define SELF-NAME fi_due-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_due-date B-table-Win
 ON LEAVE OF fi_due-date IN FRAME F-Main
-    DO:
+DO:
         IF DATE(fi_due-date:SCREEN-VALUE) LT TODAY - 365  THEN  
             MESSAGE "Date entered is more than a year ago." SKIP(1)
                 "Do you want to continue?"
@@ -917,7 +945,6 @@ ON LEAVE OF fi_due-date IN FRAME F-Main
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &Scoped-define SELF-NAME fi_i-no
@@ -1194,12 +1221,14 @@ PROCEDURE clearFilters :
           fi_vend-no:SCREEN-VALUE = ""
           fi_i-no:SCREEN-VALUE = ""
           fi_vend-i-no:SCREEN-VALUE = ""
+          fi_vend-name:SCREEN-VALUE = ""
           fi_po-no:SCREEN-VALUE = ""
           fi_job-no:SCREEN-VALUE = ""
           fi_job-no2:SCREEN-VALUE = ""
           fi_vend-no
           fi_i-no
           fi_vend-i-no
+          fi_vend-name
           fi_po-no
           fi_job-no
           fi_job-no2
@@ -1816,12 +1845,27 @@ PROCEDURE pAssignCommonRecords PRIVATE :
    
     ASSIGN         
 /*        iopcQueryBuffer   = "po-ordl,po-ord,reftable,ap-invl,ap-inv,ap-ctrl"*/
-        iopcQueryBuffer   = "po-ordl,po-ord"
+        iopcQueryBuffer   = "po-ordl,po-ord,vend"
         iopcFieldBuffer   = "po-ordl"
         iopcFieldName     = "po-no" 
         ioplIsBreakByUsed = YES 
         .
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPoExist B-table-Win 
+PROCEDURE pGetPoExist :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplReturn AS LOGICAL NO-UNDO. 
+   IF AVAIL po-ord THEN 
+   oplReturn = YES.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2035,6 +2079,9 @@ PROCEDURE pQueryString PRIVATE :
                    + ", FIRST po-ord NO-LOCK"
                    + " WHERE po-ord.company EQ po-ordl.company AND po-ord.po-no EQ po-ordl.po-no " 
                    + pGetWhereCriteria("po-ord")
+                   + ", FIRST vend NO-LOCK WHERE vend.company EQ po-ordl.company AND "
+                   + " vend.vend-no EQ po-ord.vend-no " 
+                   + pGetWhereCriteria("vend")
 /*                   + ", FIRST reftable OUTER-JOIN NO-LOCK"                                           */
 /*                   + " WHERE reftable.reftable EQ 'AP-INVL'"                                         */
 /*                   + " AND reftable.company EQ ''"                                                   */
@@ -2183,6 +2230,7 @@ PROCEDURE send-records :
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "po-ordl"}
   {src/adm/template/snd-list.i "po-ord"}
+  {src/adm/template/snd-list.i "vend"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -2207,6 +2255,7 @@ PROCEDURE set-defaults :
      fi_vend-no:SCREEN-VALUE   = ""
      fi_i-no:SCREEN-VALUE      = ""
      fi_vend-i-no:SCREEN-VALUE = ""
+     fi_vend-name:SCREEN-VALUE = ""
      fi_po-no:SCREEN-VALUE     = ""
      fi_job-no:SCREEN-VALUE    = ""
      fi_job-no2:SCREEN-VALUE   = ""
@@ -2651,21 +2700,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPoExist B-table-Win 
-PROCEDURE pGetPoExist :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER oplReturn AS LOGICAL NO-UNDO. 
-   IF AVAIL po-ord THEN 
-   oplReturn = YES.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION dim-in-16 B-table-Win 
@@ -2689,7 +2723,7 @@ FUNCTION fGetSortCondition RETURNS CHARACTER
 /*------------------------------------------------------------------------------
  Purpose: Retuns the sort condition based on the input 
  Notes:
-------------------------------------------------------------------------------*/    
+------------------------------------------------------------------------------*/         
      RETURN IF ipcSortBy EQ "po-no"         THEN "STRING(po-ordl.po-no,'9999999999')"                                                         ELSE ~
             IF ipcSortBy EQ "vend-no"       THEN "po-ord.vend-no"                                                                             ELSE ~
             IF ipcSortBy EQ "ship-id"       THEN "po-ord.ship-id"                                                                             ELSE ~
@@ -2710,11 +2744,37 @@ FUNCTION fGetSortCondition RETURNS CHARACTER
             IF ipcSortBy EQ "cons-uom"      THEN "po-ordl.cons-uom"                                                                           ELSE ~
             IF ipcSortBy EQ "cost"          THEN "STRING(po-ordl.cost,'99999.99999')"                                                         ELSE ~
             IF ipcSortBy EQ "s-wid"         THEN "STRING(po-ordl.s-wid,'99999.99999')"                                                        ELSE ~
-            IF ipcSortBy EQ "s-len"         THEN "STRING(po-ordl.s-len,'99999.99999')"                                                        ELSE ~
+            IF ipcSortBy EQ "s-len"         THEN "STRING(po-ordl.s-len,'99999.99999')"                                                        ELSE ~            
+            IF ipcSortBy EQ "name"          THEN "vend.name"                                                                                  ELSE ~
                                                  "STRING(YEAR(po-ordl.due-date),'9999')
                                                 + STRING(MONTH(po-ordl.due-date),'99')
                                                 + STRING(DAY(po-ordl.due-date),'99')"
             .
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fVendorName B-table-Win 
+FUNCTION fVendorName RETURNS CHARACTER
+  (  ipcVendor AS CHARACTER  ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    
+    IF AVAILABLE po-ord THEN DO:
+        FIND FIRST vend NO-LOCK
+             WHERE vend.company EQ cocode
+               AND vend.vend-no EQ ipcVendor NO-ERROR.
+        IF AVAILA vend THEN
+        DO:
+            cResult = vend.NAME.
+        END.        
+    END.
+    RETURN cResult.   /* Function return value. */
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2918,6 +2978,10 @@ FUNCTION pGetWhereCriteria RETURNS CHARACTER
             IF tb_hold THEN
             cWhereCriteria = cWhereCriteria + " AND po-ord.stat EQ 'H'".
         END.
+    END. 
+    ELSE IF ipcTable EQ "vend" THEN DO:
+         cWhereCriteria = cWhereCriteria 
+                          + (IF INDEX(fi_vend-name,"*") GT 0 THEN " AND vend.name MATCHES " + QUOTER(fi_vend-name + "*") ELSE IF fi_vend-name NE "" THEN " AND vend.name BEGINS " + QUOTER(fi_vend-name) ELSE "").
     END. 
     ELSE DO:         
         IF tb_open NE tb_closed THEN
