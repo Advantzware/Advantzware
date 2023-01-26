@@ -73,7 +73,6 @@ DEFINE        VARIABLE v-job-cust    AS LOG       NO-UNDO.
 DEFINE        VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-fgimage AS LOG       NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
-DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
 DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO . 
@@ -686,8 +685,7 @@ DO v-local-loop = 1 TO v-local-copies:
          /* dept notes */
         ASSIGN
            v-dept-note   = ""  .
-        IF NOT v-dept-log THEN v-dept-codes = "". 
-        
+                
         RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, "", 80, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
                        
         ASSIGN         
