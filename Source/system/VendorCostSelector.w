@@ -621,6 +621,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      
     RUN enable_UI.
 
+    {&OPEN-QUERY-brVendItemCost}
+
     ASSIGN
         fiItem:screen-value     = ipcItemID
         fiLen:SCREEN-VALUE      = STRING(ipdDimLength)
