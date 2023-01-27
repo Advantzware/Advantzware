@@ -33,6 +33,14 @@ PUT    "<R4><C50><#3>" SKIP
           "<=#3><R+3>Changed Date: " po-ord.po-change-date SKIP
           "<=3><R+4>Date Required: " po-ord.due-date SKIP
        .
+
+PUT "<FArial>"
+        "<R2.5><C70><#5>" SKIP
+        "<FArial><P12><=#5><P10>" SKIP
+        "<AT=,6.4><FROM><AT=+.5,+1.7><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE="  
+                        po-ord.po-no ">" 
+          "<AT=,7.9>" SKIP .
+
     IF lv-display-comp THEN 
         PUT "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
             "<=1><C3><R+1><P20><B>" lv-comp-name "</B><P10><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" . 

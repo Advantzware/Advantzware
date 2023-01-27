@@ -5,14 +5,13 @@
          "**************************"       to 80*/
          "<C50><B><P14>Purchase Order</B><P12><C69>Page#:" 
                 TRIM(STRING(li-page - v-last-page,">9") /*+
-                " OF " + TRIM(STRING(v-page-tot,">9"))*/) FORMAT "x(10)" 
-         "<P10>" skip(5)
-         /*v-comp-add1  AT 3 
-         v-comp-add2  AT 8  SKIP*/
-         /*"<R+1><C3>" v-comp-add3  
-         "<R+1><C3>" v-comp-add4  
-         "<R+1><C3>" v-comp-add5  
-         "<R+1><C3>" lv-email  "<P12>"*/ SKIP
+                " OF " + TRIM(STRING(v-page-tot,">9"))*/) FORMAT "x(10)"                  
+        "<R5.5><C70><#5>" SKIP
+        "<P12><=#5><P10>" SKIP
+        "<AT=,6.4><FROM><AT=+.5,+1.7><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE="  
+                        po-ord.po-no ">" 
+          "<AT=,7.9>" SKIP 
+         SKIP
          
          "<P12><R-1>" "DATE:"                            to 65
          po-ord.po-date                           FORMAT "99/99/99"
