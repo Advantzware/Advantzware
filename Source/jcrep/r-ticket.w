@@ -46,7 +46,6 @@ ASSIGN
     locode = gloc.
 {XMLOutput/XMLOutput.i &NEW=NEW &XMLSysCtrl=XMLJobTicket &Company=cocode} /* rstark 05181205 */
 
-DEFINE NEW SHARED VARIABLE v-dept-log        AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-dept-codes      AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE lv-qty            AS INTEGER   NO-UNDO.
 DEFINE NEW SHARED VARIABLE qty               AS INTEGER   NO-UNDO.
@@ -183,13 +182,13 @@ end_job2 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box ~
 tb_GL tb_SW tb_approve tb_spanish tb_print-metric tbPageBreakByForm ~
 spec_codes revsn_no rd_print-Sheet tb_prt-label tb_committed ~
 tb_prt-set-header tb_prompt-ship dept_codes TB_sample_req tb_freeze-note ~
-tb_dept-note rd-dest run_format tb_ExportXML tbAutoClose btn-ok btn-cancel 
+rd-dest run_format tb_ExportXML tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_job1 begin_job2 end_job1 end_job2 ~
 tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL ~
 tb_fgimage tb_SW tb_print-metric tbPageBreakByForm spec_codes tb_prt-rev ~
 revsn_no tb_prt-dmi rd_print-Sheet tb_prt-mch rd_print-speed tb_prt-shipto ~
 tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship ~
-dept_codes TB_sample_req tb_freeze-note tb_dept-note rd-dest run_format ~
+dept_codes TB_sample_req tb_freeze-note rd-dest run_format ~
 tb_ExportXML tbAutoClose 
 
 /* Custom List Definitions                                              */
@@ -261,8 +260,9 @@ DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">>9" INITIAL 0
      SIZE 5.4 BY 1.
 
 DEFINE VARIABLE dept_codes AS CHARACTER FORMAT "X(256)":U INITIAL "QA" 
+     LABEL "Departments Code"
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1 NO-UNDO.
+     SIZE 25 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_job1 AS CHARACTER FORMAT "x(9)" INITIAL "zzzzzz" 
      LABEL "Ending Job#" 
@@ -385,11 +385,6 @@ DEFINE VARIABLE tb_DC AS LOGICAL INITIAL no
      LABEL "Print &Die Cutter Card" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_dept-note AS LOGICAL INITIAL no 
-     LABEL "Departments?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 25 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_draft AS LOGICAL INITIAL no 
      LABEL "Mark as Draft?" 
@@ -561,10 +556,9 @@ DEFINE FRAME FRAME-A
      tb_committed AT ROW 16 COL 56
      tb_prt-set-header AT ROW 17 COL 21
      tb_prompt-ship AT ROW 17 COL 56
-     dept_codes AT ROW 17.91 COL 79 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     dept_codes AT ROW 17.91 COL 69 COLON-ALIGNED WIDGET-ID 14
      TB_sample_req AT ROW 17.95 COL 56 WIDGET-ID 2
-     tb_freeze-note AT ROW 18 COL 21
-     tb_dept-note AT ROW 18 COL 56
+     tb_freeze-note AT ROW 18 COL 21     
      lv-ornt AT ROW 19.62 COL 53 NO-LABEL
      lines-per-page AT ROW 19.62 COL 91 COLON-ALIGNED
      rd-dest AT ROW 19.86 COL 5 NO-LABEL
@@ -1497,22 +1491,6 @@ DO:
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&Scoped-define SELF-NAME tb_dept-note
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_dept-note C-Win
-ON VALUE-CHANGED OF tb_dept-note IN FRAME FRAME-A /* Departments? */
-DO:
-        ASSIGN {&self-name}.
-        IF tb_dept-note = YES THEN
-            dept_codes:HIDDEN IN FRAME FRAME-A = NO.
-        ELSE
-            dept_codes:HIDDEN IN FRAME FRAME-A = YES.
-    END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME tb_draft
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_draft C-Win
 ON VALUE-CHANGED OF tb_draft IN FRAME FRAME-A /* Mark as Draft? */
@@ -1930,12 +1908,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_fgimage:SENSITIVE             = NO
         revsn_no:HIDDEN IN FRAME FRAME-A = YES      
         tb_prt-rev:SENSITIVE             = NO.
-
-    IF tb_dept-note = YES THEN
-        dept_codes:HIDDEN IN FRAME FRAME-A = NO.
-    ELSE
-        dept_codes:HIDDEN IN FRAME FRAME-A = YES.
- 
+         
     IF  XMLJobTicket-log  THEN 
         tb_ExportXML:HIDDEN  IN FRAME FRAME-A = NO.
     ELSE 
@@ -2773,14 +2746,14 @@ PROCEDURE enable_UI :
           tb_print-metric tbPageBreakByForm spec_codes tb_prt-rev revsn_no 
           tb_prt-dmi rd_print-Sheet tb_prt-mch rd_print-speed tb_prt-shipto 
           tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header 
-          tb_prompt-ship dept_codes TB_sample_req tb_freeze-note tb_dept-note 
+          tb_prompt-ship dept_codes TB_sample_req tb_freeze-note  
           rd-dest run_format tb_ExportXML tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_fold 
          tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_SW 
          tb_approve tb_spanish tb_print-metric tbPageBreakByForm spec_codes 
          revsn_no rd_print-Sheet tb_prt-label tb_committed tb_prt-set-header 
-         tb_prompt-ship dept_codes TB_sample_req tb_freeze-note tb_dept-note 
+         tb_prompt-ship dept_codes TB_sample_req tb_freeze-note  
          rd-dest run_format tb_ExportXML tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
@@ -2947,17 +2920,7 @@ PROCEDURE new-job-no :
                     ASSIGN
                         tb_make_hold:HIDDEN IN FRAME FRAME-A = YES
                         tb_make_hold:SENSITIVE               = NO.
-
-                /*           IF lv-format-c = "MulticellGA" OR lv-format-c = "MCPartitions" OR lv-format-c = "Hughes" THEN */
-                /*                  ASSIGN                                                                                 */
-                /*                  tb_dept-note:HIDDEN IN FRAME FRAME-A = NO                                              */
-                /*                  tb_dept-note:SENSITIVE = YES                                                           */
-                /*                  dept_codes:HIDDEN IN FRAME FRAME-A = NO .                                              */
-                /*              ELSE                                                                                       */
-                /*                  ASSIGN                                                                                 */
-                /*                     tb_dept-note:HIDDEN IN FRAME FRAME-A = YES                                          */
-                /*                     tb_dept-note:SENSITIVE = NO .                                                       */
-
+                                
                 FIND FIRST sys-ctrl-shipto WHERE
                     sys-ctrl-shipto.company = cocode AND
                     sys-ctrl-shipto.NAME = "JOBCARDF" AND
@@ -3404,19 +3367,14 @@ PROCEDURE pRunFormatValueChanged :
         IF tb_corr = TRUE AND (lv-format-c = "Protagon" OR lv-format-c = "Hughes" OR lv-format-c = "Allwest") THEN 
         DO:
             TB_sample_req:HIDDEN = NO.
-            tb_dept-note:HIDDEN = YES.
+            dept_codes:HIDDEN = YES.
         END.
         ELSE 
         DO:
             TB_sample_req:HIDDEN = YES.
-            tb_dept-note:HIDDEN = NO.
+            dept_codes:HIDDEN = NO.
         END.
-            
-        IF tb_dept-note:SCREEN-VALUE = "YES" THEN
-            dept_codes:HIDDEN IN FRAME FRAME-A = NO.
-        ELSE
-            dept_codes:HIDDEN IN FRAME FRAME-A = YES.
-
+        
         IF lv-format-f EQ "Accord" 
             OR lv-format-f EQ "Knight***" 
             OR lv-format-f EQ "Carded" 
@@ -3551,8 +3509,7 @@ PROCEDURE run-report :
         spec-list              = spec_codes
         s-prt-ship-split       = tb_prompt-ship
         approve                = tb_approve    
-        s-prt-revno            = tb_prt-rev 
-        v-dept-log             = tb_dept-note
+        s-prt-revno            = tb_prt-rev          
         v-dept-codes           = dept_codes
         lDraft                 = LOGICAL(tb_draft:SCREEN-VALUE IN FRAME {&FRAME-NAME})
         lExportXML             = tb_ExportXML
@@ -3561,7 +3518,7 @@ PROCEDURE run-report :
         cPrintSheetTicket      = rd_print-Sheet
         lSpanish               = tb_spanish
         . 
-
+        
     IF s-prt-revno THEN
         ASSIGN revision-no = STRING(revsn_no).
     ELSE
