@@ -228,7 +228,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 9
       inv-misc.tax FORMAT "Y/N":U WIDTH 5.6
       inv-misc.bill FORMAT "X":U WIDTH 6.2
-      inv-misc.spare-char-1 COLUMN-LABEL "Tax Prep" FORMAT "x(3)":U
+      inv-misc.spare-char-1 COLUMN-LABEL "Tax Group" FORMAT "x(3)":U
             WIDTH 12
       inv-misc.spare-char-2 COLUMN-LABEL "FG Item Code" FORMAT "x(15)":U
             WIDTH 21
@@ -404,7 +404,7 @@ ASSIGN
      _FldNameList[20]   > ASI.inv-misc.bill
 "inv-misc.bill" ? ? "character" ? ? ? ? ? ? yes ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.inv-misc.spare-char-1
-"inv-misc.spare-char-1" "Tax Prep" "x(3)" "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"inv-misc.spare-char-1" "Tax Group" "x(3)" "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.inv-misc.spare-char-2
 "inv-misc.spare-char-2" "FG Item Code" "x(15)" "character" ? ? ? ? ? ? yes ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.inv-misc.est-no

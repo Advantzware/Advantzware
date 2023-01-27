@@ -276,7 +276,7 @@ DEFINE FRAME Dialog-Frame
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
     inv-misc.spare-char-1 AT ROW 9.48 COL 65.8 COLON-ALIGNED
-    LABEL "Tax Prep Code" FORMAT "x(3)"
+    LABEL "Tax Group" FORMAT "x(3)"
     VIEW-AS FILL-IN 
     SIZE 17 BY 1
     BGCOLOR 15 FONT 1
