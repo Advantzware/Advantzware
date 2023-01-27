@@ -591,12 +591,7 @@ DO:
                 fg-bin.units-pallet  NE ld-v5  OR
                 fg-bin.partial-count NE ld-v11 OR
                 fg-bin.std-tot-cost  NE w-job.std-tot-cost
-            lOldValueOnHold     = fg-bin.onHold   
-            fg-bin.case-count   = ld-v4
-            fg-bin.cases-unit   = ld-v3
-            fg-bin.unit-count   = ld-v3 * ld-v4
-            fg-bin.stack-code   = ld-v6
-            fg-bin.units-pallet = ld-v5
+            lOldValueOnHold     = fg-bin.onHold               
             fg-bin.std-mat-cost = w-job.std-mat-cost
             fg-bin.std-lab-cost = w-job.std-lab-cost
             fg-bin.std-fix-cost = w-job.std-fix-cost
@@ -633,14 +628,21 @@ DO:
             ASSIGN
                 fg-bin.std-tot-cost  = w-job.std-tot-cost
                 lv-qty               = w-job.qty - fg-bin.qty
-                lv-part              = w-job.partial-count - fg-bin.partial-count
-                fg-bin.qty           = w-job.qty
-                fg-bin.partial-count = w-job.partial-count
+                lv-part              = w-job.partial-count - fg-bin.partial-count                
                 .
             IF ll-changed THEN DO:
                RUN displayMessageQuestion ("69", OUTPUT lMsgResponse).
                IF lMsgResponse THEN
                DO:
+                  ASSIGN
+                      fg-bin.case-count    = ld-v4
+                      fg-bin.cases-unit    = ld-v3
+                      fg-bin.unit-count    = ld-v3 * ld-v4
+                      fg-bin.stack-code    = ld-v6
+                      fg-bin.units-pallet  = ld-v5 
+                      fg-bin.qty           = w-job.qty
+                      fg-bin.partial-count = w-job.partial-count.
+                      
                   RUN fg/cre-pchr.p (ROWID(fg-bin), "A", lv-qty, lv-part,cReasonCode).
                   RUN fg/fg-reset.p (recid(itemfg)).
                   RUN pCreateGLTrans(ROWID(fg-bin), INPUT lv-qty).
