@@ -1000,7 +1000,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.05 , 11.60 ) */
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2,9,3':U) NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2,3':U) NO-ERROR.
 
        /* Links to SmartViewer h_vi-est-6. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_vi-est-6 ).
