@@ -1325,7 +1325,7 @@ PROCEDURE calcCostSetup :
             AND tt-eiv.vend-no   EQ gvcVendNo
             NO-LOCK NO-ERROR.
   
-    IF AVAILABLE bf-tt-ei  THEN 
+    IF AVAILABLE bf-tt-ei THEN 
     DO:
   
         ASSIGN
@@ -1341,6 +1341,7 @@ PROCEDURE calcCostSetup :
             bf-po-ordl.cost   = bf-w-job-mat.std-cost
             bf-po-ordl.setup  = 0
             bf-po-ordl.pr-uom = bf-w-job-mat.sc-uom.
+
     RELEASE bf-po-ordl.
 END PROCEDURE.
 
@@ -3197,19 +3198,22 @@ PROCEDURE processAdders :
         b-item.i-code   EQ "E"               THEN 
         RUN po/po-adder.p (RECID(bf-po-ordl), RECID(job-mat)).
     
-    /* needed for po-vendc.i */
-    FIND po-ordl EXCLUSIVE-LOCK WHERE ROWID(po-ordl) EQ ROWID(bf-po-ordl) .
-    FIND po-ord EXCLUSIVE-LOCK WHERE ROWID(po-ord) EQ ROWID(bf-po-ord) .
-    /* updates v-cost, v-qty v-setup, po-ordl.cost, po-ordl.cons-cost, v-adder[] */
-    /* Needs po-ord, po-ordl, cocode, tt-eiv, tt-ei */
-    IF (v-pocost1 BEGINS "Vendor" OR po-ordl.job-no EQ "") AND
-        v-op-type                                          AND
-        nufile                                             THEN
-        {po/po-vendc.i}
-    FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-    FIND CURRENT po-ord NO-LOCK NO-ERROR.
-    RELEASE po-ordl.
-    RELEASE po-ord.
+    IF NOT lNewVendorItemCost THEN DO:
+        /*  This would recost the po-line, invalidating the vendor cost matrix selection */  
+        /* needed for po-vendc.i */
+        FIND po-ordl EXCLUSIVE-LOCK WHERE ROWID(po-ordl) EQ ROWID(bf-po-ordl) .
+        FIND po-ord EXCLUSIVE-LOCK WHERE ROWID(po-ord) EQ ROWID(bf-po-ord) .
+        /* updates v-cost, v-qty v-setup, po-ordl.cost, po-ordl.cons-cost, v-adder[] */
+        /* Needs po-ord, po-ordl, cocode, tt-eiv, tt-ei */
+        IF (v-pocost1 BEGINS "Vendor" OR po-ordl.job-no EQ "") AND
+            v-op-type                                          AND
+            nufile                                             THEN
+            {po/po-vendc.i}
+        FIND CURRENT po-ordl NO-LOCK NO-ERROR.
+        FIND CURRENT po-ord NO-LOCK NO-ERROR.
+        RELEASE po-ordl.
+        RELEASE po-ord.
+    END.
 
 END PROCEDURE.
 
@@ -3470,6 +3474,7 @@ PROCEDURE processJobMat :
 
         FIND po-ord NO-LOCK WHERE ROWID(po-ord) EQ gvrPoOrd NO-ERROR.
         FIND oe-ord NO-LOCK WHERE ROWID(oe-ord) EQ gvrOeOrd NO-ERROR.
+
           
         IF NOT lPoExists THEN 
         DO:
@@ -3622,14 +3627,18 @@ PROCEDURE processJobMat :
             INPUT gvrPoOrdl, INPUT gvcVendNo,
             INPUT v-vend-item).
 
+
         /*  Calculate v-tot-msf. Set po-ordl.s-len and s-wid */
         RUN calcMSF       (INPUT gvrPoOrdl).
+
 
         /* runs po/po-adder.p and po/po-vendc.i */
         RUN processAdders (INPUT ROWID(w-job-mat), INPUT gvrPoOrdl, INPUT gvrPoOrd).
 
+
         /* UOM conversion for po-ordl.cost */
         RUN calcCost      (INPUT gvrTT-ei, INPUT gvrPoOrdl).
+
 
         RELEASE b-item.
   
