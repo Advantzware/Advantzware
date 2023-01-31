@@ -4167,13 +4167,22 @@ END.
           eb.lin-in:HIDDEN = NO.
   END.
   IF AVAIL b-style AND b-style.TYPE = "F" THEN
-      ef.board:LABEL      =  "Foam" .
+    ASSIGN
+      ef.board:LABEL      =  "Foam" 
+      eb.t-sqin:LABEL     =  "BF"
+      eb.t-sqin:SCREEN-VALUE  = STRING(eb.len * eb.wid * eb.dep / 144).
   ELSE IF AVAIL b-style AND b-style.TYPE = "W" THEN
-      ef.board:LABEL      =  "Wood" .
+    ASSIGN
+      ef.board:LABEL      =  "Wood" 
+      eb.t-sqin:LABEL     =  "BF"
+      eb.t-sqin:SCREEN-VALUE  = STRING(eb.len * eb.wid * eb.dep / 144).
   ELSE IF AVAIL b-style AND b-style.TYPE = "C" THEN
-      ef.board:LABEL      =  "PolyBag" .
-  ELSE
-      ef.board:LABEL      =  "Board" . 
+   ASSIGN
+      ef.board:LABEL      =  "PolyBag" 
+      eb.t-sqin:LABEL     =   "Square Ft".
+  ELSE ASSIGN
+      ef.board:LABEL      =  "Board"
+      eb.t-sqin:LABEL     =  "Square Ft". 
  
   IF est.estimateTypeID eq "WOOD" THEN
     ASSIGN  

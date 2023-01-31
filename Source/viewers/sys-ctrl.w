@@ -43,7 +43,7 @@ DEF VAR v-msg    AS CHAR FORMAT  "x(100)" NO-UNDO.
 
 /* User can select multiple values for these, and validation is on */
 /* each value they select                                          */
-DEF VAR gvcMultiSelect AS CHAR NO-UNDO INIT "OEDateChange,SSBOLEMAIL,OEPriceHold,CEUpdate,OutputCSV,CUSTXFER,VENDXFER".
+DEF VAR gvcMultiSelect AS CHAR NO-UNDO INIT "JobBarCode,OEDateChange,SSBOLEMAIL,OEPriceHold,CEUpdate,OutputCSV,CUSTXFER,VENDXFER".
 DEF VAR hPgmSecurity AS HANDLE NO-UNDO.
 DEF VAR lResult AS LOG NO-UNDO.
 DEFINE VARIABLE lSuperAdmin AS LOGICAL NO-UNDO.

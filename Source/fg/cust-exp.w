@@ -1144,7 +1144,7 @@ FUNCTION appendXLLine RETURNS CHARACTER
     
     ipc-append = DYNAMIC-FUNCTION("FormatForCSV" IN hdOutputProcs, ipc-append).
     
-    lc-line = lc-line + '"' + ipc-append + '",'.
+    lc-line = quoter(ipc-append) + ",".
     RETURN lc-line.   /* Function return value. */
 
 END FUNCTION.

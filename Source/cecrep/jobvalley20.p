@@ -93,7 +93,6 @@ DEFINE        VARIABLE v-job-cust    AS LOG       NO-UNDO.
 DEFINE        VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-fgimage AS LOG       NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
-DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
 DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO .   
@@ -720,7 +719,7 @@ DO v-local-loop = 1 TO v-local-copies:
    
         FOR EACH notes WHERE notes.rec_key = job.rec_key AND
                     (notes.note_form_no = w-ef.frm OR notes.note_form_no = 0) AND
-                    ((v-dept-log AND lookup(notes.note_code,v-dept-codes) NE 0) OR NOT v-dept-log)
+                    ((v-dept-codes NE "" AND lookup(notes.note_code,v-dept-codes) NE 0) OR v-dept-codes EQ "") 
                  NO-LOCK:
             IF v-prev-note-rec <> ? AND
                v-prev-note-rec <> RECID(notes) THEN v-prev-extent = /*v-prev-extent +*/ k.

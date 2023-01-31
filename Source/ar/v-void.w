@@ -457,6 +457,18 @@ END.
 ON CHOOSE OF btn_save IN FRAME F-Main /* Void */
 DO:
    DO WITH FRAME {&FRAME-NAME}:
+   
+      FIND FIRST ar-ledger NO-LOCK
+           WHERE ar-ledger.company  EQ ar-cash.company
+             AND ar-ledger.cust-no  EQ ar-cash.cust-no
+             AND ar-ledger.ref-date EQ ar-cash.check-date
+             AND ar-ledger.ref-num  EQ "VOIDED CHK# " + STRING(ar-cash.check-no,"999999999999") NO-ERROR.
+      IF AVAILABLE ar-ledger THEN
+      DO:
+             MESSAGE "Check# " + STRING(ar-cash.check-no,"999999999999") + " is already voided and posted..." 
+             VIEW-AS ALERT-BOX INFO.
+             RETURN NO-APPLY.
+      END.
       v-voided:SCREEN-VALUE = IF v-voided THEN "No" ELSE "Yes".      
       ASSIGN v-voided.
 

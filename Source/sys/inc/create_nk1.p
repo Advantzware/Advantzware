@@ -53,7 +53,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
            + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CEInksWithUnits,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength,CEShowErrorsAndWarnings,"
-           + "CECostSource,CEStyleF,ROUND,CESetHeaderForm,JobSubAssemblyPrefix,CESubAssembly,POPrintScores,OEUpdateLineDueDates"
+           + "CECostSource,CEStyleF,ROUND,CESetHeaderForm,JobSubAssemblyPrefix,CESubAssembly,POPrintScores,OEUpdateLineDueDates,JobBarCode"
            .
                       
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1845,7 +1845,17 @@ CASE ip-nk1-value:
             INPUT YES,                                           /* Logical value */ 
             INPUT 0                                              /* dec value*/
             ).          
-
+        WHEN "JobBarCode" THEN 
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Print Barcode information on job ticket",     /* Description */
+            INPUT "Job Number,Job Number2,Form,Blank",           /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT NO,                                            /* Logical value */ 
+            INPUT 0                                              /* dec value*/
+            ).      
 END CASE.
 ELSE
 CASE ip-nk1-value:
