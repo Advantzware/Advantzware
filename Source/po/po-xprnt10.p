@@ -121,6 +121,7 @@ DEF TEMP-TABLE tt-text NO-UNDO
     INDEX tt-text IS PRIMARY TYPE tt-line.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPoBarCode     AS LOGICAL   NO-UNDO.
 
 RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
 
@@ -130,6 +131,12 @@ DO:
 END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
+
+RUN sys/ref/nk1look.p (INPUT cocode, "PoBarCode", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPoBarCode = LOGICAL(cRtnChar) NO-ERROR.
 
 v-dash-line = fill ("_",80).
 

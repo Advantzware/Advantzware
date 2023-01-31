@@ -107,6 +107,9 @@ DEF VAR lv-char AS cha NO-UNDO.
 DEF VAR lv-char-list AS cha NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(30)" NO-UNDO.
+DEFINE VARIABLE lPoBarCode     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
@@ -116,6 +119,12 @@ DEF TEMP-TABLE tt-text NO-UNDO
     INDEX tt-text IS PRIMARY TYPE tt-line.
 
 v-dash-line = fill ("_",80).
+
+RUN sys/ref/nk1look.p (INPUT cocode, "PoBarCode", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPoBarCode = LOGICAL(cRtnChar) NO-ERROR.
 
 IF ip-multi-faxout THEN DO:
 

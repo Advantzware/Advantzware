@@ -110,11 +110,20 @@ DEF VAR lv-add-line AS LOG NO-UNDO.
 DEFINE SHARED VARIABLE s-print-prices AS LOGICAL NO-UNDO.
 
 DEF VAR v-lstloc AS CHAR FORM "x(20)" NO-UNDO.
+DEFINE VARIABLE lPoBarCode     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
 {po/po-print.f}
 {ce/msfcalc.i}
+
+RUN sys/ref/nk1look.p (INPUT cocode, "PoBarCode", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPoBarCode = LOGICAL(cRtnChar) NO-ERROR.
 
 assign v-hdr = "VEND ITEM".
        

@@ -77,6 +77,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lValid         AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPoBarCode     AS LOGICAL   NO-UNDO.
 
 RUN FileSys_GetBusinessFormLogo(cocode, "" /* cust */ , "" /* location */ , OUTPUT cRtnChar, OUTPUT lValid, OUTPUT cMessage).
 
@@ -86,6 +87,12 @@ DO:
 END.
 
 ASSIGN ls-full-img1 = cRtnChar + ">" .
+
+RUN sys/ref/nk1look.p (INPUT cocode, "PoBarCode", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPoBarCode = LOGICAL(cRtnChar) NO-ERROR.
 
 DEF VAR v-overrun AS cha NO-UNDO.
 DEF VAR aa AS INT NO-UNDO.

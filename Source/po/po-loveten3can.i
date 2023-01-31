@@ -8,11 +8,10 @@
                 " OF " + TRIM(STRING(v-page-tot,">9"))*/) FORMAT "x(10)"                  
         "<R5.5><C70><#5>" SKIP
         "<P12><=#5><P10>" SKIP
-        "<AT=,6.4><FROM><AT=+.5,+1.7><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE="  
-                        po-ord.po-no ">" 
-          "<AT=,7.9>" SKIP 
-         SKIP
-         
+        IF lPoBarCode THEN       
+        "<AT=,6.4><FROM><AT=+.5,+1.7><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE=" +  
+                        string(po-ord.po-no) + ">" + "<AT=,7.9>" ELSE "<R+2.5>" format "x(100)" SKIP        
+         SKIP         
          "<P12><R-1>" "DATE:"                            to 65
          po-ord.po-date                           FORMAT "99/99/99"
          skip(2)

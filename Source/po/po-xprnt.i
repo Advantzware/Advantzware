@@ -34,6 +34,7 @@ PUT
           "<=3><R+4>Date Required: " po-ord.due-date SKIP
        .
 
+IF lPoBarCode THEN
 PUT "<FArial>"
         "<R2.5><C70><#5>" SKIP
         "<FArial><P12><=#5><P10>" SKIP

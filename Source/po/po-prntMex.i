@@ -30,6 +30,7 @@ PUT
           "<=#3><R+5.5>Fecha cambiada: " po-ord.po-change-date SKIP
           "<=3><R+6.5>Fecha requerida: " po-ord.due-date SKIP
        .
+    IF lPoBarCode THEN
     PUT "<FArial>"
         "<R2.5><C70><#5>" SKIP
         "<FArial><P12><=#5><P10>" SKIP
