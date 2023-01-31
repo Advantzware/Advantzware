@@ -177,6 +177,7 @@ do v-local-loop = 1 to v-local-copies:
         run cecrep/jobtick2.p (recid(w-ef), recid(job-hdr)).
 
         v-pqty = 1.
+        EMPTY TEMP-TABLE ttScoreLine.
         if avail xeb then do:
            IF AVAILABLE xstyle and xstyle.designIDAlt NE 0 THEN
             DO:

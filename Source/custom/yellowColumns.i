@@ -1347,6 +1347,8 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Customer Lot #' THEN STRING(get-lot-no())                   ELSE ~
      IF sortColumn EQ 'Sales Rep'      THEN STRING(inv-line.sman[1])               ELSE ~
      IF sortColumn EQ 'Sales Rep Name' THEN STRING(inv-line.sname[1])              ELSE ~
+     IF sortColumn EQ 'Tax Group' THEN STRING(inv-line.taxgroup)                   ELSE ~
+     IF sortColumn EQ 'Taxable' THEN STRING(inv-line.tax)                          ELSE ~
         STRING(inv-line.LINE, '>>99') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'l-estcst' &THEN

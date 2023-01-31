@@ -85,7 +85,6 @@ DEFINE        VARIABLE v-job-cust    AS LOG       NO-UNDO.
 DEFINE        VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE SHARED VARIABLE s-prt-fgimage AS LOG       NO-UNDO.
 DEFINE SHARED VARIABLE v-dept-codes  AS CHARACTER NO-UNDO.
-DEFINE SHARED VARIABLE v-dept-log    AS LOG       NO-UNDO.
 DEFINE        VARIABLE cBarCodeVal   AS CHARACTER NO-UNDO .
 DEFINE        VARIABLE v-shipto      AS cha       NO-UNDO.
 DEFINE        VARIABLE dJobQty       AS DECIMAL   NO-UNDO . 
@@ -93,6 +92,7 @@ DEFINE VARIABLE lJobCardPrntScor-Log AS LOGICAL NO-UNDO .
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
+DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO.
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -119,6 +119,8 @@ RUN sys/ref/nk1look.p (INPUT cocode, "JobCardPrintScores", "L" /* Logical */, NO
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lJobCardPrntScor-Log = LOGICAL(cRtnChar) NO-ERROR. 
+    
+RUN sys/ref/nk1look.p (cocode, "JobBarCode", "C", NO, YES, "", "", OUTPUT cCriteria, OUTPUT lRecFound).    
 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
@@ -254,7 +256,18 @@ DO v-local-loop = 1 TO v-local-copies:
                     iunder-run   = DECIMAL(cust.under-pct)
                     iover-run    = DECIMAL(cust.over-pct)
                              .
-               ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
+           IF LOOKUP("Job Number", cCriteria) GT 0 THEN
+           cBarCodeVal = trim(job-hdr.job-no).
+           IF LOOKUP("Job Number2", cCriteria) GT 0 THEN
+           cBarCodeVal = cBarCodeVal + (IF cBarCodeVal NE "" THEN "-" + trim(STRING(job-hdr.job-no2,">99")) ELSE trim(STRING(job-hdr.job-no2,">99"))).
+           IF LOOKUP("Form", cCriteria) GT 0 THEN
+           cBarCodeVal = cBarCodeVal + (IF cBarCodeVal NE "" THEN "-" + STRING(xeb.form-no,"99") ELSE STRING(xeb.form-no,"99")).
+           IF LOOKUP("Blank", cCriteria) GT 0 THEN
+           cBarCodeVal = cBarCodeVal + (IF cBarCodeVal NE "" THEN "-" + STRING(xeb.blank-no,"99") ELSE STRING(xeb.blank-no,"99")).
+                        
+           IF cBarCodeVal EQ "" THEN
+           ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING(xeb.form-no,"99") + "-" + STRING(xeb.blank-no,"99") .
+             
              ASSIGN  cCustName = cust.NAME 
                {sys/inc/ctrtext.i cCustName 30}.
       
@@ -736,9 +749,8 @@ DO v-local-loop = 1 TO v-local-copies:
       
          /* dept notes */
         ASSIGN
-           v-dept-note   = ""  .
-        IF NOT v-dept-log THEN v-dept-codes = "". 
-        
+           v-dept-note   = ""  .        
+         
         RUN Notes_GetNotesArrayForObject (INPUT job.rec_key, "", v-dept-codes, "", 100, NO, w-ef.frm , OUTPUT v-dept-note, OUTPUT opiArraySize).    
                        
         ASSIGN         
@@ -957,7 +969,17 @@ DO v-local-loop = 1 TO v-local-copies:
                 ASSIGN
                     v-over-run  = TRIM(STRING(cust.over-pct,">>9.99%"))
                     v-under-run = TRIM(STRING(cust.under-pct,">>9.99%")) .
-                    
+            cBarCodeVal = "".        
+            IF  LOOKUP("Job Number", cCriteria) GT 0 THEN
+            cBarCodeVal = trim(job-hdr.job-no).
+            IF  LOOKUP("Job Number2", cCriteria) GT 0 THEN
+            cBarCodeVal = cBarCodeVal + (IF cBarCodeVal NE "" THEN "-" + trim(STRING(job-hdr.job-no2,">99")) ELSE trim(STRING(job-hdr.job-no2,">99"))).
+            IF  LOOKUP("Form", cCriteria) GT 0 THEN
+            cBarCodeVal = cBarCodeVal + (IF cBarCodeVal NE "" THEN "-" + STRING("00") ELSE STRING("00")).
+            IF  LOOKUP("Blank", cCriteria) GT 0 THEN
+            cBarCodeVal = cBarCodeVal + (IF cBarCodeVal NE "" THEN "-" + STRING("00") ELSE STRING("00")).
+            
+            IF cBarCodeVal EQ "" THEN
             ASSIGN cBarCodeVal = TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', job-hdr.job-no, job-hdr.job-no2))) + "-" + STRING("00") + "-" + STRING("00") .        
 
             PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(2)

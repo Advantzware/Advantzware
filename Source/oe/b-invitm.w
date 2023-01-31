@@ -86,7 +86,8 @@ DEFINE QUERY external_tables FOR inv-head.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table inv-line.line inv-line.i-no ~
 inv-line.i-name inv-line.inv-qty inv-line.ord-no display-bolno() @ lv-bolno ~
 inv-line.price inv-line.pr-uom inv-line.t-price inv-line.est-no ~
-get-lot-no() @ lv-lot-no inv-line.sman[1] inv-line.sname[1] inv-line.e-num 
+get-lot-no() @ lv-lot-no inv-line.sman[1] inv-line.sname[1] inv-line.e-num ~
+inv-line.taxgroup inv-line.tax
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH inv-line OF inv-head WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -190,6 +191,8 @@ DEFINE BROWSE Browser-Table
       inv-line.sman[1] COLUMN-LABEL "Sales Rep" FORMAT "x(3)":U LABEL-BGCOLOR 14
       inv-line.sname[1] COLUMN-LABEL "Sales Rep Name" FORMAT "x(20)":U LABEL-BGCOLOR 14
       inv-line.e-num COLUMN-LABEL "Ln#" FORMAT ">>9":U LABEL-BGCOLOR 14
+      inv-line.taxgroup COLUMN-LABEL "Tax Group" FORMAT "x(10)":U LABEL-BGCOLOR 14
+      inv-line.tax  COLUMN-LABEL "Taxable" FORMAT "Yes/No":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 145 BY 16.43
@@ -324,6 +327,10 @@ ASSIGN
 "inv-line.sname[1]" "Sales Rep Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.inv-line.e-num
 "inv-line.e-num" "Ln#" ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.inv-line.taxgroup
+"inv-line.taxgroup" "Tax Group" "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[15]   > ASI.inv-line.tax
+"inv-line.tax" "Taxable" "Yes/No" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
 
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

@@ -5,7 +5,6 @@
 &scoped-define PR-PORT FILE,TERMINAL,FAX_MODEM,VIPERJOBTICKET
 
 def input parameter v-format as char.
-DEF SHARED VAR v-dept-log AS LOG NO-UNDO.
 DEF SHARED VAR v-dept-codes AS CHAR NO-UNDO.
 DEF VAR prt-copies AS INT  NO-UNDO.
 DEF VAR v-start-compress AS cha NO-UNDO.
@@ -612,8 +611,7 @@ do v-local-loop = 1 to v-local-copies:
                    j = 0
                    lv-got-return = 0.
         END. /* notes */
-         
-        if v-dept-log = yes THEN
+                
         PUT "<=7><c30> Departments" SKIP
             v-dept-note[1]  AT 34 SKIP
             v-dept-note[2] AT 34 SKIP
