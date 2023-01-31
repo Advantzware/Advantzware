@@ -106,13 +106,27 @@ PROCEDURE pValidate PRIVATE:
                 OUTPUT cValidNote
                 ). 
     END.
+                 
     IF NOT oplValid AND cValidNote NE "" THEN opcNote = cValidNote.
+    
+    IF oplValid THEN DO:
+       FIND FIRST carrier NO-LOCK 
+             WHERE carrier.company EQ ttImportCarrierMtx.Company
+               AND carrier.carrier EQ ttImportCarrierMtx.carrier
+               AND carrier.loc     EQ ttImportCarrierMtx.loc
+             NO-ERROR.
+       IF NOT AVAILABLE carrier THEN 
+          ASSIGN 
+             oplValid = NO
+             opcNote = "Carrier:" + ttImportCarrierMtx.carrier + " with location: " + ttImportCarrierMtx.loc + " not exist".      
+    END.
     
     IF oplValid THEN DO:
         FIND FIRST carr-mtx NO-LOCK
              WHERE carr-mtx.company  EQ ttImportCarrierMtx.Company
                AND carr-mtx.carrier  EQ ttImportCarrierMtx.carrier
                AND carr-mtx.del-zone EQ ttImportCarrierMtx.del-zone
+               AND carr-mtx.loc      EQ ttImportCarrierMtx.loc
              NO-ERROR. 
         IF AVAILABLE carr-mtx THEN DO:
             IF NOT iplUpdateDuplicates THEN 
@@ -143,6 +157,7 @@ PROCEDURE pProcessRecord PRIVATE:
         WHERE bf-carr-mtx.company EQ ipbf-ttImportCarrierMtx.Company
         AND bf-carr-mtx.carrier EQ ipbf-ttImportCarrierMtx.carrier
         AND bf-carr-mtx.del-zone EQ ipbf-ttImportCarrierMtx.del-zone
+        AND bf-carr-mtx.loc EQ ipbf-ttImportCarrierMtx.loc
         NO-ERROR.  
     IF NOT AVAILABLE bf-carr-mtx THEN 
     DO:
@@ -151,7 +166,8 @@ PROCEDURE pProcessRecord PRIVATE:
         ASSIGN 
             bf-carr-mtx.company = ipbf-ttImportCarrierMtx.Company
             bf-carr-mtx.carrier = ipbf-ttImportCarrierMtx.carrier
-            bf-carr-mtx.del-zone = ipbf-ttImportCarrierMtx.del-zone .
+            bf-carr-mtx.del-zone = ipbf-ttImportCarrierMtx.del-zone
+            bf-carr-mtx.loc = ipbf-ttImportCarrierMtx.loc.
     END.
     /*Main assignments - Blanks ignored if it is valid to blank- or zero-out a field */
     RUN pAssignValueC (ipbf-ttImportCarrierMtx.carrier, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.carrier).
@@ -159,8 +175,7 @@ PROCEDURE pProcessRecord PRIVATE:
     RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-dscr, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.del-dscr).
     RUN pAssignValueC (ipbf-ttImportCarrierMtx.del-zip, iplIgnoreBlanks, INPUT-OUTPUT bf-carr-mtx.del-zip).
     RUN pAssignValueD (ipbf-ttImportCarrierMtx.min-rate, YES, INPUT-OUTPUT bf-carr-mtx.min-rate).
-    RUN pAssignValueC (ipbf-ttImportCarrierMtx.loc, YES, INPUT-OUTPUT bf-carr-mtx.loc).
-
+   
     RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight1, YES, INPUT-OUTPUT bf-carr-mtx.weight[1]).
     RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight2, YES, INPUT-OUTPUT bf-carr-mtx.weight[2]).
     RUN pAssignValueI (ipbf-ttImportCarrierMtx.weight3, YES, INPUT-OUTPUT bf-carr-mtx.weight[3]).
