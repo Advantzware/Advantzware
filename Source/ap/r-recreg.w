@@ -950,7 +950,7 @@ PROCEDURE run-report :
                     v-bnk-tot                 AT 33 FORMAT "->>,>>>,>>9.99" 
                     "Total in Transit:"       TO 31
                     v-unc-tot                 AT 33 FORMAT "->>,>>>,>>9.99" SKIP
-                    "Ending Bank Balance:"    TO 31
+                    "Ending Book Balance:"    TO 31
                     v-bnk-tot - v-unc-tot     AT 33 FORMAT "->>,>>>,>>9.99" SKIP(1).
                     
                 IF tb_excel THEN 
@@ -977,7 +977,7 @@ PROCEDURE run-report :
                      '"' v-unc-tot                         '",'
                      SKIP                     
                      '"' ""                                '",'
-                     '"' "Ending Bank Balance:"            '",'                      
+                     '"' "Ending Book Balance:"            '",'                      
                      '"' v-bnk-tot - v-unc-tot             '",'
                      SKIP  .
                      
