@@ -710,6 +710,15 @@ ELSE lv-comp-color = "BLACK".
                 "<p10>".
         
  END.
+ 
+ IF ltb_print-message THEN
+    DO:          
+      PUT "<p8><R62><C1><B>  Remit to: " cInvMessage[1] FORMAT "x(60)" SKIP
+          "<R62.8><C9>" cInvMessage[2] FORMAT "x(60)" SKIP
+          "<R63.6><C9>" cInvMessage[3] FORMAT "x(60)" SKIP
+          "<R64.4><C9>" cInvMessage[4] FORMAT "x(60)" SKIP
+          "<R65.2><C9>" cInvMessage[5] FORMAT "x(60)" "</B>" SKIP.         
+    END.
 
 IF v-bot-lab[4] <> "" THEN
     PUT "<R58><C59><#8><FROM><R+8><C+21><RECT> " 
