@@ -84,7 +84,7 @@ FOR EACH e-itemfg
         {fg/updfgitm.i e-itemfg i-no NO}
     END.
     ELSE DO:
-         FIND FIRST bf-e-itemfg NO-LOCK
+         FIND FIRST bf-e-itemfg EXCLUSIVE-LOCK
               WHERE bf-e-itemfg.company EQ itemfg.company
               AND rowid(bf-e-itemfg)    EQ ROWID(e-itemfg) NO-ERROR.
          IF AVAILABLE bf-e-itemfg THEN
@@ -412,7 +412,7 @@ FOR EACH vendItemCost
         AND vendItemCost.itemType  EQ "FG"
         NO-LOCK:
         
-        FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK 
+        FIND FIRST bf-vendItemCost NO-LOCK 
             WHERE bf-vendItemCost.company EQ vendItemCost.Company
             AND bf-vendItemCost.itemType EQ vendItemCost.itemType
             AND bf-vendItemCost.itemID EQ v-new-item
