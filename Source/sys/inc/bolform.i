@@ -166,6 +166,11 @@
              v-program = "oe/rep/bolxprnt.p"
              is-xprint-form = YES
              lines-per-page = 80.
+       WHEN "SECorr" THEN
+          ASSIGN
+             v-program = "oe/rep/bolsecorr.p"
+             is-xprint-form = YES
+             lines-per-page = 80.
        WHEN "bolfmt 10" THEN
           ASSIGN
              v-program = "oe/rep/bolxprnt10.p"

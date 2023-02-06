@@ -2048,7 +2048,7 @@ DO:
 ON VALUE-CHANGED OF tb_terms IN FRAME FRAME-A /* Print Terms? */
 DO:
         ASSIGN {&self-name}.
-        IF CAN-DO("bolfmt 1,bolfmt 10,bolfmt 2,bolfmt 20,bolfmt 30,BOLFMT-Mex,bolfmt10-CAN,BOLfmt15,Xprint",v-print-fmt) 
+        IF CAN-DO("bolfmt 1,bolfmt 10,bolfmt 2,bolfmt 20,bolfmt 30,BOLFMT-Mex,bolfmt10-CAN,BOLfmt15,Xprint,SECorr",v-print-fmt) 
         THEN ASSIGN lv-termFile:SENSITIVE = {&self-name}.  
 
     END.
@@ -5093,6 +5093,7 @@ PROCEDURE pRunFormatValueChanged :
     DO WITH FRAME {&FRAME-NAME}:
         IF v-print-fmt EQ "XPRINT"           OR
             v-print-fmt EQ "bolfmt 1"        OR
+            v-print-fmt EQ "SECorr"          OR
             v-print-fmt EQ "bolfmt 10"       OR
             v-print-fmt EQ "Wingate-BOL"     OR
             v-print-fmt EQ "bolfmt10-CAN"    OR
@@ -5122,7 +5123,7 @@ PROCEDURE pRunFormatValueChanged :
             ASSIGN END_bol#:HIDDEN IN FRAME {&FRAME-NAME}    = NO
                 END_bol#:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
-        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell,Henry,Ruffino") LE 0 THEN 
+        IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,SECorr,Wingate-BOL,bolfmt10-CAN,Lakeside,Soule,SouleMed,Accordbc,Protagon,Delta2,Xprint2,bolfmt 2,bolfmt 20,bolfmt 30,LancoYork,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell,Henry,Ruffino") LE 0 THEN 
         DO:
             tb_print-component:SCREEN-VALUE = "no".
             DISABLE tb_print-component.
@@ -5133,6 +5134,7 @@ PROCEDURE pRunFormatValueChanged :
         IF v-print-fmt = "Xprint"           OR
             v-print-fmt = "Delta2"           OR
             v-print-fmt = "bolfmt 1"        OR
+            v-print-fmt = "SECorr"          OR
             v-print-fmt = "bolfmt 10"       OR
             v-print-fmt = "Wingate-BOL"     OR
             v-print-fmt = "bolfmt10-CAN"    OR
@@ -5224,7 +5226,7 @@ PROCEDURE pRunFormatValueChanged :
             ELSE tb_suppress-name:HIDDEN = YES .
         END.
             
-        IF CAN-DO("bolfmt 1,bolfmt 10,bolfmt 2,bolfmt 20,bolfmt 30,BOLFMT-Mex,bolfmt10-CAN,BOLfmt15,Xprint,BOLFMTX15",v-print-fmt) THEN
+        IF CAN-DO("bolfmt 1,bolfmt 10,bolfmt 2,bolfmt 20,bolfmt 30,BOLFMT-Mex,bolfmt10-CAN,BOLfmt15,Xprint,BOLFMTX15,SECorr",v-print-fmt) THEN
         ASSIGN
         tb_terms:HIDDEN = NO
         lv-termFile:HIDDEN = NO
