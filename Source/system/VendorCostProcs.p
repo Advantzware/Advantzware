@@ -2759,6 +2759,10 @@ PROCEDURE pGetVendItemCostBuffer PRIVATE:
                         {&RequiredCriteria}
                     AND opbf-vendItemCost.vendorID EQ ""
                     NO-ERROR.
+                IF NOT AVAILABLE opbf-vendItemCost THEN 
+                    FIND FIRST opbf-vendItemCost NO-LOCK /*Find any first record of Item*/
+                        {&RequiredCriteria}                      
+                    NO-ERROR.    
                 IF AVAILABLE opbf-vendItemCost THEN 
                     ASSIGN 
                         cMsgUsing = cMsgConstUsing + cMsgConstVend + (IF opbf-vendItemCost.vendorID EQ "" THEN cMsgConstBlank ELSE opbf-vendItemCost.vendorID)
