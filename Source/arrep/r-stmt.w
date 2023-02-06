@@ -1676,7 +1676,7 @@ PROCEDURE run-asistmt :
 
     FORM
         v-msg AT 15
-        v-balance  AT 63
+        v-balance  AT 65.5
         WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO.
 
     FORM
@@ -1707,7 +1707,7 @@ PROCEDURE run-asistmt :
 
     FORM
         v-msg AT 15
-        v-balance  AT 63
+        v-balance  AT 65.5
         WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO.
 
     FORM
@@ -2408,7 +2408,7 @@ PROCEDURE run-asistmt :
                         DISPLAY
                             v-msg
                             v-balance
-                            WITH FRAME no-stmt-total-line.
+                            WITH FRAME no-stmt-total-line.   
 
                     IF v-stmt-char = "Badger" THEN 
                         PUT "<R57><C1><#2>"SKIP
@@ -2594,7 +2594,7 @@ PROCEDURE run-asistmt-mail :
 
     FORM
         v-msg AT 15
-        v-balance  AT 63
+        v-balance  AT 65.5
         WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO.
     /*
     form
@@ -2633,7 +2633,7 @@ PROCEDURE run-asistmt-mail :
 
     FORM
         v-msg AT 15
-        v-balance  AT 63
+        v-balance  AT 65.5
         WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO.
 
     FORM
@@ -3441,7 +3441,7 @@ PROCEDURE run-protagonstmt :
 
     FORM
         v-msg AT 15
-        v-balance  AT 73
+        v-balance  AT 75.5
         WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 90.
 
     FORM 
@@ -3479,7 +3479,7 @@ PROCEDURE run-protagonstmt :
 
     FORM
         v-msg AT 15
-        v-balance  AT 73
+        v-balance  AT 75.5
         WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 90.
 
     FORM
@@ -4425,7 +4425,7 @@ PROCEDURE run-report :
 
     FORM
         v-msg AT 15
-        v-balance  AT 63
+        v-balance  AT 65.5
         WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO.
 
     FORM
@@ -4464,7 +4464,7 @@ PROCEDURE run-report :
 
     FORM
         v-msg AT 15
-        v-balance  AT 63
+        v-balance  AT 65.5
         WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO.
 
     FORM
@@ -4994,7 +4994,7 @@ PROCEDURE run-report-mail :
 
     FORM
         v-msg AT 15
-        v-balance  AT 63
+        v-balance  AT 65.5
         WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO.
 
     FORM
@@ -5033,7 +5033,7 @@ PROCEDURE run-report-mail :
 
     FORM
         v-msg AT 15
-        v-balance  AT 63
+        v-balance  AT 65.5
         WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO.
 
     FORM
