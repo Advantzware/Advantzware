@@ -1852,7 +1852,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         lv-default-f      = sys-ctrl.char-fld
         dDecimalFoldValue = sys-ctrl.dec-fld .
     IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/
-        LOOKUP(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,burt,McLean,Carded2,GPI-STN,Coburn,Knight***") > 0 THEN lines-per-page = 55.
+        LOOKUP(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Wingate,Frankstn,Preferred,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,burt,McLean,Carded2,GPI-STN,Coburn,Knight***") > 0 THEN lines-per-page = 55.
 
     {sys/inc/jobcard.i "C"}
     ASSIGN
@@ -3096,7 +3096,7 @@ PROCEDURE output-to-printer :
         /*      MESSAGE "lv-format-f  " lv-format-f VIEW-AS ALERT-BOX ERROR.*/
         IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0 */
             LOOKUP(lv-format-f, 
-            "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
+            "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Preferred,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
         DO:   
             FILE-INFO:FILE-NAME = list-name.
             RUN printfile (FILE-INFO:FILE-NAME).   
@@ -3156,7 +3156,7 @@ PROCEDURE output-to-screen :
         END.
 
         IF  /*index("Interpac,FibreFC,Dayton,Livngstn",lv-format-f) > 0 */
-            LOOKUP(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
+            LOOKUP(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Preferred,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry") > 0 THEN
         DO:
             FILE-INFO:FILE-NAME = list-name.
             RUN printfile (FILE-INFO:FILE-NAME).
@@ -3335,7 +3335,7 @@ PROCEDURE pRunFormatValueChanged :
         IF (tb_fold AND (lv-format-f = "Interpac"  OR lv-format-f = "Dayton" 
             OR lv-format-f = "Livngstn"  OR lv-format-f = "FibreFC"  OR lv-format-f = "HPB"
             OR lv-format-f = "metro"     OR lv-format-f = "Indiana-XL" OR lv-format-f = "MidYork"
-            OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" OR lv-format-f = "Ruffino" 
+            OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" OR lv-format-f = "Preferred" OR lv-format-f = "Ruffino" 
             OR lv-format-f = "Colonial"  OR lv-format-f = "xml"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
             OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
             OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
