@@ -252,7 +252,7 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             PUT UNFORMATTED cDisplay SKIP.
             IF rd-dest EQ 3 THEN DO:
                  PUT STREAM excel2 UNFORMATTED  
-                       cExcelDisplay SKIP(1) .
+                       cExcelDisplay SKIP .
              END.
 
           ASSIGN
@@ -355,8 +355,14 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             END.
             
             if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
-           if v-tot THEN
-            PUT UNFORMATTED "     ORDER TOTALS" + SUBSTRING(cDisplay,18,150) SKIP.
+           if v-tot THEN 
+           do:
+                PUT UNFORMATTED "     ORDER TOTALS" + SUBSTRING(cDisplay,18,150) SKIP.
+                IF rd-dest EQ 3 THEN DO:
+                 PUT STREAM excel2 UNFORMATTED  
+                      "     ORDER TOTALS:," + SUBSTRIN(cExcelDisplay,6,150) SKIP(1) .
+                END.
+           END. 
 
       if v-tot then
       put "SALES VALUE "
@@ -893,6 +899,10 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT misc-str-line SKIP.
             PUT UNFORMATTED  "       TOTAL MISC LABOR  :    " SUBSTRING(cDisplay,31,150) SKIP.
+            IF rd-dest EQ 3 THEN DO:
+                 PUT STREAM excel2 UNFORMATTED  
+                      "     TOTAL MISC LABOR  :," + SUBSTRIN(cExcelDisplay,6,150) SKIP(1) .
+            END.
         END.
         IF LAST-OF(work-prep.work-ml) AND work-prep.work-ml = "yes" THEN DO:
 
@@ -934,6 +944,10 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT misc-str-line SKIP.
             PUT UNFORMATTED  "     TOTAL MISC MATERIALS  :  " SUBSTRING(cDisplay,31,150) SKIP.
+            IF rd-dest EQ 3 THEN DO:
+                 PUT STREAM excel2 UNFORMATTED  
+                      "     TOTAL MISC MATERIALS  :," + SUBSTRIN(cExcelDisplay,6,150) SKIP(1) .
+            END.
         END.
     END.
 
@@ -987,6 +1001,10 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
             if (LINE-COUNTER + 10  )  gt (lines-per-page ) then page.
             PUT misc-str-line SKIP.
             PUT UNFORMATTED  "   TOTAL PREP/MISC  (DIRECT) :" SUBSTRING(cDisplay,31,150) SKIP.
+            IF rd-dest EQ 3 THEN DO:
+                 PUT STREAM excel2 UNFORMATTED  
+                      "     TOTAL PREP/MISC  (DIRECT)  :," + SUBSTRIN(cExcelDisplay,6,150) SKIP(1) .
+            END.
         end.
       end.
       
@@ -1002,10 +1020,20 @@ DEFINE VARIABLE cPressMachine AS CHARACTER NO-UNDO .
       /***  Print Grand Totals and Profit ***/
       
       if v-tot then DO:
+        EMPTY TEMP-TABLE ttGrandTotal.
         IF v-inv-tot-only THEN
-          run jc/rep/job-sumt.p (/* 8/5/14 v-t-prod */ v-t-inv-qty, recid(job)).
+          run jc/rep/job-sumtN.p (/* 8/5/14 v-t-prod */ v-t-inv-qty, recid(job), OUTPUT TABLE ttGrandTotal).
         ELSE IF v-t-prod ne 0  THEN
-          run jc/rep/job-sumt.p (v-t-prod, recid(job)).
+          run jc/rep/job-sumtN.p (v-t-prod, recid(job), OUTPUT TABLE ttGrandTotal).
+        IF rd-dest EQ 3 THEN DO:
+               FOR EACH ttGrandTotal NO-LOCK:      
+                   PUT STREAM excel2 UNFORMATTED  
+                     "," IF ttGrandTotal.totalField1 NE ? THEN ttGrandTotal.totalField1 ELSE "" "," 
+                     IF ttGrandTotal.totalField2 NE ? THEN ttGrandTotal.totalField2 ELSE '' "," 
+                     IF ttGrandTotal.totalField3 NE ? THEN ttGrandTotal.totalField3 ELSE '' SKIP .
+               END.       
+        END.  
+          
       END.
         
       

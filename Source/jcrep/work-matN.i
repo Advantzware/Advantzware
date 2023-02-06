@@ -231,5 +231,9 @@ IF work-mat.mat-type = "B" THEN
             IF (LINE-COUNTER + 10) GT lines-per-page THEN PAGE.
             PUT item-str-line SKIP .
             PUT UNFORMATTED  "   TOTAL MATERIAL   (DIRECT) :"  + substring(cDisplay,31,150)  SKIP(1).
+            IF rd-dest EQ 3 THEN DO:
+                 PUT STREAM excel2 UNFORMATTED  
+                      "     TOTAL MATERIAL   (DIRECT) :," + SUBSTRIN(cExcelDisplay,6,150) SKIP(1) .
+            END.
 
    end.
