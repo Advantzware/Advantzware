@@ -129,6 +129,8 @@ DEFINE VARIABLE cMisEstimate AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lLocalCancelRecords AS LOGICAL NO-UNDO .
 DEFINE VARIABLE deAutoOverRun  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE deAutoUnderRun AS DECIMAL NO-UNDO.
+DEFINE VARIABLE OEUpdateLineDue-log AS LOG NO-UNDO.
+
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
 DEF NEW SHARED TEMP-TABLE w-ord NO-UNDO FIELD w-ord-no LIKE oe-ord.ord-no.
@@ -252,6 +254,11 @@ RUN sys/ref/nk1look.p (INPUT cocode, "CEAddCustomerOption", "L" /* Logical */, N
     OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
     lCEAddCustomerOption = logical(cRtnChar) NO-ERROR.    
+
+RUN sys/ref/nk1look.p (cocode, "OEUpdateLineDueDates", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
+IF llRecFound THEN
+   OEUpdateLineDue-log = LOGICAL(lcReturn) NO-ERROR.  
 
 /* transaction */
 {sys/inc/f16to32.i}
@@ -4617,7 +4624,7 @@ PROCEDURE hold-approve :
                         EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
                     IF NOT AVAIL oe-ordl THEN NEXT.
 
-                    ASSIGN
+                    IF OEUpdateLineDue-log EQ TRUE THEN ASSIGN
                         oe-ordl.req-code  = oe-ord.due-code
                         oe-ordl.req-date  = oe-ord.due-date
                         oe-ordl.prom-code = oe-ord.due-code

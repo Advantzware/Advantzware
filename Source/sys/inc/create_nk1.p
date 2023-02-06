@@ -53,7 +53,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,CEVendorDefault"
            + "QuoteExpirationDays,QuoteExpireDuplicates,APIRequestMethod,InvoiceApprovalMiscCharge,VendItemCostMaximum,PriceMatrixPricingMethod,CaseLabel,InterCompanyBilling,"
            + "CEVendorDefault,JobCreateFromFG,CEPrompt,BOLHideBillableFreight,ARCashEntry,JOBQTYCUST,CEInksWithUnits,CENewLayoutCalc,OEUseMatrixForNonstock,CEOpStandards,CEShipWeight,JobNoLength,CEShowErrorsAndWarnings,"
-           + "CECostSource,CEStyleF,ROUND,CESetHeaderForm,JobSubAssemblyPrefix,CESubAssembly,POPrintScores,JobBarCode,PoBarCode"
+           + "CECostSource,CEStyleF,ROUND,CESetHeaderForm,JobSubAssemblyPrefix,CESubAssembly,POPrintScores,OEUpdateLineDueDates,JobBarCode,PoBarCode"
            .
                       
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -1833,7 +1833,18 @@ CASE ip-nk1-value:
             INPUT 0,                                             /* Int value */
             INPUT NO,                                           /* Logical value */ 
             INPUT 0                                              /* dec value*/
-            ).                                    
+            ).       
+        WHEN "OEUpdateLineDueDates" THEN                    
+        RUN sys/inc/addnk1.p (
+            INPUT cocode, 
+            INPUT ip-nk1-value, 
+            INPUT NO,                                            /* Prompt? */
+            INPUT "Update order line due dates on approval",             /* Description */
+            INPUT "",                                            /* Char Value */
+            INPUT 0,                                             /* Int value */
+            INPUT YES,                                           /* Logical value */ 
+            INPUT 0                                              /* dec value*/
+            ).          
         WHEN "JobBarCode" THEN 
         RUN sys/inc/addnk1.p (
             INPUT cocode, 
