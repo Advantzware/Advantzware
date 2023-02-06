@@ -2070,10 +2070,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                   tb_setcomp:SENSITIVE = NO
                   tb_setcomp           = NO.*/
         DISABLE lines-per-page.
-
-        RUN  pRunFormatValueChanged .
-
+                
         {custom/usrprint.i}
+        
+        RUN  pRunFormatValueChanged .
                        
         IF ipcInvoiceType EQ "inv-head" THEN
             ASSIGN tb_posted:SCREEN-VALUE        = "NO"
@@ -2512,12 +2512,14 @@ PROCEDURE pRunFormatValueChanged :
                 tb_print-message:HIDDEN     = NO
                 btnInvoiceMessage:SENSITIVE = YES
                 tb_print-message:SENSITIVE  = YES.       
-        ELSE
+        ELSE    
             ASSIGN btnInvoiceMessage:HIDDEN    = YES
                 tb_print-message:HIDDEN     = YES
                 btnInvoiceMessage:SENSITIVE = NO
                 tb_print-message:SENSITIVE  = NO
-                tb_print-message:SCREEN-VALUE = "NO".
+                tb_print-message:SCREEN-VALUE = "NO"
+                tb_print-message = NO. 
+               
        
     END.
 END PROCEDURE.
