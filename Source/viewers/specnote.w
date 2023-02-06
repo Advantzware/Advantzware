@@ -561,6 +561,7 @@ PROCEDURE local-create-record :
   DEFINE VARIABLE cChargeCode AS CHARACTER NO-UNDO.
   DEF VAR lv-header-value AS cha NO-UNDO.
   DEF VAR lv-reckey2 AS cha NO-UNDO.
+  DEFINE VARIABLE ls-header as CHARACTER NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -578,6 +579,17 @@ PROCEDURE local-create-record :
      IF AVAIL eb THEN ASSIGN 
         notes.note_form_no = eb.form-no
         notes.note_form_no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(eb.form-no).     
+  END.
+  IF ENTRY(2,v-prg-2," ") EQ "oe/wOrderEntryMaster.w" THEN
+  DO:
+      run get-link-handle in adm-broker-hdl (this-procedure,"container-source", output char-hdl).
+      run get-ip-header in widget-handle(char-hdl) (output ls-header).
+      FIND FIRST eb NO-LOCK
+          WHERE eb.company EQ g_company 
+            AND eb.est-no EQ ls-header NO-ERROR.
+      IF AVAIL eb THEN ASSIGN 
+        notes.note_form_no = eb.form-no
+        notes.note_form_no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = string(eb.form-no).       
   END.
 
   {methods/run_link.i "CONTAINER-SOURCE" "pGetChargeCode" "(OUTPUT cChargeCode)"}
