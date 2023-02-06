@@ -78,11 +78,13 @@ RUN system/OutputProcs.p PERSISTENT SET hdOutputProcs.
 
 ASSIGN 
     cTextListToSelect  = "Cust#,Name,BOL#,C/R,INV Date,Order#,Inv#," +
-                           "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name,Job#"
+                           "QTY Shipped/M,Sq Ft,Total Sq Ft,$/MSF,Prod,Inv Amount,Order Item Name,Job#," +
+                           "Sales Rep"
     cFieldListToSelect = "cust,name,bol,ct,inv-date,ord,inv," +
-                            "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name,job-no"
-    cFieldLength       = "8,30,7,3,8,8,7," + "13,9,11,10,5,14,30,13"
-    cFieldType         = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c,c" 
+                            "qty-ship,sqft,tot-sqt,msf,prod-code,inv-amt,i-name,job-no," +
+                            "salrep"
+    cFieldLength       = "8,30,7,3,8,8,7," + "13,9,11,10,5,14,30,13," + "9"
+    cFieldType         = "c,c,i,c,c,i,i," + "i,i,i,i,c,i,c,c," + "c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1893,6 +1895,8 @@ PROCEDURE run-report :
                         cVarValue = STRING(cItemName,"x(30)").
                     WHEN "job-no"  THEN 
                         cVarValue = IF TRIM(w-data.w-job-no) BEGINS "-" THEN "" ELSE STRING(w-data.w-job-no) .
+                    WHEN "salrep" THEN
+                        cVarValue = STRING(cust.sman) .
                 END CASE.
 
                 IF  cTmpField = "inv-date" THEN
@@ -1962,6 +1966,8 @@ PROCEDURE run-report :
                         cVarValue = "".
                     WHEN "job-no"  THEN 
                         cVarValue = "" .
+                    OTHERWISE 
+                     cVarValue = "" .
                 END CASE.
 
                 cExcelVarValue = cVarValue.
@@ -2030,6 +2036,8 @@ PROCEDURE run-report :
                         cVarValue = "".
                     WHEN "job-no"  THEN 
                         cVarValue = "" .
+                    OTHERWISE 
+                     cVarValue = "" .    
                 END CASE.
 
                 cExcelVarValue = cVarValue.
@@ -2104,6 +2112,8 @@ PROCEDURE run-report :
                 cVarValue =  "".
             WHEN "job-no"  THEN 
                 cVarValue = "" .
+            OTHERWISE 
+                     cVarValue = "" .    
         END CASE.
 
         cExcelVarValue = cVarValue.
