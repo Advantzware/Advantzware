@@ -25,7 +25,7 @@ DO li = 1 TO NUM-ENTRIES(spec_codes):
 END.
 
 /*FibreFC,*/
-IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
+IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Preferred,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
   lines-per-page = 50. /*55*/
 ELSE IF tb_fold AND CAN-DO("GPI-STN",lv-format-f) THEN 
   lines-per-page = 55 /* 55 lines-per-page*/.
@@ -152,7 +152,7 @@ IF tb_corr AND ( lv-format-c = "Soule" /* OR lv-format-c = "BELL" */ ) THEN DO:
 END.
 
 
-IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,FibreFC,METRO,HPB,MWFibre,PPI,PackRite,Rosmar,Knight,MidYork,Dee,Prystup,Knight***,McLean,Burt",lv-format-f) THEN
+IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Preferred,Keystone,Ruffino,FibreFC,METRO,HPB,MWFibre,PPI,PackRite,Rosmar,Knight,MidYork,Dee,Prystup,Knight***,McLean,Burt",lv-format-f) THEN
   {cerep/jobkeyst.i NO-LOCK}
   , EACH job-mat WHERE job-mat.company = job-hdr.company
                    AND job-mat.job     = job-hdr.job
@@ -213,7 +213,7 @@ IF ip-industry EQ "Fold" AND tb_fold AND CAN-DO("Frankstn,Keystone,Ruffino,Fibre
 
     ELSE
     IF FIRST-OF(job-hdr.frm) THEN
-      IF CAN-DO("Frankstn,METRO,HPB,PPI,Rosmar,Prystup",lv-format-f) THEN 
+      IF CAN-DO("Frankstn,Preferred,METRO,HPB,PPI,Rosmar,Prystup",lv-format-f) THEN 
           RUN cerep/d-fibre.w (ROWID(job-hdr)).
       ELSE
           IF CAN-DO("PackRite",lv-format-f) THEN
@@ -363,7 +363,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 /*Change similar lines in jcrep\r-tickt2.w can-do ... in multiple places*/
 is-xprint-form = (ip-industry EQ "Corr") OR 
-                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry",lv-format-f).
+                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Ruffino,Frankstn,Preferred,Colonial,CCC-Hybrid,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Burt,McLean,Carded2,GPI-STN,Coburn,Knight***,jobcardf 1,jobcardf 2,Henry",lv-format-f).
 
 IF is-xprint-form THEN DO:
 
@@ -400,7 +400,7 @@ IF is-xprint-form THEN DO:
        (can-do ('PEACHTREE,PACIFIC,MWBox,Hughes,Protagon,Freedman,ARTIOS,Suthrlnd,United,oklahoma,Spectrum,CapCity,Allwest,RFC2,Loylang,Soule,HPB,MulticellGA,MCPartitions,ColonialPL,Delta,Bell',lv-format-c))  OR 
        (can-do ("Xprint,Valley,Fluted,Lakeside,VINELAND,TriLakes,Axis,TriLakes2,Michcor",lv-format-c) AND lv-ornt = "L")) OR
        (ip-industry = "FOLD" AND 
-       can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC-Hybrid,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Burt,McLean,Dee,Badger',lv-format-f)) THEN 
+       can-do ('Interpac,Frankstn,Preferred,OTTPkg,Colonial,CCC-Hybrid,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Burt,McLean,Dee,Badger',lv-format-f)) THEN 
       PUT UNFORMATTED "<OLANDSCAPE>".
 
     IF dDecimalFoldValue > 0 AND ip-industry = "FOLD" AND can-do ('McLean',lv-format-f) THEN do: 
@@ -446,7 +446,7 @@ IF ip-industry EQ "Fold" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
       RUN cerep/jobintpk.p (lv-format-f).
    END.
-   ELSE IF lv-format-f EQ "Frankstn" THEN DO:
+   ELSE IF lv-format-f EQ "Frankstn" OR lv-format-f EQ "Preferred" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
       RUN cerep/jobfrank.p (lv-format-f).
    END.
