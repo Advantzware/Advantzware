@@ -5,6 +5,9 @@ DEF INPUT PARAM v-new-item AS CHAR.
 {sys/inc/var.i SHARED}
 
 DEF BUFFER b-itemfg FOR itemfg.
+DEFINE BUFFER bf-itemfg-loc FOR itemfg-loc.
+DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
+DEFINE BUFFER bf-e-itemfg FOR e-itemfg.
 
 DEF VAR lv AS CHAR NO-UNDO.
 
@@ -32,8 +35,23 @@ FOR EACH itemfg-loc
     WHERE itemfg-loc.company EQ itemfg.company
       AND itemfg-loc.i-no    EQ itemfg.i-no
     NO-LOCK:
-
-  {fg/updfgitm.i itemfg-loc i-no NO}
+    
+    FIND FIRST bf-itemfg-loc NO-LOCK
+         WHERE bf-itemfg-loc.company EQ itemfg-loc.company
+           AND bf-itemfg-loc.i-no EQ v-new-item
+           AND bf-itemfg-loc.loc EQ itemfg-loc.loc NO-ERROR.
+                                         
+   IF NOT AVAILABLE bf-itemfg-loc THEN do:   
+      {fg/updfgitm.i itemfg-loc i-no NO}
+   END. 
+   ELSE DO:
+     FIND FIRST bf-itemfg-loc EXCLUSIVE-LOCK
+         WHERE bf-itemfg-loc.company EQ itemfg-loc.company
+           AND bf-itemfg-loc.i-no EQ itemfg-loc.i-no
+           AND bf-itemfg-loc.loc EQ itemfg-loc.loc NO-ERROR.
+     IF AVAILABLE bf-itemfg-loc THEN      
+     DELETE bf-itemfg-loc.
+   END.
 END.
 
 FOR EACH ap-invl
@@ -57,8 +75,21 @@ FOR EACH e-itemfg
     WHERE e-itemfg.company EQ itemfg.company
       AND e-itemfg.i-no    EQ itemfg.i-no
     NO-LOCK:
-
-  {fg/updfgitm.i e-itemfg i-no NO}
+    
+    FIND FIRST bf-e-itemfg NO-LOCK
+         WHERE bf-e-itemfg.company EQ itemfg.company
+           AND bf-e-itemfg.i-no    EQ v-new-item NO-ERROR.
+    IF not AVAILABLE bf-e-itemfg then
+    do:
+        {fg/updfgitm.i e-itemfg i-no NO}
+    END.
+    ELSE DO:
+         FIND FIRST bf-e-itemfg EXCLUSIVE-LOCK
+              WHERE bf-e-itemfg.company EQ itemfg.company
+              AND rowid(bf-e-itemfg)    EQ ROWID(e-itemfg) NO-ERROR.
+         IF AVAILABLE bf-e-itemfg THEN
+         DELETE bf-e-itemfg.
+    END.
 END.
 
 FOR EACH e-itemfg-vend
@@ -380,7 +411,29 @@ FOR EACH vendItemCost
         AND vendItemCost.itemID    EQ itemfg.i-no
         AND vendItemCost.itemType  EQ "FG"
         NO-LOCK:
-{fg/updfgitm.i vendItemCost itemID NO}
+        
+        FIND FIRST bf-vendItemCost NO-LOCK 
+            WHERE bf-vendItemCost.company EQ vendItemCost.Company
+            AND bf-vendItemCost.itemType EQ vendItemCost.itemType
+            AND bf-vendItemCost.itemID EQ v-new-item
+            AND bf-vendItemCost.vendorID EQ vendItemCost.vendorID
+            AND bf-vendItemCost.customerID EQ vendItemCost.customerID
+            AND bf-vendItemCost.estimateNo EQ vendItemCost.estimateNo
+            AND bf-vendItemCost.formNo EQ vendItemCost.formNo
+            AND bf-vendItemCost.blankNo EQ vendItemCost.blankNo
+            AND bf-vendItemCost.expirationDate EQ date(vendItemCost.expirationDate)
+            AND bf-vendItemCost.effectiveDate EQ date(vendItemCost.effectiveDate)
+            NO-ERROR.
+        IF NOT AVAILABLE bf-vendItemCost then
+        do:
+            {fg/updfgitm.i vendItemCost itemID NO}
+        END.
+        ELSE DO:
+           FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK
+                WHERE ROWID(bf-vendItemCost) EQ rowid(vendItemCost) NO-ERROR.
+           IF AVAILABLE bf-vendItemCost THEN
+           DELETE bf-vendItemCost.           
+        END.         
 END.
 
 FOR EACH estCostItem
