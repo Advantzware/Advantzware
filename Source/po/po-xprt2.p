@@ -111,7 +111,15 @@ DEF VAR lv-dep AS DEC NO-UNDO.
 DEF VAR lv-dep2 AS DEC NO-UNDO.
 DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
 DEFINE VARIABLE cFlueTest AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE lPoBarCode     AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "PoBarCode", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lPoBarCode = LOGICAL(cRtnChar) NO-ERROR.
 
 v-dash-line = fill ("_",80).
 

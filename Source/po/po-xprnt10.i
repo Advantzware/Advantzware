@@ -18,6 +18,7 @@ ELSE PUT v-sname AT 65 skip
          v-saddr[1] AT 65 SKIP
          v-saddr[2] AT 65 SKIP
          v-scity + " " + v-sstate + " " + v-szip FORM "x(35)" AT 65 SKIP.
+
 PUT
        "<R4><C50><#3>" SKIP
        "<FArial><P14><=#3><P10>" SKIP
@@ -26,6 +27,14 @@ PUT
           "<=#3><R+3>Changed Date: " po-ord.po-change-date SKIP
           "<=3><R+4>Date Required: " po-ord.due-date SKIP
        .   
+IF lPoBarCode THEN
+PUT "<FArial>"
+        "<R2.5><C70><#5>" SKIP
+        "<FArial><P12><=#5><P10>" SKIP
+        "<AT=,6.4><FROM><AT=+.5,+1.7><BARCODE,TYPE=128A,CHECKSUM=NONE,VALUE="  
+                        po-ord.po-no ">" 
+          "<AT=,7.9>" SKIP .
+
         v-printline = v-printline + 10.    
 
       PUT "<|10><R20><C1><#4><FROM><R24><C80><RECT>" SKIP
