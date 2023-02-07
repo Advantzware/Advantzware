@@ -2507,7 +2507,9 @@ PROCEDURE pRunFormatValueChanged :
                 tb_print-message:HIDDEN     = NO
                 btnInvoiceMessage:SENSITIVE = YES
                 tb_print-message:SENSITIVE  = YES.
-        ELSE IF logical(cSettingValue) EQ YES AND (v-print-fmt EQ "invprint 10" OR v-print-fmt EQ "invprint 20" ) THEN
+        ELSE IF logical(cSettingValue) EQ YES AND (v-print-fmt EQ "invprint 10" OR v-print-fmt EQ "invprint 20" OR  v-print-fmt EQ "invprint10-CAN" 
+                      OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "invprint 21" OR v-print-fmt EQ "invprint 2" OR v-print-fmt EQ "invprint 1"
+                      OR v-print-fmt EQ "xprint") THEN
             ASSIGN btnInvoiceMessage:HIDDEN    = NO
                 tb_print-message:HIDDEN     = NO
                 btnInvoiceMessage:SENSITIVE = YES

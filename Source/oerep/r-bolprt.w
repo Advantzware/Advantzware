@@ -5346,7 +5346,8 @@ PROCEDURE pRunFormatValueChanged :
                 tb_print-message:HIDDEN     = YES
                 btnInvoiceMessage:SENSITIVE = NO
                 tb_print-message:SENSITIVE  = NO
-                tb_print-message:SCREEN-VALUE = "NO".
+                tb_print-message:SCREEN-VALUE = "NO"
+                tb_print-message = NO.
 
     END.
 END PROCEDURE.
@@ -5385,7 +5386,7 @@ PROCEDURE run-packing-list :
         lPerBolLine         = tb_per-bol-line
         lPrintDetailPage    = tb_print-DetPage
         lSuppressName       = tb_suppress-name
-        lPrintMessage       = tb_print-message.
+        lPrintMessage       = logical(tb_print-message:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
     IF ip-sys-ctrl-ship-to THEN
         ASSIGN
@@ -5586,7 +5587,7 @@ PROCEDURE run-report :
         lPerBolLine         = tb_per-bol-line
         lPrintDetailPage    = tb_print-DetPage
         lSuppressName       = tb_suppress-name
-        lPrintMessage       = tb_print-message.
+        lPrintMessage       = logical(tb_print-message:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
     /*IF lAsiUser THEN DO:
        ASSIGN v-print-fmt = run_format
@@ -5884,7 +5885,7 @@ PROCEDURE run-report-ci :
         lPerBolLine         = tb_per-bol-line
         lPrintDetailPage    = tb_print-DetPage
         lSuppressName       = tb_suppress-name
-        lPrintMessage       = tb_print-message.
+        lPrintMessage       = logical(tb_print-message:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
     IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
         ASSIGN
@@ -6167,7 +6168,7 @@ PROCEDURE run-report-mail :
         lPerBolLine         = tb_per-bol-line
         lPrintDetailPage    = tb_print-DetPage
         lSuppressName       = tb_suppress-name 
-        lPrintMessage       = tb_print-message.
+        lPrintMessage       = logical(tb_print-message:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
     IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
         ASSIGN
