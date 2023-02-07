@@ -188,15 +188,15 @@ tb_fold tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL ~
 tb_fgimage tb_SW tb_print-metric tbPageBreakByForm spec_codes tb_prt-rev ~
 revsn_no tb_prt-dmi rd_print-Sheet tb_prt-mch rd_print-speed tb_prt-shipto ~
 tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header tb_prompt-ship ~
-dept_codes TB_sample_req tb_freeze-note rd-dest run_format ~
-tb_ExportXML tbAutoClose 
+dept_codes TB_sample_req tb_freeze-note rd-dest run_format tb_ExportXML ~
+tbAutoClose 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 begin_job1 begin_job2 end_job1 end_job2 tb_reprint ~
-tb_box tb_fgimage tb_approve tb_tray-2 tb_spanish tb_make_hold ~
-tb_app-unprinted tb_print-metric tb_draft tb_prt-rev tb_prt-dmi tb_prt-mch ~
-tb_prt-shipto tb_prt-sellprc tb_prt-label td-show-parm 
+tb_box tb_fgimage tb_approve tb_tray-2 tb_spanish tb_make_hold tb_draft ~
+tb_print-metric tb_app-unprinted tb_attched tb_prt-rev tb_prt-dmi ~
+tb_prt-mch tb_prt-shipto tb_prt-sellprc tb_prt-label td-show-parm 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -260,7 +260,7 @@ DEFINE VARIABLE begin_job2 AS INTEGER FORMAT ">>9" INITIAL 0
      SIZE 5.4 BY 1.
 
 DEFINE VARIABLE dept_codes AS CHARACTER FORMAT "X(256)":U INITIAL "QA" 
-     LABEL "Departments Code"
+     LABEL "Departments Code" 
      VIEW-AS FILL-IN 
      SIZE 25 BY 1 NO-UNDO.
 
@@ -365,6 +365,11 @@ DEFINE VARIABLE tb_approve AS LOGICAL INITIAL no
      LABEL "Approve Job(s)?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_attched AS LOGICAL INITIAL no 
+     LABEL "Print Attachment Images" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 35 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_box AS LOGICAL INITIAL yes 
      LABEL "Print Box Design?" 
@@ -538,10 +543,11 @@ DEFINE FRAME FRAME-A
      tb_tray-2 AT ROW 8.33 COL 91 RIGHT-ALIGNED WIDGET-ID 6
      tb_spanish AT ROW 9.19 COL 47 RIGHT-ALIGNED
      tb_make_hold AT ROW 9.33 COL 91 RIGHT-ALIGNED WIDGET-ID 12
-     tb_app-unprinted AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 10
-     tb_print-metric AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 22
      tb_draft AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 18
+     tb_print-metric AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 22
+     tb_app-unprinted AT ROW 9.38 COL 56 RIGHT-ALIGNED WIDGET-ID 10
      tbPageBreakByForm AT ROW 10.29 COL 21 WIDGET-ID 66
+     tb_attched AT ROW 10.29 COL 91 RIGHT-ALIGNED WIDGET-ID 68
      spec_codes AT ROW 11.24 COL 18.8 COLON-ALIGNED
      tb_prt-rev AT ROW 12.29 COL 21
      revsn_no AT ROW 12.29 COL 49 COLON-ALIGNED
@@ -558,7 +564,7 @@ DEFINE FRAME FRAME-A
      tb_prompt-ship AT ROW 17 COL 56
      dept_codes AT ROW 17.91 COL 69 COLON-ALIGNED WIDGET-ID 14
      TB_sample_req AT ROW 17.95 COL 56 WIDGET-ID 2
-     tb_freeze-note AT ROW 18 COL 21     
+     tb_freeze-note AT ROW 18 COL 21
      lv-ornt AT ROW 19.62 COL 53 NO-LABEL
      lines-per-page AT ROW 19.62 COL 91 COLON-ALIGNED
      rd-dest AT ROW 19.86 COL 5 NO-LABEL
@@ -572,10 +578,10 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 25.33 COL 55.2
      "Print Machine's Speed or Run Hour ?" VIEW-AS TEXT
           SIZE 36.6 BY .62 AT ROW 14.24 COL 21
-     " Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.05 COL 4
      " Output Destination" VIEW-AS TEXT
           SIZE 19 BY .62 AT ROW 19.1 COL 4
+     " Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.05 COL 4
      RECT-6 AT ROW 19.48 COL 3
      RECT-7 AT ROW 1.48 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -714,6 +720,13 @@ ASSIGN
 ASSIGN 
        tb_approve:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_approve:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+/* SETTINGS FOR TOGGLE-BOX tb_attched IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE ALIGN-R 1                                       */
+ASSIGN 
+       tb_attched:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_attched:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_box IN FRAME FRAME-A
@@ -1126,7 +1139,7 @@ DO:
 
 &Scoped-define SELF-NAME dept_codes
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dept_codes C-Win
-ON HELP OF dept_codes IN FRAME FRAME-A
+ON HELP OF dept_codes IN FRAME FRAME-A /* Departments Code */
 DO:
         DEFINE VARIABLE char-val    AS CHARACTER NO-UNDO.
         DEFINE VARIABLE ip-char-val AS CHARACTER NO-UNDO.
@@ -1166,7 +1179,7 @@ DO:
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL dept_codes C-Win
-ON LEAVE OF dept_codes IN FRAME FRAME-A
+ON LEAVE OF dept_codes IN FRAME FRAME-A /* Departments Code */
 DO:
         ASSIGN {&self-name}.
     END.
@@ -1452,6 +1465,17 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_attched
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_attched C-Win
+ON VALUE-CHANGED OF tb_attched IN FRAME FRAME-A /* Print Attachment Images */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_box
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_box C-Win
 ON VALUE-CHANGED OF tb_box IN FRAME FRAME-A /* Print Box Design? */
@@ -1490,6 +1514,7 @@ DO:
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_draft
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_draft C-Win
@@ -2746,15 +2771,15 @@ PROCEDURE enable_UI :
           tb_print-metric tbPageBreakByForm spec_codes tb_prt-rev revsn_no 
           tb_prt-dmi rd_print-Sheet tb_prt-mch rd_print-speed tb_prt-shipto 
           tb_prt-sellprc tb_prt-label tb_committed tb_prt-set-header 
-          tb_prompt-ship dept_codes TB_sample_req tb_freeze-note  
-          rd-dest run_format tb_ExportXML tbAutoClose 
+          tb_prompt-ship dept_codes TB_sample_req tb_freeze-note rd-dest 
+          run_format tb_ExportXML tbAutoClose 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job1 begin_job2 end_job1 end_job2 tb_fold 
          tb_show-rel tb_RS tb_corr tb_PR tb_reprint tb_DC tb_box tb_GL tb_SW 
          tb_approve tb_spanish tb_print-metric tbPageBreakByForm spec_codes 
          revsn_no rd_print-Sheet tb_prt-label tb_committed tb_prt-set-header 
-         tb_prompt-ship dept_codes TB_sample_req tb_freeze-note  
-         rd-dest run_format tb_ExportXML tbAutoClose btn-ok btn-cancel 
+         tb_prompt-ship dept_codes TB_sample_req tb_freeze-note rd-dest 
+         run_format tb_ExportXML tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -3472,6 +3497,18 @@ PROCEDURE pRunFormatValueChanged :
             lv-font-name:HIDDEN = YES
             lv-font-no:HIDDEN = YES
             lines-per-page:HIDDEN = YES.
+        
+        IF lv-format-c EQ "jobcardc 20"  THEN
+        DO: 
+           ASSIGN
+            tb_attched:HIDDEN = NO
+            tb_attched:SENSITIVE = YES.
+        END.
+        ELSE ASSIGN 
+            tb_attched:HIDDEN = YES
+            tb_attched:SENSITIVE = NO 
+            tb_attched:SCREEN-VALUE = "NO" 
+            tb_attched = NO .
     END.
 END PROCEDURE.
 
@@ -3532,6 +3569,7 @@ PROCEDURE run-report :
     system.SharedConfig:Instance:SetValue("JobTicket_PrintBoxDesign", STRING(tb_box)).
     system.SharedConfig:Instance:SetValue("JobTicket_PrintFGItemImage", STRING(tb_fgimage)).
     system.SharedConfig:Instance:SetValue("JobTicket_PageBreakByForm", STRING(tbPageBreakByForm)).
+    system.SharedConfig:Instance:SetValue("JobTicket_PrintAttachedImage", STRING(tbPageBreakByForm)).
     
     {jcrep/tickrrpt.i}
 
@@ -3539,6 +3577,7 @@ PROCEDURE run-report :
     system.SharedConfig:Instance:DeleteValue("JobTicket_PrintBoxDesign").
     system.SharedConfig:Instance:DeleteValue("JobTicket_PrintFGItemImage").
     system.SharedConfig:Instance:DeleteValue("JobTicket_PageBreakByForm").
+    system.SharedConfig:Instance:DeleteValue("JobTicket_PrintAttachedImage").
     
     OUTPUT CLOSE.
     

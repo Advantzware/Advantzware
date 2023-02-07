@@ -93,6 +93,8 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
 DEFINE VARIABLE opiArraySize AS INTEGER NO-UNDO.
 DEFINE VARIABLE cCriteria AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lPrintAttachedImage AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cQaText AS CHARACTER FORM "x(30)" INIT "Job Ticket" NO-UNDO.
 
 DEFINE BUFFER bf-itemfg         FOR itemfg .
 
@@ -139,6 +141,8 @@ DO TRANSACTION:
 END.
 
 v-job-cust = sys-ctrl.log-fld.
+
+lPrintAttachedImage = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintAttachedImage")).
 
 ASSIGN
     v-line[1]      = CHR(95) + fill(CHR(95),40) + chr(95) + "  " +
@@ -936,7 +940,25 @@ DO v-local-loop = 1 TO v-local-copies:
             ls-fgitem-img = bf-itemfg.box-image.
 
             PUT UNFORMATTED "<=ItemImageStart><R+.3><C+.3><#ItemImage><=ItemImageEnd><IMAGE#ItemImage=" ls-fgitem-img "><=ItemImage>".
-            PAGE.
+            PAGE.           
+            IF lPrintAttachedImage THEN DO:
+                   FOR EACH ATTACH 
+                       WHERE attach.company EQ cocode
+                         AND trim(attach.est-no) EQ trim(job.est-no)
+                         AND  (attach.i-no EQ ( IF xest.est-type EQ 6 THEN bf-itemfg.i-no ELSE itemfg.i-no) )
+                         AND ATTACH.spare-int-1 EQ 1 NO-LOCK:
+                       
+                      PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" cQaText SKIP
+                       "<=12><C30><FROM><R+4><C30><LINE><|3>"
+                       "<=12><C60><FROM><R+4><C60><LINE><|3>"
+                      "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" (IF xest.est-type EQ 6 THEN bf-itemfg.i-no ELSE itemfg.i-no) FORMAT "x(15)"
+                      "<=12><R+2><C8>" v-job-prt  "<C35>"  v-est-no  
+                      "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
+                      "<=12><R+4><C1><FROM><C106><LINE><||3>"
+                      "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
+                      PAGE.  
+                   END.   
+            END.
 
     END.  /* for each w-ef */
     IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN 
@@ -1118,6 +1140,25 @@ DO v-local-loop = 1 TO v-local-copies:
             .
         
         PAGE.
+        
+        IF lPrintAttachedImage THEN DO:
+                   FOR EACH ATTACH 
+                       WHERE attach.company EQ cocode
+                         AND trim(attach.est-no) EQ trim(job.est-no)
+                         AND attach.i-no EQ v-fg-set 
+                         AND ATTACH.spare-int-1 EQ 1 NO-LOCK:
+                       
+                      PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" cQaText SKIP
+                       "<=12><C30><FROM><R+4><C30><LINE><|3>"
+                       "<=12><C60><FROM><R+4><C60><LINE><|3>"
+                      "<=12><R+1><C5>Job # <C30> Estimate #" "<C60> FG Item:" v-fg-set FORMAT "x(15)"
+                      "<=12><R+2><C8>" v-job-prt  "<C35>"  v-est-no  
+                      "<C60> File Name: " STRING( SUBSTR(attach.attach-file,r-INDEX(attach.attach-file,'\') + 1)) FORMAT "x(50)"
+                      "<=12><R+4><C1><FROM><C106><LINE><||3>"
+                      "<=12><R+5><C5><#21><R+42><C+90><IMAGE#21=" attach.attach-file ">" SKIP. 
+                      PAGE.  
+                   END.   
+        END.
     END. /* set header printing */
 END. /* est.est-type = 6 */
 /* end of set header printing */
