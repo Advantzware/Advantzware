@@ -3569,7 +3569,7 @@ PROCEDURE run-report :
     system.SharedConfig:Instance:SetValue("JobTicket_PrintBoxDesign", STRING(tb_box)).
     system.SharedConfig:Instance:SetValue("JobTicket_PrintFGItemImage", STRING(tb_fgimage)).
     system.SharedConfig:Instance:SetValue("JobTicket_PageBreakByForm", STRING(tbPageBreakByForm)).
-    system.SharedConfig:Instance:SetValue("JobTicket_PrintAttachedImage", STRING(tbPageBreakByForm)).
+    system.SharedConfig:Instance:SetValue("JobTicket_PrintAttachedImage", STRING(tb_attched)).
     
     {jcrep/tickrrpt.i}
 
