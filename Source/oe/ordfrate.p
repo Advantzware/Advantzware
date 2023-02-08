@@ -18,7 +18,7 @@ END.
 
 ld = oe-ord.t-freight / li.
 
-IF lv-freight NE oe-ord.t-freight THEN
+/*IF lv-freight NE oe-ord.t-freight THEN*/  /*Ticket -301497 */
 FOR EACH oe-ordl OF oe-ord:
   RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
   IF lv-freight EQ 0 THEN oe-ordl.t-freight = ld.
