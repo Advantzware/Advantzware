@@ -365,7 +365,41 @@
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "BuyerPart", cBuyerPart).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "HLCount", iHLCount).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "LineItemStatus", STRING(oe-boll.p-c)).
-
+            
+            RELEASE oe-rel.
+            FIND FIRST oe-rell NO-LOCK
+                 WHERE oe-rell.company EQ oe-boll.company
+                   AND oe-rell.r-no    EQ oe-boll.r-no
+                   AND oe-rell.ord-no  EQ oe-boll.ord-no
+                   AND oe-rell.i-no    EQ oe-boll.i-no
+                   AND oe-rell.line    EQ oe-boll.line
+                   NO-ERROR.
+                               
+            IF AVAILABLE oe-rell THEN
+            DO:
+                FIND FIRST oe-relh of oe-rell no-lock.
+                FIND FIRST oe-rel NO-LOCK
+                     where oe-rel.company eq oe-boll.company
+                       and oe-rel.ord-no  eq oe-rell.ord-no
+                       and oe-rel.line    eq oe-rell.line
+                       and oe-rel.link-no eq oe-rell.r-no
+                       and oe-rel.ship-no eq oe-relh.ship-no
+                       and oe-rel.i-no    eq oe-rell.i-no
+                       NO-ERROR.
+                IF NOT AVAIL oe-rel AND AVAILABLE oe-rell THEN
+                FIND FIRST oe-rel NO-LOCK
+                     WHERE oe-rel.company  eq oe-boll.company
+                       and oe-rel.ord-no   eq oe-rell.ord-no
+                       and oe-rel.line     eq oe-rell.line
+                       and oe-rel.rel-date eq oe-relh.rel-date
+                       and oe-rel.ship-no  eq oe-relh.ship-no
+                       and oe-rel.i-no     eq oe-rell.i-no
+                       NO-ERROR.       
+            END.
+            
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "RelPONO", IF AVAILABLE oe-rel THEN  STRING(oe-rel.po-no)  ELSE "").
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "RelLotNo", IF AVAILABLE oe-rel THEN  STRING(oe-rel.lot-no) ELSE "").
+            
             FIND FIRST oe-ordl NO-LOCK
                  WHERE oe-ordl.company EQ oe-boll.company
                    AND oe-ordl.ord-no  EQ oe-boll.ord-no
