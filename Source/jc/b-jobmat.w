@@ -71,6 +71,9 @@ DEFINE VARIABLE cCostUOM    AS CHARACTER NO-UNDO.
 
 DEFINE VARIABLE lError      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cMessage    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCreateSBNote  AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("CreateSBNote", OUTPUT cCreateSBNote).
 
 DEF BUFFER b-setup FOR reftable.
 
@@ -979,9 +982,11 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   job-mat.i-no = job-mat.rm-i-no.
 
-  IF ll-commit THEN
+  IF ll-commit THEN DO:  
       RUN jc/jc-all2.p (ROWID(job-mat), 1).
-
+      IF cCreateSBNote EQ "Yes" THEN
+           RUN Notes_CreateSBNotes(BUFFER job-mat).
+  END.
   system.SharedConfig:Instance:DeleteValue("JobMaterialResetAllocationFields").
 
 END PROCEDURE.
@@ -1645,7 +1650,11 @@ PROCEDURE run-alloc :
           system.SharedConfig:Instance:SetValue("JobMaterialResetAllocationFields", "NO").
           
           IF lv-alloc-char BEGINS "alloc" THEN 
+          DO: 
               RUN jc/jc-all2.p (ROWID(b-job-mat), 1).
+              IF cCreateSBNote EQ "Yes" THEN
+              RUN Notes_CreateSBNotes(BUFFER b-job-mat).
+          END.
           ELSE 
               RUN jc/jc-all2.p (ROWID(b-job-mat), -1).
           

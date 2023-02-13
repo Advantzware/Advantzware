@@ -62,6 +62,9 @@ DEFINE VARIABLE iAvailQty      AS INTEGER   NO-UNDO.
 DEFINE VARIABLE dLinearFeet    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE iFGQty         AS INTEGER   NO-UNDO.
 DEFINE VARIABLE dTons          AS DECIMAL NO-UNDO.
+DEFINE VARIABLE cCreateSBNote  AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("CreateSBNote", OUTPUT cCreateSBNote).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -544,7 +547,11 @@ PROCEDURE pRunAlloc :
         FIND bf-job-mat WHERE ROWID(bf-job-mat) EQ ROWID(job-mat) EXCLUSIVE-LOCK.
         bf-job-mat.qty-all = INTEGER(job-mat.qty-all:SCREEN-VALUE IN BROWSE {&browse-name}).
         bf-job-mat.all-flg = YES.  
-        IF lv-alloc-char BEGINS "alloc" THEN RUN jc/jc-all2.p (ROWID(bf-job-mat), 1).
+        IF lv-alloc-char BEGINS "alloc" THEN do: 
+           RUN jc/jc-all2.p (ROWID(bf-job-mat), 1).
+           IF cCreateSBNote EQ "Yes" THEN
+           RUN Notes_CreateSBNotes(BUFFER bf-job-mat).           
+        END.   
         ELSE
         DO:
             RUN jc/jc-all2.p (ROWID(bf-job-mat), -1).
