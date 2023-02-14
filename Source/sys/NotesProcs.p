@@ -269,7 +269,7 @@ PROCEDURE Notes_GetNotesTempTableForObject:
 
 END PROCEDURE.
 
-PROCEDURE pCreateSBNotes:
+PROCEDURE pCreateSBNotes PRIVATE:
     /*------------------------------------------------------------------------------
      Purpose: 
      Notes:
