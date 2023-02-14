@@ -6,6 +6,7 @@ DEFINE VARIABLE cMachine AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cInks AS CHARACTER NO-UNDO .
 DEFINE VARIABLE iTotalPallet AS INTEGER NO-UNDO .
 DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dMiscCost AS DECIMAL NO-UNDO.
 DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
 DEFINE BUFFER bf-oe-rel FOR oe-rel.
 DEFINE BUFFER bf-eb FOR eb.
@@ -651,14 +652,21 @@ FORMAT wkrecap.procat
     
     IF AVAIL oe-ord AND AVAIL job AND job.job-no NE "" AND AVAIL eb THEN
     cInks    = fGetInksForJob(INPUT job.job,INPUT ROWID(eb)).     
-
+    dMiscCost = 0.
     IF AVAIL oe-ord THEN DO:
         IF oe-ord.TYPE = "T" AND oe-ord.pord-no GT 0 THEN
             cPrevOrder = STRING(oe-ord.pord-no).
         cPrevOrder = IF oe-ord.po-no2 NE "" THEN oe-ord.po-no2
             ELSE STRING(oe-ord.pord-no).
+        
+        FOR EACH oe-ordm NO-LOCK
+            WHERE oe-ordm.company EQ cocode
+              AND oe-ordm.ord-no  EQ oe-ord.ord-no :  
+              dMiscCost = dMiscCost + oe-ordm.cost.
+        END. 
+        IF dMiscCost EQ ? THEN dMiscCost = 0.
     END.
-
+        
     IF prt-sqft THEN do:       
        /*==== new with selectable columns ====*/
         IF tb_under% AND tb_over% THEN DO:
@@ -734,9 +742,10 @@ FORMAT wkrecap.procat
                  WHEN "v-mach" THEN cVarValue = STRING(cMachine,"X(30)").
                  WHEN "v-ink" THEN cVarValue = STRING(cInks,"X(40)").
                  WHEN "print-sheet" THEN cVarValue =  IF AVAIL itemfg THEN STRING(itemfg.plate-no,"X(20)") ELSE "".
-                 WHEN "full-cost" THEN cVarValue = IF prt-profit THEN STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99") ELSE "" .                                                                                               
-                 WHEN "v-cost" THEN cVarValue = IF prt-profit AND oe-ordl.cost NE ? THEN STRING(oe-ordl.cost,"->>>,>>>,>>9.99") ELSE "".
-                 WHEN "v-t-cost" THEN cVarValue = IF prt-profit AND oe-ordl.t-cost NE ? THEN STRING(oe-ordl.t-cost,"->>,>>>,>>9.99") ELSE "".
+                 WHEN "full-cost" THEN cVarValue = IF prt-profit AND AVAILABLE oe-ordl THEN STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99") ELSE "" .                                                                                               
+                 WHEN "v-cost" THEN cVarValue = IF prt-profit AND AVAILABLE oe-ordl AND oe-ordl.cost NE ? THEN STRING(oe-ordl.cost,"->>>,>>>,>>9.99") ELSE "".
+                 WHEN "v-t-cost" THEN cVarValue = IF prt-profit AND AVAILABLE oe-ordl AND oe-ordl.t-cost NE ? THEN STRING(oe-ordl.t-cost,"->>,>>>,>>9.99") ELSE "".
+                 WHEN "tot-ord-cost" THEN cVarValue = IF prt-profit AND AVAILABLE oe-ordl AND oe-ordl.t-cost NE ? THEN STRING(oe-ordl.t-cost + dMiscCost ,"->>>,>>>,>>9.99") ELSE "".
                  WHEN "status" THEN cVarValue = STRING(c-result,"x(20)") . 
                  WHEN "po-recvdt" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.poReceivedDate NE ? THEN STRING(oe-ord.poReceivedDate) ELSE "".
                  WHEN "prev-order" THEN cVarValue = STRING(cPrevOrder,"x(8)") .
@@ -863,6 +872,10 @@ FORMAT wkrecap.procat
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
                    WHEN "iTotalPallet" THEN cVarValue = "" .
+                   OTHERWISE 
+                   DO:
+                        cVarValue = "" .
+                   END.
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -946,6 +959,10 @@ FORMAT wkrecap.procat
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
                    WHEN "iTotalPallet" THEN cVarValue = "" .
+                   OTHERWISE 
+                   DO:
+                        cVarValue = "" .
+                   END.
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1026,9 +1043,10 @@ FORMAT wkrecap.procat
                 WHEN "v-mach" THEN cVarValue = STRING(cMachine,"X(30)").
                 WHEN "v-ink" THEN cVarValue = STRING(cInks,"X(40)").
                 WHEN "print-sheet" THEN cVarValue =  IF AVAIL itemfg THEN STRING(itemfg.plate-no,"X(20)") ELSE "".
-                WHEN "full-cost" THEN cVarValue = STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99").   
-                WHEN "v-cost" THEN cVarValue = IF prt-profit AND oe-ordl.cost NE ? THEN STRING(oe-ordl.cost,"->>>,>>>,>>9.99") ELSE "".
-                WHEN "v-t-cost" THEN cVarValue = IF prt-profit AND oe-ordl.t-cost NE ? THEN STRING(oe-ordl.t-cost,"->>,>>>,>>9.99") ELSE "".
+                WHEN "full-cost" THEN cVarValue = IF AVAILABLE oe-ordl THEN STRING(oe-ordl.spare-dec-1,"->>>>>>>9.99") ELSE "".   
+                WHEN "v-cost" THEN cVarValue = IF prt-profit AND AVAILABLE oe-ordl AND oe-ordl.cost NE ? THEN STRING(oe-ordl.cost,"->>>,>>>,>>9.99") ELSE "".
+                WHEN "v-t-cost" THEN cVarValue = IF prt-profit AND AVAILABLE oe-ordl AND oe-ordl.t-cost NE ? THEN STRING(oe-ordl.t-cost,"->>,>>>,>>9.99") ELSE "".
+                WHEN "tot-ord-cost" THEN cVarValue = IF prt-profit AND AVAILABLE oe-ordl AND oe-ordl.t-cost NE ? THEN STRING(oe-ordl.t-cost + dMiscCost ,"->>>,>>>,>>9.99") ELSE "".
                 WHEN "status" THEN cVarValue = STRING(c-result,"x(20)") .
                 WHEN "po-recvdt" THEN cVarValue = IF AVAIL oe-ord AND oe-ord.poReceivedDate NE ? THEN STRING(oe-ord.poReceivedDate) ELSE "".
                 WHEN "prev-order" THEN cVarValue = STRING(cPrevOrder,"X(8)") .
@@ -1151,6 +1169,10 @@ FORMAT wkrecap.procat
                    WHEN "prev-order" THEN cVarValue = "" . 
 		           WHEN "approved-date" THEN cVarValue = "" .
                    WHEN "iTotalPallet" THEN cVarValue = "" .
+                   OTHERWISE 
+                   DO:
+                        cVarValue = "" .
+                   END.
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -1233,6 +1255,10 @@ FORMAT wkrecap.procat
                    WHEN "prev-order" THEN cVarValue = "". 
 		           WHEN "approved-date" THEN cVarValue = "" .
                    WHEN "iTotalPallet" THEN cVarValue = "" .
+                   OTHERWISE 
+                   DO:
+                        cVarValue = "" .
+                   END.
               END CASE.
               IF lookup(cTmpField,"v-profit,v-revenue,full-cost,v-cost,v-t-cost") GT 0 AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
