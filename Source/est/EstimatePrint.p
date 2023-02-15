@@ -229,6 +229,7 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
         opbf-ttCEFormatConfig.analysisColContbHrLabel     = "Contb/Hr"
         opbf-ttCEFormatConfig.analysisColContbHrCol       = 40
         opbf-ttCEFormatConfig.analysisColContbHrWidth     = 7 
+        opbf-ttCEFormatConfig.printCustomerForCombos      = NO
         .
     
     CASE ipcFormatFont:
