@@ -25,6 +25,7 @@ DEFINE TEMP-TABLE ttCEFormatConfig NO-UNDO
     FIELD printNotes                  AS LOGICAL INITIAL YES LABEL "Print Notes?"
     FIELD printSubAssemblyDetail      AS LOGICAL INITIAL NO
     FIELD printBoxDesigns             AS LOGICAL INITIAL NO LABEL "Print Box Designs?"
+    FIELD printCustomerForCombos      AS LOGICAL INITIAL YES LABEL "Print Customer for Combos"
     FIELD showDimensionsIn16ths       AS LOGICAL INITIAL NO LABEL "Show Dimensions in 16ths?"
     FIELD operationTimeInHHMM         AS LOGICAL LABEL "Display Operation Time in HHMM"
     FIELD summColQuantityShow         AS LOGICAL INITIAL NO LABEL "Show Quantity in Summary?"

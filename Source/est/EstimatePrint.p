@@ -229,6 +229,7 @@ PROCEDURE pBuildConfigFromTemplate PRIVATE:
         opbf-ttCEFormatConfig.analysisColContbHrLabel     = "Contb/Hr"
         opbf-ttCEFormatConfig.analysisColContbHrCol       = 40
         opbf-ttCEFormatConfig.analysisColContbHrWidth     = 7 
+        opbf-ttCEFormatConfig.printCustomerForCombos      = NO
         .
     
     CASE ipcFormatFont:
@@ -2403,11 +2404,12 @@ PROCEDURE pPrintSummary PRIVATE:
     
     FOR FIRST estCostBlank NO-LOCK 
         WHERE estCostBlank.estCostHeaderID EQ bf-primaryEstCostHeader.estCostHeaderID
-        AND estCostBlank.blankNo EQ 0,
+        AND ((estCostBlank.blankNo EQ 0 AND bf-primaryEstCostHeader.estType EQ "Set") OR (CAN-DO("Combo/Tandem",bf-primaryEstCostHeader.estType) AND ipbf-ttCEFormatConfig.printCustomerForCombos)),
         FIRST estCostItem NO-LOCK 
         WHERE estCostItem.estCostItemID EQ estCostBlank.estCostItemID:
-        
+                                 
         RUN pPrintItemInfoHeader(BUFFER estCostItem, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
+        IF estCostBlank.blankNo EQ 0 THEN
         RUN pPrintItemInfoDetail(BUFFER estCostItem, BUFFER estCostBlank, YES, INPUT-OUTPUT iopiPageCount, INPUT-OUTPUT iopiRowCount).
     END.
     
