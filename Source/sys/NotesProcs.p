@@ -160,6 +160,17 @@ PROCEDURE Notes_CopyShipNote:
 
 END PROCEDURE.
 
+PROCEDURE Notes_CreateSBNotes:
+    /*------------------------------------------------------------------------------
+     Purpose: auto create SB Notes
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mat FOR job-mat.
+ 
+    RUN pCreateSBNotes (BUFFER ipbf-job-mat).
+
+END PROCEDURE.    
+
 PROCEDURE Notes_GetNoteOfType:
     /*------------------------------------------------------------------------------
      Purpose: Given a rec_key and type, will return the notes content of first note
@@ -255,6 +266,48 @@ PROCEDURE Notes_GetNotesTempTableForObject:
             RUN Notes_ConvertToArray(cFullText, ipiMaxCharCount, OUTPUT ttNotesFormatted.noteTextArray, OUTPUT ttNotesFormatted.noteTextArraySize).
         END. 
     END.
+
+END PROCEDURE.
+
+PROCEDURE pCreateSBNotes PRIVATE:
+    /*------------------------------------------------------------------------------
+     Purpose: 
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER ipbf-job-mat FOR job-mat.
+    DEFINE BUFFER bf-job-mch FOR job-mch.
+    DEFINE BUFFER bf-sbNote FOR sbNote.
+    
+    FOR EACH bf-job-mch NO-LOCK
+        WHERE bf-job-mch.company EQ ipbf-job-mat.company            
+          AND bf-job-mch.job-no  EQ ipbf-job-mat.job-no
+          AND bf-job-mch.job-no2 EQ ipbf-job-mat.job-no2
+          AND bf-job-mch.frm     EQ ipbf-job-mat.frm
+           BY bf-job-mch.seq:
+        FIND FIRST bf-sbNote EXCLUSIVE-LOCK
+             WHERE bf-sbNote.company EQ ipbf-job-mat.company
+               AND bf-sbNote.m-code EQ bf-job-mch.m-code
+               AND bf-sbNote.job-no EQ ipbf-job-mat.job-no
+               AND bf-sbNote.job-no2 EQ ipbf-job-mat.job-no2
+               AND bf-sbNote.frm EQ ipbf-job-mat.frm NO-ERROR.
+        IF not AVAILABLE bf-sbNote THEN 
+        DO:       
+        CREATE bf-sbNote.
+        ASSIGN
+            bf-sbNote.company  = ipbf-job-mat.company
+            bf-sbNote.m-code   = bf-job-mch.m-code
+            bf-sbNote.job-no   = ipbf-job-mat.job-no
+            bf-sbNote.job-no2  = ipbf-job-mat.job-no2
+            bf-sbNote.frm      = ipbf-job-mat.frm
+            bf-sbNote.noteDate = TODAY
+            bf-sbNote.noteTime = TIME        .
+        END.
+        bf-sbNote.jobNote  = "Item-no - " + ipbf-job-mat.rm-i-no + ",  "
+                                       + STRING(ipbf-job-mat.qty-all)
+                                       + "/" + ipbf-job-mat.qty-uom.    
+        RELEASE bf-sbNote.
+     END.
+    
 
 END PROCEDURE.
 
