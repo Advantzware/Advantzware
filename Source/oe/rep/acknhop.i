@@ -56,8 +56,8 @@
 	  end.
 	  else
 	    assign
-	     v-str[1] = string(eb.len,">>>9.9<<<")
-	     v-str[2] = string(eb.wid,">>>9.9<<<")
+	     v-str[1] = string(eb.len,">>>>>9.9<<<<<")
+	     v-str[2] = string(eb.wid,">>>>>9.9<<<<<")
 	     v-str[3] = string(eb.dep,">>>9.9<<<").
 
 	  assign

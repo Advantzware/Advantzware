@@ -152,8 +152,8 @@ DEFINE BROWSE BROWSE-1
       po-ordl.i-name FORMAT "x(30)":U
       po-ordl.job-no FORMAT "x(9)":U
       po-ordl.job-no2 FORMAT ">>9":U
-      po-ordl.s-wid FORMAT ">>9.9999":U
-      po-ordl.s-len FORMAT ">>9.9999":U
+      po-ordl.s-wid FORMAT ">>>>>9.9999<<":U
+      po-ordl.s-len FORMAT ">>>>>9.9999<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 104 BY 11.19

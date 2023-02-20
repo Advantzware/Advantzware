@@ -1612,8 +1612,8 @@ IF rsQty = "A" THEN DO:
                          WHEN "qty"  THEN cVarValue = STRING(mch-act.qty,"->>>>>>>>>").
                          WHEN "msf-pro"   THEN cVarValue = STRING(ld-qty-msf,">>>>>9.999") .
                         WHEN "cust"    THEN cVarValue = IF AVAIL eb THEN eb.cust-no ELSE "" .
-                         WHEN "len"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "".
-                         WHEN "wid"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "".
+                         WHEN "len"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "".
+                         WHEN "wid"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "".
                          WHEN "dep"  THEN cVarValue = IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "" .
                          WHEN "total-up-die"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.num-up,">>>>>>>9") ELSE "" .
                          WHEN "color"  THEN cVarValue = IF AVAIL eb THEN STRING(get-colors(eb.est-no, eb.form-no),">>>>>9") ELSE "" .
@@ -1659,8 +1659,8 @@ IF rsQty = "A" THEN DO:
           TRIM(STRING(mch-act.qty,">>>>>>>>>>"))                        + "," +
           STRING(ld-qty-msf)                                            + ",," +
           TRIM(IF AVAIL eb THEN eb.cust-no ELSE "")                     + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.num-up,">9") ELSE "")         + "," +
           TRIM(IF AVAIL eb THEN STRING(get-colors(eb.est-no, eb.form-no),">9") ELSE "")
@@ -1765,8 +1765,8 @@ ELSE DO:   /* rsQty = "E" */
                          WHEN "qty"  THEN cVarValue = STRING(job-mch.run-qty,"->>>>>>>>>").
                          WHEN "msf-pro"   THEN cVarValue = STRING(ld-qty-msf,">>>>>9.999") .
                          WHEN "cust"    THEN cVarValue = IF AVAIL eb THEN eb.cust-no ELSE "" .
-                         WHEN "len"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "".
-                         WHEN "wid"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "".
+                         WHEN "len"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "".
+                         WHEN "wid"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "".
                          WHEN "dep"  THEN cVarValue = IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "" .
                          WHEN "total-up-die"   THEN cVarValue = IF AVAIL eb THEN STRING(eb.num-up,">>>>>>>9") ELSE "" .
                          WHEN "color"  THEN cVarValue = IF AVAIL eb THEN STRING(get-colors(eb.est-no, eb.form-no),">>>>>9") ELSE "" .
@@ -1808,8 +1808,8 @@ ELSE DO:   /* rsQty = "E" */
           TRIM(STRING(job-mch.run-qty,">>>>>>>>>>"))                    + "," +
           STRING(ld-qty-msf)                                            + ",," +
           TRIM(IF AVAIL eb THEN eb.cust-no ELSE "")                     + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.num-up,">9") ELSE "")         + "," +
           TRIM(IF AVAIL eb THEN STRING(get-colors(eb.est-no, eb.form-no),">9") ELSE "").

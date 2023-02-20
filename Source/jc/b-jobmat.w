@@ -55,8 +55,8 @@ DEF VAR cItemName AS CHAR NO-UNDO.
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ "rm-i-no" THEN job-mat.rm-i-no ELSE ~
     IF lv-sort-by EQ "i-name" THEN item.i-name ELSE ~
-    IF lv-sort-by EQ "wid" THEN STRING(job-mat.wid,'>>9.99<<') ELSE ~
-    IF lv-sort-by EQ "len" THEN STRING(job-mat.len,'>>9.99<<') ELSE ~
+    IF lv-sort-by EQ "wid" THEN STRING(job-mat.wid,'>>>>>9.99<<<<') ELSE ~
+    IF lv-sort-by EQ "len" THEN STRING(job-mat.len,'>>>>>9.99<<<<') ELSE ~
     STRING(job-mat.frm,'>>9')
 &SCOPED-DEFINE sortby BY job-mat.frm BY job-mat.blank-no
 &SCOPED-DEFINE sortby-phrase-asc BY ({&sortby-log}) {&sortby}
@@ -239,7 +239,7 @@ DEFINE BROWSE br_table
       job-mat.cost-m COLUMN-LABEL "FG Cost/M" FORMAT "->>>,>>9.9999":U
       job-mat.qty FORMAT "->>>,>>>,>>9.9<<<<<":U
       job-mat.qty-uom COLUMN-LABEL "Qty!UOM" FORMAT "x(4)":U WIDTH 7
-      job-mat.wid FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
+      job-mat.wid FORMAT ">>>>>9.99<<<<":U LABEL-BGCOLOR 14
       job-mat.len FORMAT ">>>>>9.99<<<<":U LABEL-BGCOLOR 14
       job-mat.n-up COLUMN-LABEL "#Up" FORMAT ">>9":U
       job-mat.basis-w COLUMN-LABEL "MSF!Weight" FORMAT ">>9.99":U

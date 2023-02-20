@@ -216,8 +216,8 @@ DEFINE BROWSE br_table
     job-mat.qty-uom FORMAT "x(3)":U WIDTH 18 COLUMN-LABEL "Qty!UOM"
     job-mat.all-flg FORMAT "Yes/No":U WIDTH 18 COLUMN-LABEL "Allocated"
     fGetLinearFeet() @ dLinearFeet COLUMN-LABEL "Total Linear Feet" FORMAT "->,>>>,>>9.99":U WIDTH 29
-    item.s-len COLUMN-LABEL "Board Length" FORMAT ">>,>>9.99<<<":U WIDTH 22
-    item.s-wid COLUMN-LABEL "Board Width" FORMAT ">>,>>9.99<<<":U WIDTH 22
+    item.s-len COLUMN-LABEL "Board Length" FORMAT ">>>,>>9.99<<<<":U WIDTH 22
+    item.s-wid COLUMN-LABEL "Board Width" FORMAT ">>>,>>9.99<<<<":U WIDTH 22
     item.cal COLUMN-LABEL "Board Caliper" FORMAT "9.99999":U WIDTH 22
     fGetFGQty() @ iFGQty COLUMN-LABEL "Total FG Qty for Job" FORMAT ">>,>>>,>>9":U WIDTH 35
     fGetTons () @ dTons COLUMN-LABEL "Weight per Ton" FORMAT "->>,>>>,>>9.99<<<<":U 

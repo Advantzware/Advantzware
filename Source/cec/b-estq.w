@@ -592,8 +592,8 @@ DEFINE BROWSE Browser-Table
       eb.yld-qty COLUMN-LABEL "Yield Quantity" FORMAT "->>>>>>9":U
             LABEL-BGCOLOR 14
       eb.quantityPerSet FORMAT ">>>>9.9<<<":U
-      display-cw-dim(YES,eb.len) @ eb.len FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
-      display-cw-dim(YES,eb.wid) @ eb.wid FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
+      display-cw-dim(YES,eb.len) @ eb.len FORMAT ">>>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
+      display-cw-dim(YES,eb.wid) @ eb.wid FORMAT ">>>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
       display-cw-dim(YES,eb.dep) @ eb.dep FORMAT ">>>>9.99":U LABEL-BGCOLOR 14 WIDTH 12
       eb.die-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.cad-no COLUMN-LABEL "Cad #" FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -842,9 +842,9 @@ and est-qty.eqty = eb.eqty
      _FldNameList[14]   > ASI.eb.quantityPerSet
 "eb.quantityPerSet" ? ? "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > "_<CALC>"
-"display-cw-dim(yes,eb.len) @ eb.len" ? ">>>>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-cw-dim(yes,eb.len) @ eb.len" ? ">>>>>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
-"display-cw-dim(yes,eb.wid) @ eb.wid" ? ">>>>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-cw-dim(yes,eb.wid) @ eb.wid" ? ">>>>>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
 "display-cw-dim(yes,eb.dep) @ eb.dep" ? ">>>>9.99" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.die-no
@@ -1016,8 +1016,8 @@ DO:
 
    IF v-cecscrn-char = "Decimal" THEN
      ASSIGN
-        eb.wid:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
-        eb.len:FORMAT IN BROWSE {&browse-name} = ">>>9.999999"
+        eb.wid:FORMAT IN BROWSE {&browse-name} = ">>>>>9.999999"
+        eb.len:FORMAT IN BROWSE {&browse-name} = ">>>>>9.999999"
         eb.dep:FORMAT IN BROWSE {&browse-name} = ">>9.999999".
 END.
 
@@ -2134,8 +2134,8 @@ PROCEDURE local-display-fields :
 
   IF v-cecscrn-char = "Decimal" THEN
      ASSIGN
-        eb.wid:WIDTH IN BROWSE {&browse-name} = 13
-        eb.len:WIDTH IN BROWSE {&browse-name} = 13
+        eb.wid:WIDTH IN BROWSE {&browse-name} = 15
+        eb.len:WIDTH IN BROWSE {&browse-name} = 15
         eb.dep:WIDTH IN BROWSE {&browse-name} = 13
         vi_len:FORMAT = "->>,>>9.999999"
         vi_len-2:FORMAT = "->>,>>9.999999"

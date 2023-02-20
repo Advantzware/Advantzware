@@ -185,10 +185,10 @@ DEFINE FRAME d-updset
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      eb.len AT ROW 7.19 COL 24 COLON-ALIGNED
-          LABEL "F.G. Length" FORMAT ">>9.9999"
+          LABEL "F.G. Length" FORMAT ">>>>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
-     eb.wid AT ROW 8.19 COL 24 COLON-ALIGNED FORMAT ">>9.9999"
+     eb.wid AT ROW 8.19 COL 24 COLON-ALIGNED FORMAT ">>>>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
      eb.dep AT ROW 9.19 COL 24 COLON-ALIGNED
@@ -749,12 +749,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    IF eb.est-type GE 5 THEN
    DO:
       IF v-cecscrn-char NE "Decimal" THEN
-         ASSIGN eb.len:FORMAT = ">>>9.99"
-                eb.wid:FORMAT = ">>>9.99"
+         ASSIGN eb.len:FORMAT = ">>>>>9.99"
+                eb.wid:FORMAT = ">>>>>9.99"
                 eb.dep:FORMAT = ">>>9.99".
       ELSE
-         ASSIGN eb.len:FORMAT = ">>>9.999999"
-                eb.wid:FORMAT = ">>>9.999999"
+         ASSIGN eb.len:FORMAT = ">>>>>9.999999"
+                eb.wid:FORMAT = ">>>>>9.999999"
                 eb.dep:FORMAT = ">>>9.999999".
 
       ASSIGN

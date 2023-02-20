@@ -168,7 +168,7 @@ DEFINE BROWSE br_table
       est-prep.s-num COLUMN-LABEL "Form" FORMAT ">>>":U
       est-prep.b-num COLUMN-LABEL "B #" FORMAT ">>>":U
       est-prep.code FORMAT "x(20)":U WIDTH 20
-      est-prep.qty FORMAT "->>,>>9.9":U
+      est-prep.qty FORMAT "->>,>>>,>>9.9":U
       est-prep.dscr FORMAT "x(20)":U
       est-prep.simon FORMAT "X":U
       est-prep.cost FORMAT "->>,>>9.99":U
@@ -283,7 +283,7 @@ ASSIGN
      _FldNameList[3]   > ASI.est-prep.code
 "est-prep.code" ? "x(20)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.est-prep.qty
-"est-prep.qty" ? "->>,>>9.9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-prep.qty" ? "->>,>>>,>>9.9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.est-prep.dscr
 "est-prep.dscr" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.est-prep.simon

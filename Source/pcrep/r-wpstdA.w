@@ -892,11 +892,11 @@ RUN est/rc-seq.p (OUTPUT lv-rc-seq).
           TRIM(STRING(mch-act.waste,">>>>>>>>>>"))                      + "," +
           TRIM(IF AVAIL eb THEN eb.stock-no ELSE "")                    + "," +
           TRIM(IF AVAIL eb THEN eb.style ELSE "")                       + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-len,">>>>9.9<<<<") ELSE "") + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-wid,">>>>9.9<<<<") ELSE "") + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.t-len,">>>>>9.9<<<<<") ELSE "") + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.t-wid,">>>>>9.9<<<<<") ELSE "") + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.t-sqin,">>>>9.9<<<<")
                            ELSE "")                                     + "," +
           TRIM(IF AVAIL ef THEN ef.board ELSE "")                       + "," +
@@ -904,19 +904,19 @@ RUN est/rc-seq.p (OUTPUT lv-rc-seq).
           TRIM(STRING(ld-msf,">>>>9.9<<<<"))                            + "," +
           TRIM(IF AVAIL ef THEN STRING(ef.weight,">>>>9.9<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.roll-wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.roll-wid,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.gsh-wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.gsh-wid,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.gsh-len,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.gsh-len,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.nsh-wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.nsh-wid,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.nsh-len,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.nsh-len,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL est-flm THEN STRING(est-flm.len,">>>>9.9<<<<")
+          TRIM(IF AVAIL est-flm THEN STRING(est-flm.len,">>>>>9.9<<<<<")
                                 ELSE "")                                + "," +
-          TRIM(IF AVAIL est-flm THEN STRING(est-flm.wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL est-flm THEN STRING(est-flm.wid,">>>>>9.9<<<<<")
                                 ELSE "")                                + "," +
           TRIM(IF AVAIL w-ink THEN STRING(w-ink.inks + w-ink.varn,">>")
                               ELSE "")                                  + "," +

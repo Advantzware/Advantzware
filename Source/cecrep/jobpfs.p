@@ -474,7 +474,7 @@ do v-local-loop = 1 to v-local-copies:
             v-dept-inst[2] format "x(46)" AT 2            "# Per Bndl:" v-no-per-bndl  /*IF AVAIL ITEM THEN ITEM.i-name ELSE "" FORMAT "x(25)"*/ /*     v-dept-inst[9] format "x(46)" AT 50          */
             v-dept-inst[3] format "x(46)" AT 2            "# Per Unit:" xeb.tr-cnt when avail xeb /*     v-dept-inst[10] format "x(46)" AT 50        */
             v-dept-inst[4] format "x(46)" AT 2            v-stackcode  format "x(28)" /*     v-dept-inst[11] format "x(46)" AT 50        */
-            v-dept-inst[5] format "x(46)" AT 2            "Pallet:" trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " + trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9")) when avail xeb format "x(15)" /*     v-dept-inst[12] format "x(46)" AT 50        */
+            v-dept-inst[5] format "x(46)" AT 2            "Pallet:" trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " + trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9")) when avail xeb format "x(17)" /*     v-dept-inst[12] format "x(46)" AT 50        */
             v-dept-inst[6] format "x(46)" AT 2            v-bn-note  FORMAT "X(25)" /*     v-dept-inst[13] format "x(46)" AT 50        */
             v-dept-inst[7] format "x(46)" AT 2            /*     v-dept-inst[14] format "x(46)" AT 50        */
 

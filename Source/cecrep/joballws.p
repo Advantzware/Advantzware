@@ -351,8 +351,8 @@ DO v-local-loop = 1 TO v-local-copies:
                                           THEN xstyle.dscr ELSE ""
               v-i-line[3] = "Size: "  + IF AVAIL xeb    
                                           THEN
-                                           TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                                           TRIM(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                                           TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                                           TRIM(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                                            TRIM(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) 
                                           ELSE ""
               v-i-line[4] = "Joint: " + IF AVAIL xeb THEN v-joint-dscr ELSE ""
@@ -517,8 +517,8 @@ DO v-local-loop = 1 TO v-local-copies:
                              THEN 1
                              ELSE v-pqty,">>>,>>9"))       FORMAT "x(7)" 
               "Size:" 
-              (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-               TRIM(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+              (TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+               TRIM(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                TRIM(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) 
                                                            FORMAT "x(30)" WHEN AVAIL xeb
             SKIP
@@ -552,9 +552,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "SEE 1st BLANK" WHEN v-see-1st-blank @ v-w-l   
               "MSF:"  + TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank              "Ink 1:" AT 39 v-ink-1
               "Gross Size:" AT 80  
-              "W:" + TRIM(STRING({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) +
+              "W:" + TRIM(STRING({sys/inc/k16v.i xef.gsh-wid},">>>>>9.99<<<<")) +
               " " +
-              "L:" + TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>9.99"))
+              "L:" + TRIM(STRING({sys/inc/k16v.i xef.gsh-len},">>>>>9.99<<<<"))
                                                                 FORMAT "x(19)"
               "Slit: W:" + STRING(v-outw) + " L:" + STRING(v-outl) FORM "x(15)"   
               "<B><P12>"
@@ -565,9 +565,9 @@ DO v-local-loop = 1 TO v-local-copies:
               "Board:" + v-form-code  FORM "x(29)"  @ v-form-code1 AT 2
               " " WHEN v-see-1st-blank @ v-form-code1 
               "</B><P10> Ink 2:"  v-ink-2 "Net   Size:"  AT 83
-              "W:" + TRIM(STRING({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
+              "W:" + TRIM(STRING({sys/inc/k16v.i xef.nsh-wid},">>>>>9.99<<<<")) +
               " " +
-              "L:" + TRIM(STRING({sys/inc/k16v.i xef.nsh-len},">>>9.99")) FORMAT "x(22)"
+              "L:" + TRIM(STRING({sys/inc/k16v.i xef.nsh-len},">>>>>9.99<<<<")) FORMAT "x(23)"
               "<B><P12>" SKIP
               v-form-dscr  AT 2 FORM "x(29)" 
               "</B><P10> Ink 3:"  v-ink-3 "Die   Size:" AT 83
@@ -578,9 +578,9 @@ DO v-local-loop = 1 TO v-local-copies:
               SKIP
                v-qty-or-sup AT 2 FORM "x(36)" 
               "Ink 4:" AT 39 v-ink-4 "Blank Size:" AT 80 
-              "W:" + TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
+              "W:" + TRIM(STRING({sys/inc/k16v.i xeb.t-wid},">>>>>9.99<<<<")) +
               " " +
-              "L:" + TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>>9.99")) FORMAT "x(22)"
+              "L:" + TRIM(STRING({sys/inc/k16v.i xeb.t-len},">>>>>9.99<<<<")) FORMAT "x(22)"
               SKIP
               "Score:" AT 2 SUBSTR(v-len-score,1,30) WHEN xstyle.TYPE <> "F" FORMAT "x(30)" 
               "Ink 5:" AT 39 v-ink-5

@@ -396,12 +396,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    IF ip-est-type >= 5 THEN
    DO:
       IF v-cecscrn-char NE "Decimal" THEN
-         ASSIGN rfqitem.len:FORMAT = ">>>9.99"
-                rfqitem.wid:FORMAT = ">>>9.99"
+         ASSIGN rfqitem.len:FORMAT = ">>>>>9.99"
+                rfqitem.wid:FORMAT = ">>>>>9.99"
                 rfqitem.dep:FORMAT = ">>>9.99".
       ELSE
-         ASSIGN rfqitem.len:FORMAT = ">>>9.999999"
-                rfqitem.wid:FORMAT = ">>>9.999999"
+         ASSIGN rfqitem.len:FORMAT = ">>>>>9.999999"
+                rfqitem.wid:FORMAT = ">>>>>9.999999"
                 rfqitem.dep:FORMAT = ">>>9.999999".
 
       ASSIGN

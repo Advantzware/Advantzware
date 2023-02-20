@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          rfq              PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -62,7 +62,7 @@ DEF VAR lv-spec-qty LIKE rfqitem.spec-qty DECIMALS 10 NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -183,15 +183,15 @@ DEFINE VARIABLE lv-adder-dscr AS CHARACTER FORMAT "X(256)":U INITIAL "Descriptio
      SIZE 14 BY .62 NO-UNDO.
 
 DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 116 BY 6.91.
 
 DEFINE RECTANGLE RECT-18
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 53 BY 7.62.
 
 DEFINE RECTANGLE RECT-19
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 63 BY 7.62.
 
 
@@ -206,10 +206,10 @@ DEFINE FRAME F-Main
           SIZE 11.8 BY 1
      rfqitem.gsh-wid AT ROW 1.95 COL 85 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-     rfqitem.gsh-len AT ROW 1.95 COL 99 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     rfqitem.gsh-len AT ROW 1.95 COL 99.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 14 BY 1
      rfqitem.leaf[1] AT ROW 2.91 COL 14 COLON-ALIGNED
           LABEL "Window/Wax"
           VIEW-AS FILL-IN 
@@ -217,7 +217,7 @@ DEFINE FRAME F-Main
      rfqitem.leaf-w[1] AT ROW 2.91 COL 85 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
-     rfqitem.leaf-l[1] AT ROW 2.91 COL 99 COLON-ALIGNED NO-LABEL
+     rfqitem.leaf-l[1] AT ROW 2.91 COL 99.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
      rfqitem.leaf[2] AT ROW 3.86 COL 14 COLON-ALIGNED
@@ -227,7 +227,7 @@ DEFINE FRAME F-Main
      rfqitem.leaf-w[2] AT ROW 3.86 COL 85 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
-     rfqitem.leaf-l[2] AT ROW 3.86 COL 99 COLON-ALIGNED NO-LABEL
+     rfqitem.leaf-l[2] AT ROW 3.86 COL 99.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY .91
      rfqitem.leaf[3] AT ROW 4.81 COL 14 COLON-ALIGNED
@@ -237,7 +237,7 @@ DEFINE FRAME F-Main
      rfqitem.leaf-w[3] AT ROW 4.81 COL 85 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY .95
-     rfqitem.leaf-l[3] AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
+     rfqitem.leaf-l[3] AT ROW 4.81 COL 99.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
      rfqitem.leaf[4] AT ROW 5.81 COL 14 COLON-ALIGNED
@@ -247,7 +247,7 @@ DEFINE FRAME F-Main
      rfqitem.leaf-w[4] AT ROW 5.81 COL 85 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
-     rfqitem.leaf-l[4] AT ROW 5.81 COL 99 COLON-ALIGNED NO-LABEL
+     rfqitem.leaf-l[4] AT ROW 5.81 COL 99.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
      rfqitem.flute AT ROW 6.71 COL 14 COLON-ALIGNED
@@ -377,27 +377,27 @@ DEFINE FRAME F-Main
 DEFINE FRAME F-Main
      lv-adder AT ROW 9.1 COL 66 COLON-ALIGNED NO-LABEL
      lv-adder-dscr AT ROW 9.1 COL 88 COLON-ALIGNED NO-LABEL
+     "Description" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.24 COL 45
+     "Description" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 9.1 COL 22
+     "Qty/FG" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 9.1 COL 47
+     "Caliper" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 77
+     "Material" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.24 COL 21
+     "Special Materials" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 8.14 COL 4
+     "Item #" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 9.1 COL 4
+     "Width" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 89
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 103.8
      RECT-17 AT ROW 1 COL 1
      RECT-18 AT ROW 8.38 COL 64
      RECT-19 AT ROW 8.38 COL 1
-     "Item #" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 9.1 COL 4
-     "Special Materials" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 8.14 COL 4
-     "Material" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.24 COL 21
-     "Caliper" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 77
-     "Qty/FG" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 9.1 COL 47
-     "Description" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 9.1 COL 22
-     "Description" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.24 COL 45
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 103
-     "Width" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 89
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -453,7 +453,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -564,7 +564,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -852,7 +852,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -875,7 +874,6 @@ DO:
        end.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -900,7 +898,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -923,7 +920,6 @@ DO:
        end.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -948,7 +944,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -971,7 +966,6 @@ DO:
        end.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1031,7 +1025,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1053,7 +1046,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1100,7 +1092,6 @@ DO:
    end.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1149,7 +1140,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1187,7 +1177,6 @@ DO:
 .
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1236,7 +1225,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1259,7 +1247,6 @@ DO:
     end.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1285,7 +1272,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1308,7 +1294,6 @@ DO:
        end.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1334,7 +1319,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1357,7 +1341,6 @@ DO:
      end.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1382,7 +1365,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1412,7 +1394,6 @@ DO:
 
   end.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

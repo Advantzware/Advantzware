@@ -299,8 +299,8 @@ do v-local-loop = 1 to v-local-copies:
         v-i-line[1] = "ITEM DESCRIPTION"
         v-i-line[2] = "Style: " + if avail xstyle then xstyle.dscr else ""
         v-i-line[3] = "Size: "  + if avail xeb    then
-                  trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                  trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                  trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                  trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                   trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else ""
         v-i-line[4] = "Joint: " + if avail xeb then v-joint-dscr else ""
         lv-part-no = IF AVAIL xoe-ordl THEN xoe-ordl.part-no 
@@ -392,8 +392,8 @@ do v-local-loop = 1 to v-local-copies:
                                             else v-pqty,">>>,>>9"))
                                             format "x(7)"
               "   "
-              "Size:" (trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                      trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+              "Size:" (trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                      trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                       trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99"))) FORM "x(30)" WHEN AVAIL xeb            
               SKIP
               v-cus[3] AT 2 "Cust Part#:" AT 40 lv-part-no
@@ -423,9 +423,9 @@ do v-local-loop = 1 to v-local-copies:
               SKIP
               "Board:<B>" AT 2 v-form-code FORM "x(20)" "</B>"
               "<C33>2:"  v-ink-2 "6:" v-ink-6 "<C66.8>Net   Size:" /*AT 80*/
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>>9.99<<<<")) +
               "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>>9.99<<<<")) format "x(23)"
               SKIP
               "Due In:" AT 2 v-po-due-date "3:" AT 39 v-ink-3 "7:" v-ink-7 "Die   Size:" AT 80
               "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
@@ -555,8 +555,8 @@ do v-local-loop = 1 to v-local-copies:
           fill("_",15)              at 108    format "x(15)"
           SKIP
           "Pallet:" AT 4
-          trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9"))
+          trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9"))
                                                    when avail xeb format "x(15)"
           "   Totals   "            at 36    format "x(13)"
           v-rec-alf[8]              at 53    format "x(25)"

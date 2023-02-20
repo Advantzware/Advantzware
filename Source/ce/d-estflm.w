@@ -152,8 +152,8 @@ DEFINE BROWSE BROWSE-1
       est-flm.dscr FORMAT "x(30)":U
       est-flm.snum COLUMN-LABEL "Form #" FORMAT ">>>":U
       est-flm.bnum FORMAT ">>>":U
-      est-flm.len FORMAT ">9.9999":U
-      est-flm.wid FORMAT ">9.9999":U WIDTH 7.8
+      est-flm.len FORMAT ">>>>>9.9999<<":U
+      est-flm.wid FORMAT ">>>>>9.9999<<":U WIDTH 7.8
   ENABLE
       est-flm.i-no
       est-flm.dscr

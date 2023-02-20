@@ -158,8 +158,8 @@ DEFINE BROWSE br_table
       jobmatl.material_type COLUMN-LABEL "Type" FORMAT "X(1)":U
       jobmatl.qty FORMAT ">>,>>>,>>9.99":U
       jobmatl.qty_uom COLUMN-LABEL "UOM" FORMAT "X(3)":U
-      jobmatl.item_width FORMAT ">>>>9.9<<<<":U
-      jobmatl.item_length FORMAT ">>>>9.9<<<<":U
+      jobmatl.item_width FORMAT ">>>>>9.9<<<<<":U
+      jobmatl.item_length FORMAT ">>>>>9.9<<<<<":U
       jobmatl.number_up COLUMN-LABEL "Up" FORMAT ">>9":U
       jobmatl.basis_weight COLUMN-LABEL "Weight" FORMAT ">>9.99":U
 /* _UIB-CODE-BLOCK-END */

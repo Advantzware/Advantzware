@@ -1662,11 +1662,11 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                     WHEN "nsh-wid" THEN 
                         cVarValue = IF AVAILABLE ef THEN STRING(ef.nsh-wid,">>>>9.9<<") ELSE "".         
                     WHEN "nsh-len" THEN 
-                        cVarValue = IF AVAILABLE ef THEN STRING(ef.nsh-len,">>>>9.9<<") ELSE "".
+                        cVarValue = IF AVAILABLE ef THEN STRING(ef.nsh-len,">>>>9.9<<<<<") ELSE "".
                     WHEN "flm-len" THEN 
-                        cVarValue = IF AVAILABLE est-flm THEN STRING(est-flm.len,">>>>9.9<<") ELSE "".
+                        cVarValue = IF AVAILABLE est-flm THEN STRING(est-flm.len,">>>>>9.9<<<<<") ELSE "".
                     WHEN "flm-wid" THEN 
-                        cVarValue = IF AVAILABLE est-flm THEN STRING(est-flm.wid,">>>>9.9<<") ELSE "".
+                        cVarValue = IF AVAILABLE est-flm THEN STRING(est-flm.wid,">>>>>9.9<<<<<") ELSE "".
                     WHEN "inkc" THEN 
                         cVarValue = IF AVAILABLE w-ink THEN STRING(w-ink.inks + w-ink.varn,">>") ELSE "".
                     WHEN "die-in" THEN 

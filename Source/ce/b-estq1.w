@@ -473,9 +473,9 @@ DEFINE BROWSE Browser-Table
     WIDTH 15 LABEL-BGCOLOR 14
     est.updated-id COLUMN-LABEL "Modifed By" FORMAT "X(8)":U
     WIDTH 15 LABEL-BGCOLOR 14
-    eb.len FORMAT ">>9.99999" LABEL-BGCOLOR 14
+    eb.len FORMAT ">>>>>9.99999" LABEL-BGCOLOR 14
     est.est-date FORMAT "99/99/9999":U LABEL-BGCOLOR 14
-    eb.wid FORMAT ">>9.99999" LABEL-BGCOLOR 14
+    eb.wid FORMAT ">>>>>9.99999" LABEL-BGCOLOR 14
     eb.pur-man COLUMN-LABEL "Purch/Manuf" FORMAT "Purchased/Manufacture":U
     eb.dep FORMAT ">>9.99999" LABEL-BGCOLOR 14
     get-type() @ cEstType COLUMN-LABEL "Est Type" FORMAT "x(21)":U
@@ -718,11 +718,11 @@ eb.est-no = lv-last-est-no"
      _FldNameList[20]   > ASI.est.updated-id
 "est.updated-id" "Modifed By" ? "character" ? ? ? 14 ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
-"eb.len" ? ">>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>>>>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.est.est-date
 "est.est-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
-"eb.wid" ? ">>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>>>>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.eb.pur-man
 "eb.pur-man" "Purch/Manuf" ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > "_<CALC>"

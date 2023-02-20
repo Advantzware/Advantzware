@@ -44,6 +44,7 @@
     DEFINE VARIABLE lcBoxDesignImage           AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcDieImage                 AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcFGItemImage              AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcAttachedItemImage        AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcPlateImage               AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcCADImage                 AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcSetComponent             AS LONGCHAR NO-UNDO.
@@ -94,6 +95,7 @@
     DEFINE VARIABLE lcBoxDesignImageData AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcDieImageData       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcFGItemImageData    AS LONGCHAR NO-UNDO.
+    DEFINE VARIABLE lcAttachedItemImageData AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcPlateImageData     AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcCADImageData       AS LONGCHAR NO-UNDO.
     DEFINE VARIABLE lcSetComponentData   AS LONGCHAR NO-UNDO.
@@ -134,6 +136,7 @@
     DEFINE VARIABLE lLastBlank          AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE lIsSet              AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE iNumLinesInPage     AS INTEGER   NO-UNDO INITIAL 62.
+    DEFINE VARIABLE lPrintAttchedImage  AS LOGICAL   NO-UNDO.
         
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
@@ -154,6 +157,7 @@
         lPrintBoxDesign   = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintBoxDesign")) 
         lPrintFGItemImage = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintFGItemImage"))
         lPageBreakByForm  = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PageBreakByForm"))
+        lPrintAttchedImage  = LOGICAL(system.SharedConfig:Instance:GetValue("JobTicket_PrintAttachedImage"))
         NO-ERROR.
     
     RUN sys/ref/nk1look.p (
@@ -273,6 +277,7 @@
         RUN pGetRequestData ("DieImage", OUTPUT lcDieImageData).
         RUN pGetRequestData ("BoxDesignImage", OUTPUT lcBoxDesignImageData).
         RUN pGetRequestData ("FGItemImage", OUTPUT lcFGItemImageData).
+        RUN pGetRequestData ("AttachedItemImage", OUTPUT lcAttachedItemImageData).
         RUN pGetRequestData ("PlateImage", OUTPUT lcPlateImageData).
         RUN pGetRequestData ("CADImage", OUTPUT lcCADImageData).
         RUN pGetRequestData ("SetComponent", OUTPUT lcSetComponentData).
@@ -509,7 +514,23 @@
                                     
                                     lcConcatBlankImageFiles = lcConcatBlankImageFiles + lcFGItemImage.
                                 END.
-                            END.                            
+                            END.      MESSAGE "sdfhasjfh " trim(estCostItem.estimateNo) STRING(lPrintAttchedImage) VIEW-AS ALERT-BOX ERROR.
+                            IF lPrintAttchedImage THEN DO:
+                               FOR EACH ATTACH
+                                   WHERE attach.company EQ itemfg.company
+                                     AND trim(attach.est-no) EQ trim(estCostItem.estimateNo)
+                                     AND attach.i-no EQ itemfg.i-no
+                                     AND ATTACH.spare-int-1 EQ 1 NO-LOCK:
+                                            MESSAGE "sttttttttttttttttth " VIEW-AS ALERT-BOX ERROR.
+                                     RUN FileSys_ValidateFile(attach.attach-file, OUTPUT lValid, OUTPUT cMessage).
+                                     IF lValid THEN DO:
+                                        lcAttachedItemImage = lcAttachedItemImageData.
+                                        oAttribute:UpdateRequestData(INPUT-OUTPUT lcAttachedItemImage, "ImageFile", attach.attach-file).
+                                        
+                                        lcConcatBlankImageFiles = lcConcatBlankImageFiles + lcAttachedItemImage.
+                                     END.                                     
+                               END.      
+                            END.
                             FOR EACH notes NO-LOCK 
                                 WHERE notes.rec_key   EQ itemfg.rec_key
                                   AND notes.note_type NE ""
@@ -558,6 +579,7 @@
                     END.
 
                     lcBlank = REPLACE(lcBlank, "$FGItemImage$", lcFGItemImage).
+                    lcBlank = REPLACE(lcBlank, "$AttchedItemImage$", lcAttachedItemImage).
                     lcBlank = REPLACE(lcBlank, "$BoxDesignImage$", lcBoxDesignImage).
                     lcBlank = REPLACE(lcBlank, "$DieImage$", lcDieImage).
                     lcBlank = REPLACE(lcBlank, "$CADImage$", lcCADImage).

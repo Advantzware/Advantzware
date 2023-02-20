@@ -1371,8 +1371,8 @@ SESSION:SET-WAIT-STATE ("general").
             ASSIGN 
                    cJobNo = "" .
 
-   ASSIGN cShtSize = IF ITEM.r-wid GT 0 THEN trim(STRING(ITEM.r-wid,">,>>9.99"))
-                   ELSE (trim(string(ITEM.s-len,">,>>9.99")) + " X " + trim(string(ITEM.s-wid,">,>>9.99")) ).
+   ASSIGN cShtSize = IF ITEM.r-wid GT 0 THEN trim(STRING(ITEM.r-wid,">>>,>>9.99<<<<"))
+                   ELSE (trim(string(ITEM.s-len,">>>,>>9.99<<<<")) + " X " + trim(string(ITEM.s-wid,">>>,>>9.99<<<<")) ).
 
     DISPLAY tt-rm-bin.loc          /*WHEN FIRST-OF(tt-rm-bin.loc)
                                      OR v-prnt-line EQ 0*/
@@ -1400,10 +1400,10 @@ SESSION:SET-WAIT-STATE ("general").
                                    COLUMN-LABEL "Total!Cost Value"
             STRING(cJobNo)         FORMAT "x(10)"
                                    LABEL "Job#"
-            STRING(cShtSize)       FORMAT "x(20)"
+            STRING(cShtSize)       FORMAT "x(24)"
                                    LABEL "Sheet Size" SKIP 
 
-         WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 164.
+         WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 168.
 
     IF tb_excel THEN DO:
 
@@ -1415,7 +1415,7 @@ SESSION:SET-WAIT-STATE ("general").
         EXPORT STREAM excel DELIMITER ","
           tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-name tt-rm-bin.loc-bin
           chrRmBinTag tt-rm-bin.trans-date tt-rm-bin.qty v-cost 
-          chrTotCostVal STRING(cJobNo,"x(10)") STRING(cShtSize,"x(20)") .
+          chrTotCostVal STRING(cJobNo,"x(10)") STRING(cShtSize,"x(24)") .
 
     END.
 

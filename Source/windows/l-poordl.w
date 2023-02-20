@@ -183,8 +183,8 @@ DEFINE BROWSE BROWSE-1
       po-ordl.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14
       po-ordl.job-no2 FORMAT ">>9":U
       po-ord.vend-no FORMAT "x(11)":U LABEL-BGCOLOR 14
-      po-ordl.s-wid FORMAT ">>9.9999":U LABEL-BGCOLOR 14
-      po-ordl.s-len FORMAT ">>,>>9.9999":U LABEL-BGCOLOR 14
+      po-ordl.s-wid FORMAT ">>>>>9.9999<<":U LABEL-BGCOLOR 14
+      po-ordl.s-len FORMAT ">>>,>>9.9999<<":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 134 BY 11.67
@@ -284,7 +284,7 @@ _FldNameList[2]   > ASI.po-ordl.ord-qty
      _FldNameList[8]   > ASI.po-ordl.s-wid
 "po-ordl.s-wid" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.po-ordl.s-len
-"po-ordl.s-len" ? ">>,>>9.9999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-ordl.s-len" ? ">>>,>>9.9999<<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

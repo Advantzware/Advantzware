@@ -123,8 +123,8 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
           v-stackcode          AT 4    format "x(28)"
           SKIP
           "Pallet:" AT 4
-          trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9")) when avail xeb format "x(15)"
+          trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9")) when avail xeb format "x(15)"
          with no-box no-labels frame m6 width 200 NO-ATTR-SPACE STREAM-IO.
 
 /* end ---------------------------------- copr. 1998  advanced software, inc. */

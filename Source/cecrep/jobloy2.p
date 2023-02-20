@@ -74,8 +74,8 @@
           v-stackcode          AT 4    format "x(28)"  
           SKIP
           "Pallet:" AT 4
-          trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9"))
-                              when avail xeb format "x(15)" SKIP
+          trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9"))
+                              when avail xeb format "x(17)" SKIP
          v-bn-note AT 4 FORMAT "X(35)"
          with no-box no-labels frame m6 width 200 NO-ATTR-SPACE STREAM-IO.

@@ -172,8 +172,8 @@ DO v-local-loop = 1 TO v-local-copies:
                           (IF AVAIL xstyle THEN xstyle.dscr ELSE "")
             v-i-line[3] = "<FGCOLOR=BLUE>Size:  <FGCOLOR=GREEN>"  + 
                           (IF AVAIL xeb 
-                           THEN TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                                TRIM(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                           THEN TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                                TRIM(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                                 TRIM(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) 
                            ELSE "")
             v-i-line[4] = "<FGCOLOR=BLUE>Joint: <FGCOLOR=GREEN>" + 
@@ -182,8 +182,8 @@ DO v-local-loop = 1 TO v-local-copies:
                           (IF AVAIL xstyle THEN xstyle.style ELSE "")
             v-i-line-set[3] = "Size:  "  + 
                           (IF AVAIL xeb THEN
-                              TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                              TRIM(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                              TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                              TRIM(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                               TRIM(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) 
                            ELSE "")
             v-i-line-set[4] = "Joint: " + 

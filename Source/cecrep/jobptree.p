@@ -582,8 +582,8 @@ ASSIGN
            v-i-line[1] = "ITEM DESCRIPTION"
            v-i-line[2] = "Style: " + IF AVAILABLE xstyle THEN xstyle.dscr ELSE ""
            v-i-line[3] = "Size: "  + IF AVAILABLE xeb    THEN
-                     TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) ELSE ""
            v-i-line[4] = "Joint: " + IF AVAILABLE xeb THEN v-joint-dscr ELSE "".
         
@@ -824,13 +824,13 @@ ASSIGN
            "Slit: W:" + string(v-outw) + " L:" + string(v-outl) FORM "x(15)"   
            SKIP
            "Size:" AT 2 
-           (trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-           trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+           (trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+           trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
            trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99"))) FORM "x(30)" WHEN AVAIL xeb   
            "Net   Size:"  AT 80
-           "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
+           "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>>9.99<<<<")) +
            " " +
-           "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+           "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>>9.99<<<<")) format "x(23)"
            SKIP
            "Joint:" AT 2 v-joint-dscr             
                          "Die   Size:" AT 80
@@ -891,8 +891,8 @@ ASSIGN
               "<P10>" v-stackcode AT 3   FORMAT "x(28)"
               SKIP
               "Pallet:" AT 3
-              TRIM(STRING({sys/inc/k16v.i xeb.tr-len},">,>>9.99")) + " x " +
-              trim(STRING({sys/inc/k16v.i xeb.tr-wid},">,>>9.99")) WHEN AVAILABLE xeb FORMAT "x(15)"
+              TRIM(STRING({sys/inc/k16v.i xeb.tr-len},">>>,>>9.99")) + " x " +
+              trim(STRING({sys/inc/k16v.i xeb.tr-wid},">>>,>>9.99")) WHEN AVAILABLE xeb FORMAT "x(17)"
               SKIP
               item.i-name AT 3 FORMAT "X(20)" WHEN AVAILABLE ITEM
               v-height AT 24

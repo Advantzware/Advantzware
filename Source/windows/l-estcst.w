@@ -181,8 +181,8 @@ DEFINE BROWSE BROWSE-1
       eb.part-dscr1 FORMAT "x(30)":U LABEL-BGCOLOR 14
       eb.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.style FORMAT "x(6)":U LABEL-BGCOLOR 14
-      eb.len FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
-      eb.wid FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
+      eb.len FORMAT ">>>>>9.99999<":U LABEL-BGCOLOR 14
+      eb.wid FORMAT ">>>>>9.99999<":U LABEL-BGCOLOR 14
       eb.dep FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -269,9 +269,9 @@ eb.cust-no = ip-cust-no and
      _FldNameList[5]   > ASI.eb.style
 "eb.style" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.eb.len
-"eb.len" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>>>>9.99999<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.eb.wid
-"eb.wid" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>>>>9.99999<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.eb.dep
 "eb.dep" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED

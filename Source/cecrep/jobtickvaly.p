@@ -208,8 +208,8 @@ ELSE
 
           /*chr(124) format "x"       at 2 */
           "Pallet:<b>" AT 3
-         IF avail bf-xeb THEN ( trim(string({sys/inc/k16v.i bf-xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i bf-xeb.tr-wid},">,>>9"))) ELSE ""
+         IF avail bf-xeb THEN ( trim(string({sys/inc/k16v.i bf-xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i bf-xeb.tr-wid},">>>,>>9"))) ELSE ""
                                                      format "x(15)" "</b>"
           /*chr(124) format "x"       at 28    */
           "<c32>" chr(124) format "x" 
@@ -276,8 +276,8 @@ else
           /*chr(124) format "x"       at 2 */
           "Pallet:" AT 3
           trim(xeb.tr-no) + " " +
-          trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9"))
+          trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9"))
                                                    when avail xeb format "x(27)"
           fill("_",29) format "x(29)"      at 53
           "CASH IN ADVANCE" at 100 when (v-terms = "CIA" and v-format = "Triad")

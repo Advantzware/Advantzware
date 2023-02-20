@@ -165,7 +165,7 @@ DEFINE BROWSE BROWSE-2
      po-ordl.job-no2
      po-ordl.s-num
      po-ordl.i-no FORMAT "x(20)"
-     po-ordl.s-len FORMAT ">>,>>9.9999"
+     po-ordl.s-len FORMAT ">>>,>>9.999999"
      po-ordl.s-wid
      po-ordl.cost
      po-ordl.pr-uom COLUMN-LABEL "UOM"

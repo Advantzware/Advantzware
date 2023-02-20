@@ -178,7 +178,7 @@ DEFINE FRAME Dialog-Frame
     SIZE 31.6 BY 1
     BGCOLOR 15 FONT 1
     est-prep.qty AT ROW 4.91  COL 28.4  COLON-ALIGNED
-    LABEL "Qty" FORMAT "->>,>>9.9"
+    LABEL "Qty" FORMAT "->>>,>>>,>>9.9"
     VIEW-AS FILL-IN 
     SIZE 16.4 BY 1
     BGCOLOR 15 FONT 1

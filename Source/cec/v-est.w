@@ -554,22 +554,18 @@ DEFINE FRAME Corr
      eb.lockLayout AT ROW 11.71 COL 110
           VIEW-AS TOGGLE-BOX
           SIZE 20 BY 1
-     eb.len AT ROW 12.91 COL 26 COLON-ALIGNED
-          LABEL "Length" FORMAT ">>>9.99"
+     eb.len AT ROW 12.91 COL 24 COLON-ALIGNED
+          LABEL "Length" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 15 BY 1
      eb.wid AT ROW 12.91 COL 61 COLON-ALIGNED
-          LABEL "Width" FORMAT ">>9.99"
+          LABEL "Width" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 15 BY 1
      eb.dep AT ROW 12.91 COL 91 COLON-ALIGNED
           LABEL "Depth" FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.adhesive AT ROW 12.91 COL 127 COLON-ALIGNED
-          LABEL "Joint Material"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -577,14 +573,18 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
-     eb.dust AT ROW 13.86 COL 26 COLON-ALIGNED
+     eb.adhesive AT ROW 12.91 COL 127 COLON-ALIGNED
+          LABEL "Joint Material"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     eb.dust AT ROW 13.86 COL 24 COLON-ALIGNED
           LABEL "Top/Dust Flap" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 15 BY 1
      eb.fpanel AT ROW 13.86 COL 61 COLON-ALIGNED
           LABEL "Bottom Flap" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 15 BY 1
      eb.lock AT ROW 13.86 COL 91 COLON-ALIGNED
           LABEL "Lock Tab" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
@@ -593,14 +593,14 @@ DEFINE FRAME Corr
           LABEL "Joint Tab Width" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.k-wid AT ROW 14.81 COL 26 COLON-ALIGNED
-          LABEL "Scores on Width" FORMAT "->>9.99"
+     eb.k-wid AT ROW 14.81 COL 24 COLON-ALIGNED
+          LABEL "Scores on Width" FORMAT "->>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 15 BY 1
      eb.k-len AT ROW 14.81 COL 61 COLON-ALIGNED
-          LABEL "Scores on Length" FORMAT "->>9.99"
+          LABEL "Scores on Length" FORMAT "->>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 15 BY 1
      eb.tuck AT ROW 14.81 COL 91 COLON-ALIGNED
           LABEL "Tuck" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
@@ -609,14 +609,14 @@ DEFINE FRAME Corr
           LABEL "Joint Length" FORMAT "->>9.99"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.t-wid AT ROW 16 COL 26 COLON-ALIGNED
-          LABEL "Blank Width" FORMAT ">>>9.999<<"
+     eb.t-wid AT ROW 16 COL 24 COLON-ALIGNED
+          LABEL "Blank Width" FORMAT ">>>>>9.999<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 15 BY 1
      eb.t-len AT ROW 16 COL 61 COLON-ALIGNED
-          LABEL "Blank Length" FORMAT ">>>9.999<<"
+          LABEL "Blank Length" FORMAT ">>>>>9.999<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 15 BY 1
      eb.t-sqin AT ROW 16 COL 127 COLON-ALIGNED
           LABEL "Square Ft" FORMAT ">>>9.999<<"
           VIEW-AS FILL-IN 
@@ -2554,67 +2554,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win
-PROCEDURE local-enable:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TABLEIO-SOURCE',OUTPUT cWidgethandles).
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
-PROCEDURE pCheckAutoLock :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
-   
-   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPrep V-table-Win 
-PROCEDURE pCheckPrep :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER ipcPrep AS CHARACTER NO-UNDO.
-   DEFINE BUFFER bf-prep FOR prep.
-   
-   FIND FIRST bf-prep NO-LOCK
-       WHERE bf-prep.company EQ cocode
-         AND bf-prep.code    EQ ipcPrep
-       NO-ERROR.
-               
-   IF AVAILABLE bf-prep THEN
-   RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(bf-prep)). 
-   
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cad-image-update V-table-Win 
 PROCEDURE cad-image-update :
 /*------------------------------------------------------------------------------
@@ -4206,6 +4145,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TABLEIO-SOURCE',OUTPUT cWidgethandles).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -4644,6 +4600,75 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckAutoLock V-table-Win 
+PROCEDURE pCheckAutoLock :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE OUTPUT PARAMETER oplAutoLock AS LOGICAL NO-UNDO.
+   
+   oplAutoLock = IF AVAIL eb THEN eb.lockLayout ELSE NO.
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckPrep V-table-Win 
+PROCEDURE pCheckPrep :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ipcPrep AS CHARACTER NO-UNDO.
+   DEFINE BUFFER bf-prep FOR prep.
+   
+   FIND FIRST bf-prep NO-LOCK
+       WHERE bf-prep.company EQ cocode
+         AND bf-prep.code    EQ ipcPrep
+       NO-ERROR.
+               
+   IF AVAILABLE bf-prep THEN
+   RUN pDisplayPrepDisposedMessage IN hPrepProcs (ROWID(bf-prep)). 
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTotalScoreAllowance V-table-Win 
+PROCEDURE pGetTotalScoreAllowance PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcStyle               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcFlute               AS CHARACTER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipcScoreSet            AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opdTotalScoreAllowance AS DECIMAL   NO-UNDO.
+    
+    RUN GetTotalScoreAllowanaceForStyle IN hdFormulaProcs (
+        INPUT  ipcCompany,
+        INPUT  ipcStyle, 
+        INPUT  ipcFlute,
+        INPUT  ipcScoreSet,
+        OUTPUT opdTotalScoreAllowance
+        ).
+
+    RUN ConvertDecimalTo16ths IN hdFormulaProcs (
+        INPUT-OUTPUT opdTotalScoreAllowance
+        ).
+       
+    opdTotalScoreAllowance = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632", ipcCompany, opdTotalScoreAllowance).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
 PROCEDURE proc-enable :
@@ -5358,6 +5383,35 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win 
+PROCEDURE valid-rm-item PRIVATE :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    {methods/lValidateError.i YES}
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF eb.receiveAsRMItemID:SCREEN-VALUE EQ "" THEN
+        RETURN.
+        
+    IF NOT CAN-FIND(FIRST item
+                    WHERE item.company  EQ cocode
+                      AND item.i-no     EQ eb.receiveAsRMItemID:SCREEN-VALUE) THEN DO:
+        MESSAGE "Invalid RM Item #, try help..." VIEW-AS ALERT-BOX ERROR.
+        
+        APPLY "ENTRY" TO eb.receiveAsRMItemID.
+        
+        RETURN ERROR.
+    END.
+    
+    {methods/lValidateError.i NO}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
 PROCEDURE valid-ship-id :
@@ -5519,37 +5573,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win
-PROCEDURE valid-rm-item PRIVATE:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    {methods/lValidateError.i YES}
-    DO WITH FRAME {&FRAME-NAME}:
-    END.
-    
-    IF eb.receiveAsRMItemID:SCREEN-VALUE EQ "" THEN
-        RETURN.
-        
-    IF NOT CAN-FIND(FIRST item
-                    WHERE item.company  EQ cocode
-                      AND item.i-no     EQ eb.receiveAsRMItemID:SCREEN-VALUE) THEN DO:
-        MESSAGE "Invalid RM Item #, try help..." VIEW-AS ALERT-BOX ERROR.
-        
-        APPLY "ENTRY" TO eb.receiveAsRMItemID.
-        
-        RETURN ERROR.
-    END.
-    
-    {methods/lValidateError.i NO}
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE was-modified V-table-Win 
 PROCEDURE was-modified :
 /*------------------------------------------------------------------------------
@@ -5565,37 +5588,6 @@ IF lc-new-values = lc-previous-values THEN DO:
 END.
 ELSE
   opl-was-modified = YES.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetTotalScoreAllowance V-table-Win 
-PROCEDURE pGetTotalScoreAllowance PRIVATE :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany             AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcStyle               AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcFlute               AS CHARACTER NO-UNDO.
-    DEFINE INPUT  PARAMETER ipcScoreSet            AS CHARACTER NO-UNDO.
-    DEFINE OUTPUT PARAMETER opdTotalScoreAllowance AS DECIMAL   NO-UNDO.
-    
-    RUN GetTotalScoreAllowanaceForStyle IN hdFormulaProcs (
-        INPUT  ipcCompany,
-        INPUT  ipcStyle, 
-        INPUT  ipcFlute,
-        INPUT  ipcScoreSet,
-        OUTPUT opdTotalScoreAllowance
-        ).
-
-    RUN ConvertDecimalTo16ths IN hdFormulaProcs (
-        INPUT-OUTPUT opdTotalScoreAllowance
-        ).
-       
-    opdTotalScoreAllowance = DYNAMIC-FUNCTION("sfCommon_ConvDecimalTo1632", ipcCompany, opdTotalScoreAllowance).
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

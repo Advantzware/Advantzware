@@ -55,8 +55,8 @@ DEF VAR hHistory AS HANDLE NO-UNDO.
 &SCOPED-DEFINE sortby-log ~
     IF lv-sort-by EQ "i-no" THEN job-farm.i-no ELSE ~
     IF lv-sort-by EQ "i-name" THEN itemfg.i-name ELSE ~
-    IF lv-sort-by EQ "wid" THEN STRING(job-farm.wid,'>>9.99<<') ELSE ~
-    IF lv-sort-by EQ "len" THEN STRING(job-farm.len,'>>9.99<<') ELSE ~
+    IF lv-sort-by EQ "wid" THEN STRING(job-farm.wid,'>>>>>9.99<<<<') ELSE ~
+    IF lv-sort-by EQ "len" THEN STRING(job-farm.len,'>>>>>9.99<<<<') ELSE ~
     STRING(job-farm.frm,'>>9')
 &SCOPED-DEFINE sortby BY job-farm.frm BY job-farm.blank-no
 &SCOPED-DEFINE sortby-phrase-asc BY ({&sortby-log}) {&sortby}

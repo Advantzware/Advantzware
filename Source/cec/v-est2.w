@@ -126,7 +126,8 @@ ef.spare-int-1
 &Scoped-define ENABLED-TABLES ef eb
 &Scoped-define FIRST-ENABLED-TABLE ef
 &Scoped-define SECOND-ENABLED-TABLE eb
-&Scoped-Define ENABLED-OBJECTS btn_board ls-d-up-label RECT-20 RECT-21 RECT-7 RECT-9 
+&Scoped-Define ENABLED-OBJECTS btn_board ls-d-up-label RECT-20 RECT-21 ~
+RECT-7 RECT-9 
 &Scoped-Define DISPLAYED-FIELDS ef.spare-int-2 ef.spare-int-3 ~
 ef.spare-int-4 ef.m-code ef.m-dscr ef.lsh-wid ef.lsh-len ef.xgrain ef.board ~
 ef.brd-dscr ef.i-code ef.flute ef.test ef.cost-uom ef.cost-msh ef.weight ~
@@ -180,35 +181,26 @@ RUN set-attribute-list (
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAvailVendItemCost V-table-Win
-FUNCTION fAvailVendItemCost RETURNS LOGICAL 
-  (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER   ) FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostRollWidth V-table-Win
-FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL 
-    (ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipdRollWidth AS DECIMAL  ) FORWARD.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAvailVendItemCost V-table-Win 
+FUNCTION fAvailVendItemCost RETURNS LOGICAL
+    ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostRollWidth V-table-Win 
+FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL
+  ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipdRollWidth AS DECIMAL  ) FORWARD.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostUOM V-table-Win
-FUNCTION fGetVendItemCostUOM RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetVendItemCostUOM V-table-Win 
+FUNCTION fGetVendItemCostUOM RETURNS CHARACTER
   ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getTotalUp V-table-Win 
 FUNCTION getTotalUp RETURNS INTEGER
@@ -222,6 +214,15 @@ FUNCTION getTotalUp RETURNS INTEGER
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btn_board 
+     LABEL "" 
+     SIZE 11 BY 1.
+
+DEFINE VARIABLE fiWtPerTon AS DECIMAL FORMAT "->>,>>9.99<<":U INITIAL 0 
+     LABEL "WT Per Ton" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY 1 NO-UNDO.
+
 DEFINE VARIABLE ls-d-up-label AS CHARACTER FORMAT "X(256)":U INITIAL "Depth" 
       VIEW-AS TEXT 
      SIZE 8 BY .62
@@ -231,15 +232,6 @@ DEFINE VARIABLE ls-dep-label AS CHARACTER FORMAT "X(256)":U INITIAL "Depth"
       VIEW-AS TEXT 
      SIZE 9 BY .62
      FGCOLOR 1  NO-UNDO.
-
-DEFINE BUTTON btn_board
-     LABEL "" 
-     SIZE 11 BY 1.
-     
-DEFINE VARIABLE fiWtPerTon AS DECIMAL FORMAT "->>,>>9.99<<":U INITIAL 0 
-     LABEL "WT Per Ton" 
-     VIEW-AS FILL-IN 
-     SIZE 15 BY 1 NO-UNDO.     
 
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -313,7 +305,7 @@ DEFINE FRAME Corr
      ef.flute AT ROW 3.38 COL 16 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     ef.test AT ROW 3.38 COL 36.5 COLON-ALIGNED
+     ef.test AT ROW 3.38 COL 36.6 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      ef.cost-uom AT ROW 3.38 COL 60 NO-LABEL
@@ -335,21 +327,18 @@ DEFINE FRAME Corr
      ef.nc AT ROW 3.14 COL 140 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
-     ef.gsh-wid AT ROW 5.52 COL 21.6 COLON-ALIGNED
-          LABEL "Gross Sheet" FORMAT ">>>>9.99"
+     ef.gsh-wid AT ROW 5.52 COL 19.6 COLON-ALIGNED
+          LABEL "Gross Sheet" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.gsh-len AT ROW 5.52 COL 37.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.gsh-len AT ROW 5.52 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.gsh-dep AT ROW 5.52 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.nsh-wid AT ROW 6.48 COL 21.6 COLON-ALIGNED
-          LABEL "Net Sheet" FORMAT ">>>>9.99"
-          VIEW-AS FILL-IN 
-          SIZE 14.6 BY 1
-     ef.nsh-len AT ROW 6.48 COL 37.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.nsh-wid AT ROW 6.48 COL 19.6 COLON-ALIGNED
+          LABEL "Net Sheet" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -359,14 +348,17 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
+     ef.nsh-len AT ROW 6.48 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 14.6 BY 1
      ef.nsh-dep AT ROW 6.48 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.trim-w AT ROW 7.43 COL 21.6 COLON-ALIGNED
+     ef.trim-w AT ROW 7.43 COL 19.6 COLON-ALIGNED
           LABEL "Die Size" FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.trim-l AT ROW 7.43 COL 37.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.trim-l AT ROW 7.43 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.trim-d AT ROW 7.43 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
@@ -401,11 +393,11 @@ DEFINE FRAME Corr
      ef.die-in AT ROW 6.71 COL 129 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     eb.t-wid AT ROW 8.62 COL 21.6 COLON-ALIGNED
-          LABEL "Blank" FORMAT ">>>>9.99"
+     eb.t-wid AT ROW 8.62 COL 19.6 COLON-ALIGNED
+          LABEL "Blank" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     eb.t-len AT ROW 8.62 COL 37.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     eb.t-len AT ROW 8.62 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      eb.t-dep AT ROW 8.62 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
@@ -432,12 +424,6 @@ DEFINE FRAME Corr
      ef.adder[9] AT ROW 12.76 COL 21.6 COLON-ALIGNED NO-LABEL FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 36.4 BY 1
-     ef.adder[4] AT ROW 13.76 COL 3 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 18 BY 1
-     ef.adder[10] AT ROW 13.76 COL 21.6 COLON-ALIGNED NO-LABEL FORMAT "x(20)"
-          VIEW-AS FILL-IN 
-          SIZE 36.4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -445,6 +431,12 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
+     ef.adder[4] AT ROW 13.76 COL 3 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 18 BY 1
+     ef.adder[10] AT ROW 13.76 COL 21.6 COLON-ALIGNED NO-LABEL FORMAT "x(20)"
+          VIEW-AS FILL-IN 
+          SIZE 36.4 BY 1
      ef.adder[5] AT ROW 14.76 COL 3 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
@@ -513,12 +505,6 @@ DEFINE FRAME Corr
      ef.leaf-l[3] AT ROW 13.38 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
-     ef.leaf[4] AT ROW 14.57 COL 61 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     ef.leaf-dscr[4] AT ROW 14.57 COL 76 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 26 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -526,6 +512,12 @@ DEFINE FRAME Corr
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Corr
+     ef.leaf[4] AT ROW 14.57 COL 61 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     ef.leaf-dscr[4] AT ROW 14.57 COL 76 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 26 BY 1
      ef.leaf-snum[4] AT ROW 14.57 COL 103 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
@@ -538,7 +530,7 @@ DEFINE FRAME Corr
      ef.leaf-l[4] AT ROW 14.57 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
-     ef.roll AT ROW 4.81 COL 9
+     ef.roll AT ROW 4.81 COL 7
           LABEL "Roll"
           VIEW-AS TOGGLE-BOX
           SIZE 10 BY .81
@@ -548,6 +540,27 @@ DEFINE FRAME Corr
           SIZE 11 BY 1
      "Description" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 10.05 COL 32
+          FGCOLOR 9 
+     "Total Up" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 5.05 COL 107
+     "Sq. Feet" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 5.05 COL 119
+     "Width" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 5.05 COL 72
+          FGCOLOR 1 
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 10.29 COL 132.8
+          FGCOLOR 9 
+     "Width" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 4.91 COL 21.8
+          FGCOLOR 1 
+     "Cut" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 5.05 COL 99
+     "Wax / Label" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 10.29 COL 63
+          FGCOLOR 9 
+     "Description" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 10.29 COL 80
           FGCOLOR 9 
      "Adders" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 10.05 COL 5
@@ -560,7 +573,7 @@ DEFINE FRAME Corr
      "Freight/" VIEW-AS TEXT
           SIZE 10 BY .62 AT ROW 3.62 COL 112 RIGHT-ALIGNED
      "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 4.91 COL 40
+          SIZE 8 BY .62 AT ROW 4.91 COL 37.6
           FGCOLOR 1 
      "Width" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 10.29 COL 120.2
@@ -570,27 +583,6 @@ DEFINE FRAME Corr
           FGCOLOR 1 
      "Die Inches" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 5.05 COL 131
-     "Total Up" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 5.05 COL 107
-     "Sq. Feet" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 5.05 COL 119
-     "Width" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 5.05 COL 72
-          FGCOLOR 1 
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 10.29 COL 132.8
-          FGCOLOR 9 
-     "Width" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 4.91 COL 23.8
-          FGCOLOR 1 
-     "Cut" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 5.05 COL 99
-     "Wax / Label" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 10.29 COL 63
-          FGCOLOR 9 
-     "Description" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 10.29 COL 80
-          FGCOLOR 9 
      RECT-20 AT ROW 1 COL 1
      RECT-21 AT ROW 4.57 COL 3
      RECT-7 AT ROW 9.81 COL 3
@@ -673,12 +665,12 @@ ASSIGN
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN ef.cost-uom IN FRAME Corr
    ALIGN-L EXP-LABEL                                                    */
+/* SETTINGS FOR FILL-IN fiWtPerTon IN FRAME Corr
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ef.flute IN FRAME Corr
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN ef.fr-uom IN FRAME Corr
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN fiWtPerTon IN FRAME Corr
-   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN ef.gsh-dep IN FRAME Corr
    EXP-FORMAT                                                           */
 ASSIGN 
@@ -877,7 +869,7 @@ ASSIGN
 */  /* FRAME Corr */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1162,22 +1154,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME btn_board
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_board V-table-Win
-ON CHOOSE OF btn_board IN FRAME Corr
-DO:
-  IF AVAIL eb THEN
-   FIND FIRST ITEM WHERE ITEM.company  = cocode
-       AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
-
-   IF AVAIL ITEM THEN
-   RUN cec/w-itemc.w(RECID(ITEM)) .
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME ef.board
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board V-table-Win
 ON LEAVE OF ef.board IN FRAME Corr /* Board */
@@ -1275,7 +1251,6 @@ DO:
    end.  /* lastkey <> -1 */
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1284,6 +1259,22 @@ END.
 ON VALUE-CHANGED OF ef.board IN FRAME Corr /* Board */
 DO:
   RUN new-board.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btn_board
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_board V-table-Win
+ON CHOOSE OF btn_board IN FRAME Corr
+DO:
+  IF AVAIL eb THEN
+   FIND FIRST ITEM WHERE ITEM.company  = cocode
+       AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
+
+   IF AVAIL ITEM THEN
+   RUN cec/w-itemc.w(RECID(ITEM)) .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1310,7 +1301,6 @@ DO:
     end.  
 {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1339,7 +1329,6 @@ DO:
     end.  
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1464,7 +1453,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1485,7 +1473,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1508,7 +1495,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1529,7 +1515,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1608,7 +1593,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1629,7 +1613,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1652,7 +1635,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1674,7 +1656,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1690,7 +1671,6 @@ DO:
   {&methods/lValidateError.i NO}
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1718,7 +1698,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1745,7 +1724,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1771,7 +1749,6 @@ DO:
   {&methods/lValidateError.i NO}
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1893,7 +1870,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1983,7 +1959,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2066,7 +2041,6 @@ DO:
   END.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2158,7 +2132,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2210,7 +2183,6 @@ if lastkey = -1 then return.
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2251,7 +2223,6 @@ if lastkey = -1 then return.
 {&methods/lValidateError.i NO}
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2295,7 +2266,6 @@ if lastkey = -1 then return.
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2492,7 +2462,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2514,7 +2483,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2535,7 +2503,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3519,20 +3486,20 @@ PROCEDURE local-display-fields :
      IF v-cecscrn-char EQ "Decimal" THEN do:
         iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .        
         ASSIGN
-           ef.gsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.gsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.gsh-dep:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.nsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.nsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.nsh-dep:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.gsh-wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.gsh-len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.gsh-dep:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.nsh-dep:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
            ef.trim-w:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
            ef.trim-l:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
            ef.trim-d:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           eb.t-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           eb.t-len:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
+           eb.t-wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+           eb.t-len:FORMAT = "?>>>>>9." + FILL("9",INTEGER(iDecimalValue))
            eb.t-dep:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.lsh-wid:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.lsh-len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.lsh-wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.lsh-len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
            ef.leaf-w[1]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
            ef.leaf-w[2]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
            ef.leaf-w[3]:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
@@ -3551,8 +3518,8 @@ PROCEDURE local-display-fields :
      END.
      ELSE do:
          ASSIGN
-             eb.t-len:FORMAT = ">>>>9.99<<<"
-             eb.t-dep:FORMAT = ">>>>9.99<<<" .
+             eb.t-len:FORMAT = ">>>>>9.99<<<<"
+             eb.t-dep:FORMAT = ">>>>>9.99<<<<" .
 
          IF eb.t-sqin GT 999999  THEN
              ASSIGN
@@ -4063,7 +4030,6 @@ IF NOT ll-auto-calc-selected THEN
 {&methods/lValidateError.i NO}
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4406,6 +4372,62 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayWtPerTon V-table-Win 
+PROCEDURE pDisplayWtPerTon :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipiQty   AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipcBoard AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+  FIND FIRST item NO-LOCK
+       WHERE item.company EQ cocode
+       AND item.i-no    EQ ipcBoard
+       NO-ERROR.
+  
+  IF AVAIL item THEN DO:        
+       IF ITEM.cons-uom EQ "TON" THEN
+         dResult = ipiQty.
+       ELSE
+         RUN custom/convquom.p(cocode, item.cons-uom,"TON", item.basis-w,
+                               (IF item.r-wid EQ 0 THEN item.s-len
+                                                    ELSE 12),
+                                (IF item.r-wid EQ 0 THEN item.s-wid
+                                                    ELSE item.r-wid),
+                                item.s-dep,                    
+                                ipiQty, OUTPUT dResult).
+  END.         
+         
+  DO WITH FRAME {&FRAME-NAME}:
+     fiWtPerTon:SCREEN-VALUE = string(dResult) .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DO WITH FRAME {&FRAME-NAME}:
+
+     btn_board:HIDDEN = TRUE .
+
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE rawavail-layout V-table-Win 
 PROCEDURE rawavail-layout :
 /*------------------------------------------------------------------------------
@@ -4598,65 +4620,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
-PROCEDURE proc-enable :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-
-     btn_board:HIDDEN = TRUE .
-
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayWtPerTon V-table-Win 
-PROCEDURE pDisplayWtPerTon :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ipiQty   AS INTEGER NO-UNDO.
-  DEFINE INPUT PARAMETER ipcBoard AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
-  FIND FIRST item NO-LOCK
-       WHERE item.company EQ cocode
-       AND item.i-no    EQ ipcBoard
-       NO-ERROR.
-  
-  IF AVAIL item THEN DO:        
-       IF ITEM.cons-uom EQ "TON" THEN
-         dResult = ipiQty.
-       ELSE
-         RUN custom/convquom.p(cocode, item.cons-uom,"TON", item.basis-w,
-                               (IF item.r-wid EQ 0 THEN item.s-len
-                                                    ELSE 12),
-                                (IF item.r-wid EQ 0 THEN item.s-wid
-                                                    ELSE item.r-wid),
-                                item.s-dep,                    
-                                ipiQty, OUTPUT dResult).
-  END.         
-         
-  DO WITH FRAME {&FRAME-NAME}:
-     fiWtPerTon:SCREEN-VALUE = string(dResult) .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers V-table-Win 
 PROCEDURE release-shared-buffers :
@@ -5409,6 +5372,41 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-mach V-table-Win 
+PROCEDURE valid-mach :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+     IF ef.m-code:SCREEN-VALUE NE "" THEN
+        DO:
+          FIND FIRST mach NO-LOCK
+                    WHERE mach.company = gcompany and
+                    mach.m-code = ef.m-code:SCREEN-VALUE NO-ERROR.
+               IF NOT AVAIL mach THEN
+               DO:
+                    MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO ef.m-code.
+                    oplReturnError = YES.
+               END.
+               IF AVAIL mach AND mach.loc NE eb.loc THEN DO:
+                    MESSAGE "Invalid Machine Code as Estimate Location is " +  eb.loc + " and Machine Location is " + mach.loc + "." + "  Machine must be in the same location as estimate." VIEW-AS ALERT-BOX ERROR.
+                    APPLY "entry" TO ef.m-code.
+                    oplReturnError = YES.
+          END.
+        END.
+     END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-trim-d V-table-Win 
 PROCEDURE valid-trim-d :
 /*------------------------------------------------------------------------------
@@ -5506,52 +5504,16 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-mach V-table-Win 
-PROCEDURE valid-mach :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-     IF ef.m-code:SCREEN-VALUE NE "" THEN
-        DO:
-          FIND FIRST mach NO-LOCK
-                    WHERE mach.company = gcompany and
-                    mach.m-code = ef.m-code:SCREEN-VALUE NO-ERROR.
-               IF NOT AVAIL mach THEN
-               DO:
-                    MESSAGE "Invalid Machine Code. Try Help." VIEW-AS ALERT-BOX ERROR.
-                    APPLY "entry" TO ef.m-code.
-                    oplReturnError = YES.
-               END.
-               IF AVAIL mach AND mach.loc NE eb.loc THEN DO:
-                    MESSAGE "Invalid Machine Code as Estimate Location is " +  eb.loc + " and Machine Location is " + mach.loc + "." + "  Machine must be in the same location as estimate." VIEW-AS ALERT-BOX ERROR.
-                    APPLY "entry" TO ef.m-code.
-                    oplReturnError = YES.
-          END.
-        END.
-     END.
-
-  {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 /* ************************  Function Implementations ***************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAvailVendItemCost V-table-Win
-FUNCTION fAvailVendItemCost RETURNS LOGICAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAvailVendItemCost V-table-Win 
+FUNCTION fAvailVendItemCost RETURNS LOGICAL
     ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	DEFINE VARIABLE lResult AS LOGICAL  NO-UNDO.
+        DEFINE VARIABLE lResult AS LOGICAL  NO-UNDO.
 
     FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
                                       AND vendItemCost.itemID = ipcItemID
@@ -5560,21 +5522,18 @@ FUNCTION fAvailVendItemCost RETURNS LOGICAL
     RETURN lResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostRollWidth V-table-Win
-FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostRollWidth V-table-Win 
+FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL
   ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER , ipdRollWidth AS DECIMAL  ):
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-	DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
+        DEFINE VARIABLE dResult AS DECIMAL NO-UNDO.
     DEF VAR iCount AS INT NO-UNDO.
     
     FIND FIRST vendItemCost NO-LOCK WHERE vendItemCost.company = ipcCompany
@@ -5598,15 +5557,12 @@ FUNCTION fGetVendItemCostRollWidth RETURNS DECIMAL
     RETURN dResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostUOM V-table-Win
-FUNCTION fGetVendItemCostUOM RETURNS CHARACTER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetVendItemCostUOM V-table-Win 
+FUNCTION fGetVendItemCostUOM RETURNS CHARACTER
   ( ipcCompany AS CHARACTER, ipcItemID AS CHARACTER  ):
 /*------------------------------------------------------------------------------
  Purpose:
@@ -5622,11 +5578,9 @@ FUNCTION fGetVendItemCostUOM RETURNS CHARACTER
     RETURN cResult.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getTotalUp V-table-Win 
 FUNCTION getTotalUp RETURNS INTEGER

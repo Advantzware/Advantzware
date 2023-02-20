@@ -1054,13 +1054,13 @@ FUNCTION getValue RETURNS CHARACTER
             lc-return = STRING(fGetFromWidth(ipb-palletSize.company,ipb-palletSize.location,ipb-palletSize.positions,ipb-palletSize.upToWidth),">>>>9.99").
         END.
         WHEN "upToWidth" THEN DO:
-            lc-return = STRING(ipb-palletSize.upToWidth,">>>>9.99").
+            lc-return = STRING(ipb-palletSize.upToWidth,">>>>>9.99<<<<").
         END.
         WHEN "fromLength" THEN DO:
             lc-return = STRING(fGetFromLength(ipb-palletSize.company,ipb-palletSize.location,ipb-palletSize.positions,ipb-palletSize.upToLength),">>>>9.99").
         END.
         WHEN "upToLength" THEN DO:
-            lc-return = STRING(ipb-palletSize.upToLength,">>>>9.99").
+            lc-return = STRING(ipb-palletSize.upToLength,">>>>>9.99<<<<").
         END.
         OTHERWISE 
         DO:

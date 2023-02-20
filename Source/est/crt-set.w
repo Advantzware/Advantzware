@@ -108,7 +108,7 @@ DEFINE VARIABLE fi_dep AS DECIMAL FORMAT ">9.9999" INITIAL 0
      SIZE 11.8 BY 1
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fi_len AS DECIMAL FORMAT ">9.9999" INITIAL 0 
+DEFINE VARIABLE fi_len AS DECIMAL FORMAT ">>>>>9.9999" INITIAL 0 
      LABEL "FG Length" 
      VIEW-AS FILL-IN 
      SIZE 11.8 BY 1
@@ -143,7 +143,7 @@ DEFINE VARIABLE fi_stock-no AS CHARACTER FORMAT "x(15)"
      SIZE 32 BY 1
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE fi_wid AS DECIMAL FORMAT ">9.9999" INITIAL 0 
+DEFINE VARIABLE fi_wid AS DECIMAL FORMAT ">>>>>9.9999" INITIAL 0 
      LABEL "Width" 
      VIEW-AS FILL-IN 
      SIZE 11.8 BY 1 NO-UNDO.
@@ -600,13 +600,13 @@ PROCEDURE local-initialize :
   DO:
      IF v-cecscrn-char NE "Decimal" THEN
         ASSIGN
-           fi_len:FORMAT IN FRAME {&FRAME-NAME} = ">>9.99" 
-           fi_wid:FORMAT IN FRAME {&FRAME-NAME} = ">>9.99"
+           fi_len:FORMAT IN FRAME {&FRAME-NAME} = ">>>>>9.99" 
+           fi_wid:FORMAT IN FRAME {&FRAME-NAME} = ">>>>>9.99"
            fi_dep:FORMAT IN FRAME {&FRAME-NAME} = ">>9.99".
      ELSE
         ASSIGN
-           fi_len:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999" 
-           fi_wid:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999"
+           fi_len:FORMAT IN FRAME {&FRAME-NAME} = ">>>>>9.999999" 
+           fi_wid:FORMAT IN FRAME {&FRAME-NAME} = ">>>>>9.999999"
            fi_dep:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999".
   END.
 

@@ -464,8 +464,8 @@ DEFINE BROWSE Browser-Table
       display-qty-set() @ eb.cust-% LABEL-BGCOLOR 14
       eb.die-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.cad-no COLUMN-LABEL "Cad #" FORMAT "x(15)":U LABEL-BGCOLOR 14
-      eb.len FORMAT ">>9.99999":U LABEL-BGCOLOR 14
-      eb.wid FORMAT ">>9.99999":U LABEL-BGCOLOR 14
+      eb.len FORMAT ">>>>>9.99999":U LABEL-BGCOLOR 14
+      eb.wid FORMAT ">>>>>9.99999":U LABEL-BGCOLOR 14
       eb.dep FORMAT ">>9.99999":U LABEL-BGCOLOR 14
       eb.plate-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       est.entered-id COLUMN-LABEL "Created By" FORMAT "X(8)":U
@@ -699,9 +699,9 @@ eb.est-no = lv-last-est-no"
      _FldNameList[15]   > ASI.eb.cad-no
 "eb.cad-no" "Cad #" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
-"eb.len" ? ">>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>>>>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
-"eb.wid" ? ">>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>>>>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
 "eb.dep" ? ">>9.99999" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.eb.plate-no

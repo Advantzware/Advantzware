@@ -243,12 +243,12 @@ DEFINE FRAME Dialog-Frame
           SIZE 12 BY 1
           BGCOLOR 15 FONT 1
      estPacking.dimLength AT ROW 4.62 COL 83.8 COLON-ALIGNED
-          LABEL "Length" FORMAT ">9.9999"
+          LABEL "Length" FORMAT ">>>>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1
      estPacking.dimWidth AT ROW 5.81 COL 83.8 COLON-ALIGNED
-          LABEL "Width" FORMAT ">9.9999"
+          LABEL "Width" FORMAT ">>>>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
           BGCOLOR 15 FONT 1

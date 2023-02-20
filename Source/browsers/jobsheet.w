@@ -155,11 +155,11 @@ DEFINE BROWSE br_table
       jobsheet.form_number COLUMN-LABEL "Form" FORMAT ">>9":U
       jobsheet.blank_number COLUMN-LABEL "Blank" FORMAT ">9":U
       jobsheet.item_number COLUMN-LABEL "Item" FORMAT "X(10)":U
-      jobsheet.sheet_width COLUMN-LABEL "Width" FORMAT ">>9.9999":U
-      jobsheet.sheet_length COLUMN-LABEL "Length" FORMAT ">>9.9999":U
+      jobsheet.sheet_width COLUMN-LABEL "Width" FORMAT ">>>>>9.9999<<":U
+      jobsheet.sheet_length COLUMN-LABEL "Length" FORMAT ">>>>>9.9999<<":U
       jobsheet.number_sheets COLUMN-LABEL "Sheets" FORMAT ">,>>>,>>9.9<<":U
       jobsheet.caliper FORMAT "9.99999":U
-      jobsheet.roll_width FORMAT ">>9.9999":U
+      jobsheet.roll_width FORMAT ">>>>>9.9999<<":U
       jobsheet.number_cuts COLUMN-LABEL "Cuts" FORMAT ">9":U
       jobsheet.die_number FORMAT "X(15)":U
       jobsheet.die_size FORMAT ">>>>9.99":U

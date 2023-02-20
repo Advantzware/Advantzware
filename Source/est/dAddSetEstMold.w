@@ -1752,10 +1752,10 @@ PROCEDURE pSetLWDFormat :
           iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .
 
           ASSIGN
-              len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
-              len:WIDTH  = 12.5
-              wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))   
-              wid:WIDTH  = 12.5
+              len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+              len:WIDTH  = 15.5
+              wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))   
+              wid:WIDTH  = 15.5
               dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
               dep:WIDTH  = 12.5.        
        END.   

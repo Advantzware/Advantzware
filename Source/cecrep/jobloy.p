@@ -380,8 +380,8 @@ do v-local-loop = 1 to v-local-copies:
                                             else v-pqty,">>>,>>9"))
                                             format "x(7)"
               "   "
-              "Size:" (trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                      trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+              "Size:" (trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                      trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                       trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99"))) FORM "x(30)" WHEN AVAIL xeb            
               SKIP
               v-cus[3] AT 2
@@ -420,9 +420,9 @@ do v-local-loop = 1 to v-local-copies:
               "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
               SKIP
               v-board-dscr AT 4 FORM "x(30)" "3:" AT 39 v-ink-3 "Die   Size:" AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>>>9.99<<<<")) +
               "  " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>>>9.99<<<<")) format "x(22)"
               "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
               SKIP
                "Score:" AT 2 v-len-score1 WHEN xstyle.TYPE <> "F" format "x(25)" 

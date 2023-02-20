@@ -73,7 +73,7 @@ ASSIGN
 
     cFieldListToSelect = "job,po,qty-ord,rec,cust,due,unit,sht-w," +
                             "sht-l,mach,fgitem,rmitem,msf,ship,vend"
-    cFieldLength       = "13,8,9,9,22,10,6,8," + "8,10,15,10,10,5,15"
+    cFieldLength       = "13,8,9,9,22,10,6,9," + "9,10,15,10,10,5,15"
     cFieldType         = "c,i,c,c,c,c,c,i," + "i,c,c,c,i,c,c" 
     .
 
@@ -1808,9 +1808,9 @@ PROCEDURE run-report :
                     WHEN "unit"   THEN 
                         cVarValue = STRING(lv-under[1]) .
                     WHEN "sht-w"  THEN 
-                        cVarValue = STRING(po-ordl.s-wid,"->>>9.99") .
+                        cVarValue = STRING(po-ordl.s-wid,"->>>>9.99<<<<") .
                     WHEN "sht-l"   THEN 
-                        cVarValue = STRING(po-ordl.s-len,"->>>9.99").
+                        cVarValue = STRING(po-ordl.s-len,"->>>>9.99<<<<").
                     WHEN "mach"  THEN 
                         cVarValue = STRING(tt-report.mach-vend,"x(10)") .
                     WHEN "fgitem"   THEN 

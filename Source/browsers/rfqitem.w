@@ -209,10 +209,10 @@ DEFINE BROWSE br_table
       rfqitem.i-col FORMAT ">9":U COLUMN-FONT 0
       rfqitem.i-coat FORMAT ">9":U COLUMN-FONT 0
       to-corrware-dim(ll-is-corr-style,rfqitem.len) @ rfqitem.len
-      rfqitem.len FORMAT ">9.99999":U COLUMN-FONT 0
+      rfqitem.len FORMAT ">>>>>9.99999<":U COLUMN-FONT 0
       to-corrware-dim(ll-is-corr-style,rfqitem.len) @ rfqitem.len
       to-corrware-dim(ll-is-corr-style,rfqitem.wid) @ rfqitem.wid
-      rfqitem.wid FORMAT ">9.99999":U
+      rfqitem.wid FORMAT ">>>>>9.99999<":U
       to-corrware-dim(ll-is-corr-style,rfqitem.wid) @ rfqitem.wid
       to-corrware-dim(ll-is-corr-style,rfqitem.dep) @ rfqitem.dep
       rfqitem.dep FORMAT ">9.99999":U COLUMN-FONT 0
@@ -585,12 +585,12 @@ DO:
    IF ll-is-corr-style then
    DO:
       IF v-cecscrn-char NE "Decimal" THEN
-         assign rfqitem.len:format in browse {&browse-name} = ">>>>9.99"
-                rfqitem.wid:format in browse {&browse-name} = ">>>>9.99"
+         assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.99"
+                rfqitem.wid:format in browse {&browse-name} = ">>>>>9.99"
                 rfqitem.dep:format in browse {&browse-name} = ">>>>9.99".
       ELSE
-         assign rfqitem.len:format in browse {&browse-name} = ">>>>9.999999"
-                rfqitem.wid:format in browse {&browse-name} = ">>>>9.999999"
+         assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.999999"
+                rfqitem.wid:format in browse {&browse-name} = ">>>>>9.999999"
                 rfqitem.dep:format in browse {&browse-name} = ">>>>9.999999".
    END.
    else assign rfqitem.len:format in browse {&browse-name} = ">9.99999"
@@ -1046,12 +1046,12 @@ DO:
    IF ll-is-corr-style then
    DO:
       IF v-cecscrn-char NE "Decimal" THEN
-         assign rfqitem.len:format in browse {&browse-name} = ">>>>9.99"
-                rfqitem.wid:format in browse {&browse-name} = ">>>>9.99"
+         assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.99"
+                rfqitem.wid:format in browse {&browse-name} = ">>>>>9.99"
                 rfqitem.dep:format in browse {&browse-name} = ">>>>9.99".
       ELSE
-         assign rfqitem.len:format in browse {&browse-name} = ">>>>9.999999"
-                rfqitem.wid:format in browse {&browse-name} = ">>>>9.999999"
+         assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.999999"
+                rfqitem.wid:format in browse {&browse-name} = ">>>>>9.999999"
                 rfqitem.dep:format in browse {&browse-name} = ">>>>9.999999".
    END.
    else assign rfqitem.len:format in browse {&browse-name} = ">9.99999"
@@ -2006,12 +2006,12 @@ PROCEDURE disp-cwfw :
   if avail style and style.industry = "2" then do:
 
      IF v-cecscrn-char NE "Decimal" THEN
-        assign rfqitem.len:format in browse {&browse-name} = ">>9.99"
-               rfqitem.wid:format  = ">>9.99"
-               rfqitem.dep:format  = ">>9.99".
+        assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.99"
+               rfqitem.wid:format  = ">>>>>9.99"
+               rfqitem.dep:format  = ">>>>>9.99".
      ELSE
-        assign rfqitem.len:format in browse {&browse-name} = ">>9.99"
-               rfqitem.wid:format  = ">>9.999999"
+        assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.99<<<<"
+               rfqitem.wid:format  = ">>>>>9.999999"
                rfqitem.dep:format  = ">>9.999999".
 
      ASSIGN
@@ -2020,9 +2020,9 @@ PROCEDURE disp-cwfw :
         rfqitem.dep:screen-value = string({sys/inc/k16.i rfqitem.dep } ).
   end.
   else 
-     assign rfqitem.len:format  = ">9.99999"
-            rfqitem.wid:format  = ">9.99999"
-            rfqitem.dep:format  = ">9.99999".
+     assign rfqitem.len:format  = ">>>>>9.99999<"
+            rfqitem.wid:format  = ">>>>>9.99999<"
+            rfqitem.dep:format  = ">>>>>9.99999<".
 
 END PROCEDURE.
 

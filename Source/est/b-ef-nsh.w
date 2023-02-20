@@ -178,18 +178,18 @@ DEFINE BROWSE br_table
             WIDTH 12
       ef-nsh.sheet-no COLUMN-LABEL "Form #" FORMAT ">>>>>>":U WIDTH 8
       ef-nsh.dept FORMAT "x(2)":U
-      ef-nsh.wid-in COLUMN-LABEL "Width IN" FORMAT ">,>>9.99<<":U
+      ef-nsh.wid-in COLUMN-LABEL "Width IN" FORMAT ">>>,>>9.99<<<<":U
             WIDTH 12
-      ef-nsh.len-in COLUMN-LABEL "Length IN" FORMAT ">,>>9.99<<":U
+      ef-nsh.len-in COLUMN-LABEL "Length IN" FORMAT ">>>,>>9.99<<<<":U
             WIDTH 12
       ef-nsh.dep-in COLUMN-LABEL "Depth IN" FORMAT ">,>>9.99<<":U
             WIDTH 12
       ef-nsh.n-out-w COLUMN-LABEL "#Out W" FORMAT ">>>":U WIDTH 8
       ef-nsh.n-out-l COLUMN-LABEL "#Out L" FORMAT ">>>":U WIDTH 8
       ef-nsh.n-out-d COLUMN-LABEL "#Out D" FORMAT ">>>":U WIDTH 8
-      ef-nsh.wid-out COLUMN-LABEL "Width OUT" FORMAT ">,>>9.99<<":U
+      ef-nsh.wid-out COLUMN-LABEL "Width OUT" FORMAT ">>>,>>9.99<<<<":U
             WIDTH 12
-      ef-nsh.len-out COLUMN-LABEL "Length OUT" FORMAT ">,>>9.99<<":U
+      ef-nsh.len-out COLUMN-LABEL "Length OUT" FORMAT ">>>,>>9.99<<<<":U
             WIDTH 12
       ef-nsh.dep-out COLUMN-LABEL "Depth OUT" FORMAT ">,>>9.99<<":U
             WIDTH 12
@@ -297,9 +297,9 @@ ASSIGN
      _FldNameList[4]   > asi.ef-nsh.dept
 "ef-nsh.dept" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.ef-nsh.wid-in
-"ef-nsh.wid-in" "Width IN" ">,>>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ef-nsh.wid-in" "Width IN" ">>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.ef-nsh.len-in
-"ef-nsh.len-in" "Length IN" ">,>>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ef-nsh.len-in" "Length IN" ">>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.ef-nsh.dep-in
 "ef-nsh.dep-in" "Depth IN" ">,>>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.ef-nsh.n-out-w
@@ -309,9 +309,9 @@ ASSIGN
      _FldNameList[10]   > asi.ef-nsh.n-out-d
 "ef-nsh.n-out-d" "#Out D" ">>>" "integer" ? ? ? ? ? ? yes ? no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.ef-nsh.wid-out
-"ef-nsh.wid-out" "Width OUT" ">,>>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ef-nsh.wid-out" "Width OUT" ">>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.ef-nsh.len-out
-"ef-nsh.len-out" "Length OUT" ">,>>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ef-nsh.len-out" "Length OUT" ">>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > asi.ef-nsh.dep-out
 "ef-nsh.dep-out" "Depth OUT" ">,>>9.99<<" "decimal" ? ? ? ? ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

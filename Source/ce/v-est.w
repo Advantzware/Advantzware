@@ -456,16 +456,16 @@ DEFINE FRAME fold
      ef.brd-dscr AT ROW 11.71 COL 49 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 57 BY 1
-     eb.len AT ROW 12.91 COL 25 COLON-ALIGNED FORMAT ">>9.99999"
-          LABEL "Length"
+     eb.len AT ROW 14.91 COL 25 COLON-ALIGNED
+          LABEL "Length" FORMAT ">>>>>9.99999"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-     eb.wid AT ROW 12.91 COL 57 COLON-ALIGNED FORMAT ">>9.99999"
-          LABEL "Width"
+          SIZE 15 BY 1
+     eb.wid AT ROW 12.91 COL 57 COLON-ALIGNED
+          LABEL "Width" FORMAT ">>>>>9.99999"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
-     eb.dep AT ROW 12.91 COL 88 COLON-ALIGNED FORMAT ">>9.99999"
-          LABEL "Depth"
+          SIZE 15 BY 1
+     eb.dep AT ROW 12.91 COL 88 COLON-ALIGNED
+          LABEL "Depth" FORMAT ">>9.99999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      eb.adhesive AT ROW 12.91 COL 126 COLON-ALIGNED
@@ -475,11 +475,11 @@ DEFINE FRAME fold
      eb.dust AT ROW 13.86 COL 25 COLON-ALIGNED
           LABEL "Top/Dust Flap"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15 BY 1
      eb.fpanel AT ROW 13.86 COL 57 COLON-ALIGNED
           LABEL "Fifth Panel"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15 BY 1
      eb.lock AT ROW 13.86 COL 88 COLON-ALIGNED
           LABEL "Lock Tab"
           VIEW-AS FILL-IN 
@@ -488,14 +488,14 @@ DEFINE FRAME fold
           LABEL "Glue Lap"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     eb.k-len AT ROW 14.76 COL 24.8 COLON-ALIGNED
+     eb.k-len AT ROW 12.76 COL 24.8 COLON-ALIGNED
           LABEL "DK Length"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15 BY 1
      eb.k-wid AT ROW 14.76 COL 57 COLON-ALIGNED
           LABEL "DK Width"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15 BY 1
      eb.tuck AT ROW 14.81 COL 88 COLON-ALIGNED
           LABEL "Tuck"
           VIEW-AS FILL-IN 
@@ -514,11 +514,11 @@ DEFINE FRAME fold
      eb.t-wid AT ROW 16 COL 25 COLON-ALIGNED
           LABEL "Blank Width"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15 BY 1
      eb.t-len AT ROW 16 COL 57 COLON-ALIGNED
           LABEL "Blank Length"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 15 BY 1
      eb.t-sqin AT ROW 16 COL 126 COLON-ALIGNED
           LABEL "Blank Sq. In." FORMAT ">>>>>>9.9999"
           VIEW-AS FILL-IN 
@@ -721,7 +721,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.upc-no IN FRAME fold
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.wid IN FRAME fold
-   EXP-LABEL EXP-FORMAT                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -2323,6 +2323,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy V-table-Win 
+PROCEDURE local-destroy :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    /* Code placed here will execute PRIOR to standard behavior. */
+    IF VALID-HANDLE (hdFormulaProcs) THEN
+        DELETE PROCEDURE hdFormulaProcs.
+    IF VALID-HANDLE (hdSalesManProcs) THEN
+        DELETE PROCEDURE hdSalesManProcs.    
+     IF VALID-HANDLE(hPrepProcs) THEN
+        DELETE PROCEDURE hPrepProcs.    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+    /* Code placed here will execute AFTER standard behavior.    */
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
 /*------------------------------------------------------------------------------
@@ -2548,28 +2570,6 @@ PROCEDURE local-display-fields :
 
   END.
 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-destroy B-table-Win
-PROCEDURE local-destroy:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    /* Code placed here will execute PRIOR to standard behavior. */
-    IF VALID-HANDLE (hdFormulaProcs) THEN
-        DELETE PROCEDURE hdFormulaProcs.
-    IF VALID-HANDLE (hdSalesManProcs) THEN
-        DELETE PROCEDURE hdSalesManProcs.    
-     IF VALID-HANDLE(hPrepProcs) THEN
-        DELETE PROCEDURE hPrepProcs.    
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
-
-    /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3481,9 +3481,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win
-PROCEDURE valid-rm-item PRIVATE:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rm-item V-table-Win 
+PROCEDURE valid-rm-item PRIVATE :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -3507,11 +3506,9 @@ PROCEDURE valid-rm-item PRIVATE:
     
     {methods/lValidateError.i NO}
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-ship-id V-table-Win 
 PROCEDURE valid-ship-id :

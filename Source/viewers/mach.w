@@ -370,7 +370,7 @@ DEFINE FRAME F-Main
           LABEL "Front-To-Back"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max-len AT ROW 10.38 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>9.99999"
+     mach.max-len AT ROW 10.38 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99999<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
      mach.min-trimw AT ROW 10.38 COL 56 COLON-ALIGNED NO-LABEL

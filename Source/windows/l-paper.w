@@ -157,9 +157,9 @@ DEFINE BROWSE BROWSE-1
       item.i-name FORMAT "x(30)":U COLUMN-FONT 0
       item.i-code COLUMN-LABEL "E/R" FORMAT "X":U
       item.cal FORMAT "9.99999":U WIDTH 10 COLUMN-FONT 0
-      IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid @ lv-wid COLUMN-LABEL "Width" FORMAT ">,>>9.9<<<":U
+      IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid @ lv-wid COLUMN-LABEL "Width" FORMAT ">>>,>>9.9<<<<<":U
             WIDTH 8
-      IF item.r-wid EQ 0 THEN item.s-len ELSE 12 @ lv-len COLUMN-LABEL "Length" FORMAT ">,>>9.9<<<":U
+      IF item.r-wid EQ 0 THEN item.s-len ELSE 12 @ lv-len COLUMN-LABEL "Length" FORMAT ">>>,>>9.9<<<<<":U
             WIDTH 8
       item.q-onh COLUMN-LABEL "Qty OnHand" FORMAT "->>>,>>>,>>9.9<<":U
             WIDTH 16
@@ -235,9 +235,9 @@ and item.mat-type = 'P'"
      _FldNameList[4]   > ASI.item.cal
 "item.cal" ? ? "decimal" ? ? 0 ? ? ? no ? no no "10" yes no no "U" "" ""
      _FldNameList[5]   > "_<CALC>"
-"IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid @ lv-wid" "Width" ">,>>9.9<<<" ? ? ? ? ? ? ? no ? no no "8" yes no no "U" "" ""
+"IF item.r-wid EQ 0 THEN item.s-wid ELSE item.r-wid @ lv-wid" "Width" ">>>,>>9.9<<<<<" ? ? ? ? ? ? ? no ? no no "8" yes no no "U" "" ""
      _FldNameList[6]   > "_<CALC>"
-"IF item.r-wid EQ 0 THEN item.s-len ELSE 12 @ lv-len" "Length" ">,>>9.9<<<" ? ? ? ? ? ? ? no ? no no "8" yes no no "U" "" ""
+"IF item.r-wid EQ 0 THEN item.s-len ELSE 12 @ lv-len" "Length" ">>>,>>9.9<<<<<" ? ? ? ? ? ? ? no ? no no "8" yes no no "U" "" ""
      _FldNameList[7]   > ASI.item.q-onh
 "item.q-onh" "Qty OnHand" ? "decimal" ? ? ? ? ? ? no ? no no "16" yes no no "U" "" ""
      _FldNameList[8]   > ASI.item.q-comm

@@ -52,7 +52,7 @@ def var hd-post-child as widget-handle no-undo.
 def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
 
 DEF VAR lv-po-wid LIKE po-ordl.s-wid NO-UNDO.
-DEF VAR lv-po-len LIKE po-ordl.s-len FORM ">>,>>9.9999" NO-UNDO.
+DEF VAR lv-po-len LIKE po-ordl.s-len FORM ">>>,>>9.9999<<" NO-UNDO.
 DEF VAR v-avgcost AS LOG NO-UNDO.
 DEF VAR ll-tag-meth AS LOG NO-UNDO.
 DEF VAR ll-warned AS LOG NO-UNDO.

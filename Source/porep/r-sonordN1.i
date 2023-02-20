@@ -9,8 +9,8 @@ WHEN "v-ord-no" THEN cVarValue = STRING(po-ordl.ord-no,">>>>>>").
 WHEN "v-cust-name" THEN cVarValue = v-prt-name.
 WHEN "v-vend-name" THEN cVarValue = substring(v-Vend-name,1,30).
 WHEN "lv-uom" THEN cVarValue = lv-uom.
-WHEN "v-wid" THEN cVarValue = string(po-ordl.s-wid,">>,>>9.99<<<").
-WHEN "v-len" THEN cVarValue = string(po-ordl.s-len,">>,>>9.99<<<").
+WHEN "v-wid" THEN cVarValue = string(po-ordl.s-wid,">>>,>>9.99<<<<").
+WHEN "v-len" THEN cVarValue = string(po-ordl.s-len,">>>,>>9.99<<<<").
 WHEN "v-job-no" THEN cVarValue = IF po-ordl.job-no <> "" then TRIM(STRING(DYNAMIC-FUNCTION('sfFormat_JobFormatWithHyphen', po-ordl.job-no, po-ordl.job-no2))) 
                                  + "-" + STRING(po-ordl.s-num,"99") ELSE "".
 WHEN "v-jobDueDate" THEN cVarValue = IF v-JobDueDate <> ? THEN string(v-jobDueDate) ELSE "".

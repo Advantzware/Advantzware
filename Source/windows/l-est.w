@@ -202,8 +202,8 @@ DEFINE BROWSE BROWSE-1
       tt-eb.part-dscr1 FORMAT "x(30)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
       tt-eb.part-no FORMAT "x(15)":U COLUMN-FONT 2 LABEL-BGCOLOR 14
       tt-eb.style FORMAT "x(6)":U LABEL-BGCOLOR 14
-      tt-eb.len FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
-      tt-eb.wid FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
+      tt-eb.len FORMAT ">>>>>9.99999<":U LABEL-BGCOLOR 14
+      tt-eb.wid FORMAT ">>>>>9.99999<":U LABEL-BGCOLOR 14
       tt-eb.dep FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -282,9 +282,9 @@ ASSIGN
      _FldNameList[6]   > tt-eb.style
 "style" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > tt-eb.len
-"len" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"len" ? ">>>>>9.99999<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > tt-eb.wid
-"wid" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"wid" ? ">>>>>9.99999<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > tt-eb.dep
 "dep" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED

@@ -518,9 +518,9 @@ IF AVAILABLE cust AND liberty-log AND liberty-dir NE "" THEN
             ELSE DO:
                 /* Formatted Dimensions */
                 IF ITEM.s-dep GT 0 THEN 
-                    cDimensions = TRIM(STRING({sys/inc/k16.i ITEM.s-len}, ">>>>.99")) + " x " + TRIM(STRING({sys/inc/k16.i item.s-wid}, ">>>>.99")) + " x " + TRIM(STRING({sys/inc/k16.i item.s-dep}, ">>>>.99")).
+                    cDimensions = TRIM(STRING({sys/inc/k16.i ITEM.s-len}, ">>>>>>.99")) + " x " + TRIM(STRING({sys/inc/k16.i item.s-wid}, ">>>>>>.99")) + " x " + TRIM(STRING({sys/inc/k16.i item.s-dep}, ">>>>.99")).
                 ELSE
-                    cDimensions = TRIM(STRING({sys/inc/k16.i ITEM.s-wid}, ">>>>.99")).
+                    cDimensions = TRIM(STRING({sys/inc/k16.i ITEM.s-wid}, ">>>>>>.99")).
                 IF ITEM.s-dep GT 0 THEN DO:
                     cFormattedScore = fFormScore({sys/inc/k16.i ITEM.s-len}) + fFormScore({sys/inc/k16.i ITEM.s-wid}).
                     IF ITEM.s-dep GT 0 THEN 

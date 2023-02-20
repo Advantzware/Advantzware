@@ -74,7 +74,7 @@ ASSIGN cTextListToSelect = "MACHINE,PROM/JOB DT,CUSTOMER,CUSTOMER PART#,JOB #,TO
                           + "KICKS REMAIN,MSF BALANCE,SHEET SIZE,BOARD RECE."
        cFieldListToSelect = "mch,job-dt,cust,cust-prt,job,ttl-kiks," +
                             "kiks-rmn,msf-bal,sht-sz,brd-rece"
-       cFieldLength = "7,11,8,15,13,12," + "12,12,21,12" 
+       cFieldLength = "7,11,8,15,13,12," + "12,12,24,12" 
        cFieldType = "c,c,c,c,c,i," + "i,i,c,i"
     .
 
@@ -1421,8 +1421,8 @@ SESSION:SET-WAIT-STATE ("general").
                        int(substr(tt-report.key-02,7,2)),
                        int(substr(tt-report.key-02,1,4)))
        v-sheet  = if avail job-mat then
-                    "W: " + trim(string(job-mat.wid,">>>9.99<<<")) + " " +
-                    "L: " + trim(string(job-mat.len,">>>9.99<<<"))
+                    "W: " + trim(string(job-mat.wid,">>>>>9.99<<<<")) + " " +
+                    "L: " + trim(string(job-mat.len,">>>>>9.99<<<<"))
                   else ""
        v-pct    = 0
        v-on     = int(tt-report.key-07)

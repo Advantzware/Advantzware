@@ -320,12 +320,12 @@ DO:
    else ll-is-corr-style = no.
 
    IF ll-is-corr-style then
-      assign rfqitem.len:format in browse {&browse-name} = ">>>>9.99"
-             rfqitem.wid:format in browse {&browse-name} = ">>>>9.99"
+      assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.99"
+             rfqitem.wid:format in browse {&browse-name} = ">>>>>9.99"
              rfqitem.dep:format in browse {&browse-name} = ">>>>9.99"
              .
-   else assign rfqitem.len:format in browse {&browse-name} = ">>9.99999"
-               rfqitem.wid:format in browse {&browse-name} = ">>9.99999"
+   else assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.99999<"
+               rfqitem.wid:format in browse {&browse-name} = ">>>>>9.99999<"
                rfqitem.dep:format in browse {&browse-name} = ">>9.99999"
              .
 

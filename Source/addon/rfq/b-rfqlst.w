@@ -670,8 +670,8 @@ DO:
    ELSE ll-is-corr-style = NO.
 
    IF ll-is-corr-style THEN
-      ASSIGN rfqitem.len:format IN BROWSE {&browse-name} = ">>>>9.99"
-             rfqitem.wid:format IN BROWSE {&browse-name} = ">>>>9.99"
+      ASSIGN rfqitem.len:format IN BROWSE {&browse-name} = ">>>>>9.99<<<<"
+             rfqitem.wid:format IN BROWSE {&browse-name} = ">>>>>9.99<<<<"
              rfqitem.dep:format IN BROWSE {&browse-name} = ">>>>9.99"
              .
    ELSE ASSIGN rfqitem.len:format IN BROWSE {&browse-name} = ">>9.99999"

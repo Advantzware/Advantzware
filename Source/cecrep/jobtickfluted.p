@@ -190,9 +190,9 @@ ELSE
           "<c69>Partial"    format "x(14)"  */
          
           "Pallet:<b>" AT 3
-         IF avail bf-xeb THEN ( trim(string({sys/inc/k16v.i bf-xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i bf-xeb.tr-wid},">,>>9"))) ELSE ""
-                                                     format "x(15)" "</b>"
+         IF avail bf-xeb THEN ( trim(string({sys/inc/k16v.i bf-xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i bf-xeb.tr-wid},">>>,>>9"))) ELSE ""
+                                                     format "x(17)" "</b>"
           
           /*"<c32>" chr(124) format "x" 
           "<c36.5>" "Totals" format "x(16)"

@@ -197,9 +197,9 @@ DEFINE BROWSE BROWSE-1
       po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U COLUMN-FONT 0
       po-ordl.vend-i-no FORMAT "x(15)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
       po-ord.vend-no FORMAT "x(8)":U COLUMN-FONT 0 LABEL-BGCOLOR 14
-      po-ordl.s-wid COLUMN-LABEL "Sheet!Wid" FORMAT ">>9.9999":U
+      po-ordl.s-wid COLUMN-LABEL "Sheet!Wid" FORMAT ">>>>>9.9999<<":U
             COLUMN-FONT 0 LABEL-BGCOLOR 14
-      po-ordl.s-len COLUMN-LABEL "Sheet!Len" FORMAT ">>9.9999":U
+      po-ordl.s-len COLUMN-LABEL "Sheet!Len" FORMAT ">>>>>9.9999<<":U
             COLUMN-FONT 0 LABEL-BGCOLOR 14
      po-ordl.ord-qty COLUMN-LABEL "Qty" FORMAT ">>>>>>>9.99":U
             COLUMN-FONT 0 LABEL-BGCOLOR 14

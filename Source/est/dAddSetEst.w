@@ -193,7 +193,7 @@ DEFINE VARIABLE cust-name AS CHARACTER FORMAT "X(25)":U
 DEFINE VARIABLE dep AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
      LABEL "D" 
      VIEW-AS FILL-IN 
-     SIZE 10.6 BY 1
+     SIZE 13.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE fg-cat AS CHARACTER FORMAT "X(5)":U 
@@ -220,10 +220,10 @@ DEFINE VARIABLE item-name AS CHARACTER FORMAT "X(30)":U
      SIZE 42 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE len AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
+DEFINE VARIABLE len AS DECIMAL FORMAT ">>>>>9.99":U INITIAL 0 
      LABEL "L" 
      VIEW-AS FILL-IN 
-     SIZE 10.6 BY 1
+     SIZE 13.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE quantity AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
@@ -243,10 +243,10 @@ DEFINE VARIABLE ship-to AS CHARACTER FORMAT "X(8)":U
      SIZE 17.4 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
+DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>>9.99":U INITIAL 0 
      LABEL "W" 
      VIEW-AS FILL-IN 
-     SIZE 10.6 BY 1
+     SIZE 13.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
@@ -1770,9 +1770,9 @@ PROCEDURE pSetLWDFormat :
           iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .
 
           ASSIGN
-              len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue)) 
+              len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue)) 
               len:WIDTH  = 12.5
-              wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))  
+              wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))  
               wid:WIDTH  = 12.5
               dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
               dep:WIDTH  = 12.5.        
