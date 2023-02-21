@@ -176,6 +176,9 @@ DEFINE VARIABLE cInvMessage2 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInvMessage3 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInvMessage4 AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cInvMessage5 AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSettingValue AS CHARACTER NO-UNDO.
+
+RUN spGetSettingByName ("PrintUserDefineNotes", OUTPUT cSettingValue).
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1059,7 +1062,7 @@ DO:
                 INPUT begin_cust,
                 INPUT END_cust).
         END.
-
+              
         IF lselected THEN 
         DO:
              
@@ -2067,10 +2070,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                   tb_setcomp:SENSITIVE = NO
                   tb_setcomp           = NO.*/
         DISABLE lines-per-page.
-
-        RUN  pRunFormatValueChanged .
-
+                
         {custom/usrprint.i}
+        
+        RUN  pRunFormatValueChanged .
                        
         IF ipcInvoiceType EQ "inv-head" THEN
             ASSIGN tb_posted:SCREEN-VALUE        = "NO"
@@ -2504,11 +2507,21 @@ PROCEDURE pRunFormatValueChanged :
                 tb_print-message:HIDDEN     = NO
                 btnInvoiceMessage:SENSITIVE = YES
                 tb_print-message:SENSITIVE  = YES.
-        ELSE
+        ELSE IF logical(cSettingValue) EQ YES AND (v-print-fmt EQ "invprint 10" OR v-print-fmt EQ "invprint 20" OR  v-print-fmt EQ "invprint10-CAN" 
+                      OR v-print-fmt EQ "InvPrint-Mex" OR v-print-fmt EQ "invprint 21" OR v-print-fmt EQ "invprint 2" OR v-print-fmt EQ "invprint 1"
+                      OR v-print-fmt EQ "xprint") THEN
+            ASSIGN btnInvoiceMessage:HIDDEN    = NO
+                tb_print-message:HIDDEN     = NO
+                btnInvoiceMessage:SENSITIVE = YES
+                tb_print-message:SENSITIVE  = YES.       
+        ELSE    
             ASSIGN btnInvoiceMessage:HIDDEN    = YES
                 tb_print-message:HIDDEN     = YES
                 btnInvoiceMessage:SENSITIVE = NO
-                tb_print-message:SENSITIVE  = NO.
+                tb_print-message:SENSITIVE  = NO
+                tb_print-message:SCREEN-VALUE = "NO"
+                tb_print-message = NO. 
+               
        
     END.
 END PROCEDURE.

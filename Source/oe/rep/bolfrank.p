@@ -373,6 +373,24 @@ for each xxreport where xxreport.term-id eq v-term-id,
     end.*/
 
   end.
+  
+  IF lPrintMessage AND cInvMessage1 NE "" AND v-printline >= 32 THEN DO:
+     PUT {1} "<R63><C69>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+     PAGE {1}.
+     v-printline = 0.
+     {oe/rep/bolfran1.i}
+  END.
+  
+  IF lPrintMessage THEN
+    DO:       
+      PUT skip "<C1><B>  Remit to: " cInvMessage1 FORMAT "x(60)" SKIP
+          "<C9>" cInvMessage2 FORMAT "x(60)" SKIP
+          "<C9>" cInvMessage3 FORMAT "x(60)" SKIP
+          "<C9>" cInvMessage4 FORMAT "x(60)" SKIP
+          "<C9>" cInvMessage5 FORMAT "x(60)" "</B>" SKIP.
+       
+    END.
+  
   v-tot-palls = oe-bolh.tot-pallet.
   PUT "<R45><C40><#7><C-6>Shipper Signature"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 

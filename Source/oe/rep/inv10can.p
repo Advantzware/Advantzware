@@ -793,6 +793,15 @@ find first company where company.company eq cocode NO-LOCK.
             "<P10>".
         
     END.
+    
+    IF ltb_print-message THEN
+    DO:          
+      PUT "<p8><R61><C1><B>  Remit to: " cInvMessage[1] FORMAT "x(60)" SKIP
+          "<R61.8><C9>" cInvMessage[2] FORMAT "x(60)" SKIP
+          "<R62.6><C9>" cInvMessage[3] FORMAT "x(60)" SKIP
+          "<R63.4><C9>" cInvMessage[4] FORMAT "x(60)" SKIP
+          "<R64.2><C9>" cInvMessage[5] FORMAT "x(60)" "</B><p10>" SKIP.         
+    END.
 
     IF v-bot-lab[4] <> "" THEN
     PUT "<P10><R58><C60><#8><FROM><R+8><C+20><RECT> " 

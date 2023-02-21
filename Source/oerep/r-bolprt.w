@@ -129,6 +129,8 @@ DEFINE            VARIABLE lValid              AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE hdOutboundProcs     AS HANDLE    NO-UNDO.
 DEFINE            VARIABLE hdInventoryProcs    AS HANDLE    NO-UNDO.
 DEFINE            VARIABLE cMultiPdfName       AS CHARACTER NO-UNDO.
+DEFINE            VARIABLE cSettingValue       AS CHARACTER NO-UNDO.
+RUN spGetSettingByName ("PrintUserDefineNotes", OUTPUT cSettingValue).
 
 /* Procedure to prepare and execute API calls */
 RUN api/OutboundProcs.p        PERSISTENT SET hdOutboundProcs.
@@ -306,10 +308,10 @@ DEFINE TEMP-TABLE tt-list
 begin_ord# end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
 tb_print-barcode tb_print-DetPage tb_print-unassemble-component ~
-tb_print-binstags rd_bol-sort fi_specs tb_print-spec lv-termFile tb_terms ~
-rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode ~
-tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name ~
-td-show-parm run_format tbAutoClose btn-ok btn-cancel 
+tb_print-binstags rd_bol-sort fi_specs tb_print-spec btnInvoiceMessage ~
+lv-termFile tb_terms rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice ~
+tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer tb_post-bol ~
+tb_suppress-name td-show-parm run_format tbAutoClose btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_bol# begin_ord# ~
 end_ord# begin_date end_date tb_reprint tb_pallet tb_posted ~
 tb_print-component tb_print-shipnote tb_barcode tb_print_ship ~
@@ -349,6 +351,10 @@ DEFINE BUTTON btn-cancel AUTO-END-KEY
 DEFINE BUTTON btn-ok 
      LABEL "&OK" 
      SIZE 16 BY 1.29.
+
+DEFINE BUTTON btnInvoiceMessage 
+     LABEL "Invoice Message" 
+     SIZE 18.6 BY 1.29.
 
 DEFINE VARIABLE begin_bol# AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
      LABEL "Beginning BOL#" 
@@ -554,6 +560,11 @@ DEFINE VARIABLE tb_print-DetPage AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 44 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_print-message AS LOGICAL INITIAL no 
+     LABEL "Print Message" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 17.6 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_print-shipnote AS LOGICAL INITIAL no 
      LABEL "Print Ship Notes?" 
      VIEW-AS TOGGLE-BOX
@@ -622,8 +633,8 @@ DEFINE FRAME FRAME-A
      tb_barcode AT ROW 10.57 COL 31.6
      fi_depts AT ROW 11.33 COL 48.8 COLON-ALIGNED HELP
           "Enter Dept Codes separated by commas" NO-LABEL
-     tb_print-dept AT ROW 11.43 COL 31.6
      tb_print_ship AT ROW 11.43 COL 31.6 WIDGET-ID 4
+     tb_print-dept AT ROW 11.43 COL 31.6
      tb_print-barcode AT ROW 12.29 COL 31.6 WIDGET-ID 2
      tb_print-DetPage AT ROW 13 COL 31.6
      tb_print-unassemble-component AT ROW 13.1 COL 34 WIDGET-ID 18
@@ -633,6 +644,8 @@ DEFINE FRAME FRAME-A
      fi_specs AT ROW 14 COL 51.2 COLON-ALIGNED HELP
           "Enter Dept Codes separated by commas" NO-LABEL WIDGET-ID 8
      tb_print-spec AT ROW 14.1 COL 34 WIDGET-ID 10
+     btnInvoiceMessage AT ROW 14.76 COL 73.2 WIDGET-ID 70
+     tb_print-message AT ROW 14.86 COL 52.2 WIDGET-ID 40
      lv-termFile AT ROW 15.14 COL 46.6 COLON-ALIGNED WIDGET-ID 68
      tb_terms AT ROW 15.19 COL 22 WIDGET-ID 66
      lbl_bolcert AT ROW 16.19 COL 21.6 COLON-ALIGNED NO-LABEL
@@ -661,6 +674,14 @@ DEFINE FRAME FRAME-A
      " Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 4
      RECT-6 AT ROW 17.86 COL 3
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 94.8 BY 26.76
+         BGCOLOR 15 .
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME FRAME-A
      RECT-7 AT ROW 1.52 COL 3 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -897,6 +918,11 @@ ASSIGN
        tb_print-DetPage:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR TOGGLE-BOX tb_print-message IN FRAME FRAME-A
+   NO-DISPLAY NO-ENABLE                                                 */
+ASSIGN 
+       tb_print-message:HIDDEN IN FRAME FRAME-A           = TRUE.
+
 ASSIGN 
        tb_print-shipnote:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -1127,7 +1153,7 @@ DO:
             DO:
                 EMPTY TEMP-TABLE tt-temp-report .
                 RUN oe/rep/d-mclean.w(INPUT  begin_bol#,INPUT end_bol#,INPUT begin_cust,INPUT end_cust,INPUT begin_date,INPUT end_date)   .
-            END.
+            END.                        
         END.
 
   
@@ -1544,6 +1570,24 @@ DO:
         IF tbAutoClose:CHECKED THEN 
             APPLY "END-ERROR":U TO SELF.   
       
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnInvoiceMessage
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnInvoiceMessage C-Win
+ON CHOOSE OF btnInvoiceMessage IN FRAME FRAME-A /* Invoice Message */
+DO:
+        RUN custom/d-invmesssage.w (
+            "update" ,
+            INPUT-OUTPUT cInvMessage1,
+            INPUT-OUTPUT cInvMessage2,
+            INPUT-OUTPUT cInvMessage3,
+            INPUT-OUTPUT cInvMessage4,
+            INPUT-OUTPUT cInvMessage5).
+
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2032,6 +2076,17 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_print-message
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_print-message C-Win
+ON VALUE-CHANGED OF tb_print-message IN FRAME FRAME-A /* Print Message */
+DO:
+        ASSIGN {&self-name}.
+    END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_reprint
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_reprint C-Win
 ON VALUE-CHANGED OF tb_reprint IN FRAME FRAME-A /* Reprint Bill Of Ladings? */
@@ -2301,7 +2356,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         APPLY 'value-changed':u TO rd-dest.
     END.
 
-
+     RUN pGetInvMessage.
     /* gdm - 07240906 */
     ASSIGN 
         v-tglflg = YES.
@@ -3466,10 +3521,10 @@ PROCEDURE enable_UI :
          begin_date end_date tb_reprint tb_pallet tb_posted tb_print-component 
          tb_print-shipnote tb_barcode tb_print_ship tb_print-barcode 
          tb_print-DetPage tb_print-unassemble-component tb_print-binstags 
-         rd_bol-sort fi_specs tb_print-spec lv-termFile tb_terms rd_bolcert 
-         tb_per-bol-line rd-dest tb_EMailAdvNotice tb_MailBatchMode 
-         tb_ComInvoice tb_freight-bill tb_footer tb_post-bol tb_suppress-name 
-         td-show-parm run_format tbAutoClose btn-ok btn-cancel 
+         rd_bol-sort fi_specs tb_print-spec btnInvoiceMessage lv-termFile 
+         tb_terms rd_bolcert tb_per-bol-line rd-dest tb_EMailAdvNotice 
+         tb_MailBatchMode tb_ComInvoice tb_freight-bill tb_footer tb_post-bol 
+         tb_suppress-name td-show-parm run_format tbAutoClose btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -4826,6 +4881,54 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetInvMessage C-Win 
+PROCEDURE pGetInvMessage :
+/*------------------------------------------------------------------------------
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
+    FIND FIRST ar-ctrl
+        WHERE ar-ctrl.company EQ cocode
+        NO-LOCK NO-ERROR.
+
+    IF AVAILABLE ar-ctrl THEN
+        ASSIGN
+            cInvMessage1 = ar-ctrl.invoiceMessage1
+            cInvMessage2 = ar-ctrl.invoiceMessage2
+            cInvMessage3 = ar-ctrl.invoiceMessage3
+            cInvMessage4 = ar-ctrl.invoiceMessage4
+            cInvMessage5 = ar-ctrl.invoiceMessage5 .
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetPromptNotes C-Win 
+PROCEDURE pGetPromptNotes :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE OUTPUT PARAMETER opcNotes1 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes2 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes3 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes4 AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcNotes5 AS CHARACTER NO-UNDO.
+    
+    ASSIGN
+        opcNotes1 = cInvMessage1
+        opcNotes1 = cInvMessage2
+        opcNotes1 = cInvMessage3
+        opcNotes1 = cInvMessage4
+        opcNotes1 = cInvMessage5.    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE post-bol C-Win 
 PROCEDURE post-bol :
 /*------------------------------------------------------------------------------
@@ -5234,6 +5337,19 @@ PROCEDURE pRunFormatValueChanged :
         ELSE ASSIGN        
         tb_terms:HIDDEN = YES
         lv-termFile:HIDDEN = Yes.
+        
+       IF logical(cSettingValue) EQ YES AND (v-print-fmt EQ "Frankstn") THEN
+            ASSIGN btnInvoiceMessage:HIDDEN    = NO
+                tb_print-message:HIDDEN     = NO
+                btnInvoiceMessage:SENSITIVE = YES
+                tb_print-message:SENSITIVE  = YES.       
+        ELSE
+            ASSIGN btnInvoiceMessage:HIDDEN    = YES
+                tb_print-message:HIDDEN     = YES
+                btnInvoiceMessage:SENSITIVE = NO
+                tb_print-message:SENSITIVE  = NO
+                tb_print-message:SCREEN-VALUE = "NO"
+                tb_print-message = NO.
 
     END.
 END PROCEDURE.
@@ -5271,7 +5387,8 @@ PROCEDURE run-packing-list :
         v-footer            = tb_footer
         lPerBolLine         = tb_per-bol-line
         lPrintDetailPage    = tb_print-DetPage
-        lSuppressName       = tb_suppress-name .
+        lSuppressName       = tb_suppress-name
+        lPrintMessage       = logical(tb_print-message:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
     IF ip-sys-ctrl-ship-to THEN
         ASSIGN
@@ -5471,7 +5588,8 @@ PROCEDURE run-report :
         v-footer            = tb_footer
         lPerBolLine         = tb_per-bol-line
         lPrintDetailPage    = tb_print-DetPage
-        lSuppressName       = tb_suppress-name.
+        lSuppressName       = tb_suppress-name
+        lPrintMessage       = logical(tb_print-message:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
     /*IF lAsiUser THEN DO:
        ASSIGN v-print-fmt = run_format
@@ -5768,7 +5886,8 @@ PROCEDURE run-report-ci :
         v-footer            = tb_footer
         lPerBolLine         = tb_per-bol-line
         lPrintDetailPage    = tb_print-DetPage
-        lSuppressName       = tb_suppress-name .
+        lSuppressName       = tb_suppress-name
+        lPrintMessage       = logical(tb_print-message:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
     IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
         ASSIGN
@@ -6050,7 +6169,8 @@ PROCEDURE run-report-mail :
         v-footer            = tb_footer
         lPerBolLine         = tb_per-bol-line
         lPrintDetailPage    = tb_print-DetPage
-        lSuppressName       = tb_suppress-name .
+        lSuppressName       = tb_suppress-name 
+        lPrintMessage       = logical(tb_print-message:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
     IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
         ASSIGN
