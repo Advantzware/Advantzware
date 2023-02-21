@@ -274,12 +274,12 @@ DEFINE FRAME Corr
           SIZE 35 BY 1
      ef.lsh-wid AT ROW 1.48 COL 77.4 COLON-ALIGNED HELP
           "This is the Machine Length, Pulled from Machine file"
-          LABEL "Front-Back" FORMAT ">>>>9.99"
+          LABEL "Front-Back" FORMAT ">>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.lsh-len AT ROW 1.48 COL 105 COLON-ALIGNED HELP
           "This is the Machine Width, Pulled from Machine file"
-          LABEL "Side-Side" FORMAT ">>>>9.99"
+          LABEL "Side-Side" FORMAT ">>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.xgrain AT ROW 1.48 COL 132 COLON-ALIGNED
@@ -355,10 +355,10 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.trim-w AT ROW 7.43 COL 19.6 COLON-ALIGNED
-          LABEL "Die Size" FORMAT ">>>>9.99"
+          LABEL "Die Size" FORMAT ">>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.trim-l AT ROW 7.43 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.trim-l AT ROW 7.43 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.trim-d AT ROW 7.43 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
@@ -390,9 +390,9 @@ DEFINE FRAME Corr
      ef.n-cuts AT ROW 5.76 COL 97 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.die-in AT ROW 6.71 COL 129 COLON-ALIGNED NO-LABEL
+     ef.die-in AT ROW 6.71 COL 129 COLON-ALIGNED NO-LABEL  FORMAT ">>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+          SIZE 10 BY 1
      eb.t-wid AT ROW 8.62 COL 19.6 COLON-ALIGNED
           LABEL "Blank" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
@@ -3492,8 +3492,8 @@ PROCEDURE local-display-fields :
            ef.nsh-wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
            ef.nsh-len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
            ef.nsh-dep:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.trim-w:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
-           ef.trim-l:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.trim-w:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+           ef.trim-l:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
            ef.trim-d:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
            eb.t-wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
            eb.t-len:FORMAT = "?>>>>>9." + FILL("9",INTEGER(iDecimalValue))

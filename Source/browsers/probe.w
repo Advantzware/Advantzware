@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE voverall AS DECIMAL FORMAT ">>,>>>,>>9.99" NO-UNDO.
-DEFINE VARIABLE vtot-msf AS DECIMAL FORMAT ">>>>9.99999" NO-UNDO.
+DEFINE VARIABLE vtot-msf AS DECIMAL FORMAT ">>>>>>>>9.99999" NO-UNDO.
 DEFINE VARIABLE dMatPctSellPrice LIKE probe.net-profit. 
  
 {jcrep/r-ticket.i "new shared"}

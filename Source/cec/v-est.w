@@ -3833,9 +3833,9 @@ DO WITH FRAME {&FRAME-NAME}:
      iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .     
      
      ASSIGN
-        eb.len:FORMAT = ">>>9." + FILL("9",INTEGER(iDecimalValue))
+        eb.len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.len:WIDTH = 15.2
-        eb.wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
+        eb.wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.wid:WIDTH = 15.2
         eb.dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
         eb.dep:WIDTH = 15.2
@@ -3847,17 +3847,17 @@ DO WITH FRAME {&FRAME-NAME}:
         eb.lock:WIDTH = 15.2
         eb.gluelap:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.gluelap:WIDTH = 15.2
-        eb.k-wid:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
+        eb.k-wid:FORMAT = "->>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.k-wid:WIDTH = 15.2
-        eb.k-len:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
+        eb.k-len:FORMAT = "->>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.k-len:WIDTH = 15.2
         eb.tuck:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.tuck:WIDTH = 15.2
         eb.lin-in:FORMAT = "->>9." + FILL("9",INTEGER(iDecimalValue))
         eb.lin-in:WIDTH = 15.2
-        eb.t-wid:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
+        eb.t-wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-wid:WIDTH = 15.2
-        eb.t-len:FORMAT = ">>>>9." + FILL("9",INTEGER(iDecimalValue))
+        eb.t-len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-len:WIDTH = 15.2
         eb.t-sqin:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
         eb.t-sqin:WIDTH = 15.2.
@@ -3873,9 +3873,9 @@ DO WITH FRAME {&FRAME-NAME}:
   END.
   ELSE do:
       ASSIGN
-        eb.t-wid:FORMAT = ">>>>9.99<<<"
+        eb.t-wid:FORMAT = ">>>>>9.99<<<"
         eb.t-wid:WIDTH = 15.2
-        eb.t-len:FORMAT = ">>>>9.99<<<"
+        eb.t-len:FORMAT = ">>>>>9.99<<<"
         eb.t-len:WIDTH = 15.2 .
 
       IF eb.t-sqin GT 999999  THEN

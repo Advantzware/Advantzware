@@ -464,10 +464,10 @@ DEFINE BROWSE br-estitm
       ef.cal FORMAT ">9.99999<":U COLUMN-FONT 22
       eb.procat FORMAT "x(5)":U COLUMN-FONT 22
       display-cw-dim(yes,eb.len) @ eb.len
-      eb.len FORMAT ">>>>9.99":U COLUMN-FONT 22
+      eb.len FORMAT ">>>>>9.99":U COLUMN-FONT 22
       display-cw-dim(yes,eb.len) @ eb.len
       display-cw-dim(yes,eb.wid) @ eb.wid
-      eb.wid FORMAT ">>>>9.99":U COLUMN-FONT 22
+      eb.wid FORMAT ">>>>>9.99":U COLUMN-FONT 22
       display-cw-dim(yes,eb.wid) @ eb.wid
       display-cw-dim(yes,eb.dep) @ eb.dep
       eb.dep FORMAT ">>>>9.99":U COLUMN-FONT 22
@@ -646,13 +646,13 @@ ASSIGN
      _FldNameList[17]   > "_<CALC>"
 "display-cw-dim(yes,eb.len) @ eb.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.eb.len
-"eb.len" ? ">>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > "_<CALC>"
 "display-cw-dim(yes,eb.len) @ eb.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
 "display-cw-dim(yes,eb.wid) @ eb.wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.eb.wid
-"eb.wid" ? ">>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>>>>9.99" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
 "display-cw-dim(yes,eb.wid) @ eb.wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
@@ -1067,10 +1067,10 @@ DO:
         cFormat = "".
 
         IF v-cecscrn-dec THEN
-        cFormat = ">>>9.999999".
+        cFormat = ">>>>>9.999999".
 
         IF v-cecscrn-decimals GT 0 THEN
-        cFormat = ">>>9." + FILL("9",INTEGER(v-cecscrn-decimals)).
+        cFormat = ">>>>>9." + FILL("9",INTEGER(v-cecscrn-decimals)).
 
         IF cFormat NE "" THEN
         ASSIGN
@@ -2704,7 +2704,7 @@ PROCEDURE calc-blank-size :
                   ASSIGN
                      v-index = INDEX(v-score-char[i],".")
                      v-str = SUBSTRING(v-score-char[i],v-index + 1)
-                     v-str = LEFT-TRIM(STRING(INT(v-str) / 64.0,">.999999"))
+                     v-str = LEFT-TRIM(STRING(INT(v-str) / 64.0,">>>>>>.999999"))
                      SUBSTRING(v-score-char[i],v-index) = v-str.
 
                xeb.k-len-array2[i] = dec(v-score-char[i]).
@@ -5950,9 +5950,9 @@ PROCEDURE local-cancel-record :
   IF v-cecscrn-dec THEN
      ASSIGN
         eb.wid:WIDTH IN BROWSE {&browse-name} = 15.2
-        eb.wid:FORMAT IN BROWSE {&browse-name} = ">>9.999999"
+        eb.wid:FORMAT IN BROWSE {&browse-name} = ">>>>>9.999999"
         eb.len:WIDTH IN BROWSE {&browse-name} = 15.2
-        eb.len:FORMAT IN BROWSE {&browse-name} = ">>>9.999999"
+        eb.len:FORMAT IN BROWSE {&browse-name} = ">>>>>9.999999"
         eb.dep:WIDTH IN BROWSE {&browse-name} = 15.2
         eb.dep:FORMAT IN BROWSE {&browse-name} = ">>9.999999".
 
@@ -6327,8 +6327,8 @@ PROCEDURE local-display-fields :
 
      IF v-cecscrn-dec THEN
         ASSIGN
-           eb.wid:WIDTH IN BROWSE {&browse-name} = 13
-           eb.len:WIDTH IN BROWSE {&browse-name} = 13
+           eb.wid:WIDTH IN BROWSE {&browse-name} = 14
+           eb.len:WIDTH IN BROWSE {&browse-name} = 14
            eb.dep:WIDTH IN BROWSE {&browse-name} = 13.
 
 
