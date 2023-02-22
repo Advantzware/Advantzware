@@ -454,6 +454,8 @@ PROCEDURE calc-freight :
     oe-ord.t-freight:SCREEN-VALUE = STRING(ld).
     APPLY "value-changed" TO oe-ord.t-freight.
     RUN dispatch ("assign-record").
+    RUN dispatch ("update-begin").
+    RUN dispatch ("cancel-record").     
   END.
 
 END PROCEDURE.
