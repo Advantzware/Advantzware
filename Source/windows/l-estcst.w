@@ -51,8 +51,10 @@ def var lv-first-time as log init yes no-undo.
 def var lv-type-dscr as cha no-undo.
 &scoped-define fld-name-1 eb.est-no
 &scoped-define fld-name-2 eb.part-no
+&scoped-define fld-name-3 eb.stock-no
 &scoped-define SORTBY-1 BY eb.est-no DESCENDING
 &scoped-define SORTBY-2 BY eb.part-no BY eb.est-no DESCENDING
+&scoped-define SORTBY-3 BY eb.stock-no 
 
 &global-define IAMWHAT LOOKUP
 
@@ -81,7 +83,7 @@ def var lv-type-dscr as cha no-undo.
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 eb.est-no eb.cust-no eb.part-dscr1 ~
-eb.part-no eb.style eb.len eb.wid eb.dep 
+eb.part-no eb.style eb.len eb.wid eb.dep eb.stock-no
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH eb WHERE ~{&KEY-PHRASE} ~
       AND eb.company = ip-company  ~
@@ -158,7 +160,8 @@ DEFINE VARIABLE rd-sort AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Estimate#", 1,
-"Part#", 2
+          "Part#", 2,
+          "FG Item", 3
      SIZE 55 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -180,13 +183,14 @@ DEFINE BROWSE BROWSE-1
       eb.cust-no COLUMN-LABEL "Customer#" FORMAT "x(8)":U LABEL-BGCOLOR 14
       eb.part-dscr1 FORMAT "x(30)":U LABEL-BGCOLOR 14
       eb.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
+      eb.stock-no COLUMN-LABEL "FG Item" FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.style FORMAT "x(6)":U LABEL-BGCOLOR 14
-      eb.len FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
-      eb.wid FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
+      eb.len FORMAT ">>>>>9.99999<":U LABEL-BGCOLOR 14
+      eb.wid FORMAT ">>>>>9.99999<":U LABEL-BGCOLOR 14
       eb.dep FORMAT ">>>9.99999":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 80 BY 10.95
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 110 BY 10.95
          BGCOLOR 8 .
 
 
@@ -266,13 +270,15 @@ eb.cust-no = ip-cust-no and
 "eb.part-dscr1" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.eb.part-no
 "eb.part-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.eb.style
+     _FldNameList[5]   > ASI.eb.stock-no
+"eb.stock-no" "FG Item" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > ASI.eb.style
 "eb.style" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > ASI.eb.len
-"eb.len" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > ASI.eb.wid
-"eb.wid" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > ASI.eb.dep
+     _FldNameList[7]   > ASI.eb.len
+"eb.len" ? ">>>>>9.99999<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > ASI.eb.wid
+"eb.wid" ? ">>>>>9.99999<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > ASI.eb.dep
 "eb.dep" ? ">>>9.99999" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -350,8 +356,8 @@ DO:
     case rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
-        /*{srtord2.i 3}
-        {srtord2.i 4}*/
+        {srtord2.i 3}
+        /*{srtord2.i 4}*/
     end.
     apply "entry" to {&browse-name}.
 END.
@@ -428,7 +434,25 @@ WHEN 2 THEN DO:
          DO:
             MESSAGE "Record not found beginning with '" + lv-search + "' !!!"
             VIEW-AS ALERT-BOX.
-        /*    lv-search:screen-value = "".  */
+        
+             APPLY "ENTRY" TO {&BROWSE-NAME}.
+        end.    
+END.
+WHEN 3 THEN DO:
+    &IF "{&IAMWHAT}" = "LOOKUP" &THEN
+         &scoped-define sortby-phrase {&sortby-3}
+    &ElseIF  "{&IAMWHAT}" = "Search" &THEN
+      &scoped-define where-statement begins {&datatype-3}(lv-search)
+      &scoped-define key-phrase {&datatype-3}({&fld-name-3}) {&Where-statement}
+    &endif
+
+      {&open-query-{&browse-name}}
+
+      IF ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}) = ? THEN
+         DO:
+            MESSAGE "Record not found beginning with '" + lv-search + "' !!!"
+            VIEW-AS ALERT-BOX.
+        
              APPLY "ENTRY" TO {&BROWSE-NAME}.
         end.    
 END.
@@ -453,8 +477,8 @@ DO:
     case rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
-        /*{srtord2.i 3}
-        {srtord2.i 4}*/
+        {srtord2.i 3}
+        /*{srtord2.i 4}*/
     end.    
   
 
