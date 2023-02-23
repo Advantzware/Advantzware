@@ -394,8 +394,8 @@ END.
 
 IF ctrl2[2] + ctrl2[3] NE 0 THEN 
 DO:
-    PUT "Raw Mat'l Handling" (ctrl2[2] + ctrl2[3]) TO 80 SKIP.
-    op-tot[5] = op-tot[5] + (ctrl2[2] + ctrl2[3]).
+    PUT "Raw Mat'l Handling" (ctrl2[2] + ctrl2[3]) TO 80 FORMAT "->>>,>>>,>>9.99" SKIP.
+    op-tot[5] = op-tot[5] + (ctrl2[2] + ctrl2[3]). 
 END.
 
 fr-tot = 0.

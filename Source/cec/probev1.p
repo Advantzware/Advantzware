@@ -62,8 +62,8 @@ DO:
         dContPerManHr =  dCostDirectMaterial / probe.manHoursTotal.
    ELSE 
         dContPerManHr = dCostDirectMaterial .
-   
-   IF cerunc-dec EQ 0 THEN
+   PUT "<P10>".
+   IF cerunc-dec EQ 0 THEN 
       display probe.est-qty
               probe.freight
 	          probe.boardCostPerM
@@ -74,7 +74,7 @@ DO:
               dFGPricePerMsf @ voverall
 	          probe.gsh-qty format ">>>>>9"
 	          vtot-msf
-	   with frame probe-peach.
+	   with frame probe-peach. 
    ELSE
       display probe.est-qty
            probe.freight
@@ -87,6 +87,7 @@ DO:
 	       probe.gsh-qty format ">>>>>9"
 	       vtot-msf
 	   with frame probe-peach-big.   
+    PUT "<P11>".    
 END.          
           
 ELSE
@@ -105,7 +106,7 @@ DO:
               cmoh-disp = ""
               cm%-disp  = "".
 
-   IF cerunc-dec EQ 0 THEN
+   IF cerunc-dec EQ 0 THEN     
       display probe.est-qty
               probe.freight
               probe.fact-cost
@@ -121,8 +122,8 @@ DO:
              cm-disp WHEN v-print-cm
              cmah-disp WHEN v-print-cm
              cmoh-disp WHEN v-print-cm
-             cm%-disp WHEN v-print-cm
-          with frame probe.
+             cm%-disp WHEN v-print-cm  
+          with frame probe.   
    ELSE
       display probe.est-qty
               probe.freight

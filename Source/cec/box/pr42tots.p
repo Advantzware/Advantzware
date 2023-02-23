@@ -237,7 +237,7 @@ FOR EACH car
     blk.sell = blk.sell + dFreightTemp . /* use sell for freight costs for now */
 END.
 
-IF fg-wt$ > 0 THEN PUT "Finished Goods Handling" fg-wt$ TO 80 SKIP.
+IF fg-wt$ > 0 THEN PUT "Finished Goods Handling" fg-wt$ TO 80 FORMAT "->>>,>>>,>>9.99" SKIP.
 
 ASSIGN
     op-tot[5] = op-tot[5] + fg-wt$
@@ -262,7 +262,7 @@ ELSE v-qty = qtty[vmcl].
 IF vmclean THEN op-tot[4] = op-tot[4] / (v-qty / 1000).
 
 PUT "TOTAL  OPERATIONS        " op-tot[3] FORMAT ">>>>9.99" TO 59
-    op-tot[4] FORMAT ">>>>9.99" TO 68 op-tot[5] TO 80 SKIP(1).
+    op-tot[4] FORMAT ">>>>9.99" TO 68 op-tot[5] FORMAT "->>>,>>>,>>9.99" TO 80 SKIP(1).
 
 IF vmclean THEN op-tot[4] = op-tot[4] * (v-qty / 1000).
 

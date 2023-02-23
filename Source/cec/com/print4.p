@@ -551,7 +551,7 @@ end.
 FOR EACH xef
     WHERE xef.company EQ xest.company 
       AND xef.est-no  EQ xest.est-no
-    WITH FRAME brd no-labels no-box width 80 down stream-io:
+    WITH FRAME brd no-labels no-box WIDTH 110 down stream-io:
 
   RUN est/ef-#out.p (ROWID(xef), OUTPUT vn-out).
 
@@ -601,12 +601,12 @@ FOR EACH xef
                 TRIM(STRING(xest.form-qty,">9"))
   v-hdr-depth = IF xef.nsh-dep EQ 0 AND
                    xef.gsh-dep EQ 0 THEN "" ELSE "Depth".
-
+  PUT "<P10>".
   DISPLAY SKIP(1)
           tmpstore                           FORMAT "x(13)"
-          "  Width  Length  "
+          "    Width    Length  "
           v-hdr-depth
-          "#On  Sq.Inches      Sq.Feet     Wgt/Units"
+          " #On       Sq.Inches     Sq.Feet          Wgt/Units"
           SKIP.
 
   FOR EACH xeb
@@ -643,24 +643,24 @@ FOR EACH xef
             SPACE(0)
             xeb.blank-no                       FORMAT "99"
             "Size:"
-            brd-w[4]                           FORMAT ">>>9.99<<<"
-            brd-l[4]                           FORMAT ">>>>9.99<<<" 
+            brd-w[4]                           FORMAT ">>>>>9.99<<<<"
+            brd-l[4]                           FORMAT ">>>>>9.99<<<<" 
             xeb.t-dep WHEN xeb.t-dep NE 0      FORMAT ">>>9.99<<<"
             1                                  FORMAT ">>>" 
             SPACE(4)
-            brd-sq[4]
+            brd-sq[4]                          FORMAT ">>>>>>>>>>9.9<<<<"
             brd-sf[4]                              
             "Sf/BL"
             brd-wu[4]
             SPACE(0)
             "/MBL"
             SKIP
-        WITH NO-BOX NO-LABELS COLOR VALUE("blu/brown") WIDTH 82 FRAME aa2-1 STREAM-IO.
+        WITH NO-BOX NO-LABELS COLOR VALUE("blu/brown") WIDTH 100 FRAME aa2-1 STREAM-IO.
 
     IF NOT vsuthrlnd THEN DO WITH FRAME aa2-1:
       ASSIGN
-       brd-w[4]:FORMAT  = ">>>9.99"
-       brd-l[4]:FORMAT  = ">>>>9.99"
+       brd-w[4]:FORMAT  = ">>>>>9.99"
+       brd-l[4]:FORMAT  = ">>>>>9.99"
        xeb.t-dep:FORMAT = ">>>9.99".
 
       DISPLAY {sys/inc/k16v.i brd-w[4]} @ brd-w[4]
@@ -682,12 +682,12 @@ FOR EACH xef
       END.
 
       DISPLAY " NetSht Size:"
-              brd-w[1]                            FORMAT ">>>9.99<<<"
-              brd-l[1]                            FORMAT ">>>>9.99<<<"
+              brd-w[1]                            FORMAT ">>>>>9.99<<<<"
+              brd-l[1]                            FORMAT ">>>>>9.99<<<<"
               xef.nsh-dep WHEN xef.nsh-dep NE 0   FORMAT ">>>9.99<<<"
               lv-tot-up                           FORMAT ">>>"  
               SPACE(4)
-              brd-sq[1]
+              brd-sq[1]                           FORMAT ">>>>>>>>>>9.9<<<<"
               brd-sf[1]
               "Sf/NS"
               brd-wu[1]
@@ -696,26 +696,26 @@ FOR EACH xef
               SKIP
 
               " GrsSht Size:"
-              brd-w[2]                            FORMAT ">>>9.99<<<"
-              brd-l[2]                            FORMAT ">>>9.99<<<"
+              brd-w[2]                            FORMAT ">>>>>9.99<<<<"
+              brd-l[2]                            FORMAT ">>>>>9.99<<<<"
               xef.gsh-dep WHEN xef.gsh-dep NE 0   FORMAT ">>>9.99<<<"
               vn-out                              FORMAT ">>>" 
               SPACE(4)
-              brd-sq[2]
+              brd-sq[2]                           FORMAT ">>>>>>>>>>9.9<<<<"
               brd-sf[2]
               "Sf/GS"
               brd-wu[2]
               SPACE(0)
               "/MGS" SKIP
-          WITH NO-BOX NO-LABELS COLOR VALUE("blu/brown") WIDTH 82 FRAME aa2-2 STREAM-IO.
+          WITH NO-BOX NO-LABELS COLOR VALUE("blu/brown") WIDTH 100 FRAME aa2-2 STREAM-IO.
 
       IF NOT vsuthrlnd THEN DO WITH FRAME aa2-2:
         ASSIGN
-         brd-w[1]:FORMAT    = ">>>9.99"
-         brd-l[1]:FORMAT    = ">>>>9.99"
+         brd-w[1]:FORMAT    = ">>>>>9.99"
+         brd-l[1]:FORMAT    = ">>>>>9.99"
          xef.nsh-dep:FORMAT = ">>>9.99"
-         brd-w[2]:FORMAT    = ">>>9.99"
-         brd-l[2]:FORMAT    = ">>>>9.99"
+         brd-w[2]:FORMAT    = ">>>>>9.99"
+         brd-l[2]:FORMAT    = ">>>>>9.99"
          xef.gsh-dep:FORMAT = ">>>9.99".
 
         DISPLAY {sys/inc/k16v.i brd-w[1]} @ brd-w[1]
@@ -730,9 +730,9 @@ FOR EACH xef
     END.
   END.
   FIND xeb WHERE RECID(xeb) = call_id NO-LOCK NO-ERROR. qty = xeb.yld-qty.
-
+  PUT "<P11>".
   IF brd-w[3] NE 0 THEN
-    DISPLAY "Roll  Size :" brd-w[3]                FORMAT ">>9.99<<" TO 22
+    DISPLAY "Roll  Size :" brd-w[3]                FORMAT ">>>>>9.99<<" TO 22
         WITH NO-BOX NO-LABELS WIDTH 80 FRAME aa3 STREAM-IO.
 
   IF NOT vsuthrlnd THEN

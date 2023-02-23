@@ -222,7 +222,7 @@ if vmclean then do:
   IF op-tot[4] EQ ? THEN op-tot[4] = 0.
 
   put "Direct Labor"
-      op-tot[5] / qm                 to 48
+      op-tot[5] / qm   format "->,>>>,>>9.99"  to 48
       op-tot[3] format ">>>>9.99"    to 57
       op-tot[4] format ">>>>>>9.99"  to 68
       op-tot[5] format ">>>>,>>9.99" to 80 skip.
@@ -244,7 +244,7 @@ end.
 if ctrl[6] ne 0 and fr-tot-pre ne 0 then
   put "Freight"  fr-tot-pre / qm to 48 fr-tot-pre to 80 skip.
 
-put "DIRECT FACTORY COST" fac-tot / qm to 48
+put "DIRECT FACTORY COST" fac-tot / qm format "->,>>>,>>9.99" to 48
     fac-tot format ">>>>,>>9.99" to 80 skip.
 
 fac-tot2 = fac-tot.
@@ -327,7 +327,7 @@ if ctrl[18] gt 0 and ctrl2[18] ne 0 then                         /* Royalty */
     fac-tot2 = fac-tot2 + ctrl2[18].
   end.
 
-put "TOTAL FACTORY COST" fac-tot2 / qm to 48
+put "TOTAL FACTORY COST" fac-tot2 / qm format "->,>>>,>>9.99" to 48
     fac-tot2 format ">>>>,>>9.99" to 80 skip.
 
 ord-cost = fac-tot2.

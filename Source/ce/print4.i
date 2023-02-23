@@ -36,8 +36,8 @@ DEFINE {2} VARIABLE brd-l                   LIKE eb.len EXTENT 4 NO-UNDO.
 DEFINE {2} VARIABLE brd-w                   LIKE brd-l NO-UNDO.
 DEFINE {2} VARIABLE brd-d                   LIKE brd-l NO-UNDO.
 DEFINE {2} VARIABLE brd-sq                  AS DECIMAL   FORMAT ">>>>9.9<<<<" EXTENT 4 NO-UNDO.
-DEFINE {2} VARIABLE brd-sf                  AS DECIMAL   FORMAT ">>>>>9.9<<" EXTENT 4 NO-UNDO.
-DEFINE {2} VARIABLE brd-wu                  AS DECIMAL   FORMAT ">>>>>9.9<<<" EXTENT 4 NO-UNDO.
+DEFINE {2} VARIABLE brd-sf                  AS DECIMAL   FORMAT ">>>>>>>>9.9<<" EXTENT 4 NO-UNDO.
+DEFINE {2} VARIABLE brd-wu                  AS DECIMAL   FORMAT ">>>>>>>>>9.9<<<" EXTENT 4 NO-UNDO.
 DEFINE {2} VARIABLE b-wt                    AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE b-qty                   AS DECIMAL   NO-UNDO.
 DEFINE {2} VARIABLE b-cost                  AS DECIMAL   FORMAT ">>>,>>9.99" NO-UNDO.
@@ -204,7 +204,7 @@ DEFINE {2} TEMP-TABLE car NO-UNDO
     FIELD bnum    AS INTEGER
     FIELD carrier LIKE carrier.carrier
     FIELD dscr    LIKE item.est-dscr
-    FIELD qty     AS INTEGER
+    FIELD qty     AS INT64
     FIELD rate    AS DECIMAL   FORMAT ">>>9.99"
     FIELD cost    AS DECIMAL   FORMAT ">>>,>>9.99"
     FIELD msf     AS DECIMAL.
