@@ -4,6 +4,7 @@
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
+{sys/inc/var.i SHARED}
 {methods/triggers/write.i}
 
 DEFINE BUFFER b-{&TABLENAME} FOR {&TABLENAME}.
@@ -11,7 +12,6 @@ DEFINE BUFFER b-job          FOR job.
 
 DEFINE VARIABLE ld                AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE ld-tot            AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE cocode            AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-format-f       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ll-error          AS LOGICAL   NO-UNDO.
 
