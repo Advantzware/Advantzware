@@ -59,7 +59,11 @@ FIND FIRST sys-ctrl WHERE
 ASSIGN
    cerunc-dec = sys-ctrl.dec-fld
    cerunc     = sys-ctrl.char-fld.
-PUT "<P10>".
+   
+find first sys-ctrl where sys-ctrl.company eq cocode
+                     and sys-ctrl.name eq "CEPrint" no-lock no-error.   
+                     
+PUT if avail sys-ctrl and sys-ctrl.char-fld ne 'Text' then "<P10>" else "".
 IF cerunc NE "PEACHTRE" THEN
 DO:  
     IF cerunc-dec EQ 0 THEN
@@ -67,9 +71,7 @@ DO:
        put unformatted
            "     E S T I M A T E  " + "#" + trim(xest.est-no) +
            "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip.
-    
-       find first sys-ctrl where sys-ctrl.company eq cocode
-                            and sys-ctrl.name eq "CEPrint" no-lock no-error.
+              
        put unformatted
            (if avail sys-ctrl and sys-ctrl.char-fld ne 'Text' then "<P10>" else "")
            "              Tot.Fact        Full"
@@ -124,7 +126,7 @@ FOR EACH probe
   {cec/probe.v}
   PUT SKIP.
 END.
-IF cerunc EQ "PEACHTRE" THEN
+IF cerunc EQ "PEACHTRE" AND avail sys-ctrl and sys-ctrl.char-fld ne 'Text' THEN
 PUT "<P11>".
 FIND probe WHERE ROWID(probe) EQ v-rowid NO-LOCK NO-ERROR.
 

@@ -289,7 +289,7 @@ IF ld-hand-pct NE 0 THEN
 IF ctrl2[2] + ctrl2[3] NE 0 THEN 
 DO:
     PUT
-        "Raw Mat'l Handling" (ctrl2[2] + ctrl2[3]) TO 80 SKIP.
+        "Raw Mat'l Handling" (ctrl2[2] + ctrl2[3]) FORMAT "->,>>>,>>9.99" TO 80 SKIP.
     ASSIGN
         opsplit$[1] = opsplit$[1] + ctrl2[2] + ctrl2[3]
         op-tot[5]   = op-tot[5] + (ctrl2[2] + ctrl2[3]).
@@ -418,7 +418,7 @@ ld-fg-rate = IF xeb.pur-man THEN fg-rate-f ELSE ce-ctrl.fg-rate.
 
 IF fg-wt / 100 * ld-fg-rate NE 0 THEN 
 DO:
-    PUT "Finished Goods Handling" fg-wt / 100 * ld-fg-rate TO 80 SKIP.
+    PUT "Finished Goods Handling" fg-wt / 100 * ld-fg-rate FORMAT "->,>>>,>>9.99" TO 80 SKIP.
     ASSIGN
         opsplit$[1] = opsplit$[1] + (fg-wt / 100 * ld-fg-rate)
         op-tot[5]   = op-tot[5] + (fg-wt / 100 * ld-fg-rate).
@@ -430,7 +430,7 @@ IF vmclean THEN op-tot[4] = op-tot[4] /
 PUT "TOTAL  OPERATIONS        "
     op-tot[3]                FORMAT ">>>>9.99"    TO 57
     op-tot[4]                FORMAT ">>>>>>9.99"  TO 68
-    op-tot[5]                FORMAT ">>>>,>>9.99" TO 80 SKIP(1).
+    op-tot[5]                FORMAT ">>,>>>,>>9.99" TO 80 SKIP(1).
 
 IF vmclean THEN op-tot[4] = op-tot[4] *
         (qtty[k] * xeb.quantityPerSet / 1000 * v-sqft-fac).

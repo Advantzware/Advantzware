@@ -618,7 +618,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      eb.t-sqin AT ROW 16 COL 127 COLON-ALIGNED
-          LABEL "Square Ft" FORMAT ">>>9.999<<"
+          LABEL "Square Ft" FORMAT ">>>>>>>>9.999<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      bt-new-plate AT ROW 7.91 COL 115.6 WIDGET-ID 10

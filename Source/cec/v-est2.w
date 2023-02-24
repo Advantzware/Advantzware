@@ -403,7 +403,7 @@ DEFINE FRAME Corr
      eb.t-dep AT ROW 8.62 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     eb.t-sqin AT ROW 8.62 COL 117.6 COLON-ALIGNED NO-LABEL
+     eb.t-sqin AT ROW 8.62 COL 117.6 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      ef.adder[1] AT ROW 10.76 COL 3 COLON-ALIGNED NO-LABEL
@@ -822,7 +822,7 @@ ASSIGN
                 "16th".
 
 /* SETTINGS FOR FILL-IN eb.t-sqin IN FRAME Corr
-   NO-ENABLE EXP-LABEL                                                  */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.t-wid IN FRAME Corr
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 ASSIGN 
