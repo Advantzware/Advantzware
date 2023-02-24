@@ -619,7 +619,7 @@ print-po-blok:
      /* gdm - 07010906 */
      IF v-totflg
        THEN 
-         PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">,>>>,>>9" SKIP.
+         PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">>>,>>>,>>9" SKIP.
        
 
      v-tot-sqft = 0.

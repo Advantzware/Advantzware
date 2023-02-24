@@ -537,7 +537,7 @@ DEFINE BROWSE br_table
       probe.boardContributionTotal COLUMN-LABEL "Board!Contrib$" FORMAT "->>>,>>>,>>9.99":U
             WIDTH 19
       probe.probe-user COLUMN-LABEL "Probe By" FORMAT "X(8)":U
-      probe.tot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 12.2
+      probe.tot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 16.2 FORMAT "->>>,>>>,>>9"
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
       probe.line FORMAT ">>9":U
@@ -701,7 +701,7 @@ ASI.probe.est-no = ASI.eb.est-no"
      _FldNameList[19]   > ASI.probe.probe-user
 "probe.probe-user" "Probe By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "ASI.probe.tot-lbs"
-"probe.tot-lbs" "Shipping!Weight" ? ? ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"probe.tot-lbs" "Shipping!Weight" "->>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
 "vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"

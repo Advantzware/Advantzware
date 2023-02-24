@@ -89,7 +89,7 @@ ASSIGN
                          "flm-len,flm-wid,inkc,die-in,li-up,n-out,lin-in,tot-job-qty," +
                          "cust-no,name,price,uom,sale-value,user-id,n-cuts"
     cFieldLength       = "8,2,3,2,3,11,10,8,13,5,8,5,5,2,10,"
-                       + "6,1,15,8,7,7,7,9,9,"
+                       + "6,1,15,8,9,9,7,9,9,"
                        + "12,8,9,9,9,10,"
                        + "11,11,11,11,"
                        + "9,9,8,10,9,10,11,15,"
@@ -1634,15 +1634,15 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                     WHEN "style" THEN 
                         cVarValue = IF AVAILABLE eb THEN STRING(eb.style) ELSE "".          
                     WHEN "len" THEN 
-                        cVarValue = IF AVAILABLE eb THEN STRING(eb.len,">>9.9<<") ELSE "".            
+                        cVarValue = IF AVAILABLE eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "".            
                     WHEN "wid" THEN 
-                        cVarValue = IF AVAILABLE eb THEN STRING(eb.wid,">>9.9<<") ELSE "".            
+                        cVarValue = IF AVAILABLE eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "".            
                     WHEN "dep" THEN 
                         cVarValue = IF AVAILABLE eb THEN STRING(eb.dep,">>9.9<<") ELSE "".
                     WHEN "t-len" THEN 
-                        cVarValue = IF AVAILABLE eb THEN STRING(eb.t-len,">>>>9.9<<") ELSE "".
+                        cVarValue = IF AVAILABLE eb THEN STRING(eb.t-len,">>>>>9.9<<<<<") ELSE "".
                     WHEN "t-wid" THEN 
-                        cVarValue = IF AVAILABLE eb THEN STRING(eb.t-wid,">>>>9.9<<") ELSE "".
+                        cVarValue = IF AVAILABLE eb THEN STRING(eb.t-wid,">>>>>9.9<<<<<") ELSE "".
                     WHEN "t-sqin" THEN 
                         cVarValue = IF AVAILABLE eb THEN STRING(eb.t-sqin,">>>>>>>9.9<<") ELSE "".
                     WHEN "board" THEN 
@@ -1656,13 +1656,13 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                     WHEN "roll-wid" THEN 
                         cVarValue = IF AVAILABLE ef THEN STRING(ef.roll-wid,">>>>>9.9<<") ELSE "".
                     WHEN "gsh-wid" THEN 
-                        cVarValue = IF AVAILABLE ef THEN STRING(ef.gsh-wid,">>>>9.9<<") ELSE "".
+                        cVarValue = IF AVAILABLE ef THEN STRING(ef.gsh-wid,">>>>>9.9<<") ELSE "".
                     WHEN "gsh-len" THEN 
-                        cVarValue = IF AVAILABLE ef THEN STRING(ef.gsh-len,">>>>9.9<<") ELSE "".
+                        cVarValue = IF AVAILABLE ef THEN STRING(ef.gsh-len,">>>>>9.9<<") ELSE "".
                     WHEN "nsh-wid" THEN 
-                        cVarValue = IF AVAILABLE ef THEN STRING(ef.nsh-wid,">>>>9.9<<") ELSE "".         
+                        cVarValue = IF AVAILABLE ef THEN STRING(ef.nsh-wid,">>>>>9.9<<") ELSE "".         
                     WHEN "nsh-len" THEN 
-                        cVarValue = IF AVAILABLE ef THEN STRING(ef.nsh-len,">>>>9.9<<<<<") ELSE "".
+                        cVarValue = IF AVAILABLE ef THEN STRING(ef.nsh-len,">>>>>9.9<<<<<") ELSE "".
                     WHEN "flm-len" THEN 
                         cVarValue = IF AVAILABLE est-flm THEN STRING(est-flm.len,">>>>>9.9<<<<<") ELSE "".
                     WHEN "flm-wid" THEN 

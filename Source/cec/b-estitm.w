@@ -5949,9 +5949,9 @@ PROCEDURE local-cancel-record :
 
   IF v-cecscrn-dec THEN
      ASSIGN
-        eb.wid:WIDTH IN BROWSE {&browse-name} = 15.2
+        eb.wid:WIDTH IN BROWSE {&browse-name} = 18.2
         eb.wid:FORMAT IN BROWSE {&browse-name} = ">>>>>9.999999"
-        eb.len:WIDTH IN BROWSE {&browse-name} = 15.2
+        eb.len:WIDTH IN BROWSE {&browse-name} = 18.2
         eb.len:FORMAT IN BROWSE {&browse-name} = ">>>>>9.999999"
         eb.dep:WIDTH IN BROWSE {&browse-name} = 15.2
         eb.dep:FORMAT IN BROWSE {&browse-name} = ">>9.999999".

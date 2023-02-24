@@ -353,9 +353,9 @@ DEFINE FRAME fold
      eb.num-up AT ROW 8.62 COL 96 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.die-in AT ROW 8.62 COL 110 COLON-ALIGNED NO-LABEL
+     ef.die-in AT ROW 8.62 COL 110 COLON-ALIGNED NO-LABEL  FORMAT ">,>>>,>>9"
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+          SIZE 13 BY 1
      eb.t-wid AT ROW 9.57 COL 17 COLON-ALIGNED
           LABEL "Blank"
           VIEW-AS FILL-IN 
@@ -363,9 +363,9 @@ DEFINE FRAME fold
      eb.t-len AT ROW 9.57 COL 33.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
-     eb.t-sqin AT ROW 9.57 COL 49.6 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>9.9999"
+     eb.t-sqin AT ROW 9.57 COL 49.6 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>>>9.9999"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 16.6 BY 1
      ef.leaf[1] AT ROW 11.71 COL 4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -554,7 +554,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ef.cost-uom IN FRAME fold
    ALIGN-L 5 EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN ef.die-in IN FRAME fold
-   5                                                                    */
+   5 EXP-FORMAT                                                         */
 /* SETTINGS FOR FILL-IN dtCost IN FRAME fold
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fiWtPerTon IN FRAME fold

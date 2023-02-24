@@ -170,15 +170,10 @@ FUNCTION FNmetric RETURNS CHARACTER (INPUT aa AS DECIMAL,
 
     DEFINE VARIABLE lv-format AS CHARACTER EXTENT 2 NO-UNDO.
  
-    IF dim EQ "L" THEN
-        ASSIGN
-            lv-format[1] = ">>,>>>,>>>"
-            lv-format[2] = ">>>,>>9.99<<".
-    ELSE
-        ASSIGN
-            lv-format[1] = ">>>,>>>"
-            lv-format[2] = ">,>>9.99<<". 
-  
+    ASSIGN
+     lv-format[1] = ">>,>>>,>>>"
+     lv-format[2] = ">>>,>>9.99<<<<". 
+   
     IF v-metric THEN 
         RETURN STRING(ROUND(bb * 25.4,0),lv-format[1]).
     ELSE

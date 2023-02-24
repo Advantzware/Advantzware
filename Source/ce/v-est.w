@@ -520,7 +520,7 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      eb.t-sqin AT ROW 16 COL 126 COLON-ALIGNED
-          LABEL "Blank Sq. In." FORMAT ">>>>>>9.9999"
+          LABEL "Blank Sq. In." FORMAT ">>>>>>>>>9.9999"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      eb.bl-qty AT ROW 2.67 COL 86 COLON-ALIGNED

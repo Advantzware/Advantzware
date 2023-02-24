@@ -18,8 +18,8 @@ def buffer b-ref2  for reftable.
 DEF VAR v-tmp-note-length AS INT NO-UNDO.
 DEF VAR lv-text AS CHAR NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
-def var v-wid like po-ordl.s-wid format ">>9.99" no-undo.
-def var v-len like po-ordl.s-len format ">>9.99" no-undo.
+def var v-wid like po-ordl.s-wid format ">>>>>9.99<<<<" no-undo.
+def var v-len like po-ordl.s-len format ">>>>>9.99<<<<" no-undo.
 def var pol-counter as int no-undo.
 def var save_id as recid.
 def var time_stamp as char.
@@ -540,7 +540,7 @@ assign
           {po/po-sthpk.i}
        END.
   */
-      PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">>>,>>9" SKIP.
+      PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">>>,>>>,>>9" SKIP.
       v-tot-sqft = 0.
       v-bot-lab[1] = "GST        :"
                      /*vend.tax-gr + "        :       " */ + STRING(po-ord.tax,"->>,>>9.99").

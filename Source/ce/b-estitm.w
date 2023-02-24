@@ -377,7 +377,7 @@ DEFINE BROWSE br-estitm
       eb.num-wid FORMAT ">9":U
       eb.num-len FORMAT ">9":U
       eb.num-up COLUMN-LABEL "# Up" FORMAT ">>>,>>9":U
-      eb.die-in FORMAT ">>>>9":U
+      eb.die-in FORMAT ">>>>>>9":U
       ef.f-col COLUMN-LABEL "Inks/Form" FORMAT ">>":U
       ef.f-pass COLUMN-LABEL "Passes/Form" FORMAT ">>":U
       ef.f-coat COLUMN-LABEL "Coatings/Form" FORMAT ">>":U
@@ -544,7 +544,7 @@ ASSIGN
      _FldNameList[22]   > ASI.eb.num-up
 "eb.num-up" "# Up" ">>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.eb.die-in
-"eb.die-in" ? ">>>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.die-in" ? ">>>>>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.ef.f-col
 "ef.f-col" "Inks/Form" ">>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.ef.f-pass

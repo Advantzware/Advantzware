@@ -444,7 +444,7 @@ DEFINE BROWSE br_table
             COLUMN-FONT 0
       probe.probe-date FORMAT "99/99/9999":U
       probe.probe-user COLUMN-LABEL "Probe By" FORMAT "X(8)":U
-      probe.tot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 12.2
+      probe.tot-lbs COLUMN-LABEL "Shipping!Weight" FORMAT ">>>,>>>,>>9" WIDTH 15.2
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
       probe.spare-dec-1 COLUMN-LABEL "Direct!Material" FORMAT "->>>,>>9.99":U

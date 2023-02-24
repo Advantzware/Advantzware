@@ -498,7 +498,7 @@ end.
 for each xef where xef.company = xest.company
                AND xef.est-no eq xest.est-no
                BREAK BY xef.form-no
-with STREAM-IO frame brd no-labels no-box width 80 down:
+with STREAM-IO frame brd no-labels no-box WIDTH 110 down:
    IF NOT gEstSummaryOnly THEN
    ASSIGN
     brd-l  = 0
@@ -559,8 +559,8 @@ with STREAM-IO frame brd no-labels no-box width 80 down:
    IF NOT gEstSummaryOnly OR last(xef.form-no) THEN 
    display skip(1)
    "FORM" vOfor2 
-   " Width   Length     Sq.Inches   Sq.Feet/Sheet   Weight per Units" skip
-   with no-box no-labels width 80 frame aa1 DOWN STREAM-IO.
+   " Width   Length     Sq.Inches     Sq.Feet/Sheet    Weight per Units" skip
+   with no-box no-labels WIDTH 110 frame aa1 DOWN STREAM-IO.
 
    for each xeb OF xef BY xeb.blank-no:
       /* set total # of blanks on all forms */
@@ -591,8 +591,8 @@ with STREAM-IO frame brd no-labels no-box width 80 down:
       /*"Blk" space(0) xeb.blank-no FORMAT "99"*/
       "Blk" + IF NOT gEstSummaryOnly THEN string(xeb.blank-no,"99") ELSE "" FORMAT "x(5)"
           "Size :" brd-w[4] to 21 brd-l[4] to 30 brd-sq[4] to 42
-               brd-sf[4] to 52 "Sf/Sht"  brd-wu[4] to 70 space(0) "/M Shts" skip
-      with no-box no-labels width 80 frame aa2 DOWN STREAM-IO.
+               brd-sf[4] to 55 "Sf/Sht"  brd-wu[4] to 74 space(0) "/M Shts" skip
+      with no-box no-labels WIDTH 110 frame aa2 DOWN STREAM-IO.
    end.
    find xeb where recid(xeb) = call_id no-lock no-error. qty = xeb.yld-qty.
 
@@ -613,21 +613,21 @@ with STREAM-IO frame brd no-labels no-box width 80 down:
    IF NOT gEstSummaryOnly OR last(xef.form-no) THEN 
    display 
    "  Die Size :" brd-w[1] to 21 brd-l[1] to 30 brd-sq[1] to 42
-            brd-sf[1] to 52 "Sf/Sht"  brd-wu[1] to 70 space(0) "/M Shts" skip
+            brd-sf[1] to 55 "Sf/Sht"  brd-wu[1] to 74 space(0) "/M Shts" skip
                    /*xef.trim-l when v-layout @ brd-w[1]
                    xef.trim-w when v-layout @ brd-l[1]*/
-   with no-box no-labels width 80 frame aa3 DOWN STREAM-IO.
+   with no-box no-labels WIDTH 100 frame aa3 DOWN STREAM-IO.
    IF LOOKUP(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ THEN v-header = "   Qty      --- Desc/FG Item ----- -- Size / Color ----- --- Style / Part No ---".
    ELSE v-header = "   Qty      --- Description ------ -- Size / Color ----- --- Style / Part No ---".
    if cerunf ne "HOP" then display
    " Feed Size :" lv-brd-w to 21 lv-brd-l to 30 lv-brd-sq to 42
-            " #out:" xef.n-out FORMAT ">>9" lv-brd-wu to 70 space(0) "/M Shts" skip
-   with no-box no-labels width 80 frame aa4 DOWN STREAM-IO.
+            " #out:" xef.n-out FORMAT ">>9" lv-brd-wu to 74 space(0) "/M Shts" skip
+   with no-box no-labels WIDTH 110 frame aa4 DOWN STREAM-IO.
 
    IF NOT gEstSummaryOnly OR last(xef.form-no) THEN 
    display
    "Sheet Size :" brd-w[2] to 21 brd-l[2] to 30 brd-sq[2] to 42
-            brd-sf[2] to 52 "Sf/Sht"  brd-wu[2] to 70 space(0) "/M Shts" skip
+            brd-sf[2] to 55 "Sf/Sht"  brd-wu[2] to 74 space(0) "/M Shts" skip
    "Roll  Size :"                  when brd-w[3] ne 0
                 /*brd-l[3]  to 30  when brd-l[3] ne 0*/
                   brd-w[3]  to 21  when brd-w[3] ne 0
@@ -637,7 +637,7 @@ with STREAM-IO frame brd no-labels no-box width 80 down:
                   skip(1)
                   v-header FORMAT "x(80)"
 /*"   Qty      --- Desc/iption ------ -- Size / Color ----- --- Style / Part No ---"*/
-with no-box no-labels width 80 frame aa5 DOWN STREAM-IO.
+with no-box no-labels WIDTH 110 frame aa5 DOWN STREAM-IO.
    
    for each xeb where xeb.company = xest.company
                   AND xeb.est-no eq xest.est-no 

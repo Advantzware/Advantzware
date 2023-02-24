@@ -152,7 +152,7 @@ for each cas where cas.typ = 1 by cas.snum by cas.bnum with no-labels no-box:
    display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
            item.i-name format "x(20)"
            (zzz / cas.qty) format ">>>>9" "Pieces/Case"
-           cas.qty format ">>>>>9" to 50 "Cas"
+           cas.qty format "->>>>>9" to 50 "Cas"
            v-setup when v-setup ne 0 format ">>>9.99" to 61
            cas.cosm to 69
            cas.cost to 80 format ">>>,>>9.99" skip
@@ -210,7 +210,7 @@ for each cas where cas.typ = 5 by cas.snum by cas.bnum with no-labels no-box:
    display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
            item.i-name format "x(20)"
            /*(zzz / cas.qty) format ">>>>9" "Pieces/Case"*/
-           cas.qty format ">>>>>9" to 50 "Pad"
+           cas.qty format "->>>>>9" to 50 "Pad"
            v-setup when v-setup ne 0 format ">>>9.99" to 61
            cas.cosm to 69
            cas.cost to 80 format ">>>,>>9.99" skip
@@ -265,7 +265,7 @@ for each cas where cas.typ = 6 by cas.snum by cas.bnum with no-labels no-box:
    display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
            item.i-name format "x(20)"
            /*(zzz / cas.qty) format ">>>>9" "Pieces/Case"*/
-           cas.qty format ">>>>>9" to 50 "Div"
+           cas.qty format "->>>>>9" to 50 "Div"
            v-setup when v-setup ne 0 format ">>>9.99" to 61
            cas.cosm to 69
            cas.cost to 80 format ">>>,>>9.99" skip
@@ -376,7 +376,7 @@ for each cas where cas.typ = 2 by cas.snum by cas.bnum with no-labels no-box:
    brd.cost = cas.cost / cas.qty
    brd.cost-m = cas.cosm.
    display string(cas.snum,"99") + "-" + string(cas.bnum,"9") format "x(4)"
-           item.i-name cas.qty format ">>>>>9" to 50 "Tr"
+           item.i-name cas.qty format "->>>>>9" to 50 "Tr"
            v-setup when v-setup ne 0 format ">>>9.99" to 61
            cas.cosm to 69
            cas.cost to 80 format ">>>,>>9.99" skip
@@ -498,7 +498,7 @@ for each cas where cas.typ = 3 by cas.snum by cas.bnum with no-labels no-box:
               "" @ v-pck-code
               v-pck-code when avail xcas
               space(0)
-              cas.qty format ">>>>>9" to 50 "Pal"
+              cas.qty format "->>>>>9" to 50 "Pal"
               v-setup when v-setup ne 0 format ">>>9.99" to 61
               cas.cosm to 69
               cas.cost to 80 format ">>>,>>9.99" skip
@@ -769,7 +769,7 @@ FOR EACH estPacking NO-LOCK
             .
         IF dPackCostTotal NE 0 THEN                                           
              DISPLAY string(estPacking.formNo,"99") + "-" + string(estPacking.blankNo,"9") format "x(4)"
-             item.i-name dPackQty FORMAT ">>>>>9" TO 50               
+             item.i-name dPackQty FORMAT "->>>>>9" TO 50               
               "Ea."                                                           
               dPackCostTotal / (qty / 1000) FORMAT ">>>>9.99" TO 69           
               dPackCostTotal FORMAT ">>>,>>9.99" TO 80 SKIP WITH STREAM-IO  

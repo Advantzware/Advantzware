@@ -464,7 +464,7 @@ DEFINE VARIABLE vi_len AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0
      SIZE 12 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE vi_len-2 AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 9999.9999 
+DEFINE VARIABLE vi_len-2 AS DECIMAL FORMAT "->>>,>>9.99":U INITIAL 9999.9999 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -499,7 +499,7 @@ DEFINE VARIABLE vi_wid AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 0
      SIZE 12 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE vi_wid-2 AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 9999.9999 
+DEFINE VARIABLE vi_wid-2 AS DECIMAL FORMAT "->>>,>>9.99":U INITIAL 9999.9999 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -1242,8 +1242,8 @@ DO:
      vi_len:SCREEN-VALUE  = ""
      vi_wid:SCREEN-VALUE  = ""
      vi_dep:SCREEN-VALUE  = ""
-     vi_len-2:SCREEN-VALUE  = "99,999.99"
-     vi_wid-2:SCREEN-VALUE  = "99,999.99"
+     vi_len-2:SCREEN-VALUE  = "999,999.99"
+     vi_wid-2:SCREEN-VALUE  = "999,999.99"
      vi_dep-2:SCREEN-VALUE  = "99,999.99"
      vi_die-no:SCREEN-VALUE  = "*"
      
@@ -1275,8 +1275,8 @@ DO:
      vi_len:SCREEN-VALUE  = ""
      vi_wid:SCREEN-VALUE  = ""
      vi_dep:SCREEN-VALUE  = ""
-     vi_len-2:SCREEN-VALUE  = "99,999.99"
-     vi_wid-2:SCREEN-VALUE  = "99,999.99"
+     vi_len-2:SCREEN-VALUE  = "999,999.99"
+     vi_wid-2:SCREEN-VALUE  = "999,999.99"
      vi_dep-2:SCREEN-VALUE  = "99,999.99"
      vi_die-no:SCREEN-VALUE  = "*"
     /* vi_est-date:SCREEN-VALUE = ?  /*string(date(1,1,year(today)))*/ */
@@ -2138,9 +2138,9 @@ PROCEDURE local-display-fields :
         eb.len:WIDTH IN BROWSE {&browse-name} = 15
         eb.dep:WIDTH IN BROWSE {&browse-name} = 13
         vi_len:FORMAT = "->>,>>9.999999"
-        vi_len-2:FORMAT = "->>,>>9.999999"
+        vi_len-2:FORMAT = "->>>,>>9.999999"
         vi_wid:FORMAT = "->>,>>9.999999"
-        vi_wid-2:FORMAT = "->>,>>9.999999"
+        vi_wid-2:FORMAT = "->>>,>>9.999999"
         vi_dep:FORMAT = "->>,>>9.999999"
         vi_dep-2:FORMAT = "->>,>>9.999999".
 
@@ -2598,8 +2598,8 @@ PROCEDURE set-defaults :
           vi_len = 0
           vi_wid = 0
           vi_dep = 0
-          vi_len-2 = 99999.99
-          vi_wid-2 = 99999.99
+          vi_len-2 = 999999.99
+          vi_wid-2 = 999999.99
           vi_dep-2 = 99999.99
           vi_die-no = "*"
           vi_est-date = ? /* DATE(1,1,YEAR(TODAY)) */.
@@ -2665,8 +2665,8 @@ ASSIGN vi_est-no = ipiEstNo
        vi_len        = 0.00
        vi_wid        = 0.00
        vi_dep        = 0.00
-       vi_len-2      = 99999.99
-       vi_wid-2      = 99999.99
+       vi_len-2      = 999999.99
+       vi_wid-2      = 999999.99
        vi_dep-2      = 99999.99
        vi_die-no     = "*" 
        vi_cad-no     = ""

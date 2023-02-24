@@ -18,12 +18,12 @@ def buffer b-ref2  for reftable.
 {po/po-print.i}
 DEF SHARED VAR s-group-notes AS LOG NO-UNDO.
 
-DEF VAR v-wid AS DEC format ">>9.99<<" NO-UNDO.
+DEF VAR v-wid AS DEC format ">>>>>9.99<<<<" NO-UNDO.
 DEF VAR v-dep AS DEC format ">>9.99<<" NO-UNDO.    
 DEF VAR v-basis-w AS DEC NO-UNDO.
-DEF VAR v-len AS DEC FORM "->>9.99<<" NO-UNDO.
-DEF var v-wid2 like po-ordl.s-wid format ">>9.99<<" no-undo. /* for recalc extened cost */
-def var v-len2 like po-ordl.s-len format ">>9.99<<" no-undo. /* for recalc extened cost */
+DEF VAR v-len AS DEC FORM "->>>>9.99<<<<" NO-UNDO.
+DEF var v-wid2 like po-ordl.s-wid format ">>>>>9.99<<<<" no-undo. /* for recalc extened cost */
+def var v-len2 like po-ordl.s-len format ">>>>>9.99<<<<" no-undo. /* for recalc extened cost */
 def var pol-counter as int no-undo.
 def var save_id as recid.
 def var time_stamp as CHAR NO-UNDO.
@@ -173,15 +173,10 @@ FUNCTION FNmetric RETURNS CHAR (INPUT aa AS DEC,
                                 INPUT dim AS CHAR).  
 
   DEF VAR lv-format AS CHAR EXTENT 2 NO-UNDO.
- 
-  IF dim EQ "L" THEN
+    
     ASSIGN
      lv-format[1] = ">>,>>>,>>>"
-     lv-format[2] = ">>>,>>9.99<<".
-  ELSE
-    ASSIGN
-     lv-format[1] = ">>>,>>>"
-     lv-format[2] = ">,>>9.99<<". 
+     lv-format[2] = ">>>,>>9.99<<<<". 
   
     IF v-metric THEN 
     RETURN STRING(ROUND(bb * 25.4,0),lv-format[1]).
@@ -630,14 +625,14 @@ v-printline = 0.
           ELSE
               ASSIGN cFlueTest = IF dCoreDia GT 0 AND ITEM.mat-type EQ "P" THEN "Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
-
+                     
         IF v-wid GT 0 THEN DO:
-          PUT "W: " AT 25 FNmetric(v-wid, v-wid2, "W") FORMAT "x(8)" SPACE(1).
+          PUT "W: " AT 25 FNmetric(v-wid, v-wid2, "W") FORMAT "x(9)" SPACE(1).
           IF v-len GT 0 THEN
           PUT "L: "  FNmetric(v-len, v-len2, "L") FORMAT "x(10)" SPACE(1).
          IF lv-dep GT 0 THEN
           PUT "D: "  FNmetric(lv-dep, lv-dep2, "D") FORMAT "x(8)" SPACE(1).
-        END.
+        END.   
 
        /* IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" THEN
            PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".*/

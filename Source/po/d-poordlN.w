@@ -503,10 +503,10 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
      v-tot-msf AT ROW 5.29 COL 105 COLON-ALIGNED NO-LABEL
-     po-ordl.s-wid AT ROW 6.62 COL 3.4 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
+     po-ordl.s-wid AT ROW 6.62 COL 3.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     po-ordl.s-len AT ROW 6.62 COL 18 COLON-ALIGNED NO-LABEL FORMAT ">>,>>9.99<<"
+     po-ordl.s-len AT ROW 6.62 COL 18 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      v-po-dep AT ROW 6.62 COL 36 COLON-ALIGNED NO-LABEL

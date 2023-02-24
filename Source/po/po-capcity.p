@@ -8,10 +8,10 @@
 {po/po-print.i}
 
 
-DEFINE VARIABLE v-wid           AS DECIMAL   FORM ">>9.99<<" NO-UNDO.
+DEFINE VARIABLE v-wid           AS DECIMAL   FORM ">>>>>9.99<<<<" NO-UNDO.
 DEFINE VARIABLE v-dep           AS DECIMAL   NO-UNDO.    
 DEFINE VARIABLE v-basis-w       AS DECIMAL   NO-UNDO.
-DEFINE VARIABLE v-len           AS DECIMAL   FORM "->,>>9.99" NO-UNDO.
+DEFINE VARIABLE v-len           AS DECIMAL   FORM "->>,>>9.99<<<<" NO-UNDO.
 DEFINE VARIABLE v-wid2          LIKE po-ordl.s-wid FORMAT ">>9.99" NO-UNDO. /* for recalc extened cost */
 DEFINE VARIABLE v-len2          LIKE po-ordl.s-len FORMAT ">>9.99" NO-UNDO. /* for recalc extened cost */
 DEFINE VARIABLE pol-counter     AS INTEGER   NO-UNDO.

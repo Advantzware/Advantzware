@@ -89,7 +89,7 @@ ASSIGN
                          + "Job Qty Allocated,RM Qty Allocated,Job Due Date,Item Description,Customer,Customer Name" 
     cFieldListToSelect = "job,ino,uom,reqr,ord,rece,vend," +
                             "wid,len,scr,dt,bal,po,name,cmtd," + "job-qty,rm-qty,job-due-date,item-desc,cust,custname" 
-    cFieldLength       = "13,15,3,15,15,15,8," + "8,8,40,11,15,6,20,9," + "17,16,12,30,8,30"
+    cFieldLength       = "13,15,3,15,15,15,8," + "9,9,40,11,15,6,20,9," + "17,16,12,30,8,30"
     cFieldType         = "c,c,c,i,i,i,c," + "i,i,c,c,i,c,c,c," + "c,c,c,c,c,c"  
     .
 

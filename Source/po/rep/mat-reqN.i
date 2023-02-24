@@ -334,8 +334,8 @@ for each {1}report where {1}report.term-id eq v-term,
                      WHEN "ord"             THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[2],"->>,>>>,>>9.999") ELSE "" .
                      WHEN "rece"            THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[3],"->>,>>>,>>9.999") ELSE "" .
                      WHEN "vend"            THEN cVarValue = IF AVAIL po-ord THEN po-ord.vend-no ELSE "" .
-                     WHEN "wid"             THEN cVarValue = STRING(v-wid,">>9.9999")  .
-                     WHEN "len"             THEN cVarValue = STRING(v-len,">>9.9999") .
+                     WHEN "wid"             THEN cVarValue = STRING(v-wid,">>>>>9.99<<<<")  .
+                     WHEN "len"             THEN cVarValue = STRING(v-len,">>>>>9.99<<<<") .
                      WHEN "scr"             THEN cVarValue = STRING(len-score) .
                      WHEN "bal"             THEN cVarValue = IF v-itm NE "" THEN STRING(v-qty[4],"->>,>>>,>>9.999") ELSE "" .
                      WHEN "dt"              THEN cVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN STRING(po-ord.due-date,"99/99/9999") ELSE ""  .
@@ -386,8 +386,8 @@ for each {1}report where {1}report.term-id eq v-term,
                      WHEN "ord"             THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[2],"->>,>>>,>>9.999") ELSE "" .
                      WHEN "rece"            THEN cVarValue = IF AVAIL po-ordl THEN STRING(v-qty[3],"->>,>>>,>>9.999") ELSE "" .
                      WHEN "vend"            THEN cVarValue = IF AVAIL po-ord THEN po-ord.vend-no ELSE "" .
-                     WHEN "wid"             THEN cVarValue = STRING(v-wid,">>9.9999")  .
-                     WHEN "len"             THEN cVarValue = STRING(v-len,">>9.9999") .
+                     WHEN "wid"             THEN cVarValue = STRING(v-wid,">>>>>9.99<<<<")  .
+                     WHEN "len"             THEN cVarValue = STRING(v-len,">>>>>9.99<<<<") .
                      WHEN "scr"             THEN cVarValue = STRING(len-score) .
                      WHEN "dt"              THEN cVarValue = IF AVAIL po-ord AND po-ord.due-date NE ? THEN STRING(po-ord.due-date,"99/99/9999") ELSE ""  .
                      WHEN "bal"             THEN cVarValue = IF LAST-OF({1}report.key-02) AND v-itm NE "" THEN STRING(v-qty[4],"->>,>>>,>>9.999") ELSE "" .

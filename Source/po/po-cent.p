@@ -14,8 +14,8 @@ def buffer b-ref2 for reftable.
 {custom/notesdef.i}
 DEF VAR v-inst AS cha FORM "x(60)" EXTENT 4 NO-UNDO.
 
-def var v-wid like po-ordl.s-wid format ">>9.99" no-undo.
-def var v-len like po-ordl.s-len format ">>9.99" no-undo.
+def var v-wid like po-ordl.s-wid format ">>>>>9.99<<<<" no-undo.
+def var v-len like po-ordl.s-len format ">>>>>9.99<<<<" no-undo.
 def var pol-counter as int no-undo. /* CTS */
 def var save_id as recid.
 def var time_stamp as char.

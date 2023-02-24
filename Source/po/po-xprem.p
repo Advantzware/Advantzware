@@ -11,10 +11,10 @@ def buffer b-ref2  for reftable.
 {po/po-print.i}
 
 
-DEF VAR v-wid AS DEC FORM ">>9.99<<" NO-UNDO.
+DEF VAR v-wid AS DEC FORM ">>>>>9.99<<<<" NO-UNDO.
 DEF VAR v-dep AS DEC NO-UNDO.    
 DEF VAR v-basis-w AS DEC NO-UNDO.
-DEF VAR v-len AS DEC FORM "->,>>9.99" NO-UNDO.
+DEF VAR v-len AS DEC FORM "->>,>>9.99<<<<" NO-UNDO.
 DEF var v-wid2 like po-ordl.s-wid format ">>9.99" no-undo. /* for recalc extened cost */
 def var v-len2 like po-ordl.s-len format ">>9.99" no-undo. /* for recalc extened cost */
 def var pol-counter as int no-undo.

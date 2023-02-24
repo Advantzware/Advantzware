@@ -13,8 +13,8 @@ DEF STREAM st-fax.
 
 {po/po-print.i}
 
-def var v-wid like po-ordl.s-wid format ">>9.9999" no-undo.
-def var v-len like po-ordl.s-len format ">>9.9999" no-undo.
+def var v-wid like po-ordl.s-wid format ">>>>>9.9999<<" no-undo.
+def var v-len like po-ordl.s-len format ">>>>>9.9999<<" no-undo.
 def var pol-counter as int no-undo.
 def var save_id as recid.
 def var time_stamp as char.
