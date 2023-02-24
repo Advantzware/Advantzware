@@ -727,14 +727,22 @@ PROCEDURE do-copy :
           li-next = bf-est-op.line + 1.
           LEAVE.
       END.   
-      create kest-op.
-      buffer-copy est-op except rec_key to kest-op
-       assign
-        kest-op.company = io-eb.company
-        kest-op.est-no  = io-eb.est-no
-        kest-op.LINE    = li-next
-        kest-op.s-num   = io-eb.form-no 
-        kest-op.b-num   = IF est-op.b-num EQ 0 THEN 0 ELSE io-eb.blank-no .
+      FIND FIRST kest-op NO-LOCK
+           WHERE kest-op.company EQ io-eb.company
+             AND kest-op.est-no EQ io-eb.est-no
+             AND kest-op.s-num EQ io-eb.form-no
+             AND ((kest-op.b-num EQ 0 AND est-op.b-num EQ 0) OR (kest-op.b-num EQ io-eb.blank-no)) NO-ERROR.
+      IF NOT AVAILABLE kest-op then
+      DO:       
+          create kest-op.
+          buffer-copy est-op except rec_key to kest-op
+           assign
+            kest-op.company = io-eb.company
+            kest-op.est-no  = io-eb.est-no
+            kest-op.LINE    = li-next
+            kest-op.s-num   = io-eb.form-no 
+            kest-op.b-num   = IF est-op.b-num EQ 0 THEN 0 ELSE io-eb.blank-no .
+      END.  
      end.
     END.     
     IF tb_miscsub AND ip-add-what EQ "form" THEN do:
