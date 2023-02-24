@@ -130,6 +130,7 @@ DEFINE VARIABLE lLocalCancelRecords AS LOGICAL NO-UNDO .
 DEFINE VARIABLE deAutoOverRun  AS DECIMAL NO-UNDO.
 DEFINE VARIABLE deAutoUnderRun AS DECIMAL NO-UNDO.
 DEFINE VARIABLE OEUpdateLineDue-log AS LOG NO-UNDO.
+DEFINE VARIABLE lAllowHoldVal AS LOGICAL NO-UNDO.
 
 &Scoped-define sman-fields oe-ord.sman oe-ord.s-pct oe-ord.s-comm
 
@@ -187,6 +188,16 @@ RUN methods/prgsecur.p
      OUTPUT llUpdatePrcHld, /* Allowed? Yes/NO */
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
+     
+RUN methods/prgsecur.p
+    (INPUT "p-oehold.",
+     INPUT "ALL", /* based on run, create, update, delete or all */
+     INPUT NO,    /* use the directory in addition to the program */
+     INPUT NO,    /* Show a message if not authorized */
+     INPUT NO,    /* Group overrides user security? */
+     OUTPUT lAllowHoldVal, /* Allowed? Yes/NO */
+     OUTPUT v-access-close, /* used in template/windows.i  */
+     OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */     
      
 DEF VAR cRtnChar AS CHAR NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
@@ -1376,7 +1387,7 @@ END.
 &Scoped-define SELF-NAME btnValidate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnValidate V-table-Win
 ON CHOOSE OF btnValidate IN FRAME F-Main /* Validate */
-DO:
+DO:     
     RUN pValidate IN THIS-PROCEDURE.
 END.
 
@@ -5691,7 +5702,8 @@ PROCEDURE local-display-fields :
     END.
 
   RUN pDisplayAddresses.
-  
+  IF lAllowHoldVal THEN btnValidate:SENSITIVE IN FRAME {&frame-name} = YES. 
+  ELSE btnValidate:SENSITIVE IN FRAME {&frame-name} = NO. 
 
 END PROCEDURE.
 
@@ -5794,6 +5806,9 @@ PROCEDURE local-enable-fields :
    ll-valid-po-no = NO.
 
   RUN release-shared-buffers.
+  
+  IF lAllowHoldVal THEN btnValidate:SENSITIVE IN FRAME {&frame-name} = YES. 
+  ELSE btnValidate:SENSITIVE IN FRAME {&frame-name} = NO. 
   
 /*  ENABLE oe-ord.priority WITH FRAME {&FRAME-NAME}.*/
   {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateBegin"}
