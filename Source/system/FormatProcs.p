@@ -1204,9 +1204,7 @@ FUNCTION sfFormat_Date RETURNS CHARACTER
     ELSE ASSIGN cDateFormat = "YYYY-MM-DD". 
     
     RUN Format_Date(ipdtDate,cDateFormat, OUTPUT opcDateString).
-        
-    RETURN CHR(9) + opcDateString.
-    		
+        		
 END FUNCTION.
 
 FUNCTION sfFormat_FilledJobWithHyphen RETURNS CHARACTER 
