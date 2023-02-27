@@ -339,7 +339,7 @@ do v-local-loop = 1 to v-local-copies:
                 "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
-                trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
+                trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
                 "<=#6><R-5> 1:"
                 w-i.i-code
                 w-i.i-qty when w-i.i-qty ne 0
@@ -408,9 +408,9 @@ do v-local-loop = 1 to v-local-copies:
                     "   " +
                     "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 format "x(25)"
-                    "</b>MSF:<b>"  +
-                    trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)".
+                    " </b>MSF:<b>"  +
+                    trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                format "x(20)".
                PUT "</b><=#6><R-5> Ink 1:<b>"
                    w-i.i-dscr
                    IF string(w-i.i-qty) ne "0" THEN string(w-i.i-qty) ELSE ""

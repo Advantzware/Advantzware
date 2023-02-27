@@ -370,8 +370,8 @@ do v-local-loop = 1 to v-local-copies:
                     "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 format "x(25)"
                     "</b>MSF:<b>"  +
-                    trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)".
+                    trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                format "x(12)".
                  PUT "</b><=#6><R-5> Meters Planned: _________________<b>"   .                                                             
                /*PUT "</b><=#6><R-5> Ink 1:<b>"
                    w-i.i-dscr

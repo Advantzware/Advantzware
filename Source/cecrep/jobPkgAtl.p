@@ -535,7 +535,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=SheetsSize>" "W:" + trim(STRING({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
         "L:" + trim(STRING({sys/inc/k16v.i v-form-len},">>,>>9.99"))  FORMAT "x(30)"
 
-        "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
+        "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) FORMAT "x(12)"
         "<=TestPrint>" xeb.flute FORMAT "x(10)"
         "<=FlutePrint>" xeb.test FORMAT "x(10)"
         "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 

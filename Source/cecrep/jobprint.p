@@ -341,8 +341,8 @@ DO v-local-loop = 1 TO v-local-copies:
                 "L: " + trim(STRING({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 FORMAT "x(25)"
                 "MSF:"  +
-                trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                FORMAT "x(11)"
+                trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                FORMAT "x(12)"
                 "<=#6><R-5> 1:"
                 w-i.i-code
                 w-i.i-qty WHEN w-i.i-qty NE 0
@@ -412,8 +412,8 @@ DO v-local-loop = 1 TO v-local-copies:
                 "L: " + trim(STRING({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 FORMAT "x(25)"
                 "MSF:"  +
-                trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                FORMAT "x(11)"
+                trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                FORMAT "x(12)"
                 "<=#6><R-5>       "
                 w-i.i-dscr
                 w-i.i-qty WHEN w-i.i-qty NE 0

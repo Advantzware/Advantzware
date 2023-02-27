@@ -314,8 +314,8 @@ do v-local-loop = 1 to v-local-copies:
                 "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
-                trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)"
+                trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                format "x(12)"
                 "<=#6><R-5> Ink 1:" v-ink-1
                 /*w-i.i-code
                 w-i.i-qty when w-i.i-qty ne 0

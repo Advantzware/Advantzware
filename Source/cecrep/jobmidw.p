@@ -350,7 +350,7 @@ do v-local-loop = 1 to v-local-copies:
               v-cus[2] AT 2  v-shp[2] FORM "x(27)"
              "DATE" AT 61 "SHIP DATE" AT 72 "TOTAL SQ FT" AT 83 SKIP
               v-cus[3] AT 2 v-shp[3] FORM "x(28)" v-ord-date  AT 61 v-due-date  AT 72    
-              trim(string(v-sht-qty * v-form-sqft,">>>,>>9.9<")) format "x(10)" AT 85
+              trim(string(v-sht-qty * v-form-sqft,">>,>>>,>>9.9<")) format "x(12)" AT 82
               SKIP
               v-cus[4] AT 2  v-shp[4] SKIP
               "Part No." AT 2  "SHEET SIZE:</PROGRESS>" AT 49
@@ -464,8 +464,8 @@ do v-local-loop = 1 to v-local-copies:
                 "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
-                trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)"
+                trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                format "x(12)"
                 "<=#6><R-5> Ink 1:"
                 w-i.i-dscr
                 w-i.i-qty when w-i.i-qty ne 0

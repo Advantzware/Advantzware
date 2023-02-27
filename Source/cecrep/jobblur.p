@@ -290,7 +290,7 @@ do v-local-loop = 1 to v-local-copies:
               v-cus[2] AT 2  v-shp[2] FORM "x(27)"
              "DATE" AT 61 "REL DATE " AT 72 "TOTAL SQ FT" AT 83 SKIP
               v-cus[3] AT 2 v-shp[3] FORM "x(28)" v-ord-date  AT 61 v-due-date  AT 72    
-              trim(string(v-sht-qty * v-form-sqft,">>>,>>9.9<")) format "x(10)" AT 85
+              trim(string(v-sht-qty * v-form-sqft,">>,>>>,>>9.9<")) format "x(12)" AT 82
               SKIP
               v-cus[4] AT 2  v-shp[4] SKIP
               "Part No." AT 2  "SHEET SIZE:</PROGRESS>" AT 49

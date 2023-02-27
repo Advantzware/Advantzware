@@ -643,7 +643,7 @@ do v-local-loop = 1 to v-local-copies:
               " " +
               "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank format "x(22)"  @ v-w-l AT 2
               "SEE 1st BLANK" WHEN v-see-1st-blank @ v-w-l   
-              "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) format "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank           v-dpr-note[1] AT 39 /*"Ink 1:" AT 39 v-ink-1*/              
+              "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) format "x(12)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank           v-dpr-note[1] AT 39 /*"Ink 1:" AT 39 v-ink-1*/              
               "Die #" AT 80 xeb.die-no when avail xeb " Loc:" v-die-loc 
 
               "<B><P12>"

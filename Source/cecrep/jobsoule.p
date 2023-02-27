@@ -399,13 +399,13 @@ do v-local-loop = 1 to v-local-copies:
               "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
               "  " +
               "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(22)" AT 2
-              "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)"
+              "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                format "x(12)"
               "Ink 1:" AT 39 v-ink-1
               "Grs:" +  
-              "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.gsh-len},">>9.99")) +
+              "L:" + trim(string({sys/inc/k16v.i xef.gsh-len},">>>9.99")) +
               " " +
               "D:" + trim(string({sys/inc/k16v.i xef.gsh-dep},">>9.99"))
                                                                 format "x(28)" AT 77
@@ -419,9 +419,9 @@ do v-local-loop = 1 to v-local-copies:
               "D:" + trim(string({sys/inc/k16v.i xef.nsh-dep},">>9.99")) AT 77 format "x(29)"
               SKIP
               v-form-dscr AT 4 FORM "x(30)" "Ink 3:" AT 39 v-ink-3 "Die:" +
-              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>9.99")) +
+              "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) +
               " " +
               "D:" + trim(string({sys/inc/k16v.i xef.trim-d},">>9.99")) AT 77 format "x(28)"
               "Up:" + "W:" + string(v-upl) + " L:" + string(v-upw) + " D:" + STRING(xeb.num-dep) FORM "x(20)"

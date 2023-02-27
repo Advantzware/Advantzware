@@ -585,7 +585,7 @@ do v-local-loop = 1 to v-local-copies:
            "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
            " " +
            "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(22)" AT 90 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
-           "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) format "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
+           "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) format "x(12)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
            SKIP
             "<P8><U>Production ID:</U>" AT 10
             "<B><P12>Board: " + v-form-dscr WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank AT 120 FORM "x(47)" 

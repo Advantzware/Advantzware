@@ -550,7 +550,7 @@ DO v-local-loop = 1 TO v-local-copies:
               " " +
               "L:" + TRIM(STRING({sys/inc/k16v.i v-form-len},">,>>9.99"))  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank FORMAT "x(22)"  @ v-w-l AT 2
               "SEE 1st BLANK" WHEN v-see-1st-blank @ v-w-l   
-              "MSF:"  + TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank              "Ink 1:" AT 39 v-ink-1
+              "MSF:"  + TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) FORMAT "x(12)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank              "Ink 1:" AT 39 v-ink-1
               "Gross Size:" AT 80  
               "W:" + TRIM(STRING({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) +
               " " +

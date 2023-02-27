@@ -553,7 +553,7 @@ assign
                "<P10></B>"
                " Sq Ft:" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank AT 103
                trim(string(v-form-sqft)) format "x(7)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
-               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>9.9<")) format "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
+               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) format "x(12)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
                "<C97>" v-adder-5 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
               SKIP
                "<P12><B>CustPart#:" AT 2 v-cp FORM "x(15)"  "</B>"
