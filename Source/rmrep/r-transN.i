@@ -117,10 +117,10 @@
                                    v-bwt, v-len, v-wid, v-dep,
                                    rm-rdtlh.qty, output v-ton).
            ASSIGN cReason = "".
-           
-             FIND FIRST rejct-cd NO-LOCK WHERE rejct-cd.CODE EQ rm-rdtlh.reject-code[1] NO-ERROR.
-             IF rm-rdtlh.reject-code[1] NE "" THEN
-               ASSIGN cReason = rm-rdtlh.reject-code[1] + IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN ( " - " + rejct-cd.dscr) ELSE "".
+                     
+             FIND FIRST rejct-cd NO-LOCK WHERE rejct-cd.CODE EQ rm-rcpth.adjustmentCode NO-ERROR.
+             IF rm-rcpth.adjustmentCode NE "" THEN
+               ASSIGN cReason = rm-rcpth.adjustmentCode + IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN ( " - " + rejct-cd.dscr) ELSE "".
              ELSE cReason = "".
 
                    dShtWid     = 0  .
@@ -197,7 +197,7 @@
                      WHEN "undpct" THEN cVarValue = IF AVAIL po-ordl THEN STRING(po-ordl.under-pct,">>9.99%") ELSE "".
                      WHEN "tons" THEN cVarValue = STRING(v-ton,"->>>>>9.9999").
                      WHEN "Reason" THEN cVarValue =  string(cReason,"x(30)")      .
-                     WHEN "Reason-cd" THEN cVarValue = IF AVAIL rm-rdtlh AND rm-rdtlh.reject-code[1] NE "" THEN string(rm-rdtlh.reject-code[1],"x(2)") ELSE ""    .
+                     WHEN "Reason-cd" THEN cVarValue = IF AVAIL rm-rdtlh AND rm-rcpth.adjustmentCode NE "" THEN string(rm-rcpth.adjustmentCode,"x(2)") ELSE ""    .
                      WHEN "Reason-dscr" THEN cVarValue = IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN string(rejct-cd.dscr,"x(25)") ELSE ""   .
                      WHEN "sheet-size" THEN cVarValue = string(cShtSize,"x(20)")    .
                      WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
