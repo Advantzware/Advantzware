@@ -61,6 +61,9 @@ DEFINE VARIABLE gdWindowDimOverlap                    AS DECIMAL   NO-UNDO INITI
 
 DEFINE VARIABLE gcMaterialTypeCalcDefault             AS CHARACTER NO-UNDO INITIAL "ByDefault".
 
+DEFINE VARIABLE gcMiscApplyToPurchasedOnly            AS CHARACTER NO-UNDO INITIAL "Purchased Only".
+DEFINE VARIABLE gcMiscApplyToManufacturedOnly         AS CHARACTER NO-UNDO INITIAL "Manufactured Only".
+
 /*Settings Globals*/
 DEFINE VARIABLE gcPrepRoundTo                         AS CHARACTER NO-UNDO.  /*CEPREP - char val - potentially deprecate*/
 DEFINE VARIABLE gcPrepMarkupOrMargin                  AS CHARACTER NO-UNDO.  /*CEPrepPrice - char val*/
@@ -88,6 +91,10 @@ DEFINE VARIABLE gclCorrware                           AS LOGICAL   NO-UNDO.
 
 /* ************************  Function Prototypes ********************** */
 
+
+FUNCTION fFormHasPurchasedItem RETURNS LOGICAL PRIVATE
+	(ipiEstHeaderID AS INT64,
+	 ipiEstFormID AS INT64) FORWARD.
 
 FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     (ipiEstHeaderID AS INT64,
@@ -3482,6 +3489,7 @@ PROCEDURE pUpdateCostDetails PRIVATE:
     DEFINE VARIABLE lEstMiscAvailable AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE dSourceTotalCost  AS DECIMAL   NO-UNDO.
     DEFINE VARIABLE cDescription      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFormIsPurchased  AS LOGICAL   NO-UNDO.
     
     DEFINE BUFFER bf-estMisc                FOR estMisc.
     DEFINE BUFFER bf-ttEstCostHeader        FOR ttEstCostHeader.
@@ -3491,6 +3499,7 @@ PROCEDURE pUpdateCostDetails PRIVATE:
     DEFINE BUFFER bf-ttEstCostForm          FOR ttEstCostForm.
     DEFINE BUFFER bf-ttEstCostItem          FOR ttEstCostItem.
     DEFINE BUFFER bf-ttEstCostBlank         FOR ttEstCostBlank.
+    
     
     FIND FIRST bf-ttEstCostHeader NO-LOCK
          WHERE bf-ttEstCostHeader.estCostHeaderID EQ ipiEstCostHeaderID
@@ -3510,6 +3519,12 @@ PROCEDURE pUpdateCostDetails PRIVATE:
         IF NOT AVAILABLE bf-ttEstCostDetail THEN DO:
             FOR EACH bf-ttEstCostForm
                 WHERE bf-ttEstCostForm.estCostHeaderID EQ bf-ttEstCostHeader.estCostHeaderID:
+                lFormIsPurchased = fFormHasPurchasedItem(bf-ttEstCostForm.estCostHeaderID, bf-ttEstCostForm.estCostFormID).
+                IF (bf-estMisc.applyTo EQ gcMiscApplyToPurchasedOnly AND NOT lFormIsPurchased)
+                    OR
+                   (bf-estMisc.applyTo EQ gcMiscApplyToManufacturedOnly AND lFormIsPurchased)
+                   THEN 
+                   NEXT.
                 RUN pAddCostDetail(bf-ttEstCostHeader.estCostHeaderID, bf-ttEstCostForm.estCostFormID, 0, 0, 
                     "estMisc", bf-estMisc.estCostCategoryID, bf-estMisc.costDescription, 0, 0, bf-ttEstCostHeader.company, bf-ttEstCostHeader.estimateNo, BUFFER bf-ttEstCostDetail).
                 IF AVAILABLE bf-ttEstCostDetail THEN
@@ -6653,6 +6668,22 @@ PROCEDURE pWriteDatasetIntoDB PRIVATE:
 END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
+
+FUNCTION fFormHasPurchasedItem RETURNS LOGICAL PRIVATE
+	(ipiEstHeaderID AS INT64, ipiEstFormID AS INT64):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+    FIND FIRST ttEstCostBlank NO-LOCK 
+        WHERE ttEstCostBlank.estCostHeaderID EQ ipiEstHeaderID
+        AND ttEstCostBlank.estCostFormID EQ ipiEstFormID
+        AND ttEstCostBlank.isPurchased EQ YES
+        NO-ERROR.
+    IF AVAILABLE ttEstCostBlank THEN 
+        RETURN YES.
+		
+END FUNCTION.
 
 FUNCTION fGetEstBlankID RETURNS INT64 PRIVATE
     (ipiEstHeaderID AS INT64 , ipiEstFormID AS INT64 , ipiBlankNo AS INTEGER):
