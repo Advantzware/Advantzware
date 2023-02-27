@@ -598,7 +598,7 @@ RUN sys/ref/uom-ea.p (OUTPUT fg-uom-list).
     if avail terms then
        assign
         tmp1 = v-net * (round(terms.disc-rate / 100, 2))
-        tmp2 = today + terms.disc-days.
+        tmp2 = ar-inv.inv-date + terms.disc-days.
 
     PUT "<R57><C1><#7><FROM><C+80><LINE>"
         "<=7><C31><FROM><R+2.4><LINE>"
