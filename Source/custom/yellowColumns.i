@@ -1358,6 +1358,7 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Item Description'THEN STRING(eb.part-dscr1)       ELSE ~
      IF sortColumn EQ 'Item Name'       THEN STRING(eb.part-dscr1)       ELSE ~
      IF sortColumn EQ 'Cust Part #'     THEN STRING(eb.part-no)          ELSE ~
+     IF sortColumn EQ 'FG Item'         THEN STRING(eb.stock-no)         ELSE ~
      IF sortColumn EQ 'Style'           THEN STRING(eb.style)            ELSE ~
      IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>>>>9.99')    ELSE ~
      IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>>>>9.99')    ELSE ~

@@ -652,6 +652,9 @@ v-printline = 0.
             END.
         END.
         
+        PUT "<C2.5>Date Required:" po-ordl.due-date SKIP.
+        v-printline = v-printline + 1.
+        
         len-score = "".   
         
         {po/poprints.i}       

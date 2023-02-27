@@ -962,6 +962,15 @@ RUN XMLOutput (lXMLOutput,'','','Header').
                         NO-LOCK.
        v-inv-freight = v-inv-freight + b-inv-head.t-inv-freight.
     END.
+    
+    IF ltb_print-message THEN
+    DO:          
+      PUT "<p9><R61><C1><B> Remit to: <C9.5>" cInvMessage[1] FORMAT "x(60)" SKIP
+          "<R61.8><C9.5>" cInvMessage[2] FORMAT "x(60)" SKIP
+          "<R62.6><C9.5>" cInvMessage[3] FORMAT "x(60)" SKIP
+          "<R63.4><C9.5>" cInvMessage[4] FORMAT "x(60)" SKIP
+          "<R64.2><C9.5>" cInvMessage[5] FORMAT "x(60)" "</B><p9>" SKIP.         
+    END.
    
     PUT "<R58><C54><#8><FROM><R+5><C+26><RECT> " 
         "<=8> Total parcial      :" v-subtot-lines FORM "->>,>>9.99"

@@ -7221,7 +7221,7 @@ PROCEDURE final-steps2 :
             (v-qty-mod AND                  /* qty changed on an existing estimate-based line */
             (NOT ll-new-record OR 
             lv-new-tandem NE ?)) OR 
-            (oe-ordl.est-no NE "" AND ll-new-record) THEN 
+            (oe-ordl.est-no NE "" AND ll-new-record AND NOT ip-type BEGINS "update-") THEN 
         DO:
             FRAME {&frame-name}:SENSITIVE = NO.      
             RUN oe/estupl.p.                /* po/doPo is run from here */

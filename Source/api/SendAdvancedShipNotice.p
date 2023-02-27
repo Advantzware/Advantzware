@@ -93,7 +93,11 @@
     DEFINE VARIABLE iHLCount AS INTEGER NO-UNDO INITIAL 2.
     DEFINE VARIABLE iTotalCases AS INTEGER NO-UNDO.
     DEFINE VARIABLE cTotalCases      AS CHARACTER NO-UNDO.
-    
+    DEFINE VARIABLE cRelPONo         AS CHAR NO-UNDO.
+    DEFINE VARIABLE cRelLotNo        AS CHAR NO-UNDO.
+    DEFINE VARIABLE cRFIDno          AS CHAR NO-UNDO.
+    DEFINE VARIABLE lItemType AS LOG NO-UNDO.
+        
     DEFINE VARIABLE oAttribute AS system.Attribute NO-UNDO.
     
     DEFINE BUFFER bf-carrier  FOR carrier.
@@ -327,6 +331,26 @@
                 END.
             END.
                         
+            FIND FIRST oe-rel NO-LOCK WHERE 
+                oe-rel.company EQ oe-boll.company AND 
+                oe-rel.ord-no EQ oe-boll.ord-no AND 
+                oe-rel.link-no EQ oe-boll.r-no NO-ERROR.
+            IF AVAIL oe-rel THEN ASSIGN 
+                cRelPONo = STRING(oe-rel.po-no)
+                cRelLotNo = STRING(oe-rel.lot-no).
+            
+            FIND FIRST rfidtag NO-LOCK WHERE 
+                rfidtag.company = oe-boll.company AND 
+                rfidtag.item-type = NO AND 
+                rfidtag.tag-no = oe-boll.tag 
+                NO-ERROR.
+            IF NOT AVAIL rfidtag THEN FIND FIRST rfidtag NO-LOCK WHERE 
+                rfidtag.company = oe-boll.company AND 
+                rfidtag.item-type = YES AND 
+                rfidtag.tag-no = oe-boll.tag 
+                NO-ERROR. 
+            IF AVAIL rfidtag THEN 
+                cRFIDno = rfidtag.rfidtag.
             
             lcItemData = lcItemTempData.
                
@@ -365,6 +389,9 @@
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "BuyerPart", cBuyerPart).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "HLCount", iHLCount).
             RUN updateRequestData(INPUT-OUTPUT lcItemData, "LineItemStatus", STRING(oe-boll.p-c)).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "RelPONo", cRelPoNo).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "RelLotNo", cRelLotNo).
+            RUN updateRequestData(INPUT-OUTPUT lcItemData, "RFIDNo", cRFIDno).
 
             FIND FIRST oe-ordl NO-LOCK
                  WHERE oe-ordl.company EQ oe-boll.company
