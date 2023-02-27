@@ -274,12 +274,12 @@ DEFINE FRAME Corr
           SIZE 35 BY 1
      ef.lsh-wid AT ROW 1.48 COL 77.4 COLON-ALIGNED HELP
           "This is the Machine Length, Pulled from Machine file"
-          LABEL "Front-Back" FORMAT ">>>>>9.99"
+          LABEL "Front-Back" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.lsh-len AT ROW 1.48 COL 105 COLON-ALIGNED HELP
           "This is the Machine Width, Pulled from Machine file"
-          LABEL "Side-Side" FORMAT ">>>>>9.99"
+          LABEL "Side-Side" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.xgrain AT ROW 1.48 COL 132 COLON-ALIGNED
@@ -334,7 +334,7 @@ DEFINE FRAME Corr
      ef.gsh-len AT ROW 5.52 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.gsh-dep AT ROW 5.52 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.gsh-dep AT ROW 5.52 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.nsh-wid AT ROW 6.48 COL 19.6 COLON-ALIGNED
@@ -351,17 +351,17 @@ DEFINE FRAME Corr
      ef.nsh-len AT ROW 6.48 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.nsh-dep AT ROW 6.48 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.nsh-dep AT ROW 6.48 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      ef.trim-w AT ROW 7.43 COL 19.6 COLON-ALIGNED
-          LABEL "Die Size" FORMAT ">>>>>9.99"
+          LABEL "Die Size" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.trim-l AT ROW 7.43 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99"
+     ef.trim-l AT ROW 7.43 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     ef.trim-d AT ROW 7.43 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     ef.trim-d AT ROW 7.43 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      eb.num-len AT ROW 7.43 COL 70 COLON-ALIGNED
@@ -390,7 +390,7 @@ DEFINE FRAME Corr
      ef.n-cuts AT ROW 5.76 COL 97 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.die-in AT ROW 6.71 COL 129 COLON-ALIGNED NO-LABEL  FORMAT ">>>>>9"
+     ef.die-in AT ROW 6.71 COL 129 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      eb.t-wid AT ROW 8.62 COL 19.6 COLON-ALIGNED
@@ -400,7 +400,7 @@ DEFINE FRAME Corr
      eb.t-len AT ROW 8.62 COL 34.8 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
-     eb.t-dep AT ROW 8.62 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99"
+     eb.t-dep AT ROW 8.62 COL 48.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>9.99<<<"
           VIEW-AS FILL-IN 
           SIZE 14.6 BY 1
      eb.t-sqin AT ROW 8.62 COL 117.6 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>>>9.99<<<<"
@@ -461,10 +461,10 @@ DEFINE FRAME Corr
      ef.leaf-bnum[1] AT ROW 11 COL 110 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[1] AT ROW 11 COL 117.8 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+     ef.leaf-w[1] AT ROW 11 COL 117.8 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
-     ef.leaf-l[1] AT ROW 11 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+     ef.leaf-l[1] AT ROW 11 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
      ef.leaf[2] AT ROW 12.19 COL 61 COLON-ALIGNED NO-LABEL
@@ -481,10 +481,10 @@ DEFINE FRAME Corr
      ef.leaf-bnum[2] AT ROW 12.19 COL 110 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[2] AT ROW 12.19 COL 117.8 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+     ef.leaf-w[2] AT ROW 12.19 COL 117.8 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
-     ef.leaf-l[2] AT ROW 12.19 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+     ef.leaf-l[2] AT ROW 12.19 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
      ef.leaf[3] AT ROW 13.38 COL 61 COLON-ALIGNED NO-LABEL
@@ -499,10 +499,10 @@ DEFINE FRAME Corr
      ef.leaf-bnum[3] AT ROW 13.38 COL 110 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[3] AT ROW 13.38 COL 117.8 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+     ef.leaf-w[3] AT ROW 13.38 COL 117.8 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
-     ef.leaf-l[3] AT ROW 13.38 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+     ef.leaf-l[3] AT ROW 13.38 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -524,10 +524,10 @@ DEFINE FRAME Corr
      ef.leaf-bnum[4] AT ROW 14.57 COL 110 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[4] AT ROW 14.57 COL 117.8 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+     ef.leaf-w[4] AT ROW 14.57 COL 117.8 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
-     ef.leaf-l[4] AT ROW 14.57 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>9.99"
+     ef.leaf-l[4] AT ROW 14.57 COL 130.4 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 13.4 BY 1
      ef.roll AT ROW 4.81 COL 7
@@ -540,27 +540,6 @@ DEFINE FRAME Corr
           SIZE 11 BY 1
      "Description" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 10.05 COL 32
-          FGCOLOR 9 
-     "Total Up" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 5.05 COL 107
-     "Sq. Feet" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 5.05 COL 119
-     "Width" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 5.05 COL 72
-          FGCOLOR 1 
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 10.29 COL 132.8
-          FGCOLOR 9 
-     "Width" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 4.91 COL 21.8
-          FGCOLOR 1 
-     "Cut" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 5.05 COL 99
-     "Wax / Label" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 10.29 COL 63
-          FGCOLOR 9 
-     "Description" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 10.29 COL 80
           FGCOLOR 9 
      "Adders" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 10.05 COL 5
@@ -583,6 +562,27 @@ DEFINE FRAME Corr
           FGCOLOR 1 
      "Die Inches" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 5.05 COL 131
+     "Total Up" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 5.05 COL 107
+     "Sq. Feet" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 5.05 COL 119
+     "Width" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 5.05 COL 72
+          FGCOLOR 1 
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 10.29 COL 132.8
+          FGCOLOR 9 
+     "Width" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 4.91 COL 21.8
+          FGCOLOR 1 
+     "Cut" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 5.05 COL 99
+     "Wax / Label" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 10.29 COL 63
+          FGCOLOR 9 
+     "Description" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 10.29 COL 80
+          FGCOLOR 9 
      RECT-20 AT ROW 1 COL 1
      RECT-21 AT ROW 4.57 COL 3
      RECT-7 AT ROW 9.81 COL 3
@@ -822,7 +822,7 @@ ASSIGN
                 "16th".
 
 /* SETTINGS FOR FILL-IN eb.t-sqin IN FRAME Corr
-   NO-ENABLE EXP-LABEL EXP-FORMAT                                                 */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN eb.t-wid IN FRAME Corr
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 ASSIGN 

@@ -298,14 +298,14 @@ DEFINE FRAME fold
           LABEL "Roll"
           VIEW-AS TOGGLE-BOX
           SIZE 10 BY .81
-     ef.roll-wid AT ROW 5.76 COL 17 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.999999"
+     ef.roll-wid AT ROW 5.76 COL 17 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
      ef.gsh-wid AT ROW 6.71 COL 17 COLON-ALIGNED
-          LABEL "Gross Sheet" FORMAT ">>>>>9.999999"
+          LABEL "Gross Sheet" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
-     ef.gsh-len AT ROW 6.71 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.999999"
+     ef.gsh-len AT ROW 6.71 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
      ef.n-out AT ROW 6.71 COL 69 COLON-ALIGNED HELP
@@ -318,10 +318,10 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      ef.nsh-wid AT ROW 7.67 COL 17 COLON-ALIGNED
-          LABEL "Mach Feed" FORMAT ">>>>>9.999999"
+          LABEL "Mach Feed" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
-     ef.nsh-len AT ROW 7.67 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.999999"
+     ef.nsh-len AT ROW 7.67 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
      ef.n-out-l AT ROW 7.67 COL 69 COLON-ALIGNED HELP
@@ -337,10 +337,10 @@ DEFINE FRAME fold
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
      ef.trim-w AT ROW 8.62 COL 17 COLON-ALIGNED
-          LABEL "Die Size" FORMAT ">>9.999999"
+          LABEL "Die Size" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
-     ef.trim-l AT ROW 8.62 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>9.999999"
+     ef.trim-l AT ROW 8.62 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
      eb.num-wid AT ROW 8.62 COL 69 COLON-ALIGNED
@@ -353,7 +353,7 @@ DEFINE FRAME fold
      eb.num-up AT ROW 8.62 COL 96 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.die-in AT ROW 8.62 COL 110 COLON-ALIGNED NO-LABEL  FORMAT ">,>>>,>>9"
+     ef.die-in AT ROW 8.62 COL 110 COLON-ALIGNED NO-LABEL FORMAT ">,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
      eb.t-wid AT ROW 9.57 COL 17 COLON-ALIGNED
@@ -363,7 +363,7 @@ DEFINE FRAME fold
      eb.t-len AT ROW 9.57 COL 33.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
-     eb.t-sqin AT ROW 9.57 COL 49.6 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>>>9.9999"
+     eb.t-sqin AT ROW 9.57 COL 49.6 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 16.6 BY 1
      ef.leaf[1] AT ROW 11.71 COL 4 COLON-ALIGNED NO-LABEL
@@ -378,10 +378,10 @@ DEFINE FRAME fold
      ef.leaf-bnum[1] AT ROW 11.71 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[1] AT ROW 11.71 COL 61 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[1] AT ROW 11.71 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     ef.leaf-l[1] AT ROW 11.71 COL 75 COLON-ALIGNED NO-LABEL
+     ef.leaf-l[1] AT ROW 11.71 COL 75 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
      ef.leaf[2] AT ROW 12.91 COL 4 COLON-ALIGNED NO-LABEL
@@ -396,10 +396,10 @@ DEFINE FRAME fold
      ef.leaf-bnum[2] AT ROW 12.91 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[2] AT ROW 12.91 COL 61 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[2] AT ROW 12.91 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     ef.leaf-l[2] AT ROW 12.91 COL 75 COLON-ALIGNED NO-LABEL
+     ef.leaf-l[2] AT ROW 12.91 COL 75 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
      ef.leaf[3] AT ROW 14.1 COL 4 COLON-ALIGNED NO-LABEL
@@ -414,9 +414,6 @@ DEFINE FRAME fold
      ef.leaf-bnum[3] AT ROW 14.1 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[3] AT ROW 14.1 COL 61 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -424,7 +421,10 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
-     ef.leaf-l[3] AT ROW 14.1 COL 75 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[3] AT ROW 14.1 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     ef.leaf-l[3] AT ROW 14.1 COL 75 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
      ef.leaf[4] AT ROW 15.29 COL 4 COLON-ALIGNED NO-LABEL
@@ -439,10 +439,10 @@ DEFINE FRAME fold
      ef.leaf-bnum[4] AT ROW 15.29 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[4] AT ROW 15.29 COL 61 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[4] AT ROW 15.29 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     ef.leaf-l[4] AT ROW 15.29 COL 75 COLON-ALIGNED NO-LABEL
+     ef.leaf-l[4] AT ROW 15.29 COL 75 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
      btn_board AT ROW 2.43 COL 3 WIDGET-ID 16
@@ -451,6 +451,11 @@ DEFINE FRAME fold
      OverrideExist AT ROW 3.38 COL 47.8 NO-LABEL WIDGET-ID 154
      "Die Inches" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 5.05 COL 110
+     "Sq. Inches" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 5.05 COL 50.6
+     "Leaf/Film" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 11 COL 8
+          FGCOLOR 9 
      "Description" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 11 COL 24
           FGCOLOR 9 
@@ -472,11 +477,6 @@ DEFINE FRAME fold
           FGCOLOR 1 
      "Length" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11 COL 79
-          FGCOLOR 9 
-     "Sq. Inches" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 5.05 COL 50.6
-     "Leaf/Film" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 11 COL 8
           FGCOLOR 9 
      RECT-20 AT ROW 1 COL 1
      RECT-21 AT ROW 4.57 COL 3
@@ -585,18 +585,26 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN ef.leaf-bnum[4] IN FRAME fold
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-l[1] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-l[1]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-l[2] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-l[2]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-l[3] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-l[3]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-l[4] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-l[4]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
@@ -609,18 +617,26 @@ ASSIGN
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN ef.leaf-snum[4] IN FRAME fold
    NO-ENABLE 2 EXP-FORMAT                                               */
+/* SETTINGS FOR FILL-IN ef.leaf-w[1] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-w[1]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-w[2] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-w[2]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-w[3] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-w[3]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-w[4] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-w[4]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
@@ -1117,7 +1133,7 @@ END.
 
 &Scoped-define SELF-NAME ef.leaf-l[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-l[1] V-table-Win
-ON LEAVE OF ef.leaf-l[1] IN FRAME fold /* Length[1] */
+ON LEAVE OF ef.leaf-l[1] IN FRAME fold /* Length */
 DO:
      IF LASTKEY = -1 THEN RETURN.
  {&methods/lValidateError.i YES}
@@ -1137,7 +1153,7 @@ END.
 
 &Scoped-define SELF-NAME ef.leaf-l[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-l[2] V-table-Win
-ON LEAVE OF ef.leaf-l[2] IN FRAME fold /* Length[2] */
+ON LEAVE OF ef.leaf-l[2] IN FRAME fold /* Length */
 DO:
       IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
@@ -1157,7 +1173,7 @@ END.
 
 &Scoped-define SELF-NAME ef.leaf-l[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-l[3] V-table-Win
-ON LEAVE OF ef.leaf-l[3] IN FRAME fold /* Length[3] */
+ON LEAVE OF ef.leaf-l[3] IN FRAME fold /* Length */
 DO:
        IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
@@ -1177,7 +1193,7 @@ END.
 
 &Scoped-define SELF-NAME ef.leaf-l[4]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-l[4] V-table-Win
-ON LEAVE OF ef.leaf-l[4] IN FRAME fold /* Length[4] */
+ON LEAVE OF ef.leaf-l[4] IN FRAME fold /* Length */
 DO:
        IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
@@ -1255,7 +1271,7 @@ END.
 
 &Scoped-define SELF-NAME ef.leaf-w[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-w[1] V-table-Win
-ON LEAVE OF ef.leaf-w[1] IN FRAME fold /* Width[1] */
+ON LEAVE OF ef.leaf-w[1] IN FRAME fold /* Width */
 DO:
     IF LASTKEY = -1 THEN RETURN.
    {&methods/lValidateError.i YES}
@@ -1273,7 +1289,7 @@ END.
 
 &Scoped-define SELF-NAME ef.leaf-w[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-w[2] V-table-Win
-ON LEAVE OF ef.leaf-w[2] IN FRAME fold /* Width[2] */
+ON LEAVE OF ef.leaf-w[2] IN FRAME fold /* Width */
 DO:
     IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
@@ -1292,7 +1308,7 @@ END.
 
 &Scoped-define SELF-NAME ef.leaf-w[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-w[3] V-table-Win
-ON LEAVE OF ef.leaf-w[3] IN FRAME fold /* Width[3] */
+ON LEAVE OF ef.leaf-w[3] IN FRAME fold /* Width */
 DO:
   IF LASTKEY = -1 THEN RETURN.
  {&methods/lValidateError.i YES}
@@ -1311,7 +1327,7 @@ END.
 
 &Scoped-define SELF-NAME ef.leaf-w[4]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-w[4] V-table-Win
-ON LEAVE OF ef.leaf-w[4] IN FRAME fold /* Width[4] */
+ON LEAVE OF ef.leaf-w[4] IN FRAME fold /* Width */
 DO:
     IF LASTKEY = -1 THEN RETURN.
 {&methods/lValidateError.i YES}

@@ -183,11 +183,11 @@ DEFINE BUTTON btn_pack-code
      LABEL "Enhanced Packing" 
      SIZE 25 BY .91.
 
-DEFINE VARIABLE f-div-dep AS DECIMAL FORMAT ">9.9999":U INITIAL 0 
+DEFINE VARIABLE f-div-dep AS DECIMAL FORMAT ">>>>>9.99<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE f-lp-dep AS DECIMAL FORMAT ">9.9999":U INITIAL 0 
+DEFINE VARIABLE f-lp-dep AS DECIMAL FORMAT ">>>>>9.99<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
@@ -592,7 +592,7 @@ DEFINE FRAME fold
      eb.cas-wid AT ROW 1.95 COL 117.8 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     eb.cas-dep AT ROW 1.95 COL 130.2 COLON-ALIGNED NO-LABEL
+     eb.cas-dep AT ROW 1.95 COL 130.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY .95
      eb.spare-int-3 AT ROW 1.95 COL 144 COLON-ALIGNED HELP
@@ -671,7 +671,7 @@ DEFINE FRAME fold
           LABEL "Width"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     eb.tr-dep AT ROW 10.76 COL 132.6 COLON-ALIGNED
+     eb.tr-dep AT ROW 10.76 COL 132.6 COLON-ALIGNED FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      eb.tr-cost AT ROW 8.86 COL 88 COLON-ALIGNED
@@ -715,6 +715,15 @@ DEFINE FRAME fold
      fi_pr-type AT ROW 2.14 COL 1.4 NO-LABEL
      "Unit#" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.38 COL 62
+     "Freight Charge" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 12.19 COL 76
+          FGCOLOR 9 
+     "Item #" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.38 COL 9
+     "Qty" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 146
+     "Per" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 1.24 COL 151.6 WIDGET-ID 38
      "Press Type" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 1.33 COL 2.4
      "Length" VIEW-AS TEXT
@@ -731,15 +740,6 @@ DEFINE FRAME fold
           SIZE 3 BY .62 AT ROW 3.38 COL 56
      "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.38 COL 28
-     "Freight Charge" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.19 COL 76
-          FGCOLOR 9 
-     "Item #" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.38 COL 9
-     "Qty" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 146
-     "Per" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 1.24 COL 151.6 WIDGET-ID 38
      RECT-26 AT ROW 1 COL 1
      RECT-27 AT ROW 11.95 COL 74
      RECT-28 AT ROW 7.38 COL 74
@@ -816,7 +816,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.cas-cost IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.cas-dep IN FRAME fold
-   NO-ENABLE EXP-LABEL                                                  */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN eb.cas-len IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.cas-no IN FRAME fold
@@ -972,7 +972,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.tr-cost IN FRAME fold
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN eb.tr-dep IN FRAME fold
-   NO-ENABLE                                                            */
+   NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.tr-len IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.tr-no IN FRAME fold

@@ -234,7 +234,7 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      eb.cas-dep AT ROW 3.14 COL 127.2 COLON-ALIGNED
-          LABEL "Unit Depth" FORMAT ">9.99"
+          LABEL "Unit Depth" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15 BY .95
      eb.cas-pal AT ROW 4.1 COL 89 COLON-ALIGNED
@@ -314,7 +314,7 @@ DEFINE FRAME Corr
      eb.tr-cnt AT ROW 7.43 COL 89 COLON-ALIGNED FORMAT ">,>>>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.tr-dep AT ROW 7.43 COL 125 COLON-ALIGNED FORMAT ">>9.99"
+     eb.tr-dep AT ROW 7.43 COL 125 COLON-ALIGNED FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      eb.i-ps[4] AT ROW 7.67 COL 2 COLON-ALIGNED NO-LABEL
@@ -450,15 +450,15 @@ DEFINE FRAME Corr
           SIZE 9.2 BY 1
      "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.86 COL 36
-     "Freight Charge" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11.71 COL 73
-          FGCOLOR 9 
      "PS" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 3.86 COL 4
      "Item #" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.86 COL 15
      "%" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 3.86 COL 63
+     "Freight Charge" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 11.71 COL 73
+          FGCOLOR 9 
      stackImage AT ROW 8.38 COL 122
      RECT-26 AT ROW 1 COL 1
      RECT-27 AT ROW 11.48 COL 71
