@@ -336,6 +336,13 @@ DEFINE BUFFER bf-shipto FOR shipto.
                     
                 RETURN.                
             END.
+            IF AVAILABLE itemfg AND itemfg.stat EQ "I" THEN DO:
+                ASSIGN
+                    oplSuccess     = NO
+                    opcReturnValue = 'FG Item number is inactive'
+                    .                        
+                RETURN.                
+            END.               
       END.
       RUN cxml\xmltoOrderGE.p (
           INPUT TABLE ttNodes, 
