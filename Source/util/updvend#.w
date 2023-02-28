@@ -432,6 +432,7 @@ DEF BUFFER b-cost FOR reftable.
 DEF BUFFER b2-cost FOR reftable.
 DEF BUFFER b-setup FOR reftable.
 DEF BUFFER b2-setup FOR reftable.
+DEFINE BUFFER bf-vendItemCost FOR vendItemCost.
 
 DISABLE TRIGGERS FOR LOAD OF vend.
 
@@ -653,7 +654,15 @@ FOR EACH po-ord WHERE
        b-po-ord.company EQ cocode AND
        b-po-ord.vend-no EQ v-new-vend AND
        b-po-ord.po-no   EQ po-ord.po-no) THEN
-       po-ord.vend-no = v-new-vend.
+       DO:
+            po-ord.vend-no = v-new-vend.
+            FOR EACH po-ordl EXCLUSIVE-LOCK
+                WHERE po-ordl.company EQ po-ord.company
+                  AND po-ordl.po-no EQ po-ord.po-no:
+                po-ordl.vend-no = v-new-vend.
+            END.
+            RELEASE po-ordl.
+       END.
     ELSE
        DELETE po-ord.
 END.
@@ -667,6 +676,12 @@ FOR EACH po-ord WHERE
 
     DISPLAY "P.O. # " + STRING(po-ord.po-no) WITH DOWN.
     po-ord.ship-id = v-new-vend.
+    FOR EACH po-ordl EXCLUSIVE-LOCK
+        WHERE po-ordl.company EQ po-ord.company
+          AND po-ordl.po-no EQ po-ord.po-no:
+          po-ordl.vend-no = v-new-vend.
+    END.
+    RELEASE po-ordl.
 END.
 
 FOR EACH po-rcpts WHERE
@@ -707,6 +722,37 @@ FOR EACH e-itemfg-vend WHERE
     DISPLAY "Vender Cost for Item # " + STRING(e-itemfg-vend.i-no) WITH DOWN.
 
     e-itemfg-vend.vend-no = v-new-vend.
+END.
+
+FOR EACH vendItemCost
+        WHERE vendItemCost.company EQ cocode
+        AND vendItemCost.vendorID  EQ v-vend         
+        NO-LOCK:
+        
+        FIND FIRST bf-vendItemCost NO-LOCK 
+            WHERE bf-vendItemCost.company EQ vendItemCost.Company
+            AND bf-vendItemCost.itemType EQ vendItemCost.itemType
+            AND bf-vendItemCost.itemID EQ vendItemCost.itemID
+            AND bf-vendItemCost.vendorID EQ v-new-vend
+            AND bf-vendItemCost.customerID EQ vendItemCost.customerID
+            AND bf-vendItemCost.estimateNo EQ vendItemCost.estimateNo
+            AND bf-vendItemCost.formNo EQ vendItemCost.formNo
+            AND bf-vendItemCost.blankNo EQ vendItemCost.blankNo
+            AND bf-vendItemCost.expirationDate EQ date(vendItemCost.expirationDate)
+            AND bf-vendItemCost.effectiveDate EQ date(vendItemCost.effectiveDate)
+            NO-ERROR.
+        IF NOT AVAILABLE bf-vendItemCost then
+        do:
+            FIND CURRENT vendItemCost EXCLUSIVE-LOCK NO-ERROR.
+            vendItemCost.vendorID = v-new-vend.
+            FIND CURRENT vendItemCost NO-LOCK NO-ERROR.
+        END.
+        ELSE DO:
+           FIND FIRST bf-vendItemCost EXCLUSIVE-LOCK
+                WHERE ROWID(bf-vendItemCost) EQ rowid(vendItemCost) NO-ERROR.
+           IF AVAILABLE bf-vendItemCost THEN
+           DELETE bf-vendItemCost.           
+        END.         
 END.
 
 FOR EACH EDAPCheck WHERE
