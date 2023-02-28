@@ -1713,7 +1713,21 @@ PROCEDURE local-update-record :
   DEFINE VARIABLE clsUom AS cha NO-UNDO.  
   DEFINE VARIABLE cLoc AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cLocBin AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dtOldStartDate AS DATE NO-UNDO.
+  DEFINE VARIABLE dtOldDueDate AS DATE NO-UNDO.
+  DEFINE VARIABLE dtOldPromiseDate AS DATE NO-UNDO.
+  DEFINE VARIABLE cOldLoc AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cOldDisLoc AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRunApi AS LOGICAL NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
+  ASSIGN
+  dtOldStartDate   = IF AVAIL job THEN job.start-date ELSE ?
+  dtOldDueDate     = IF AVAIL job THEN job.due-date ELSE ?
+  dtOldPromiseDate = IF AVAIL job THEN job.promiseDate ELSE ?
+  cOldLoc          =  IF AVAIL job THEN job.loc ELSE ""
+  cOldDisLoc       = IF AVAIL job THEN job.shipFromLocation ELSE "".
+  
   IF lCheckStartDate THEN do:
       RUN validate-start-date.
       IF NOT ll-valid THEN RETURN NO-APPLY.
@@ -1944,7 +1958,12 @@ PROCEDURE local-update-record :
     lCheckStartDate = NO .
 
   /*needed for immediately pushing print button after adding new job*/
-  IF ll-new THEN
+   IF AVAIL job AND (dtOldStartDate NE job.start-date OR dtOldDueDate NE job.due-date OR
+                     dtOldPromiseDate NE job.promiseDate OR cOldLoc NE job.loc OR
+                     cOldDisLoc NE job.shipFromLocation) THEN
+                     lRunApi = YES.    
+                     
+  IF ll-new OR lRunApi THEN
   DO:
      IF AVAILABLE job THEN
          RUN api/ProcessOutboundRequest.p (
@@ -1953,28 +1972,29 @@ PROCEDURE local-update-record :
              INPUT  "SendJobAMS",                                    /* API ID (Mandatory) */
              INPUT  "",                                              /* Scope ID */
              INPUT  "",                                              /* Scope Type */
-             INPUT  "AddJob",                                        /* Trigger ID (Mandatory) */
+             INPUT  IF ll-new THEN "AddJob" ELSE "UpdateJobHeader",  /* Trigger ID (Mandatory) */
              INPUT  "job",                                           /* Comma separated list of table names for which data being sent (Mandatory) */
              INPUT  STRING(ROWID(job)),                              /* Comma separated list of ROWIDs for the respective table's record from the table list (Mandatory) */ 
              INPUT  job.job-no + "-" + STRING(job.job-no2, "999"),      /* Primary ID for which API is called for (Mandatory) */   
              INPUT  "Job add triggered from " + PROGRAM-NAME(1)    /* Event's description (Optional) */
              ) NO-ERROR.
-      
-     IF NOT AVAILABLE job-hdr THEN
-        FIND FIRST job-hdr NO-LOCK
-             WHERE job-hdr.company EQ job.company
-               AND job-hdr.job     EQ job.job
-               AND job-hdr.job-no  EQ job.job-no
-               AND job-hdr.job-no2 EQ job.job-no2
-             NO-ERROR.
-     IF AVAILABLE job-hdr THEN
-        v-reprint = job-hdr.ftick-prnt.
+     IF ll-new THEN do: 
+         IF NOT AVAILABLE job-hdr THEN
+            FIND FIRST job-hdr NO-LOCK
+                 WHERE job-hdr.company EQ job.company
+                   AND job-hdr.job     EQ job.job
+                   AND job-hdr.job-no  EQ job.job-no
+                   AND job-hdr.job-no2 EQ job.job-no2
+                 NO-ERROR.
+         IF AVAILABLE job-hdr THEN
+            v-reprint = job-hdr.ftick-prnt.
 
-     RUN custom/setUserPrint.p (job.company,'job_.',
-                             'begin_job1,begin_job2,end_job1,end_job2,tb_reprint,fl-jobord',
-                             job.job-no + ',' + STRING(job.job-no2) + ',' +
-                             job.job-no + ',' + STRING(job.job-no2) + ',' +
-                             STRING(v-reprint) + ',' +  "0" ). /* gdm - 07130906 */  
+         RUN custom/setUserPrint.p (job.company,'job_.',
+                                 'begin_job1,begin_job2,end_job1,end_job2,tb_reprint,fl-jobord',
+                                 job.job-no + ',' + STRING(job.job-no2) + ',' +
+                                 job.job-no + ',' + STRING(job.job-no2) + ',' +
+                                 STRING(v-reprint) + ',' +  "0" ). /* gdm - 07130906 */ 
+     END.                        
   END.
 
   IF lCalcJobDueDate AND ll-new THEN
