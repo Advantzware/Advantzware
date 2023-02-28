@@ -1205,7 +1205,7 @@ FUNCTION sfFormat_Date RETURNS CHARACTER
     
     RUN Format_Date(ipdtDate,cDateFormat, OUTPUT opcDateString).
         
-    RETURN CHR(9) + opcDateString.
+    RETURN opcDateString.
     		
 END FUNCTION.
 
