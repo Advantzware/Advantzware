@@ -187,8 +187,8 @@ do v-local-loop = 1 to v-local-copies:
            v-i-line[1] = "ITEM DESCRIPTION"
            v-i-line[2] = "Style: " + if avail xstyle then xstyle.dscr else ""
            v-i-line[3] = "Size: "  + if avail xeb    then
-                     trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else ""
            v-i-line[4] = "Joint: " + if avail xeb then v-joint-dscr else "".
    
@@ -314,8 +314,8 @@ do v-local-loop = 1 to v-local-copies:
                 "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 format "x(25)"
                 "MSF:"  +
-                trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)"
+                trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                format "x(12)"
                 "<=#6><R-5> Ink 1:" v-ink-1
                 /*w-i.i-code
                 w-i.i-qty when w-i.i-qty ne 0

@@ -92,7 +92,9 @@ ASSIGN
     cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
                             "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid,sht-size,adder,cycle-count"
-    cFieldLength       = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,22,7," + "6,25,30,13,10,10,10,10,20,30,11"
+
+    cFieldLength       = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,22,7," + "6,25,30,13,10,11,11,11,24,30,11"
+
     cFieldType         = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,i,i,i,i,c,c,c"
     .
 
@@ -2126,7 +2128,7 @@ PROCEDURE run-report :
                         dShtRollWid = 0 .
             END.
 
-            cShtSize = (TRIM(STRING(dShtLen,">,>>99.99")) + " X " + trim(STRING(dShtWid,">,>>99.99")) ).
+            cShtSize = (TRIM(STRING(dShtLen,">>>,>>99.99<<<<")) + " X " + trim(STRING(dShtWid,">>>,>>99.99<<<<")) ).
 
             IF cAdder EQ "," THEN cAdder =  "".
 
@@ -2207,15 +2209,15 @@ PROCEDURE run-report :
                         WHEN "job-no" THEN 
                             cVarValue = STRING(cJobNo,"x(10)") .
                         WHEN "len" THEN 
-                            cVarValue = STRING(dShtLen,">,>>99.999"). 
+                            cVarValue = STRING(dShtLen,">>>,>>99.999<<<"). 
                         WHEN "wid" THEN 
-                            cVarValue = STRING(dShtWid,">,>>99.999"). 
+                            cVarValue = STRING(dShtWid,">>>,>>99.999<<<"). 
                         WHEN "dep" THEN 
                             cVarValue = STRING(dShtDep,">,>>99.999"). 
                         WHEN "roll-wid" THEN 
-                            cVarValue = STRING(dShtRollWid,">,>>99.999").
+                            cVarValue = STRING(dShtRollWid,">>>,>>99.999<<<").
                         WHEN "sht-size" THEN 
-                            cVarValue = STRING(cShtSize,"x(20)").
+                            cVarValue = STRING(cShtSize,"x(24)").
                         WHEN "adder" THEN 
                             cVarValue = STRING(cAdder,"x(30)").
                         WHEN "cycle-count" THEN 
@@ -3103,8 +3105,8 @@ PROCEDURE run-report-summary :
             v-msf    = IF item.r-wid GT 0 THEN v-lf-qty * ITEM.r-wid / 12 / 1000
                 ELSE tt-rm-bin.qty * ITEM.s-wid * ITEM.s-len / 144 / 1000
             v-tons   = v-MSF * ITEM.basis-w / 2000 /*Lbs*/ 
-            cShtSize = IF ITEM.r-wid GT 0 THEN TRIM(STRING(ITEM.r-wid,">,>>9.99"))
-                   ELSE (TRIM(STRING(ITEM.s-len,">,>>9.99")) + " X " + trim(STRING(ITEM.s-wid,">,>>9.99")) )     .
+            cShtSize = IF ITEM.r-wid GT 0 THEN TRIM(STRING(ITEM.r-wid,">>>,>>9.99<<<<"))
+                   ELSE (TRIM(STRING(ITEM.s-len,">>>,>>9.99<<<<")) + " X " + trim(STRING(ITEM.s-wid,">>>,>>9.99<<<<")) )     .
 
     
 
@@ -3220,7 +3222,7 @@ PROCEDURE run-report-summary :
                         dShtRollWid = 0 .
             END.
 
-            cShtSize = (TRIM(STRING(dShtLen,">,>>99.99")) + " X " + trim(STRING(dShtWid,">,>>99.99")) ).
+            cShtSize = (TRIM(STRING(dShtLen,">>>,>>99.99<<<<")) + " X " + trim(STRING(dShtWid,">>>,>>99.99<<<<")) ).
     
             ASSIGN 
                 cDisplay       = ""
@@ -3290,15 +3292,15 @@ PROCEDURE run-report-summary :
                         WHEN "job-no" THEN 
                             cVarValue = STRING(cJobNo,"x(10)") .
                         WHEN "len" THEN 
-                            cVarValue = STRING(dShtLen,">,>>99.999"). 
+                            cVarValue = STRING(dShtLen,">>>,>>99.999<<<"). 
                         WHEN "wid" THEN 
-                            cVarValue = STRING(dShtWid,">,>>99.999"). 
+                            cVarValue = STRING(dShtWid,">>>,>>99.999<<<"). 
                         WHEN "dep" THEN 
                             cVarValue = STRING(dShtDep,">,>>99.999"). 
                         WHEN "roll-wid" THEN 
-                            cVarValue = STRING(dShtRollWid,">,>>99.999").
+                            cVarValue = STRING(dShtRollWid,">>>,>>99.999<<<").
                         WHEN "sht-size" THEN 
-                            cVarValue = STRING(cShtSize,"x(20)").
+                            cVarValue = STRING(cShtSize,"x(24)").
                         WHEN "adder" THEN 
                             cVarValue = STRING(cAdder,"x(30)").
                         WHEN "cycle-count" THEN 

@@ -213,14 +213,14 @@ DEFINE FRAME D-Dialog
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      eb.len AT ROW 6.48 COL 20.2 COLON-ALIGNED WIDGET-ID 42
-          LABEL "F.G. Length" FORMAT ">>9.999999"
+          LABEL "F.G. Length" FORMAT ">>>>>9.999999"
           VIEW-AS FILL-IN 
           SIZE 13.8 BY 1
      scr-style-1 AT ROW 6.48 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      scr-end-cell-l1 AT ROW 6.48 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      scr-in-cell-length AT ROW 6.48 COL 61.2 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      scr-end-cell-l2 AT ROW 6.48 COL 78.2 COLON-ALIGNED NO-LABEL WIDGET-ID 30
-     eb.wid AT ROW 7.48 COL 20.2 COLON-ALIGNED WIDGET-ID 54 FORMAT ">>9.999999"
+     eb.wid AT ROW 7.48 COL 20.2 COLON-ALIGNED WIDGET-ID 54 FORMAT ">>>>>9.999999"
           VIEW-AS FILL-IN 
           SIZE 13.8 BY 1
      scr-style-2 AT ROW 7.48 COL 34.2 COLON-ALIGNED NO-LABEL WIDGET-ID 16
@@ -696,12 +696,12 @@ END.
 IF eb.est-type GE 5 THEN
    DO:
       IF v-cecscrn-char NE "Decimal" THEN
-         ASSIGN eb.len:FORMAT = ">>>9.99"
-                eb.wid:FORMAT = ">>>9.99"
+         ASSIGN eb.len:FORMAT = ">>>>>9.99"
+                eb.wid:FORMAT = ">>>>>9.99"
                 eb.dep:FORMAT = ">>>9.99".
       ELSE
-         ASSIGN eb.len:FORMAT = ">>>9.999999"
-                eb.wid:FORMAT = ">>>9.999999"
+         ASSIGN eb.len:FORMAT = ">>>>>9.999999"
+                eb.wid:FORMAT = ">>>>>9.999999"
                 eb.dep:FORMAT = ">>>9.999999".
    END.
   
@@ -845,8 +845,8 @@ PROCEDURE local-initialize :
   
   IF v-cecscrn-dec THEN
      ASSIGN
-        eb.len:FORMAT IN FRAME {&FRAME-NAME} = ">>>9.999999" 
-        eb.wid:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999"
+        eb.len:FORMAT IN FRAME {&FRAME-NAME} = ">>>>>9.999999" 
+        eb.wid:FORMAT IN FRAME {&FRAME-NAME} = ">>>>>9.999999"
         eb.dep:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999"
         scr-end-cell-l1:FORMAT IN FRAME {&FRAME-NAME} = "->>,>>9.999999"
         scr-end-cell-l2:FORMAT IN FRAME {&FRAME-NAME} = "->>,>>9.999999"

@@ -1183,21 +1183,21 @@ IF rsQty = "A" THEN DO:
           TRIM(ef.board)                                               + "," +
           TRIM(v-adder)                                               + "," +
           TRIM(IF AVAIL eb THEN eb.style ELSE "")                       + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-wid,">>>>9.9<<<<") ELSE "") + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-len,">>>>9.9<<<<") ELSE "") + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.gsh-wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL eb THEN STRING(eb.t-wid,">>>>>9.9<<<<<") ELSE "") + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.t-len,">>>>>9.9<<<<<") ELSE "") + "," +
+          TRIM(IF AVAIL ef THEN STRING(ef.gsh-wid,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.gsh-len,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.gsh-len,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.nsh-wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.nsh-wid,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.nsh-len,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.nsh-len,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
           TRIM(STRING(mch-act.qty,">>>>>>>>>>"))                        + "," +
           STRING(ld-qty-msf)                                            + ",," +
           TRIM(IF AVAIL eb THEN eb.cust-no ELSE "")                     + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.num-up,">9") ELSE "")         + "," +
           TRIM(IF AVAIL eb THEN STRING(get-colors(eb.est-no, eb.form-no),">9") ELSE "")
@@ -1214,11 +1214,11 @@ IF rsQty = "A" THEN DO:
           TRIM(STRING(mch-act.waste,">>>>>>>>>>"))                      + "," +
           TRIM(IF AVAIL eb THEN eb.stock-no ELSE "")                    + "," +
 
-          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-len,">>>>9.9<<<<") ELSE "") + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-wid,">>>>9.9<<<<") ELSE "") + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.t-len,">>>>>9.9<<<<<") ELSE "") + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.t-wid,">>>>>9.9<<<<<") ELSE "") + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.t-sqin,">>>>9.9<<<<")
                            ELSE "")                                     + "," +
           TRIM(IF AVAIL ef THEN ef.board ELSE "")                       + "," +
@@ -1226,19 +1226,19 @@ IF rsQty = "A" THEN DO:
           TRIM(STRING(ld-msf,">>>>9.9<<<<"))                            + "," +
           TRIM(IF AVAIL ef THEN STRING(ef.weight,">>>>9.9<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.roll-wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.roll-wid,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.gsh-wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.gsh-wid,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.gsh-len,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.gsh-len,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.nsh-wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.nsh-wid,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.nsh-len,">>>>9.9<<<<")
+          TRIM(IF AVAIL ef THEN STRING(ef.nsh-len,">>>>>9.9<<<<<")
                            ELSE "")                                     + "," +
-          TRIM(IF AVAIL est-flm THEN STRING(est-flm.len,">>>>9.9<<<<")
+          TRIM(IF AVAIL est-flm THEN STRING(est-flm.len,">>>>>9.9<<<<<")
                                 ELSE "")                                + "," +
-          TRIM(IF AVAIL est-flm THEN STRING(est-flm.wid,">>>>9.9<<<<")
+          TRIM(IF AVAIL est-flm THEN STRING(est-flm.wid,">>>>>9.9<<<<<")
                                 ELSE "")                                + "," +
           TRIM(IF AVAIL w-ink THEN STRING(w-ink.inks + w-ink.varn,">>")
                               ELSE "")                                  + "," +
@@ -1334,8 +1334,8 @@ ELSE DO:   /* rsQty = "E" */
           TRIM(STRING(job-mch.run-qty,">>>>>>>>>>"))                    + "," +
           STRING(ld-qty-msf)                                            + ",," +
           TRIM(IF AVAIL eb THEN eb.cust-no ELSE "")                     + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>>9.9<<<<<") ELSE "")   + "," +
+          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>>9.9<<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "")   + "," +
           TRIM(IF AVAIL eb THEN STRING(eb.num-up,">9") ELSE "")         + "," +
           TRIM(IF AVAIL eb THEN STRING(get-colors(eb.est-no, eb.form-no),">9") ELSE "").

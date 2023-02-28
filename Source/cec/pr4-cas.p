@@ -120,7 +120,7 @@ find first ce-ctrl {sys/look/ce-ctrlW.i} no-lock no-error.
       display item.i-name format "x(20)" when avail(item)
               xeb.cas-cnt format ">>>>9" "Pieces/Pack"
               (qty / c-qty) when xeb.cas-cnt eq 0 @ xeb.cas-cnt
-              c-qty format ">>>>>9" to 48 "Bdl"
+              c-qty format ">>>>>>>9" to 48 "Bdl"
               dSetupCost when dSetupCost ne 0 format ">>>9.99" to 59
               c-cost / (save-qty / 1000) / v-sqft-fac format ">>>>9.99" to 68
               c-cost format ">>>>,>>9.99" to 80 skip with stream-io.

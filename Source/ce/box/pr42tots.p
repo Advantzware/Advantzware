@@ -116,7 +116,7 @@ for each car break by car.id:
       if avail bf-set /*and bf-set.set-is-assembled*/ and bf-set.pur-man then leave.   
 end.
 
-if fg-wt$ gt 0 then put "Finished Goods Handling" fg-wt$ to 80 skip.
+if fg-wt$ gt 0 then put "Finished Goods Handling" fg-wt$ FORMAT "->>>,>>>,>>9.99" to 80 skip.
 
 op-tot[5] = op-tot[5] + fg-wt$ .
 

@@ -125,8 +125,8 @@ DEF VAR lv-first-show-rfq-no AS INT NO-UNDO.
     IF lv-sort-by EQ "style"  THEN rfqitem.style  ELSE ~
     IF lv-sort-by EQ "procat"  THEN rfqitem.procat  ELSE ~
     IF lv-sort-by EQ "qty"  THEN string(rfqitem.qty[1],"9999999999")  ELSE ~
-    IF lv-sort-by EQ "len"  THEN string(rfqitem.len,">>>>>>9.9999")  ELSE ~
-    IF lv-sort-by EQ "wid"  THEN string(rfqitem.wid,">>>>>>9.9999")  ELSE ~
+    IF lv-sort-by EQ "len"  THEN string(rfqitem.len,">>>>>>9.999999")  ELSE ~
+    IF lv-sort-by EQ "wid"  THEN string(rfqitem.wid,">>>>>>9.999999")  ELSE ~
     IF lv-sort-by EQ "dep"  THEN string(rfqitem.dep,">>>>>>9.9999")  ELSE ~
     IF lv-sort-by EQ "i-col"  THEN string(rfqitem.i-col)  ELSE ~
     IF lv-sort-by EQ "i-coat"  THEN string(rfqitem.i-coat)  ELSE ~
@@ -665,12 +665,12 @@ DO:
    else ll-is-corr-style = no.
 
    IF ll-is-corr-style then
-      assign rfqitem.len:format in browse {&browse-name} = ">>>>9.99"
-             rfqitem.wid:format in browse {&browse-name} = ">>>>9.99"
+      assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.99"
+             rfqitem.wid:format in browse {&browse-name} = ">>>>>9.99"
              rfqitem.dep:format in browse {&browse-name} = ">>>>9.99"
              .
-   else assign rfqitem.len:format in browse {&browse-name} = ">>9.99999"
-               rfqitem.wid:format in browse {&browse-name} = ">>9.99999"
+   else assign rfqitem.len:format in browse {&browse-name} = ">>>>>9.99999<"
+               rfqitem.wid:format in browse {&browse-name} = ">>>>>9.99999<"
                rfqitem.dep:format in browse {&browse-name} = ">>9.99999"
              .
 END.

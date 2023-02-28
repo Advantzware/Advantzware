@@ -222,8 +222,8 @@ DEFINE BROWSE BROWSE-1
     fget-mat-name() @ cMatName COLUMN-LABEL "Material Name" FORMAT "x(25)":U
     estPacking.quantity LABEL "Quantity" FORMAT ">>>,>>9.9<<":U WIDTH 14 
     fGetPerQty(estPacking.quantityPer) @ cQtyPer LABEL "Per" FORMAT "x(7)":U  WIDTH 10 
-    estPacking.dimLength LABEL "Length" FORMAT ">9.9999":U WIDTH 10 
-    estPacking.dimWidth LABEL "Width" FORMAT ">9.9999":U WIDTH 10 
+    estPacking.dimLength LABEL "Length" FORMAT ">>>>>9.9999<<":U WIDTH 10 
+    estPacking.dimWidth LABEL "Width" FORMAT ">>>>>9.9999<<":U WIDTH 10 
     estPacking.dimDepth LABEL "Depth" FORMAT ">9.9999":U WIDTH 10 
     
 /* _UIB-CODE-BLOCK-END */

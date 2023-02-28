@@ -129,7 +129,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-30
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 142 BY 15.48.
 
 
@@ -146,11 +146,11 @@ DEFINE FRAME F-Main
      ef.lsh-wid AT ROW 1.48 COL 77 COLON-ALIGNED
           LABEL "Front-Back"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.lsh-len AT ROW 1.48 COL 103 COLON-ALIGNED
+          SIZE 16 BY 1
+     ef.lsh-len AT ROW 1.48 COL 107 COLON-ALIGNED
           LABEL "Side-Side"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 16 BY 1
      ef.xgrain AT ROW 1.48 COL 136 COLON-ALIGNED
           LABEL "Xgrain"
           VIEW-AS FILL-IN 
@@ -191,28 +191,28 @@ DEFINE FRAME F-Main
           SIZE 3.2 BY 1
      ef.roll-wid AT ROW 5.29 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 16 BY 1
      eb.t-sqin AT ROW 6.24 COL 116 COLON-ALIGNED
           LABEL "Blank Sq.Ft."
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
-     eb.t-wid AT ROW 6.48 COL 16 COLON-ALIGNED FORMAT ">>>9.99"
+     eb.t-wid AT ROW 6.48 COL 16 COLON-ALIGNED FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     eb.t-len AT ROW 6.48 COL 28 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99"
+          SIZE 16 BY 1
+     eb.t-len AT ROW 6.48 COL 34 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 16 BY 1
      eb.num-wid AT ROW 7.19 COL 64 COLON-ALIGNED
           LABEL ""
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
      ef.trim-w AT ROW 7.43 COL 16 COLON-ALIGNED
-          LABEL "Die Size"
+          LABEL "Die Size" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.8 BY 1
-     ef.trim-l AT ROW 7.43 COL 28 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.trim-l AT ROW 7.43 COL 34 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 12 BY 1
+          SIZE 16 BY 1
      eb.num-len AT ROW 7.43 COL 76 COLON-ALIGNED
           LABEL ""
           VIEW-AS FILL-IN 
@@ -227,13 +227,10 @@ DEFINE FRAME F-Main
      ef.nsh-wid AT ROW 8.38 COL 16 COLON-ALIGNED
           LABEL "Press"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.nsh-len AT ROW 8.38 COL 28 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.nsh-len AT ROW 8.38 COL 34 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.n-out AT ROW 8.38 COL 64 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
+          SIZE 16 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -241,6 +238,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     ef.n-out AT ROW 8.38 COL 64 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY 1
      ef.n-cuts AT ROW 8.38 COL 76 COLON-ALIGNED
           LABEL "Cuts"
           VIEW-AS FILL-IN 
@@ -248,10 +248,10 @@ DEFINE FRAME F-Main
      ef.gsh-wid AT ROW 9.33 COL 16 COLON-ALIGNED
           LABEL "Gross Sheet"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-     ef.gsh-len AT ROW 9.33 COL 28 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.gsh-len AT ROW 9.33 COL 34 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 16 BY 1
      ef.leaf[1] AT ROW 11.95 COL 14 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -264,12 +264,12 @@ DEFINE FRAME F-Main
      ef.leaf-bnum[1] AT ROW 11.95 COL 62 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     ef.leaf-w[1] AT ROW 11.95 COL 68 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[1] AT ROW 11.95 COL 68 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     ef.leaf-l[1] AT ROW 11.95 COL 79 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.leaf-l[1] AT ROW 11.95 COL 85 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 16 BY 1
      ef.leaf-dscr[2] AT ROW 12.91 COL 28.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 26 BY 1
@@ -279,18 +279,18 @@ DEFINE FRAME F-Main
      ef.leaf-bnum[2] AT ROW 12.91 COL 62 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     ef.leaf-w[2] AT ROW 12.91 COL 68 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[2] AT ROW 12.91 COL 68 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     ef.leaf-l[2] AT ROW 12.91 COL 79 COLON-ALIGNED NO-LABEL
+          SIZE 16 BY 1
+     ef.leaf-l[2] AT ROW 12.91 COL 85 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 16 BY 1
      ef.leaf[2] AT ROW 12.95 COL 14 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     ef.leaf-l[3] AT ROW 13.86 COL 79 COLON-ALIGNED NO-LABEL
+     ef.leaf-l[3] AT ROW 13.86 COL 85 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 16 BY 1
      ef.leaf[3] AT ROW 13.95 COL 14 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -303,9 +303,9 @@ DEFINE FRAME F-Main
      ef.leaf-bnum[3] AT ROW 13.95 COL 62 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     ef.leaf-w[3] AT ROW 13.95 COL 68 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[3] AT ROW 13.95 COL 68 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
+          SIZE 16 BY 1
      ef.leaf[4] AT ROW 14.95 COL 14 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -318,12 +318,6 @@ DEFINE FRAME F-Main
      ef.leaf-bnum[4] AT ROW 14.95 COL 62 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     ef.leaf-l[4] AT ROW 14.95 COL 79 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     ef.leaf-w[4] AT ROW 15.05 COL 68 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -331,29 +325,35 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     RECT-30 AT ROW 1 COL 1
+     ef.leaf-l[4] AT ROW 14.95 COL 85 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     ef.leaf-w[4] AT ROW 15.05 COL 68 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
      "Leaf/Film" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 11.24 COL 17
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.24 COL 81
-     "Width" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.24 COL 71
-     "Cost/" VIEW-AS TEXT
-          SIZE 6.4 BY .95 AT ROW 2.91 COL 59
-     "Freight/" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 3.14 COL 106.6 RIGHT-ALIGNED
-     "W #Up" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 6.24 COL 64
-     "Description" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 11.24 COL 34
-     "L #Up" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 6.24 COL 75
-     "Width" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 4.57 COL 19
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 4.57 COL 32
      "F /  B" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 11.24 COL 59.4
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 4.57 COL 38
+     "Width" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 4.57 COL 19
+     "L #Up" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 6.24 COL 75
+     "Description" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 11.24 COL 34
+     "W #Up" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 6.24 COL 64
+     "Freight/" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 3.14 COL 106.6 RIGHT-ALIGNED
+     "Cost/" VIEW-AS TEXT
+          SIZE 6.4 BY .95 AT ROW 2.91 COL 59
+     "Width" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11.24 COL 71
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11.24 COL 87
+     RECT-30 AT ROW 1 COL 3
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -424,6 +424,22 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ef.i-code IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN ef.leaf-l[1] IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-l[2] IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-l[3] IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-l[4] IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-w[1] IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-w[2] IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-w[3] IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-w[4] IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN ef.lsh-len IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN ef.lsh-wid IN FRAME F-Main
@@ -461,9 +477,9 @@ ASSIGN
                 "16th".
 
 /* SETTINGS FOR FILL-IN ef.trim-l IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ef.trim-w IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN ef.xgrain IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TEXT-LITERAL "Freight/"
@@ -482,7 +498,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -606,7 +622,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -627,7 +642,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

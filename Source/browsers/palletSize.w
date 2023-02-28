@@ -180,10 +180,10 @@ DEFINE BROWSE br_table
       palletSize.positions FORMAT ">>9":U
       fGetFromWidth() @ dFromWidth COLUMN-LABEL "From Width" FORMAT ">>>>>9.99":U
             WIDTH 17.2
-      palletSize.upToWidth FORMAT ">>>>9.99":U WIDTH 17.2
+      palletSize.upToWidth FORMAT ">>>>>9.99<<<<":U WIDTH 17.2
       fGetFromLength() @ dFromLength COLUMN-LABEL "From Length" FORMAT ">>>>>>9.99":U
             WIDTH 17.2
-      palletSize.upToLength FORMAT ">>>>9.99":U WIDTH 17.2
+      palletSize.upToLength FORMAT ">>>>>9.99<<<<":U WIDTH 17.2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 78 BY 6.71 FIT-LAST-COLUMN.

@@ -1664,8 +1664,8 @@ SESSION:SET-WAIT-STATE ("general").
                       int(substr(tt-report.key-05,7,2)),
                       int(substr(tt-report.key-05,1,4)))
        v-sheet = if avail job-mat then
-                   "W: " + trim(string(job-mat.wid,">>9.99<<")) + " " +
-                   "L: " + trim(string(job-mat.len,">>9.99<<"))
+                   "W: " + trim(string(job-mat.wid,">>>>>9.99<<<<")) + " " +
+                   "L: " + trim(string(job-mat.len,">>>>>9.99<<<<"))
                  else ""
        v-pct   = 0.
 

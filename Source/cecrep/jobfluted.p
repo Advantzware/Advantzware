@@ -231,8 +231,8 @@ do v-local-loop = 1 to v-local-copies:
           v-i-line[1] = "ITEM DESCRIPTION"
            v-i-line[2] = "Style: <b>" + (if avail xstyle then xstyle.dscr else "") + "</b>" 
            v-i-line[3] = "Size: <b>"  + (if avail xeb    then
-                     trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else "") + "</b>" 
            v-i-line[4] = "Joint: <b>" + if avail xeb then v-joint-dscr else "" .
    
@@ -370,8 +370,8 @@ do v-local-loop = 1 to v-local-copies:
                     "L: " + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 format "x(25)"
                     "</b>MSF:<b>"  +
-                    trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                format "x(11)".
+                    trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                format "x(12)".
                  PUT "</b><=#6><R-5> Meters Planned: _________________<b>"   .                                                             
                /*PUT "</b><=#6><R-5> Ink 1:<b>"
                    w-i.i-dscr

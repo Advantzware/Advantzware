@@ -464,8 +464,8 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Job #' THEN po-ordl.job-no ELSE ~
   IF sortColumn EQ 'Vendor Item #' THEN po-ordl.vend-i-no ELSE ~
   IF sortColumn EQ 'Vendor' THEN po-ord.vend-no ELSE ~
-  IF sortColumn EQ 'Sheet!Wid' THEN STRING(po-ordl.s-wid,'999.9999') ELSE ~
-  IF sortColumn EQ 'Sheet!len' THEN STRING(po-ordl.s-len,'999.9999') ELSE ~
+  IF sortColumn EQ 'Sheet!Wid' THEN STRING(po-ordl.s-wid,'999999.999999') ELSE ~
+  IF sortColumn EQ 'Sheet!len' THEN STRING(po-ordl.s-len,'999999.999999') ELSE ~
   STRING(po-ordl.po-no,'99999999') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'l-poordl' &THEN
@@ -475,8 +475,8 @@ PROCEDURE openQuery:
   IF sortColumn EQ 'Name' THEN po-ordl.i-name ELSE ~
   IF sortColumn EQ 'Job Number' THEN po-ordl.job-no ELSE ~
   IF sortColumn EQ 'Vendor' THEN po-ord.vend-no ELSE ~
-  IF sortColumn EQ 'Sheet Wid' THEN STRING(po-ordl.s-wid,'999.9999') ELSE ~
-  IF sortColumn EQ 'Sheet len' THEN STRING(po-ordl.s-len,'99999.9999') ELSE ~
+  IF sortColumn EQ 'Sheet Wid' THEN STRING(po-ordl.s-wid,'999999.999999') ELSE ~
+  IF sortColumn EQ 'Sheet len' THEN STRING(po-ordl.s-len,'999999.999999') ELSE ~
   STRING(po-ordl.po-no,'99999999') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'oe-prmtx' &THEN
@@ -1134,8 +1134,8 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Board'          THEN STRING(ef.board)     ELSE ~
      IF sortColumn EQ 'Caliper'        THEN STRING(ef.cal, '>9.99999<') ELSE ~
      IF sortColumn EQ 'Category'       THEN STRING(eb.procat)                   ELSE ~
-     IF sortColumn EQ 'Length'         THEN STRING(eb.len, '>>9.99')    ELSE ~
-     IF sortColumn EQ 'Width'          THEN STRING(eb.wid, '>>9.99')    ELSE ~
+     IF sortColumn EQ 'Length'         THEN STRING(eb.len, '>>>>>9.99')    ELSE ~
+     IF sortColumn EQ 'Width'          THEN STRING(eb.wid, '>>>>>9.99')    ELSE ~
      IF sortColumn EQ 'Depth'          THEN STRING(eb.dep, '>>9.99')    ELSE ~
      IF sortColumn EQ 'FORM'           THEN STRING(eb.form-no, '>9')    ELSE ~
      IF sortColumn EQ 'BLANK'          THEN STRING(eb.blank-no, '>9')   ELSE ~
@@ -1173,8 +1173,8 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Paper 2'        THEN STRING(ef.flute)             ELSE ~
      IF sortColumn EQ 'Caliper'        THEN STRING(ef.cal, '>9.99999<')  ELSE ~
      IF sortColumn EQ 'Category'       THEN STRING(eb.procat)            ELSE ~
-     IF sortColumn EQ 'Length'         THEN STRING(eb.len, '>9.99999')   ELSE ~
-     IF sortColumn EQ 'Width'          THEN STRING(eb.wid, '>9.99999')   ELSE ~
+     IF sortColumn EQ 'Length'         THEN STRING(eb.len, '>>>>>9.99999')   ELSE ~
+     IF sortColumn EQ 'Width'          THEN STRING(eb.wid, '>>>>>9.99999')   ELSE ~
      IF sortColumn EQ 'Depth'          THEN STRING(eb.dep, '>9.99999')   ELSE ~
      IF sortColumn EQ 'Qty/Set'        THEN STRING(eb.cust-%, '->>,>>>') ELSE ~
      IF sortColumn EQ 'Colors'         THEN STRING(eb.i-col, '>9')       ELSE ~
@@ -1201,8 +1201,8 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Item Name'       THEN STRING(eb.part-dscr1)       ELSE ~
      IF sortColumn EQ 'Cust Part #'     THEN STRING(eb.part-no)          ELSE ~
      IF sortColumn EQ 'Style'           THEN STRING(eb.style)            ELSE ~
-     IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>9.99')    ELSE ~
-     IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>9.99')    ELSE ~
+     IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>>>>9.99')    ELSE ~
+     IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>>>>9.99')    ELSE ~
         STRING(eb.dep, '>>9.99') ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'l-estcst' &THEN
@@ -1213,8 +1213,8 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Item Name'       THEN STRING(eb.part-dscr1)       ELSE ~
      IF sortColumn EQ 'Cust Part #'     THEN STRING(eb.part-no)          ELSE ~
      IF sortColumn EQ 'Style'           THEN STRING(eb.style)            ELSE ~
-     IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>9.99')    ELSE ~
-     IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>9.99')    ELSE ~
+     IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>>>>9.99')    ELSE ~
+     IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>>>>9.99')    ELSE ~
         STRING(eb.dep, '>>9.99') ~{&SORTED}
 
 /* btr - 02/15/2011  */

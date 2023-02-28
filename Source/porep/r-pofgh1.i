@@ -327,8 +327,8 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
                        v-vend-name + v-comma +
                        tt-report.key-04 + v-comma +
                        v-i-name + v-comma +
-                       string(po-ordl.s-wid,">>9.9999") + v-comma +
-                       string(po-ordl.s-len,">>9.9999") + v-comma +
+                       string(po-ordl.s-wid,">>>>>9.9999<<") + v-comma +
+                       string(po-ordl.s-len,">>>>>9.9999<<") + v-comma +
                        string(po-ordl.cost,"->>>9.99")  + v-comma +
                        po-ordl.pr-uom .
        

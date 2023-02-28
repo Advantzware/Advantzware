@@ -45,6 +45,7 @@ DEF VAR lv-save-format AS CHAR NO-UNDO.
 /* The below variables are used in run_link.i */
 DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -58,7 +59,7 @@ DEFINE VARIABLE pHandle  AS HANDLE    NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -193,7 +194,7 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-16
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 121 BY 15.
 
 
@@ -206,7 +207,7 @@ DEFINE FRAME F-Main
      routing-mtx.msf AT ROW 1.48 COL 42.2 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     routing-mtx.dim-type AT ROW 2.91 COL 6 COLON-ALIGNED NO-LABEL
+     routing-mtx.dim-type AT ROW 2.91 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      routing-mtx.bl-len[1] AT ROW 3.86 COL 19 COLON-ALIGNED NO-LABEL
@@ -239,36 +240,36 @@ DEFINE FRAME F-Main
      routing-mtx.bl-len[10] AT ROW 3.86 COL 109 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.6 BY 1
-     routing-mtx.bl-wid[1] AT ROW 5.76 COL 6 COLON-ALIGNED NO-LABEL
+     routing-mtx.bl-wid[1] AT ROW 5.76 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[2] AT ROW 6.76 COL 6 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[2] AT ROW 6.76 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[3] AT ROW 7.67 COL 6 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[3] AT ROW 7.67 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[4] AT ROW 8.62 COL 6.2 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[4] AT ROW 8.62 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[5] AT ROW 9.57 COL 6 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[5] AT ROW 9.57 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[6] AT ROW 10.52 COL 6 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[6] AT ROW 10.52 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[7] AT ROW 11.48 COL 6 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[7] AT ROW 11.48 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[8] AT ROW 12.43 COL 6 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[8] AT ROW 12.43 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[9] AT ROW 13.38 COL 6 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[9] AT ROW 13.38 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
-     routing-mtx.bl-wid[10] AT ROW 14.33 COL 6 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY 1
+     routing-mtx.bl-wid[10] AT ROW 14.33 COL 3.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 9.6 BY 1
+          SIZE 14 BY 1
      routing-mtx.r-code[1] AT ROW 5.76 COL 19 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
@@ -598,9 +599,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
      "LENGTH" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 4.1 COL 8
+          SIZE 11 BY .62 AT ROW 4.1 COL 5.6
      "WIDTH" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 5.05 COL 8
+          SIZE 10 BY .62 AT ROW 5.05 COL 5.6
      "DIMENSIONS" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.14 COL 19
      RECT-16 AT ROW 1 COL 1
@@ -661,7 +662,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit Custom                                       */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit Custom                            */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -681,7 +682,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -710,6 +711,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME routing-mtx.msf
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing-mtx.msf V-table-Win
+ON LEAVE OF routing-mtx.msf IN FRAME F-Main /* Up to MSF */
+DO:
+    if lastkey <> -1 and self:screen-value <> ""  THEN do:
+      RUN valid-msf NO-ERROR. 
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    end.                 
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME routing-mtx.r-code[100]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing-mtx.r-code[100] V-table-Win
 ON LEAVE OF routing-mtx.r-code[100] IN FRAME F-Main /* Routing Code[100] */
@@ -725,7 +741,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -747,7 +762,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -767,7 +781,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -789,7 +802,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -809,7 +821,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -831,7 +842,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -851,7 +861,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -873,7 +882,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -893,7 +901,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -915,7 +922,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -936,7 +942,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -955,7 +960,6 @@ DO:
     {&methods/lValidateError.i NO}
     end.                 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -977,7 +981,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -997,7 +1000,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1019,7 +1021,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1039,7 +1040,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1061,7 +1061,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1081,7 +1080,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1103,7 +1101,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1123,7 +1120,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1145,7 +1141,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1165,7 +1160,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1187,7 +1181,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1207,7 +1200,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1229,7 +1221,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1249,7 +1240,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1271,7 +1261,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1291,7 +1280,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1313,7 +1301,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1333,7 +1320,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1355,7 +1341,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1375,7 +1360,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1397,7 +1381,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1417,7 +1400,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1439,7 +1421,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1459,7 +1440,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1481,7 +1461,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1501,7 +1480,6 @@ DO:
     end.                 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1523,7 +1501,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1543,22 +1520,6 @@ DO:
     end.                 
 
 END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME routing-mtx.msf
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing-mtx.msf V-table-Win
-ON LEAVE OF routing-mtx.msf IN FRAME F-Main /* Routing Code[9] */
-DO:
-    if lastkey <> -1 and self:screen-value <> ""  THEN do:
-      RUN valid-msf NO-ERROR. 
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    end.                 
-
-END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1638,6 +1599,37 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
+PROCEDURE local-add-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+    IF AVAIL style THEN
+    FIND FIRST bf-routing-mtx NO-LOCK
+       WHERE bf-routing-mtx.company EQ style.company
+         AND bf-routing-mtx.loc EQ gloc
+         AND bf-routing-mtx.style EQ style.style
+         AND bf-routing-mtx.msf EQ 0 NO-ERROR .
+
+    IF AVAIL bf-routing-mtx THEN DO:
+        MESSAGE "A routing matrix with 0 MSF exists. Please change the MSF for that to something other than 0."
+                                        VIEW-AS ALERT-BOX INFO .
+        RETURN .
+    END.
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
 PROCEDURE local-copy-record :
 /*------------------------------------------------------------------------------
@@ -1688,41 +1680,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
-PROCEDURE local-add-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-DEFINE BUFFER bf-routing-mtx FOR routing-mtx .
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-    IF AVAIL style THEN
-    FIND FIRST bf-routing-mtx NO-LOCK
-       WHERE bf-routing-mtx.company EQ style.company
-         AND bf-routing-mtx.loc EQ gloc
-         AND bf-routing-mtx.style EQ style.style
-         AND bf-routing-mtx.msf EQ 0 NO-ERROR .
-
-    IF AVAIL bf-routing-mtx THEN DO:
-        MESSAGE "A routing matrix with 0 MSF exists. Please change the MSF for that to something other than 0."
-                                        VIEW-AS ALERT-BOX INFO .
-        RETURN .
-    END.
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win
-PROCEDURE local-disable-fields:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -1735,11 +1694,9 @@ PROCEDURE local-disable-fields:
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/run_link.i "CONTAINER-SOURCE" "SetUpdateEnd"}
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields V-table-Win 
 PROCEDURE local-display-fields :
@@ -1769,103 +1726,103 @@ message "1" routing-mtx.msf.
        routing-mtx.bl-len[01] EQ 0 THEN
        routing-mtx.bl-len[01]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[01]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[01]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[02] EQ 0 THEN
        routing-mtx.bl-len[02]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[02]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[02]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[03] EQ 0 THEN
        routing-mtx.bl-len[03]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[03]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[03]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[04] EQ 0 THEN
        routing-mtx.bl-len[04]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[04]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[04]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[05] EQ 0 THEN
        routing-mtx.bl-len[05]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[05]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[05]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[06] EQ 0 THEN
        routing-mtx.bl-len[06]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[06]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[06]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[07] EQ 0 THEN
        routing-mtx.bl-len[07]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[07]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[07]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[08] EQ 0 THEN
        routing-mtx.bl-len[08]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[08]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[08]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[09] EQ 0 THEN
        routing-mtx.bl-len[09]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[09]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[09]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-len[10] EQ 0 THEN
        routing-mtx.bl-len[10]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-len[10]:FORMAT = ">>9.99".
+       routing-mtx.bl-len[10]:FORMAT = ">>>>>9.99<<<<".
 
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[01] EQ 0 THEN
        routing-mtx.bl-wid[01]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[01]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[01]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[02] EQ 0 THEN
        routing-mtx.bl-wid[02]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[02]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[02]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[03] EQ 0 THEN
        routing-mtx.bl-wid[03]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[03]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[03]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[04] EQ 0 THEN
        routing-mtx.bl-wid[04]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[04]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[04]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[05] EQ 0 THEN
        routing-mtx.bl-wid[05]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[05]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[05]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[06] EQ 0 THEN
        routing-mtx.bl-wid[06]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[06]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[06]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[07] EQ 0 THEN
        routing-mtx.bl-wid[07]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[07]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[07]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[08] EQ 0 THEN
        routing-mtx.bl-wid[08]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[08]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[08]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[09] EQ 0 THEN
        routing-mtx.bl-wid[09]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[09]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[09]:FORMAT = ">>>>>9.99<<<<".
     IF NOT AVAIL routing-mtx       OR 
        routing-mtx.bl-wid[10] EQ 0 THEN
        routing-mtx.bl-wid[10]:FORMAT = ">>>>>>>>".
     ELSE
-       routing-mtx.bl-wid[10]:FORMAT = ">>9.99".
+       routing-mtx.bl-wid[10]:FORMAT = ">>>>>9.99<<<<".
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -1963,7 +1920,6 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2010,30 +1966,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-routing V-table-Win 
-PROCEDURE validate-routing :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  def input param ip-r-code as cha no-undo.
-
-  {methods/lValidateError.i YES}
-  if  ip-r-code <> "" and
-       not can-find(routing where routing.company = gcompany and routing.loc = gloc
-                    and routing.r-code = ip-r-code)
-    then do:
-              return error.
-    end.   
-    {methods/lValidateError.i NO}              
-    return. 
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-msf V-table-Win 
 PROCEDURE valid-msf :
 /*------------------------------------------------------------------------------
@@ -2069,3 +2001,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate-routing V-table-Win 
+PROCEDURE validate-routing :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  def input param ip-r-code as cha no-undo.
+
+  {methods/lValidateError.i YES}
+  if  ip-r-code <> "" and
+       not can-find(routing where routing.company = gcompany and routing.loc = gloc
+                    and routing.r-code = ip-r-code)
+    then do:
+              return error.
+    end.   
+    {methods/lValidateError.i NO}              
+    return. 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+

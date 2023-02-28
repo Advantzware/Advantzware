@@ -15,8 +15,8 @@ def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 
-def var v-wid like po-ordl.s-wid format ">>9.99" no-undo.
-def var v-len like po-ordl.s-len format ">>9.99" no-undo.
+def var v-wid like po-ordl.s-wid format ">>>>>9.99<<<<" no-undo.
+def var v-len like po-ordl.s-len format ">>>>>9.99<<<<" no-undo.
 def var pol-counter as int no-undo.
 def var save_id as RECID NO-UNDO.
 def var time_stamp as CHAR NO-UNDO.

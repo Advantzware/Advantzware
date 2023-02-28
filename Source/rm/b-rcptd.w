@@ -50,7 +50,7 @@ DEFINE VARIABLE hd-post-child     AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE ll-help-run       AS LOG           NO-UNDO.  /* set on browse help, reset row-entry */
 
 DEFINE VARIABLE lv-po-wid         LIKE po-ordl.s-wid NO-UNDO.
-DEFINE VARIABLE lv-po-len         LIKE po-ordl.s-len FORM ">>,>>9.9999" NO-UNDO.
+DEFINE VARIABLE lv-po-len         LIKE po-ordl.s-len FORM ">>>,>>9.9999<<" NO-UNDO.
 DEFINE VARIABLE v-avgcost         AS LOG           NO-UNDO.
 DEFINE VARIABLE ll-tag-meth       AS LOG           NO-UNDO.
 DEFINE VARIABLE ll-warned         AS LOG           NO-UNDO.

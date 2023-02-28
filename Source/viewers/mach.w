@@ -370,10 +370,10 @@ DEFINE FRAME F-Main
           LABEL "Front-To-Back"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max-len AT ROW 10.38 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>9.99999"
+     mach.max-len AT ROW 10.38 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.min-trimw AT ROW 10.38 COL 56 COLON-ALIGNED NO-LABEL
+     mach.min-trimw AT ROW 10.38 COL 56 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.8 BY .81
      mach.min-wid AT ROW 11.19 COL 22 COLON-ALIGNED
@@ -383,18 +383,14 @@ DEFINE FRAME F-Main
      mach.max-wid AT ROW 11.19 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.min-triml AT ROW 11.19 COL 56 COLON-ALIGNED NO-LABEL
+     mach.min-triml AT ROW 11.19 COL 56 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.8 BY .81
      mach.min-cal AT ROW 12 COL 22 COLON-ALIGNED
-          LABEL "Caliper/Depth" FORMAT ">>9.99999"
+          LABEL "Caliper/Depth" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max-cal AT ROW 12 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>9.99999"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
-     mach.min-pan-l AT ROW 12.81 COL 22 COLON-ALIGNED
-          LABEL "Box Length"
+     mach.max-cal AT ROW 12 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -404,42 +400,46 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     mach.max-pan-l AT ROW 12.81 COL 40 COLON-ALIGNED NO-LABEL
+     mach.min-pan-l AT ROW 12.81 COL 22 COLON-ALIGNED
+          LABEL "Box Length" FORMAT ">>>>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.max-pan-l AT ROW 12.81 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
      mach.min-pan-w AT ROW 13.62 COL 22 COLON-ALIGNED
-          LABEL "Box Width"
+          LABEL "Box Width" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max-pan-w AT ROW 13.62 COL 40 COLON-ALIGNED NO-LABEL
+     mach.max-pan-w AT ROW 13.62 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
      mach.min_pan_lw AT ROW 14.43 COL 22 COLON-ALIGNED WIDGET-ID 12
-          LABEL "Box L + W"
+          LABEL "Box L + W" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max_pan_lw AT ROW 14.43 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     mach.max_pan_lw AT ROW 14.43 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 6 FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
      mach.min_slot_score AT ROW 15.24 COL 22 COLON-ALIGNED WIDGET-ID 14
-          LABEL "Slot/Score Panel"
+          LABEL "Slot/Score Panel" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max_slot_score AT ROW 15.24 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     mach.max_slot_score AT ROW 15.24 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 8 FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
      mach.min_hd_hd AT ROW 16.05 COL 22 COLON-ALIGNED WIDGET-ID 10
-          LABEL "Panel (Hd-Hd)"
+          LABEL "Panel (Hd-Hd)" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max_hd_hd AT ROW 16.05 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     mach.max_hd_hd AT ROW 16.05 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 4 FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
      mach.min-dep AT ROW 16.86 COL 22 COLON-ALIGNED
-          LABEL "Slot Size"
+          LABEL "Slot Size" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max-dep AT ROW 16.86 COL 40 COLON-ALIGNED NO-LABEL
+     mach.max-dep AT ROW 16.86 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
      mach.min-run AT ROW 17.67 COL 22 COLON-ALIGNED
@@ -476,6 +476,13 @@ DEFINE FRAME F-Main
           LABEL "Lbs/Color"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      mach.tan-mrp AT ROW 14.57 COL 105 COLON-ALIGNED
           LABEL "Tandem MR/Plate"
           VIEW-AS FILL-IN 
@@ -485,13 +492,6 @@ DEFINE FRAME F-Main
           LABEL "/Fountain"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      mach.num-wid AT ROW 16 COL 105 COLON-ALIGNED
           LABEL "Max Num  Width"
           VIEW-AS FILL-IN 
@@ -559,8 +559,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.86
-         WIDTH              = 146.4.
+         HEIGHT             = 19.14
+         WIDTH              = 147.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -631,35 +631,45 @@ ASSIGN
 /* SETTINGS FOR FILL-IN mach.max-color IN FRAME F-Main
    NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN mach.max-dep IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.max-len IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN mach.max-pan-l IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN mach.max-pan-w IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN mach.max-run IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN mach.max_hd_hd IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN mach.max_pan_lw IN FRAME F-Main
+   EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN mach.max_slot_score IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN mach.min-cal IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-dep IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-len IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-pan-l IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-pan-w IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-run IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-triml IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-trimw IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-wid IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min_hd_hd IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min_pan_lw IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min_slot_score IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.mr-crusiz IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.mr-fixoh IN FRAME F-Main

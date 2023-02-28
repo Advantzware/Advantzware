@@ -434,8 +434,8 @@ DO v-local-loop = 1 TO v-local-copies:
            v-i-line[1] = "ITEM DESCRIPTION"
            v-i-line[2] = "Style: " + IF AVAILABLE xstyle THEN xstyle.dscr ELSE ""
            v-i-line[3] = "Size: "  + IF AVAILABLE xeb    THEN
-                     TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) ELSE ""
            v-i-line[4] = "Joint: " + IF AVAILABLE xeb THEN v-joint-dscr ELSE "".
        
@@ -535,8 +535,8 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=TabInOut>" IF AVAIL xeb AND xeb.tab-in EQ YES THEN "In" ELSE IF AVAIL xeb AND xeb.tab-in EQ NO THEN "Out" ELSE "" FORMAT "x(10)"
               "<=Estimate>" IF AVAILABLE xeb THEN xeb.est-no ELSE "" FORMAT "x(10)"
               "</B>"
-              "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                      trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+              "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                      trim(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                       trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
               "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
               "<=Printed><B>" TODAY  "</B>"
@@ -559,7 +559,7 @@ DO v-local-loop = 1 TO v-local-copies:
               "<=SheetsSize>" "W:" + trim(string({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
                               "L:" + trim(string({sys/inc/k16v.i v-form-len},">>,>>9.99"))  format "x(30)"
 
-              "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
+              "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) FORMAT "x(11)"
               "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 
               "<=Adders1>" IF LENGTH(xef.adder[7]) GT 10 THEN  string(string(xef.adder[7],"x(17)") + "...") ELSE xef.adder[7]  FORMAT "x(20)"
               "<=Adders2>"IF LENGTH(xef.adder[8]) GT 10 THEN  string(string(xef.adder[8],"x(17)") + "...") ELSE xef.adder[8]  FORMAT "x(20)"

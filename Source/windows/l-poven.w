@@ -198,7 +198,7 @@ DEFINE BROWSE BROWSE-1
       po-ordl.i-no LABEL "Item"   LABEL-BGCOLOR 14 WIDTH 23
       po-ordl.i-name LABEL "RM/FG Item Name" LABEL-BGCOLOR 14
       po-ordl.s-wid LABEL "Width" LABEL-BGCOLOR 14
-      po-ordl.s-len LABEL "Length" FORM ">>>>9.9999" LABEL-BGCOLOR 14
+      po-ordl.s-len LABEL "Length" FORM ">>>>>9.9999<<" LABEL-BGCOLOR 14
       po-ordl.ord-qty LABEL "Quantity" LABEL-BGCOLOR 14
       po-ordl.t-rec-qty LABEL "Received Qty" LABEL-BGCOLOR 14
       po-ordl.t-inv-qty LABEL "Invoiced Qty" LABEL-BGCOLOR 14

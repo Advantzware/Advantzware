@@ -66,7 +66,7 @@ ASSIGN
                    + "TOTAL KICKS,KICKS REMAINING,MSF BALANCE,SHEET SIZE,BOARD RECE."
     cFieldListToSelect = "mch,pro-jdt,cust,cust-part,job," +
                                         "ttl-kck,kck-remn,msf-bal,shet-siz,brd-rec"
-    cFieldLength       = "7,17,8,15,13," + "12,15,12,21,12"
+    cFieldLength       = "7,17,8,15,13," + "12,15,12,24,12"
     cFieldType         = "c,c,c,c,c," + "i,i,i,c,i" 
     .
 
@@ -1536,8 +1536,8 @@ PROCEDURE run-report :
                        int(substr(tt-report.key-02,7,2)),
                        int(substr(tt-report.key-02,1,4)))
             v-sheet  = IF AVAILABLE job-mat THEN
-                    "W: " + trim(STRING(job-mat.wid,"->>>9.99<<<")) + " " +
-                    "L: " + trim(STRING(job-mat.len,"->>>9.99<<<"))
+                    "W: " + trim(STRING(job-mat.wid,"->>>>9.99<<<<")) + " " +
+                    "L: " + trim(STRING(job-mat.len,"->>>>9.99<<<<"))
                   ELSE ""
             v-pct    = 0
             v-on     = int(tt-report.key-07)

@@ -274,10 +274,10 @@ DEFINE BROWSE BROWSE-1
     po-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
     LABEL-BGCOLOR 14
     dim-in-16 (po-ordl.s-wid) @ po-ordl.s-wid
-    po-ordl.s-wid COLUMN-LABEL "Width" FORMAT ">>,>>9.99<<<":U
+    po-ordl.s-wid COLUMN-LABEL "Width" FORMAT ">>>,>>9.99<<<<":U
     LABEL-BGCOLOR 14
     dim-in-16 (po-ordl.s-len) @ po-ordl.s-len
-    po-ordl.s-len COLUMN-LABEL "Length" FORMAT ">>,>>9.99<<<":U
+    po-ordl.s-len COLUMN-LABEL "Length" FORMAT ">>>,>>9.99<<<<":U
     LABEL-BGCOLOR 14
     po-ordl.vend-i-no COLUMN-LABEL "Vendor Item#" FORMAT "x(15)":U
     LABEL-BGCOLOR 14

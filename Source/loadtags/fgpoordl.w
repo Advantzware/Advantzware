@@ -290,8 +290,8 @@ DEFINE BROWSE Browser-Table
       po-ordl.i-no FORMAT "x(15)":U
       po-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U
       po-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U
-      po-ordl.s-wid FORMAT ">>9.9999":U
-      po-ordl.s-len FORMAT ">>9.9999":U
+      po-ordl.s-wid FORMAT ">>>>>9.9999<<":U
+      po-ordl.s-len FORMAT ">>>>>9.9999<<":U
       po-ordl.ord-qty COLUMN-LABEL "Qty" FORMAT ">>>,>>9.9<<":U
       po-ordl.pr-qty-uom COLUMN-LABEL "Uom" FORMAT "x(4)":U
 /* _UIB-CODE-BLOCK-END */

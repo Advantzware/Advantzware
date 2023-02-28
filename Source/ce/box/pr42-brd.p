@@ -167,20 +167,20 @@ for each xef
       string(xef.form-no,"9") + "-00" format "x(4)"
       item.i-name format "x(20)" item.basis-w
       item.cal format ">9.999<"
-      "$" + string(b-msh,">>>9.99") TO 50 space b-uom space(0)
+      "$" + string(b-msh,"->>>9.99") TO 50 space b-uom space(0)
       v-setup when v-setup ne 0 format ">>>9.99" to 61
       b-tot + (v-setup / (t-blkqty[xef.form-no] / 1000)) TO 69
       b-tot + v-setup format ">>>>,>>9.99" TO 80 skip
       space(5)
       "Board MR  Waste"
-      b-waste * v-hopf format ">>>>9" TO 50 space(0) " Sht" space(0)
+      b-waste * v-hopf format "->>>>9" TO 50 space(0) " Sht" space(0)
       (b-tot / (t-blkqty[xef.form-no] / v-num-up)) * b-waste format ">>>9.99" TO 61
       /* cost of waste amortized per 1000 of all blanks on this form */
       b-totw / (t-blkqty[xef.form-no] / 1000) format ">>>9.99" TO 69
       b-totw format ">>>>,>>9.99" TO 80 skip
       space(5)
       "Board RUN Waste"
-      r-spo[xef.form-no] * v-hopf format ">>>>9" TO 50 space(0) " Sht" space(0)
+      r-spo[xef.form-no] * v-hopf format "->>>>9" TO 50 space(0) " Sht" space(0)
       /* cost of spoil amortized per 1000 of all blanks on this form */
       r-spo$[xef.form-no] /
       (t-blkqty[xef.form-no] / 1000) format ">>>9.99" TO 69

@@ -419,8 +419,8 @@ v-printline = 0.
         ELSE assign lv-flute = ""
                     lv-reg-no = "".
 
-        v-size = TRIM(STRING(v-wid,"-Z,ZZ9.99")) + " x "
-               + TRIM(STRING(v-len,"-Z,ZZ9.99")).
+        v-size = TRIM(STRING(v-wid,"-ZZ,ZZ9.99")) + " x "
+               + TRIM(STRING(v-len,"-ZZ,ZZ9.99")).
 
         
         v-dep2 = IF po-ordl.s-dep GT 0 THEN po-ordl.s-dep

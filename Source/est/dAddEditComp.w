@@ -190,7 +190,7 @@ DEFINE VARIABLE cSourceEst AS CHARACTER FORMAT "X(15)":U
 DEFINE VARIABLE dep AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
      LABEL "Depth" 
      VIEW-AS FILL-IN 
-     SIZE 10.6 BY 1
+     SIZE 13.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE dQtyPerSet AS DECIMAL FORMAT "->>,>>9.99":U INITIAL 1 
@@ -235,10 +235,10 @@ DEFINE VARIABLE item-name AS CHARACTER FORMAT "X(30)":U
      SIZE 42 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE len AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
+DEFINE VARIABLE len AS DECIMAL FORMAT ">>>>>9.99":U INITIAL 0 
      LABEL "Length" 
      VIEW-AS FILL-IN 
-     SIZE 10.6 BY 1
+     SIZE 13.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE set-item-name AS CHARACTER FORMAT "X(30)":U 
@@ -258,10 +258,10 @@ DEFINE VARIABLE style-dscr AS CHARACTER FORMAT "X(25)":U
      SIZE 29 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
-DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>9.99":U INITIAL 0 
+DEFINE VARIABLE wid AS DECIMAL FORMAT ">>>>>9.99":U INITIAL 0 
      LABEL "Width" 
      VIEW-AS FILL-IN 
-     SIZE 10.6 BY 1
+     SIZE 13.6 BY 1
      BGCOLOR 15 FONT 1 NO-UNDO.
 
 DEFINE VARIABLE rd_show1 AS CHARACTER INITIAL "M" 
@@ -1573,10 +1573,10 @@ PROCEDURE pSetLWDFormat :
           iDecimalValue = IF INTEGER(v-cecscrn-decimals) EQ 0 THEN 6 ELSE INTEGER(v-cecscrn-decimals) .
 
           ASSIGN
-              len:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
-              len:WIDTH  = 12.5
-              wid:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))   
-              wid:WIDTH  = 12.5
+              len:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))
+              len:WIDTH  = 15.5
+              wid:FORMAT = ">>>>>9." + FILL("9",INTEGER(iDecimalValue))   
+              wid:WIDTH  = 15.5
               dep:FORMAT = ">>9." + FILL("9",INTEGER(iDecimalValue))
               dep:WIDTH  = 12.5.        
        END.   

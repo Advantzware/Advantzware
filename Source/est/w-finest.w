@@ -138,12 +138,12 @@ DEFINE VARIABLE ld-dep AS DECIMAL FORMAT ">>9.999":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 10 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ld-len AS DECIMAL FORMAT ">>9.999":U INITIAL 0 
+DEFINE VARIABLE ld-len AS DECIMAL FORMAT ">>>>>9.999":U INITIAL 0 
      LABEL "Length" 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1 NO-UNDO.
 
-DEFINE VARIABLE ld-wid AS DECIMAL FORMAT ">>9.999":U INITIAL 0 
+DEFINE VARIABLE ld-wid AS DECIMAL FORMAT ">>>>>9.999":U INITIAL 0 
      LABEL "Width" 
      VIEW-AS FILL-IN 
      SIZE 10 BY 1 NO-UNDO.
@@ -731,9 +731,9 @@ DO:
   
 IF v-cecscrn-char EQ "Decimal" THEN
     ASSIGN
-        ld-len:FORMAT = ">>9.999999"
+        ld-len:FORMAT = ">>>>>9.999999"
         ld-len:WIDTH  = 13.2
-        ld-wid:FORMAT = ">>9.999999"
+        ld-wid:FORMAT = ">>>>>9.999999"
         ld-wid:WIDTH  = 13.2
         ld-dep:FORMAT = ">>9.999999"
         ld-dep:WIDTH  = 14.2 .

@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
@@ -46,10 +46,11 @@ def var ll-update-pack as log no-undo.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -72,73 +73,6 @@ eb.i-%[7] eb.i-ps[7] eb.i-code[7] eb.weight-m eb.i-dscr[8] eb.i-%[8] ~
 eb.i-ps[8] eb.i-code[8] eb.chg-method eb.dest-code eb.i-dscr[9] eb.i-%[9] ~
 eb.i-ps[9] eb.i-code[9] eb.fr-out-c eb.i-dscr[10] eb.i-%[10] eb.i-ps[10] ~
 eb.i-code[10] eb.fr-out-m 
-&Scoped-define FIELD-PAIRS~
- ~{&FP1}i-col ~{&FP2}i-col ~{&FP3}~
- ~{&FP1}i-pass ~{&FP2}i-pass ~{&FP3}~
- ~{&FP1}i-coat ~{&FP2}i-coat ~{&FP3}~
- ~{&FP1}i-coat-p ~{&FP2}i-coat-p ~{&FP3}~
- ~{&FP1}cas-no ~{&FP2}cas-no ~{&FP3}~
- ~{&FP1}tr-no ~{&FP2}tr-no ~{&FP3}~
- ~{&FP1}i-coldscr ~{&FP2}i-coldscr ~{&FP3}~
- ~{&FP1}cas-cost ~{&FP2}cas-cost ~{&FP3}~
- ~{&FP1}tr-cost ~{&FP2}tr-cost ~{&FP3}~
- ~{&FP1}cas-cnt ~{&FP2}cas-cnt ~{&FP3}~
- ~{&FP1}tr-cnt ~{&FP2}tr-cnt ~{&FP3}~
- ~{&FP1}cas-len ~{&FP2}cas-len ~{&FP3}~
- ~{&FP1}tr-len ~{&FP2}tr-len ~{&FP3}~
- ~{&FP1}i-ps[1] ~{&FP2}i-ps[1] ~{&FP3}~
- ~{&FP1}i-code[1] ~{&FP2}i-code[1] ~{&FP3}~
- ~{&FP1}i-dscr[1] ~{&FP2}i-dscr[1] ~{&FP3}~
- ~{&FP1}i-%[1] ~{&FP2}i-%[1] ~{&FP3}~
- ~{&FP1}cas-wid ~{&FP2}cas-wid ~{&FP3}~
- ~{&FP1}tr-wid ~{&FP2}tr-wid ~{&FP3}~
- ~{&FP1}i-dscr[2] ~{&FP2}i-dscr[2] ~{&FP3}~
- ~{&FP1}i-%[2] ~{&FP2}i-%[2] ~{&FP3}~
- ~{&FP1}i-ps[2] ~{&FP2}i-ps[2] ~{&FP3}~
- ~{&FP1}i-code[2] ~{&FP2}i-code[2] ~{&FP3}~
- ~{&FP1}cas-dep ~{&FP2}cas-dep ~{&FP3}~
- ~{&FP1}tr-dep ~{&FP2}tr-dep ~{&FP3}~
- ~{&FP1}i-dscr[3] ~{&FP2}i-dscr[3] ~{&FP3}~
- ~{&FP1}i-%[3] ~{&FP2}i-%[3] ~{&FP3}~
- ~{&FP1}i-ps[3] ~{&FP2}i-ps[3] ~{&FP3}~
- ~{&FP1}i-code[3] ~{&FP2}i-code[3] ~{&FP3}~
- ~{&FP1}cas-pal ~{&FP2}cas-pal ~{&FP3}~
- ~{&FP1}tr-cas ~{&FP2}tr-cas ~{&FP3}~
- ~{&FP1}i-dscr[4] ~{&FP2}i-dscr[4] ~{&FP3}~
- ~{&FP1}i-%[4] ~{&FP2}i-%[4] ~{&FP3}~
- ~{&FP1}i-ps[4] ~{&FP2}i-ps[4] ~{&FP3}~
- ~{&FP1}i-code[4] ~{&FP2}i-code[4] ~{&FP3}~
- ~{&FP1}cas-wt ~{&FP2}cas-wt ~{&FP3}~
- ~{&FP1}i-dscr[5] ~{&FP2}i-dscr[5] ~{&FP3}~
- ~{&FP1}i-%[5] ~{&FP2}i-%[5] ~{&FP3}~
- ~{&FP1}i-ps[5] ~{&FP2}i-ps[5] ~{&FP3}~
- ~{&FP1}i-code[5] ~{&FP2}i-code[5] ~{&FP3}~
- ~{&FP1}i-dscr[6] ~{&FP2}i-dscr[6] ~{&FP3}~
- ~{&FP1}i-%[6] ~{&FP2}i-%[6] ~{&FP3}~
- ~{&FP1}i-ps[6] ~{&FP2}i-ps[6] ~{&FP3}~
- ~{&FP1}carrier ~{&FP2}carrier ~{&FP3}~
- ~{&FP1}carr-dscr ~{&FP2}carr-dscr ~{&FP3}~
- ~{&FP1}i-code[6] ~{&FP2}i-code[6] ~{&FP3}~
- ~{&FP1}i-dscr[7] ~{&FP2}i-dscr[7] ~{&FP3}~
- ~{&FP1}i-%[7] ~{&FP2}i-%[7] ~{&FP3}~
- ~{&FP1}i-ps[7] ~{&FP2}i-ps[7] ~{&FP3}~
- ~{&FP1}i-code[7] ~{&FP2}i-code[7] ~{&FP3}~
- ~{&FP1}weight-m ~{&FP2}weight-m ~{&FP3}~
- ~{&FP1}i-dscr[8] ~{&FP2}i-dscr[8] ~{&FP3}~
- ~{&FP1}i-%[8] ~{&FP2}i-%[8] ~{&FP3}~
- ~{&FP1}i-ps[8] ~{&FP2}i-ps[8] ~{&FP3}~
- ~{&FP1}i-code[8] ~{&FP2}i-code[8] ~{&FP3}~
- ~{&FP1}dest-code ~{&FP2}dest-code ~{&FP3}~
- ~{&FP1}i-dscr[9] ~{&FP2}i-dscr[9] ~{&FP3}~
- ~{&FP1}i-%[9] ~{&FP2}i-%[9] ~{&FP3}~
- ~{&FP1}i-ps[9] ~{&FP2}i-ps[9] ~{&FP3}~
- ~{&FP1}i-code[9] ~{&FP2}i-code[9] ~{&FP3}~
- ~{&FP1}fr-out-c ~{&FP2}fr-out-c ~{&FP3}~
- ~{&FP1}i-dscr[10] ~{&FP2}i-dscr[10] ~{&FP3}~
- ~{&FP1}i-%[10] ~{&FP2}i-%[10] ~{&FP3}~
- ~{&FP1}i-ps[10] ~{&FP2}i-ps[10] ~{&FP3}~
- ~{&FP1}i-code[10] ~{&FP2}i-code[10] ~{&FP3}~
- ~{&FP1}fr-out-m ~{&FP2}fr-out-m ~{&FP3}
 &Scoped-define ENABLED-TABLES eb
 &Scoped-define FIRST-ENABLED-TABLE eb
 &Scoped-Define ENABLED-OBJECTS RECT-27 RECT-26 RECT-28 
@@ -154,6 +88,9 @@ eb.i-%[7] eb.i-ps[7] eb.i-code[7] eb.weight-m eb.i-dscr[8] eb.i-%[8] ~
 eb.i-ps[8] eb.i-code[8] eb.chg-method eb.dest-code eb.i-dscr[9] eb.i-%[9] ~
 eb.i-ps[9] eb.i-code[9] eb.fr-out-c eb.i-dscr[10] eb.i-%[10] eb.i-ps[10] ~
 eb.i-code[10] eb.fr-out-m 
+&Scoped-define DISPLAYED-TABLES eb
+&Scoped-define FIRST-DISPLAYED-TABLE eb
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -189,15 +126,15 @@ RUN set-attribute-list (
 
 /* Definitions of the field level widgets                               */
 DEFINE RECTANGLE RECT-26
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 69 BY 15.24.
 
 DEFINE RECTANGLE RECT-27
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 24 BY 4.52.
 
 DEFINE RECTANGLE RECT-28
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 73 BY 15.24.
 
 
@@ -277,10 +214,10 @@ DEFINE FRAME F-Main
      eb.i-code[2] AT ROW 5.81 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.cas-dep AT ROW 6.48 COL 95 COLON-ALIGNED
+     eb.cas-dep AT ROW 6.48 COL 95 COLON-ALIGNED FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY .95
-     eb.tr-dep AT ROW 6.48 COL 121 COLON-ALIGNED
+     eb.tr-dep AT ROW 6.48 COL 121 COLON-ALIGNED FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
      eb.i-dscr[3] AT ROW 6.76 COL 30 COLON-ALIGNED NO-LABEL
@@ -298,7 +235,11 @@ DEFINE FRAME F-Main
      eb.cas-pal AT ROW 7.43 COL 95 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-.
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
      eb.tr-cas AT ROW 7.43 COL 121 COLON-ALIGNED
@@ -388,12 +329,16 @@ DEFINE FRAME F-Main
           LABEL "Delivery Zone"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      eb.i-dscr[9] AT ROW 12.76 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
-.
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      eb.i-%[9] AT ROW 12.76 COL 59 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
@@ -421,18 +366,18 @@ DEFINE FRAME F-Main
      eb.fr-out-m AT ROW 14.1 COL 96 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
+     "Code" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 4.1 COL 15
      "Freight Charge" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 11.24 COL 120
           FGCOLOR 9 
-     "Code" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 4.1 COL 15
      "PS" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 4.1 COL 4
+     "%" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 4.1 COL 63
      "Description" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 4.1 COL 36
      RECT-27 AT ROW 11.48 COL 117
-     "%" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 4.1 COL 63
      RECT-26 AT ROW 1.24 COL 1
      RECT-28 AT ROW 1.24 COL 73
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -456,7 +401,7 @@ DEFINE FRAME F-Main
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -474,18 +419,31 @@ END.
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{src/adm/method/viewer.i}
+{methods/template/viewer.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN eb.cas-dep IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN eb.cas-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.dest-code IN FRAME F-Main
@@ -496,6 +454,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN eb.i-coldscr IN FRAME F-Main
    EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN eb.tr-dep IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN eb.tr-no IN FRAME F-Main
    EXP-LABEL                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -511,18 +471,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
-/* ************************* Included-Libraries *********************** */
-
-{src/adm/method/viewer.i}
-{methods/template/viewer.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
+ 
 
 
 
@@ -642,7 +591,6 @@ DO:
     end.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -670,7 +618,6 @@ DO:
              {&methods/lValidateError.i NO}
              end.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -711,7 +658,6 @@ DO:
   end.  
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -740,7 +686,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -768,7 +713,6 @@ DO:
   end.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -799,7 +743,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -828,7 +771,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -860,7 +802,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -889,7 +830,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -920,7 +860,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -949,7 +888,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -980,7 +918,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1006,7 +943,6 @@ DO:
               end.                          
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1030,7 +966,7 @@ session:data-entry-return = yes.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -1061,8 +997,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -1079,7 +1014,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
 PROCEDURE local-update-record :
@@ -1138,12 +1072,10 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -1165,7 +1097,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -1186,7 +1117,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-ink V-table-Win 
 PROCEDURE update-ink :
 /*------------------------------------------------------------------------------
@@ -1205,7 +1135,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-pack V-table-Win 
 PROCEDURE update-pack :
@@ -1236,5 +1165,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

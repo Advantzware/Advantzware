@@ -603,7 +603,7 @@ PROCEDURE pAddEstBlank PRIVATE:
     DO:
         ASSIGN 
             opbf-ttEstCostBlank.estCostItemID = bf-ttEstCostItem.estCostItemID
-            bf-ttEstCostItem.sizeDesc       = TRIM(STRING(opbf-ttEstCostBlank.dimLength,">>>9.99")) + " x " + TRIM(STRING(opbf-ttEstCostBlank.dimWidth,">>>9.99"))
+            bf-ttEstCostItem.sizeDesc       = TRIM(STRING(opbf-ttEstCostBlank.dimLength,">>>>>9.99")) + " x " + TRIM(STRING(opbf-ttEstCostBlank.dimWidth,">>>>>9.99"))
             .
         IF opbf-ttEstCostBlank.dimDepth NE 0 THEN 
             bf-ttEstCostItem.sizeDesc = bf-ttEstCostItem.sizeDesc + " x " + TRIM(STRING(opbf-ttEstCostBlank.dimDepth,">>>9.99")).

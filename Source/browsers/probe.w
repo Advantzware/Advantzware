@@ -33,7 +33,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE voverall AS DECIMAL FORMAT ">>,>>>,>>9.99" NO-UNDO.
-DEFINE VARIABLE vtot-msf AS DECIMAL FORMAT ">>>>9.99999" NO-UNDO.
+DEFINE VARIABLE vtot-msf AS DECIMAL FORMAT ">>>>>>>>9.99999" NO-UNDO.
 DEFINE VARIABLE dMatPctSellPrice LIKE probe.net-profit. 
  
 {jcrep/r-ticket.i "new shared"}
@@ -511,9 +511,9 @@ DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
       probe.est-qty FORMAT ">>>>>>>9":U COLUMN-FONT 0
-      probe.fact-cost COLUMN-LABEL "Tot.Fact!Cost" FORMAT ">>,>>>,>>9.99":U
+      probe.fact-cost COLUMN-LABEL "Tot.Fact!Cost" FORMAT ">>>,>>>,>>9.99":U
             WIDTH 19 COLUMN-FONT 0
-      probe.full-cost FORMAT ">>,>>>,>>9.99":U WIDTH 19 COLUMN-FONT 0
+      probe.full-cost FORMAT ">>>,>>>,>>9.99":U WIDTH 19 COLUMN-FONT 0
       display-gp (1) @ probe.gross-profit
       display-gp (1) @ probe.gross-profit
       probe.gross-profit COLUMN-LABEL "Gross%" FORMAT "->>9.99":U
@@ -522,7 +522,7 @@ DEFINE BROWSE br_table
             WIDTH 9.6
       probe.comm FORMAT "->>,>>9.99<<<":U
       probe.net-profit COLUMN-LABEL "Net%" FORMAT "->>9.99":U COLUMN-FONT 0
-      probe.sell-price FORMAT ">>,>>>,>>9.99":U WIDTH 19 COLUMN-FONT 0
+      probe.sell-price FORMAT ">>>,>>>,>>9.99":U WIDTH 19 COLUMN-FONT 0
       probe.gsh-qty COLUMN-LABEL "Total!Sheets" FORMAT ">>>>>>9":U
             COLUMN-FONT 0
       probe.do-quote COLUMN-LABEL "Q" FORMAT "Y/N":U COLUMN-FONT 0
@@ -532,12 +532,12 @@ DEFINE BROWSE br_table
       probe.boardCostPerM COLUMN-LABEL "Board/M" FORMAT "->,>>>,>>9.99":U
             WIDTH 17
       probe.boardCostPct COLUMN-LABEL "Board%" FORMAT "->>9.99":U
-      probe.boardContributionPerM COLUMN-LABEL "Board!Contrib/M" FORMAT "->,>>>,>>9.99":U
+      probe.boardContributionPerM COLUMN-LABEL "Board!Contrib/M" FORMAT "->>,>>>,>>9.99":U
             WIDTH 17
       probe.boardContributionTotal COLUMN-LABEL "Board!Contrib$" FORMAT "->>>,>>>,>>9.99":U
             WIDTH 19
       probe.probe-user COLUMN-LABEL "Probe By" FORMAT "X(8)":U
-      probe.tot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 12.2
+      probe.tot-lbs COLUMN-LABEL "Shipping!Weight" WIDTH 16.2 FORMAT "->>>,>>>,>>9"
       vtot-msf() @ vtot-msf COLUMN-LABEL "Total!MSF" COLUMN-FONT 0
       cvt-time(probe.probe-time) @ ls-probetime COLUMN-LABEL "Time" FORMAT "x(8)":U
       probe.line FORMAT ">>9":U
@@ -666,9 +666,9 @@ ASI.probe.est-no = ASI.eb.est-no"
      _FldNameList[1]   > ASI.probe.est-qty
 "probe.est-qty" ? ? "integer" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.probe.fact-cost
-"probe.fact-cost" "Tot.Fact!Cost" ">>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? no ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"probe.fact-cost" "Tot.Fact!Cost" ">>>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? no ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.probe.full-cost
-"probe.full-cost" ? ">>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"probe.full-cost" ? ">>>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
 "display-gp (1) @ probe.gross-profit" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
@@ -682,7 +682,7 @@ ASI.probe.est-no = ASI.eb.est-no"
      _FldNameList[9]   > ASI.probe.net-profit
 "probe.net-profit" "Net%" "->>9.99" "decimal" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.probe.sell-price
-"probe.sell-price" ? ">>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no "19" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
+"probe.sell-price" ? ">>>,>>>,>>9.99" "decimal" ? ? 0 ? ? ? yes ? no no "19" yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.probe.gsh-qty
 "probe.gsh-qty" "Total!Sheets" ">>>>>>9" "integer" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.probe.do-quote
@@ -695,13 +695,13 @@ ASI.probe.est-no = ASI.eb.est-no"
      _FldNameList[16]   > ASI.probe.boardCostPct
 "probe.boardCostPct" "Board%" "->>9.99" "decimal" ? ? ? ? ? ? ? ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.probe.boardContributionPerM
-"probe.boardContributionPerM" "Board!Contrib/M" "->,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"probe.boardContributionPerM" "Board!Contrib/M" "->>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "17" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.probe.boardContributionTotal
 "probe.boardContributionTotal" "Board!Contrib$" "->>>,>>>,>>9.99" "decimal" ? ? ? ? ? ? yes ? no no "19" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.probe.probe-user
 "probe.probe-user" "Probe By" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "ASI.probe.tot-lbs"
-"probe.tot-lbs" "Shipping!Weight" ? ? ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"probe.tot-lbs" "Shipping!Weight" "->>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > "_<CALC>"
 "vtot-msf() @ vtot-msf" "Total!MSF" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"

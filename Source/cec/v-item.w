@@ -401,7 +401,7 @@ DEFINE FRAME F-Main
           SIZE 14.4 BY 1
           BGCOLOR 15 FONT 4
      item.s-wid AT ROW 8.86 COL 41 COLON-ALIGNED
-          LABEL "Width" FORMAT ">>,>>9.99"
+          LABEL "Width" FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12.8 BY 1
           BGCOLOR 15 FONT 4
@@ -420,7 +420,7 @@ DEFINE FRAME F-Main
           SIZE 16.4 BY 1
           BGCOLOR 15 FONT 4
      item.s-len AT ROW 9.81 COL 41 COLON-ALIGNED
-          LABEL "Length" FORMAT ">>,>>9.99"
+          LABEL "Length" FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12.8 BY 1
           BGCOLOR 15 FONT 4
@@ -445,7 +445,7 @@ DEFINE FRAME F-Main
           SIZE 12 BY 1
           BGCOLOR 15 FONT 4
      item.r-wid AT ROW 10.76 COL 41 COLON-ALIGNED
-          LABEL "Roll W" FORMAT ">>,>>9.99"
+          LABEL "Roll W" FORMAT ">>>,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12.8 BY 1
           BGCOLOR 15 FONT 4
@@ -2201,10 +2201,10 @@ PROCEDURE local-display-fields :
 
     IF v-cecscrn-char EQ "Decimal" THEN
        ASSIGN
-          item.s-wid:FORMAT = ">>,>>9.999999"
-          item.s-len:FORMAT = ">>,>>9.999999"
+          item.s-wid:FORMAT = ">>>,>>9.999999"
+          item.s-len:FORMAT = ">>>,>>9.999999"
           item.s-dep:FORMAT = ">>,>>9.999999"
-          item.r-wid:FORMAT = ">>,>>9.999999"
+          item.r-wid:FORMAT = ">>>,>>9.999999"
           ITEM.case-l:FORMAT = ">>9.999999"
           ITEM.case-w:FORMAT = ">>9.999999"
           ITEM.case-d:FORMAT = ">>9.999999" .

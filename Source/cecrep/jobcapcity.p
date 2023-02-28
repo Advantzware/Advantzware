@@ -438,8 +438,8 @@ do v-local-loop = 1 to v-local-copies:
           v-i-line[1] = "ITEM DESCRIPTION"
           v-i-line[2] = "Style: " + if avail xstyle then xstyle.dscr else ""
           v-i-line[3] = "Size: "  + if avail xeb    then
-                         trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                         trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                         trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                         trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                          trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else ""
           v-i-line[4] = "Joint: " + if avail xeb then v-joint-dscr else "".
         
@@ -585,7 +585,7 @@ do v-local-loop = 1 to v-local-copies:
            "W:" + trim(string({sys/inc/k16v.i v-form-wid},">,>>9.99")) +
            " " +
            "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(22)" AT 90 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
-           "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) format "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
+           "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) format "x(12)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
            SKIP
             "<P8><U>Production ID:</U>" AT 10
             "<B><P12>Board: " + v-form-dscr WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank AT 120 FORM "x(47)" 
@@ -618,9 +618,9 @@ do v-local-loop = 1 to v-local-copies:
                    (vs-len + " x " + vs-wid + " x " + vs-dep) FORM "x(30)" WHEN AVAIL xeb   
            
            "Net   Size:"  AT 80
-           "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
+           "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>>9.99<<<<")) +
            " " +
-           "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+           "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>>9.99<<<<")) format "x(22)"
            SKIP
            "Joint:" AT 2 v-joint-dscr             
                          "Die   Size:" AT 80
@@ -715,8 +715,8 @@ do v-local-loop = 1 to v-local-copies:
               "<P11><B>" d4-text AT 83 "<P10></B>"
               SKIP
               "Pallet:" AT 3
-              trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-              trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9")) when avail xeb format "x(15)"
+              trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+              trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9")) when avail xeb format "x(15)"
               "<P11><B><C65.3>" d5-text /*AT 83*/ "<P10></B>"
               SKIP
               item.i-name AT 3 WHEN AVAIL ITEM

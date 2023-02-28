@@ -268,7 +268,7 @@ DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.ls-width AT ROW 4.33 COL 22 COLON-ALIGNED
           LABEL "Machine Side-Side"
           VIEW-AS FILL-IN 
-          SIZE 13.2 BY 1
+          SIZE 14.8 BY 1
           BGCOLOR 15 
      ce-ctrl.ls-triml AT ROW 4.33 COL 43 COLON-ALIGNED
           LABEL "Trim"
@@ -286,7 +286,7 @@ DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.ls-length AT ROW 5.52 COL 22 COLON-ALIGNED
           LABEL "Machine Front-Back"
           VIEW-AS FILL-IN 
-          SIZE 13.2 BY 1
+          SIZE 14.8 BY 1
           BGCOLOR 15 
      ce-ctrl.ls-trimw AT ROW 5.52 COL 43 COLON-ALIGNED
           LABEL "Trim"

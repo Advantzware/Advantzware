@@ -149,7 +149,7 @@ DEFINE BROWSE BROWSE-2
       ttUserColumn.defaultcolLabel COLUMN-LABEL "Name" FORMAT "x(25)":U WIDTH 24.4
       ttUserColumn.colLabel FORMAT "x(30)":U
       ttUserColumn.colVisible FORMAT "yes/no":U WIDTH 10.2 VIEW-AS TOGGLE-BOX
-      ttUserColumn.colWidth COLUMN-LABEL "Width" FORMAT ">>9.99":U
+      ttUserColumn.colWidth COLUMN-LABEL "Width" FORMAT ">>>>>9.99<<<<":U
             WIDTH 16.4
   ENABLE
       ttUserColumn.colLabel

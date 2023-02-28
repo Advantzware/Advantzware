@@ -3,7 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 def var voverall     as   dec    /*format "->>,>>>,>>9.99"*/ .
-def var vtot-msf     as   dec    format ">>>>9.9<<<<".
+def var vtot-msf     as   dec    format ">>>>>>>9.9<<<<".
 DEFINE VARIABLE dContPerManHr AS DECIMAL format ">>>>9.99".
 def var vfont4xprint as cha no-undo.
 
@@ -27,14 +27,15 @@ put unformatted
      skip.
 */
 
+
 form
      probe.est-qty          format ">>>>>>9"
      probe.freight          format ">9"
-     probe.fact-cost        format ">>>>>9.99"
-     probe.full-cost        format ">>>>>9.99"
+     probe.fact-cost        format ">>>>>>>9.99"
+     probe.full-cost        format ">>>>>>>9.99"
      probe.gross-profit     format "->>9.99"
      probe.net-profit       format "->>9.99"
-     probe.sell-price       format "->>>>9.99"
+     probe.sell-price       format "->>>>>>9.99"
      
      voverall               format "->>>9.99"
      probe.gsh-qty format ">>>>>9"
@@ -56,12 +57,12 @@ form
      fill(" ",7 - length(trim(ce-ctrl.hd-net))) + trim(ce-ctrl.hd-net)     format "x(7)"
      "        Price           /BSF Sheets     MSF"
      skip*/
-     with width 80 stream-io frame probe down no-labels no-underline no-attr-space no-box.
+     with width 120 stream-io frame probe down no-labels no-underline no-attr-space no-box.
 form
      probe.est-qty          format ">>>>>>9"
      probe.freight          format ">9"
-     probe.fact-cost        format ">,>>>,>>9.99"
-     probe.full-cost        format ">,>>>,>>9.99"
+     probe.fact-cost        format ">>,>>>,>>9.99"
+     probe.full-cost        format ">>,>>>,>>9.99"
      probe.gross-profit     format "->>9.99"
      probe.net-profit       format "->>9.99"
      probe.sell-price       format "->,>>>,>>9.99"
@@ -90,11 +91,11 @@ form
 form
      probe.est-qty          format ">>>>>9"
      probe.freight          format ">9"
-     probe.boardCostPerM    format "->>>>9.99"
+     probe.boardCostPerM    format "->>>>>>9.99"
      probe.boardCostPct     format "->>9.99"
-     probe.boardContributionTotal        format ">>>>>>9.99"
-     dContPerManHR         format ">>>>9.99"
-     probe.sell-price       format "->>>>9.99"
+     probe.boardContributionTotal        format ">>>>>>>9.99"
+     dContPerManHR         format ">>>>>>9.99"
+     probe.sell-price       format "->>>>>>9.99"
      voverall               format "->>>9.99"
      probe.gsh-qty format ">>>>>9"
      vtot-msf
@@ -104,18 +105,18 @@ form
      "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
      "                              "
      space(10)
-     "              Board              Total   Contb/      Sell FG Price  Total   Total" skip
-     "   Qty  R       $/M Board %      Contb   Hr         Price    / MSF Sheets Sht MSF"
+     "                Board               Total     Contb/       Sell  FG Price  Total      Total" skip
+     "   Qty  R         $/M Board %       Contb     Hr          Price     / MSF Sheets    Sht MSF"
      /*skip*/
-     with width 90 stream-io frame probe-peach down no-labels no-underline no-attr-space no-box.
+     with width 100 stream-io frame probe-peach down no-labels no-underline no-attr-space no-box.
       
 form
      probe.est-qty          format ">>>>>>9"
      probe.freight          format ">9"
      probe.boardCostPerM    format "->,>>>,>>9.99"
      probe.boardCostPct     format "->>9.99"
-     probe.boardContributionTotal        format ">>>,>>9.99"
-     dContPerManHR         format ">>>>9.99"
+     probe.boardContributionTotal        format ">>,>>>,>>9.99"
+     dContPerManHR         format ">>>>>>9.99"
      probe.sell-price       format "->>>>>>9.99"
      voverall               format "->>>>9.99"
      probe.gsh-qty format ">>>>>9"
@@ -126,8 +127,8 @@ form
      "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
      "                              "
      space(10)
-     "                                     Total    Contb/        Sell  FG Price  Total   Total" skip
-     "    Qty  R     Board $/M Board %     Contb    Hr           Price     / MSF Sheets Sht MSF" 
+     "                                         Total     Contb/        Sell  FG Price  Total      Total" skip
+     "    Qty  R     Board $/M Board %         Contb     Hr           Price     / MSF Sheets    Sht MSF" 
      /*skip*/
      with width 110 stream-io frame probe-peach-big down no-labels no-underline no-attr-space no-box.
            

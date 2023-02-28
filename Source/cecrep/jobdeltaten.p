@@ -395,8 +395,8 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
             v-i-line[1] = "ITEM DESCRIPTION"
             v-i-line[2] = "Style: " + IF AVAILABLE xstyle THEN xstyle.dscr ELSE ""
             v-i-line[3] = "Size: "  + IF AVAILABLE xeb    THEN
-                     TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) ELSE ""
             v-i-line[4] = "Joint: " + IF AVAILABLE xeb THEN v-joint-dscr ELSE "".
        
@@ -472,8 +472,8 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<P8><=TabInOut>" IF AVAILABLE xeb AND xeb.tab-in EQ YES THEN "In" ELSE IF AVAILABLE xeb AND xeb.tab-in EQ NO THEN "Out" ELSE "" FORMAT "x(10)"
         "<=Estimate>" IF AVAILABLE xeb THEN xeb.est-no ELSE "" FORMAT "x(10)"
         "</B>"
-        "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-        trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+        "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+        trim(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
         trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
         "<=CAD><P10><B>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
         "</B><P8><=Printed><B>" TODAY  "</B>"
@@ -855,8 +855,8 @@ PUT      "<=Start><R23.5><#PageStart2>"
     "<=Stacks>" IF AVAILABLE xeb THEN STRING(xeb.stacks) ELSE "" FORMAT "x(6)"
     "<=PatternCode>" IF AVAILABLE xeb THEN STRING(xeb.stack-code) ELSE "" FORMAT "x(3)"
     "<=Pattern>" IF AVAILABLE xeb AND AVAILABLE stackPattern THEN stackPattern.stackDescription ELSE "" FORMAT "x(30)"
-    "<=Palletwl>" (IF AVAILABLE xeb THEN trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9")) ELSE "") format "x(15)"
+    "<=Palletwl>" (IF AVAILABLE xeb THEN trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9")) ELSE "") format "x(15)"
     "<=ShipTo>" v-shipto  FORMAT "x(10)"
     "<=ShipName>" IF AVAILABLE shipto THEN shipto.ship-name ELSE "" FORMAT "x(30)"
     "<=ShipAdd1>" IF AVAILABLE shipto THEN shipto.ship-addr[1] ELSE "" FORMAT "x(30)"

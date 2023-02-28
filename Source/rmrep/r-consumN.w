@@ -64,7 +64,7 @@ ASSIGN
                            "WT/MSF,COST VALUE,WIDTH,ROLL WEIGHT,VENDOR TAG #" 
     cFieldListToSelect = "cat,i-no,dscr,tag,lin-ft,msf," +
                             "weht,cst-val,wd,roll-wt,vend-tag"
-    cFieldLength       = "8,10,15,20,13,10," + "6,14,9,11,20" 
+    cFieldLength       = "8,10,15,20,13,10," + "6,14,10,11,20" 
     cFieldType         = "c,c,c,c,i,i," + "i,i,i,i,c"  
     .
 
@@ -1594,7 +1594,7 @@ PROCEDURE run-report :
                 WHEN "cst-val"  THEN 
                     cVarValue = STRING(v-value,"->>,>>>,>>9.99") .
                 WHEN "wd"       THEN 
-                    cVarValue = STRING(ITEM.s-wid,">>,>>9.99") .
+                    cVarValue = STRING(ITEM.s-wid,">>>,>>9.99<<<<") .
                 WHEN "roll-wt"  THEN 
                     cVarValue = STRING(r-weight,">>,>>9.99") .
                 WHEN "vend-tag" THEN 

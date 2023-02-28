@@ -123,7 +123,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       ELSE DO:
            
            IF AVAIL eb AND AVAIL style AND int(style.industry) > 1 THEN
-             trim-size = STRING({sys/inc/k16v.i eb.len},">>9.99") + " x " + STRING({sys/inc/k16v.i eb.wid},">>9.99")
+             trim-size = STRING({sys/inc/k16v.i eb.len},">>>>>9.99<<<<") + " x " + STRING({sys/inc/k16v.i eb.wid},">>>>>9.99<<<<")
                   + " x " + STRING({sys/inc/k16v.i eb.dep},">>9.99").
 
            ELSE IF AVAIL eb THEN trim-size = STRING(eb.len) + " x " + STRING(eb.wid)
@@ -236,9 +236,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
               
       trim-size =
           TRIM(STRING(TRUNC(eb.len,0) + ((eb.len - TRUNC(eb.len,0)) /
-                  k_frac),">>>9.99")) + " x " +
+                  k_frac),">>>>>9.99<<<<")) + " x " +
           TRIM(STRING(TRUNC(eb.wid,0) + ((eb.wid - TRUNC(eb.wid,0)) /
-                  k_frac),">>>9.99")) + " x " +
+                  k_frac),">>>>>9.99<<<<")) + " x " +
           TRIM(STRING(TRUNC(eb.dep,0) + ((eb.dep - TRUNC(eb.dep,0)) /
                   k_frac),">>>9.99")).
                 

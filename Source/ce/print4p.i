@@ -15,7 +15,7 @@ def var lv-brd-sf          as dec format ">>>>>9.9<<"  no-undo.
 def var lv-brd-wu          like lv-brd-sq no-undo.
 
 DEF VAR ld-metric AS DEC INIT 1 NO-UNDO.
-DEF VAR lv-format AS CHAR INIT ">>>>9.9<<<<" NO-UNDO.
+DEF VAR lv-format AS CHAR INIT ">>>>>9.9<<<<<" NO-UNDO.
 DEF VAR ld-wid AS DEC NO-UNDO.
 DEF VAR ld-len AS DEC NO-UNDO.
 DEF VAR ld-dep AS DEC NO-UNDO.

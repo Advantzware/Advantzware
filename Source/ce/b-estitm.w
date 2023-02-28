@@ -366,8 +366,8 @@ DEFINE BROWSE br-estitm
       ef.board FORMAT "x(12)":U 
       ef.cal FORMAT ">9.99999<":U 
       eb.procat FORMAT "x(5)":U 
-      eb.len FORMAT ">>9.99999":U 
-      eb.wid FORMAT ">>9.99999":U 
+      eb.len FORMAT ">>>>>9.99999":U 
+      eb.wid FORMAT ">>>>>9.99999":U 
       eb.dep FORMAT ">>9.99999":U 
       eb.cust-% COLUMN-LABEL "Qty/Set" FORMAT "->>,>>>":U WIDTH 10
       eb.i-col FORMAT ">9":U
@@ -377,7 +377,7 @@ DEFINE BROWSE br-estitm
       eb.num-wid FORMAT ">9":U
       eb.num-len FORMAT ">9":U
       eb.num-up COLUMN-LABEL "# Up" FORMAT ">>>,>>9":U
-      eb.die-in FORMAT ">>>>9":U
+      eb.die-in FORMAT ">>>>>>9":U
       ef.f-col COLUMN-LABEL "Inks/Form" FORMAT ">>":U
       ef.f-pass COLUMN-LABEL "Passes/Form" FORMAT ">>":U
       ef.f-coat COLUMN-LABEL "Coatings/Form" FORMAT ">>":U
@@ -524,9 +524,9 @@ ASSIGN
      _FldNameList[11]   > ASI.eb.procat
 "eb.procat" ? ? "character" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.eb.len
-"eb.len" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.len" ? ">>>>>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.eb.wid
-"eb.wid" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.wid" ? ">>>>>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.eb.dep
 "eb.dep" ? ">>9.99999" "decimal" ? ? 2 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.eb.cust-%
@@ -544,7 +544,7 @@ ASSIGN
      _FldNameList[22]   > ASI.eb.num-up
 "eb.num-up" "# Up" ">>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.eb.die-in
-"eb.die-in" ? ">>>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"eb.die-in" ? ">>>>>>9" "decimal" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.ef.f-col
 "ef.f-col" "Inks/Form" ">>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > ASI.ef.f-pass

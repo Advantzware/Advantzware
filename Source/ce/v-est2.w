@@ -211,14 +211,14 @@ DEFINE VARIABLE dtCost AS CHARACTER FORMAT "X(8)":U INITIAL "Cost/"
      VIEW-AS FILL-IN 
      SIZE 7.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE OverrideExist AS CHARACTER FORMAT "X(16)":U INITIAL "Overrides Exist" 
-     VIEW-AS FILL-IN 
-     SIZE 19.4 BY 1 NO-UNDO.
-     
 DEFINE VARIABLE fiWtPerTon AS DECIMAL FORMAT "->>,>>9.99<<":U INITIAL 0 
      LABEL "WT Per Ton" 
      VIEW-AS FILL-IN 
-     SIZE 15 BY 1 NO-UNDO.        
+     SIZE 15 BY 1 NO-UNDO.
+
+DEFINE VARIABLE OverrideExist AS CHARACTER FORMAT "X(16)":U INITIAL "Overrides Exist" 
+     VIEW-AS FILL-IN 
+     SIZE 19.4 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-20
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -267,7 +267,7 @@ DEFINE FRAME fold
      ef.brd-dscr AT ROW 2.43 COL 28 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
           VIEW-AS FILL-IN 
           SIZE 40 BY 1
-     fiWtPerTon AT ROW 2.48 COL 88.6 COLON-ALIGNED WIDGET-ID 18     
+     fiWtPerTon AT ROW 2.48 COL 88.6 COLON-ALIGNED WIDGET-ID 18
      ef.i-code AT ROW 2.19 COL 111 COLON-ALIGNED
           LABEL "Real"
           VIEW-AS FILL-IN 
@@ -275,9 +275,9 @@ DEFINE FRAME fold
      ef.cal AT ROW 3.38 COL 28 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
-     ef.cost-uom AT ROW 3.38 COL 48.9 NO-LABEL
+     ef.cost-uom AT ROW 3.38 COL 49 NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 6.5 BY 1
+          SIZE 6.6 BY 1
      ef.cost-msh AT ROW 3.38 COL 53.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 12.8 BY 1
@@ -298,16 +298,16 @@ DEFINE FRAME fold
           LABEL "Roll"
           VIEW-AS TOGGLE-BOX
           SIZE 10 BY .81
-     ef.roll-wid AT ROW 5.76 COL 17 COLON-ALIGNED NO-LABEL FORMAT ">>9.999999"
+     ef.roll-wid AT ROW 5.76 COL 17 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
+          SIZE 15.6 BY 1
      ef.gsh-wid AT ROW 6.71 COL 17 COLON-ALIGNED
-          LABEL "Gross Sheet" FORMAT ">>9.999999"
+          LABEL "Gross Sheet" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-     ef.gsh-len AT ROW 6.71 COL 31 COLON-ALIGNED NO-LABEL FORMAT ">>9.999999"
+          SIZE 15.6 BY 1
+     ef.gsh-len AT ROW 6.71 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
+          SIZE 15.6 BY 1
      ef.n-out AT ROW 6.71 COL 69 COLON-ALIGNED HELP
           "Enter number out on Gross Sheet"
           LABEL "#Out" FORMAT ">>9"
@@ -318,12 +318,12 @@ DEFINE FRAME fold
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      ef.nsh-wid AT ROW 7.67 COL 17 COLON-ALIGNED
-          LABEL "Mach Feed" FORMAT ">>9.999999"
+          LABEL "Mach Feed" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-     ef.nsh-len AT ROW 7.67 COL 31 COLON-ALIGNED NO-LABEL FORMAT ">>9.999999"
+          SIZE 15.6 BY 1
+     ef.nsh-len AT ROW 7.67 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
+          SIZE 15.6 BY 1
      ef.n-out-l AT ROW 7.67 COL 69 COLON-ALIGNED HELP
           "Enter number out on Net Sheet"
           LABEL "#Out" FORMAT ">>9"
@@ -337,12 +337,12 @@ DEFINE FRAME fold
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
      ef.trim-w AT ROW 8.62 COL 17 COLON-ALIGNED
-          LABEL "Die Size" FORMAT ">>9.999999"
+          LABEL "Die Size" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-     ef.trim-l AT ROW 8.62 COL 31 COLON-ALIGNED NO-LABEL FORMAT ">>9.999999"
+          SIZE 15.6 BY 1
+     ef.trim-l AT ROW 8.62 COL 33.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
+          SIZE 15.6 BY 1
      eb.num-wid AT ROW 8.62 COL 69 COLON-ALIGNED
           LABEL "# On" FORMAT ">>9"
           VIEW-AS FILL-IN 
@@ -353,19 +353,19 @@ DEFINE FRAME fold
      eb.num-up AT ROW 8.62 COL 96 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.die-in AT ROW 8.62 COL 110 COLON-ALIGNED NO-LABEL
+     ef.die-in AT ROW 8.62 COL 110 COLON-ALIGNED NO-LABEL FORMAT ">,>>>,>>9"
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+          SIZE 13 BY 1
      eb.t-wid AT ROW 9.57 COL 17 COLON-ALIGNED
           LABEL "Blank"
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-     eb.t-len AT ROW 9.57 COL 31 COLON-ALIGNED NO-LABEL
+          SIZE 15.6 BY 1
+     eb.t-len AT ROW 9.57 COL 33.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 13.6 BY 1
-     eb.t-sqin AT ROW 9.57 COL 49 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>9.9999"
+          SIZE 15.6 BY 1
+     eb.t-sqin AT ROW 9.57 COL 49.6 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 16.6 BY 1
      ef.leaf[1] AT ROW 11.71 COL 4 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -378,10 +378,10 @@ DEFINE FRAME fold
      ef.leaf-bnum[1] AT ROW 11.71 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[1] AT ROW 11.71 COL 61 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[1] AT ROW 11.71 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     ef.leaf-l[1] AT ROW 11.71 COL 75 COLON-ALIGNED NO-LABEL
+     ef.leaf-l[1] AT ROW 11.71 COL 75 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
      ef.leaf[2] AT ROW 12.91 COL 4 COLON-ALIGNED NO-LABEL
@@ -396,10 +396,10 @@ DEFINE FRAME fold
      ef.leaf-bnum[2] AT ROW 12.91 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[2] AT ROW 12.91 COL 61 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[2] AT ROW 12.91 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     ef.leaf-l[2] AT ROW 12.91 COL 75 COLON-ALIGNED NO-LABEL
+     ef.leaf-l[2] AT ROW 12.91 COL 75 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
      ef.leaf[3] AT ROW 14.1 COL 4 COLON-ALIGNED NO-LABEL
@@ -414,9 +414,6 @@ DEFINE FRAME fold
      ef.leaf-bnum[3] AT ROW 14.1 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[3] AT ROW 14.1 COL 61 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 13 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -424,7 +421,10 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
-     ef.leaf-l[3] AT ROW 14.1 COL 75 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[3] AT ROW 14.1 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     ef.leaf-l[3] AT ROW 14.1 COL 75 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
      ef.leaf[4] AT ROW 15.29 COL 4 COLON-ALIGNED NO-LABEL
@@ -439,10 +439,10 @@ DEFINE FRAME fold
      ef.leaf-bnum[4] AT ROW 15.29 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     ef.leaf-w[4] AT ROW 15.29 COL 61 COLON-ALIGNED NO-LABEL
+     ef.leaf-w[4] AT ROW 15.29 COL 61 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     ef.leaf-l[4] AT ROW 15.29 COL 75 COLON-ALIGNED NO-LABEL
+     ef.leaf-l[4] AT ROW 15.29 COL 75 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 12.4 BY 1
      btn_board AT ROW 2.43 COL 3 WIDGET-ID 16
@@ -451,24 +451,8 @@ DEFINE FRAME fold
      OverrideExist AT ROW 3.38 COL 47.8 NO-LABEL WIDGET-ID 154
      "Die Inches" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 5.05 COL 110
-     "Total Up" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 5.05 COL 95
-     "Freight/" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 3.62 COL 111 RIGHT-ALIGNED
-     "Width" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11 COL 65
-          FGCOLOR 9 
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 5.05 COL 34
-          FGCOLOR 1 
-     "Width" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 5.05 COL 20
-          FGCOLOR 1 
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11 COL 79
-          FGCOLOR 9 
      "Sq. Inches" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 5.05 COL 50
+          SIZE 14 BY .62 AT ROW 5.05 COL 50.6
      "Leaf/Film" VIEW-AS TEXT
           SIZE 14 BY .62 AT ROW 11 COL 8
           FGCOLOR 9 
@@ -477,6 +461,22 @@ DEFINE FRAME fold
           FGCOLOR 9 
      "F  /  B" VIEW-AS TEXT
           SIZE 11 BY .62 AT ROW 11 COL 50
+          FGCOLOR 9 
+     "Total Up" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 5.05 COL 95
+     "Freight/" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 3.62 COL 111 RIGHT-ALIGNED
+     "Width" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11 COL 65
+          FGCOLOR 9 
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 5.05 COL 36.2
+          FGCOLOR 1 
+     "Width" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 5.05 COL 20
+          FGCOLOR 1 
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11 COL 79
           FGCOLOR 9 
      RECT-20 AT ROW 1 COL 1
      RECT-21 AT ROW 4.57 COL 3
@@ -554,15 +554,15 @@ ASSIGN
 /* SETTINGS FOR FILL-IN ef.cost-uom IN FRAME fold
    ALIGN-L 5 EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN ef.die-in IN FRAME fold
-   5                                                                    */
+   5 EXP-FORMAT                                                         */
 /* SETTINGS FOR FILL-IN dtCost IN FRAME fold
    NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN fiWtPerTon IN FRAME fold
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ef.fr-msh IN FRAME fold
    5                                                                    */
 /* SETTINGS FOR FILL-IN ef.fr-uom IN FRAME fold
    5 EXP-LABEL                                                          */
-/* SETTINGS FOR FILL-IN fiWtPerTon IN FRAME Corr
-   NO-ENABLE                                                            */   
 /* SETTINGS FOR FILL-IN ef.gsh-len IN FRAME fold
    5 EXP-LABEL EXP-FORMAT                                               */
 ASSIGN 
@@ -585,18 +585,26 @@ ASSIGN
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN ef.leaf-bnum[4] IN FRAME fold
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN ef.leaf-l[1] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-l[1]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-l[2] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-l[2]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-l[3] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-l[3]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-l[4] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-l[4]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
@@ -609,18 +617,26 @@ ASSIGN
    NO-ENABLE 2 EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN ef.leaf-snum[4] IN FRAME fold
    NO-ENABLE 2 EXP-FORMAT                                               */
+/* SETTINGS FOR FILL-IN ef.leaf-w[1] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-w[1]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-w[2] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-w[2]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-w[3] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-w[3]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
 
+/* SETTINGS FOR FILL-IN ef.leaf-w[4] IN FRAME fold
+   EXP-FORMAT                                                           */
 ASSIGN 
        ef.leaf-w[4]:PRIVATE-DATA IN FRAME fold     = 
                 "16th".
@@ -660,8 +676,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.num-wid IN FRAME fold
    2 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN OverrideExist IN FRAME fold
-   NO-ENABLE ALIGN-L                                                    */ 
-
+   NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR TOGGLE-BOX ef.roll IN FRAME fold
    5 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN ef.roll-wid IN FRAME fold
@@ -999,7 +1014,6 @@ DO:
     END.  
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1027,7 +1041,6 @@ DO:
     END.  
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1071,7 +1084,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1086,7 +1098,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1100,7 +1111,6 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1117,14 +1127,13 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ef.leaf-l[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-l[1] V-table-Win
-ON LEAVE OF ef.leaf-l[1] IN FRAME fold /* Length[1] */
+ON LEAVE OF ef.leaf-l[1] IN FRAME fold /* Length */
 DO:
      IF LASTKEY = -1 THEN RETURN.
  {&methods/lValidateError.i YES}
@@ -1138,14 +1147,13 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ef.leaf-l[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-l[2] V-table-Win
-ON LEAVE OF ef.leaf-l[2] IN FRAME fold /* Length[2] */
+ON LEAVE OF ef.leaf-l[2] IN FRAME fold /* Length */
 DO:
       IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
@@ -1159,14 +1167,13 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ef.leaf-l[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-l[3] V-table-Win
-ON LEAVE OF ef.leaf-l[3] IN FRAME fold /* Length[3] */
+ON LEAVE OF ef.leaf-l[3] IN FRAME fold /* Length */
 DO:
        IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
@@ -1180,14 +1187,13 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ef.leaf-l[4]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-l[4] V-table-Win
-ON LEAVE OF ef.leaf-l[4] IN FRAME fold /* Length[4] */
+ON LEAVE OF ef.leaf-l[4] IN FRAME fold /* Length */
 DO:
        IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
@@ -1201,7 +1207,6 @@ DO:
 {&methods/lValidateError.i NO}
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1217,7 +1222,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1232,7 +1236,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1246,7 +1249,6 @@ DO:
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1263,14 +1265,13 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ef.leaf-w[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-w[1] V-table-Win
-ON LEAVE OF ef.leaf-w[1] IN FRAME fold /* Width[1] */
+ON LEAVE OF ef.leaf-w[1] IN FRAME fold /* Width */
 DO:
     IF LASTKEY = -1 THEN RETURN.
    {&methods/lValidateError.i YES}
@@ -1282,14 +1283,13 @@ DO:
    {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ef.leaf-w[2]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-w[2] V-table-Win
-ON LEAVE OF ef.leaf-w[2] IN FRAME fold /* Width[2] */
+ON LEAVE OF ef.leaf-w[2] IN FRAME fold /* Width */
 DO:
     IF LASTKEY = -1 THEN RETURN.
   {&methods/lValidateError.i YES}
@@ -1302,14 +1302,13 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ef.leaf-w[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-w[3] V-table-Win
-ON LEAVE OF ef.leaf-w[3] IN FRAME fold /* Width[3] */
+ON LEAVE OF ef.leaf-w[3] IN FRAME fold /* Width */
 DO:
   IF LASTKEY = -1 THEN RETURN.
  {&methods/lValidateError.i YES}
@@ -1322,14 +1321,13 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &Scoped-define SELF-NAME ef.leaf-w[4]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-w[4] V-table-Win
-ON LEAVE OF ef.leaf-w[4] IN FRAME fold /* Width[4] */
+ON LEAVE OF ef.leaf-w[4] IN FRAME fold /* Width */
 DO:
     IF LASTKEY = -1 THEN RETURN.
 {&methods/lValidateError.i YES}
@@ -1343,7 +1341,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1360,7 +1357,6 @@ DO:
   {&methods/lValidateError.i NO}
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1388,7 +1384,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1415,7 +1410,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1441,7 +1435,6 @@ DO:
   {&methods/lValidateError.i NO}
   END.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1486,7 +1479,6 @@ DO:
     IF ll-auto-calc-selected THEN RUN auto-calc2.  /* from ce/uest2.p */
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1516,7 +1508,6 @@ DO:
     END.
 {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1550,7 +1541,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1571,7 +1561,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1634,7 +1623,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1656,7 +1644,6 @@ DO:
 
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3314,23 +3301,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
-PROCEDURE proc-enable :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DO WITH FRAME {&FRAME-NAME}:
-      btn_board:HIDDEN = TRUE .
-      btn_cost:HIDDEN = TRUE .
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDisplayWtPerTon V-table-Win 
 PROCEDURE pDisplayWtPerTon :
 /*------------------------------------------------------------------------------
@@ -3363,6 +3333,61 @@ PROCEDURE pDisplayWtPerTon :
      fiWtPerTon:SCREEN-VALUE = string(dResult) .
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DO WITH FRAME {&FRAME-NAME}:
+      btn_board:HIDDEN = TRUE .
+      btn_cost:HIDDEN = TRUE .
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowHideCostFiled V-table-Win 
+PROCEDURE pShowHideCostFiled :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
+  DEFIN VARIABLE lHideCostMsh AS LOGICAL NO-UNDO.
+  RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs. 
+  
+  DO WITH FRAME {&FRAME-NAME}:
+    lHideCostMsh = DYNAMIC-FUNCTION("fVendCostHasEstimateOverride" IN hdVendorCostProcs,ef.company,ef.est-no,ef.form-no, ef.board ).
+    IF lHideCostMsh THEN
+    DO:
+      OverrideExist:HIDDEN = FALSE .
+      dtCost:HIDDEN = TRUE.
+      ef.cost-uom:HIDDEN = TRUE.
+      ef.cost-msh:HIDDEN = TRUE.
+      FIND CURRENT ef EXCLUSIVE-LOCK NO-ERROR .
+      IF AVAIL ef THEN
+       ASSIGN ef.cost-msh = 0.
+       FIND CURRENT ef NO-LOCK NO-ERROR .
+    END.
+    ELSE do:
+      OverrideExist:HIDDEN = TRUE .
+      dtCost:HIDDEN = FALSE.
+      ef.cost-uom:HIDDEN = FALSE.
+      ef.cost-msh:HIDDEN = FALSE.
+    END.      
+  END.
+  DELETE OBJECT hdVendorCostProcs.
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4047,44 +4072,6 @@ PROCEDURE valid-leaf-snum :
   END.
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pShowHideCostFiled V-table-Win 
-PROCEDURE pShowHideCostFiled :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE hdVendorCostProcs     AS HANDLE    NO-UNDO.
-  DEFIN VARIABLE lHideCostMsh AS LOGICAL NO-UNDO.
-  RUN system\VendorCostProcs.p PERSISTENT SET hdVendorCostProcs. 
-  
-  DO WITH FRAME {&FRAME-NAME}:
-    lHideCostMsh = DYNAMIC-FUNCTION("fVendCostHasEstimateOverride" IN hdVendorCostProcs,ef.company,ef.est-no,ef.form-no, ef.board ).
-    IF lHideCostMsh THEN
-    DO:
-      OverrideExist:HIDDEN = FALSE .
-      dtCost:HIDDEN = TRUE.
-      ef.cost-uom:HIDDEN = TRUE.
-      ef.cost-msh:HIDDEN = TRUE.
-      FIND CURRENT ef EXCLUSIVE-LOCK NO-ERROR .
-      IF AVAIL ef THEN
-       ASSIGN ef.cost-msh = 0.
-       FIND CURRENT ef NO-LOCK NO-ERROR .
-    END.
-    ELSE do:
-      OverrideExist:HIDDEN = TRUE .
-      dtCost:HIDDEN = FALSE.
-      ef.cost-uom:HIDDEN = FALSE.
-      ef.cost-msh:HIDDEN = FALSE.
-    END.      
-  END.
-  DELETE OBJECT hdVendorCostProcs.
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

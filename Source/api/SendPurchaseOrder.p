@@ -676,8 +676,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cOverPct                    = TRIM(STRING(po-ordl.over-pct,">>9.99"))
                 cUnderPct                   = TRIM(STRING(po-ordl.under-pct,">>9.99"))
                 cPoLineDueDate              = STRING(po-ordl.due-date)
-                cItemWidth                  = TRIM(STRING(po-ordl.s-wid,">>9.9999"))
-                cItemLength                 = TRIM(STRING(po-ordl.s-len,">>9.9999"))
+                cItemWidth                  = TRIM(STRING(po-ordl.s-wid,">>>>>9.9999<<"))
+                cItemLength                 = TRIM(STRING(po-ordl.s-len,">>>>>9.9999<<"))
                 cItemDepth                  = TRIM(STRING(po-ordl.s-dep,">>9.9999"))
                 cItemWidthTrunc             = STRING(TRUNCATE(po-ordl.s-wid,0))
                 cItemLengthTrunc            = STRING(TRUNCATE(po-ordl.s-len,0))
@@ -685,8 +685,8 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 cItemWidth16ths             = TRIM(STRING((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16))
                 cItemLength16ths            = TRIM(STRING((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16))
                 cItemDepth16ths             = TRIM(STRING((po-ordl.s-dep - TRUNCATE(po-ordl.s-dep,0)) * 16))
-                cItemWidthWithFracIn16ths   = TRIM(STRING(TRUNCATE(po-ordl.s-wid,0) + (((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16) / 100),">>>>.9999"))
-                cItemLengthWithFracIn16ths  = TRIM(STRING(TRUNCATE(po-ordl.s-len,0) + (((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16) / 100),">>>>.9999"))
+                cItemWidthWithFracIn16ths   = TRIM(STRING(TRUNCATE(po-ordl.s-wid,0) + (((po-ordl.s-wid - TRUNCATE(po-ordl.s-wid,0)) * 16) / 100),">>>>>>.9999<<"))
+                cItemLengthWithFracIn16ths  = TRIM(STRING(TRUNCATE(po-ordl.s-len,0) + (((po-ordl.s-len - TRUNCATE(po-ordl.s-len,0)) * 16) / 100),">>>>>>.9999<<"))
                 cCostPerUOM                 = TRIM(STRING(po-ordl.cost,"->>>>>>9.99<<<<"))
                 
                 cCostUOM                    = STRING(po-ordl.pr-uom)
@@ -800,9 +800,9 @@ FUNCTION pSortVendItemNumbersAdders RETURNS CHARACTER PRIVATE
                 ASSIGN
                     cQtyPerPack   = TRIM(STRING(itemfg.case-count))
                     cStackHeight  = TRIM(STRING(itemfg.stackHeight))
-                    cPalletWidth  = TRIM(STRING(itemfg.unitWidth, ">>>>9.99"))
+                    cPalletWidth  = TRIM(STRING(itemfg.unitWidth, ">>>>>9.99"))
                     cPalletHeight = TRIM(STRING(itemfg.unitHeight, ">>>>9.99"))
-                    cPalletLength = TRIM(STRING(itemfg.unitLength, ">>>>9.99"))
+                    cPalletLength = TRIM(STRING(itemfg.unitLength, ">>>>>9.99"))
                     cUnitPallet   = TRIM(STRING(itemfg.case-pall))
                     .
             

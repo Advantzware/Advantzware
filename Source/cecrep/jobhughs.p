@@ -297,8 +297,8 @@ do v-local-loop = 1 to v-local-copies:
            v-i-line[1] = "ITEM DESCRIPTION"
            v-i-line[2] = "Style: " + if avail xstyle then xstyle.dscr else ""
            v-i-line[3] = "Size: "  + if avail xeb    then
-                     trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else ""
            v-i-line[4] = "Joint: " + if avail xeb then v-joint-dscr else "".
 
@@ -419,8 +419,8 @@ do v-local-loop = 1 to v-local-copies:
                                             else v-pqty,">>>,>>9"))
                                             format "x(7)" 
               
-              "Size:" (trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                      trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+              "Size:" (trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                      trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                       trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99"))) FORM "x(30)" WHEN AVAIL xeb            
               SKIP
               v-cus[3] AT 2
@@ -457,7 +457,7 @@ do v-local-loop = 1 to v-local-copies:
               " " +
               "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank format "x(22)"  @ v-w-l AT 2
               "SEE 1st BLANK" WHEN v-see-1st-blank @ v-w-l   
-              "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) format "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank              "Ink 1:" AT 39 v-ink-1
+              "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) format "x(12)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank              "Ink 1:" AT 39 v-ink-1
               "Gross Size:" AT 80  
               "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) +
               " " +
@@ -479,9 +479,9 @@ do v-local-loop = 1 to v-local-copies:
               " " WHEN v-see-1st-blank @ v-form-code1 
 /*               "</B><P10>Ink 2:" AT 32 v-ink-2 "Net   Size:"  AT 83 /*91*/ */
               "</B><P10> Ink 2:"  v-ink-2 "Net   Size:"  AT 83
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>>9.99<<<<")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>>9.99<<<<")) format "x(22)"
               "<B><P12>" SKIP
               v-board-dscr  AT 2 FORM "x(29)"
 /*               " "  AT 2 FORM "x(29)" */

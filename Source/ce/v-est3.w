@@ -91,59 +91,63 @@ END.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, eb.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS eb.spare-int-3 eb.i-col eb.i-pass eb.i-coat ~
-eb.i-coat-p eb.i-coldscr eb.i-ps2[1] eb.i-code2[1] eb.i-dscr2[1] eb.i-%2[1] ~
-eb.i-ps2[2] eb.i-code2[2] eb.i-dscr2[2] eb.i-%2[2] eb.i-ps2[3] ~
-eb.i-code2[3] eb.i-dscr2[3] eb.i-%2[3] eb.i-ps2[4] eb.i-code2[4] ~
-eb.i-dscr2[4] eb.i-%2[4] eb.i-ps2[5] eb.i-code2[5] eb.i-dscr2[5] eb.i-%2[5] ~
-eb.i-ps2[6] eb.i-code2[6] eb.i-dscr2[6] eb.i-%2[6] eb.i-ps2[7] ~
-eb.i-code2[7] eb.i-dscr2[7] eb.i-%2[7] eb.i-ps2[8] eb.i-code2[8] ~
-eb.i-dscr2[8] eb.i-%2[8] eb.i-ps2[9] eb.i-code2[9] eb.i-dscr2[9] eb.i-%2[9] ~
-eb.i-ps2[10] eb.i-code2[10] eb.i-dscr2[10] eb.i-%2[10] eb.i-ps2[11] ~
-eb.i-code2[11] eb.i-dscr2[11] eb.i-%2[11] eb.i-ps2[12] eb.i-code2[12] ~
-eb.i-dscr2[12] eb.i-%2[12] eb.i-ps2[13] eb.i-code2[13] eb.i-dscr2[13] ~
-eb.i-%2[13] eb.i-ps2[14] eb.i-code2[14] eb.i-dscr2[14] eb.i-%2[14] ~
-eb.i-ps2[15] eb.i-code2[15] eb.i-dscr2[15] eb.i-%2[15] eb.i-ps2[16] ~
-eb.i-code2[16] eb.i-dscr2[16] eb.i-%2[16] eb.i-ps2[17] eb.i-code2[17] ~
-eb.i-dscr2[17] eb.i-%2[17] eb.layer-pad eb.lp-len eb.lp-wid eb.lp-up ~
+&Scoped-Define ENABLED-FIELDS eb.i-col eb.i-pass eb.i-coat eb.i-coat-p ~
+eb.i-coldscr eb.i-ps2[1] eb.i-code2[1] eb.i-dscr2[1] eb.i-%2[1] eb.i-ps2[2] ~
+eb.i-code2[2] eb.i-dscr2[2] eb.i-%2[2] eb.i-ps2[3] eb.i-code2[3] ~
+eb.i-dscr2[3] eb.i-%2[3] eb.i-ps2[4] eb.i-code2[4] eb.i-dscr2[4] eb.i-%2[4] ~
+eb.i-ps2[5] eb.i-code2[5] eb.i-dscr2[5] eb.i-%2[5] eb.i-ps2[6] ~
+eb.i-code2[6] eb.i-dscr2[6] eb.i-%2[6] eb.i-ps2[7] eb.i-code2[7] ~
+eb.i-dscr2[7] eb.i-%2[7] eb.i-ps2[8] eb.i-code2[8] eb.i-dscr2[8] eb.i-%2[8] ~
+eb.i-ps2[9] eb.i-code2[9] eb.i-dscr2[9] eb.i-%2[9] eb.i-ps2[10] ~
+eb.i-code2[10] eb.i-dscr2[10] eb.i-%2[10] eb.i-ps2[11] eb.i-code2[11] ~
+eb.i-dscr2[11] eb.i-%2[11] eb.i-ps2[12] eb.i-code2[12] eb.i-dscr2[12] ~
+eb.i-%2[12] eb.i-ps2[13] eb.i-code2[13] eb.i-dscr2[13] eb.i-%2[13] ~
+eb.i-ps2[14] eb.i-code2[14] eb.i-dscr2[14] eb.i-%2[14] eb.i-ps2[15] ~
+eb.i-code2[15] eb.i-dscr2[15] eb.i-%2[15] eb.i-ps2[16] eb.i-code2[16] ~
+eb.i-dscr2[16] eb.i-%2[16] eb.i-ps2[17] eb.i-code2[17] eb.i-dscr2[17] ~
+eb.i-%2[17] eb.spare-int-3 eb.layer-pad eb.lp-len eb.lp-wid eb.lp-up ~
 eb.spare-char-3 eb.divider eb.div-len eb.div-wid eb.div-up eb.spare-char-4 
 &Scoped-define ENABLED-TABLES eb
 &Scoped-define FIRST-ENABLED-TABLE eb
-&Scoped-Define ENABLED-OBJECTS RECT-26 RECT-27 RECT-28 RECT-29 RECT-30 btn_pack-code
-&Scoped-Define DISPLAYED-FIELDS eb.spare-int-3 eb.i-col eb.i-pass eb.i-coat ~
-eb.i-coat-p eb.i-coldscr eb.i-ps2[1] eb.i-code2[1] eb.i-dscr2[1] eb.i-%2[1] ~
-eb.i-ps2[2] eb.i-code2[2] eb.i-dscr2[2] eb.i-%2[2] eb.i-ps2[3] ~
-eb.i-code2[3] eb.i-dscr2[3] eb.i-%2[3] eb.i-ps2[4] eb.i-code2[4] ~
-eb.i-dscr2[4] eb.i-%2[4] eb.i-ps2[5] eb.i-code2[5] eb.i-dscr2[5] eb.i-%2[5] ~
-eb.i-ps2[6] eb.i-code2[6] eb.i-dscr2[6] eb.i-%2[6] eb.i-ps2[7] ~
-eb.i-code2[7] eb.i-dscr2[7] eb.i-%2[7] eb.i-ps2[8] eb.i-code2[8] ~
-eb.i-dscr2[8] eb.i-%2[8] eb.i-ps2[9] eb.i-code2[9] eb.i-dscr2[9] eb.i-%2[9] ~
-eb.i-ps2[10] eb.i-code2[10] eb.i-dscr2[10] eb.i-%2[10] eb.i-ps2[11] ~
-eb.i-code2[11] eb.i-dscr2[11] eb.i-%2[11] eb.i-ps2[12] eb.i-code2[12] ~
-eb.i-dscr2[12] eb.i-%2[12] eb.i-ps2[13] eb.i-code2[13] eb.i-dscr2[13] ~
-eb.i-%2[13] eb.i-ps2[14] eb.i-code2[14] eb.i-dscr2[14] eb.i-%2[14] ~
-eb.i-ps2[15] eb.i-code2[15] eb.i-dscr2[15] eb.i-%2[15] eb.i-ps2[16] ~
-eb.i-code2[16] eb.i-dscr2[16] eb.i-%2[16] eb.i-ps2[17] eb.i-code2[17] ~
-eb.i-dscr2[17] eb.i-%2[17] eb.cas-no eb.cas-len eb.cas-wid eb.cas-dep ~
-eb.layer-pad eb.lp-len eb.lp-wid eb.lp-up eb.spare-char-3 eb.divider ~
-eb.div-len eb.div-wid eb.div-up eb.spare-char-4 eb.cas-wt eb.cas-cost ~
-eb.cas-cnt eb.cas-pal eb.tr-no eb.tr-len eb.tr-wid eb.tr-dep eb.tr-cost ~
-eb.tr-cnt eb.tr-cas eb.chg-method eb.weight-m eb.carrier eb.carr-dscr ~
-eb.dest-code eb.fr-out-c eb.fr-out-m ~
-eb.unitno[1] eb.unitno[2] eb.unitno[3] eb.unitno[4] eb.unitno[5] eb.unitno[6] ~
-eb.unitno[7] eb.unitno[8] eb.unitno[9] eb.unitno[10] eb.unitno[11] eb.unitno[12] ~
-eb.unitno[13] eb.unitno[14] eb.unitno[15] eb.unitno[16] eb.unitno[17] ~
-eb.side[1] eb.side[2] eb.side[3] eb.side[4] eb.side[5] eb.side[6] eb.side[7] ~
-eb.side[8] eb.side[9] eb.side[10] eb.side[11] eb.side[12] eb.side[13] eb.side[14] ~
-eb.side[15] eb.side[16] eb.side[17] eb.quantityPartial
+&Scoped-Define ENABLED-OBJECTS btn_pack-code RECT-26 RECT-27 RECT-28 ~
+RECT-29 RECT-30 
+&Scoped-Define DISPLAYED-FIELDS eb.i-col eb.i-pass eb.i-coat eb.i-coat-p ~
+eb.i-coldscr eb.i-ps2[1] eb.i-code2[1] eb.i-dscr2[1] eb.i-%2[1] ~
+eb.unitNo[1] eb.side[1] eb.i-ps2[2] eb.i-code2[2] eb.i-dscr2[2] eb.i-%2[2] ~
+eb.unitNo[2] eb.side[2] eb.i-ps2[3] eb.i-code2[3] eb.i-dscr2[3] eb.i-%2[3] ~
+eb.unitNo[3] eb.side[3] eb.i-ps2[4] eb.i-code2[4] eb.i-dscr2[4] eb.i-%2[4] ~
+eb.unitNo[4] eb.side[4] eb.i-ps2[5] eb.i-code2[5] eb.i-dscr2[5] eb.i-%2[5] ~
+eb.unitNo[5] eb.side[5] eb.i-ps2[6] eb.i-code2[6] eb.i-dscr2[6] eb.i-%2[6] ~
+eb.unitNo[6] eb.side[6] eb.i-ps2[7] eb.i-code2[7] eb.i-dscr2[7] eb.i-%2[7] ~
+eb.unitNo[7] eb.side[7] eb.i-ps2[8] eb.i-code2[8] eb.i-dscr2[8] eb.i-%2[8] ~
+eb.unitNo[8] eb.side[8] eb.i-ps2[9] eb.i-code2[9] eb.i-dscr2[9] eb.i-%2[9] ~
+eb.unitNo[9] eb.side[9] eb.i-ps2[10] eb.i-code2[10] eb.i-dscr2[10] ~
+eb.i-%2[10] eb.unitNo[10] eb.side[10] eb.i-ps2[11] eb.i-code2[11] ~
+eb.i-dscr2[11] eb.i-%2[11] eb.unitNo[11] eb.side[11] eb.i-ps2[12] ~
+eb.i-code2[12] eb.i-dscr2[12] eb.i-%2[12] eb.unitNo[12] eb.side[12] ~
+eb.i-ps2[13] eb.i-code2[13] eb.i-dscr2[13] eb.i-%2[13] eb.unitNo[13] ~
+eb.side[13] eb.i-ps2[14] eb.i-code2[14] eb.i-dscr2[14] eb.i-%2[14] ~
+eb.unitNo[14] eb.side[14] eb.i-ps2[15] eb.i-code2[15] eb.i-dscr2[15] ~
+eb.i-%2[15] eb.unitNo[15] eb.side[15] eb.i-ps2[16] eb.i-code2[16] ~
+eb.i-dscr2[16] eb.i-%2[16] eb.unitNo[16] eb.side[16] eb.i-ps2[17] ~
+eb.i-code2[17] eb.i-dscr2[17] eb.i-%2[17] eb.unitNo[17] eb.side[17] ~
+eb.cas-no eb.cas-len eb.cas-wid eb.cas-dep eb.spare-int-3 eb.layer-pad ~
+eb.lp-len eb.lp-wid eb.lp-up eb.spare-char-3 eb.divider eb.div-len ~
+eb.div-wid eb.div-up eb.spare-char-4 eb.cas-cost eb.cas-wt eb.cas-pal ~
+eb.cas-cnt eb.quantityPartial eb.tr-no eb.tr-len eb.tr-wid eb.tr-dep ~
+eb.tr-cost eb.tr-cnt eb.tr-cas eb.chg-method eb.weight-m eb.carrier ~
+eb.carr-dscr eb.dest-code eb.fr-out-c eb.fr-out-m 
 &Scoped-define DISPLAYED-TABLES eb
 &Scoped-define FIRST-DISPLAYED-TABLE eb
-&Scoped-Define DISPLAYED-OBJECTS FILL-IN-1  f-lp-dep f-div-dep ~
-fi_prod-notes fi_pr-type 
+&Scoped-Define DISPLAYED-OBJECTS FILL-IN-1 f-lp-dep f-div-dep fi_prod-notes ~
+fi_pr-type 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
-&Scoped-define ADM-ASSIGN-FIELDS eb.carr-dscr 
+&Scoped-define ADM-ASSIGN-FIELDS eb.side[1] eb.side[2] eb.side[3] ~
+eb.side[4] eb.side[5] eb.side[6] eb.side[7] eb.side[8] eb.side[9] ~
+eb.side[10] eb.side[11] eb.side[12] eb.side[13] eb.side[14] eb.side[15] ~
+eb.side[16] eb.side[17] eb.carr-dscr 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -175,11 +179,15 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE f-div-dep AS DECIMAL FORMAT ">9.9999":U INITIAL 0 
+DEFINE BUTTON btn_pack-code 
+     LABEL "Enhanced Packing" 
+     SIZE 25 BY .91.
+
+DEFINE VARIABLE f-div-dep AS DECIMAL FORMAT ">>>>>9.99<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
-DEFINE VARIABLE f-lp-dep AS DECIMAL FORMAT ">9.9999":U INITIAL 0 
+DEFINE VARIABLE f-lp-dep AS DECIMAL FORMAT ">>>>>9.99<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
@@ -198,32 +206,28 @@ DEFINE VARIABLE fi_prod-notes AS CHARACTER FORMAT "X(20)":U
 
 DEFINE RECTANGLE RECT-26
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 155 BY 16.19.
+     SIZE 157 BY 16.19.
 
 DEFINE RECTANGLE RECT-27
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 82 BY 5.24.
+     SIZE 84 BY 5.24.
 
 DEFINE RECTANGLE RECT-28
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 82 BY 4.52.
+     SIZE 84 BY 4.52.
 
 DEFINE RECTANGLE RECT-29
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 82 BY 6.43.
+     SIZE 84 BY 6.43.
 
 DEFINE RECTANGLE RECT-30
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 47 BY 1.43.
-
-DEFINE BUTTON btn_pack-code 
-     LABEL "Enhanced Packing" 
-     SIZE 25 BY .90.
+     SIZE 49 BY 1.43.
 
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME fold     
+DEFINE FRAME fold
      eb.i-col AT ROW 1.19 COL 22 COLON-ALIGNED
           LABEL "Inks"
           VIEW-AS FILL-IN 
@@ -249,75 +253,66 @@ DEFINE FRAME fold
      eb.i-code2[1] AT ROW 4.1 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[1] AT ROW 4.1 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[1] AT ROW 4.1 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[1] AT ROW 4.1 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[1] AT ROW 4.1 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-         VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[1] AT ROW 4.1 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[1] AT ROW 4.1 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-         VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          VIEW-AS FILL-IN 
+          SIZE 4 BY .76
      eb.i-ps2[2] AT ROW 4.86 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[2] AT ROW 4.86 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[2] AT ROW 4.86 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[2] AT ROW 4.86 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[2] AT ROW 4.86 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[2] AT ROW 4.86 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[2] AT ROW 4.86 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[2] AT ROW 4.86 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 6
-         VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          VIEW-AS FILL-IN 
+          SIZE 4 BY .76
      eb.i-ps2[3] AT ROW 5.62 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[3] AT ROW 5.62 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[3] AT ROW 5.62 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[3] AT ROW 5.62 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[3] AT ROW 5.62 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[3] AT ROW 5.62 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-         VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[3] AT ROW 5.62 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[3] AT ROW 5.62 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
-         VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          VIEW-AS FILL-IN 
+          SIZE 4 BY .76
      eb.i-ps2[4] AT ROW 6.38 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[4] AT ROW 6.38 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[4] AT ROW 6.38 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[4] AT ROW 6.38 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[4] AT ROW 6.38 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[4] AT ROW 6.38 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
-     eb.side[4] AT ROW 6.38 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-          VIEW-AS FILL-IN 
-         SIZE 4 BY .76
-     eb.i-ps2[5] AT ROW 7.14 COL 2 NO-LABEL FORMAT ">>"
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY .76
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -325,299 +320,254 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
+     eb.unitNo[4] AT ROW 6.38 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
+     eb.side[4] AT ROW 6.38 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+          VIEW-AS FILL-IN 
+          SIZE 4 BY .76
+     eb.i-ps2[5] AT ROW 7.14 COL 2 NO-LABEL FORMAT ">>"
+          VIEW-AS FILL-IN 
+          SIZE 4.4 BY .76
      eb.i-code2[5] AT ROW 7.14 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[5] AT ROW 7.14 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[5] AT ROW 7.14 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[5] AT ROW 7.14 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[5] AT ROW 7.14 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[5] AT ROW 7.14 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[5] AT ROW 7.14 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 12
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[6] AT ROW 7.91 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[6] AT ROW 7.91 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[6] AT ROW 7.91 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[6] AT ROW 7.91 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[6] AT ROW 7.91 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[6] AT ROW 7.91 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[6] AT ROW 7.91 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[6] AT ROW 7.91 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-         VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          VIEW-AS FILL-IN 
+          SIZE 4 BY .76
      eb.i-ps2[7] AT ROW 8.67 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[7] AT ROW 8.67 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[7] AT ROW 8.67 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[7] AT ROW 8.67 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[7] AT ROW 8.67 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[7] AT ROW 8.67 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[7] AT ROW 8.67 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[7] AT ROW 8.67 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 16
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[8] AT ROW 9.43 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[8] AT ROW 9.43 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[8] AT ROW 9.43 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[8] AT ROW 9.43 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[8] AT ROW 9.43 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[8] AT ROW 9.43 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[8] AT ROW 9.43 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[8] AT ROW 9.43 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 18
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fold
      eb.i-ps2[9] AT ROW 10.19 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[9] AT ROW 10.19 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[9] AT ROW 10.19 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[9] AT ROW 10.19 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[9] AT ROW 10.19 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[9] AT ROW 10.19 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[9] AT ROW 10.19 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[9] AT ROW 10.19 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 20
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[10] AT ROW 10.95 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[10] AT ROW 10.95 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME fold
-     eb.i-dscr2[10] AT ROW 10.95 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[10] AT ROW 10.95 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[10] AT ROW 10.95 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[10] AT ROW 10.95 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[10] AT ROW 10.95 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[10] AT ROW 10.95 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-         VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          VIEW-AS FILL-IN 
+          SIZE 4 BY .76
      eb.i-ps2[11] AT ROW 11.71 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[11] AT ROW 11.71 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[11] AT ROW 11.71 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[11] AT ROW 11.71 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[11] AT ROW 11.71 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[11] AT ROW 11.71 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[11] AT ROW 11.71 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[11] AT ROW 11.71 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 24
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[12] AT ROW 12.48 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[12] AT ROW 12.48 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[12] AT ROW 12.48 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[12] AT ROW 12.48 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[12] AT ROW 12.48 COL 53 COLON-ALIGNED NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[12] AT ROW 12.48 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[12] AT ROW 12.48 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[12] AT ROW 12.48 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 26
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[13] AT ROW 13.19 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[13] AT ROW 13.19 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[13] AT ROW 13.19 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fold
+     eb.i-dscr2[13] AT ROW 13.19 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[13] AT ROW 13.19 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[13] AT ROW 13.19 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[13] AT ROW 13.19 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[13] AT ROW 13.19 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 28
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[14] AT ROW 13.95 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[14] AT ROW 13.95 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[14] AT ROW 13.95 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[14] AT ROW 13.95 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[14] AT ROW 13.95 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[14] AT ROW 13.95 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[14] AT ROW 13.95 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[14] AT ROW 13.95 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 30
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[15] AT ROW 14.71 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[15] AT ROW 14.71 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[15] AT ROW 14.71 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[15] AT ROW 14.71 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME fold
      eb.i-%2[15] AT ROW 14.67 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[15] AT ROW 14.67 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[15] AT ROW 14.67 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[15] AT ROW 14.67 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 32
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[16] AT ROW 15.48 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[16] AT ROW 15.48 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[16] AT ROW 15.48 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[16] AT ROW 15.48 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[16] AT ROW 15.48 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[16] AT ROW 15.48 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
+     eb.unitNo[16] AT ROW 15.48 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
      eb.side[16] AT ROW 15.48 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 34
           VIEW-AS FILL-IN 
-         SIZE 4 BY .76
+          SIZE 4 BY .76
      eb.i-ps2[17] AT ROW 16.19 COL 2 NO-LABEL FORMAT ">>"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY .76
      eb.i-code2[17] AT ROW 16.24 COL 5 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY .76
-     eb.i-dscr2[17] AT ROW 16.24 COL 24 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr2[17] AT ROW 16.24 COL 24 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY .76
      eb.i-%2[17] AT ROW 16.19 COL 55 NO-LABEL FORMAT ">>>"
           VIEW-AS FILL-IN 
           SIZE 6 BY .76
-     eb.unitno[17] AT ROW 16.24 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
-          VIEW-AS FILL-IN
-         SIZE 7 BY .76
-     eb.side[17] AT ROW 16.24 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
-          VIEW-AS FILL-IN 
-         SIZE 4 BY .76
-     btn_pack-code AT ROW 1.05 COL 80  
-     eb.cas-no AT ROW 1.95 COL 87 COLON-ALIGNED
-          LABEL "Pack Code"
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-     eb.cas-len AT ROW 1.95 COL 105 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 11 BY 1
-     eb.cas-wid AT ROW 1.95 COL 117 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 11 BY 1
-     eb.cas-dep AT ROW 1.95 COL 129 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 13 BY .95
-     eb.spare-int-3 AT ROW 1.95 COL 142.8 COLON-ALIGNED HELP
-          "" NO-LABEL WIDGET-ID 44 FORMAT ">>9"
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1 TOOLTIP "Enter Quantity of Case Materials Per Case"     
-     eb.layer-pad AT ROW 2.91 COL 87 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-     eb.lp-len AT ROW 2.91 COL 105 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 11 BY 1
-     eb.lp-wid AT ROW 2.91 COL 117.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 11.2 BY 1
-     f-lp-dep AT ROW 2.91 COL 129 COLON-ALIGNED NO-LABEL
-     eb.lp-up AT ROW 2.91 COL 142.8 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1
-     eb.spare-char-3 AT ROW 2.91 COL 149 COLON-ALIGNED HELP
-          "" NO-LABEL WIDGET-ID 40 FORMAT "x(1)"
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
-     eb.divider AT ROW 4 COL 87 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 17 BY 1
-     eb.div-len AT ROW 4 COL 105.2 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 10.8 BY 1
-     eb.div-wid AT ROW 4.05 COL 117.4 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 11 BY 1
-     f-div-dep AT ROW 4 COL 129 COLON-ALIGNED NO-LABEL
-     eb.div-up AT ROW 4 COL 142.8 COLON-ALIGNED NO-LABEL FORMAT ">>9"
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -625,28 +575,80 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
-     eb.spare-char-4 AT ROW 4 COL 149 COLON-ALIGNED HELP
+     eb.unitNo[17] AT ROW 16.24 COL 60 COLON-ALIGNED NO-LABEL FORMAT ">>>"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY .76
+     eb.side[17] AT ROW 16.24 COL 67.6 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+          VIEW-AS FILL-IN 
+          SIZE 4 BY .76
+     btn_pack-code AT ROW 1.05 COL 80
+     eb.cas-no AT ROW 1.95 COL 87 COLON-ALIGNED
+          LABEL "Pack Code"
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     eb.cas-len AT ROW 1.95 COL 104.6 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     eb.cas-wid AT ROW 1.95 COL 117.8 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     eb.cas-dep AT ROW 1.95 COL 130.2 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
+          VIEW-AS FILL-IN 
+          SIZE 13 BY .95
+     eb.spare-int-3 AT ROW 1.95 COL 144 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 44 FORMAT ">>9"
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1 TOOLTIP "Enter Quantity of Case Materials Per Case"
+     eb.layer-pad AT ROW 2.91 COL 87 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     eb.lp-len AT ROW 2.91 COL 104.6 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 13 BY 1
+     eb.lp-wid AT ROW 2.91 COL 117.8 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     f-lp-dep AT ROW 2.91 COL 130.2 COLON-ALIGNED NO-LABEL
+     eb.lp-up AT ROW 2.91 COL 144 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1
+     eb.spare-char-3 AT ROW 2.91 COL 150.2 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 40 FORMAT "x(1)"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1
+     eb.divider AT ROW 4 COL 87 COLON-ALIGNED
+          VIEW-AS FILL-IN 
+          SIZE 17 BY 1
+     eb.div-len AT ROW 4 COL 104.6 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12.8 BY 1
+     eb.div-wid AT ROW 4.05 COL 117.8 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
+     f-div-dep AT ROW 4 COL 130.2 COLON-ALIGNED NO-LABEL
+     eb.div-up AT ROW 4 COL 144 COLON-ALIGNED NO-LABEL FORMAT ">>9"
+          VIEW-AS FILL-IN 
+          SIZE 6 BY 1
+     eb.spare-char-4 AT ROW 4 COL 150.2 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 42 FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
-     
      eb.cas-cost AT ROW 5.14 COL 87 COLON-ALIGNED
           LABEL "Cost/Ea"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-    eb.cas-wt AT ROW 5.1 COL 122 COLON-ALIGNED
+     eb.cas-wt AT ROW 5.1 COL 122 COLON-ALIGNED
           LABEL "Weight/Unit"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     
      eb.cas-pal AT ROW 6.14 COL 87 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.cas-cnt AT ROW 6.19 COL 122 COLON-ALIGNED FORMAT ">>>,>>>"
+     eb.cas-cnt AT ROW 6.19 COL 122 COLON-ALIGNED
           LABEL "Boxes/Code"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     eb.quantityPartial AT ROW 6.19 COL 145 COLON-ALIGNED FORMAT ">>>>>"
+     eb.quantityPartial AT ROW 6.19 COL 145 COLON-ALIGNED
           LABEL "Partial"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
@@ -654,17 +656,24 @@ DEFINE FRAME fold
           LABEL "Pallet #"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fold
      eb.tr-len AT ROW 8.86 COL 132.8 COLON-ALIGNED
           LABEL "Length"
           VIEW-AS FILL-IN 
-          SIZE 13 BY 1
+          SIZE 15 BY 1
      eb.tr-wid AT ROW 9.81 COL 132.8 COLON-ALIGNED
           LABEL "Width"
           VIEW-AS FILL-IN 
-          SIZE 13 BY 1
-     eb.tr-dep AT ROW 10.76 COL 132.6 COLON-ALIGNED
+          SIZE 15 BY 1
+     eb.tr-dep AT ROW 10.76 COL 132.6 COLON-ALIGNED FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 13 BY 1
+          SIZE 15 BY 1
      eb.tr-cost AT ROW 8.86 COL 88 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
@@ -706,6 +715,23 @@ DEFINE FRAME fold
      fi_pr-type AT ROW 2.14 COL 1.4 NO-LABEL
      "Unit#" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 3.38 COL 62
+     "Freight Charge" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 12.19 COL 76
+          FGCOLOR 9 
+     "Item #" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 3.38 COL 9
+     "Qty" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 1.24 COL 146
+     "Per" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 1.24 COL 151.6 WIDGET-ID 38
+     "Press Type" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 1.33 COL 2.4
+     "Length" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 108.4
+     "Width" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 121.2
+     "Depth" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 133
      "F" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 3.38 COL 70.4 WIDGET-ID 2
      "PS" VIEW-AS TEXT
@@ -714,30 +740,6 @@ DEFINE FRAME fold
           SIZE 3 BY .62 AT ROW 3.38 COL 56
      "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.38 COL 28
-     "Freight Charge" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.19 COL 76
-          FGCOLOR 9 
-     "Item #" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 3.38 COL 9
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME fold
-     "Qty" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 1.24 COL 144.8
-     "Per" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 1.24 COL 150.4 WIDGET-ID 38
-     "Press Type" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 1.33 COL 2.4
-     "Length" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 108.4
-     "Width" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 120.4
-     "Depth" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 131.8
      RECT-26 AT ROW 1 COL 1
      RECT-27 AT ROW 11.95 COL 74
      RECT-28 AT ROW 7.38 COL 74
@@ -811,12 +813,10 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN eb.cas-cnt IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN eb.quantityPartial IN FRAME fold
-   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.cas-cost IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.cas-dep IN FRAME fold
-   NO-ENABLE EXP-LABEL                                                  */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR FILL-IN eb.cas-len IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.cas-no IN FRAME fold
@@ -843,74 +843,6 @@ ASSIGN
    NO-ENABLE ALIGN-L                                                    */
 /* SETTINGS FOR FILL-IN fi_prod-notes IN FRAME fold
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN eb.side[1] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[2] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[3] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[4] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[5] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[6] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[7] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[8] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[9] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[10] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[11] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[12] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[13] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[14] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[15] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[16] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.side[17] IN FRAME fold
-   NO-ENABLE 2                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[1] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN eb.unitno[2] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN eb.unitno[3] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN eb.unitno[4] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[5] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[6] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[7] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[8] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[9] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[10] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[11] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[12] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[13] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[14] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[15] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[16] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
-/* SETTINGS FOR FILL-IN eb.unitno[17] IN FRAME fold
-   NO-ENABLE EXP-FORMAT                                                          */
 /* SETTINGS FOR FILL-IN eb.fr-out-c IN FRAME fold
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN eb.fr-out-m IN FRAME fold
@@ -991,6 +923,42 @@ ASSIGN
    ALIGN-L EXP-FORMAT                                                   */
 /* SETTINGS FOR FILL-IN eb.i-ps2[9] IN FRAME fold
    ALIGN-L EXP-FORMAT                                                   */
+/* SETTINGS FOR FILL-IN eb.quantityPartial IN FRAME fold
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN eb.side[10] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[11] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[12] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[13] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[14] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[15] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[16] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[17] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[1] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[2] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[3] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[4] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[5] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[6] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[7] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[8] IN FRAME fold
+   NO-ENABLE 2                                                          */
+/* SETTINGS FOR FILL-IN eb.side[9] IN FRAME fold
+   NO-ENABLE 2                                                          */
 /* SETTINGS FOR FILL-IN eb.spare-char-3 IN FRAME fold
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN eb.spare-char-4 IN FRAME fold
@@ -1004,13 +972,47 @@ ASSIGN
 /* SETTINGS FOR FILL-IN eb.tr-cost IN FRAME fold
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN eb.tr-dep IN FRAME fold
-   NO-ENABLE                                                            */
+   NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.tr-len IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.tr-no IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN eb.tr-wid IN FRAME fold
    NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN eb.unitNo[10] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[11] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[12] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[13] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[14] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[15] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[16] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[17] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[1] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[2] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[3] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[4] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[5] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[6] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[7] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[8] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN eb.unitNo[9] IN FRAME fold
+   NO-ENABLE EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN eb.weight-m IN FRAME fold
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -1026,7 +1028,7 @@ ASSIGN
 */  /* FRAME fold */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1265,6 +1267,18 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btn_pack-code
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_pack-code V-table-Win
+ON CHOOSE OF btn_pack-code IN FRAME fold /* Enhanced Packing */
+DO: 
+  IF AVAIL eb THEN
+   RUN Est/EstPacking.w (INPUT ROWID(eb)) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME eb.carrier
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.carrier V-table-Win
 ON LEAVE OF eb.carrier IN FRAME fold /* Carrier */
@@ -1292,16 +1306,6 @@ END.
 &Scoped-define SELF-NAME eb.cas-cnt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cas-cnt V-table-Win
 ON VALUE-CHANGED OF eb.cas-cnt IN FRAME fold /* Boxes/Code */
-DO:
-  RUN calc-tr-cnt.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME eb.quantityPartial
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.quantityPartial V-table-Win
-ON VALUE-CHANGED OF eb.quantityPartial IN FRAME fold /* Boxes/Code */
 DO:
   RUN calc-tr-cnt.
 END.
@@ -1436,190 +1440,6 @@ DO:
 
 
 END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.side[2]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[2] V-table-Win
-ON LEAVE OF eb.side[2] IN FRAME fold
-DO:
-   IF LASTKEY NE -1 THEN DO:
-    {&methods/lValidateError.i YES}
-
-      /*ASSIGN eb.side[2].*/
-
-      IF eb.side[2]:Screen-value NE "" AND LOOKUP(eb.side[2]:Screen-value,"F,B") EQ 0 THEN
-      DO:
-         MESSAGE "Invalid Value.  Valid Values are F or B."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         RETURN NO-APPLY.
-      END.
-  {&methods/lValidateError.i NO}
-   END.
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.side[3]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[3] V-table-Win
-ON LEAVE OF eb.side[3] IN FRAME fold
-DO:
-   IF LASTKEY NE -1 THEN DO:
-    {&methods/lValidateError.i YES}
-      /*ASSIGN eb.side[3].*/
-
-      IF eb.side[3]:Screen-value NE "" AND LOOKUP(eb.side[3]:Screen-value,"F,B") EQ 0 THEN
-      DO:
-         MESSAGE "Invalid Value.  Valid Values are F or B."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         RETURN NO-APPLY.
-      END.
-  {&methods/lValidateError.i NO}
-   END.
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.side[4]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[4] V-table-Win
-ON LEAVE OF eb.side[4] IN FRAME fold
-DO:
-   IF LASTKEY NE -1 THEN DO:
-   {&methods/lValidateError.i YES}
-      /*ASSIGN eb.side[4].*/
-
-      IF eb.side[4]:Screen-value NE "" AND LOOKUP(eb.side[4]:Screen-value,"F,B") EQ 0 THEN
-      DO:
-         MESSAGE "Invalid Value.  Valid Values are F or B."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         RETURN NO-APPLY.
-      END.
-   {&methods/lValidateError.i NO}
-   END.
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.side[5]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[5] V-table-Win
-ON LEAVE OF eb.side[5] IN FRAME fold
-DO:
-   IF LASTKEY NE -1 THEN DO:
-   {&methods/lValidateError.i YES}
-      /*ASSIGN eb.side[5].*/
-
-      IF eb.side[5]:Screen-value NE "" AND LOOKUP(eb.side[5]:Screen-value,"F,B") EQ 0 THEN
-      DO:
-         MESSAGE "Invalid Value.  Valid Values are F or B."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         RETURN NO-APPLY.
-      END.
-   {&methods/lValidateError.i NO}
-   END.
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.side[6]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[6] V-table-Win
-ON LEAVE OF eb.side[6] IN FRAME fold
-DO:
-  IF LASTKEY NE -1 THEN DO:
-   {&methods/lValidateError.i YES}
-     /*ASSIGN eb.side[6].*/
-
-     IF eb.side[6]:Screen-value NE "" AND LOOKUP(eb.side[6]:Screen-value,"F,B") EQ 0 THEN
-     DO:
-        MESSAGE "Invalid Value.  Valid Values are F or B."
-           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-        RETURN NO-APPLY.
-     END.
-  {&methods/lValidateError.i NO}
-   END.
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.side[7]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[7] V-table-Win
-ON LEAVE OF eb.side[7] IN FRAME fold
-DO:
-   IF LASTKEY NE -1 THEN DO:
-   {&methods/lValidateError.i YES}
-      /*ASSIGN eb.side[7].*/
-
-      IF eb.side[7]:Screen-value NE "" AND LOOKUP(eb.side[7]:Screen-value,"F,B") EQ 0 THEN
-      DO:
-         MESSAGE "Invalid Value.  Valid Values are F or B."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         RETURN NO-APPLY.
-      END.
-  {&methods/lValidateError.i NO}
-   END.
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.side[8]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[8] V-table-Win
-ON LEAVE OF eb.side[8] IN FRAME fold
-DO:
-   IF LASTKEY NE -1 THEN DO:
-    {&methods/lValidateError.i YES}
-      /*ASSIGN eb.side[8].*/
-
-      IF eb.side[8]:Screen-value NE "" AND LOOKUP(eb.side[8]:Screen-value,"F,B") EQ 0 THEN
-      DO:
-         MESSAGE "Invalid Value.  Valid Values are F or B."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         RETURN NO-APPLY.
-      END.
-   {&methods/lValidateError.i NO}
-   END.
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME eb.side[9]
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[9] V-table-Win
-ON LEAVE OF eb.side[9] IN FRAME fold
-DO:
-   IF LASTKEY NE -1 THEN DO:
-    {&methods/lValidateError.i YES}
-     
-      IF eb.side[9]:Screen-value NE "" AND LOOKUP(eb.side[9]:Screen-value,"F,B") EQ 0 THEN
-      DO:
-         MESSAGE "Invalid Value.  Valid Values are F or B."
-            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-         RETURN NO-APPLY.
-      END.
-   {&methods/lValidateError.i NO}
-   END.
-END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2112,6 +1932,193 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME eb.quantityPartial
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.quantityPartial V-table-Win
+ON VALUE-CHANGED OF eb.quantityPartial IN FRAME fold /* Partial */
+DO:
+  RUN calc-tr-cnt.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.side[2]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[2] V-table-Win
+ON LEAVE OF eb.side[2] IN FRAME fold /* Side[2] */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+    {&methods/lValidateError.i YES}
+
+      /*ASSIGN eb.side[2].*/
+
+      IF eb.side[2]:Screen-value NE "" AND LOOKUP(eb.side[2]:Screen-value,"F,B") EQ 0 THEN
+      DO:
+         MESSAGE "Invalid Value.  Valid Values are F or B."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         RETURN NO-APPLY.
+      END.
+  {&methods/lValidateError.i NO}
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.side[3]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[3] V-table-Win
+ON LEAVE OF eb.side[3] IN FRAME fold /* Side[3] */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+    {&methods/lValidateError.i YES}
+      /*ASSIGN eb.side[3].*/
+
+      IF eb.side[3]:Screen-value NE "" AND LOOKUP(eb.side[3]:Screen-value,"F,B") EQ 0 THEN
+      DO:
+         MESSAGE "Invalid Value.  Valid Values are F or B."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         RETURN NO-APPLY.
+      END.
+  {&methods/lValidateError.i NO}
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.side[4]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[4] V-table-Win
+ON LEAVE OF eb.side[4] IN FRAME fold /* Side[4] */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+   {&methods/lValidateError.i YES}
+      /*ASSIGN eb.side[4].*/
+
+      IF eb.side[4]:Screen-value NE "" AND LOOKUP(eb.side[4]:Screen-value,"F,B") EQ 0 THEN
+      DO:
+         MESSAGE "Invalid Value.  Valid Values are F or B."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         RETURN NO-APPLY.
+      END.
+   {&methods/lValidateError.i NO}
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.side[5]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[5] V-table-Win
+ON LEAVE OF eb.side[5] IN FRAME fold /* Side[5] */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+   {&methods/lValidateError.i YES}
+      /*ASSIGN eb.side[5].*/
+
+      IF eb.side[5]:Screen-value NE "" AND LOOKUP(eb.side[5]:Screen-value,"F,B") EQ 0 THEN
+      DO:
+         MESSAGE "Invalid Value.  Valid Values are F or B."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         RETURN NO-APPLY.
+      END.
+   {&methods/lValidateError.i NO}
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.side[6]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[6] V-table-Win
+ON LEAVE OF eb.side[6] IN FRAME fold /* Side[6] */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+   {&methods/lValidateError.i YES}
+     /*ASSIGN eb.side[6].*/
+
+     IF eb.side[6]:Screen-value NE "" AND LOOKUP(eb.side[6]:Screen-value,"F,B") EQ 0 THEN
+     DO:
+        MESSAGE "Invalid Value.  Valid Values are F or B."
+           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+        RETURN NO-APPLY.
+     END.
+  {&methods/lValidateError.i NO}
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.side[7]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[7] V-table-Win
+ON LEAVE OF eb.side[7] IN FRAME fold /* Side[7] */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+   {&methods/lValidateError.i YES}
+      /*ASSIGN eb.side[7].*/
+
+      IF eb.side[7]:Screen-value NE "" AND LOOKUP(eb.side[7]:Screen-value,"F,B") EQ 0 THEN
+      DO:
+         MESSAGE "Invalid Value.  Valid Values are F or B."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         RETURN NO-APPLY.
+      END.
+  {&methods/lValidateError.i NO}
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.side[8]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[8] V-table-Win
+ON LEAVE OF eb.side[8] IN FRAME fold /* Side[8] */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+    {&methods/lValidateError.i YES}
+      /*ASSIGN eb.side[8].*/
+
+      IF eb.side[8]:Screen-value NE "" AND LOOKUP(eb.side[8]:Screen-value,"F,B") EQ 0 THEN
+      DO:
+         MESSAGE "Invalid Value.  Valid Values are F or B."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         RETURN NO-APPLY.
+      END.
+   {&methods/lValidateError.i NO}
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME eb.side[9]
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.side[9] V-table-Win
+ON LEAVE OF eb.side[9] IN FRAME fold /* Side[9] */
+DO:
+   IF LASTKEY NE -1 THEN DO:
+    {&methods/lValidateError.i YES}
+     
+      IF eb.side[9]:Screen-value NE "" AND LOOKUP(eb.side[9]:Screen-value,"F,B") EQ 0 THEN
+      DO:
+         MESSAGE "Invalid Value.  Valid Values are F or B."
+            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+         RETURN NO-APPLY.
+      END.
+   {&methods/lValidateError.i NO}
+   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME eb.spare-char-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.spare-char-3 V-table-Win
 ON LEAVE OF eb.spare-char-3 IN FRAME fold /* spare-char-3 */
@@ -2175,18 +2182,6 @@ DO:
            RETURN NO-APPLY.
        {&methods/lValidateError.i NO}
        END.
-END.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME btn_pack-code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_pack-code V-table-Win
-ON CHOOSE OF btn_pack-code IN FRAME fold
-DO: 
-  IF AVAIL eb THEN
-   RUN Est/EstPacking.w (INPUT ROWID(eb)) .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2782,21 +2777,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstType V-table-Win 
-PROCEDURE pGetEstType :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplFolding AS LOGICAL NO-UNDO.
-  oplFolding = IF eb.est-type LE 4 THEN YES ELSE NO . 
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
@@ -3267,7 +3247,6 @@ PROCEDURE local-update-record :
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3331,12 +3310,76 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearInkUnits V-table-Win 
+PROCEDURE pClearInkUnits PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
 
+    DO WITH FRAME {&frame-name}:
+        ASSIGN
+            eb.unitno[01]:SCREEN-VALUE = ""
+            eb.unitno[02]:SCREEN-VALUE = ""
+            eb.unitno[03]:SCREEN-VALUE = ""
+            eb.unitno[04]:SCREEN-VALUE = ""
+            eb.unitno[05]:SCREEN-VALUE = ""
+            eb.unitno[06]:SCREEN-VALUE = ""
+            eb.unitno[07]:SCREEN-VALUE = ""
+            eb.unitno[08]:SCREEN-VALUE = ""
+            eb.unitno[09]:SCREEN-VALUE = ""
+            eb.unitno[10]:SCREEN-VALUE = ""
+            eb.unitno[11]:SCREEN-VALUE = ""
+            eb.unitno[12]:SCREEN-VALUE = ""
+            eb.unitno[13]:SCREEN-VALUE = ""
+            eb.unitno[14]:SCREEN-VALUE = ""
+            eb.unitno[15]:SCREEN-VALUE = ""
+            eb.unitno[16]:SCREEN-VALUE = ""
+            eb.unitno[17]:SCREEN-VALUE = ""
+            .
+    END.
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnitNo V-table-Win
-PROCEDURE pGetUnitNo:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstType V-table-Win 
+PROCEDURE pGetEstType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplFolding AS LOGICAL NO-UNDO.
+  oplFolding = IF eb.est-type LE 4 THEN YES ELSE NO . 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettingValue V-table-Win 
+PROCEDURE pGetSettingValue PRIVATE :
+/*------------------------------------------------------------------------------
+     Purpose: Sets the NK1 setting global variables that are pertinent to the session
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
+
+    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetUnitNo V-table-Win 
+PROCEDURE pGetUnitNo :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -3375,53 +3418,13 @@ PROCEDURE pGetUnitNo:
     END.
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClearInkUnits V-table-Win
-PROCEDURE pClearInkUnits PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-
-    DO WITH FRAME {&frame-name}:
-        ASSIGN
-            eb.unitno[01]:SCREEN-VALUE = ""
-            eb.unitno[02]:SCREEN-VALUE = ""
-            eb.unitno[03]:SCREEN-VALUE = ""
-            eb.unitno[04]:SCREEN-VALUE = ""
-            eb.unitno[05]:SCREEN-VALUE = ""
-            eb.unitno[06]:SCREEN-VALUE = ""
-            eb.unitno[07]:SCREEN-VALUE = ""
-            eb.unitno[08]:SCREEN-VALUE = ""
-            eb.unitno[09]:SCREEN-VALUE = ""
-            eb.unitno[10]:SCREEN-VALUE = ""
-            eb.unitno[11]:SCREEN-VALUE = ""
-            eb.unitno[12]:SCREEN-VALUE = ""
-            eb.unitno[13]:SCREEN-VALUE = ""
-            eb.unitno[14]:SCREEN-VALUE = ""
-            eb.unitno[15]:SCREEN-VALUE = ""
-            eb.unitno[16]:SCREEN-VALUE = ""
-            eb.unitno[17]:SCREEN-VALUE = ""
-            .
-    END.
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetInkUnits V-table-Win
-PROCEDURE pResetInkUnits PRIVATE:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pResetInkUnits V-table-Win 
+PROCEDURE pResetInkUnits PRIVATE :
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
@@ -3475,16 +3478,13 @@ PROCEDURE pResetInkUnits PRIVATE:
     RUN pSetFormColors (INPUT eb.company, INPUT eb.est-no, INPUT eb.form-no).
     
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFormColors V-table-Win
-PROCEDURE pSetFormColors PRIVATE:
-    /*------------------------------------------------------------------------------
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetFormColors V-table-Win 
+PROCEDURE pSetFormColors PRIVATE :
+/*------------------------------------------------------------------------------
      Purpose: Set Form level colors and Coats etc
      Notes:
     ------------------------------------------------------------------------------*/
@@ -3515,32 +3515,9 @@ PROCEDURE pSetFormColors PRIVATE:
             bf-ef.f-coat-p = iCoatPassPerForm.
     END.
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetSettingValue V-table-Win
-PROCEDURE pGetSettingValue PRIVATE:
-    /*------------------------------------------------------------------------------
-     Purpose: Sets the NK1 setting global variables that are pertinent to the session
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT  PARAMETER ipcCompany AS CHARACTER NO-UNDO.
-
-    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO.
-
-    RUN sys/ref/nk1look.p (ipcCompany, "CEInksWithUnits", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
-    IF lFound THEN glAssignUnitsForInk = cReturn EQ "YES".
-    
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers V-table-Win 
 PROCEDURE release-shared-buffers :

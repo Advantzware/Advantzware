@@ -212,8 +212,8 @@ DO v-local-loop = 1 TO v-local-copies:
            v-i-line[1] = "ITEM DESCRIPTION"
            v-i-line[2] = "Style: " + IF AVAILABLE xstyle THEN xstyle.dscr ELSE ""
            v-i-line[3] = "Size: "  + IF AVAILABLE xeb    THEN
-                     TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) ELSE ""
            v-i-line[4] = "Joint: " + IF AVAILABLE xeb THEN v-joint-dscr ELSE "".
    
@@ -341,8 +341,8 @@ DO v-local-loop = 1 TO v-local-copies:
                 "L: " + trim(STRING({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 FORMAT "x(25)"
                 "MSF:"  +
-                trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                FORMAT "x(11)"
+                trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                FORMAT "x(12)"
                 "<=#6><R-5> 1:"
                 w-i.i-code
                 w-i.i-qty WHEN w-i.i-qty NE 0
@@ -412,8 +412,8 @@ DO v-local-loop = 1 TO v-local-copies:
                 "L: " + trim(STRING({sys/inc/k16v.i v-form-len},">,>>9.99"))
                                                                 FORMAT "x(25)"
                 "MSF:"  +
-                trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<"))
-                                                                FORMAT "x(11)"
+                trim(STRING(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<"))
+                                                                FORMAT "x(12)"
                 "<=#6><R-5>       "
                 w-i.i-dscr
                 w-i.i-qty WHEN w-i.i-qty NE 0

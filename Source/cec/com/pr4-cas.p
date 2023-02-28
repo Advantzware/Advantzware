@@ -231,7 +231,7 @@ for each cas where cas.typ eq 1,
              when not v-summ
            "Pieces/Pack"
              when not v-summ
-           w-cas.qty                    to 50   format ">>>>9"
+           w-cas.qty                    to 50   format ">>>>>9"
            "Bdl"
            cas.cosm                     to 69
              when not v-summ
@@ -417,7 +417,7 @@ for each cas where cas.typ eq 3,
 
    display v-blk-frm
            item.i-name                          format "x(20)"
-           w-cas.qty                    to 50   format ">>>9"
+           w-cas.qty                    to 50   format ">>>>9"
            "Pal"
            cas.cosm                     to 69
              when not v-summ

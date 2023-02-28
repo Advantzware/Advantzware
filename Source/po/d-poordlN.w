@@ -196,7 +196,7 @@ RUN spGetSettingByName ("VendorCostMatrixUseEstimate", OUTPUT cVendorCostMatrixU
 
 RUN sys/ref/nk1look.p (cocode, "VendItemCost", "L", NO, NO, "", "", OUTPUT cReturn, OUTPUT lFound).
 IF lFound THEN lVendItemCost = IF cReturn = "Yes" THEN YES ELSE No.
-             
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -391,7 +391,7 @@ DEFINE VARIABLE v-gl-desc AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 58 BY 1 NO-UNDO.
 
-DEFINE VARIABLE v-po-dep AS DECIMAL FORMAT ">>>9.99<<":U INITIAL 0 
+DEFINE VARIABLE v-po-dep AS DECIMAL FORMAT ">>>>>9.99<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
@@ -411,7 +411,7 @@ DEFINE VARIABLE v-tonnage AS DECIMAL FORMAT ">>>>,>>9.999":U INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 19 BY 1 NO-UNDO.
 
-DEFINE VARIABLE v-tot-msf AS DECIMAL FORMAT ">>>>,>>9.999":U INITIAL 0 
+DEFINE VARIABLE v-tot-msf AS DECIMAL FORMAT ">>>>>>>9.99<<<<":U INITIAL 0 
      VIEW-AS FILL-IN 
      SIZE 19 BY 1 NO-UNDO.
 
@@ -439,12 +439,12 @@ DEFINE FRAME Dialog-Frame
      po-ordl.i-no AT ROW 1.24 COL 14.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
-     po-ordl.job-no AT ROW 1.24 COL 47 COLON-ALIGNED FORMAT "x(9)"
-          LABEL "Job #" 
+     po-ordl.job-no AT ROW 1.24 COL 47 COLON-ALIGNED
+          LABEL "Job #" FORMAT "x(9)"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
-     po-ordl.job-no2 AT ROW 1.24 COL 63.2 COLON-ALIGNED FORMAT "999" NO-LABEL
-          VIEW-AS FILL-IN  
+     po-ordl.job-no2 AT ROW 1.24 COL 63.2 COLON-ALIGNED NO-LABEL FORMAT "999"
+          VIEW-AS FILL-IN 
           SIZE 6 BY 1
      po-ordl.s-num AT ROW 1.24 COL 72.8 COLON-ALIGNED
           LABEL "F"
@@ -503,10 +503,10 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
      v-tot-msf AT ROW 5.29 COL 105 COLON-ALIGNED NO-LABEL
-     po-ordl.s-wid AT ROW 6.62 COL 3.4 COLON-ALIGNED NO-LABEL FORMAT ">>>9.99<<"
+     po-ordl.s-wid AT ROW 6.62 COL 3.4 COLON-ALIGNED NO-LABEL FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-     po-ordl.s-len AT ROW 6.62 COL 18 COLON-ALIGNED NO-LABEL FORMAT ">>,>>9.99<<"
+     po-ordl.s-len AT ROW 6.62 COL 18 COLON-ALIGNED NO-LABEL FORMAT ">>>,>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
      v-po-dep AT ROW 6.62 COL 36 COLON-ALIGNED NO-LABEL
@@ -516,13 +516,13 @@ DEFINE FRAME Dialog-Frame
      v-tonnage AT ROW 6.38 COL 105 COLON-ALIGNED NO-LABEL
      adders AT ROW 7.62 COL 78 NO-LABEL
      v-po-wid-frac AT ROW 7.57 COL 3.4 COLON-ALIGNED NO-LABEL
-     v-po-len-frac AT ROW 7.57 COL 18 COLON-ALIGNED NO-LABEL
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
+     v-po-len-frac AT ROW 7.57 COL 18 COLON-ALIGNED NO-LABEL
      v-po-dep-frac AT ROW 7.57 COL 36 COLON-ALIGNED NO-LABEL
      po-ordl.actnum AT ROW 8.91 COL 18 COLON-ALIGNED HELP
           "Enter account number."
@@ -557,7 +557,7 @@ DEFINE FRAME Dialog-Frame
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
      po-ordl.t-cost AT ROW 14.62 COL 49 COLON-ALIGNED
-          LABEL "Total Cost" FORMAT "->,>>>,>>9.99<<"
+          LABEL "Total Cost" FORMAT "->>,>>>,>>9.99<<"
           VIEW-AS FILL-IN 
           SIZE 27 BY 1
      fi_pb-cst AT ROW 15.1 COL 104 COLON-ALIGNED
@@ -583,6 +583,8 @@ DEFINE FRAME Dialog-Frame
      cFirstMach AT ROW 15.57 COL 18 COLON-ALIGNED WIDGET-ID 6
      "MSF" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 5.52 COL 127
+     "Tons" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 6.57 COL 127
      "Vouchered:" VIEW-AS TEXT
           SIZE 13.2 BY .62 AT ROW 12.33 COL 52.4 WIDGET-ID 10
      "Width" VIEW-AS TEXT
@@ -593,10 +595,6 @@ DEFINE FRAME Dialog-Frame
           SIZE 8 BY .62 AT ROW 5.71 COL 38.2
      "On Order" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 17 COL 40
-     "On Hand" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 17 COL 20
-     "Backordered" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 17 COL 80
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -604,10 +602,12 @@ DEFINE FRAME Dialog-Frame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME Dialog-Frame
+     "On Hand" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 17 COL 20
+     "Backordered" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 17 COL 80
      "Available" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 17 COL 100
-     "Tons" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 6.57 COL 127
      RECT-21 AT ROW 16.76 COL 1
      RECT-38 AT ROW 1 COL 1
      SPACE(0.00) SKIP(6.18)
@@ -716,7 +716,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN po-ordl.job-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN po-ordl.job-no2 IN FRAME Dialog-Frame
-   EXP-LABEL EXP-FORMAT                                                 */   
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN po-ordl.ord-no IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN po-ordl.ord-qty IN FRAME Dialog-Frame
@@ -5180,6 +5180,628 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEItemPoAdder2 Dialog-Frame 
+PROCEDURE pEItemPoAdder2 :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      PARAMs:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-recid  AS RECID.
+    DEFINE INPUT PARAMETER ip-recid1 AS RECID.
+    DEFINE INPUT PARAMETER ip-vend-no LIKE po-ord.vend-no NO-UNDO.
+    DEFINE INPUT PARAMETER ip-qty AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ip-cost AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ip-cons-cost AS DECIMAL NO-UNDO.
+
+    DEFINE OUTPUT PARAMETER op-cost AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cons-cost AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-adder-setup AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE v-tot-cost AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-cost     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-add-cost AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-qty-comp AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-setup    LIKE e-item-vend.setup NO-UNDO.
+    DEFINE VARIABLE v-adder    AS DECIMAL EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE v-index    AS INTEGER NO-UNDO.
+
+    DEFINE BUFFER xjob-mat FOR job-mat.
+
+    FIND xjob-mat WHERE RECID(xjob-mat) EQ ip-recid1 NO-LOCK.
+
+    ASSIGN
+        addersText   = ''
+        op-cost      = ip-cost
+        op-cons-cost = ip-cons-cost
+        dAddersCost  = 0
+        .
+
+
+    DO WITH FRAME {&FRAME-NAME}:
+        FIND FIRST item NO-LOCK WHERE 
+            item.company  EQ job-mat.company AND
+            item.i-no     EQ po-ordl.i-no:SCREEN-VALUE
+            NO-ERROR.
+
+        IF AVAILABLE ITEM AND
+            ITEM.mat-type NE "B" THEN
+            LEAVE.
+
+        ASSIGN
+            v-adder[1] = ip-cost
+            v-adder[2] = ip-cons-cost.
+
+        IF po-ordl.pr-uom:SCREEN-VALUE EQ "EA"                    OR
+            (NOT po-ordl.item-type AND
+            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE)) THEN
+            v-tot-cost = ip-cost.
+
+        ELSE
+            RUN sys/ref/convcuom.p(po-ordl.pr-uom:SCREEN-VALUE, "EA",
+                v-basis-w, v-len, v-wid, v-dep,
+                ip-cost, OUTPUT v-tot-cost).
+ 
+        FOR EACH job-mat NO-LOCK
+            WHERE job-mat.company  EQ xjob-mat.company
+            AND job-mat.job      EQ xjob-mat.job
+            AND job-mat.frm      EQ xjob-mat.frm
+            AND job-mat.job-no   EQ xjob-mat.job-no
+            AND job-mat.job-no2  EQ xjob-mat.job-no2
+            USE-INDEX seq-idx,
+
+            FIRST item NO-LOCK
+            WHERE item.company  EQ job-mat.company
+            AND item.i-no     EQ job-mat.i-no
+            AND item.mat-type EQ "A":
+            
+            ASSIGN 
+                v-cost  = 0
+                v-setup = 0
+                .
+            FIND FIRST e-item NO-LOCK
+                WHERE e-item.company EQ po-ordl.company
+                AND e-item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
+                NO-ERROR.
+    
+            FIND FIRST e-item-vend NO-LOCK
+                WHERE e-item-vend.company EQ item.company
+                AND e-item-vend.i-no    EQ item.i-no
+                AND e-item-vend.vend-no EQ ip-vend-no
+                NO-ERROR.
+
+            IF AVAILABLE e-item AND AVAILABLE e-item-vend AND ip-vend-no NE "" THEN 
+            DO:
+                IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ e-item.std-uom THEN
+                    v-qty-comp = ip-qty.
+                ELSE
+                    RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE, e-item.std-uom,
+                        v-basis-w, v-len, v-wid, v-dep,
+                        ip-qty, OUTPUT v-qty-comp).
+        
+
+                v-setup = 0.
+
+                EMPTY TEMP-TABLE tt-eiv-2.
+                CREATE tt-eiv-2.
+
+                DO v-index = 1 TO 10:
+                    ASSIGN
+                        tt-eiv-2.run-qty[v-index]  = e-item-vend.run-qty[v-index]
+                        tt-eiv-2.run-cost[v-index] = e-item-vend.run-cost[v-index]
+                        tt-eiv-2.setups[v-index]   = e-item-vend.setups[v-index].
+                END.
+
+
+                IF AVAILABLE e-item-vend THEN
+                DO:
+
+      
+                    DO v-index = 1 TO 10:
+                        ASSIGN
+                            tt-eiv-2.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
+                            tt-eiv-2.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                            tt-eiv-2.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
+                    END.
+                END.
+
+                DO i = 1 TO EXTENT(tt-eiv-2.run-qty):
+                    IF v-qty-comp LE tt-eiv-2.run-qty[i] THEN
+                        LEAVE.
+                END.
+                /*  if i eq 1 then v-setup = e-item-vend.setup. */
+                IF i GT EXTENT(tt-eiv-2.run-qty) THEN i = EXTENT(tt-eiv-2.run-qty).
+                ASSIGN
+                    v-setup        = tt-eiv-2.setups[i]
+                    op-adder-setup = op-adder-setup + v-setup
+                    v-cost         = /*((*/tt-eiv-2.run-cost[i] /** v-qty-comp) + v-setup) / v-qty-comp*/ .
+                /* This adds the Adder cost in */
+                IF e-item.std-uom NE po-ordl.pr-uom:SCREEN-VALUE THEN
+                    RUN sys/ref/convcuom.p(e-item.std-uom, po-ordl.pr-uom:SCREEN-VALUE, job-mat.basis-w,
+                        job-mat.len, job-mat.wid, item.s-dep,
+                        v-cost, OUTPUT v-cost).
+            END.
+            IF v-cost = ? THEN v-cost = 0.
+            ASSIGN
+                addersText = addersText + SUBSTR(item.i-name,1,18) +
+                  FILL(' ',19 - LENGTH(SUBSTR(item.i-name,1,18))) +
+                  STRING(v-cost,'-z,zz9.99') + STRING(v-setup,'-zzz9.99') + CHR(10)
+                v-add-cost  = v-add-cost + v-cost
+                dAddersCost = dAddersCost + v-cost
+                .                                    
+        END.
+
+        IF po-ordl.pr-uom:SCREEN-VALUE NE "EA" THEN 
+            RUN sys/ref/convcuom.p("EA", po-ordl.pr-uom:SCREEN-VALUE,
+                v-basis-w, v-len, v-wid, v-dep,
+                v-tot-cost, OUTPUT v-tot-cost).
+ 
+        op-cost = v-add-cost + v-tot-cost.
+
+        IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE THEN
+            RUN sys/ref/convcuom.p(po-ordl.pr-uom:SCREEN-VALUE, po-ordl.cons-uom:SCREEN-VALUE,
+                v-basis-w, v-len, v-wid, v-dep,
+                ip-cost, OUTPUT op-cons-cost).
+
+        /*  display po-ordl.cost po-ordl.cons-cost.  */
+
+        ASSIGN
+            v-adder[1] = op-cost      - v-adder[1]
+            v-adder[2] = op-cons-cost - v-adder[2].
+    END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEVendCost Dialog-Frame 
+PROCEDURE pEVendCost :
+/*------------------------------------------------------------------------------
+      Purpose:     
+      PARAMs:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-calc-cost   AS LOGICAL NO-UNDO. 
+    DEFINE INPUT PARAMETER iplgRecalcAdders AS LOGICAL NO-UNDO.
+     
+    RUN zero-vend-cost-related.
+    EMPTY TEMP-TABLE tt-ei.
+    EMPTY TEMP-TABLE tt-eiv.
+    DO WITH FRAME {&FRAME-NAME}:
+        RUN set-dims.
+        /* for adders */
+        RELEASE job-mat.
+        FIND FIRST job NO-LOCK
+            WHERE job.company EQ po-ordl.company
+            AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
+            AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
+            NO-ERROR.
+        IF AVAILABLE job THEN
+            FIND FIRST job-mat NO-LOCK
+                WHERE job-mat.company  EQ job.company
+                AND job-mat.job      EQ job.job
+                AND job-mat.job-no   EQ job.job-no
+                AND job-mat.job-no2  EQ job.job-no2
+                AND job-mat.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE)
+                AND job-mat.blank-no EQ INT(po-ordl.b-num:SCREEN-VALUE) 
+                USE-INDEX seq-idx NO-ERROR.
+        
+        IF AVAILABLE job-mat THEN lv-recid = RECID(job-mat).
+        v-ord-qty = DEC(po-ordl.ord-qty:SCREEN-VALUE).
+        IF po-ordl.item-type:SCREEN-VALUE EQ "RM" THEN 
+        DO:
+            FIND FIRST e-item NO-LOCK
+                WHERE e-item.company EQ cocode
+                AND e-item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
+                NO-ERROR.
+      
+            IF AVAILABLE e-item THEN 
+            DO:
+                CREATE tt-ei.
+                ASSIGN 
+                    tt-ei.std-uom = e-item.std-uom.
+      
+                FIND FIRST e-item-vend NO-LOCK
+                    WHERE e-item-vend.company EQ e-item.company
+                    AND e-item-vend.i-no    EQ e-item.i-no
+                    AND e-item-vend.vend-no EQ po-ord.vend-no
+                    NO-ERROR.
+      
+                IF AVAILABLE e-item-vend THEN 
+                DO:
+                    CREATE tt-eiv.
+                    tt-eiv.rec_key = e-item-vend.rec_key.
+                    DO v-index = 1 TO 10:
+                        ASSIGN
+                            tt-eiv.run-qty[v-index]  = e-item-vend.run-qty[v-index]
+                            tt-eiv.run-cost[v-index] = e-item-vend.run-cost[v-index]
+                            tt-eiv.setups[v-index]   = e-item-vend.setups[v-index].
+                    END.
+                    
+         
+                    IF AVAILABLE e-item-vend THEN
+                    DO:
+                        
+             
+                        DO v-index = 1 TO 10:
+                            ASSIGN
+                                tt-eiv.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
+                                tt-eiv.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
+                                tt-eiv.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
+                        END.
+                    END.
+                END.
+            END.
+        END.
+        ELSE 
+        DO:
+            FIND FIRST e-itemfg NO-LOCK
+                WHERE e-itemfg.company EQ cocode
+                AND e-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE
+                NO-ERROR.
+            IF AVAILABLE e-itemfg THEN 
+            DO:
+                CREATE tt-ei.
+                ASSIGN 
+                    tt-ei.std-uom = e-itemfg.std-uom.
+                RELEASE e-itemfg-vend . 
+                IF po-ordl.cust-no:SCREEN-VALUE NE "" THEN
+                    FIND FIRST e-itemfg-vend NO-LOCK
+                        WHERE e-itemfg-vend.company EQ e-itemfg.company
+                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                        AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
+                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
+                        NO-ERROR.  
+                IF NOT AVAILABLE e-itemfg-vend AND po-ord.cust-no NE "" THEN
+                    FIND FIRST e-itemfg-vend NO-LOCK
+                        WHERE e-itemfg-vend.company EQ e-itemfg.company
+                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                        AND e-itemfg-vend.cust-no EQ po-ord.cust-no
+                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
+                        NO-ERROR.
+
+                IF NOT AVAILABLE e-itemfg-vend THEN 
+                    FIND FIRST e-itemfg-vend NO-LOCK
+                        WHERE e-itemfg-vend.company EQ e-itemfg.company
+                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
+                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid Farm Tab costs from estimating*/
+                        NO-ERROR.
+                /* gdm - check for blank vendor */
+                IF NOT AVAILABLE e-itemfg-vend THEN
+                    FIND FIRST e-itemfg-vend NO-LOCK
+                        WHERE e-itemfg-vend.company EQ e-itemfg.company
+                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no 
+                        AND e-itemfg-vend.vend-no EQ "" 
+                        AND e-itemfg-vend.est-no eq ""
+                        NO-ERROR.
+                IF AVAILABLE e-itemfg-vend THEN 
+                DO:            
+                    CREATE tt-eiv.
+                    tt-eiv.rec_key = e-itemfg-vend.rec_key.
+                    DO v-index = 1 TO 10:
+                        ASSIGN
+                            tt-eiv.run-qty[v-index]  = e-itemfg-vend.run-qty[v-index]
+                            tt-eiv.run-cost[v-index] = e-itemfg-vend.run-cost[v-index]
+                            tt-eiv.setups[v-index]   = e-itemfg-vend.setups[v-index].
+                    END.
+                    RELEASE e-itemfg-vend.
+                END.
+            END.
+        END. /* if item-type ne RM */
+        IF AVAILABLE tt-eiv THEN 
+        DO:                
+            ASSIGN
+                v-cost = 0 /*DEC(po-ordl.cost:SCREEN-VALUE)*/
+                v-qty  = DEC(po-ordl.ord-qty:SCREEN-VALUE).
+            IF tt-ei.std-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE          AND
+                (po-ordl.item-type                                        OR
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
+                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom))  THEN 
+            DO:
+                IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
+                DO:
+                    /* First convert to EA */
+                    v-qty = v-qty * INT(fiCount:SCREEN-VALUE).
+                    /* Now convert to std-uom */
+                    RUN sys/ref/convquom.p("EA",
+                        tt-ei.std-uom, v-basis-w,
+                        v-len, v-wid, v-dep,
+                        v-qty, OUTPUT v-qty).
+                END.
+                ELSE
+                    RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE,
+                        tt-ei.std-uom, v-basis-w,
+                        v-len, v-wid, v-dep,
+                        v-qty, OUTPUT v-qty).
+            END.
+            v-save-qty = v-qty.
+            IF po-ordl.job-no:SCREEN-VALUE NE "" THEN
+                RUN po/groupcst.p (po-ordl.job-no:SCREEN-VALUE,
+                    INT(po-ordl.job-no2:SCREEN-VALUE),
+                    po-ordl.i-no:SCREEN-VALUE,
+                    INT(po-ordl.s-num:SCREEN-VALUE),
+                    INT(po-ordl.b-num:SCREEN-VALUE),
+                    INPUT-OUTPUT v-qty).
+            ASSIGN
+                v-save-qty = v-qty - v-save-qty
+                v-setup    = 0
+                v-pb-qty   = 0.
+            
+            RUN est/dim-charge.p (tt-eiv.rec_key,
+                v-wid,
+                v-len,
+                INPUT-OUTPUT ld-dim-charge).
+     
+            DO li = 1 TO EXTENT(tt-eiv.run-qty):
+                IF tt-eiv.run-qty[li] LT v-qty THEN NEXT.
+                ASSIGN
+                    v-cost   = (tt-eiv.run-cost[li] + ld-dim-charge) * v-qty
+                    v-setup  = tt-eiv.setups[li]
+                    v-pb-qty = tt-eiv.run-qty[li] - v-save-qty.
+                IF li LT EXTENT(tt-eiv.run-qty) THEN
+                    ASSIGN
+                        v-pb-cst = tt-eiv.run-cost[li + 1] + ld-dim-charge
+                        v-pb-stp = tt-eiv.setups[li + 1].
+                LEAVE.
+            END.
+            IF poqty-log THEN 
+            DO:
+                IF v-pb-qty GE 9999999 THEN v-pb-qty = 0.
+                IF v-pb-qty EQ 0 THEN v-pb-cst = 0.
+                ELSE 
+                DO:
+                    v-pb-qty = v-pb-qty + .001.
+                    v-pb-cst = v-pb-cst * v-pb-qty.
+                    IF v-pb-qty NE 0 THEN v-pb-cst = (v-pb-cst /*+ v-pb-stp*/) / v-pb-qty.  
+                    ELSE v-pb-cst = (v-pb-cst /*+ v-pb-stp*/).
+                END.
+                IF tt-ei.std-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE           AND
+                    (po-ordl.item-type                                        OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE))  THEN 
+                DO:
+                    IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
+                    DO:
+                        /* convert to EA */
+                        RUN sys/ref/convquom.p(tt-ei.std-uom,
+                            "EA",
+                            v-basis-w, v-len, v-wid, v-dep,
+                            v-pb-qty, OUTPUT v-pb-qty).
+                        /* Then Convert to CS */
+                        v-pb-qty = v-pb-qty / INT(fiCount:SCREEN-VALUE).
+                    END.
+              
+                    ELSE
+                        RUN sys/ref/convquom.p(tt-ei.std-uom,
+                            po-ordl.pr-qty-uom:SCREEN-VALUE,
+                            v-basis-w, v-len, v-wid, v-dep,
+                            v-pb-qty, OUTPUT v-pb-qty).
+                END.
+                IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
+                    (po-ordl.item-type                                    OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE))  THEN 
+                DO:
+                    IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
+                    DO:
+                        /* Convert to EA cost */
+                        RUN sys/ref/convcuom.p(tt-ei.std-uom,
+                            "EA", v-basis-w,
+                            v-len, v-wid, v-dep,
+                            v-pb-cst, OUTPUT v-pb-cst).
+                        /* Convert to CS */
+                        v-pb-cst = v-pb-cst * INT(fiCount:SCREEN-VALUE).
+                    END.
+                    ELSE
+                        RUN sys/ref/convcuom.p(tt-ei.std-uom,
+                            po-ordl.pr-uom:SCREEN-VALUE, v-basis-w,
+                            v-len, v-wid, v-dep,
+                            v-pb-cst, OUTPUT v-pb-cst).
+                END.
+                IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE AND
+                    (po-ordl.item-type                                      OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE,po-ordl.cons-uom:SCREEN-VALUE))  THEN 
+                DO:
+                    IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
+                    DO:
+                        /* Convert Cases to EA */
+                        v-pb-cst = v-pb-cst * INT(fiCount:SCREEN-VALUE).
+                        /* Convert EA to cons-uom */
+                        RUN sys/ref/convcuom.p("EA",
+                            po-ordl.cons-uom:SCREEN-VALUE, v-basis-w,
+                            v-len, v-wid, v-dep,
+                            v-pb-cst, OUTPUT v-pb-cns).
+                    END.
+                    ELSE
+                        RUN sys/ref/convcuom.p(po-ordl.pr-uom:SCREEN-VALUE,
+                            po-ordl.cons-uom:SCREEN-VALUE, v-basis-w,
+                            v-len, v-wid, v-dep,
+                            v-pb-cst, OUTPUT v-pb-cns).
+                END.
+                fi_pb-qty:SCREEN-VALUE = IF v-pb-qty LE 0 THEN "" ELSE STRING(v-pb-qty).
+            END.
+            /*assumes v-qty in same uom as v-cost*/
+            IF v-qty <> 0 THEN v-cost = (v-cost /*+ v-setup*/) / v-qty.  
+            ELSE v-cost = (v-cost /*+ v-setup*/).
+            IF ip-calc-cost NE ? THEN 
+            DO:
+                IF ip-calc-cost THEN 
+                DO:            
+                    IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
+                        (po-ordl.item-type                                    OR
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN 
+                    DO:
+                        /* IF 'CS' then convert to EA first */
+                        RUN sys/ref/convcuom.p(tt-ei.std-uom,
+                            IF po-ordl.pr-uom:SCREEN-VALUE NE "CS" THEN
+                            po-ordl.pr-uom:SCREEN-VALUE ELSE "EA", 
+                            v-basis-w,
+                            (IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "ROLL" THEN 12 ELSE v-len),
+                            v-wid, v-dep,
+                            v-cost, OUTPUT v-cost).
+                        /* If cases, convert from EA to CS */
+                        IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
+                            v-cost = v-cost * INT(fiCount:SCREEN-VALUE).
+                    END.
+                    ASSIGN
+                        ip-calc-cost               = YES
+                        po-ordl.cost:SCREEN-VALUE  = STRING(v-cost,po-ordl.cost:FORMAT)
+                        po-ordl.setup:SCREEN-VALUE = STRING(v-setup,po-ordl.setup:FORMAT).
+                    IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE AND
+                        (po-ordl.item-type                                      OR
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) OR
+                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE,po-ordl.cons-uom:SCREEN-VALUE))  THEN  
+                    DO:
+                        /* Convert cost from CS to EA first */
+                        IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
+                            v-cost = v-cost / INT(fiCount:SCREEN-VALUE).
+           
+                        RUN sys/ref/convcuom.p(IF po-ordl.pr-uom:SCREEN-VALUE NE "CS" THEN
+                            po-ordl.pr-uom:SCREEN-VALUE ELSE "EA",
+                            po-ordl.cons-uom:SCREEN-VALUE, v-basis-w,
+                            (IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "ROLL" THEN 12 ELSE v-len),
+                            v-wid, v-dep,
+                            v-cost, OUTPUT v-cost).           
+                    END.
+                    po-ordl.cons-cost:SCREEN-VALUE = STRING(v-cost,po-ordl.cons-cost:FORMAT).     
+          
+                END. /* if calc cost */                                                                            
+            END. /* ip calc cost ne ? */
+        END. /* avail tt-eiv */
+        IF AVAILABLE job-mat AND iplgRecalcAdders THEN 
+        DO:
+            IF poqty-log THEN
+                RUN pEItemPoAdder2 (RECID(po-ordl), lv-recid, po-ord.vend-no,
+                    DEC(fi_pb-qty:SCREEN-VALUE),
+                    v-pb-cst,
+                    v-pb-cns,
+                    OUTPUT v-pb-cst,
+                    OUTPUT v-pb-cns,
+                    OUTPUT lv-adder-setup).
+            RUN pEItemPoAdder2 (RECID(po-ordl), lv-recid, po-ord.vend-no,
+                DEC(po-ordl.ord-qty:SCREEN-VALUE),
+                DEC(po-ordl.cost:SCREEN-VALUE),
+                DEC(po-ordl.cons-cost:SCREEN-VALUE),
+                OUTPUT lv-added-cost,
+                OUTPUT lv-added-cons-cost,
+                OUTPUT lv-adder-setup).
+            RUN adder-text.     
+            IF ip-calc-cost THEN do:
+                ASSIGN
+                    po-ordl.cost:SCREEN-VALUE      = STRING(lv-added-cost)
+                    po-ordl.cons-cost:SCREEN-VALUE = STRING(lv-added-cons-cost ) .
+                    IF lv-adder-setup GT 0 THEN
+                    po-ordl.setup:SCREEN-VALUE  = STRING( DEC(po-ordl.setup:SCREEN-VALUE) + ( IF lv-adder-setup NE ? THEN lv-adder-setup ELSE 0) ) .
+            END.
+        END.
+        IF poqty-log THEN 
+        DO:
+            IF CAN-DO("L,LOT",po-ordl.pr-uom:SCREEN-VALUE) THEN
+                lv-t-cost = (v-pb-cst + v-pb-stp) *
+                    IF po-ordl.ord-qty LT 0 THEN -1 ELSE 1.
+            ELSE 
+            DO:
+                v-ord-qty = DEC(fi_pb-qty:SCREEN-VALUE).
+                IF po-ordl.pr-qty-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
+                    (po-ordl.item-type                                        OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN
+   
+                    RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE,
+                        po-ordl.pr-uom:SCREEN-VALUE,
+                        v-basis-w, v-len, v-wid, v-dep,
+                        v-ord-qty, OUTPUT v-ord-qty).
+     
+                lv-t-cost = (v-ord-qty * v-pb-cst) + v-pb-stp.
+            END.
+            IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
+                lv-t-cost = lv-t-cost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
+            fi_pb-cst:SCREEN-VALUE = STRING(lv-t-cost).
+            IF DEC(fi_pb-cst:SCREEN-VALUE) LE 0 THEN fi_pb-cst:SCREEN-VALUE = "".
+        END.
+        IF ip-calc-cost NE ? THEN 
+        DO:
+            IF CAN-DO("L,LOT",po-ordl.pr-uom:SCREEN-VALUE) THEN
+                lv-t-cost = (DEC(po-ordl.cost:SCREEN-VALUE) +
+                    DEC(po-ordl.setup:SCREEN-VALUE)) *
+                    IF po-ordl.ord-qty LT 0 THEN -1 ELSE 1.
+            ELSE 
+            DO:
+                v-ord-qty = DEC(po-ordl.ord-qty:SCREEN-VALUE).
+                IF po-ordl.pr-qty-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
+                    (po-ordl.item-type                                        OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE) OR
+                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN 
+                DO:
+       
+                    IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" OR po-ordl.pr-uom:SCREEN-VALUE EQ "CS" THEN 
+                    DO:
+                        RUN convertCSCost.
+                    END.
+                    ELSE 
+                        RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE,
+                            po-ordl.pr-uom:SCREEN-VALUE,
+                            v-basis-w, v-len, v-wid, v-dep,
+                            v-ord-qty, OUTPUT v-ord-qty).
+                END.
+                lv-t-cost = (v-ord-qty * DEC(po-ordl.cost:SCREEN-VALUE)) +
+                    DEC(po-ordl.setup:SCREEN-VALUE).
+            END.
+            IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
+                lv-t-cost = lv-t-cost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
+            po-ordl.t-cost:SCREEN-VALUE = STRING(lv-t-cost).
+        END.
+    END.  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAccountForJobCat Dialog-Frame 
+PROCEDURE pGetAccountForJobCat :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cAccountNo AS CHARACTER NO-UNDO.
+    DEFINE BUFFER b-job-hdr  FOR job-hdr.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+      /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
+      IF po-ordl.item-type:SCREEN-VALUE = "rm" THEN 
+      DO:
+        ASSIGN 
+        cAccountNo = "".
+        FIND FIRST b-job-hdr WHERE 
+             b-job-hdr.company EQ g_company AND
+             b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
+             b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
+             b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR. 
+        IF AVAILABLE b-job-hdr THEN
+        RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT cAccountNo).
+        IF cAccountNo <> "" THEN 
+        DO:
+            ASSIGN 
+                po-ordl.actnum:SCREEN-VALUE = cAccountNo.
+            FIND FIRST account NO-LOCK
+                 WHERE account.company EQ g_company
+                 AND account.actnum   EQ cAccountNo NO-ERROR.
+            v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
+        END.
+        RELEASE b-job-hdr.
+      END.
+    END.        
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetGL Dialog-Frame 
 PROCEDURE pGetGL PRIVATE :
@@ -5252,6 +5874,26 @@ PROCEDURE pGetGL PRIVATE :
             iopcAccount     = cAccount
             iopcAccountDesc = IF AVAILABLE account THEN account.dscr ELSE ''.
     END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendCost Dialog-Frame 
+PROCEDURE pGetVendCost :
+DEFINE INPUT PARAMETER ip-calc-cost   AS LOGICAL NO-UNDO. 
+    DEFINE INPUT PARAMETER iplgRecalcAdders AS LOGICAL NO-UNDO. 
+   
+    IF lVendItemCost THEN
+    RUN vend-cost(
+         INPUT ip-calc-cost,
+         INPUT iplgRecalcAdders
+         ).
+    ELSE 
+    RUN pEVendCost(
+         INPUT ip-calc-cost,
+         INPUT iplgRecalcAdders
+         ).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5427,9 +6069,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame
-PROCEDURE presetColor:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE presetColor Dialog-Frame 
+PROCEDURE presetColor :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -5443,51 +6084,9 @@ PROCEDURE presetColor:
     END.        
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAccountForJobCat Dialog-Frame
-PROCEDURE pGetAccountForJobCat:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cAccountNo AS CHARACTER NO-UNDO.
-    DEFINE BUFFER b-job-hdr  FOR job-hdr.
-    
-    DO WITH FRAME {&FRAME-NAME}:
-      /* populate GL# from job-hdr.i-no + itemfg tables, then reftable AH 02-24-10 */
-      IF po-ordl.item-type:SCREEN-VALUE = "rm" THEN 
-      DO:
-        ASSIGN 
-        cAccountNo = "".
-        FIND FIRST b-job-hdr WHERE 
-             b-job-hdr.company EQ g_company AND
-             b-job-hdr.job-no  EQ po-ordl.job-no:SCREEN-VALUE AND
-             b-job-hdr.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)  AND
-             b-job-hdr.frm     EQ INT(po-ordl.s-num:SCREEN-VALUE) NO-LOCK NO-ERROR. 
-        IF AVAILABLE b-job-hdr THEN
-        RUN get-itemfg-gl (INPUT b-job-hdr.company, b-job-hdr.i-no, OUTPUT cAccountNo).
-        IF cAccountNo <> "" THEN 
-        DO:
-            ASSIGN 
-                po-ordl.actnum:SCREEN-VALUE = cAccountNo.
-            FIND FIRST account NO-LOCK
-                 WHERE account.company EQ g_company
-                 AND account.actnum   EQ cAccountNo NO-ERROR.
-            v-gl-desc:SCREEN-VALUE = IF AVAILABLE account THEN account.dscr ELSE ''.
-        END.
-        RELEASE b-job-hdr.
-      END.
-    END.        
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE replace-job-mat Dialog-Frame 
 PROCEDURE replace-job-mat :
@@ -6187,6 +6786,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date Dialog-Frame 
+PROCEDURE valid-due-date :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
+ 
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+        IF DATE(po-ordl.due-date:SCREEN-VALUE) EQ ? THEN DO:        
+               MESSAGE "A due date is required for Purchase Orders." SKIP
+               "Please enter due Date." VIEW-AS ALERT-BOX INFO.
+               APPLY "entry" TO po-ordl.due-date.
+               oplReturnError = YES.                               
+        END.            
+  END.
+  {methods/lValidateError.i NO}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-job-mat Dialog-Frame 
 PROCEDURE valid-job-mat :
 /*------------------------------------------------------------------------------
@@ -6434,31 +7058,6 @@ PROCEDURE valid-max-po-cost :
         FIND CURRENT xpo-ord.
         RELEASE xpo-ord.
     END.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
-PROCEDURE valid-due-date :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplReturnError AS LOGICAL NO-UNDO.
- 
-  {methods/lValidateError.i YES}
-  DO WITH FRAME {&FRAME-NAME}:
-        IF DATE(po-ordl.due-date:SCREEN-VALUE) EQ ? THEN DO:        
-               MESSAGE "A due date is required for Purchase Orders." SKIP
-               "Please enter due Date." VIEW-AS ALERT-BOX INFO.
-               APPLY "entry" TO po-ordl.due-date.
-               oplReturnError = YES.                               
-        END.            
-  END.
-  {methods/lValidateError.i NO}
-    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -7353,607 +7952,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetVendCost Dialog-Frame 
-PROCEDURE pGetVendCost :
-    DEFINE INPUT PARAMETER ip-calc-cost   AS LOGICAL NO-UNDO. 
-    DEFINE INPUT PARAMETER iplgRecalcAdders AS LOGICAL NO-UNDO. 
-   
-    IF lVendItemCost THEN
-    RUN vend-cost(
-         INPUT ip-calc-cost,
-         INPUT iplgRecalcAdders
-         ).
-    ELSE 
-    RUN pEVendCost(
-         INPUT ip-calc-cost,
-         INPUT iplgRecalcAdders
-         ).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME           
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEVendCost Dialog-Frame 
-PROCEDURE pEVendCost :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      PARAMs:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-calc-cost   AS LOGICAL NO-UNDO. 
-    DEFINE INPUT PARAMETER iplgRecalcAdders AS LOGICAL NO-UNDO.
-     
-    RUN zero-vend-cost-related.
-    EMPTY TEMP-TABLE tt-ei.
-    EMPTY TEMP-TABLE tt-eiv.
-    DO WITH FRAME {&FRAME-NAME}:
-        RUN set-dims.
-        /* for adders */
-        RELEASE job-mat.
-        FIND FIRST job NO-LOCK
-            WHERE job.company EQ po-ordl.company
-            AND job.job-no  EQ po-ordl.job-no:SCREEN-VALUE
-            AND job.job-no2 EQ INT(po-ordl.job-no2:SCREEN-VALUE)
-            NO-ERROR.
-        IF AVAILABLE job THEN
-            FIND FIRST job-mat NO-LOCK
-                WHERE job-mat.company  EQ job.company
-                AND job-mat.job      EQ job.job
-                AND job-mat.job-no   EQ job.job-no
-                AND job-mat.job-no2  EQ job.job-no2
-                AND job-mat.frm      EQ INT(po-ordl.s-num:SCREEN-VALUE)
-                AND job-mat.blank-no EQ INT(po-ordl.b-num:SCREEN-VALUE) 
-                USE-INDEX seq-idx NO-ERROR.
-        
-        IF AVAILABLE job-mat THEN lv-recid = RECID(job-mat).
-        v-ord-qty = DEC(po-ordl.ord-qty:SCREEN-VALUE).
-        IF po-ordl.item-type:SCREEN-VALUE EQ "RM" THEN 
-        DO:
-            FIND FIRST e-item NO-LOCK
-                WHERE e-item.company EQ cocode
-                AND e-item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
-                NO-ERROR.
-      
-            IF AVAILABLE e-item THEN 
-            DO:
-                CREATE tt-ei.
-                ASSIGN 
-                    tt-ei.std-uom = e-item.std-uom.
-      
-                FIND FIRST e-item-vend NO-LOCK
-                    WHERE e-item-vend.company EQ e-item.company
-                    AND e-item-vend.i-no    EQ e-item.i-no
-                    AND e-item-vend.vend-no EQ po-ord.vend-no
-                    NO-ERROR.
-      
-                IF AVAILABLE e-item-vend THEN 
-                DO:
-                    CREATE tt-eiv.
-                    tt-eiv.rec_key = e-item-vend.rec_key.
-                    DO v-index = 1 TO 10:
-                        ASSIGN
-                            tt-eiv.run-qty[v-index]  = e-item-vend.run-qty[v-index]
-                            tt-eiv.run-cost[v-index] = e-item-vend.run-cost[v-index]
-                            tt-eiv.setups[v-index]   = e-item-vend.setups[v-index].
-                    END.
-                    
-         
-                    IF AVAILABLE e-item-vend THEN
-                    DO:
-                        
-             
-                        DO v-index = 1 TO 10:
-                            ASSIGN
-                                tt-eiv.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
-                                tt-eiv.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
-                                tt-eiv.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
-                        END.
-                    END.
-                END.
-            END.
-        END.
-        ELSE 
-        DO:
-            FIND FIRST e-itemfg NO-LOCK
-                WHERE e-itemfg.company EQ cocode
-                AND e-itemfg.i-no    EQ po-ordl.i-no:SCREEN-VALUE
-                NO-ERROR.
-            IF AVAILABLE e-itemfg THEN 
-            DO:
-                CREATE tt-ei.
-                ASSIGN 
-                    tt-ei.std-uom = e-itemfg.std-uom.
-                RELEASE e-itemfg-vend . 
-                IF po-ordl.cust-no:SCREEN-VALUE NE "" THEN
-                    FIND FIRST e-itemfg-vend NO-LOCK
-                        WHERE e-itemfg-vend.company EQ e-itemfg.company
-                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
-                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
-                        AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
-                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
-                        NO-ERROR.  
-                IF NOT AVAILABLE e-itemfg-vend AND po-ord.cust-no NE "" THEN
-                    FIND FIRST e-itemfg-vend NO-LOCK
-                        WHERE e-itemfg-vend.company EQ e-itemfg.company
-                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
-                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
-                        AND e-itemfg-vend.cust-no EQ po-ord.cust-no
-                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
-                        NO-ERROR.
-
-                IF NOT AVAILABLE e-itemfg-vend THEN 
-                    FIND FIRST e-itemfg-vend NO-LOCK
-                        WHERE e-itemfg-vend.company EQ e-itemfg.company
-                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
-                        AND e-itemfg-vend.vend-no EQ po-ord.vend-no
-                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid Farm Tab costs from estimating*/
-                        NO-ERROR.
-                /* gdm - check for blank vendor */
-                IF NOT AVAILABLE e-itemfg-vend THEN
-                    FIND FIRST e-itemfg-vend NO-LOCK
-                        WHERE e-itemfg-vend.company EQ e-itemfg.company
-                        AND e-itemfg-vend.i-no    EQ e-itemfg.i-no 
-                        AND e-itemfg-vend.vend-no EQ "" 
-                        AND e-itemfg-vend.est-no eq ""
-                        NO-ERROR.
-                IF AVAILABLE e-itemfg-vend THEN 
-                DO:            
-                    CREATE tt-eiv.
-                    tt-eiv.rec_key = e-itemfg-vend.rec_key.
-                    DO v-index = 1 TO 10:
-                        ASSIGN
-                            tt-eiv.run-qty[v-index]  = e-itemfg-vend.run-qty[v-index]
-                            tt-eiv.run-cost[v-index] = e-itemfg-vend.run-cost[v-index]
-                            tt-eiv.setups[v-index]   = e-itemfg-vend.setups[v-index].
-                    END.
-                    RELEASE e-itemfg-vend.
-                END.
-            END.
-        END. /* if item-type ne RM */
-        IF AVAILABLE tt-eiv THEN 
-        DO:                
-            ASSIGN
-                v-cost = 0 /*DEC(po-ordl.cost:SCREEN-VALUE)*/
-                v-qty  = DEC(po-ordl.ord-qty:SCREEN-VALUE).
-            IF tt-ei.std-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE          AND
-                (po-ordl.item-type                                        OR
-                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
-                NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom))  THEN 
-            DO:
-                IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
-                DO:
-                    /* First convert to EA */
-                    v-qty = v-qty * INT(fiCount:SCREEN-VALUE).
-                    /* Now convert to std-uom */
-                    RUN sys/ref/convquom.p("EA",
-                        tt-ei.std-uom, v-basis-w,
-                        v-len, v-wid, v-dep,
-                        v-qty, OUTPUT v-qty).
-                END.
-                ELSE
-                    RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE,
-                        tt-ei.std-uom, v-basis-w,
-                        v-len, v-wid, v-dep,
-                        v-qty, OUTPUT v-qty).
-            END.
-            v-save-qty = v-qty.
-            IF po-ordl.job-no:SCREEN-VALUE NE "" THEN
-                RUN po/groupcst.p (po-ordl.job-no:SCREEN-VALUE,
-                    INT(po-ordl.job-no2:SCREEN-VALUE),
-                    po-ordl.i-no:SCREEN-VALUE,
-                    INT(po-ordl.s-num:SCREEN-VALUE),
-                    INT(po-ordl.b-num:SCREEN-VALUE),
-                    INPUT-OUTPUT v-qty).
-            ASSIGN
-                v-save-qty = v-qty - v-save-qty
-                v-setup    = 0
-                v-pb-qty   = 0.
-            
-            RUN est/dim-charge.p (tt-eiv.rec_key,
-                v-wid,
-                v-len,
-                INPUT-OUTPUT ld-dim-charge).
-     
-            DO li = 1 TO EXTENT(tt-eiv.run-qty):
-                IF tt-eiv.run-qty[li] LT v-qty THEN NEXT.
-                ASSIGN
-                    v-cost   = (tt-eiv.run-cost[li] + ld-dim-charge) * v-qty
-                    v-setup  = tt-eiv.setups[li]
-                    v-pb-qty = tt-eiv.run-qty[li] - v-save-qty.
-                IF li LT EXTENT(tt-eiv.run-qty) THEN
-                    ASSIGN
-                        v-pb-cst = tt-eiv.run-cost[li + 1] + ld-dim-charge
-                        v-pb-stp = tt-eiv.setups[li + 1].
-                LEAVE.
-            END.
-            IF poqty-log THEN 
-            DO:
-                IF v-pb-qty GE 9999999 THEN v-pb-qty = 0.
-                IF v-pb-qty EQ 0 THEN v-pb-cst = 0.
-                ELSE 
-                DO:
-                    v-pb-qty = v-pb-qty + .001.
-                    v-pb-cst = v-pb-cst * v-pb-qty.
-                    IF v-pb-qty NE 0 THEN v-pb-cst = (v-pb-cst /*+ v-pb-stp*/) / v-pb-qty.  
-                    ELSE v-pb-cst = (v-pb-cst /*+ v-pb-stp*/).
-                END.
-                IF tt-ei.std-uom NE po-ordl.pr-qty-uom:SCREEN-VALUE           AND
-                    (po-ordl.item-type                                        OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE))  THEN 
-                DO:
-                    IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
-                    DO:
-                        /* convert to EA */
-                        RUN sys/ref/convquom.p(tt-ei.std-uom,
-                            "EA",
-                            v-basis-w, v-len, v-wid, v-dep,
-                            v-pb-qty, OUTPUT v-pb-qty).
-                        /* Then Convert to CS */
-                        v-pb-qty = v-pb-qty / INT(fiCount:SCREEN-VALUE).
-                    END.
-              
-                    ELSE
-                        RUN sys/ref/convquom.p(tt-ei.std-uom,
-                            po-ordl.pr-qty-uom:SCREEN-VALUE,
-                            v-basis-w, v-len, v-wid, v-dep,
-                            v-pb-qty, OUTPUT v-pb-qty).
-                END.
-                IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
-                    (po-ordl.item-type                                    OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE))  THEN 
-                DO:
-                    IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
-                    DO:
-                        /* Convert to EA cost */
-                        RUN sys/ref/convcuom.p(tt-ei.std-uom,
-                            "EA", v-basis-w,
-                            v-len, v-wid, v-dep,
-                            v-pb-cst, OUTPUT v-pb-cst).
-                        /* Convert to CS */
-                        v-pb-cst = v-pb-cst * INT(fiCount:SCREEN-VALUE).
-                    END.
-                    ELSE
-                        RUN sys/ref/convcuom.p(tt-ei.std-uom,
-                            po-ordl.pr-uom:SCREEN-VALUE, v-basis-w,
-                            v-len, v-wid, v-dep,
-                            v-pb-cst, OUTPUT v-pb-cst).
-                END.
-                IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE AND
-                    (po-ordl.item-type                                      OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE,po-ordl.cons-uom:SCREEN-VALUE))  THEN 
-                DO:
-                    IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN 
-                    DO:
-                        /* Convert Cases to EA */
-                        v-pb-cst = v-pb-cst * INT(fiCount:SCREEN-VALUE).
-                        /* Convert EA to cons-uom */
-                        RUN sys/ref/convcuom.p("EA",
-                            po-ordl.cons-uom:SCREEN-VALUE, v-basis-w,
-                            v-len, v-wid, v-dep,
-                            v-pb-cst, OUTPUT v-pb-cns).
-                    END.
-                    ELSE
-                        RUN sys/ref/convcuom.p(po-ordl.pr-uom:SCREEN-VALUE,
-                            po-ordl.cons-uom:SCREEN-VALUE, v-basis-w,
-                            v-len, v-wid, v-dep,
-                            v-pb-cst, OUTPUT v-pb-cns).
-                END.
-                fi_pb-qty:SCREEN-VALUE = IF v-pb-qty LE 0 THEN "" ELSE STRING(v-pb-qty).
-            END.
-            /*assumes v-qty in same uom as v-cost*/
-            IF v-qty <> 0 THEN v-cost = (v-cost /*+ v-setup*/) / v-qty.  
-            ELSE v-cost = (v-cost /*+ v-setup*/).
-            IF ip-calc-cost NE ? THEN 
-            DO:
-                IF ip-calc-cost THEN 
-                DO:            
-                    IF tt-ei.std-uom NE po-ordl.pr-uom:SCREEN-VALUE           AND
-                        (po-ordl.item-type                                    OR
-                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, tt-ei.std-uom) OR
-                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN 
-                    DO:
-                        /* IF 'CS' then convert to EA first */
-                        RUN sys/ref/convcuom.p(tt-ei.std-uom,
-                            IF po-ordl.pr-uom:SCREEN-VALUE NE "CS" THEN
-                            po-ordl.pr-uom:SCREEN-VALUE ELSE "EA", 
-                            v-basis-w,
-                            (IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "ROLL" THEN 12 ELSE v-len),
-                            v-wid, v-dep,
-                            v-cost, OUTPUT v-cost).
-                        /* If cases, convert from EA to CS */
-                        IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
-                            v-cost = v-cost * INT(fiCount:SCREEN-VALUE).
-                    END.
-                    ASSIGN
-                        ip-calc-cost               = YES
-                        po-ordl.cost:SCREEN-VALUE  = STRING(v-cost,po-ordl.cost:FORMAT)
-                        po-ordl.setup:SCREEN-VALUE = STRING(v-setup,po-ordl.setup:FORMAT).
-                    IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE AND
-                        (po-ordl.item-type                                      OR
-                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE) OR
-                        NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE,po-ordl.cons-uom:SCREEN-VALUE))  THEN  
-                    DO:
-                        /* Convert cost from CS to EA first */
-                        IF po-ordl.pr-uom:SCREEN-VALUE EQ "CS" AND po-ordl.item-type:SCREEN-VALUE NE "RM" THEN
-                            v-cost = v-cost / INT(fiCount:SCREEN-VALUE).
-           
-                        RUN sys/ref/convcuom.p(IF po-ordl.pr-uom:SCREEN-VALUE NE "CS" THEN
-                            po-ordl.pr-uom:SCREEN-VALUE ELSE "EA",
-                            po-ordl.cons-uom:SCREEN-VALUE, v-basis-w,
-                            (IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "ROLL" THEN 12 ELSE v-len),
-                            v-wid, v-dep,
-                            v-cost, OUTPUT v-cost).           
-                    END.
-                    po-ordl.cons-cost:SCREEN-VALUE = STRING(v-cost,po-ordl.cons-cost:FORMAT).     
-          
-                END. /* if calc cost */                                                                            
-            END. /* ip calc cost ne ? */
-        END. /* avail tt-eiv */
-        IF AVAILABLE job-mat AND iplgRecalcAdders THEN 
-        DO:
-            IF poqty-log THEN
-                RUN pEItemPoAdder2 (RECID(po-ordl), lv-recid, po-ord.vend-no,
-                    DEC(fi_pb-qty:SCREEN-VALUE),
-                    v-pb-cst,
-                    v-pb-cns,
-                    OUTPUT v-pb-cst,
-                    OUTPUT v-pb-cns,
-                    OUTPUT lv-adder-setup).
-            RUN pEItemPoAdder2 (RECID(po-ordl), lv-recid, po-ord.vend-no,
-                DEC(po-ordl.ord-qty:SCREEN-VALUE),
-                DEC(po-ordl.cost:SCREEN-VALUE),
-                DEC(po-ordl.cons-cost:SCREEN-VALUE),
-                OUTPUT lv-added-cost,
-                OUTPUT lv-added-cons-cost,
-                OUTPUT lv-adder-setup).
-            RUN adder-text.     
-            IF ip-calc-cost THEN do:
-                ASSIGN
-                    po-ordl.cost:SCREEN-VALUE      = STRING(lv-added-cost)
-                    po-ordl.cons-cost:SCREEN-VALUE = STRING(lv-added-cons-cost ) .
-                    IF lv-adder-setup GT 0 THEN
-                    po-ordl.setup:SCREEN-VALUE  = STRING( DEC(po-ordl.setup:SCREEN-VALUE) + ( IF lv-adder-setup NE ? THEN lv-adder-setup ELSE 0) ) .
-            END.
-        END.
-        IF poqty-log THEN 
-        DO:
-            IF CAN-DO("L,LOT",po-ordl.pr-uom:SCREEN-VALUE) THEN
-                lv-t-cost = (v-pb-cst + v-pb-stp) *
-                    IF po-ordl.ord-qty LT 0 THEN -1 ELSE 1.
-            ELSE 
-            DO:
-                v-ord-qty = DEC(fi_pb-qty:SCREEN-VALUE).
-                IF po-ordl.pr-qty-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
-                    (po-ordl.item-type                                        OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE) OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN
-   
-                    RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE,
-                        po-ordl.pr-uom:SCREEN-VALUE,
-                        v-basis-w, v-len, v-wid, v-dep,
-                        v-ord-qty, OUTPUT v-ord-qty).
-     
-                lv-t-cost = (v-ord-qty * v-pb-cst) + v-pb-stp.
-            END.
-            IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
-                lv-t-cost = lv-t-cost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
-            fi_pb-cst:SCREEN-VALUE = STRING(lv-t-cost).
-            IF DEC(fi_pb-cst:SCREEN-VALUE) LE 0 THEN fi_pb-cst:SCREEN-VALUE = "".
-        END.
-        IF ip-calc-cost NE ? THEN 
-        DO:
-            IF CAN-DO("L,LOT",po-ordl.pr-uom:SCREEN-VALUE) THEN
-                lv-t-cost = (DEC(po-ordl.cost:SCREEN-VALUE) +
-                    DEC(po-ordl.setup:SCREEN-VALUE)) *
-                    IF po-ordl.ord-qty LT 0 THEN -1 ELSE 1.
-            ELSE 
-            DO:
-                v-ord-qty = DEC(po-ordl.ord-qty:SCREEN-VALUE).
-                IF po-ordl.pr-qty-uom:SCREEN-VALUE NE po-ordl.pr-uom:SCREEN-VALUE AND
-                    (po-ordl.item-type                                        OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-qty-uom:SCREEN-VALUE) OR
-                    NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", po-ordl.company, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE))  THEN 
-                DO:
-       
-                    IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ "CS" OR po-ordl.pr-uom:SCREEN-VALUE EQ "CS" THEN 
-                    DO:
-                        RUN convertCSCost.
-                    END.
-                    ELSE 
-                        RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE,
-                            po-ordl.pr-uom:SCREEN-VALUE,
-                            v-basis-w, v-len, v-wid, v-dep,
-                            v-ord-qty, OUTPUT v-ord-qty).
-                END.
-                lv-t-cost = (v-ord-qty * DEC(po-ordl.cost:SCREEN-VALUE)) +
-                    DEC(po-ordl.setup:SCREEN-VALUE).
-            END.
-            IF DEC(po-ordl.disc:SCREEN-VALUE) NE 0 THEN
-                lv-t-cost = lv-t-cost * (1 - (DEC(po-ordl.disc:SCREEN-VALUE) / 100)).
-            po-ordl.t-cost:SCREEN-VALUE = STRING(lv-t-cost).
-        END.
-    END.  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pEItemPoAdder2 Dialog-Frame 
-PROCEDURE pEItemPoAdder2 :
-/*------------------------------------------------------------------------------
-      Purpose:     
-      PARAMs:  <none>
-      Notes:       
-    ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ip-recid  AS RECID.
-    DEFINE INPUT PARAMETER ip-recid1 AS RECID.
-    DEFINE INPUT PARAMETER ip-vend-no LIKE po-ord.vend-no NO-UNDO.
-    DEFINE INPUT PARAMETER ip-qty AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ip-cost AS DECIMAL NO-UNDO.
-    DEFINE INPUT PARAMETER ip-cons-cost AS DECIMAL NO-UNDO.
-
-    DEFINE OUTPUT PARAMETER op-cost AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER op-cons-cost AS DECIMAL NO-UNDO.
-    DEFINE OUTPUT PARAMETER op-adder-setup AS DECIMAL NO-UNDO.
-
-    DEFINE VARIABLE v-tot-cost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-cost     AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-add-cost AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-qty-comp AS DECIMAL NO-UNDO.
-    DEFINE VARIABLE v-setup    LIKE e-item-vend.setup NO-UNDO.
-    DEFINE VARIABLE v-adder    AS DECIMAL EXTENT 2 NO-UNDO.
-    DEFINE VARIABLE v-index    AS INTEGER NO-UNDO.
-
-    DEFINE BUFFER xjob-mat FOR job-mat.
-
-    FIND xjob-mat WHERE RECID(xjob-mat) EQ ip-recid1 NO-LOCK.
-
-    ASSIGN
-        addersText   = ''
-        op-cost      = ip-cost
-        op-cons-cost = ip-cons-cost
-        dAddersCost  = 0
-        .
-
-
-    DO WITH FRAME {&FRAME-NAME}:
-        FIND FIRST item NO-LOCK WHERE 
-            item.company  EQ job-mat.company AND
-            item.i-no     EQ po-ordl.i-no:SCREEN-VALUE
-            NO-ERROR.
-
-        IF AVAILABLE ITEM AND
-            ITEM.mat-type NE "B" THEN
-            LEAVE.
-
-        ASSIGN
-            v-adder[1] = ip-cost
-            v-adder[2] = ip-cons-cost.
-
-        IF po-ordl.pr-uom:SCREEN-VALUE EQ "EA"                    OR
-            (NOT po-ordl.item-type AND
-            NOT DYNAMIC-FUNCTION("Conv_IsEAUOM", cocode, po-ordl.i-no:SCREEN-VALUE, po-ordl.pr-uom:SCREEN-VALUE)) THEN
-            v-tot-cost = ip-cost.
-
-        ELSE
-            RUN sys/ref/convcuom.p(po-ordl.pr-uom:SCREEN-VALUE, "EA",
-                v-basis-w, v-len, v-wid, v-dep,
-                ip-cost, OUTPUT v-tot-cost).
- 
-        FOR EACH job-mat NO-LOCK
-            WHERE job-mat.company  EQ xjob-mat.company
-            AND job-mat.job      EQ xjob-mat.job
-            AND job-mat.frm      EQ xjob-mat.frm
-            AND job-mat.job-no   EQ xjob-mat.job-no
-            AND job-mat.job-no2  EQ xjob-mat.job-no2
-            USE-INDEX seq-idx,
-
-            FIRST item NO-LOCK
-            WHERE item.company  EQ job-mat.company
-            AND item.i-no     EQ job-mat.i-no
-            AND item.mat-type EQ "A":
-            
-            ASSIGN 
-                v-cost  = 0
-                v-setup = 0
-                .
-            FIND FIRST e-item NO-LOCK
-                WHERE e-item.company EQ po-ordl.company
-                AND e-item.i-no    EQ po-ordl.i-no:SCREEN-VALUE
-                NO-ERROR.
-    
-            FIND FIRST e-item-vend NO-LOCK
-                WHERE e-item-vend.company EQ item.company
-                AND e-item-vend.i-no    EQ item.i-no
-                AND e-item-vend.vend-no EQ ip-vend-no
-                NO-ERROR.
-
-            IF AVAILABLE e-item AND AVAILABLE e-item-vend AND ip-vend-no NE "" THEN 
-            DO:
-                IF po-ordl.pr-qty-uom:SCREEN-VALUE EQ e-item.std-uom THEN
-                    v-qty-comp = ip-qty.
-                ELSE
-                    RUN sys/ref/convquom.p(po-ordl.pr-qty-uom:SCREEN-VALUE, e-item.std-uom,
-                        v-basis-w, v-len, v-wid, v-dep,
-                        ip-qty, OUTPUT v-qty-comp).
-        
-
-                v-setup = 0.
-
-                EMPTY TEMP-TABLE tt-eiv-2.
-                CREATE tt-eiv-2.
-
-                DO v-index = 1 TO 10:
-                    ASSIGN
-                        tt-eiv-2.run-qty[v-index]  = e-item-vend.run-qty[v-index]
-                        tt-eiv-2.run-cost[v-index] = e-item-vend.run-cost[v-index]
-                        tt-eiv-2.setups[v-index]   = e-item-vend.setups[v-index].
-                END.
-
-
-                IF AVAILABLE e-item-vend THEN
-                DO:
-
-      
-                    DO v-index = 1 TO 10:
-                        ASSIGN
-                            tt-eiv-2.run-qty[v-index + 10]  = e-item-vend.runQtyXtra[v-index]
-                            tt-eiv-2.run-cost[v-index + 10] = e-item-vend.runCostXtra[v-index]
-                            tt-eiv-2.setups[v-index + 10]   = e-item-vend.setupsXtra[v-index].
-                    END.
-                END.
-
-                DO i = 1 TO EXTENT(tt-eiv-2.run-qty):
-                    IF v-qty-comp LE tt-eiv-2.run-qty[i] THEN
-                        LEAVE.
-                END.
-                /*  if i eq 1 then v-setup = e-item-vend.setup. */
-                IF i GT EXTENT(tt-eiv-2.run-qty) THEN i = EXTENT(tt-eiv-2.run-qty).
-                ASSIGN
-                    v-setup        = tt-eiv-2.setups[i]
-                    op-adder-setup = op-adder-setup + v-setup
-                    v-cost         = /*((*/tt-eiv-2.run-cost[i] /** v-qty-comp) + v-setup) / v-qty-comp*/ .
-                /* This adds the Adder cost in */
-                IF e-item.std-uom NE po-ordl.pr-uom:SCREEN-VALUE THEN
-                    RUN sys/ref/convcuom.p(e-item.std-uom, po-ordl.pr-uom:SCREEN-VALUE, job-mat.basis-w,
-                        job-mat.len, job-mat.wid, item.s-dep,
-                        v-cost, OUTPUT v-cost).
-            END.
-            IF v-cost = ? THEN v-cost = 0.
-            ASSIGN
-                addersText = addersText + SUBSTR(item.i-name,1,18) +
-                  FILL(' ',19 - LENGTH(SUBSTR(item.i-name,1,18))) +
-                  STRING(v-cost,'-z,zz9.99') + STRING(v-setup,'-zzz9.99') + CHR(10)
-                v-add-cost  = v-add-cost + v-cost
-                dAddersCost = dAddersCost + v-cost
-                .                                    
-        END.
-
-        IF po-ordl.pr-uom:SCREEN-VALUE NE "EA" THEN 
-            RUN sys/ref/convcuom.p("EA", po-ordl.pr-uom:SCREEN-VALUE,
-                v-basis-w, v-len, v-wid, v-dep,
-                v-tot-cost, OUTPUT v-tot-cost).
- 
-        op-cost = v-add-cost + v-tot-cost.
-
-        IF po-ordl.pr-uom:SCREEN-VALUE NE po-ordl.cons-uom:SCREEN-VALUE THEN
-            RUN sys/ref/convcuom.p(po-ordl.pr-uom:SCREEN-VALUE, po-ordl.cons-uom:SCREEN-VALUE,
-                v-basis-w, v-len, v-wid, v-dep,
-                ip-cost, OUTPUT op-cons-cost).
-
-        /*  display po-ordl.cost po-ordl.cons-cost.  */
-
-        ASSIGN
-            v-adder[1] = op-cost      - v-adder[1]
-            v-adder[2] = op-cons-cost - v-adder[2].
-    END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

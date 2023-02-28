@@ -303,8 +303,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 16 LABEL-BGCOLOR 14
       cons-uom() @ ld-cons-uom COLUMN-LABEL "RM UOM" FORMAT "X(4)":U
             WIDTH 10 LABEL-BGCOLOR 14
-      tt-job-mat.wid FORMAT ">>9.99<<":U LABEL-BGCOLOR 14
-      tt-job-mat.len FORMAT ">>9.99<<":U LABEL-BGCOLOR 14  
+      tt-job-mat.wid FORMAT ">>>>>9.99<<<<":U LABEL-BGCOLOR 14
+      tt-job-mat.len FORMAT ">>>>>9.99<<<<":U LABEL-BGCOLOR 14  
       tt-job-mat.job-due-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U LABEL-BGCOLOR 14
       bal-qty () @ ld-bal-qty COLUMN-LABEL "Balance" FORMAT "->>>,>>>,>>9":U
             WIDTH 24 LABEL-BGCOLOR 14

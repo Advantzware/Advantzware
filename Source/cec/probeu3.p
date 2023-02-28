@@ -59,7 +59,11 @@ FIND FIRST sys-ctrl WHERE
 ASSIGN
    cerunc-dec = sys-ctrl.dec-fld
    cerunc     = sys-ctrl.char-fld.
-
+   
+find first sys-ctrl where sys-ctrl.company eq cocode
+                     and sys-ctrl.name eq "CEPrint" no-lock no-error.   
+                     
+PUT if avail sys-ctrl and sys-ctrl.char-fld ne 'Text' then "<P10>" else "".
 IF cerunc NE "PEACHTRE" THEN
 DO:  
     IF cerunc-dec EQ 0 THEN
@@ -67,18 +71,16 @@ DO:
        put unformatted
            "     E S T I M A T E  " + "#" + trim(xest.est-no) +
            "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip.
-    
-       find first sys-ctrl where sys-ctrl.company eq cocode
-                            and sys-ctrl.name eq "CEPrint" no-lock no-error.
+              
        put unformatted
            (if avail sys-ctrl and sys-ctrl.char-fld ne 'Text' then "<P10>" else "")
-           "            Tot.Fact      Full"
+           "              Tot.Fact        Full"
            space(17)
-           "     Sell    Price  Total   Total" skip
-           "    Qty  R      Cost      Cost"
+           "       Sell    Price  Total     Total" skip
+           "    Qty  R        Cost        Cost"
            fill(" ",8 - length(trim(ce-ctrl.hd-gross))) + trim(ce-ctrl.hd-gross) format "x(8)"
            fill(" ",8 - length(trim(ce-ctrl.hd-net))) + trim(ce-ctrl.hd-net)     format "x(8)"
-           "     Price     /BSF Sheets     MSF"
+           "       Price     /BSF Sheets       MSF"
            skip.
     END.
     ELSE
@@ -91,17 +93,17 @@ DO:
                             and sys-ctrl.name eq "CEPrint" no-lock no-error.
        put unformatted
         (if avail sys-ctrl and sys-ctrl.char-fld ne 'Text' then "<P10>" else "")
-         "               Tot.Fact         Full"
+         "                Tot.Fact          Full"
          space(17)
-         "         Sell          Price  Total   Total" skip
-         "    Qty  R         Cost         Cost"
+         "         Sell          Price  Total     Total" skip
+         "    Qty  R          Cost          Cost"
          fill(" ",8 - length(trim(ce-ctrl.hd-gross))) + trim(ce-ctrl.hd-gross) format "x(8)"
          fill(" ",8 - length(trim(ce-ctrl.hd-net))) + trim(ce-ctrl.hd-net)     format "x(8)"
-         "         Price           /BSF Sheets     MSF"
+         "         Price           /BSF Sheets       MSF"
          skip.
     END.
 END.
-
+         
 IF cerunc-dec EQ 0 THEN
 FOR EACH probe
     WHERE probe.company EQ xest.company
@@ -124,7 +126,8 @@ FOR EACH probe
   {cec/probe.v}
   PUT SKIP.
 END.
-
+IF cerunc EQ "PEACHTRE" AND avail sys-ctrl and sys-ctrl.char-fld ne 'Text' THEN
+PUT "<P11>".
 FIND probe WHERE ROWID(probe) EQ v-rowid NO-LOCK NO-ERROR.
 
 IF xest.est-type NE 5 THEN DO:
@@ -210,7 +213,7 @@ IF cerunc-dec EQ 0 THEN
 
   PUT SKIP(1).
 END.
-
+  
 IF LOOKUP(cerunc,"Protagon,CERunC 3,Atlantic") NE 0 /*cerunc EQ "Protagon"*/ AND SEARCH(tmp-dir + TRIM(xest.est-no) + ".z" +
                                    STRING(probe.line,v-probe-line-fmt)) NE ? THEN
 DO:

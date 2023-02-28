@@ -442,10 +442,10 @@ DEFINE BROWSE Browser-Table
       po-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
       dim-in-16 (po-ordl.s-wid) @ po-ordl.s-wid
-      po-ordl.s-wid COLUMN-LABEL "Width" FORMAT ">>,>>9.99<<<":U
+      po-ordl.s-wid COLUMN-LABEL "Width" FORMAT ">>>,>>9.99<<<<":U
             LABEL-BGCOLOR 14
       dim-in-16 (po-ordl.s-len) @ po-ordl.s-len
-      po-ordl.s-len COLUMN-LABEL "Length" FORMAT ">>,>>9.99<<<":U
+      po-ordl.s-len COLUMN-LABEL "Length" FORMAT ">>>,>>9.99<<<<":U
             LABEL-BGCOLOR 14
       po-ordl.vend-i-no COLUMN-LABEL "Vendor Item#" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
@@ -662,11 +662,11 @@ po-ord.po-no EQ po-ordl.po-no"
      _FldNameList[11]   > "_<CALC>"
 "dim-in-16 (po-ordl.s-wid) @ po-ordl.s-wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.po-ordl.s-wid
-"po-ordl.s-wid" "Width" ">>,>>9.99<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-ordl.s-wid" "Width" ">>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"
 "dim-in-16 (po-ordl.s-len) @ po-ordl.s-len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.po-ordl.s-len
-"po-ordl.s-len" "Length" ">>,>>9.99<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
+"po-ordl.s-len" "Length" ">>>,>>9.99<<<<" "decimal" ? ? ? 14 ? ? yes ? no no ? yes yes no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.po-ordl.vend-i-no
 "po-ordl.vend-i-no" "Vendor Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.po-ordl.ord-qty
@@ -2743,8 +2743,8 @@ FUNCTION fGetSortCondition RETURNS CHARACTER
             IF ipcSortBy EQ "t-rec-qty"     THEN "STRING(9999999999.99999 + po-ordl.t-rec-qty,'-9999999999.99999')"                           ELSE ~
             IF ipcSortBy EQ "cons-uom"      THEN "po-ordl.cons-uom"                                                                           ELSE ~
             IF ipcSortBy EQ "cost"          THEN "STRING(po-ordl.cost,'99999.99999')"                                                         ELSE ~
-            IF ipcSortBy EQ "s-wid"         THEN "STRING(po-ordl.s-wid,'99999.99999')"                                                        ELSE ~
-            IF ipcSortBy EQ "s-len"         THEN "STRING(po-ordl.s-len,'99999.99999')"                                                        ELSE ~            
+            IF ipcSortBy EQ "s-wid"         THEN "STRING(po-ordl.s-wid,'999999.999999')"                                                        ELSE ~
+            IF ipcSortBy EQ "s-len"         THEN "STRING(po-ordl.s-len,'999999.999999')"                                                        ELSE ~            
             IF ipcSortBy EQ "name"          THEN "vend.name"                                                                                  ELSE ~
                                                  "STRING(YEAR(po-ordl.due-date),'9999')
                                                 + STRING(MONTH(po-ordl.due-date),'99')

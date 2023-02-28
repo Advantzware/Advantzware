@@ -191,8 +191,8 @@ end.
 
 if fr-tot - fr-tot-pre ne 0 then do:
   put "Freight"
-      fr-tot - fr-tot-pre                     format ">>>9.99"     to 30
-      (fr-tot - fr-tot-pre) / (tt-blk / 1000) format ">>>>9.99"    to 69
+      fr-tot - fr-tot-pre                     format ">>>>9.99"     to 30
+      (fr-tot - fr-tot-pre) / (tt-blk / 1000) format ">>>>>>9.99"    to 69
       fr-tot - fr-tot-pre                     format ">>>>,>>9.99" to 80
       skip.
           

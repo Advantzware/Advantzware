@@ -14,8 +14,8 @@ DEFINE BUFFER b-ref2  FOR reftable.
 
 {po/po-print.i}
 
-DEFINE VARIABLE v-wid LIKE po-ordl.s-wid FORMAT ">>9.9999" NO-UNDO.
-DEFINE VARIABLE v-len LIKE po-ordl.s-len FORMAT ">>9.9999" NO-UNDO.
+DEFINE VARIABLE v-wid LIKE po-ordl.s-wid FORMAT ">>>>>9.9999<<" NO-UNDO.
+DEFINE VARIABLE v-len LIKE po-ordl.s-len FORMAT ">>>>>9.9999<<" NO-UNDO.
 DEFINE VARIABLE pol-counter AS INTEGER NO-UNDO.
 DEFINE VARIABLE save_id AS RECID.
 DEFINE VARIABLE time_stamp AS CHARACTER.

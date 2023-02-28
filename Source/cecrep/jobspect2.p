@@ -139,8 +139,8 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
           fill("_",15)              at 108    format "x(15)"
           SKIP
           "Pallet:" AT 4
-          trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9"))
+          trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9"))
                                                    when avail xeb format "x(15)"
           fill("_",25)              at 36    format "x(25)"
           fill("_",13)              at 63    format "x(13)"
@@ -198,8 +198,8 @@ v-oecount = avail sys-ctrl and sys-ctrl.log-fld.
 
           /*chr(124) format "x"       at 2 */
           "Pallet:" AT 4
-          trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9"))
+          trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9"))
                                                    when avail xeb format "x(15)"
           /*chr(124) format "x"       at 28
           chr(124) format "x"       at 31 */
@@ -253,8 +253,8 @@ else
           /*chr(124) format "x"       at 2 */
           "Pallet:" AT 13
           trim(xeb.tr-no) + " " +
-          trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-          trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9"))
+          trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+          trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9"))
                                                    when avail xeb format "x(27)"
           fill("_",29) format "x(29)"      at 63
           "CASH IN ADVANCE" at 110 when (v-terms = "CIA" and v-format = "Triad")

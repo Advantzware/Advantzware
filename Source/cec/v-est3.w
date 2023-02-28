@@ -192,10 +192,10 @@ DEFINE FRAME Corr
           LABEL "Packing Code"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.cas-len AT ROW 1.24 COL 128 COLON-ALIGNED
-          LABEL "Unit Length" FORMAT ">9.99"
+     eb.cas-len AT ROW 1.24 COL 127.2 COLON-ALIGNED
+          LABEL "Unit Length" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 15 BY 1
      eb.i-col AT ROW 1.48 COL 9 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
@@ -214,14 +214,14 @@ DEFINE FRAME Corr
           LABEL "Cost/Ea"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     eb.cas-wid AT ROW 2.19 COL 128 COLON-ALIGNED
-          LABEL "Unit Width" FORMAT ">9.99"
+     eb.cas-wid AT ROW 2.19 COL 127.2 COLON-ALIGNED
+          LABEL "Unit Width" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     eb.casNoCharge AT ROW 2.24 COL 115 RIGHT-ALIGNED WIDGET-ID 2
+          SIZE 15 BY 1
+     eb.casNoCharge AT ROW 2.24 COL 111 RIGHT-ALIGNED WIDGET-ID 2
           LABEL "NC"
           VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY .81
+          SIZE 9.4 BY .81
      eb.i-coldscr AT ROW 2.52 COL 1 COLON-ALIGNED NO-LABEL FORMAT "x(40)"
           VIEW-AS FILL-IN 
           SIZE 56 BY 1
@@ -233,10 +233,10 @@ DEFINE FRAME Corr
           LABEL "Boxes/Code"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.cas-dep AT ROW 3.14 COL 128 COLON-ALIGNED
-          LABEL "Unit Depth" FORMAT ">9.99"
+     eb.cas-dep AT ROW 3.14 COL 127.2 COLON-ALIGNED
+          LABEL "Unit Depth" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 14 BY .95
+          SIZE 15 BY .95
      eb.cas-pal AT ROW 4.1 COL 89 COLON-ALIGNED
           LABEL "Bundles/Pallet" FORMAT ">>>9"
           VIEW-AS FILL-IN 
@@ -255,7 +255,7 @@ DEFINE FRAME Corr
      eb.i-code[1] AT ROW 4.57 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[1] AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[1] AT ROW 4.57 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[1] AT ROW 4.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -266,16 +266,16 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
      eb.tr-len AT ROW 5.52 COL 125 COLON-ALIGNED
-          LABEL "Length" FORMAT ">>9.99"
+          LABEL "Length" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 15 BY 1
      eb.i-ps[2] AT ROW 5.57 COL 2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
      eb.i-code[2] AT ROW 5.57 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[2] AT ROW 5.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[2] AT ROW 5.57 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[2] AT ROW 5.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -292,9 +292,9 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      eb.tr-wid AT ROW 6.48 COL 125 COLON-ALIGNED
-          LABEL "Width" FORMAT ">>9.99"
+          LABEL "Width" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 15 BY 1
      eb.trNoCharge AT ROW 6.52 COL 102.6 WIDGET-ID 4
           LABEL "NC"
           VIEW-AS TOGGLE-BOX
@@ -305,7 +305,7 @@ DEFINE FRAME Corr
      eb.i-code[3] AT ROW 6.57 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[3] AT ROW 6.57 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[3] AT ROW 6.57 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[3] AT ROW 6.57 COL 59 COLON-ALIGNED NO-LABEL
@@ -314,16 +314,16 @@ DEFINE FRAME Corr
      eb.tr-cnt AT ROW 7.43 COL 89 COLON-ALIGNED FORMAT ">,>>>,>>>"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     eb.tr-dep AT ROW 7.43 COL 125 COLON-ALIGNED FORMAT ">>9.99"
+     eb.tr-dep AT ROW 7.43 COL 125 COLON-ALIGNED FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 15 BY 1
      eb.i-ps[4] AT ROW 7.67 COL 2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
      eb.i-code[4] AT ROW 7.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[4] AT ROW 7.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[4] AT ROW 7.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[4] AT ROW 7.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -338,7 +338,7 @@ DEFINE FRAME Corr
      eb.i-code[5] AT ROW 8.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[5] AT ROW 8.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[5] AT ROW 8.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[5] AT ROW 8.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -354,7 +354,7 @@ DEFINE FRAME Corr
      eb.i-code[6] AT ROW 9.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[6] AT ROW 9.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[6] AT ROW 9.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[6] AT ROW 9.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -370,7 +370,7 @@ DEFINE FRAME Corr
      eb.i-code[7] AT ROW 10.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[7] AT ROW 10.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[7] AT ROW 10.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -389,7 +389,7 @@ DEFINE FRAME Corr
      eb.i-code[8] AT ROW 11.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[8] AT ROW 11.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[8] AT ROW 11.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[8] AT ROW 11.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -410,7 +410,7 @@ DEFINE FRAME Corr
      eb.i-code[9] AT ROW 12.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[9] AT ROW 12.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[9] AT ROW 12.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[9] AT ROW 12.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -431,7 +431,7 @@ DEFINE FRAME Corr
      eb.i-code[10] AT ROW 13.67 COL 10 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     eb.i-dscr[10] AT ROW 13.67 COL 30 COLON-ALIGNED NO-LABEL FORMAT "x(30)"
+     eb.i-dscr[10] AT ROW 13.67 COL 30 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 28 BY 1
      eb.i-%[10] AT ROW 13.67 COL 59 COLON-ALIGNED NO-LABEL
@@ -450,15 +450,15 @@ DEFINE FRAME Corr
           SIZE 9.2 BY 1
      "Item Name" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 3.86 COL 36
-     "Freight Charge" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 11.71 COL 73
-          FGCOLOR 9 
      "PS" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 3.86 COL 4
      "Item #" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 3.86 COL 15
      "%" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 3.86 COL 63
+     "Freight Charge" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 11.71 COL 73
+          FGCOLOR 9 
      stackImage AT ROW 8.38 COL 122
      RECT-26 AT ROW 1 COL 1
      RECT-27 AT ROW 11.48 COL 71
@@ -2312,6 +2312,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMiscEst V-table-Win 
+PROCEDURE pCheckMiscEst :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplCheckMisEstimate AS LOGICAL NO-UNDO .
+  
+  IF AVAIL est AND est.estimateTypeID EQ "Misc" THEN
+  ASSIGN   oplCheckMisEstimate = TRUE .
+
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstType V-table-Win 
+PROCEDURE pGetEstType :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE OUTPUT PARAMETER oplFolding AS LOGICAL NO-UNDO.
+  oplFolding = IF eb.est-type LE 4 THEN YES ELSE NO . 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE release-shared-buffers V-table-Win 
 PROCEDURE release-shared-buffers :
 /*------------------------------------------------------------------------------
@@ -2328,7 +2361,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-ink V-table-Win 
 PROCEDURE reset-ink :
@@ -2354,7 +2386,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reset-ink1 V-table-Win 
 PROCEDURE reset-ink1 :
@@ -3178,39 +3209,6 @@ PROCEDURE valid-stack-code :
   END.
 
   {methods/lValidateError.i NO}
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCheckMiscEst V-table-Win 
-PROCEDURE pCheckMiscEst :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplCheckMisEstimate AS LOGICAL NO-UNDO .
-  
-  IF AVAIL est AND est.estimateTypeID EQ "Misc" THEN
-  ASSIGN   oplCheckMisEstimate = TRUE .
-
-  
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetEstType V-table-Win 
-PROCEDURE pGetEstType :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE OUTPUT PARAMETER oplFolding AS LOGICAL NO-UNDO.
-  oplFolding = IF eb.est-type LE 4 THEN YES ELSE NO . 
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

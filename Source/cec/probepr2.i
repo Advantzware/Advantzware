@@ -42,7 +42,7 @@ DO:
 	   v-comm                              to {1} format ">,>>>,>>9.99"
 	   v-comm * qm                         to 80  format ">,>>>,>>9.99" skip.
 
-   put "FULL COST" probe.full-cost         to {1} format ">,>>>,>>9.99"
+   put "FULL COST" probe.full-cost         to {1} format ">>,>>>,>>9.99"
        probe.full-cost * qm                to 80  format ">,>>>,>>9.99" skip.
 
    IF ce-ctrl.sell-by EQ "S" THEN

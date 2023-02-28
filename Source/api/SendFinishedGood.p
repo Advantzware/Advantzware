@@ -86,8 +86,8 @@
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.i-no", STRING(itemfg.i-no)).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "itemfg.company", itemfg.company).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "stackHeight", STRING(itemfg.stackHeight)).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "palletWidth", STRING(itemfg.unitWidth,">>>>9.99")).
-        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "palletLength", STRING(itemfg.unitLength,">>>>9.99")).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "palletWidth", STRING(itemfg.unitWidth,">>>>>9.99")).
+        RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "palletLength", STRING(itemfg.unitLength,">>>>>9.99")).
         RUN updateRequestData(INPUT-OUTPUT ioplcRequestData, "palletHeight", STRING(itemfg.unitHeight,">>>>9.99")).
         
         ASSIGN

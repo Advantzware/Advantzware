@@ -520,48 +520,48 @@
     RUN est/ef-#out.p (ROWID(xef), OUTPUT v-n-out).
     v-n-up = xeb.num-up.  
     display space(13)
-            "   Width  Length  "
+            "     Width    Length  "
             v-hdr-depth
-            "    #On Qty/Set      Sq.Feet     Wgt/Units"
+            "    #On Qty/Set      Sq.Feet      Wgt/Units"
             skip
             "  Blank Size:"
-            brd-w[1]                            format ">>>9.99<<<"
-            brd-l[1]                            format ">>>>9.99<<<" 
+            brd-w[1]                            format ">>>>>9.99<<<<"
+            brd-l[1]                            format ">>>>>9.99<<<<" 
             xeb.t-dep WHEN xeb.t-dep NE 0       format ">>>9.99<<<"
             xeb.num-up                          format ">>>,>>>" 
             v-yld-qty                           FORMAT ">>>>9.9<<<"
             brd-sf[1]                              
             "Sf/BL"
-            brd-wu[1]                           format ">>>>>>>9.9<<<"                
+            brd-wu[1]                           format ">>>>>>>>9.9<<<"                
             space(0)
             "/MBL" skip
 
             " NetSht Size:"
-            brd-w[2]                            format ">>>9.99<<<"
-            brd-l[2]                            format ">>>>9.99<<<"
+            brd-w[2]                            format ">>>>>9.99<<<<"
+            brd-l[2]                            format ">>>>>9.99<<<<"
             xef.nsh-dep WHEN xef.nsh-dep NE 0   format ">>>9.99<<<"
             v-n-up                              format ">>>,>>9"
             SPACE(9)
             brd-sf[2]
             "Sf/NS"
-            brd-wu[2]                           format ">>>>>>>9.9<<<"
+            brd-wu[2]                           format ">>>>>>>>9.9<<<"
             space(0)
             "/MNS"
             skip
 
             " GrsSht Size:"
-            brd-w[3]                            format ">>>9.99<<<"
-            brd-l[3]                            format ">>>>9.99<<<"
+            brd-w[3]                            format ">>>>>9.99<<<<"
+            brd-l[3]                            format ">>>>>9.99<<<<"
             xef.gsh-dep WHEN xef.gsh-dep NE 0   format ">>>9.99<<<"
             v-n-out                             format ">>>,>>9"
             SPACE(9)
             brd-sf[3]
             "Sf/GS"
-            brd-wu[3]                            format ">>>>>>>9.9<<<"
+            brd-wu[3]                            format ">>>>>>>>9.9<<<"
             space(0)
             "/MGS" skip
 
-        with stream-io no-box no-labels color value("blu/brown") width 85 frame aa2. 
+        with stream-io no-box no-labels color value("blu/brown") width 92 frame aa2. 
 
     IF v-yld-qty LT 0 THEN DO WITH FRAME aa:
       ASSIGN
@@ -573,14 +573,14 @@
 
     IF NOT vsuthrlnd THEN DO WITH FRAME aa2:
        ASSIGN
-        brd-w[1]:FORMAT    = ">>>9.99"
-        brd-l[1]:FORMAT    = ">>>>9.99"
+        brd-w[1]:FORMAT    = ">>>>>9.99"
+        brd-l[1]:FORMAT    = ">>>>>9.99"
         xeb.t-dep:FORMAT   = ">>>9.99"
-        brd-w[2]:FORMAT    = ">>>9.99"
-        brd-l[2]:FORMAT    = ">>>>9.99"
+        brd-w[2]:FORMAT    = ">>>>>9.99"
+        brd-l[2]:FORMAT    = ">>>>>9.99"
         xef.nsh-dep:FORMAT = ">>>9.99"
-        brd-w[3]:FORMAT    = ">>>9.99"
-        brd-l[3]:FORMAT    = ">>>>9.99"
+        brd-w[3]:FORMAT    = ">>>>>9.99"
+        brd-l[3]:FORMAT    = ">>>>>9.99"
         xef.gsh-dep:FORMAT = ">>>9.99".
 
        display {sys/inc/k16v.i brd-w[1]} @ brd-w[1]
@@ -598,11 +598,11 @@
     END.
 
     if brd-w[4] ne 0 then
-       display     "  Roll Size:" brd-w[4]                format ">>9.99<<" to 22
+       display     "  Roll Size:" brd-w[4]                format ">>>>>9.99<<" to 22
                 with stream-io no-box no-labels color value(col-norm) width 80 frame aa3.
 
     if not vsuthrlnd THEN DO WITH FRAME aa3:
-       brd-w[4]:FORMAT = ">>>9.99".
+       brd-w[4]:FORMAT = ">>>>>9.99".
 
        if brd-w[4] ne 0 then
           display {sys/inc/k16v.i brd-w[4]} @ brd-w[4].
@@ -642,7 +642,7 @@
 
     do with frame ac5 no-labels no-box:
        display "TOTAL  DIRECT  MATERIALS "
-              dm-tot[5] / (qty / 1000) / v-sqft-fac format ">>,>>9.99" to 68
+              dm-tot[5] / (qty / 1000) / v-sqft-fac format ">>>,>>9.99" to 68
               dm-tot[5] format ">>>>,>>9.99"                           to 80
               skip(1) with stream-io.
     end.

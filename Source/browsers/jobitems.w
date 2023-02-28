@@ -159,8 +159,8 @@ DEFINE BROWSE br_table
       jobitems.qty FORMAT ">>,>>>,>>9":U
       jobitems.order_number COLUMN-LABEL "Order #" FORMAT ">>>>>9":U
       jobitems.po FORMAT "X(15)":U
-      jobitems.blank_length FORMAT ">>>>9.9<<<<":U
-      jobitems.blank_width FORMAT ">>>>9.9<<<<":U
+      jobitems.blank_length FORMAT ">>>>>9.9<<<<<":U
+      jobitems.blank_width FORMAT ">>>>>9.9<<<<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 66 BY 6.71

@@ -172,8 +172,8 @@ DO v-local-loop = 1 TO v-local-copies:
                           (IF AVAIL xstyle THEN xstyle.dscr ELSE "")
             v-i-line[3] = "<FGCOLOR=BLUE>Size:  <FGCOLOR=GREEN>"  + 
                           (IF AVAIL xeb 
-                           THEN TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                                TRIM(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                           THEN TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                                TRIM(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                                 TRIM(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) 
                            ELSE "")
             v-i-line[4] = "<FGCOLOR=BLUE>Joint: <FGCOLOR=GREEN>" + 
@@ -182,8 +182,8 @@ DO v-local-loop = 1 TO v-local-copies:
                           (IF AVAIL xstyle THEN xstyle.style ELSE "")
             v-i-line-set[3] = "Size:  "  + 
                           (IF AVAIL xeb THEN
-                              TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                              TRIM(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                              TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                              TRIM(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                               TRIM(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) 
                            ELSE "")
             v-i-line-set[4] = "Joint: " + 
@@ -265,11 +265,11 @@ DO v-local-loop = 1 TO v-local-copies:
             v-line-2 = "<C2><FGCOLOR=BLUE>W: <FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-form-wid},">,>>9.99"))
                      + "<C12><FGCOLOR=BLUE>L: <FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-form-len},">,>>9.99"))
             v-line-3 = "<C28><FGCOLOR=BLUE>Sq Ft: <FGCOLOR=GREEN>" + TRIM(STRING(v-form-sqft))
-                     + "<C50><FGCOLOR=BLUE>Die Sz: W: <FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-die-W},">>9.99"))
-                     + "<C68><FGCOLOR=BLUE>L: <FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-die-L},">>9.99"))
+                     + "<C50><FGCOLOR=BLUE>Die Sz: W:<FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-die-W},">,>>9.99"))
+                     + "<C68><FGCOLOR=BLUE> L:<FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-die-L},">,>>9.99"))
             v-line-4 = "<C2><FGCOLOR=BLUE>Adders:<FGCOLOR=GREEN>" + STRING(v-adders,"X(33)")
             v-line-5 = "<C50><FGCOLOR=BLUE>LablSz: W: <FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-leaf-W},">>9.99"))
-                     + "<C68><FGCOLOR=BLUE>L: <FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-leaf-L},">>9.99"))
+                     + "<C68><FGCOLOR=BLUE> L: <FGCOLOR=GREEN>" + TRIM(STRING({sys/inc/k16v.i v-leaf-L},">>9.99"))
             v-line-6 = "<C50><FGCOLOR=BLUE>Up: W: <FGCOLOR=GREEN>" + STRING(v-upl,">>9")
                      + "<C60><FGCOLOR=BLUE> L: <FGCOLOR=GREEN>" + STRING(v-upw,">>9")
             v-line-7 = "<#6><R18><C2><FGCOLOR=BLUE>SPECIAL INSTRUCTION<FGCOLOR=GREEN>"

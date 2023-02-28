@@ -40,10 +40,10 @@
       DO:
          IF cerunc-dec EQ 0 THEN
             put qtty[v] *
-                (if vmclean2 then v-yld else 1) format ">>,>>>,>>9".
+                (if vmclean2 then v-yld else 1) format ">>,>>>,>>>,>>9".
          ELSE
             put qtty[v] *
-                (if vmclean2 then v-yld else 1) format ">,>>>,>>>,>>9".
+                (if vmclean2 then v-yld else 1) format ">>>,>>>,>>>,>>9".
       END.
     end.
 
@@ -55,18 +55,18 @@
       if qtty[v] ne 0 then
       DO:
          IF cerunc-dec EQ 0 THEN
-            put rels[v] format ">>,>>>,>>9".
+            put rels[v] format ">>,>>>,>>>,>>9".
          ELSE
-            put rels[v] format ">,>>>,>>>,>>9".
+            put rels[v] format ">>>,>>>,>>>,>>9".
       END.
     end.
 
     IF cerunc-dec EQ 0 THEN
        PUT SKIP
-           fill("-",30) format "x(30)".
+           fill("-",38) format "x(38)".
     ELSE
        put skip
-           fill("-",32) format "x(32)".
+           fill("-",39) format "x(39)".
     
 
     do v = vmcl to vhld + 4:
@@ -125,10 +125,10 @@
         DO:
            IF cerunc-dec EQ 0 THEN
               put mclean.cost[v] / (IF vmclean2 and (not mclean.descr begins "    ")
-                                   then v-yld else 1).
+                                   then v-yld else 1) FORMAT "->>,>>>,>>>.99".
            ELSE
               put mclean.cost[v] / (IF vmclean2 and (not mclean.descr begins "    ")
-                                    then v-yld else 1) FORMAT "->,>>>,>>>.99".
+                                    then v-yld else 1) FORMAT "->>>,>>>,>>>.99".
         END.
       end.
       

@@ -124,11 +124,11 @@ DEFINE FRAME F-Main
      palletSize.positions AT ROW 1.24 COL 16 COLON-ALIGNED WIDGET-ID 2 FORMAT "9"
           VIEW-AS FILL-IN 
           SIZE 6.2 BY 1
-     palletSize.upToWidth AT ROW 2.43 COL 16 COLON-ALIGNED WIDGET-ID 6 FORMAT ">>>9.99"
+     palletSize.upToWidth AT ROW 2.43 COL 16 COLON-ALIGNED WIDGET-ID 6 FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13.2 BY 1
      fiWidthValidRange AT ROW 2.43 COL 42.6 COLON-ALIGNED WIDGET-ID 8
-     palletSize.upToLength AT ROW 3.62 COL 16 COLON-ALIGNED WIDGET-ID 4 FORMAT ">>>9.99"
+     palletSize.upToLength AT ROW 3.62 COL 16 COLON-ALIGNED WIDGET-ID 4 FORMAT ">><<>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
      fiLengthValidRange AT ROW 3.62 COL 42.6 COLON-ALIGNED WIDGET-ID 10
@@ -525,8 +525,8 @@ PROCEDURE pGetValidRange PRIVATE:
             NEXT.
                   
         opdValidWidthRangeBegin = bf-palletSize.upToWidth + 0.01.
-        IF bf-palletSize.upToWidth GE 9999.99 THEN
-            opdValidWidthRangeBegin = 9999.99.
+        IF bf-palletSize.upToWidth GE 999999.99 THEN
+            opdValidWidthRangeBegin = 999999.99.
     END.
     
     IF opdValidWidthRangeBegin EQ 0 THEN
@@ -553,8 +553,8 @@ PROCEDURE pGetValidRange PRIVATE:
             NEXT.
               
         opdValidLengthRangeBegin = bf-palletSize.upToLength + 0.01.
-        IF bf-palletSize.upToLength GE 9999.99 THEN
-            opdValidLengthRangeBegin = 9999.99.        
+        IF bf-palletSize.upToLength GE 999999.99 THEN
+            opdValidLengthRangeBegin = 999999.99.        
     END.
 
     IF opdValidLengthRangeBegin EQ 0 THEN

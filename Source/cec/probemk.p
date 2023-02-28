@@ -264,7 +264,7 @@ DO:
                 v-comm / qm TO 48
                 v-comm      TO 80 SKIP.
       
-            PUT "FULL COST" tt-tot / qm      TO 48
+            PUT "FULL COST" tt-tot / qm FORMAT "->>,>>>,>>9.99"     TO 48
                 tt-tot FORMAT ">>>>,>>9.99"  TO 80 SKIP.
       
             IF v-rollfac THEN
@@ -302,7 +302,7 @@ DO:
                 v-comm / qm FORMAT ">,>>>,>>9.99" TO 48
                 v-comm       FORMAT ">,>>>,>>9.99" TO 80 SKIP.
       
-            PUT "FULL COST" tt-tot / qm FORMAT ">,>>>,>>9.99"     TO 48
+            PUT "FULL COST" tt-tot / qm FORMAT ">>,>>>,>>9.99"     TO 48
                 tt-tot FORMAT ">,>>>,>>9.99"  TO 80 SKIP.
       
             IF v-rollfac THEN

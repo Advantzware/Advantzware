@@ -279,19 +279,19 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           BGCOLOR 15 
-     vendItemCost.dimWidthMinimum AT ROW 4.19 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 38 FORMAT ">>,>>9.9999"
+     vendItemCost.dimWidthMinimum AT ROW 4.19 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 38 FORMAT ">>>,>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.dimWidthMaximum AT ROW 4.19 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 36 FORMAT ">>,>>9.9999"
+     vendItemCost.dimWidthMaximum AT ROW 4.19 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 36 FORMAT ">>>,>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthMinimum AT ROW 6.48 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 30 FORMAT ">>,>>9.9999"
+     vendItemCost.dimLengthMinimum AT ROW 6.48 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 30 FORMAT ">>>,>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthMaximum AT ROW 6.48 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 28 FORMAT ">>,>>9.9999"
+     vendItemCost.dimLengthMaximum AT ROW 6.48 COL 69 COLON-ALIGNED NO-LABEL WIDGET-ID 28 FORMAT ">>>,>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
@@ -302,7 +302,7 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     vendItemCost.dimWidthUnder AT ROW 9.57 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 42 FORMAT ">>,>>9.9999"
+     vendItemCost.dimWidthUnder AT ROW 9.57 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 42 FORMAT ">>>,>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
@@ -310,7 +310,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 
-     vendItemCost.dimLengthUnder AT ROW 10.76 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 34 FORMAT ">>,>>9.9999"
+     vendItemCost.dimLengthUnder AT ROW 10.76 COL 55 COLON-ALIGNED NO-LABEL WIDGET-ID 34 FORMAT ">>>,>>9.9999<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 

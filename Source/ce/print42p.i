@@ -477,7 +477,7 @@ end.
 for each xef
     where xef.company eq xest.company
       and xef.est-no  eq xest.est-no
-with frame brd no-labels no-box width 82 stream-io down:
+with frame brd no-labels no-box width 102 stream-io down:
    /*if xef.lam-dscr = "R"
    then*/ assign brd-l[1] = xef.trim-l
                brd-w[1] = xef.trim-w.
@@ -587,24 +587,24 @@ with frame brd no-labels no-box width 82 stream-io down:
   else
    DISPLAY skip
    tmpstore format "x(12)"
-   " Width   Length   Sq.Inches  Sq.Feet/Sheet    Weight per Units" skip
+   "   Width    Length   Sq.Inches   Sq.Feet/Sheet     Weight per Units" skip
    "Blank  Size:" brd-w[4] to 21
-                  brd-l[4] to 30
-                  brd-sq[4] to 42
-                  brd-sf[4] to 52 "Sf/Blk"
-                  brd-wu[4] to 70 space(0) "/M Blks" skip
-   "Feed  Sheet:" brd-w[1] to 21 brd-l[1] to 30 brd-sq[1] to 42
-            brd-sf[1] to 52 "Sf/Sht"
-            brd-wu[1] to 70 space(0) "/M Shts" skip
-   "Gross Sheet:" brd-w[2] to 21 brd-l[2] to 30 brd-sq[2] to 42
-            brd-sf[2] to 52 "Sf/Sht"  brd-wu[2] to 70 space(0) "/M Shts" skip
+                  brd-l[4] to 31
+                  brd-sq[4] FORMAT ">>>>>>9.9<<<<<" to 43
+                  brd-sf[4] to 55 "Sf/Blk"
+                  brd-wu[4] to 75 space(0) "/M Blks" skip
+   "Feed  Sheet:" brd-w[1] to 21 brd-l[1] to 31 brd-sq[1] to 43
+            brd-sf[1] to 55 "Sf/Sht"
+            brd-wu[1] to 75 space(0) "/M Shts" skip
+   "Gross Sheet:" brd-w[2] to 21 brd-l[2] to 31 brd-sq[2] to 43
+            brd-sf[2] to 55 "Sf/Sht"  brd-wu[2] to 75 space(0) "/M Shts" skip
    "Roll  Size :" /*brd-l[3]  to 30  when brd-l[3] ne 0*/
                   brd-w[3]  to 21  when brd-w[3] ne 0
             /*    brd-sq[3] to 42  when brd-w[3] ne 0
                   brd-wu[3] to 70  when brd-w[3] ne 0
                   "Tons"           when brd-w[3] ne 0 */
-    lv-brd-sf TO 52 "MSF"
-    lv-brd-wu TO 70 "Tons" SKIP(1)
+    lv-brd-sf TO 55 "MSF"
+    lv-brd-wu TO 75 "Tons" SKIP(1)
     v-header FORMAT "x(80)".
     
 

@@ -21,8 +21,8 @@ DEF BUFFER b-ref2 FOR reftable.
 DEF VAR v-tmp-note-length AS INT NO-UNDO.
 DEF VAR lv-text           AS CHAR NO-UNDO.
 DEF VAR li                AS INT NO-UNDO.
-DEF VAR v-wid             like po-ordl.s-wid format ">>>9.99" no-undo.
-DEF VAR v-len             like po-ordl.s-len format ">>>9.99" no-undo.
+DEF VAR v-wid             like po-ordl.s-wid format ">>>>>9.99<<<<" no-undo.
+DEF VAR v-len             like po-ordl.s-len format ">>>>>9.99<<<<" no-undo.
 DEF VAR pol-counter       as int no-undo.
 DEF VAR save_id           as recid.
 DEF VAR time_stamp        as char.
@@ -619,7 +619,7 @@ print-po-blok:
      /* gdm - 07010906 */
      IF v-totflg
        THEN 
-         PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">,>>>,>>9" SKIP.
+         PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">>>,>>>,>>9" SKIP.
        
 
      v-tot-sqft = 0.

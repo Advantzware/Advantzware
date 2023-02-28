@@ -464,11 +464,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      itemfg.unitLength AT ROW 13.86 COL 102 COLON-ALIGNED
-          LABEL "Pallet (L)" FORMAT ">>9.99"
+          LABEL "Pallet (L)" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      itemfg.unitWidth AT ROW 13.86 COL 118 COLON-ALIGNED
-          LABEL "x (W)" FORMAT ">>9.99"
+          LABEL "x (W)" FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      itemfg.unitHeight AT ROW 13.86 COL 134 COLON-ALIGNED

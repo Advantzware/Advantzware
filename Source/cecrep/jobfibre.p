@@ -439,8 +439,8 @@ assign
            v-i-line[1] = "ITEM DESCRIPTION"
            v-i-line[2] = "Style: " + if avail xstyle then xstyle.dscr else ""
            v-i-line[3] = "Size: "  + if avail xeb    then
-                     trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99")) else ""
            v-i-line[4] = "Joint: " + if avail xeb then v-joint-dscr else "".
         
@@ -553,7 +553,7 @@ assign
                "<P10></B>"
                " Sq Ft:" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank AT 103
                trim(string(v-form-sqft)) format "x(7)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
-               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>9.9<")) format "x(11)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
+               "MSF:"  + trim(string(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) format "x(12)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
                "<C97>" v-adder-5 WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
               SKIP
                "<P12><B>CustPart#:" AT 2 v-cp FORM "x(15)"  "</B>"
@@ -574,14 +574,14 @@ assign
               "Slit: W:" + string(v-outw) + " L:" + string(v-outl) FORM "x(15)"   
               SKIP
               "Size:" AT 2 
-                      (trim(string({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                      trim(string({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                      (trim(string({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                      trim(string({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                       trim(string({sys/inc/k16v.i xeb.dep},">,>>9.99"))) FORM "x(30)" WHEN AVAIL xeb   
               
               "Net   Size:"  AT 80
-              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
+              "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>>>9.99<<<<")) +
               " " +
-              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
+              "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>>>9.99<<<<")) format "x(22)"
               SKIP
               "Joint:" AT 2 v-joint-dscr             
                             "Die   Size:" AT 80
@@ -633,8 +633,8 @@ assign
               "<P10>" v-stackcode AT 3   format "x(28)"  
               SKIP
               "Pallet:" AT 3
-              trim(string({sys/inc/k16v.i xeb.tr-len},">,>>9")) + " x " +
-              trim(string({sys/inc/k16v.i xeb.tr-wid},">,>>9")) when avail xeb format "x(15)"
+              trim(string({sys/inc/k16v.i xeb.tr-len},">>>,>>9")) + " x " +
+              trim(string({sys/inc/k16v.i xeb.tr-wid},">>>,>>9")) when avail xeb format "x(15)"
               SKIP
               item.i-name AT 3 FORMAT "X(20)" WHEN AVAIL ITEM
               v-height AT 24

@@ -438,8 +438,8 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
             v-i-line[1] = "ITEM DESCRIPTION"
             v-i-line[2] = "Style: " + IF AVAILABLE xstyle THEN xstyle.dscr ELSE ""
             v-i-line[3] = "Size: "  + IF AVAILABLE xeb    THEN
-                     TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-                     trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+                     TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+                     trim(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
                      trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99")) ELSE ""
             v-i-line[4] = "Joint: " + IF AVAILABLE xeb THEN v-joint-dscr ELSE "".
        
@@ -512,8 +512,8 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=TabInOut>" IF AVAILABLE xeb AND xeb.tab-in EQ YES THEN "In" ELSE IF AVAILABLE xeb AND xeb.tab-in EQ NO THEN "Out" ELSE "" FORMAT "x(10)"
         "<=Estimate>" IF AVAILABLE xeb THEN xeb.est-no ELSE "" FORMAT "x(10)"
         "</B>"
-        "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">,>>9.99")) + " x " +
-        trim(STRING({sys/inc/k16v.i xeb.wid},">,>>9.99")) + " x " +
+        "<=Size>" IF AVAILABLE xeb THEN (TRIM(STRING({sys/inc/k16v.i xeb.len},">>>,>>9.99<<<<")) + " x " +
+        trim(STRING({sys/inc/k16v.i xeb.wid},">>>,>>9.99<<<<")) + " x " +
         trim(STRING({sys/inc/k16v.i xeb.dep},">,>>9.99"))) ELSE ""  FORM "x(30)" 
         "<=CAD>" IF AVAILABLE xeb THEN xeb.cad-no ELSE "" FORMAT "x(15)"
         "<=Printed><B>" TODAY  "</B>"
@@ -535,7 +535,7 @@ FOR EACH w-ef WHERE (w-ef.frm = job-hdr.frm OR est.est-type <> 8),
         "<=SheetsSize>" "W:" + trim(STRING({sys/inc/k16v.i v-form-wid},">>,>>9.99")) + "  " +
         "L:" + trim(STRING({sys/inc/k16v.i v-form-len},">>,>>9.99"))  FORMAT "x(30)"
 
-        "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>9.9<")) FORMAT "x(11)"
+        "<=SheetsMSF>" TRIM(STRING(v-sht-qty * v-form-sqft / 1000,">>>>>9.9<")) FORMAT "x(12)"
         "<=TestPrint>" xeb.flute FORMAT "x(10)"
         "<=FlutePrint>" xeb.test FORMAT "x(10)"
         "<=Scores>" SUBSTRING(v-len-score,1,30) FORMAT "x(30)" 

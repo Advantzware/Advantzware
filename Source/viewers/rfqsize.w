@@ -1264,34 +1264,34 @@ PROCEDURE reset-labels :
 
         IF v-cecscrn-char NE "Decimal" THEN
            ASSIGN
-              rfqitem.len:format in frame {&frame-name} = ">>9.99"
-              rfqitem.wid:format in frame {&frame-name} = ">>9.99"
+              rfqitem.len:format in frame {&frame-name} = ">>>>>9.99"
+              rfqitem.wid:format in frame {&frame-name} = ">>>>>9.99"
               rfqitem.dep:format in frame {&frame-name} = ">>9.99"
               rfqitem.dust:format in frame {&frame-name} = ">>9.99"
               rfqitem.fpanel:format in frame {&frame-name} = ">>9.99"
               rfqitem.tuck:format in frame {&frame-name} = ">>9.99"
-              rfqitem.k-wid:format in frame {&frame-name} = ">>9.99"
-              rfqitem.k-len:format in frame {&frame-name} = ">>9.99"
+              rfqitem.k-wid:format in frame {&frame-name} = ">>>>>9.99"
+              rfqitem.k-len:format in frame {&frame-name} = ">>>>>9.99"
               rfqitem.gluelap:format in frame {&frame-name} = ">>9.99"
               rfqitem.lock:format in frame {&frame-name} = ">>9.99"
               rfqitem.lin-in:format in frame {&frame-name} = ">>9.99"
-              rfqitem.t-len:format in frame {&frame-name} = ">>9.99"
-              rfqitem.t-wid:format in frame {&frame-name} = ">>9.99".
+              rfqitem.t-len:format in frame {&frame-name} = ">>>>>9.99"
+              rfqitem.t-wid:format in frame {&frame-name} = ">>>>>9.99".
         ELSE
            ASSIGN
-              rfqitem.len:format in frame {&frame-name} = ">>9.999999"
-              rfqitem.wid:format in frame {&frame-name} = ">>9.999999"
+              rfqitem.len:format in frame {&frame-name} = ">>>>>9.999999"
+              rfqitem.wid:format in frame {&frame-name} = ">>>>>9.999999"
               rfqitem.dep:format in frame {&frame-name} = ">>9.999999"
               rfqitem.dust:format in frame {&frame-name} = ">>9.999999"
               rfqitem.fpanel:format in frame {&frame-name} = ">>9.999999"
               rfqitem.tuck:format in frame {&frame-name} = ">>9.999999"
-              rfqitem.k-wid:format in frame {&frame-name} = ">>9.999999"
-              rfqitem.k-len:format in frame {&frame-name} = ">>9.999999"
+              rfqitem.k-wid:format in frame {&frame-name} = ">>>>>9.999999"
+              rfqitem.k-len:format in frame {&frame-name} = ">>>>>9.999999"
               rfqitem.gluelap:format in frame {&frame-name} = ">>9.999999"
               rfqitem.lock:format in frame {&frame-name} = ">>9.999999"
               rfqitem.lin-in:format in frame {&frame-name} = ">>9.999999"
-              rfqitem.t-len:format in frame {&frame-name} = ">>9.999999"
-              rfqitem.t-wid:format in frame {&frame-name} = ">>9.999999".
+              rfqitem.t-len:format in frame {&frame-name} = ">>>>>9.999999"
+              rfqitem.t-wid:format in frame {&frame-name} = ">>>>>9.999999".
 
         assign lv-is-corr = yes
                rfqitem.tab-in:hidden in frame {&frame-name} = NO
@@ -1332,19 +1332,19 @@ PROCEDURE reset-labels :
               lv-sqin:label in frame {&frame-name} = "Blank Sq.In"
               lv-sqin:screen-value in frame {&frame-name} = string(rfqitem.t-sqin)
               lv-is-corr = no
-              rfqitem.len:format in frame {&frame-name} = ">9.99999"
-              rfqitem.wid:format in frame {&frame-name} = ">9.99999"
+              rfqitem.len:format in frame {&frame-name} = ">>>>>9.99999<"
+              rfqitem.wid:format in frame {&frame-name} = ">>>>>9.99999<"
               rfqitem.dep:format in frame {&frame-name} = ">9.99999"
               rfqitem.dust:format in frame {&frame-name} = ">9.99999"
               rfqitem.fpanel:format in frame {&frame-name} = ">9.99999"
               rfqitem.tuck:format in frame {&frame-name} = ">9.99999"
-              rfqitem.k-wid:format in frame {&frame-name} = ">9.99999"
-              rfqitem.k-len:format in frame {&frame-name} = ">9.99999"
+              rfqitem.k-wid:format in frame {&frame-name} = ">>>>>9.99999<"
+              rfqitem.k-len:format in frame {&frame-name} = ">>>>>9.99999<"
               rfqitem.gluelap:format in frame {&frame-name} = ">9.99999"
               rfqitem.lock:format in frame {&frame-name} = ">9.99999"
               rfqitem.lin-in:format in frame {&frame-name} = ">9.99999"
-              rfqitem.t-len:format in frame {&frame-name} = ">9.99999"
-              rfqitem.t-wid:format in frame {&frame-name} = ">9.99999"
+              rfqitem.t-len:format in frame {&frame-name} = ">>>>>9.99999<"
+              rfqitem.t-wid:format in frame {&frame-name} = ">>>>>9.99999<"
               rfqitem.tab-in:hidden in frame {&frame-name} = yes.      
   end. 
 END PROCEDURE.

@@ -12,7 +12,7 @@ DO:
 	    v-comm * v-yld                        to {1} format ">>>,>>9.99"
 	    v-comm * v-yld * qm                   to 80  format ">>>>,>>9.99" skip.
 
-    put "FULL COST" probeit.full-cost * v-yld to {1} format ">>>,>>9.99"
+    put "FULL COST" probeit.full-cost * v-yld to {1} format ">>,>>>,>>9.99"
         probeit.full-cost * v-yld * qm        to 80  format ">>>>,>>9.99" skip.
 
     if v-rollfac then
@@ -54,7 +54,7 @@ DO:
 	   v-comm * v-yld                        to {1} format ">,>>>,>>9.99"
 	   v-comm * v-yld * qm                   to 80  format ">,>>>,>>9.99" skip.
 
-   put "FULL COST" probeit.full-cost * v-yld to {1} format ">,>>>,>>9.99"
+   put "FULL COST" probeit.full-cost * v-yld to {1} format ">>,>>>,>>9.99"
        probeit.full-cost * v-yld * qm        to 80  format ">,>>>,>>9.99" skip.
 
    if v-rollfac then

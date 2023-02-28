@@ -10,8 +10,8 @@ def buffer b-ref2  for reftable.
 
 {po/po-print.i}
 {custom/notesdef.i}
-def var v-wid like po-ordl.s-wid format ">>9.99<<" no-undo.
-def var v-len like po-ordl.s-len format ">>9.99<<" no-undo.
+def var v-wid like po-ordl.s-wid format ">>>>>9.99<<<<" no-undo.
+def var v-len like po-ordl.s-len format ">>>>>9.99<<<<" no-undo.
 def var v-wid2 like po-ordl.s-wid format ">>9.99<<" no-undo. /* for recalc extened cost */
 def var v-len2 like po-ordl.s-len format ">>9.99<<" no-undo. /* for recalc extened cost */
 DEF var pol-counter as int no-undo.
@@ -532,7 +532,7 @@ assign
       v-tax-tot = ROUND(v-tax-tot,2).
       v-tot-cost = v-sub-cost + v-tax-tot.
 
-      PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">>>,>>9" SKIP.
+      PUT "Total Sq. Ft: "  AT 50 v-tot-sqft FORM ">>>,>>>,>>9" SKIP.
 
       IF v-setup NE 0 THEN
         PUT "Setup Charges: " AT 50 v-setup FORM "->>,>>9.99" TO 95 SKIP.
