@@ -128,7 +128,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13.2 BY 1
      fiWidthValidRange AT ROW 2.43 COL 42.6 COLON-ALIGNED WIDGET-ID 8
-     palletSize.upToLength AT ROW 3.62 COL 16 COLON-ALIGNED WIDGET-ID 4 FORMAT ">><<>9.99<<<<"
+     palletSize.upToLength AT ROW 3.62 COL 16 COLON-ALIGNED WIDGET-ID 4 FORMAT ">>>>>9.99<<<<"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
      fiLengthValidRange AT ROW 3.62 COL 42.6 COLON-ALIGNED WIDGET-ID 10

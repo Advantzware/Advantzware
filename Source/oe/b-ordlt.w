@@ -179,7 +179,7 @@ oe-ordl.vend-no oe-ordl.disc get-extended-price() @ ld-ext-price ~
 oe-ordl.spare-char-3 oe-ordl.spare-char-4 ~
 dueDateChangeRsn() @ cDueDateChangeRsn ~
 dueDateChangeUser() @ oe-ordl.spare-char-5 ~
-fGetTotalPallet(INT(oe-ordl.qty) ) @ iTotalPallet
+fGetTotalPallet(INT(oe-ordl.qty) ) @ iTotalPallet 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-ordl OF oe-ord WHERE ~{&KEY-PHRASE} ~
       AND oe-ordl.line GT 0 AND ~
@@ -223,6 +223,13 @@ FUNCTION dueDateChangeUser RETURNS CHARACTER
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalPallet B-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
+  (  ipiQty AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-extended-price B-table-Win 
 FUNCTION get-extended-price RETURNS DECIMAL
   ( /* parameter-definitions */ )  FORWARD.
@@ -244,12 +251,6 @@ FUNCTION get-price-disc RETURNS DECIMAL
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTotalPallet B-table-Win 
-FUNCTION fGetTotalPallet RETURNS INTEGER
-  ( ipiQty AS INTEGER )  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -300,7 +301,8 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.disc
       oe-ordl.spare-char-3
       oe-ordl.spare-char-4
-      oe-ordl.spare-char-5) SCROLLING.
+      oe-ordl.spare-char-5
+      oe-ordl.qty) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -312,7 +314,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.i-no FORMAT "x(15)":U WIDTH 24 LABEL-BGCOLOR 14
       oe-ordl.qty FORMAT "->>,>>>,>>9":U LABEL-BGCOLOR 14
       oe-ordl.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
-      oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(30)":U LABEL-BGCOLOR 14
+      oe-ordl.part-no COLUMN-LABEL "Part #" FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.price COLUMN-LABEL "Order Price" FORMAT ">>,>>>,>>9.99<<<<":U
       get-price-disc () @ ld-price COLUMN-LABEL "Sell Price" FORMAT "->>,>>>,>>9.99<<<<":U
             WIDTH 14.4
@@ -321,8 +323,8 @@ DEFINE BROWSE Browser-Table
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
             LABEL-BGCOLOR 14
-      oe-ordl.job-no FORMAT "x(9)":U LABEL-BGCOLOR 14 WIDTH 15
-      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U  WIDTH 6
+      oe-ordl.job-no FORMAT "x(9)":U WIDTH 15 LABEL-BGCOLOR 14
+      oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">>9":U WIDTH 6
       oe-ordl.vend-no FORMAT "x(8)":U LABEL-BGCOLOR 14
       oe-ordl.disc FORMAT "(>>>,>>9.99)":U LABEL-BGCOLOR 14
       get-extended-price() @ ld-ext-price COLUMN-LABEL "Total Price" FORMAT "->>,>>>,>>9.99":U
@@ -330,7 +332,7 @@ DEFINE BROWSE Browser-Table
       oe-ordl.spare-char-4 COLUMN-LABEL "Prom Dt User" FORMAT "x(8)":U
       dueDateChangeRsn() @ cDueDateChangeRsn COLUMN-LABEL "Due Dt Chg Rsn"
       dueDateChangeUser() @ oe-ordl.spare-char-5 COLUMN-LABEL "Due Dt Usr" FORMAT "x(12)":U
-      fGetTotalPallet(INT(oe-ordl.qty) ) @ iTotalPallet COLUMN-LABEL "Total # of Pallets (FG)" FORMAT "->>,>>>,>>9":U
+      fGetTotalPallet(INT(oe-ordl.qty) ) @ iTotalPallet COLUMN-LABEL "Due Dt Usr" FORMAT "->>,>>>,>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 179 BY 11.19
@@ -2177,6 +2179,31 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalPallet B-table-Win 
+FUNCTION fGetTotalPallet RETURNS INTEGER
+  (  ipiQty AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO .
+  DEFINE VARIABLE opiTotalPallet AS INTEGER NO-UNDO.
+
+  ASSIGN
+      opiTotalPallet = 0
+      dPalletCount   = oe-ordl.cas-cnt * oe-ordl.cases-unit
+      dRoundup       = ipiQty / IF dPalletCount NE 0 THEN dPalletCount ELSE 1
+      .
+  {sys/inc/roundup.i dRoundup}
+  opiTotalPallet = dRoundup.
+  RETURN opiTotalPallet.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-extended-price B-table-Win 
 FUNCTION get-extended-price RETURNS DECIMAL
   ( /* parameter-definitions */ ) :
@@ -2278,27 +2305,3 @@ END FUNCTION.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTotalPallet B-table-Win 
-FUNCTION fGetTotalPallet RETURNS INTEGER
-  (  ipiQty AS INTEGER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE dRoundup AS DECIMAL NO-UNDO .
-  DEFINE VARIABLE dPalletCount AS DECIMAL NO-UNDO .
-  DEFINE VARIABLE opiTotalPallet AS INTEGER NO-UNDO.
-
-  ASSIGN
-      opiTotalPallet = 0
-      dPalletCount   = oe-ordl.cas-cnt * oe-ordl.cases-unit
-      dRoundup       = ipiQty / IF dPalletCount NE 0 THEN dPalletCount ELSE 1
-      .
-  {sys/inc/roundup.i dRoundup}
-  opiTotalPallet = dRoundup.
-  RETURN opiTotalPallet.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME

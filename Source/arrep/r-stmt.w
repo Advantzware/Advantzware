@@ -1672,12 +1672,12 @@ PROCEDURE run-asistmt :
         tt-inv.old-day FORMAT ">>>9"
         tt-inv.amount      
         v-balance       
-        WITH FRAME stmt-line NO-BOX STREAM-IO WIDTH 85 DOWN NO-LABELS.
+        WITH FRAME stmt-line NO-BOX STREAM-IO WIDTH 88 DOWN NO-LABELS.
 
     FORM
         v-msg AT 15
         v-balance  AT 65.5
-        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO.
+        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM
         ws_letterhead[1]    SKIP
@@ -1708,7 +1708,7 @@ PROCEDURE run-asistmt :
     FORM
         v-msg AT 15
         v-balance  AT 65.5
-        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO.
+        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM
         SKIP(3)
@@ -2595,7 +2595,7 @@ PROCEDURE run-asistmt-mail :
     FORM
         v-msg AT 15
         v-balance  AT 65.5
-        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO.
+        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
     /*
     form
       skip(2)
@@ -2634,7 +2634,7 @@ PROCEDURE run-asistmt-mail :
     FORM
         v-msg AT 15
         v-balance  AT 65.5
-        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO.
+        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM
         SKIP(3)
@@ -3442,7 +3442,7 @@ PROCEDURE run-protagonstmt :
     FORM
         v-msg AT 15
         v-balance  AT 75.5
-        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 90.
+        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM 
         tt-inv.trans-date COLUMN-LABEL "Date"
@@ -3480,7 +3480,7 @@ PROCEDURE run-protagonstmt :
     FORM
         v-msg AT 15
         v-balance  AT 75.5
-        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 90.
+        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM
         SKIP(3)
@@ -4426,7 +4426,7 @@ PROCEDURE run-report :
     FORM
         v-msg AT 15
         v-balance  AT 65.5
-        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO.
+        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM
         SKIP(2)
@@ -4465,7 +4465,7 @@ PROCEDURE run-report :
     FORM
         v-msg AT 15
         v-balance  AT 65.5
-        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO.
+        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM
         SKIP(3)
@@ -4995,7 +4995,7 @@ PROCEDURE run-report-mail :
     FORM
         v-msg AT 15
         v-balance  AT 65.5
-        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO.
+        WITH FRAME stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM
         SKIP(2)
@@ -5034,7 +5034,7 @@ PROCEDURE run-report-mail :
     FORM
         v-msg AT 15
         v-balance  AT 65.5
-        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO.
+        WITH FRAME no-stmt-total-line NO-BOX NO-LABELS STREAM-IO WIDTH 95.
 
     FORM
         SKIP(3)
