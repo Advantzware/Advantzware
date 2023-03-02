@@ -342,9 +342,9 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       rm-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>9":U LABEL-BGCOLOR 14
-      rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14
-      loadtag.misc-char[1] COLUMN-LABEL "Vendor Tag #" FORMAT "x(21)":U
-            WIDTH 30 LABEL-BGCOLOR 14
+      rm-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(26)":U LABEL-BGCOLOR 14
+      loadtag.misc-char[1] COLUMN-LABEL "Vendor Tag #" FORMAT "x(26)":U
+            WIDTH 36 LABEL-BGCOLOR 14
       loadtag.misc-char[2] COLUMN-LABEL "RM Lot #" FORMAT "x(21)":U
             WIDTH 20
       rm-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(13)":U LABEL-BGCOLOR 14
@@ -494,9 +494,9 @@ loadtag.misc-char[1] begins lv-search"
      _FldNameList[1]   > asi.rm-rctd.r-no
 "rm-rctd.r-no" "Seq#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.rm-rctd.tag
-"rm-rctd.tag" "Tag#" "x(20)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-rctd.tag" "Tag#" "x(26)" "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.loadtag.misc-char[1]
-"loadtag.misc-char[1]" "Vendor Tag #" "x(21)" "character" ? ? ? 14 ? ? no ? no no "30" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.misc-char[1]" "Vendor Tag #" "x(26)" "character" ? ? ? 14 ? ? no ? no no "36" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.loadtag.misc-char[2]
 "loadtag.misc-char[2]" "RM Lot #" "x(21)" "character" ? ? ? ? ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.rm-rctd.loc
