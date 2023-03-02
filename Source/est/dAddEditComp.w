@@ -25,6 +25,7 @@ DEFINE INPUT PARAMETER ipcPartNo AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcProCat AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplAutoPart  AS LOGICAL NO-UNDO.
 DEFINE INPUT PARAMETER ipcFGItem AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcCFType AS CHARACTER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
 
 {custom/globdefs.i}
@@ -615,7 +616,7 @@ DO:
             CREATE ttInputEst.
             ASSIGN
                 ttInputEst.cEstType = IF ipcEstType EQ "Wood" THEN "NewSetEstimate" ELSE "SetSubAssembly"
-                ttInputEst.cSetType = "Set"
+                ttInputEst.cSetType = IF ipcCFType EQ "C" THEN "Set" ELSE "FoldSet" 
                 ttInputEst.cCompany = cocode .
         END.
         
@@ -775,8 +776,9 @@ DO:
         DEFINE VARIABLE char-val   AS cha       NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID     NO-UNDO.
         DEFINE VARIABLE cEstNo     AS CHARACTER NO-UNDO.
-
+        IF ipcCFType EQ "C" THEN
         RUN windows/l-esttyp.w (cocode,g_loc,"568","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val). 
+        ELSE  RUN windows/l-esttyp.w (cocode,g_loc,"124","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
         IF char-val <> "" THEN cSourceEst:SCREEN-VALUE = ENTRY(1,char-val).       
                  
         APPLY "entry" TO cSourceEst IN FRAME {&FRAME-NAME}.   
@@ -1042,11 +1044,16 @@ ON HELP OF style-cod IN FRAME Dialog-Frame /* Style Code */
 DO:
         DEFINE VARIABLE char-val   AS cha   NO-UNDO.
         DEFINE VARIABLE look-recid AS RECID NO-UNDO.
-        
-        IF ipcEstType EQ "Wood" THEN
-        SharedConfig:Instance:SetValue("StyleLookup_TypeValue", "Wood").
-        
-        RUN windows/l-stylec.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        IF ipcCFType EQ "C" THEN 
+        do:
+            IF ipcEstType EQ "Wood" THEN
+            SharedConfig:Instance:SetValue("StyleLookup_TypeValue", "Wood").
+            
+            RUN windows/l-stylec.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        END.
+        ELSE DO:
+            RUN windows/l-stylef.w (cocode,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+        END.
         IF char-val <> "" AND SELF:screen-value <> entry(1,char-val) THEN 
             ASSIGN
                 SELF:screen-value = ENTRY(1,char-val)
@@ -1456,7 +1463,8 @@ PROCEDURE pGetEstDetail :
         FIND FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ cocode
             AND bf-eb.est-no EQ cSourceEst:SCREEN-VALUE
-            AND (bf-eb.form-no NE 0 OR (bf-eb.est-type EQ 6 AND bf-eb.form-no EQ 0)) NO-ERROR.
+            AND (bf-eb.form-no NE 0 OR (bf-eb.est-type EQ 6 AND bf-eb.form-no EQ 0) OR
+            (bf-eb.est-type EQ 2 AND bf-eb.form-no EQ 0)) NO-ERROR.
                   
         IF AVAILABLE bf-eb THEN 
         do:           
@@ -1523,7 +1531,8 @@ PROCEDURE pGetTempValue :
         FIND FIRST bf-eb NO-LOCK
             WHERE bf-eb.company EQ cocode
             AND bf-eb.est-no EQ cSourceEst:SCREEN-VALUE
-            AND (bf-eb.form-no NE 0 OR (bf-eb.est-type EQ 6 AND bf-eb.form-no EQ 0)) NO-ERROR.
+            AND (bf-eb.form-no NE 0 OR (bf-eb.est-type EQ 6 AND bf-eb.form-no EQ 0) OR
+                 (bf-eb.est-type EQ 2 AND bf-eb.form-no EQ 0)) NO-ERROR.
                   
         IF AVAILABLE bf-eb THEN 
         do:           
@@ -1827,12 +1836,14 @@ PROCEDURE valid-style :
         IF NOT CAN-FIND(FIRST style
             WHERE style.company  EQ cocode
             AND style.style    EQ style-cod:SCREEN-VALUE
-            AND style.industry EQ "2")  THEN 
+            AND ((style.industry EQ "2" AND ipcCFType EQ "C") OR 
+            (style.industry EQ "1" AND ipcCFType EQ "F"))) THEN 
         DO:
             MESSAGE "Invalid Style Code, try help..." VIEW-AS ALERT-BOX ERROR.
             APPLY "entry" TO style-cod .
             oplOutError = YES .
         END.
+        
     END.
 
 END PROCEDURE.

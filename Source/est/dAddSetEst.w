@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 
 
 DEFINE INPUT PARAMETER ipType AS CHARACTER NO-UNDO.  /* poup in edit or add mode */
+DEFINE INPUT PARAMETER ipcCFType AS CHARACTER NO-UNDO.  /* Estimate type corrected or folding */
 DEFINE INPUT PARAMETER ipcEstType AS CHARACTER NO-UNDO.  /* estimate type Wood or SetWithSubAssembly  */
 DEFINE INPUT PARAMETER ipriRowid AS ROWID NO-UNDO .
 
@@ -458,7 +459,8 @@ DO:
             cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
             fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
             LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}),
-            fg-no:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT lv-rowid) . 
+            fg-no:SCREEN-VALUE IN FRAME {&frame-name},
+            ipcCFType, OUTPUT lv-rowid) . 
         FIND FIRST bff-ttInputEst NO-LOCK
             WHERE bff-ttInputEst.cCompany EQ cocode
             AND ROWID(bff-ttInputEst) EQ lv-rowid NO-ERROR .
@@ -487,7 +489,8 @@ DO:
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
                 LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}),
-                fg-no:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT lv-rowid) . 
+                fg-no:SCREEN-VALUE IN FRAME {&frame-name},
+                ipcCFType, OUTPUT lv-rowid) . 
             
             RUN repo-query (lv-rowid).            
         END.      
@@ -535,7 +538,8 @@ DO:
                 cCustPart:SCREEN-VALUE IN FRAME {&frame-name},
                 fg-cat:SCREEN-VALUE IN FRAME {&frame-name},
                 LOGICAL(tb_auto:SCREEN-VALUE IN FRAME {&frame-name}),
-                fg-no:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT lv-rowid) . 
+                fg-no:SCREEN-VALUE IN FRAME {&frame-name}, 
+                ipcCFType, OUTPUT lv-rowid) . 
    
             RUN repo-query (ROWID(ttInputEst)).
         END.
@@ -1268,7 +1272,7 @@ PROCEDURE create-ttfrmout :
     DEFINE BUFFER bf-ttInputEst FOR ttInputEst.     
     CREATE tt-eb-set .
     ASSIGN 
-        tt-eb-set.est-type         = 6
+        tt-eb-set.est-type         = IF ipcCFType EQ "C" THEN 6 ELSE 2
         tt-eb-set.Company          = cocode
         tt-eb-set.loc              = locode
         tt-eb-set.form-no          = 0
