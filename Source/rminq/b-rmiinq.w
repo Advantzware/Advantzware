@@ -303,7 +303,7 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(20)":U 
+DEFINE VARIABLE fi_tag# AS CHARACTER FORMAT "X(26)":U 
      LABEL "Tag#" 
      VIEW-AS FILL-IN 
      SIZE 35 BY 1
@@ -346,7 +346,7 @@ DEFINE BROWSE Browser-Table
       rm-rcpth.rita-code COLUMN-LABEL "C" FORMAT "x(1)":U LABEL-BGCOLOR 14
       rm-rdtlh.loc COLUMN-LABEL "Whs" FORMAT "x(5)":U LABEL-BGCOLOR 14
       rm-rdtlh.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      rm-rdtlh.tag COLUMN-LABEL "Tag" FORMAT "x(20)":U LABEL-BGCOLOR 14
+      rm-rdtlh.tag COLUMN-LABEL "Tag" FORMAT "x(26)":U LABEL-BGCOLOR 14
       fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(25)":U LABEL-BGCOLOR 14
       rm-rdtlh.qty COLUMN-LABEL "Qty" FORMAT "->>>,>>>,>>9.9<<<<<":U
             LABEL-BGCOLOR 14

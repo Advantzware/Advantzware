@@ -201,8 +201,8 @@ DEFINE BROWSE Browser-Table
             WIDTH 14 LABEL-BGCOLOR 14
       rm-bin.loc FORMAT "x(5)":U LABEL-BGCOLOR 14
       rm-bin.loc-bin COLUMN-LABEL "Bin Loc" FORMAT "x(8)":U LABEL-BGCOLOR 14
-      rm-bin.tag COLUMN-LABEL "Tag #" FORMAT "x(20)":U LABEL-BGCOLOR 14
-      fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(25)":U LABEL-BGCOLOR 14
+      rm-bin.tag COLUMN-LABEL "Tag #" FORMAT "x(26)":U LABEL-BGCOLOR 14
+      fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(26)":U LABEL-BGCOLOR 14
       rm-bin.qty COLUMN-LABEL "Quantity" FORMAT "->>>,>>>,>>9.9<<":U
             LABEL-BGCOLOR 14
       rm-bin.cost COLUMN-LABEL "Cost" FORMAT "->>>,>>>,>>9.99<<<<":U
@@ -326,7 +326,7 @@ ASSIGN
      _FldNameList[3]   > ASI.rm-bin.loc-bin
 "rm-bin.loc-bin" "Bin Loc" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > ASI.rm-bin.tag
-"rm-bin.tag" "Tag #" "x(20)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"rm-bin.tag" "Tag #" "x(26)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.rm-bin.qty
 "rm-bin.qty" "Quantity" "->>>,>>>,>>9.9<<" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.rm-bin.cost
@@ -336,7 +336,7 @@ ASSIGN
      _FldNameList[8]   > "_<CALC>"
 "msf-cost (1) @ v-msf-cost" "Cost/MSF" "->>>,>>9.99<<<" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
-"fnVenTag () @ cVenTag" "Vendor Tag#" "x(25)" "character" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fnVenTag () @ cVenTag" "Vendor Tag#" "x(26)" "character" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
 "fGetTons () @ dTons" "Weight in Tons" "->>,>>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

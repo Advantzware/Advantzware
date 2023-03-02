@@ -75,7 +75,7 @@ ASSIGN
                            "Stocked Qty,Cons. UOM" 
     cFieldListToSelect = "date,rm-item,po,vend,job,qty,msf," +
                             "stk-qty,uom"
-    cFieldLength       = "10,16,9,8,13,18,12," + "18,9"
+    cFieldLength       = "10,26,9,8,13,18,12," + "18,9"
     cFieldType         = "c,c,i,c,c,i,i," + "i,c" 
     .
 
@@ -1622,7 +1622,7 @@ PROCEDURE run-report :
                     WHEN "date"    THEN 
                         cVarValue = STRING(rm-rcpth.trans-date,"99/99/9999").
                     WHEN "rm-item"   THEN 
-                        cVarValue =  STRING(rm-rcpth.i-no,"x(16)").
+                        cVarValue =  STRING(rm-rcpth.i-no,"x(26)").
                     WHEN "po"   THEN 
                         cVarValue = STRING(rm-rcpth.po-no,"x(9)").
                     WHEN "vend"  THEN 

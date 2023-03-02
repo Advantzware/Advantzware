@@ -93,7 +93,7 @@ ASSIGN
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
                             "wt-msf,po-gl-act,cItemName,job-no,wid,len,dep,roll-wid,sht-size,adder,cycle-count"
 
-    cFieldLength       = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,22,7," + "6,25,30,13,10,11,11,11,24,30,11"
+    cFieldLength       = "5,10,30,8,26,5," + "15,16,10,13,11,11,11,30,10,30,8,22,7," + "6,25,30,13,10,11,11,11,24,30,11"
 
     cFieldType         = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c,c,i,i,i,i,c,c,c"
     .
