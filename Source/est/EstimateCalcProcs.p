@@ -83,7 +83,7 @@ DEFINE VARIABLE giPromptForErrorLevel                 AS INTEGER   NO-UNDO.  /*C
 DEFINE VARIABLE glAutoRecostBoard                     AS LOGICAL   NO-UNDO.  /*CEAutoRecostBoard*/
 DEFINE VARIABLE glSeparateSetHeaderAsForm0            AS LOGICAL   NO-UNDO.  /*CESetHeaderForm*/
 DEFINE VARIABLE gclCorrware                           AS LOGICAL   NO-UNDO.
-
+DEFINE VARIABLE gclCeCommission                       AS LOGICAL   NO-UNDO.  /* CECOMM*/
 /* ********************  Preprocessor Definitions  ******************** */
 
 /* ************************  Function Prototypes ********************** */
@@ -732,7 +732,7 @@ PROCEDURE pAddEstItem PRIVATE:
         opbf-ttEstCostItem.itemID                    = ipbf-eb.stock-no
         opbf-ttEstCostItem.company                   = ipbf-eb.company
         opbf-ttEstCostItem.productCategory           = ipbf-eb.procat
-        opbf-ttEstCostItem.commissionPct             = ipbf-eb.comm
+        opbf-ttEstCostItem.commissionPct             = IF gclCeCommission THEN ipbf-eb.comm ELSE 0
         opbf-ttEstCostItem.carrierID                 = ipbf-eb.carrier
         opbf-ttEstCostItem.carrierZone               = ipbf-eb.dest-code
         opbf-ttEstCostItem.freightChargeMethod       = ipbf-eb.chg-method
@@ -6508,7 +6508,10 @@ PROCEDURE pSetGlobalSettings PRIVATE:
         glSeparateSetHeaderAsForm0 = lFound AND cReturn = "Separate Form 0".
         
     RUN sys/ref/nk1look.p (ipcCompany, "MSFCALC", "C" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
-     gclCorrware = lFound AND cReturn EQ "Corrware".     
+     gclCorrware = lFound AND cReturn EQ "Corrware". 
+     
+    RUN sys/ref/nk1look.p (ipcCompany, "CECOMM", "L" , NO, YES, "","", OUTPUT cReturn, OUTPUT lFound).
+     gclCeCommission = lFound AND cReturn EQ "YES".  
 
        
 END PROCEDURE.
