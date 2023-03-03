@@ -191,7 +191,7 @@ DEFINE VARIABLE tb_tag-no AS CHARACTER FORMAT "X(20)"
      SIZE 30.8 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_vend-tag AS CHARACTER FORMAT "X(20)" 
+DEFINE VARIABLE tb_vend-tag AS CHARACTER FORMAT "X(26)" 
      VIEW-AS FILL-IN 
      SIZE 30.8 BY 1
      BGCOLOR 15  NO-UNDO.
@@ -249,7 +249,7 @@ DEFINE BROWSE Browser-Table
       loadtag.pallet-count COLUMN-LABEL "Qty Per Pallet/Tag#" FORMAT "->,>>>,>>9":U
       loadtag.partial COLUMN-LABEL "Partial" FORMAT ">>>,>>9":U
       loadtag.tot-cases FORMAT "->,>>>,>>9":U
-      loadtag.misc-char[1] COLUMN-LABEL "Vendor Tag#" FORMAT "x(23)":U
+      loadtag.misc-char[1] COLUMN-LABEL "Vendor Tag#" FORMAT "x(26)":U
             LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -461,7 +461,7 @@ AND loadtag.misc-char[1] BEGINS tb_vend-tag"
 "loadtag.partial" "Partial" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   = ASI.loadtag.tot-cases
      _FldNameList[15]   > ASI.loadtag.misc-char[1]
-"loadtag.misc-char[1]" "Vendor Tag#" "x(23)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"loadtag.misc-char[1]" "Vendor Tag#" "x(26)" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

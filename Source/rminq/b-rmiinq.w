@@ -347,7 +347,7 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.loc COLUMN-LABEL "Whs" FORMAT "x(5)":U LABEL-BGCOLOR 14
       rm-rdtlh.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
       rm-rdtlh.tag COLUMN-LABEL "Tag" FORMAT "x(26)":U LABEL-BGCOLOR 14
-      fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(25)":U LABEL-BGCOLOR 14
+      fnVenTag () @ cVenTag COLUMN-LABEL "Vendor Tag#" FORMAT "x(26)":U LABEL-BGCOLOR 14
       rm-rdtlh.qty COLUMN-LABEL "Qty" FORMAT "->>>,>>>,>>9.9<<<<<":U
             LABEL-BGCOLOR 14
       rm-rcpth.pur-uom COLUMN-LABEL "Qty/UOM" FORMAT "x(8)":U WIDTH 10.2
@@ -558,7 +558,7 @@ ASSIGN
      _FldNameList[22]   > ASI.rm-rdtlh.enteredDT
 "rm-rdtlh.enteredDT" "Scanned Date/Time" ? "datetime" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
-"fnVenTag () @ cVenTag" "Vendor Tag#" "x(25)" "character" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fnVenTag () @ cVenTag" "Vendor Tag#" "x(26)" "character" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > "_<CALC>"
 "fGetTons () @ dTons" "Weight in Tons" "->>,>>>,>>9.99<<<<" "decimal" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED

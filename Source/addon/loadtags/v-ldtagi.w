@@ -255,7 +255,7 @@ DEFINE FRAME F-Main
           SIZE 12 BY 1
      loadtag.misc-char[1] AT ROW 13.48 COL 97.2 COLON-ALIGNED HELP
           "" WIDGET-ID 10
-          LABEL "Vendor Tag#" FORMAT "x(25)"
+          LABEL "Vendor Tag#" FORMAT "x(26)"
           VIEW-AS FILL-IN 
           SIZE 27.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
