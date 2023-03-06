@@ -731,13 +731,13 @@ DO:
    ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "Wood", INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "C", INPUT "Wood", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SetSubAssembly"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "C", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:
@@ -5541,13 +5541,13 @@ PROCEDURE local-add-record :
   ELSE IF ls-add-what = "NewSetEst" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
       EMPTY TEMP-TABLE tt-eb-set.
-      RUN est/dAddSetEst.w("", "Wood", riRowidEbNew) .
+      RUN est/dAddSetEst.w("", "C", "Wood", riRowidEbNew) .
       RUN pCreateSetEstimate("Wood").
   END.
   ELSE IF ls-add-what = "SetWithSubAssembly" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
       EMPTY TEMP-TABLE tt-eb-set.
-      RUN est/dAddSetEst.w("", "SetSubAssembly", riRowidEbNew) .
+      RUN est/dAddSetEst.w("", "C", "SetSubAssembly", riRowidEbNew) .
       RUN pCreateSetEstimate("SetSubAssembly").
   END.
   ELSE IF ls-add-what = "NewSetEstMold" THEN DO:
@@ -8420,7 +8420,7 @@ PROCEDURE update-set :
      
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "Wood", INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "C", INPUT "Wood", INPUT ROWID(eb)) .
        RUN local-open-query. 
      
      END.
@@ -8428,7 +8428,7 @@ PROCEDURE update-set :
      
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "C", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
        RUN local-open-query. 
      
      END.
@@ -8911,13 +8911,13 @@ PROCEDURE pUpdateRecord :
    ELSE IF AVAIL est AND  est.estimateTypeID = "WOOD"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "Wood", INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "C", INPUT "Wood", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SetSubAssembly"  THEN do:
        EMPTY TEMP-TABLE ttInputEst .
        EMPTY TEMP-TABLE tt-eb-set.
-       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "C", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
    ELSE IF AVAIL est AND  est.estimateTypeID = "SingleMold"  THEN do:

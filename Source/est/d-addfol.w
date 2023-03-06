@@ -529,9 +529,7 @@ IF fEnableMisc(cocode) THEN
         btn_est-rel:HIDDEN = NO
         btn_est-rel:SENSITIVE = YES
         Btn_new-set:HIDDEN = NO
-        Btn_new-set:SENSITIVE = YES
-        Btn_set-subassembly:HIDDEN = NO
-        Btn_set-subassembly:SENSITIVE = YES
+        Btn_new-set:SENSITIVE = YES        
         . 
  IF NOT lDisplayWood THEN
  ASSIGN 
@@ -542,6 +540,10 @@ IF fEnableMisc(cocode) THEN
  ASSIGN 
     Btn_set-subassembly:HIDDEN = YES
     Btn_set-subassembly:SENSITIVE = NO.
+ ELSE 
+   ASSIGN 
+      Btn_set-subassembly:HIDDEN = NO
+      Btn_set-subassembly:SENSITIVE = YES.
  
         
 IF fEnableImportForm(cocode) THEN 

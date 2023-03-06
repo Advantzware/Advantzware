@@ -595,6 +595,12 @@ DO:
        RUN est/dAddSetEstMold.w(INPUT "Edit" ,"F", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetSubAssembly"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "F", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
    ELSE
    RUN new-state IN phandle ('update-begin':U).
 
@@ -3391,12 +3397,18 @@ PROCEDURE local-add-record :
       EMPTY TEMP-TABLE ttInputEst .
       EMPTY TEMP-TABLE tt-eb-set.
       RUN est/dAddSetEstMold.w("","F",riRowidEbNew) .
-      RUN pCreateSetEstimate.
+      RUN pCreateSetEstimate("NewSetEstMold").
   END.
   ELSE IF ls-add-what = "NewEstMold" THEN DO:
       EMPTY TEMP-TABLE ttInputEst .
       RUN est/dAddMoldEst.w("","F",riRowidEbNew) .
       RUN pCreateMoldEstimate.
+  END.
+  ELSE IF ls-add-what = "SetWithSubAssembly" THEN DO:
+      EMPTY TEMP-TABLE ttInputEst .
+      EMPTY TEMP-TABLE tt-eb-set.
+      RUN est/dAddSetEst.w("","F", "SetSubAssembly", riRowidEbNew) .
+      RUN pCreateSetEstimate("SetSubAssembly").
   END.
   ELSE DO:
     {est/d-cadcamrun.i}
@@ -4885,6 +4897,7 @@ PROCEDURE pCreateSetEstimate :
  Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
  Notes:
 ------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcEstType AS CHARACTER NO-UNDO.   /* SetSubAssembly Wood */
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.   
   DEFINE VARIABLE riEb AS ROWID NO-UNDO . 
   
@@ -4904,7 +4917,16 @@ PROCEDURE pCreateSetEstimate :
 
   FIND FIRST bff-eb NO-LOCK
       WHERE bff-eb.company EQ cocode
-        AND ROWID(bff-eb) EQ riEb NO-ERROR .
+        AND ROWID(bff-eb) EQ riEb NO-ERROR .          
+          
+  IF AVAIL bff-eb AND ipcEstType EQ "SetSubAssembly" THEN DO:
+      FOR EACH bf-eb NO-LOCK
+          WHERE bf-eb.company EQ cocode
+            AND bf-eb.est-no EQ bff-eb.est-no BY bf-eb.form-no :       
+          
+            RUN est/BuildFarmForLogistics.p (INPUT ROWID(bf-eb),INPUT YES, INPUT YES).            
+      END.  
+  END.              
         
   IF AVAIL bff-eb THEN
   FOR EACH tt-eb-set BREAK BY tt-eb-set.company:
@@ -4916,6 +4938,16 @@ PROCEDURE pCreateSetEstimate :
             bf-eb.form-no = 0
             bf-eb.company = cocode
             bf-eb.cust-no = bff-eb.cust-no.
+            IF NOT CAN-FIND(FIRST itemfg
+                   WHERE itemfg.company EQ bf-eb.company
+                     AND itemfg.i-no    EQ bf-eb.stock-no) THEN DO:  
+               FIND FIRST xeb WHERE ROWID(xeb) EQ ROWID(bf-eb) NO-LOCK NO-ERROR.
+               FIND FIRST xest NO-LOCK 
+                    WHERE xest.company EQ bf-eb.company
+                      AND xest.est-no EQ bf-eb.est-no NO-ERROR.               
+               RUN fg/ce-addfg.p (xeb.stock-no).
+               RELEASE xeb.
+            END.  
        END.
   END.    
   
@@ -5335,6 +5367,12 @@ PROCEDURE pUpdateRecord :
        RUN est/dAddSetEstMold.w(INPUT "Edit" , "F", INPUT ROWID(eb)) .
        RUN local-open-query.
    END.
+   ELSE IF AVAIL est AND  est.estimateTypeID = "SetSubAssembly"  THEN do:
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "F", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
+       RUN local-open-query.
+   END.
    ELSE
        RUN new-state IN phandle ('update-begin':U).
 
@@ -5342,6 +5380,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pValidSalesRep B-table-Win 
 PROCEDURE pValidSalesRep PRIVATE :
@@ -5987,6 +6026,15 @@ PROCEDURE update-set :
       FIND xef WHERE RECID(xef) = RECID(ef) NO-LOCK.
       FIND xeb WHERE RECID(xeb) = RECID(eb) NO-LOCK.
 
+    IF est.estimateTypeID EQ "SetSubAssembly" then DO:
+     
+       EMPTY TEMP-TABLE ttInputEst .
+       EMPTY TEMP-TABLE tt-eb-set.
+       RUN est/dAddSetEst.w(INPUT "Edit", INPUT "F", INPUT "SetSubAssembly", INPUT ROWID(eb)) .
+       RUN local-open-query. 
+     
+    END. 
+    ELSE
     RUN cec/d-updset.w (RECID(eb),2).
 
     IF ERROR-STATUS:ERROR                     AND

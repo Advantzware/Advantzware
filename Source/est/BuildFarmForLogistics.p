@@ -341,6 +341,15 @@ PROCEDURE pCopyInksAndDesign PRIVATE:
               ipbf-eb.i-dscr[li] = bf-eb.i-dscr[li]
               ipbf-eb.i-%[li]    = bf-eb.i-%[li].
         END.
+        DO li = 1 TO 17:
+          ASSIGN
+              ipbf-eb.i-ps2[li]   = bf-eb.i-ps2[li]
+              ipbf-eb.i-code2[li] = bf-eb.i-code2[li]
+              ipbf-eb.i-dscr2[li] = bf-eb.i-dscr2[li]
+              ipbf-eb.i-%2[li]    = bf-eb.i-%2[li]
+              ipbf-eb.side[li]    = bf-eb.side[li]
+              ipbf-eb.unitNo[li]  = bf-eb.unitNo[li].
+        END.
         ASSIGN
              ipbf-eb.i-col       = bf-eb.i-col
              ipbf-eb.i-pass      = bf-eb.i-pass
