@@ -523,6 +523,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiQuantityOfUnits s-object
 ON LEAVE OF fiQuantityOfUnits IN FRAME F-Main /* Per Pallet */
 DO:
+    RUN pUpdateQuantitiesPerPallet (
+        INPUT INTEGER(fiQuantity:SCREEN-VALUE),
+        INPUT INTEGER(fiQuantityInSubUnit:SCREEN-VALUE),
+        INPUT INTEGER(fiSubUnitsPerUnit:SCREEN-VALUE),
+        INPUT INTEGER(fiQuantityOfUnits:SCREEN-VALUE),
+        INPUT dOversPct
+        ).
+           
     SELF:BGCOLOR = 15.  
 END.
 
@@ -905,6 +913,67 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pUpdateQuantitiesPerPallet s-object 
+PROCEDURE pUpdateQuantitiesPerPallet :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER ipiQuantity          AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityInSubUnit AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiSubUnitsPerUnit   AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipiQuantityOfUnits   AS INTEGER NO-UNDO.
+    DEFINE INPUT  PARAMETER ipdOvers             AS DECIMAL NO-UNDO.
+    
+    DEFINE VARIABLE iQuantityOfSubUnits AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iQuantityInUnit     AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPartial            AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iTotalTags          AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iFullTags           AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iPartialTags        AS INTEGER NO-UNDO.
+    
+    DO WITH FRAME {&FRAME-NAME}:
+    END.
+    
+    IF ipiQuantityOfUnits EQ ? OR ipiQuantityOfUnits EQ 0 THEN
+        ipiQuantityOfUnits = 1.
+        
+    IF ipiQuantityInSubUnit EQ ? OR ipiQuantityInSubUnit EQ 0 THEN
+        ipiQuantityInSubUnit = 1.
+
+    IF ipiSubUnitsPerUnit EQ ? OR ipiSubUnitsPerUnit EQ 0 THEN
+        ipiSubUnitsPerUnit = 1.
+        
+    IF ipdOvers EQ ? THEN
+        ipdOvers = 0.    
+    /*ipiQuantity = TRUNCATE(ipiQuantity + (ipiQuantity * ipdOvers / 100 ), 0). */          
+   
+     ASSIGN
+         ipiSubUnitsPerUnit  =  TRUNCATE(ipiQuantityOfUnits / ipiQuantityInSubUnit, 0)
+         iPartial            = ipiQuantityOfUnits - (ipiSubUnitsPerUnit * ipiQuantityInSubUnit)
+         ipiQuantity         =  ipiQuantityOfUnits
+         iTotalTags          = TRUNCATE(ipiQuantityOfUnits / iQuantityInUnit, 0) + INTEGER(NOT (ipiQuantityOfUnits MOD iQuantityInUnit EQ 0))
+         iFullTags           = TRUNCATE(ipiQuantityOfUnits / iQuantityInUnit, 0)
+         iPartialTags        = iTotalTags - iFullTags.
+    
+    ASSIGN
+        fiQuantity:SCREEN-VALUE           = STRING(ipiQuantity)          
+        fiQuantityInSubUnit:SCREEN-VALUE  = STRING(ipiQuantityInSubUnit)
+        fiSubUnitsPerUnit:SCREEN-VALUE    = STRING(ipiSubUnitsPerUnit)
+        fiQuantityOfSubUnits:SCREEN-VALUE = STRING(iQuantityofSubUnits)         
+        fiPartial:SCREEN-VALUE            = STRING(iPartial)
+        fiTotalTags:SCREEN-VALUE          = STRING(iTotalTags)
+        fiFullTags:SCREEN-VALUE           = STRING(iFullTags)
+        fiPartialTags:SCREEN-VALUE        = STRING(iPartialTags)       
+        .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SetKeyboard s-object 
 PROCEDURE SetKeyboard :
