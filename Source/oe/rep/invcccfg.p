@@ -728,7 +728,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       FIND FIRST terms WHERE terms.company EQ inv-head.company AND terms.t-code EQ inv-head.terms NO-LOCK NO-ERROR.
       IF AVAIL terms 
         THEN ASSIGN tmp1 = v-net * (ROUND(terms.disc-rate / 100, 2))
-                    tmp2 = TODAY + terms.disc-days.
+                    tmp2 = inv-head.inv-date + terms.disc-days.
 
       ASSIGN v-frt-tax = inv-head.t-inv-freight.
 
