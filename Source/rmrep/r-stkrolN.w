@@ -65,7 +65,7 @@ ASSIGN
     cFieldListToSelect = "rm-item,desc,tag,lin-ft,tot-rol,rol-wt," + 
                             "rol-wid,wt-msf,vend-tag"
 
-    cFieldLength       = "10,25,20,12,12,11," + "10,8,20"
+    cFieldLength       = "10,25,26,12,12,11," + "10,8,26"
     cFieldType         = "c,c,c,i,i,i," + "i,i,c" 
     .
 
@@ -1639,7 +1639,7 @@ PROCEDURE run-report :
                 WHEN "desc"   THEN 
                     cVarValue = IF FIRST-OF(rm-bin.i-no) THEN STRING(item.i-name,"x(25)") ELSE "".
                 WHEN "tag"   THEN 
-                    cVarValue = STRING(rm-bin.tag,"x(20)").
+                    cVarValue = STRING(rm-bin.tag,"x(26)").
                 WHEN "lin-ft"  THEN 
                     cVarValue = STRING(dLinerFeet,"->>>>>>>9.99<<") .
                 WHEN "tot-rol"   THEN 
@@ -1651,7 +1651,7 @@ PROCEDURE run-report :
                 WHEN "wt-msf"   THEN 
                     cVarValue = STRING(ITEM.basis-w,">>>>9.99")  .
                 WHEN "vend-tag" THEN 
-                    cVarValue = STRING(cVendorTag,"x(20)").
+                    cVarValue = STRING(cVendorTag,"x(26)").
 
             END CASE.
 

@@ -101,8 +101,8 @@ PUT "<R48><C3><#13><FROM><R48><C83><RECT><||3>" SKIP
 
 /*PUT "<FArial><R49><C10><P16><B>" tt-po-print.vend-name FORMAT "x(30)"  "</B>".*/
 IF cVendorTagNo NE "" THEN 
-    PUT "<FArial><R47><C10><FROM><AT=+.8,+6><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" cVendorTagno FORMAT 'x(20)' ">"
-        "<AT=,1.8>Vendor Tag#: " cVendorTagno FORMAT "x(20)"  .
+    PUT "<FArial><R47><C10><FROM><AT=+.8,+6><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" cVendorTagno FORMAT 'x(26)' ">"
+        "<AT=,1.8>Vendor Tag#: " cVendorTagno FORMAT "x(26)"  .
 
 PUT "<R55><C3><#14><FROM><R55><C83><RECT><||3>" SKIP
     "<R66><C3><FROM><R66><C83><LINE><||3>" SKIP  

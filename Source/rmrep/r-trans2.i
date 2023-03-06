@@ -202,7 +202,7 @@
                      WHEN "Reason-cd" THEN cVarValue = IF AVAIL rm-rdtlh AND rm-rdtlh.reject-code[1] NE "" THEN string(rm-rdtlh.reject-code[1],"x(2)") ELSE ""    .
                      WHEN "Reason-dscr" THEN cVarValue = IF AVAIL rejct-cd AND rejct-cd.dscr NE "" THEN string(rejct-cd.dscr,"x(25)") ELSE ""   .
 		     	    WHEN "sheet-size" THEN cVarValue = string(cShtSize,"x(20)")    .
-                     WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(20)").
+                     WHEN "vend-tag" THEN cVarValue = STRING(cVendorTag,"x(26)").
                  END CASE.
                  
                  IF  cTmpField = "v-job-no" THEN

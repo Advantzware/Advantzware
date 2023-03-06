@@ -2511,14 +2511,14 @@ PROCEDURE run-report :
         tt-rctd.job-no2 FORMAT ">>9"       LABEL ""
         tt-rctd.rita-code                  LABEL "T"
         tt-rctd.tag                        LABEL "TAG#" FORM "x(20)"
-        tt-rctd.vend-tag                   LABEL "VENDOR TAG#" FORM "x(20)"
+        tt-rctd.vend-tag                   LABEL "VENDOR TAG#" FORM "x(26)"
         tt-rctd.qty FORMAT "->>>>>>>>9.99<<" LABEL "QUANTITY" 
         tt-rctd.loc-bin                    LABEL "BIN"
         tt-rctd.pur-uom                    LABEL "UOM"    
         tt-rctd.cost FORMAT "->>>>9.99"    LABEL "COST"
         v-ext-cost                         LABEL "TOTAL COST"
 
-        WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 178.
+        WITH FRAME itemxvend NO-BOX DOWN STREAM-IO WIDTH 184.
 
     FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
         v-dscr        LABEL "DESCRIPTION"
