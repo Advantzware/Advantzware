@@ -560,7 +560,7 @@ DO:
         VIEW-AS ALERT-BOX ERROR.
         SELF:SCREEN-VALUE = "1".    
     END.
-         
+    fiQuantity:SCREEN-VALUE =   STRING((INT(fiSubUnitsPerUnit:SCREEN-VALUE) * int(fiQuantityInSubUnit:SCREEN-VALUE)) + int(fiPartialTags:SCREEN-VALUE)).     
     RUN pUpdateQuantities (
         INPUT INTEGER(fiQuantity:SCREEN-VALUE),
         INPUT INTEGER(fiQuantityInSubUnit:SCREEN-VALUE),
@@ -948,8 +948,7 @@ PROCEDURE pUpdateQuantitiesPerPallet :
         ipiSubUnitsPerUnit = 1.
         
     IF ipdOvers EQ ? THEN
-        ipdOvers = 0.    
-    /*ipiQuantity = TRUNCATE(ipiQuantity + (ipiQuantity * ipdOvers / 100 ), 0). */          
+        ipdOvers = 0.          
    
      ASSIGN
          ipiSubUnitsPerUnit  =  TRUNCATE(ipiQuantityOfUnits / ipiQuantityInSubUnit, 0)
