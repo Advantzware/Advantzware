@@ -98,6 +98,7 @@ ASSIGN
 RUN getConfiguration.
 
 FOR EACH pendingJob NO-LOCK:
+    IF NUM-ENTRIES(pendingJob.rowIDs) LT 2 THEN NEXT.
   RELEASE job-mch.
   jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
   IF ENTRY(3,pendingJob.rowIDs) NE "None" THEN
@@ -209,6 +210,7 @@ FOR EACH pendingJob NO-LOCK:
 END. /* each pendingJob */
 
 FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
+    IF NUM-ENTRIES(ttblJob.rowIDs) LT 2 THEN NEXT.
   RELEASE job-mch.
   jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
   IF ENTRY(3,ttblJob.rowIDs) NE "None" THEN
