@@ -951,10 +951,11 @@ PROCEDURE pUpdateQuantitiesPerPallet :
         ipdOvers = 0.          
    
      ASSIGN
+         iQuantityInUnit     = integer(fiQuantityOfUnits:SCREEN-VALUE IN FRAME {&FRAME-NAME})
          ipiSubUnitsPerUnit  =  TRUNCATE(ipiQuantityOfUnits / ipiQuantityInSubUnit, 0)
          iPartial            = ipiQuantityOfUnits - (ipiSubUnitsPerUnit * ipiQuantityInSubUnit)
          ipiQuantity         =  ipiQuantityOfUnits
-         iTotalTags          = TRUNCATE(ipiQuantityOfUnits / iQuantityInUnit, 0) + INTEGER(NOT (ipiQuantityOfUnits MOD iQuantityInUnit EQ 0))
+         iTotalTags          = 1 /* changed pallet quantity always make one pallet(reset qty - Bundle Qty, Bundle/Pallet and partial)*/  
          iFullTags           = TRUNCATE(ipiQuantityOfUnits / iQuantityInUnit, 0)
          iPartialTags        = iTotalTags - iFullTags.
     
