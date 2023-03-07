@@ -1455,7 +1455,7 @@ PROCEDURE post-wip :
 
                 FIRST itemfg
                 WHERE itemfg.company    EQ cocode
-                AND itemfg.i-no       EQ tt-job-hdr.i-no
+                AND itemfg.i-no       EQ pc-prdd.i-no
                 NO-LOCK:
 
                 x = 1.
@@ -1475,7 +1475,7 @@ PROCEDURE post-wip :
                     fg-rctd.company    = cocode
                     fg-rctd.rita-code  = "R"
                     fg-rctd.i-name     = itemfg.i-name
-                    fg-rctd.i-no       = tt-job-hdr.i-no
+                    fg-rctd.i-no       = pc-prdd.i-no
                     fg-rctd.job-no     = pc-prdd.job-no
                     fg-rctd.job-no2    = pc-prdd.job-no2.
                  
@@ -2649,7 +2649,7 @@ PROCEDURE run-report :
         pc-prdd.frm COLUMN-LABEL " S" SPACE(0) "/" SPACE(0)
         pc-prdd.blank-no COLUMN-LABEL "/B"
         pc-prdd.pass COLUMN-LABEL "P"
-        job-hdr.i-no COLUMN-LABEL "ITEM #"
+        pc-prdd.i-no COLUMN-LABEL "ITEM #"
         itemfg.i-name COLUMN-LABEL "ITEM DESCRIPTION" FORMAT "x(15)" 
         pc-prdd.code COLUMN-LABEL "CODE" 
         pc-prdd.hours COLUMN-LABEL "HOURS "
@@ -3023,7 +3023,7 @@ PROCEDURE update-plate-die :
     
             FIND FIRST itemfg
                 WHERE itemfg.company EQ cocode
-                AND itemfg.i-no    EQ job-hdr.i-no
+                AND itemfg.i-no    EQ b-pc-prdd.i-no
                 NO-LOCK NO-ERROR.
     
             IF ip-est-type EQ 2 AND job.est-no NE "" AND
