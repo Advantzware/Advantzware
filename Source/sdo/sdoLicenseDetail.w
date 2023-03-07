@@ -7,7 +7,7 @@
 {adecomm/appserv.i}
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS dTables 
 /*------------------------------------------------------------------------
- 
+
   File:  
 
   Description: from DATA.W - Template For SmartData objects in the ADM
@@ -37,6 +37,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&glob DATA-LOGIC-PROCEDURE .p
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -44,8 +46,6 @@ CREATE WIDGET-POOL.
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
-
-&Global-define DATA-LOGIC-PROCEDURE .p
 
 &Scoped-define PROCEDURE-TYPE SmartDataObject
 &Scoped-define DB-AWARE yes
@@ -64,32 +64,26 @@ CREATE WIDGET-POOL.
 &Scoped-define QUERY-NAME Query-Main
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES module
+&Scoped-define INTERNAL-TABLES zLicenseDetail
 
 /* Definitions for QUERY Query-Main                                     */
-&Scoped-Define ENABLED-FIELDS  subLevel moduleGroup module dscr licensed optional isGlobal
-&Scoped-define ENABLED-FIELDS-IN-module subLevel moduleGroup module dscr ~
-licensed optional isGlobal 
-&Scoped-Define DATA-FIELDS  subLevel moduleGroup module dscr licensed optional isGlobal
-&Scoped-define DATA-FIELDS-IN-module subLevel moduleGroup module dscr ~
-licensed optional isGlobal 
+&Scoped-Define ENABLED-FIELDS  cOfferingCode cSiteID cUserUpdated dtUpdated isLicensed
+&Scoped-define ENABLED-FIELDS-IN-zLicenseDetail cOfferingCode cSiteID ~
+cUserUpdated dtUpdated isLicensed 
+&Scoped-Define DATA-FIELDS  cOfferingCode cSiteID cUserUpdated dtUpdated isLicensed
+&Scoped-define DATA-FIELDS-IN-zLicenseDetail cOfferingCode cSiteID ~
+cUserUpdated dtUpdated isLicensed 
 &Scoped-Define MANDATORY-FIELDS 
 &Scoped-Define APPLICATION-SERVICE 
 &Scoped-Define ASSIGN-LIST 
-&Scoped-Define DATA-FIELD-DEFS "sdo/sdoModule.i"
+&Scoped-Define DATA-FIELD-DEFS "N:\Repositories\Advantzware\Source\sdo\sdoLicenseDetail.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
-&Scoped-define QUERY-STRING-Query-Main FOR EACH module ~
-      WHERE module.isGlobal ne true NO-LOCK ~
-    BY module.subLevel ~
-       BY module.module INDEXED-REPOSITION
+&Scoped-define QUERY-STRING-Query-Main FOR EACH zLicenseDetail NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}
-&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH module ~
-      WHERE module.isGlobal ne true NO-LOCK ~
-    BY module.subLevel ~
-       BY module.module INDEXED-REPOSITION.
+&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH zLicenseDetail NO-LOCK INDEXED-REPOSITION.
 {&DB-REQUIRED-END}
-&Scoped-define TABLES-IN-QUERY-Query-Main module
-&Scoped-define FIRST-TABLE-IN-QUERY-Query-Main module
+&Scoped-define TABLES-IN-QUERY-Query-Main zLicenseDetail
+&Scoped-define FIRST-TABLE-IN-QUERY-Query-Main zLicenseDetail
 
 
 /* Custom List Definitions                                              */
@@ -107,7 +101,7 @@ licensed optional isGlobal
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Query-Main FOR 
-      module SCROLLING.
+      zLicenseDetail SCROLLING.
 &ANALYZE-RESUME
 {&DB-REQUIRED-END}
 
@@ -171,24 +165,18 @@ END.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK QUERY Query-Main
 /* Query rebuild information for SmartDataObject Query-Main
-     _TblList          = "asi.module"
+     _TblList          = "asi.zLicenseDetail"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _OrdList          = "asi.module.subLevel|yes,asi.module.module|yes"
-     _Where[1]         = "asi.module.isGlobal ne true"
-     _FldNameList[1]   > asi.module.subLevel
-"subLevel" "subLevel" ? ? "integer" ? ? ? ? ? ? yes ? no 5 yes ?
-     _FldNameList[2]   > asi.module.moduleGroup
-"moduleGroup" "moduleGroup" ? ? "character" ? ? ? ? ? ? yes ? no 16 yes ?
-     _FldNameList[3]   > asi.module.module
-"module" "module" ? ? "character" ? ? ? ? ? ? yes ? no 6.8 yes ?
-     _FldNameList[4]   > asi.module.dscr
-"dscr" "dscr" ? ? "character" ? ? ? ? ? ? yes ? no 256 yes ?
-     _FldNameList[5]   > asi.module.licensed
-"licensed" "licensed" ? ? "logical" ? ? ? ? ? ? yes ? no 9.2 yes ?
-     _FldNameList[6]   > asi.module.optional
-"optional" "optional" ? ? "logical" ? ? ? ? ? ? yes ? no 8 yes ?
-     _FldNameList[7]   > asi.module.isGlobal
-"isGlobal" "isGlobal" ? ? "logical" ? ? ? ? ? ? yes ? no 5.8 yes ?
+     _FldNameList[1]   > asi.zLicenseDetail.cOfferingCode
+"cOfferingCode" "cOfferingCode" ? ? "character" ? ? ? ? ? ? yes ? no 24 yes ?
+     _FldNameList[2]   > asi.zLicenseDetail.cSiteID
+"cSiteID" "cSiteID" ? ? "character" ? ? ? ? ? ? yes ? no 16 yes ?
+     _FldNameList[3]   > asi.zLicenseDetail.cUserUpdated
+"cUserUpdated" "cUserUpdated" ? ? "character" ? ? ? ? ? ? yes ? no 16 yes ?
+     _FldNameList[4]   > asi.zLicenseDetail.dtUpdated
+"dtUpdated" "dtUpdated" ? ? "datetime" ? ? ? ? ? ? yes ? no 27.8 yes ?
+     _FldNameList[5]   > asi.zLicenseDetail.isLicensed
+"isLicensed" "isLicensed" ? ? "logical" ? ? ? ? ? ? yes ? no 8.6 yes ?
      _Design-Parent    is WINDOW dTables @ ( 1.14 , 2.6 )
 */  /* QUERY Query-Main */
 &ANALYZE-RESUME
@@ -210,21 +198,6 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE chgQueryWhere dTables 
-PROCEDURE chgQueryWhere :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER ipcWhere AS CHAR NO-UNDO.
-    DYNAMIC-FUNCTION('setQueryWhere':U IN THIS-PROCEDURE, ipcWhere).
-    DYNAMIC-FUNCTION('closeQuery':U ).
-    DYNAMIC-FUNCTION('openQuery':U ).
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI dTables  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
