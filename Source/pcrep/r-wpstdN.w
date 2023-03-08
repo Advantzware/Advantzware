@@ -1630,7 +1630,7 @@ DEFINE VARIABLE str-tit4 AS CHARACTER NO-UNDO.
                     WHEN "job-no" THEN 
                         cVarValue = STRING(TRIM(job.job-no) + "-" + STRING(job.job-no2,"999")) .
                     WHEN "stock-no" THEN 
-                        cVarValue = IF AVAILABLE eb THEN STRING(eb.stock-no) ELSE "".
+                        cVarValue = IF AVAILABLE mch-act THEN mch-act.i-no ELSE IF AVAILABLE eb THEN STRING(eb.stock-no) ELSE "".
                     WHEN "style" THEN 
                         cVarValue = IF AVAILABLE eb THEN STRING(eb.style) ELSE "".          
                     WHEN "len" THEN 

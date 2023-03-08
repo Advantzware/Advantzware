@@ -121,7 +121,7 @@ FOR EACH tt-report NO-LOCK,
       by job-hdr.blank-no desc:
               
     v-recid = recid(job-hdr).
-              
+            
     if job-hdr.blank-no eq pc-prdd.blank-no then leave.
   end.
   find job-hdr where recid(job-hdr) eq v-recid no-lock no-error.
@@ -130,7 +130,7 @@ FOR EACH tt-report NO-LOCK,
   if avail job-hdr then
   find first itemfg
       where itemfg.company eq cocode
-        and itemfg.i-no    eq job-hdr.i-no
+        and itemfg.i-no    eq pc-prdd.i-no
       no-lock no-error.
 
   display pc-prdd.m-code     when first-of(pc-prdd.m-code)
@@ -143,7 +143,7 @@ FOR EACH tt-report NO-LOCK,
           pc-prdd.frm
           pc-prdd.blank-no
           pc-prdd.pass
-          job-hdr.i-no when avail job-hdr
+          pc-prdd.i-no 
           itemfg.i-name when avail itemfg
           pc-prdd.code
           pc-prdd.hours
@@ -167,7 +167,7 @@ FOR EACH tt-report NO-LOCK,
             '"' pc-prdd.frm                                      '",'
             '"' pc-prdd.blank-no                                 '",'
             '"' pc-prdd.pass                                     '",'
-            '"' IF avail job-hdr THEN job-hdr.i-no ELSE ""       '",'
+            '"' pc-prdd.i-no                                     '",'
             '"' IF avail itemfg THEN itemfg.i-name ELSE ""       '",'
             '"' pc-prdd.code                                     '",'
             '"' pc-prdd.hours                                    '",' 
