@@ -13,6 +13,7 @@ FUNCTION fFormatValue RETURNS CHARACTER (iphTable AS HANDLE, ipcField AS CHARACT
         cStr = iphTable:BUFFER-FIELD(ipcField):BUFFER-VALUE(ipiExtent).
         /* cannot exceed index field limit of 1970 bytes */
         cStr = LEFT-TRIM(TRIM(SUBSTRING(cStr,1,1970))).
+        IF cStr EQ ? THEN cStr = "".
     END. /* if rowid */
     
     RETURN cStr.
