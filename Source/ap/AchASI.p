@@ -2,6 +2,7 @@
 
 {sys/inc/var.i shared}
 /* Mark changed here */
+/* Mark changed again for better commit link */
 {ap/ap-chk.i}
 DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE lVoid AS LOGICAL     NO-UNDO.
