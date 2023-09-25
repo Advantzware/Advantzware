@@ -1,7 +1,7 @@
 /* ap/ap-ckitp.p   Laser format for Interpak */
 
 {sys/inc/var.i shared}
-
+/* Mark changed here */
 {ap/ap-chk.i}
 DEFINE VARIABLE iLineCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE lVoid AS LOGICAL     NO-UNDO.
